@@ -1,22 +1,23 @@
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import java.util.Map; 
 import java.util.Queue;
 import x10.io.Console;
 import x10.util.*;
 import x10.compiler.*;
 
+/**
+ * Resilient calculation of PI using MonteCarlo simulation
+ * using a resilient map provided by X10RT.
+ * To run using Hazelcast, invoke x10 script like: 
+ * <pre>
+ *    X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_DATASTORE=Hazelcast ResilientMontePi 2
+ * </pre>
+ */
 public class ResilientMontePi {
 
-    static def hcInstance() {
-	val config = new Config();
-	config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-	config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
-	config.getNetworkConfig().getJoin().getTcpIpConfig().addMember("127.0.0.1");
-	val instance = Hazelcast.newHazelcastInstance(config); 
-	return instance;
+    static def getMap(s:String) {
+        return x10.x10rt.X10RT.getResilientMap(s);
     }
+
     static val ITERS = 1000000000l / (Place.MAX_PLACES-1);
 
     public static def main (args : Rail[String]) {
@@ -24,13 +25,11 @@ public class ResilientMontePi {
         val victim = args.size > 0 ? Long.parse(args(0)) : -1;
 
         val result = GlobalRef(new Cell(Pair[Long,Long](0l, 0l))); // (points_in_circle, points_tested)
-	val hcInstance = hcInstance();
-	val resultsMap = hcInstance.getMap("result");
+	val resultsMap = getMap("result");
         finish for (p in Place.places()) if (p != here) async {
             try {
                 at (p) {
-		    val myInstance = hcInstance();
-		    val myResultsMap = myInstance.getMap("result");
+		    val myResultsMap = getMap("result");
                     val rand = new Random(System.nanoTime());
                     var total : Long = 0l;
                     for (iter in 1..ITERS) {
