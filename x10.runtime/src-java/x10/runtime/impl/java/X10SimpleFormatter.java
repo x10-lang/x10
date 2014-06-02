@@ -19,11 +19,13 @@ public class X10SimpleFormatter extends SimpleFormatter {
     @Override
     public synchronized String format(LogRecord record) {
         String message = super.format(record);
-        x10.lang.Runtime.Worker worker = (x10.lang.Runtime.Worker) x10.core.Thread.currentThread();
-        long placeId = x10.x10rt.X10RT.here();
-        int workerId = worker.workerId;
-        long timestamp = java.lang.System.nanoTime() / 1000000L;
-        message = String.format("[P%d,W%d,T%d] %s", placeId, workerId, timestamp, message);
+        if (x10.x10rt.X10RT.isBooted()) {
+	        x10.lang.Runtime.Worker worker = (x10.lang.Runtime.Worker) x10.core.Thread.currentThread();
+	        long placeId = x10.x10rt.X10RT.here();
+	        int workerId = worker.workerId;
+	        long timestamp = java.lang.System.nanoTime() / 1000000L;
+	        message = String.format("[P%d,W%d,T%d] %s", placeId, workerId, timestamp, message);
+        }
         return message;
     }
 }

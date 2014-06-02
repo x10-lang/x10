@@ -11,12 +11,18 @@
 
 package x10.x10rt;
 
+import com.hazelcast.core.IMap;
+
 import x10.lang.GlobalRail;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
-	public static final String X10_JOIN_EXISTING = "X10_JOIN_EXISTING";
+    
+    // environment variables we check here
+	public static final String X10_JOIN_EXISTING = "X10_JOIN_EXISTING"; // used to join an existing set of places
+	public static final String X10RT_IMPL = "X10RT_IMPL"; // disabled, javasockets, or x10rt_* (e.g. x10rt_sockets )
+	public static final String X10RT_DATASTORE = "X10RT_DATASTORE"; // only hazelcast is valid currently
 
     static State state = State.UNINITIALIZED;
     static int here;
@@ -26,6 +32,7 @@ public class X10RT {
     public static boolean X10_EXITING_NORMALLY = false;
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
     public static final boolean VERBOSE = false;
+    private static HazelcastDatastore hazelcastDatastore = null;
     
     /**
      * Initialize the X10RT runtime.  This method, or the standard init() method below 
@@ -44,7 +51,7 @@ public class X10RT {
                 System.loadLibrary(libs[i]);
         }
 
-        String libName = System.getProperty("X10RT_IMPL", "sockets");
+        String libName = System.getProperty(X10RT_IMPL, "sockets");
         if (libName.equals("disabled"))
             forceSinglePlace = true;
         else if (libName.equalsIgnoreCase("JavaSockets")) {
@@ -116,6 +123,11 @@ public class X10RT {
         	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
         else
         	x10.runtime.impl.java.Runtime.MAX_PLACES = connectionInfo.length;
+
+        // initialize hazelcast if X10RT_HAZELCAST has been set to true
+        if ("Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))){
+        	hazelcastDatastore = new HazelcastDatastore(null);
+        }
 
         state = State.RUNNING;
         return true;
@@ -198,6 +210,11 @@ public class X10RT {
                       System.out.flush();
                   }
               }}));
+      }
+      
+      // initialize hazelcast if X10RT_HAZELCAST has been set to true
+      if ("Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))){
+    	  hazelcastDatastore = new HazelcastDatastore(null);
       }
       state = State.RUNNING;
       return true;
@@ -319,7 +336,7 @@ public class X10RT {
         	return x10rt_blocking_probe_support();
       }
 
-    static boolean isBooted() {
+    public static boolean isBooted() {
       return state.compareTo(State.RUNNING) >= 0;
     }
 
@@ -346,6 +363,16 @@ public class X10RT {
     		ret = x10rt_finalize();
     	state = State.TORN_DOWN;
     	return ret;
+    }
+    
+    // Retrieve a resilient data store from the underlying network transport
+    // See details of the implementation here: http://hazelcast.org/docs/latest/javadoc/com/hazelcast/core/IMap.html
+    @SuppressWarnings("rawtypes")
+	public static IMap getResilientMap(String name) {
+    	if (hazelcastDatastore != null)
+    		return hazelcastDatastore.getResilientMap(name);
+    	else
+    		return null;
     }
     
     /*
