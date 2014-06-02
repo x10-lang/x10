@@ -36,14 +36,14 @@ extern "C"  {
 
   // for	x = a*x
   // Reciprocal Scale: x <-x/alpha
-#if defined(__bgp__)
+#if defined(__essl__)
   void dscal(blas_long* N, double* alpha, double *X, blas_long* incX);
 #else
   void dscal_(blas_long* N, double* alpha, double *X, blas_long* incX);
 #endif
 
   // Vector Copy: y <-x
-#if defined(__bgp__)
+#if defined(__essl__)
   void dcopy(blas_long* N, double *X, blas_long* incx, double *Y, blas_long* incy);
 #else
   void dcopy_(blas_long* N, double *X, blas_long* incx, double *Y, blas_long* incy);
@@ -51,21 +51,21 @@ extern "C"  {
 
   // for dot product
   // DOT Production: r <- beta * r + alpha * x^T * y
-#if defined(__bgp__)
+#if defined(__essl__)
   double ddot(blas_long* N, double *X, blas_long* incx, double *Y, blas_long* incy);
 #else
   double ddot_(blas_long* N, double *X, blas_long* incx, double *Y, blas_long* incy);
 #endif
 	
   // for Euclidean norm
-#if defined(__bgp__)
+#if defined(__essl__)
   double dnrm2(blas_long* N, double *X, blas_long* incx);
 #else
   double dnrm2_(blas_long* N, double *X, blas_long* incx);
 #endif
 
   // SUM: for sum of absolute values
-#if defined(__bgp__)
+#if defined(__essl__)
   double dasum(blas_long* N, double *X, blas_long* incx);
 #else
   double dasum_(blas_long* N, double *X, blas_long* incx);
@@ -75,7 +75,7 @@ extern "C"  {
   // CBLAS_INDEX cblas_idamax(blasint n, double *x, blasint incx)
   
   // SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
-#if defined(__bgp__)
+#if defined(__essl__)
   void  daxpy(blas_long*N, blas_long*da, double*X, blas_long*incx, double*Y,blas_long* incy);
 #else
   void  daxpy_(blas_long*N, blas_long*da, double*X, blas_long*incx, double*Y,blas_long* incy); 
@@ -162,7 +162,7 @@ extern "C"  {
    *           Y. INCY must not be zero.
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
   void dgemv(char* trans, blas_long* M, blas_long* N,
 			  double* alpha, double  *A, blas_long* lda,
 			  double* x, blas_long* incx,
@@ -250,7 +250,7 @@ extern "C"  {
    *           Y. INCY must not be zero.
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
   void dsymv(char* uplo, blas_long* N, double* alpha, double* A, blas_long* lda,
 			  double* X, blas_long* incx, double* beta, double* Y, blas_long* incy);
 #else
@@ -341,7 +341,7 @@ extern "C"  {
 	*           X. INCX must not be zero.
 	*           Unchanged on exit.
 	*/
-#if defined(__bgp__)
+#if defined(__essl__)
   void dtrmv(char* uplo, char* trans, char* diag, blas_long* N, double* A, blas_long* lda, double* X, blas_long* incx);
 #else
   void dtrmv_(char* uplo, char* trans, char* diag, blas_long* N, double* A, blas_long* lda, double* X, blas_long* incx);
@@ -407,7 +407,7 @@ extern "C"  {
     *           max( 1, m ).
     *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
   void dger(blas_long* M, blas_long* N,
 			  double* alpha, double* x, blas_long* incX,
 			  double* Y, blas_long* incY,
@@ -494,7 +494,7 @@ extern "C"  {
    *           X. INCX must not be zero.
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
   void dtrsv(char* uplo, char* trans, char* diag,
 			  blas_long* N, double* A, blas_long* lda,
 			  double* X, blas_long* incx);
@@ -621,7 +621,7 @@ extern "C"  {
    *           max( 1, m ).
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
   void dgemm(char* transA, char* transB, blas_long* M, blas_long* N, blas_long* K,
 			  double* alpha, double* A, blas_long* lda, 
 			  double* B, blas_long* ldb, 
@@ -737,7 +737,7 @@ extern "C"  {
    *           max( 1, m ).
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
    void dsymm(char* side, char* uplo, blas_long* M, blas_long* N,
  			  double* alpha, double* A, blas_long* lda,
  			  double* B, blas_long* ldb,
@@ -848,7 +848,7 @@ extern "C"  {
    *           Unchanged on exit.
    *
    */
-#if defined(__bgp__)
+#if defined(__essl__)
    void dsyrk(char* uplo, char* trans, blas_long* N, blas_long* K, 
               double* alpha, double* A, blas_long* lda, double* beta, double* C, blas_long* ldc);
 #else
@@ -963,7 +963,7 @@ extern "C"  {
    *           max( 1, m ).
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
    void dtrmm(char* side, char* uplo, char* transA, char* diag,
  			  blas_long* M, blas_long* N, double* alpha, double* A, blas_long* lda, double* B, blas_long* ldb);
 #else
@@ -1065,7 +1065,7 @@ extern "C"  {
    *           max( 1, m ).
    *           Unchanged on exit.
    */
-#if defined(__bgp__)
+#if defined(__essl__)
    void dtrsm(char* side, char* uplo, char* transA, char* diag, blas_long* M, blas_long* N,
  			  double* alpha, double* A, blas_long* lda,
  			  double* B, blas_long* ldb);
@@ -1090,7 +1090,7 @@ void scale(blas_long n, double alpha, double* x)
 {
 #ifdef ENABLE_BLAS
   blas_long incx = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   dscal(&n, &alpha, x, &incx);
 #else
   dscal_(&n, &alpha, x, &incx);
@@ -1108,7 +1108,7 @@ void copy(blas_long n, double* x, double* y)
 #ifdef ENABLE_BLAS
   blas_long incx = 1;
   blas_long incy = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   dcopy(&n, x, &incx, y, &incy);
 #else
   dcopy_(&n, x, &incx, y, &incy);
@@ -1126,7 +1126,7 @@ double dot_prod(blas_long n, double* x, double* y)
 #ifdef ENABLE_BLAS
   blas_long incx = 1;
   blas_long incy = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   return ddot(&n, x, &incx, y, &incy);
 #else
   return ddot_(&n, x, &incx, y, &incy);
@@ -1144,7 +1144,7 @@ double norm2(blas_long n, double* x)
 {
 #ifdef ENABLE_BLAS
   blas_long incx = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   return dnrm2(&n, x, &incx);
 #else
   return dnrm2_(&n, x, &incx);
@@ -1162,7 +1162,7 @@ double abs_sum(blas_long n, double* x)
 {
 #ifdef ENABLE_BLAS
   blas_long incx = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   return dasum(&n, x, &incx);
 #else
   return dasum_(&n, x, &incx);
@@ -1194,7 +1194,7 @@ void matrix_vector_mult(double* A, double* x, double* y, blas_long* dim, blas_lo
   blas_long offsetA = offset[0] + offset[1]*lda;
   blas_long offsetX = offset[2];
   blas_long offsetY = offset[3];
-#if defined(__bgp__)
+#if defined(__essl__)
   dgemv(&tA, &m, &n,
 		 &alpha, A+offsetA, &lda,
 		         x+offsetX, &incx,
@@ -1225,7 +1225,7 @@ void matrix_vector_mult(double* A, double* x, double* y, blas_long* dim, double*
   blas_long n   = dim[1];
   blas_long incx = 1;
   blas_long incy = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
   dgemv(&tA, &m, &n,
 		 &alpha, A, &m,
 		         x, &incx,
@@ -1259,7 +1259,7 @@ void sym_vector_mult(double* A, double* x, double* y, blas_long* dim, double* sc
   //printf("dim: %i %i\n", m, n);
   //printf("%f %f %f  \n", A[2], A[5], A[7]);
   //printf("%f %f %f %f \n", x[0], x[1], x[2], x[3]);
-#if defined(__bgp__)
+#if defined(__essl__)
   dsymv(&uplo, &n,
  		 &alpha, A, &m,
  		         x, &incx,
@@ -1290,7 +1290,7 @@ void tri_vector_mult(double* A, blas_long ul, double* bx, blas_long lda, int tra
 	char diag = 'N';
 	blas_long  N  = lda;
 	blas_long  incx = 1;
-#if defined(__bgp__)
+#if defined(__essl__)
 	dtrmv(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
 #else
 	dtrmv_(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
@@ -1315,7 +1315,7 @@ void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long*
   double* yStart = y + offy;
   blas_long incx = inc[0];
   blas_long incy = inc[1];
-#if defined(__bgp__)
+#if defined(__essl__)
   dger(&m, &n,
 		 &alpha, xStart, &incx,
 		         yStart, &incy,
@@ -1354,8 +1354,8 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
   blas_long  offsetC = offset[4] + offset[5]*ldc;
   double alpha = scale[0];
   double beta  = scale[1];
-  //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);
-#if defined(__bgp__)
+  //printf("call dgemm: %c %c, %d %d %d, %d %d %d\n", transA, transB, m, n, k, lda, ldb, ldc); fflush(stdout);
+#if defined(__essl__)
   dgemm(&transA, &transB,
 		 &m, &n, &k,
 		 &alpha, A+offsetA, &lda,
@@ -1390,8 +1390,8 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
   blas_long  ldc = ld[2];
   double alpha = scale[0];
   double beta  = scale[1];
-  //printf("call dgemm: dim %d %d %d, ld %d %d %d, %c %c\n", m, n, k, lda, ldb, ldc, transA, transB); fflush(stdout);
-#if defined(__bgp__)
+  //printf("call dgemm: %c %c, %d %d %d, %d %d %d\n", transA, transB, m, n, k, lda, ldb, ldc); fflush(stdout);
+#if defined(__essl__)
   dgemm(&transA, &transB,
 		 &m, &n, &k,
 		 &alpha, A, &lda,
@@ -1421,8 +1421,8 @@ void matrix_matrix_mult(double* A, double* B, double* C, blas_long* dim,
   blas_long  ldc = m;
   double alpha = scale[0];
   double beta  = scale[1];
-  //printf("call dgemm: %d %d %d, %c %c\n", m, n, k, transA, transB); fflush(stdout);
-#if defined(__bgp__)
+  //printf("call dgemm: %c %c, %d %d %d, %d %d %d\n", transA, transB, m, n, k, lda, ldb, ldc); fflush(stdout);
+#if defined(__essl__)
   dgemm(&transA, &transB,
 		 &m, &n, &k,
 		 &alpha, A, &lda,
@@ -1459,7 +1459,7 @@ void sym_rank_k_update(double* A, double* C, blas_long* dim,
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dsyrk: trans=%c, %d %d %d %d\n", transA, n, k, lda, ldc); fflush(stdout);
-#if defined(__bgp__)
+#if defined(__essl__)
   dsyrk(&uplo, &transA,
         &n, &k,
         &alpha, A+offsetA, &lda,
@@ -1492,7 +1492,7 @@ void sym_rank_k_update(double* A, double* C, blas_long* dim,
   double alpha = scale[0];
   double beta  = scale[1];
   //printf("call dsyrk: trans=%c, %d %d %d %d\n", transA, n, k, lda, ldc); fflush(stdout);
-#if defined(__bgp__)
+#if defined(__essl__)
   dsyrk(&uplo, &transA,
         &n, &k,
         &alpha, A, &lda,
@@ -1525,7 +1525,7 @@ void sym_matrix_mult(double* A, double* B, double* C, blas_long* dim, double* sc
   blas_long   n     = dim[1];
   double alpha = scale[0];
   double beta  = scale[1];
-#if defined(__bgp__)
+#if defined(__essl__)
   dsymm(&side, &uplo,
 		 &m, &n,
 		 &alpha, A, &m,
@@ -1556,7 +1556,7 @@ void matrix_sym_mult(double* B, double* A, double* C, blas_long* dim, double* sc
   blas_long   n     = dim[1];
   double alpha = scale[0];
   double beta  = scale[1];
-#if defined(__bgp__)
+#if defined(__essl__)
   dsymm(&side, &uplo,
 		 &m, &n,
 		 &alpha, A, &m,
@@ -1591,7 +1591,7 @@ void tri_matrix_mult(double* A, double* B, blas_long* dim, int tranA)
   blas_long n = dim[1]; //Columns of B
   blas_long lda = m;
   blas_long ldb = n;
-#if defined(__bgp__)
+#if defined(__essl__)
   dtrmm(&side, &uplo, &tran, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
 #else
@@ -1618,7 +1618,7 @@ void matrix_tri_mult(double* B, double* A, blas_long* dim, int tranB)
   blas_long n = dim[1]; //Columns of B
   blas_long lda = n;
   blas_long ldb = m;
-#if defined(__bgp__)
+#if defined(__essl__)
   dtrmm(&side, &uplo, &tTri, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
 #else
@@ -1645,7 +1645,7 @@ void tri_vector_solve(double* A, double* bx, blas_long* dim, int tranA)
   blas_long incx = 1;
   blas_long m = dim[0]; // Leading dimension of A, must be number of rows in A
   blas_long n = dim[1]; // Order of matrix A, must be number of columns in A
-#if defined(__bgp__)
+#if defined(__essl__)
   dtrsv(&uplo,  &trans, &diag,
 		 &n, A,  &m,
 		 bx, &incx);
@@ -1674,7 +1674,7 @@ void tri_matrix_solve(double* A, double* BX, blas_long* dim, int tranA)
 	blas_long lda = m;      //first dimension of A
 	blas_long ldb = m;      //first dimension of B
 	double alpha = 1.0;
-#if defined(__bgp__)
+#if defined(__essl__)
 	dtrsm(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #else
@@ -1705,7 +1705,7 @@ void matrix_tri_solve(double* BX, double* A, blas_long* dim, int tranA)
 	blas_long lda = m;      //first dimension of A
 	blas_long ldb = n;      //first dimension of B
 	double alpha = 1.0;
-#if defined(__bgp__)
+#if defined(__essl__)
 	dtrsm(&side, &uplo, &trans, &diag,
 		   &m, &n, &alpha, A, &lda, BX, &ldb);
 #else

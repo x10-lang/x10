@@ -87,7 +87,7 @@ SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *                singular, so the solution could not be computed.
 *
 */
-#if defined(__bgp__)
+#if defined(__essl__)
 void dgesv(int* N, int* NRHS, double* A, int* LDA, int* IPIV, double* B, int* LDB, int* INFO);
 #else
 void dgesv_(int* N, int* NRHS, double* A, int* LDA, int* IPIV, double* B, int* LDB, int* INFO);
@@ -168,7 +168,7 @@ SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 *                form did not converge to zero.
 *
 */
-#if defined(__bgp__)
+#if defined(__essl__)
 void dsyev(char* JOBZ, char* UPLO, int* N, double* A, int* LDA, double* W, double* WORK, int* LWORK, int* INFO );
 #else
 void dsyev_(char* JOBZ, char* UPLO, int* N, double* A, int* LDA, double* W, double* WORK, int* LWORK, int* INFO );
@@ -198,7 +198,7 @@ int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 	int INFO;
 #ifdef ENABLE_LAPACK
 
-#if defined(__bgp__)
+#if defined(__essl__)
 	dgesv(&N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO);
 #else
 	dgesv_(&N, &NRHS, A, &LDA, IPIV, B, &LDB, &INFO);
@@ -227,7 +227,7 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 	int INFO;
 #ifdef ENABLE_LAPACK
 
-#if defined(__bgp__)
+#if defined(__essl__)
 	dsyev(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
 #else
 	dsyev_(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
@@ -258,7 +258,7 @@ int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
 
 #ifdef ENABLE_LAPACK
 
-#if defined(__bgp__)
+#if defined(__essl__)
 	dsyev(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
 #else
 	dsyev_(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
