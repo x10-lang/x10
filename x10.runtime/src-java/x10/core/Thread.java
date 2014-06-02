@@ -126,6 +126,10 @@ public class Thread implements Any, Unserializable {
         }
     }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
+    }
+
     public short $_get_serialization_id() {
         throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
     }

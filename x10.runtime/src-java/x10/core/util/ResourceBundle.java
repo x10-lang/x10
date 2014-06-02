@@ -15,12 +15,10 @@ import java.io.IOException;
 import java.util.Locale;
 
 import x10.core.Ref;
-
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -32,6 +30,10 @@ final public class ResourceBundle extends Ref implements X10JavaSerializable {
     public static final RuntimeType<ResourceBundle> $RTT = NamedType.<ResourceBundle> make("x10.util.ResourceBundle", ResourceBundle.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
+
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
 
     public static X10JavaSerializable $_deserialize_body(ResourceBundle $_obj, X10JavaDeserializer $deserializer) throws IOException {
         $_obj.bundle = (java.util.ResourceBundle) $deserializer.readObject();

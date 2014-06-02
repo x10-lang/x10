@@ -55,6 +55,10 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     public RuntimeType<AtomicBoolean> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}

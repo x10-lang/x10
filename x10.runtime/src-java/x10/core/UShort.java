@@ -160,6 +160,10 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     public boolean $le$Z(Object a, Type t) { return UIntUtils.le($value,((UShort)a).$value); }
     public boolean $ge$Z(Object a, Type t) { return UIntUtils.ge($value,((UShort)a).$value); }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);
     }

@@ -55,6 +55,10 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     public RuntimeType<AtomicInteger> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }
     
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}

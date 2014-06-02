@@ -178,6 +178,10 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
      * Serialization
      */
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
         serializer.write(T);
         serializer.write(size);

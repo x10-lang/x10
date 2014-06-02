@@ -114,6 +114,10 @@ public final class NativeFile extends java.io.File implements Any {
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
     }

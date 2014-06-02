@@ -153,6 +153,10 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
         return "PlaceLocalHandle(" + id + ")";
     }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
 //        $serializer.write((long) id);
         $serializer.write(this.gref);

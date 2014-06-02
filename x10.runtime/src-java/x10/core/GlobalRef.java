@@ -551,6 +551,10 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         }
     }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         globalize();
         int weight = adjustWeight();

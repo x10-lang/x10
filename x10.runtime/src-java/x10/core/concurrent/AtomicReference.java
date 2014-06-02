@@ -63,6 +63,10 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     
     public Type<T> T;
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.T);
 		serializer.write(get());

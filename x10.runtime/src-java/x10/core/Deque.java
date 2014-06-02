@@ -23,6 +23,10 @@ import x10.serialization.X10JavaSerializer;
 
 public class Deque extends Ref {
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(base);

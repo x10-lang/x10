@@ -102,6 +102,10 @@ final public class Boolean implements StructI, java.lang.Comparable<Boolean>
         return (o.$value == $value ? 0 : ($value ? 1 : -1));
     }
 
+    private Object writeReplace() throws java.io.ObjectStreamException {
+        return new x10.serialization.SerializationProxy(this);
+    }
+
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);
     }

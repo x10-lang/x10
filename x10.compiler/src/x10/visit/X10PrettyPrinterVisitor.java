@@ -648,6 +648,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // XTENLANG-1102
         er.generateRTTInstance(def);
 
+        // Redirect java serialization to x10 serialization.
+        if (!flags.isInterface() && !flags.isAbstract()) {
+            w.write("private Object writeReplace() throws java.io.ObjectStreamException {");
+            w.newline(4);
+            w.begin(0);
+            w.write("return new x10.serialization.SerializationProxy(this);");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+        }
+
         // print the custom serializer
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);            
