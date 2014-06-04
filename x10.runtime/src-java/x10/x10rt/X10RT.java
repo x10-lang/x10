@@ -394,11 +394,12 @@ public class X10RT {
         	hazelcastDatastore = new HazelcastDatastore(null);
         	
         	// go to all other places, and tell them to connect to my newly created hazelcast cluster (of one, so far)
-      	   	ByteBuffer[] connectionBytes;
 			try {
-				connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
-	      	   	for (int i=1; i<numPlaces(); i++)
+				byte[] message = hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8);
+	      	   	for (int i=1; i<numPlaces(); i++) {
+	          	   	ByteBuffer[] connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(message)};
 	      	   		javaSockets.sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, i, 0, connectionBytes);
+	      	   	}
 
 			} catch (UnsupportedEncodingException e) {
 				// this won't happen, because UTF8 is a required encoding
@@ -407,14 +408,14 @@ public class X10RT {
 			}
 			
 			// wait until the number of expected containers have joined us
-/*			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
+			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// nothing to do - just go back and check again
 				}
 			}
-*/			// hazelcast is up and running in all places.  Return, and allow the user program to begin
+			// hazelcast is up and running in all places.  Return, and allow the user program to begin
     	}
     }
     
