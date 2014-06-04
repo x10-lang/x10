@@ -205,9 +205,9 @@ public class X10RT {
                       } else {
                           if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
                       }
+                      state = State.TORN_DOWN;
                       if (hazelcastDatastore != null)
                     	  hazelcastDatastore.shutdown();
-                      state = State.TORN_DOWN;
                       System.err.flush();
                       System.out.flush();
                   }
@@ -407,14 +407,14 @@ public class X10RT {
 			}
 			
 			// wait until the number of expected containers have joined us
-			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
+/*			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// nothing to do - just go back and check again
 				}
 			}
-			// hazelcast is up and running in all places.  Return, and allow the user program to begin
+*/			// hazelcast is up and running in all places.  Return, and allow the user program to begin
     	}
     }
     
