@@ -35,7 +35,7 @@ public class X10RT {
     public static boolean X10_EXITING_NORMALLY = false;
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
     public static final boolean VERBOSE = false;
-    private static HazelcastDatastore hazelcastDatastore = null;
+    static HazelcastDatastore hazelcastDatastore = null;
     
     /**
      * Initialize the X10RT runtime.  This method, or the standard init() method below 

@@ -14,6 +14,7 @@ package x10.x10rt;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -434,6 +435,19 @@ public class SocketTransport {
 								if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 								sc.register(selector, SelectionKey.OP_READ);
 								if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
+								
+								// tell the new place to connect to the hazelcast cluster
+								if (X10RT.hazelcastDatastore != null) {
+									ByteBuffer[] connectionBytes;
+									try {
+										connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
+						      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, connectionBytes);
+									} catch (UnsupportedEncodingException e) {
+										// this won't happen, because UTF8 is a required encoding
+										e.printStackTrace();
+										assert(false);
+									}
+								}
 							}
 							else { // Ask the lowest numbered place for a new place ID
 								// store link for later, when the GET_PLACE_RESPONSE comes in
@@ -544,6 +558,19 @@ public class SocketTransport {
 							// update nplaces here, because we won't get a connection from the new place, as it already exists
 							if (remote >= nplaces)
 								this.nplaces = remote+1;
+							
+							// tell the new place to connect to the hazelcast cluster
+							if (X10RT.hazelcastDatastore != null) {
+								ByteBuffer[] connectionBytes;
+								try {
+									connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
+					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, connectionBytes);
+								} catch (UnsupportedEncodingException e) {
+									// this won't happen, because UTF8 is a required encoding
+									e.printStackTrace();
+									assert(false);
+								}
+							}
 						}
 						else
 							System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
