@@ -45,9 +45,7 @@ class AddSubCSR {
 		ret &= (testScaleAdd());
 		ret &= (testExtraction());
 
-		if (ret)
-			Console.OUT.println("CSR Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----------------CSR Test failed!----------------");
 	}
 
@@ -58,21 +56,19 @@ class AddSubCSR {
 		//val sp = SparseCSR.makeRand(M, N, nzp);
 		val sp1 = sp.clone();
 		var ret:Boolean = sp.equals(sp1);
-		if (ret)
-			Console.OUT.println("CSR Clone test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR Clone test failed!--------");
-	        sp(1, 1) = sp1(2,2) = 10.0;
 
-                if ((sp(1,1)==sp1(2,2)) && (sp(1,1)==10.0)) {
-                        ret &= true;
-                        Console.OUT.println("SparseCSR Matrix chain assignment test passed!");
-                } else {
-                        ret &= false;
-                        Console.OUT.println("---------- SparseCSR Matrix chain assignment test failed!-------");
-                }
+        sp(1, 1) = sp1(2,2) = 10.0;
 
-                return ret;
+        if ((sp(1,1)==sp1(2,2)) && (sp(1,1)==10.0)) {
+            ret &= true;
+        } else {
+            ret &= false;
+            Console.OUT.println("---------- SparseCSR Matrix chain assignment test failed!-------");
+        }
+
+        return ret;
 	}
 
 	public def testAdd():Boolean {
@@ -85,9 +81,7 @@ class AddSubCSR {
 		val sp0 = sp + nsp;
 
 		val ret = sp0.equals(0.0);
-		if (ret)
-			Console.OUT.println("CSR Add: sp+sp*-1 test passed");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR Add: sp+sp.neg() test failed--------");
 		return ret;
 	}
@@ -100,9 +94,7 @@ class AddSubCSR {
 
 		val sp_c  = sp2 - sp1;
 		val ret   = sp.equals(sp_c);
-		if (ret)
-			Console.OUT.println("CSR Add-sub test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR Add-sub test failed!--------");
 		return ret;
 	}
@@ -114,9 +106,7 @@ class AddSubCSR {
 		val c1 = a + b + c;
 		val c2 = a + (b + c);
 		val ret = c1.equals(c2);
-		if (ret)
-			Console.OUT.println("CSR Add associative test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR Add associative test failed!--------");
 		return ret;
 	}
@@ -128,9 +118,7 @@ class AddSubCSR {
 		val a2= a * 0.8;
 		val aa=a1+a2;
 		val ret = a.equals(aa);
-		if (ret)
-			Console.OUT.println("CSR Scaling-Add test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR Scaling-Add test failed!--------");
 		return ret;
 	}
@@ -150,7 +138,6 @@ class AddSubCSR {
  		//sm.copyColsToSparse(0, N, s2);
 		SparseCSR.copyCols(sm, 0, s2, 0, N); 
  		ret &= s2.equals(s2);
-		if (ret) Console.OUT.println("Full copy to one memory allocation passed");
 		
 		val s3 = SparseCSR.make(M-2, N);
 		//sm.copyRowsToSparse(1, M-2, s3);
@@ -159,8 +146,6 @@ class AddSubCSR {
 			for (var c:Long=0; c<s3.N; c++)
 				ret &= (sm(r+1, c)==s3(r, c)); 
 
-		if (ret) Console.OUT.println("Partial rows copy passed");
-
 		val s4 = SparseCSR.make(M, N-2);
  		//sm.copyColsToSparse(1, N-2, s4);
 		SparseCSR.copyCols(sm, 1, s4, 0, N-2);
@@ -168,9 +153,7 @@ class AddSubCSR {
 			for (var c:Long=0; c<s4.N; c++)
 				ret &= sm(r, c+1)==s4(r, c); 
 				
-		if (ret)
-			Console.OUT.println("CSR submatrix and data extraction test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR submatrix and data extraction failed!--------");
 		return ret;		
 	}

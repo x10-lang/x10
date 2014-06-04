@@ -8,9 +8,7 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;
@@ -45,7 +43,7 @@ class SummaDenseMultSparseTest {
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
-		Console.OUT.printf("\nTest SUMMA dist dense*sparse matrix over %d places and sparsity: %f\n", 
+		Console.OUT.printf("Test SUMMA dist dense*sparse matrix over %d places and sparsity: %f\n", 
 							numP, nzd);
 		pA = Grid.make(M, K);
 		pB = Grid.make(K, N);
@@ -68,31 +66,23 @@ class SummaDenseMultSparseTest {
 	
 	public def testDenseMultSparse():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
-		Console.OUT.printf("\nTest SUMMA dist dense*sparse matrix over %d places and sparsity %f\n", 
+		Console.OUT.printf("Test SUMMA dist dense*sparse matrix over %d places and sparsity %f\n", 
 				numP, nzd);
-		Debug.flushln("Start allocating memory space for dist dense matrix A");
 		val da = DistDenseMatrix.make(pA);
-		Debug.flushln("Start initializing sparse matrix A");
 		da.initRandom();
 		
-		Debug.flushln("Start allocating memory space for dist sparse matrix B");
 		val db = DistSparseMatrix.make(pB, nzd);
 		db.initRandom();
-		Debug.flushln("Start initializing sparse matrix B");
 
 		val dc = DistDenseMatrix.make(pC); 
 
-		Debug.flushln("Start calling SUMMA distributed dense*sparse routine");
 		SummaDenseMultSparse.mult(0, 0.0, da, db, dc);
-		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();
 		val mb = db.toDense();
 		val mc = DenseMatrix.make(ma.M, mb.N);
 		
-		Debug.flushln("Start sequential dense matrix multiply");
-		DenseMatrixBLAS.comp(ma, mb, mc, false);
-		Debug.flushln("Done sequential dense matrix multiply");
+		mc.mult(ma, mb);
 
 		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
 		if (ret)
@@ -104,33 +94,23 @@ class SummaDenseMultSparseTest {
 	
 	public def testDenseMultSparseTrans():Boolean {
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
-		Console.OUT.printf("\nTest SUMMA x10 dist dense*sparse^T over %d places\n", numP);
+		Console.OUT.printf("Test SUMMA x10 dist dense*sparse^T over %d places\n", numP);
 
-		Debug.flushln("Start allocating memory space for sparse matrix A");
 		val da = DistDenseMatrix.make(M, K); 
-		Debug.flushln("Start initializing dense matrix A "+
-				da.grid.numRowBlocks+" "+da.grid.numColBlocks);
 		da.initRandom();
 		
-		Debug.flushln("Start allocating memory space for dist sparse matrix B");
 		val db = DistSparseMatrix.make(N, K, nzd);
-		Debug.flushln("Start initializing matrix B "+
-						db.grid.numRowBlocks+" "+db.grid.numColBlocks );
 		db.initRandom();
 
 		val dc = DistDenseMatrix.make(M, N);
 
-		Debug.flushln("Start calling SUMMA dense*sparse^T X10 routine");
 		SummaDenseMultSparse.multTrans(0, 0.0, da, db, dc);
-		Debug.flushln("SUMMA done");
 		
 		val ma = da.toDense();
 		val mb = db.toDense();
 		val mc = DenseMatrix.make(ma.M, mb.M);
 		
-		Debug.flushln("Start sequential dense matrix multTrans");
-		DenseMatrixBLAS.compMultTrans(ma, mb, mc, false);
-		Debug.flushln("Done sequential dense matrix multTrans");
+		mc.multTrans(ma,mb);
 
 		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
 		if (ret)

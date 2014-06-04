@@ -39,14 +39,12 @@ class LapackTest {
 		ret &= (testEigenValue());
 		ret &= (testEigenVector());
 
-		if (ret)
-			Console.OUT.println("Dense matrix LAPACK Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----Dense matrix LAPACK Test failed!----");
 	}
 	
 	public def testLinearEquation():Boolean {
-		Console.OUT.printf("Start dense matrix (%dx%d) * (%dx%d) = (%dx%d) LAPACK linear equation test\n",
+		Console.OUT.printf("Dense matrix (%dx%d) * (%dx%d) = (%dx%d) LAPACK linear equation test\n",
 						    M, M, M, N, M, N);
 		val A = DenseMatrix.make(M,M).initRandom();
 		val X = DenseMatrix.make(M,N).init((i:Long)=>(1.0+i));
@@ -57,16 +55,13 @@ class LapackTest {
 		Debug.assure(info==0n, "Linear equation solve failed. Exit info code:"+info);
 				
 		val ret = B.equals(X);
-		if (ret)
-			Console.OUT.println("LAPACK linear equation test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------LAPACK linear equation test failed!--------");
 		return ret;
 	}
 	
 	public def testEigenValue():Boolean {
-		Console.OUT.printf("Start LAPACK matrix (%dx%d) eigen value test\n",
-				M, M);		
+		Console.OUT.printf("LAPACK matrix (%dx%d) eigen value test\n", M, M);		
 		
 		val A = DenseMatrix.make(M,M).initRandom();
 		val tmp = new Rail[Double](4*M);
@@ -76,16 +71,13 @@ class LapackTest {
 		Debug.assure(info==0n, "Compute eigen value failed. Exit info code:"+info);
 		
 		val ret = (info==0n);
-		if (ret)
-			Console.OUT.println("X10 dense LAPACK compute eigen value test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("------- X10 dense LAPACK compute eigen value test failed! -------");
 		return ret;		
 	}
 	
 	public def testEigenVector():Boolean {
-		Console.OUT.printf("Start LAPACK matrix (%dx%d) compute eigen vector test\n",
-				M, M);		
+		Console.OUT.printf("LAPACK matrix (%dx%d) compute eigen vector test\n", M, M);		
 		
 		val A = DenseMatrix.make(M,M).initRandom();
 		val tmp = new Rail[Double](4*M);
@@ -94,9 +86,7 @@ class LapackTest {
 		Debug.assure(info==0n, "Compute eigen vector failed. Exit info code:"+info);
 		
 		val ret = (info==0n);
-		if (ret)
-			Console.OUT.println("LAPACK compute eigen vector test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("------- LAPACK compute eigen vector test failed! -------");
 		return ret;		
 	}

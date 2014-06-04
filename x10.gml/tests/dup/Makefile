@@ -25,7 +25,7 @@ build_path	= build
 gml_path    = ../../
 
 # compile options
-X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
+X10_FLAG	= -d $(build_path)  -errors 5 -VERBOSE_CHECKS 
 
 # runtime settings
 runtime_list = mpi sock java

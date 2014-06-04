@@ -180,7 +180,9 @@ public class VectorMult {
 	 * Using BLAS routine: C = A * B or C = A * B + C
 	 */
 	public static def comp(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
-		DenseMatrixBLAS.comp(A, B, C, plus);
+		val alpha = 1.0;
+		val beta = plus?1.0:0.0;
+		DenseMatrixBLAS.comp(alpha, A, B, beta, C);
 		return C;
 	}
 
@@ -188,15 +190,16 @@ public class VectorMult {
 	 * Using BLAS routine: C = B * A or C = B * A + C
 	 */
 	public static def comp(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) {
-		DenseMatrixBLAS.compTransMult(A, B, C, plus);
+		val alpha = 1.0;
+		val beta = plus?1.0:0.0;
+		DenseMatrixBLAS.compTransMult(alpha, A, B, beta, C);
 		return C;
 	}
 
 	public static def comp(A:SymDense, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
 		val beta = plus?1.0:0.0;
-		BLAS.compSymMultVec(A.d, B.d, C.d, 
-				[A.M, A.N],
-				[1.0, beta]);
+		BLAS.compSymMultVec(1.0, A.d, B.d, beta, C.d, 
+				[A.M, A.N]);
 		return C;
 	}
 	

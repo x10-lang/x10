@@ -10,7 +10,6 @@
  */
 
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
 
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseCSR;
@@ -46,7 +45,7 @@ class SparseTrans {
 		ret &= (testMultCtR());
 		ret &= (testMultCtD());
 		ret &= (testMultCDt());
-		//
+
 		ret &= (testMultRtC());
 		ret &= (testMultRtR());
 		ret &= (testMultRtD());
@@ -55,9 +54,7 @@ class SparseTrans {
 		ret &= (testToDenseCDt());
 		ret &= (testToDenseDtC());
 
-		if (ret)
-			Console.OUT.println("Sparse matrix Multiply-transpose test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("------------------Sparse matrix multiply-transpose test failed!------------------\n");
 	}
 
@@ -69,16 +66,12 @@ class SparseTrans {
 		val b = SparseCSC.make(K, N, density);
 		a.initRandom(density); b.initRandom(density);
 
-		//val c = DenseMatrix.make(M,N);
-		//SparseMultSparseToDense.compTransMult(a, b, c, false); //a.T() * b;
 		val c = SparseMultSparseToDense.compTransMult(a, b); //a.T() * b;
-		val da= a.toDense();
-		val db= b.toDense();
-		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
+		val da = a.toDense();
+		val db = b.toDense();
+		val dc = DenseMatrix.make(M,N).transMult(da, db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC^T * CSC test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC^T * CSC test failed!--------\n");
 		return ret;
 	}
@@ -89,14 +82,12 @@ class SparseTrans {
 		val b = SparseCSR.makeRand(K, N, density);
 		val c = DenseMatrix.make(M,N);
 		SparseMultSparseToDense.compTransMult(a, b, c, false);//a.T() * b;
-		val da= a.toDense();
-		val db= b.toDense();
-		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
+		val da = a.toDense();
+		val db = b.toDense();
+		val dc = DenseMatrix.make(M,N).transMult(da, db);
 		val ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("CSC^T * CSR test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC^T * CSR test failed!--------\n");
 		return ret;
 	}
@@ -106,13 +97,11 @@ class SparseTrans {
 		val a = SparseCSC.makeRand(K, M, density);
 		val b = DenseMatrix.makeRand(K, N);
 		val c = SparseMultDenseToDense.compTransMult(a, b);//a.T() * b;
-		val da= a.toDense();
-		val db= b;
-		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
+		val da = a.toDense();
+		val db = b;
+		val dc = DenseMatrix.make(M,N).transMult(da, db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC^T * Dense test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC^T * Dense test failed!--------\n");
 		return ret;
 	}
@@ -122,37 +111,27 @@ class SparseTrans {
 		val a = SparseCSC.makeRand(M, K, density);
 		val b = DenseMatrix.makeRand(N, K);
 		val c = SparseMultDenseToDense.compMultTrans(a, b);
-		val da= a.toDense();
-		val db= b;
-		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compMultTrans(da, db);
+		val da = a.toDense();
+		val db = b;
+		val dc = DenseMatrix.make(M,N).multTrans(da, db);
 		//val dc= da * db.T();
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * Dense^T test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC * Dense^T test failed!--------\n");
 		return ret;
 	}
-
-
-
 
 	// CSR <-
 	public def testMultRtC():Boolean {
 		Console.OUT.println("Test CSR^T * CSC -> Dense");
 		val a = SparseCSR.makeRand(K, M, density);
 		val b = SparseCSC.makeRand(K, N, density);
-		//val c = DenseMatrix.make(M,N);		
-		//SparseMultSparseToDense.compTransMult(a, b, c, false);//a.T() * b;
 		val c = SparseMultSparseToDense.compTransMult(a, b);
-		val da= a.toDense();
-		val db= b.toDense();
-		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
-		//val dc= da.T() * db;
+		val da = a.toDense();
+		val db = b.toDense();
+		val dc = DenseMatrix.make(M,N).transMult(da, db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSR.T() * CSC test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR.T() * CSC test failed!--------\n");
 		return ret;
 	}
@@ -162,14 +141,11 @@ class SparseTrans {
 		val a = SparseCSR.makeRand(K, M, density);
 		val b = SparseCSR.makeRand(K, N, density);
 		val c = SparseMultSparseToDense.compTransMult(a, b);//a.T() * b;
-		val da= a.toDense();
-		val db= b.toDense();
-		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
-		//val dc= da.T() * db;
+		val da = a.toDense();
+		val db = b.toDense();
+		val dc = DenseMatrix.make(M,N).transMult(da,db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSR^T * CSR test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR^T * CSR test failed!--------\n");
 		return ret;
 	}
@@ -180,14 +156,11 @@ class SparseTrans {
 		val b = DenseMatrix.makeRand(K, N);
 		val c = DenseMatrix.make(M, N);
 		SparseMultDenseToDense.compTransMult(a, b, c, false);//a.T() * b;
-		val da= a.toDense();
-		val db= b;
-		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
-		//val dc= da.T() * db;
+		val da = a.toDense();
+		val db = b;
+		val dc = DenseMatrix.make(M,N).transMult(da, db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSR^T * Dense test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSR^T * Dense test failed!--------\n");
 		return ret;
 	}
@@ -197,14 +170,11 @@ class SparseTrans {
 		val a = SparseCSR.makeRand(M, K, density);
 		val b = DenseMatrix.makeRand(N, K);
 		val c = SparseMultDenseToDense.compMultTrans(a, b);
-		val da= a.toDense();
-		val db= b;
-		val dc:DenseMatrix(M,N)=DenseMatrixBLAS.compMultTrans(da, db);
-		//val dc= da * db.T();
+		val da = a.toDense();
+		val db = b;
+		val dc = DenseMatrix.make(M,N).multTrans(da,db);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * Dense.T() test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC * Dense.T() test failed!--------\n");
 		return ret;
 	}
@@ -216,12 +186,9 @@ class SparseTrans {
 		val b = DenseMatrix.makeRand(N, K);
 		val c = SparseMultDenseToDense.compMultTrans(a, b);
 		val da = a.toDense();
-		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compMultTrans(da, b);
-		//val dc= da * b.T();
+		val dc = DenseMatrix.make(M,N).multTrans(da, b);
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * Dense^T -> Dense test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------CSC * Dense^T -> Dense test failed!--------\n");
 		return ret;
 	}
@@ -234,13 +201,10 @@ class SparseTrans {
 		val c = DenseMultSparseToDense.compTransMult(a, b);
 
 		val db = b.toDense();
-		val dc = DenseMatrixBLAS.compTransMult(a, db);
-		//val dc= a.T() * db;
+		val dc = DenseMatrix.make(M,N).transMult(a, db);
 
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("Dense^T * CSC -> Dense test passed!\n");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dense^T * CSC -> Dense test failed!--------\n");
 		return ret;
 	}

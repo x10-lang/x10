@@ -15,18 +15,12 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.summa.SummaMult;
 import x10.matrix.distblock.summa.SummaMultTrans;
 
-/**
-   <p>
-
-   <p>
- */
 public class DistBlockSUMMA {
-	
 	public static def main(args:Rail[String]) {
 		val M   = args.size > 0 ? Long.parse(args(0)):100;
 		val K   = args.size > 1 ? Long.parse(args(1)):100;
 		val N   = args.size > 2 ? Long.parse(args(2)):100;
-		val nzd = args.size > 3 ?Double.parse(args(3)):1.0;//Default is dense block matrix
+		val nzd = args.size > 3 ? Double.parse(args(3)):1.0;//Default is dense block matrix
 		val pnl = args.size > 4 ? Long.parse(args(4)):64;
 		val bMN = args.size > 5 ? Long.parse(args(5)):1;
 		val it  = args.size > 6 ? Long.parse(args(6)):4;
@@ -45,7 +39,7 @@ class BenchRunSumma {
 	
 
 	val itnum:Long;
-	val panel:Int;
+	val panel:Long;
 
 	val A:DistBlockMatrix(M,K);
 	val B:DistBlockMatrix(K,N);
@@ -55,9 +49,7 @@ class BenchRunSumma {
 	val summa:SummaMult;
 	val summaT:SummaMultTrans;
 	
-	
-	public def this(m:Long, k:Int, n:Long, nzd:Double, it:Int, pnl:Int, blkmn:Long) {
-		
+	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long, pnl:Long, blkmn:Long) {
 		val pM = MathTool.sqrt(Place.MAX_PLACES);
 		val pN = Place.MAX_PLACES/pM;
 

@@ -42,7 +42,7 @@ class GridCastTest {
 	
 	public val rootbid:Long = 0;
 	
-    public def this(m:Long, n:Long, bm:Int, bn:Int, d:Double) {
+    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Double) {
 		M=m; N=n;
 		nzdensity = d;
 		bM = bm; bN = bn;
@@ -77,15 +77,13 @@ class GridCastTest {
 
 		retval &= testGridRowCast(sbmat);
 		retval &= testGridColCast(sbmat);		
-		if (retval) 
-			Console.OUT.println("Block communication test collective commu passed!");
-		else
+		if (!retval) 
 			Console.OUT.println("------------Block communication test collective commu failed!-----------");
     }
 	}
 
 	public def testGridRowCast(distmat:DistBlockMatrix):Boolean {
-		Console.OUT.printf("\nTest row-wise cast of dist block matrix over %d places\n", numplace);
+		Console.OUT.printf("Test row-wise cast of dist block matrix over %d places\n", numplace);
 		var retval:Boolean = true;
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
@@ -95,20 +93,16 @@ class GridCastTest {
  		
 		for (var colId:Long=0; colId<grid.numColBlocks&&retval; colId++) {
 			finish AllGridCast.startRowCast(0, 1, colId, distmat, tmp);
-			Debug.flushln("Done row-wise cast from column block "+colId);
 			retval &= AllGridCast.startVerifyRowCast(0, 1, colId, distmat, tmp);
-			Debug.flushln("Done verification from root block with column block Id:"+colId);
 		}
 
-		if (retval)
-			Console.OUT.println("Test row-wise cast for dist block matrix test passed!");
-		else
+		if (!retval)
 			Console.OUT.println("-----Test row-wise cast for dist block matrix failed!-----");
 		return retval;
 	}
 	
 	public def testGridColCast(distmat:DistBlockMatrix):Boolean {
-		Console.OUT.printf("\nTest ring cast column-wise of dist block matrix over %d places\n", numplace);
+		Console.OUT.printf("Test ring cast column-wise of dist block matrix over %d places\n", numplace);
 		
 		var retval:Boolean = true;
 		val grid = distmat.getGrid();
@@ -118,15 +112,10 @@ class GridCastTest {
 		
 		for (var rowId:Long=0; rowId < grid.numRowBlocks&&retval; rowId++) {
 			finish AllGridCast.startColCast(0, 1, rowId, distmat, tmp);
-			Debug.flushln("Done column-wise cast from row block "+rowId);
 			retval &= AllGridCast.startVerifyColCast(0, 1, rowId, distmat, tmp);
-			
-			Debug.flushln("Done verification from root blocks with row block Id:"+rowId);
 		}
 				
-		if (retval)
-			Console.OUT.println("Test column-wise cast for dist block matrix test passed!");
-		else
+		if (!retval)
 			Console.OUT.println("-----Test column-wise cast for dist block matrix failed!-----");
 		return retval;
 	}

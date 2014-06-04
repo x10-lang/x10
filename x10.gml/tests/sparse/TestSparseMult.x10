@@ -48,9 +48,7 @@ class SparseMult {
  		ret &= (testMultDC());
  		ret &= (testMultDR());
 
-		if (ret)
-			Console.OUT.println("CSC Multiply Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("------------------CSC Multiply Test failed!------------------");
 	}
 	
@@ -64,9 +62,7 @@ class SparseMult {
 		val db= b.toDense();
 		val dc= da % db;
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * CSC test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSC * CSC test failed!---------");
 		return ret;
 	}
@@ -81,9 +77,7 @@ class SparseMult {
 		val db= b.toDense();
 		val dc= da % db;
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * CSR test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSC * CSR test failed!---------");
 		return ret;
 	}
@@ -99,9 +93,7 @@ class SparseMult {
 		val db= b;
 		val dc= da % db;
 		val ret = dc.equals(c);
-		if (ret)
-			Console.OUT.println("CSC * Dense test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSC * Dense test failed!---------");
 		return ret;
 	}
@@ -119,9 +111,7 @@ class SparseMult {
 		val dc= da % db;
 		val ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("CSR * CSC test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSR * CSC test failed!---------");
 		return ret;
 	}
@@ -138,9 +128,7 @@ class SparseMult {
 		val dc= da % db;
 		val ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("CSR * CSR test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSR * CSR test failed!---------");
 		return ret;
 	}
@@ -157,9 +145,7 @@ class SparseMult {
 		val dc= da % b;
 		ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("CSR * Dense test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------CSR * Dense test failed!---------");
 		return ret;
 	}
@@ -176,9 +162,7 @@ class SparseMult {
 		val dc= a % db;
 		val ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("Dense * CSC test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------Dense * CSC test failed!---------");
 		return ret;
 	}
@@ -195,9 +179,7 @@ class SparseMult {
 		val dc= a % db;
 		val ret = dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("Dense * CSR test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("---------Dense * CSR test failed!---------");
 		return ret;
 	}

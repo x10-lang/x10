@@ -30,21 +30,19 @@ class TestBuilder {
 	}
 
     public def run (): void {
-		Console.OUT.println("Starting symmetric dense-sparse builder  on "+
+		Console.OUT.println("Symmetric dense-sparse builder  on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= testDense();
 		ret &= testSparse();
-		if (ret)
-			Console.OUT.println("Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----------------Test failed!----------------");
 	}
     
     public def testDense():Boolean {
     	var ret:Boolean = true;
-    	Console.OUT.println("Starting initial test of symmetric dense builder");
+    	Console.OUT.println("Initial test of symmetric dense builder");
     	val symbld = SymDenseBuilder.make(M).initRandom(nzd);
 
     	ret = symbld.checkSymmetric();
@@ -58,9 +56,7 @@ class TestBuilder {
     	ret &= sbld.checkSymmetric();
     	
     	ret &=  tgt.equals(sden as Matrix(tgt.M,tgt.N));
-    	if (ret)
-    		Console.OUT.println("Symmetric dense matrix mirror test passed!");
-    	else
+    	if (!ret)
     		Console.OUT.println("--------Symmetric dense matrix mirror test failed!--------"); 
     	return ret;
     }
@@ -68,7 +64,7 @@ class TestBuilder {
     public def testSparse():Boolean {
     	var ret:Boolean = true;
     	val symbld = SymSparseBuilder.make(M);
-    	Console.OUT.println("Starting initial test of symmetric sparse builder");
+    	Console.OUT.println("Initial test of symmetric sparse builder");
     	
     	symbld.initRandom(nzd).toSymSparseCSC();
     	ret = symbld.checkSymmetric();
@@ -77,9 +73,7 @@ class TestBuilder {
     	val spa = SymSparseBuilder.make(M).init(false, src).toSymSparseCSC();
     	
     	ret &=  src.equals(spa as Matrix(src.M,src.N));
-    	if (ret)
-    		Console.OUT.println("Symmetric sparse matrix mirror test passed!");
-    	else
+    	if (!ret)
     		Console.OUT.println("--------Symmetric sparse matrix mirror test failed!--------"); 
     	return ret;
     }

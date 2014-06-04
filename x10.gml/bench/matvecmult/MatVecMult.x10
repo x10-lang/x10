@@ -9,7 +9,6 @@ import x10.util.Timer;
 import x10.matrix.Matrix;
 import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;
@@ -131,14 +130,12 @@ class DVMultRowwise {
 		Console.OUT.printf("Starting verification on dense matrix\n");
 		
 		for (1..it) {
-			DenseMatrixBLAS.comp(ma, mb, mc, false);
+			mc.mult(ma, mb);
 			mc.copyTo(mb);
 		}
 		
 		val ret = mc.equals(dupV.local() as Matrix(mc.M, mc.N));
-		if (ret)
-			Console.OUT.println("Dist*Dup->Dist MatVecMult test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("-----Dist*Dup->Dist MatVecMult test failed!-----");
 		return ret;
 	}

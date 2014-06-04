@@ -30,45 +30,39 @@ class SymTest {
 	}
 
     public def run (): void {
-		Console.OUT.println("Starting distributed symmetric builder tests on "+
+		Console.OUT.println("Distributed symmetric builder tests on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
 		ret &= (testDense());
 		ret &= (testSparse());
 
-		if (ret)
-			Console.OUT.println("Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
 	public def testDense():Boolean{
-		Console.OUT.println("Starting distr symmetric dense init test");
+		Console.OUT.println("Dist symmetric dense init test");
 		val nblk = Place.MAX_PLACES;
 		val dbld = DistSymMatrixBuilder.make(M, nblk);
 		val dmat = dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
 		var ret:Boolean = dbld.checkSymmetric();
 		
-		if (ret)
-			Console.OUT.println("Dist symmetric dense matrix init test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist symmetric dense matrix init test failed!--------");
 	
 		return ret;
 	}
 
 	public def testSparse():Boolean{
-		Console.OUT.println("Starting dist symmetric sparse random initialization method test");
+		Console.OUT.println("Dist symmetric sparse random initialization method test");
 		val nblk = Place.MAX_PLACES;
 		val sbld = DistSymMatrixBuilder.make(M, nblk);
 		val dspa = sbld.allocAllSparseBlocks(nzd).initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
 		var ret:Boolean = sbld.checkSymmetric();
 		
-		if (ret)
-			Console.OUT.println("Dist symmetric sparse matrix initialization test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist symmetric sparse matrix initialization test failed!--------");
 		
 		return ret;

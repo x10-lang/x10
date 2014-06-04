@@ -48,9 +48,7 @@ class TransMultTest {
 		ret &= (testMMTransB());
 		ret &= (testMMTransAB());
 
-		if (ret)
-			Console.OUT.println("Dense matrix multiply transpose Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----Dense matrix multiply transpose Test failed!----");
 	}
 	
@@ -64,16 +62,13 @@ class TransMultTest {
 
 		val cm = DenseMatrix.make(M, N);
 		cm.transMult(a, b, false);
-		//DenseMatrixBLAS.compTransMult(a, b, cm, false);
 
 		val c = DenseMatrix.make(M, N);
 		DenseMultXTen.compTransMult(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 dense driver - transpose A test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose A test failed!----");
 		return ret;
 	}
@@ -86,7 +81,7 @@ class TransMultTest {
 		val c1 = Vector.make(M);
 		val c2 = Vector.make(M);
 
-		DenseMatrixBLAS.compTransMult(a, v, c1, false);
+		DenseMatrixBLAS.compTransMult(1.0, a, v, 0.0, c1);
 		DenseMultXTen.compTransMult(a, v, c2, false);
 		
 		var ret:Boolean = true;
@@ -95,16 +90,13 @@ class TransMultTest {
 			ret = false;
 		}
 
-		DenseMatrixBLAS.compTransMult(a, v, c1, true);
+		DenseMatrixBLAS.compTransMult(1.0, a, v, 1.0, c1);
 		DenseMultXTen.compTransMult(a, v, c2, true);
 
 		if (!c1.equals(c2)) {
 			Console.OUT.println("----- c += A^Tv : BLAS != X10 Dense driver -----\n");
 			ret = false;
 		}
-		
-		if (ret)
-			Console.OUT.println("BLAS == X10 Dense driver\n");
 		
 		return ret;
 	}
@@ -119,17 +111,13 @@ class TransMultTest {
 
 		val cm = DenseMatrix.make(M, N);
 		cm.multTrans(a, b, false);
-		//DenseMatrixBLAS.compMultTrans(a, b, cm, false);
-		//val c = a * b.T();
 
 		val c= DenseMatrix.make(M, N);
 		DenseMultXTen.compMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 dense driver - transpose B test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose B test failed!----");
 		return ret;
 	}
@@ -143,16 +131,14 @@ class TransMultTest {
 		b.initRandom();
 		val cm = DenseMatrix.make(M, N);
 
-		DenseMatrixBLAS.compTransMultTrans(a, b, cm, false); //val c = a.T() * b.T();
-		//
+		DenseMatrixBLAS.compTransMultTrans(1.0, a, b, 0.0, cm);
+
 		val c= DenseMatrix.make(M, N);
 		MatrixMultXTen.compTransMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 dense driver - transpose AB test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose AB test failed!----");
 		return ret;
 	}
@@ -168,8 +154,7 @@ class TransMultTest {
 		am.initRandom();
 		bm.initRandom();
 		val cm = DenseMatrix.make(M,N); 
-		DenseMatrixBLAS.compTransMult(am, bm, cm, false);
-		//c=a.T() * b;
+		DenseMatrixBLAS.compTransMult(1.0, am, bm, 0.0, cm);
 	
 		val a  = am as Matrix(K,M);
 		val b  = bm as Matrix(K, N);
@@ -178,9 +163,7 @@ class TransMultTest {
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 matrix driver - transpose A test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose A test failed!----");
 		return ret;
 	}
@@ -195,7 +178,7 @@ class TransMultTest {
 		bm.initRandom();
 
 		val cm = DenseMatrix.make(M,N);
-		DenseMatrixBLAS.compMultTrans(am, bm, cm, false);//val c = a * b.T();
+		DenseMatrixBLAS.compMultTrans(1.0, am, bm, 0.0, cm);
 
 		val a = am as Matrix(M, K);
 		val b = bm as Matrix(N,K); 
@@ -204,9 +187,7 @@ class TransMultTest {
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 matrix driver - transpose B test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose B test failed!----");
 		return ret;
 	}
@@ -219,7 +200,7 @@ class TransMultTest {
 		am.initRandom();
 		bm.initRandom();
 		val cm = DenseMatrix.make(M,N);
-		DenseMatrixBLAS.compTransMultTrans(am, bm, cm, false); //val c = a.T() * b.T();
+		DenseMatrixBLAS.compTransMultTrans(1.0, am, bm, 0.0, cm);
 		
 		val a  = am as Matrix(K,M);
 		val b  = bm as Matrix(N,K);
@@ -228,9 +209,7 @@ class TransMultTest {
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
-		if (ret)
-			Console.OUT.println("X10 matrix driver - transpose AB test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose AB test failed!----");
 		return ret;
 	}

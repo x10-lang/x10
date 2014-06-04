@@ -10,7 +10,6 @@ import x10.util.Timer;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.util.Debug;
 
 public class SeqLogReg {

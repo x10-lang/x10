@@ -23,8 +23,8 @@ public type SymDense(C:SymDense)=SymDense{self==C};
 public type SymDense(C:Matrix)=SymDense{self==C};
 
 /**
- * The symmetric dense matrix is derived from dense matrix. It inherits the memory layout of the
- * dense matrix instance.  Therefore, it complies with
+ * The symmetric dense matrix is derived from dense matrix. It inherits the 
+ * memory layout of the dense matrix instance.  Therefore, it complies with
  * BLAS symmetric matrix. Only the lower part of matrix data is referenced.
  * <p>
  * Result of cell-wise operations on symmetric matrix is stored in dense instances.
@@ -392,13 +392,17 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	 */
 	public operator this % (that:DenseMatrix(N)):DenseMatrix(M,that.N) {
 		val ret = DenseMatrix.make(this.M, that.N);
-		DenseMatrixBLAS.comp(this, that, ret, false);
+		val alpha = 1.0;
+		val beta = 0.0;
+		DenseMatrixBLAS.comp(alpha, this, that, beta, ret);
 		return ret;
 	}
 	
 	public operator (that:DenseMatrix{self.N==this.M}) % this :DenseMatrix(that.M,N) {
 		val ret = DenseMatrix.make(that.M, this.N);
-		DenseMatrixBLAS.comp(that, this, ret, false);
+		val alpha = 1.0;
+		val beta = 0.0;
+		DenseMatrixBLAS.comp(alpha, that, this, beta, ret);
 		return ret;
 	}
 

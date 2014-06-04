@@ -12,12 +12,10 @@
 
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DupMultToDup;
-import x10.matrix.dist.DistSparseMatrix;
 
 public class TestDupMult {
     public static def main(args:Rail[String]) {
@@ -37,8 +35,7 @@ public class TestDupMult {
         }
 
         public def run():Boolean {
-            Console.OUT.println("Starting dup dense mult matrix tests in "+Place.numPlaces()+" places");
-            Console.OUT.println("Info of matrix sizes: M:"+M+" K:"+K+" N:"+N);
+            Console.OUT.println("Dup dense mult matrix tests in "+Place.numPlaces()+" places");
 
             var ret:Boolean = true;
 	    @Ifndef("MPI_COMMU") { // TODO Deadlocks!
@@ -47,10 +44,8 @@ public class TestDupMult {
             ret &= testDupDupTrans();
             ret &= testDupDense();
         }
-            if (ret)
-                Console.OUT.println("Test passed!");
-            else
-                Console.OUT.println("----------------Test failed!----------------");
+            if (!ret)
+                Console.OUT.println("--------Dup dense mult matrix test failed!--------");
             return ret;
         }
 
@@ -63,14 +58,12 @@ public class TestDupMult {
             val da = a.getMatrix();
             val db = b.getMatrix();
             val dc = DenseMatrix.make(M,N);
-            DenseMatrixBLAS.comp(da, db, dc);
+            DenseMatrixBLAS.comp(1.0, da, db, 0.0, dc);
 
             var ret:Boolean = c.equals(dc);
             ret &= c.syncCheck();
 
-            if (ret)
-                Console.OUT.println("Dup Dense Matrix dup-dup mult test passed!");
-            else
+            if (!ret)
                 Console.OUT.println("--------Dup Dense Matrix dup-dup mult test failed!--------");
             return ret;
         }
@@ -84,14 +77,12 @@ public class TestDupMult {
             val da = a.getMatrix();
             val db = b.getMatrix();
             val dc = DenseMatrix.make(M,N);
-            DenseMatrixBLAS.compTransMult(da, db, dc);
+            DenseMatrixBLAS.compTransMult(1.0, da, db, 0.0, dc);
 
             var ret:Boolean = c.equals(dc);
             ret &= c.syncCheck();
 
-            if (ret)
-                Console.OUT.println("Dup Dense Matrix dup-dup trans mult test passed!");
-            else
+            if (!ret)
                 Console.OUT.println("--------Dup Dense Matrix dup-dup trans mult test failed!--------");
             return ret;
         }
@@ -105,14 +96,12 @@ public class TestDupMult {
             val da = a.getMatrix();
             val db = b.getMatrix();
             val dc = DenseMatrix.make(M,N);
-            DenseMatrixBLAS.compMultTrans(da, db, dc);
+            DenseMatrixBLAS.compMultTrans(1.0, da, db, 0.0, dc);
 
             var ret:Boolean = c.equals(dc);
             ret &= c.syncCheck();
 
-            if (ret)
-                Console.OUT.println("Dup Dense Matrix dup-dup mult trans test passed!");
-            else
+            if (!ret)
                 Console.OUT.println("--------Dup Dense Matrix dup-dup mult trans test failed!--------");
             return ret;
         }
@@ -125,15 +114,13 @@ public class TestDupMult {
 
             val da = a.getMatrix();
             val dc = DenseMatrix.make(M,N);
-            DenseMatrixBLAS.comp(da, b, dc, false);
+            DenseMatrixBLAS.comp(1.0, da, b, 0.0, dc);
 
             var ret:Boolean = c.equals(dc);
             ret &= c.syncCheck();
 
-            if (ret)
-                Console.OUT.println("Dup dense Matrix addsub test passed!");
-            else
-                Console.OUT.println("--------Dup Dense Matrix addsub test failed!--------");
+            if (!ret)
+                Console.OUT.println("--------Dup Dense Matrix mult add test failed!--------");
             return ret;
         }
     }

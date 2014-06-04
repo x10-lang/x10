@@ -114,9 +114,7 @@ class BlockSetCommTest {
 				ds*8, avgt, 8000.0*ds/avgt/1024/1024);
 		
 		ret = dst.checkSync();
-		if (ret)
-			Console.OUT.println("P2P CopyTo dup blockset matrix passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------P2P CopyTo dup blockset matrix test failed!--------");
 		
 		return ret;
@@ -147,9 +145,7 @@ class BlockSetCommTest {
 		Console.OUT.printf("P2P copyFrom %d bytes: %.3f ms, thput: %2.2f MB/s per iteration\n", 
 				ds*8, avgt, 8000.0*ds/avgt/1024/1024);
 
-		if (ret) 
-			Console.OUT.println("P2P CopyFrom dup blockset matrix check passed!");
-		else
+		if (!ret) 
 			Console.OUT.println("--------P2P CopyFrom dup block set matrix test failed!--------");
 		
 		return ret;
@@ -180,9 +176,7 @@ class BlockSetCommTest {
 						   ds*8, avgt/numplace);
 		
 		//ret = dbmat.syncCheck();
-		if (ret)
-			Console.OUT.println("Bcast dist block matrix passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Bcast block matrix test failed!--------");
 		
 		return ret;
@@ -205,9 +199,7 @@ class BlockSetCommTest {
 				dmat.local().equals(numplace as Double)
 			};
 		}
-		if (ret)
-			Console.OUT.println("Test reduceSum for dist block set matrix test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("-----Test reduceSum for dist block set matrix failed!-----");
 		return ret;
 	}

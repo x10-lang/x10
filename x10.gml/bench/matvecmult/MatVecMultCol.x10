@@ -8,7 +8,6 @@ import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;
@@ -21,13 +20,8 @@ import x10.matrix.dist.DistMultDistToDup;
 /**
  * This class contain a different partitioning of Matrix * Vector.
  * Matrx A and vector V are partitioned column-wise and row-wise in the same way. 
-   <p>
-
-   <p>
  */
-
 public class MatVecMultCol{
-	
     public static def main(args:Rail[String]) {
     	
     	val M   = args.size > 0 ? Long.parse(args(0)):100;
@@ -41,9 +35,8 @@ public class MatVecMultCol{
 }
 
 class DVMultColwise {
-	val it:Int;
-	val vrf:Int;
-	
+	val it:Long;
+	val vrf:Long;
 
 	val M:Long;
 	val partA:Grid;
@@ -60,7 +53,7 @@ class DVMultColwise {
 	public var cmpt:Double = 0.0;
 	public var comt:Double = 0.0;
 
-	public def this(m:Long, nnz:Double, i:Int, v:Int) {
+	public def this(m:Long, nnz:Double, i:Long, v:Long) {
 		M=m;
 		it = i; vrf=v;
 		
@@ -71,7 +64,7 @@ class DVMultColwise {
 		dstA  = DistSparseMatrix.make(partA, nnz) as DistSparseMatrix(M,M);
 		dstA.initRandom(nnz);
 		//dstA.init(1.0);
-		dstA.printRandomInfo();
+		dstA.printStatistics();
 		
 		V     = DenseMatrix.make(M,1);
 		partV = new Grid(M, 1, numP, 1); // Vector is partitioned row-wise
@@ -127,7 +120,7 @@ class DVMultColwise {
 		Console.OUT.printf("Starting verification on dense matrix\n");
 		
 		for (1..it) {
-			DenseMatrixBLAS.comp(ma, mb, mc, false);
+			mc.mult(ma, mb);
 			mc.copyTo(mb);
 		}
 		
@@ -138,6 +131,5 @@ class DVMultColwise {
 			Console.OUT.println("-----Dist*Dist->Dup MatVecMult test failed!-----");
 		return ret;
 	}
-	
 }
 

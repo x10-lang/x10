@@ -50,9 +50,7 @@ class DDMult {
  		// Set the matrix function
 		ret &= (testDistS_DupD());
 
-		if (ret)
-			Console.OUT.println("Dist Dup multiplication Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist-Dup multiplication Test failed!--------");
 	}
 
@@ -61,7 +59,7 @@ class DDMult {
         var ret:Boolean = true;
     @Ifndef("MPI_COMMU") { // TODO DupDenseMatrix.init deadlocks!
 		val numP = Place.numPlaces();//Place.MAX_PLACES;
-		Console.OUT.printf("\nTest Dist sparse mult Dup dense over %d places\n", numP);
+		Console.OUT.printf("Test Dist sparse mult Dup dense over %d places\n", numP);
 		val gpartA = new Grid(M, K, numP, 1);
 		val da = DistSparseMatrix.make(gpartA, nnz);
 		da.initRandom(nnz);
@@ -77,12 +75,10 @@ class DDMult {
 		val ma = da.toDense();
 		val mb = db.getMatrix();
 		val mc = DenseMatrix.make(ma.M, mb.N);
-		DenseMatrixBLAS.comp(ma, mb, mc, false);
+		DenseMatrixBLAS.comp(1.0, ma, mb, 0.0, mc);
 
 		ret = dc.equals(mc);
-		if (ret)
-			Console.OUT.println("DistCSC-DupDense multplication test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("-----DistCSC-DupDense multplication test failed!-----");
     }
 		return ret;
