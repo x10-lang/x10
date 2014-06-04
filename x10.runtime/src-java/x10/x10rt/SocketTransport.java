@@ -49,11 +49,11 @@ public class SocketTransport {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
 	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
-	private static final String UTF8 = "UTF-8";
+	static final String UTF8 = "UTF-8";
 	private static final String DEAD = "DEAD";
 	private static enum PROBE_TYPE {ACCEPT, ACCEPTORWRITE, ALL};
 	private static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
-	private static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED, GET_PLACE_REQUEST, GET_PLACE_RESPONSE}; // note that GET_PLACE_REQUEST does not overlap with CTRL_MSG_TYPE
+	static enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED, GET_PLACE_REQUEST, GET_PLACE_RESPONSE, CONNECT_DATASTORE}; // note that GET_PLACE_REQUEST does not overlap with CTRL_MSG_TYPE
 	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
@@ -547,6 +547,12 @@ public class SocketTransport {
 						}
 						else
 							System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
+					}
+					else if (msgType == MSGTYPE.CONNECT_DATASTORE.ordinal()) {
+						byte[] linkdata = new byte[datalen];
+						bb.get(linkdata);
+						String linkString = new String(linkdata, UTF8);
+						X10RT.initDataStore(linkString);
 					}
 					else 
 						System.err.println("Unknown message type: "+msgType);

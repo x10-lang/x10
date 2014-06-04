@@ -1,37 +1,57 @@
 package x10.x10rt;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
 import com.hazelcast.config.Config;
+import com.hazelcast.config.InterfacesConfig;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-/*
- * Much to do here.  Currently, this only works if all places are on the same machine, 
- * and only if there is a single X10 computation running.
- * 
- * TODO: control how hazelcast finds other hazelcast instances.  This will enable 
- * running across multiple machines, and multiple independent X10 programs running
- * at the same time on the same machines without interfering with each other.
- */
 public class HazelcastDatastore {
-	private final HazelcastInstance hazelcast;
+	private final HazelcastInstance hazelcast; // handle on hazelcast
+	private final String publicAddress; // the ip:port that can be used to connect to the local hazelcast
 	
 	// if leader argument is null, then we are the leader
 	HazelcastDatastore(String leader) {
-		// TODO: adjust config based on leader.  For now, localhost only
+		String launcherProvidedHostname = System.getenv("X10_LAUNCHER_HOST");
+
 		Config config = new Config();
-		config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-		config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
-		config.getNetworkConfig().getJoin().getTcpIpConfig().addMember("127.0.0.1");
+		NetworkConfig netconfig = config.getNetworkConfig();
+		if (launcherProvidedHostname != null) { // override the network interfaces used to match the hostfile/hostlist
+			try {
+				String IP = InetAddress.getByName(launcherProvidedHostname).getHostAddress();
+				netconfig = netconfig.setInterfaces(new InterfacesConfig().addInterface(IP).setEnabled(true));
+			} catch (UnknownHostException e) {
+				// InetAddress.getByName() failed.  address not usable.  Let hazelcast pick one instead
+			}
+		}
+		JoinConfig join = netconfig.setPortAutoIncrement(true).getJoin();
+		join.getMulticastConfig().setEnabled(false);
+		join.getTcpIpConfig().setEnabled(true).setRequiredMember(leader);
 		hazelcast = Hazelcast.newHazelcastInstance(config);
+		InetSocketAddress addr = (InetSocketAddress) hazelcast.getLocalEndpoint().getSocketAddress();
+		publicAddress = addr.getAddress().getHostAddress()+':'+addr.getPort();
 	}
 	
 	String getConnectionInfo() {
-		return hazelcast.getConfig().getNetworkConfig().getPublicAddress();
+		return publicAddress;
 	}
 	
 	@SuppressWarnings("rawtypes")
 	IMap getResilientMap(String name) {
 		return hazelcast.getMap(name);
+	}
+	
+	int getContainerCount() {
+		return hazelcast.getCluster().getMembers().size();
+	}
+	
+	void shutdown() {
+		hazelcast.shutdown();
 	}
 }

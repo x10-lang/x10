@@ -11,6 +11,9 @@
 
 package x10.x10rt;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+
 import com.hazelcast.core.IMap;
 
 import x10.lang.GlobalRail;
@@ -124,12 +127,9 @@ public class X10RT {
         else
         	x10.runtime.impl.java.Runtime.MAX_PLACES = connectionInfo.length;
 
-        // initialize hazelcast if X10RT_HAZELCAST has been set to true
-        if ("Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))){
-        	hazelcastDatastore = new HazelcastDatastore(null);
-        }
-
         state = State.RUNNING;
+        initDataStore();
+
         return true;
     }
 
@@ -205,6 +205,8 @@ public class X10RT {
                       } else {
                           if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
                       }
+                      if (hazelcastDatastore != null)
+                    	  hazelcastDatastore.shutdown();
                       state = State.TORN_DOWN;
                       System.err.flush();
                       System.out.flush();
@@ -212,11 +214,9 @@ public class X10RT {
               }}));
       }
       
-      // initialize hazelcast if X10RT_HAZELCAST has been set to true
-      if ("Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))){
-    	  hazelcastDatastore = new HazelcastDatastore(null);
-      }
       state = State.RUNNING;
+      initDataStore();
+
       return true;
     }
 
@@ -361,6 +361,9 @@ public class X10RT {
     		ret = javaSockets.shutdown();
     	else
     		ret = x10rt_finalize();
+    	
+    	if (hazelcastDatastore != null)
+    		hazelcastDatastore.shutdown();
     	state = State.TORN_DOWN;
     	return ret;
     }
@@ -373,6 +376,53 @@ public class X10RT {
     		return hazelcastDatastore.getResilientMap(name);
     	else
     		return null;
+    }
+    
+    // this form of initDataStore is called as a part of normal startup.
+    private static void initDataStore() {
+        // initialize hazelcast if X10RT_HAZELCAST has been set to true, and this is place 0
+    	// we only start at 0 because the other places need to join an existing hazelcast cluster, 
+    	// and the cluster is seeded via at least one other hazelcast instance.  place 0 doesn't join
+    	// an existing cluster - it is the start of one.
+    	
+    	if (here == 0 && "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))) {
+    		if (X10RT.javaSockets == null) {
+    			System.err.println("Error: you specified X10RT_DATASTORE=Hazelcast, but are not using JavaSockets, which is required.  Hazelcast is disabled.");
+    			return;
+    		}
+    		// initialize a new hazelcast cluster
+        	hazelcastDatastore = new HazelcastDatastore(null);
+        	
+        	// go to all other places, and tell them to connect to my newly created hazelcast cluster (of one, so far)
+      	   	ByteBuffer[] connectionBytes;
+			try {
+				connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
+	      	   	for (int i=1; i<numPlaces(); i++)
+	      	   		javaSockets.sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, i, 0, connectionBytes);
+
+			} catch (UnsupportedEncodingException e) {
+				// this won't happen, because UTF8 is a required encoding
+				e.printStackTrace();
+				assert(false);
+			}
+			
+			// wait until the number of expected containers have joined us
+			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// nothing to do - just go back and check again
+				}
+			}
+			// hazelcast is up and running in all places.  Return, and allow the user program to begin
+    	}
+    }
+    
+    // this form of initDataStore is used to load the data store on demand after normal startup
+    // it takes one argument which is used to describe where this datastore should connect to
+    static void initDataStore(String connectTo) {
+    	//System.out.println("Connecting to hazelcast at "+connectTo);
+    	hazelcastDatastore = new HazelcastDatastore(connectTo);
     }
     
     /*
