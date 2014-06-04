@@ -54,6 +54,7 @@ comm_src=\
 	x10/matrix/comm/DenseRemoteDestInfo.x10 \
 	x10/matrix/comm/MatrixGather.x10 \
 	x10/matrix/comm/MatrixRingCast.x10 \
+    x10/matrix/comm/RemotePair.x10 \
 	x10/matrix/comm/SparseRemoteSourceInfo.x10\
 	x10/matrix/comm/BlockRemoteCopy.x10 \
 	x10/matrix/comm/BlockBcast.x10 \
@@ -173,7 +174,7 @@ lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
 
 
-X10_FLAG	+= -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	+= -VERBOSE_CHECKS -O -NO_CHECKS -g
 ifdef COVERAGE
     X10_FLAG += -cxx-prearg --coverage
     POST_LDFLAGS += --coverage
@@ -185,23 +186,17 @@ MPI_X10CXXFLAGS   = -x10rt mpi -define MPI_COMMU -cxx-prearg -DMPI_COMMU
 
 X10CXXFLAGS += -report postcompile=1 -post ' \# $(POST_CXXFLAGS) \# $(POST_LDFLAGS)'
 
-###
-# __bgp__ should be defined on Blue gene env
-
 POST_CPP_SLNK = $(BLAS_CFLAG) $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###################################################
 # X10 file built rules
 ################################################### 
 
-###----------------------------------------------------
-
-###----------------------------------------------------
 ### build dist lib, multi-place parallel execution 
 ## build for managed backend
 jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 	@echo "------------------ build lib for $(target) on $(HOSTNAME)-------------------"
-	cd $(src_path) && $(X10C) $(X10CFLAGS) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
+	cd $(src_path) && $(X10C) $(X10_FLAG) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
 	@echo "------------ making properties file for $(target) ------------"
 	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(target).properties
 
@@ -209,7 +204,7 @@ jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 ## build for native backend
 clib : $(clib_src) chk_dir
 	@echo "------------------ build lib for $(target) on $(HOSTNAME) -------------------"
-	cd $(src_path) && $(X10CXX) $(X10CXXFLAGS) $(extra_opts) -buildx10lib ../. $(src) -d ../include -o $(target)
+	cd $(src_path) && $(X10CXX) $(X10_FLAG) $(X10CXXFLAGS) $(extra_opts) -buildx10lib ../. $(src) -d ../include -o $(target)
 	@echo "-------- Packaging source files into jar for $(target)--------"
 	cd $(src_path) && $(JAR) -cf ../lib/$(target).jar $(src)
 	@echo "------------ making properties file for $(target) ------------"

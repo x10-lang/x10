@@ -91,7 +91,7 @@ ifeq ($(BLASLIB),ESSL)
     ifdef ADD_BLAS
         XLSMP_LIB_PATH ?= /opt/ibmcmp/xlsmp/3.1/lib64
         XLF_LIB_PATH ?= /opt/ibmcmp/xlf/14.1/lib64
-        POST_LDFLAGS += -L/usr/lib64 -L$(XLSMP_LIB_PATH) -L$(XLF_LIB_PATH) -lesslsmp -lxlf90_r -lxl -lxlsmp -lxlfmath
+        POST_LDFLAGS += -L/usr/lib64 -L$(XLSMP_LIB_PATH) -L$(XLF_LIB_PATH) -lesslsmp6464 -lxlf90_r -lxl -lxlsmp -lxlfmath
         ifdef ADD_LAPACK
             POST_LDFLAGS += -llapack
         endif
