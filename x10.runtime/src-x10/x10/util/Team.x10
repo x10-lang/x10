@@ -387,14 +387,12 @@ public struct Team {
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
-        }
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+        } else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering pre-allreduce barrier on team "+id);
             barrier();
             if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
-        }
-    	else {
+        } else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 allreduce on team "+id);
     	    state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
     	}
@@ -430,14 +428,7 @@ public struct Team {
     private def genericAllreduce[T] (src:T, op:Int) : T {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
-        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-            finish nativeAllreduce[T](id, id==0n?here.id() as Int:Team.roles(id), chk, dst, op);
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
-            barrier();
-            finish nativeAllreduce[T](id, id==0n?here.id() as Int:Team.roles(id), chk, dst, op);
-        }
-        else
-            state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, chk, 0, dst, 0, 1, op);
+        allreduce(chk, 0, dst, 0, 1, op);
         return dst(0);
     }
 
