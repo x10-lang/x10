@@ -201,9 +201,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 			    @Override
 				protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq)  {
-		    		ToRoseVisitor.isGatheringFile = false;
+			    	ToRoseVisitor.isGatheringFile = false;
 		    		ToRoseVisitor roseVisitor = new ToRoseVisitor(null, null);
-		    		roseVisitor.setFileList(extInfo.getOptions().source_path);
 		    		
 			    	for (int i = 0; i < sourceList.size(); ++i) {
 			    		SourceFile_c file = sourceList.get(i);
@@ -213,7 +212,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			    		if (!fileStatus.isDefHandled())
 			    			roseVisitor.visitDefinitions();
 			    		roseVisitor.addFileIndex();
-			    	} 			
+			    	}
 			    	
 					if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 						return true;
@@ -221,8 +220,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 					return true;
 				}
 			}.intern(this);
-		}		
-
+		}
+    
 		public Goal CheckASTForErrors(Job job) {
 			return new SourceGoal_c("CheckASTForErrors", job) {
 				private static final long serialVersionUID = 565345690079406384L;

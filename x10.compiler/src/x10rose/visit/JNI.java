@@ -13,6 +13,8 @@ import java.util.*;
 // class JavaTraversal {
 import java.util.concurrent.Callable;
 
+import x10.visit.X10DelegatingVisitor;
+
 class JNI implements Callable<Boolean> {
 
 	static {
@@ -90,7 +92,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
 
     public static native void cactionTypeParameterReference(String package_name, String type_name, int method_index, String type_parameter_name, JavaToken jToken);
-    public static native void cactionTypeReference(String package_name, String type_name, RoseTranslator.ToRoseVisitor visitor, JavaToken jToken);
+    public static native void cactionTypeReference(String package_name, String type_name, /*RoseTranslator.ToRoseVisitor*/Object visitor, JavaToken jToken);
 //    public static native void cactionTypeReference(String packageName, String name);
 
     public static native void cactionQualifiedTypeReference(String package_name, String type_name, JavaToken jToken);
@@ -261,6 +263,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionArgumentName(String name);
     public static native void cactionArgumentModifiers(int modifiers);
     
+	public static native void cactionSetCurrentClassName(String typename);
 	public static native void cactionSetCurrentFilePath(String filepath);
 
     //**********************************************************
