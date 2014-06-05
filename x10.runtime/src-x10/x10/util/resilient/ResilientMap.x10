@@ -17,6 +17,7 @@ import x10.interop.Java;
 import x10.util.Box;
 
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * The ResilientMap class implements a resilient Map using Hazelcast as the underlying implementation.
@@ -68,6 +69,25 @@ public class ResilientMap[K,V] {
     };
 
     /**
+     * Applies the user defined EntryProcessor to the all entries in the map.
+     * Returns the results mapped by each key in the map. 
+     */
+    public def executeOnEntries(entryProcessor: com.hazelcast.map.EntryProcessor, 
+                           predicate: com.hazelcast.query.Predicate): java.util.Map {
+        return keyValueMap.executeOnEntries(entryProcessor, predicate);
+    };
+
+    /**
+     * Release the lock for the specified key regardless of the lock owner.
+     * It always successfully unlocks the key, never blocks and returns
+     * immediately (according to Hazelcast javadoc). 
+     * 
+     */
+    public def forceUnlock(k: K): void {
+        keyValueMap.forceUnlock(k);
+    };
+
+    /**
      * Get the value of key k in the resilient map.
      */
 //    @Native("java", "(#V)((keyValueMap).get(#k))")
@@ -82,6 +102,14 @@ public class ResilientMap[K,V] {
      */
     @Native("java", "(keyValueMap).isEmpty()")
     public native def isEmpty(): Boolean;
+
+    /**
+     * Check lock for key k.  Return true iff lock for key k is acquired.
+     * 
+     */
+    public def isLocked(k: K): boolean {
+        return keyValueMap.isLocked(k);
+    };
 
     /**
      * Acquires the lock for the specified key.
@@ -126,6 +154,14 @@ public class ResilientMap[K,V] {
     };
 
     /**
+     * Asynchronously put value v with key k in the resilient map.  Return
+     * a future.  Thread can continue executing before put completes.
+     */
+    public def putAsync(k: K, v: V): java.util.concurrent.Future {
+        return keyValueMap.putAsync(k, Java.serialize(v));
+    };
+
+    /**
      * Remove any value associated with key k from the resilient map.
      */
 //    @Native("java", "(#V)((keyValueMap).remove(#k))")
@@ -135,10 +171,27 @@ public class ResilientMap[K,V] {
     };
 
     /**
+     * Asynchronously remove the given key.
+     */
+    public def removeAsync(k: K): java.util.concurrent.Future {
+        return keyValueMap.removeAsync(k);
+    };
+
+    /**
      * Return number of key-value pairs in the resilient map.
      */
     @Native("java", "(keyValueMap).size()")
     public native def size(): Long;
+
+    /**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns 
+     * immediately. 
+     */
+    public def submitToKey(k: K, entryProcessor: com.hazelcast.map.EntryProcessor, 
+                           callback: com.hazelcast.core.ExecutionCallback): void {
+        keyValueMap.submitToKey(k, entryProcessor, callback);
+    };
 
     /**
      * Acquires the lock for the specified key.
