@@ -164,6 +164,7 @@ import x10.ast.Tuple_c;
 import x10.ast.TypeDecl_c;
 import x10.ast.TypeParamNode;
 import x10.ast.When_c;
+import x10.ast.X10AmbTypeNode_c;
 import x10.ast.X10Binary_c;
 import x10.ast.X10BooleanLit_c;
 import x10.ast.X10Call_c;
@@ -570,12 +571,10 @@ public class RoseTranslator extends Translator {
 		}
 		
 		public boolean addFileIndex() {
-			System.out.println("ADDFILE " + fileIndex);
 			if (++fileIndex == numSourceFile) {
 				--fileIndex;
 				return false;
 			}
-			System.out.println("ADDFILE2 " + fileIndex);
 			return true;
 		}
 		
@@ -1042,7 +1041,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(X10CanonicalTypeNode_c n) {
-			toRose(n, "X10CanonicalTypeNode:", n.nameString());
+			toRose(n, "X10CanonicalTypeNode:", n.nameString(), n.type()+"");
 			String canonicalTypeName = n.nameString();
 			if (   canonicalTypeName.equals("void")
 				|| canonicalTypeName.equals("boolean")
@@ -1055,14 +1054,14 @@ public class RoseTranslator extends Translator {
 				|| canonicalTypeName.equals("double")) {
 				JNI.cactionTypeReference("", n.nameString(), this, createJavaToken());
 			}
-			else if (	  n.nameString().indexOf("Rail[") == 0
-					  || n.nameString().indexOf("GrowableRail[") >= 0
+			else if (	  n.type().toString().indexOf("x10.lang.Rail[") == 0
+					  || n.type().toString().indexOf("x10.util.GrowableRail[") == 0
 					  ) {
 				String railString = n.type().toString();
-				String type = railString.substring(railString.indexOf('[')+1, railString.indexOf(']'))
-											.replaceAll("x10.lang.", "")  // so far, eliminate package name
-											.replaceAll("x10.util.", ""); // so far, eliminate package name
-//											.toLowerCase();
+				String type = railString.substring(railString.indexOf('[')+1, railString.indexOf(']'));
+				int lastDot = type.lastIndexOf(".");
+				// so far, eliminate package name
+				type = type.substring(lastDot+1);
 		
 				JNI.cactionTypeReference("", type, this, createJavaToken());
 				JNI.cactionArrayTypeReference(1, createJavaToken());
@@ -1583,10 +1582,17 @@ public class RoseTranslator extends Translator {
 //			return this;
 //		}		
 		
-		public void visitDeclarations(X10ClassDecl_c n) {
-			toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id().toString());
-			String class_name = n.name().id().toString();
-			
+//		public void visitDeclarations(X10ClassDecl_c n) {
+		public void visitDeclarations(Term_c n) {
+			toRose(n, "X10ClassDecl in visitDeclarations:", n.toString());
+			String class_name = "";
+			if (n instanceof X10ClassDecl_c) 
+				class_name = ((X10ClassDecl_c) n).name().id().toString();
+			else if (n instanceof AmbTypeNode_c) 
+				class_name = ((X10AmbTypeNode_c) n).name().toString().replaceAll("\\{amb\\}", "");
+		   else 
+		       throw new RuntimeException("Unexpected node type are detected");
+		
 			classMemberMap.put(class_name, memberMap);
 
 			JNI.cactionSetCurrentClassName(class_name);
@@ -1596,7 +1602,11 @@ public class RoseTranslator extends Translator {
 			// does not consider nested class so far
 			JNI.cactionInsertClassEnd(class_name, createJavaToken(n, class_name));
 			
-	       List<ClassMember> members = ((X10ClassBody_c)n.body()).members();
+	       List<ClassMember> members = null;
+	       if (n instanceof X10ClassDecl_c) 
+	    	   members = ((X10ClassBody_c)((X10ClassDecl_c) n).body()).members();
+	       else if (n instanceof X10AmbTypeNode_c) 
+	    	   members = new ArrayList<ClassMember>();
 	        
         	JNI.cactionBuildClassSupportStart(class_name, "", true, // a user-defined class?
                     false, false, false,	false,	createJavaToken(n, class_name));
@@ -1871,20 +1881,31 @@ public class RoseTranslator extends Translator {
 	            toRose(fieldDecl, "Previsit field decl end: ", fieldName);
 	        }
 		
-	     boolean flag = true;
+	   boolean isClassFound = false;
 		public NodeVisitor enter(Node n) {
-			if (flag) {
-//			System.out.println("enter " + n);
+			if (isClassFound) 
+				return this;
+			
 			if (n instanceof X10ClassDecl_c) {
 				String type = ((X10ClassDecl_c) n).name().toString();
-//				System.out.println("X10ClassDecl : " + type + ", class_name=" + class_name);
 				if (type.equals(class_name) || type.toLowerCase().equals(class_name)) {
 					System.out.println("this.hashcode()=" + this.hashCode() + ", Type matched for " + type);
 					isClassMatched = true;
 					if (isPackageMatched) {
 						visitDeclarations((X10ClassDecl_c)n);
 //						visitDefinitions((X10ClassDecl_c)n); // so far, only declarations should be resolved
-						flag = false;
+						isClassFound = true;
+					}
+				}
+			}
+			else if (n instanceof X10AmbTypeNode_c) {
+				String type = ((X10AmbTypeNode_c) n).name().toString();
+				if (type.equals(class_name) || type.toLowerCase().equals(class_name)) {
+					isClassMatched = true;
+					if (isPackageMatched) {
+						visitDeclarations((X10AmbTypeNode_c)n);
+//						visitDefinitions((X10ClassDecl_c)n); // so far, only declarations should be resolved
+						isClassFound = true;
 					}
 				}
 			}
@@ -1894,11 +1915,11 @@ public class RoseTranslator extends Translator {
 					if (isClassMatched) {
 						visitDeclarations((X10ClassDecl_c)n);
 //						visitDefinitions((X10ClassDecl_c)n);	// so far, only declarations should be resolved
-						flag = false;				
+						isClassFound = true;				
 					}
 				}
 			}
-			}
+
 			return this;
 		}
 		
@@ -2118,7 +2139,6 @@ public class RoseTranslator extends Translator {
 				
 				public  void searchFileList(String packageName, String typeName) throws IOException {
 					String fileName =  (packageName.length() == 0 ? "" : ".") + typeName + ".x10";
-//					System.out.println("fileName =" + fileName);
 					for (Job job : jobList) {
 						FileSource source = (FileSource) job.source();
 						Reader reader = source.open();
@@ -2130,7 +2150,6 @@ public class RoseTranslator extends Translator {
 						ast.visit(tVisitor);
 
 						if (tVisitor.isFound()) {
-							System.out.println(typeName + " found in TypeVisitor, ast=" + ast);
 							tVisitor.createTypeReferenceEnd();	
 							return;
 						}
@@ -2140,7 +2159,7 @@ public class RoseTranslator extends Translator {
 				public void visit(AmbTypeNode_c n) {
 					String raw = n.toString(); // n.nameString() throws NullPointerException, so use toString() instead
 			       String ambTypeName = raw.replaceAll("\\{amb\\}", "");
-					System.out.println("AmbTypeNode_c : " + ambTypeName +", type=" + n.type());
+//					System.out.println("AmbTypeNode_c : " + ambTypeName +", type=" + n.type());
 
 					if (  ambTypeName.equals("void")
 						|| ambTypeName.equals("boolean")
@@ -2162,10 +2181,14 @@ public class RoseTranslator extends Translator {
 							  || ambTypeName.indexOf("GrowableRail[") >= 0
 							  ) {
 						// n.type() and n.nameString() return null, so manipulate string
-						String type = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'))
-													.replaceAll("x10.lang.", "") // so far, eliminate package name
-													.replaceAll("x10.util.", ""); // so far, eliminate package name
-
+						String type = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'));
+//													.replaceAll("x10.lang.", "") // so far, eliminate package name
+//													.replaceAll("x10.util.", ""); // so far, eliminate package name
+						int lastDot = type.lastIndexOf(".");
+						// so far, eliminate package name
+						type = type.substring(lastDot+1);
+						
+						
 						System.out.println("Rail => " + type);
 						JNI.cactionTypeReference("", type, this, createJavaToken());
 						JNI.cactionArrayTypeReference(1, createJavaToken());
@@ -2190,7 +2213,7 @@ public class RoseTranslator extends Translator {
 							type = className;
 						}
 						
-						System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type + ", ambType=" + ambTypeName + ", raw=" + raw);
+//						System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type + ", ambType=" + ambTypeName + ", raw=" + raw);
 						// So far, I use a representation without package name such as "Rail". 
 						// If I use a representation such as "x10.lang.Rail", lookupTypeByName() function tries
 						// to look for a type name whether the type name is already registered or not. (and, there is
@@ -2373,15 +2396,15 @@ public class RoseTranslator extends Translator {
 						|| canonicalTypeName.equals("long")
 						|| canonicalTypeName.equals("double")) {
 						JNI.cactionTypeReference("", n.nameString(), this, createJavaToken());
-					}
-					else if (	  n.nameString().indexOf("Rail[") == 0
-							  || n.nameString().indexOf("GrowableRail[") >= 0
+					}			
+					else if (   n.type().toString().indexOf("x10.lang.Rail[") == 0
+							  || n.type().toString().indexOf("x10.util.GrowableRail[") == 0
 							  ) {
 						String railString = n.type().toString();
-						String type = railString.substring(railString.indexOf('[')+1, railString.indexOf(']'))
-													.replaceAll("x10.lang.", "") // so far, eliminate package name
-													.replaceAll("x10.util.", ""); // so far, eliminate package name
-//													.toLowerCase();
+						String type = railString.substring(railString.indexOf('[')+1, railString.indexOf(']'));
+						int lastDot = type.lastIndexOf(".");
+						// so far, eliminate package name
+						type = type.substring(lastDot+1);
 							
 						JNI.cactionTypeReference("", type, this, createJavaToken());
 						JNI.cactionArrayTypeReference(1,  createJavaToken());
