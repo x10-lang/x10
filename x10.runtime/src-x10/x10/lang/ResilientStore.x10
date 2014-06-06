@@ -19,6 +19,7 @@ abstract public class ResilientStore[K,V] {
         var rs:ResilientStore[K,V];
         //TODO: support other implementations
         rs = ResilientStorePlace0.make[K,V](name);
+        //rs = ResilientStoreHC.make[K,V](name);
         if (verbose>=1) debug("ResilientStore.make returning rs="+rs);
         return rs;
     }

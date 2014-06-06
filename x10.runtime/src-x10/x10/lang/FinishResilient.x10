@@ -63,6 +63,7 @@ abstract class FinishResilient extends FinishState {
         var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
+        case Configuration.RESILIENT_MODE_SAMPLE_HC:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
             val l = (latch!=null) ? latch : new SimpleLatch();
@@ -98,6 +99,7 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=1) debug("FinishResilient.notifyPlaceDeath called");
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_SAMPLE:
+        case Configuration.RESILIENT_MODE_SAMPLE_HC:
             FinishResilientSample.notifyPlaceDeath();
             break;
         case Configuration.RESILIENT_MODE_PLACE0:

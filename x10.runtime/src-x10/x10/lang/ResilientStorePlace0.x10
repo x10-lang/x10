@@ -114,6 +114,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     private transient val waitQueue:MyQueue[GlobalRef[MyLatch]] = new MyQueue[GlobalRef[MyLatch]]();
     private transient var waitCount:Long = -1; // number of waiters, -1 means not locked
+    private transient var lockPlaceId:Long = -1; // place id of current lock owner
     
     public def lock():void { //TODO: should support recursive lock?
         if (verbose>=3) debug("lock called");
@@ -122,7 +123,10 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
         lowLevelFetch(root.home, needWait, ()=>{
             val me = getMe();
             atomic {
-                if (++me.waitCount == 0) return false;
+                if (++me.waitCount == 0) {
+                    me.lockPlaceId = gLatch.home.id;
+                    return false; // need not wait
+                }
                 me.waitQueue.add(gLatch); return true;
             }
         });
@@ -138,36 +142,70 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     public def unlock():void {
         if (verbose>=3) debug("unlock called");
-        val toRelease = new Cell[GlobalRef[MyLatch]](GlobalRef(null as MyLatch));
-        lowLevelFetch(root.home, toRelease, ()=>{
+        lowLevelAt(root.home, ()=>{
             val me = getMe();
             var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
             atomic {
-                if (--me.waitCount >= 0) gLatch = me.waitQueue.remove();
+                while (--me.waitCount >= 0) {
+                    gLatch = me.waitQueue.remove();
+                    if (!gLatch.home.isDead()) break;
+                    if (verbose>=3) debug("unlock skipped deadPlace gLatch="+gLatch);
+                }
             }
-            return gLatch;
-        });
-        val gLatch = toRelease();
-        if (!gLatch.isNull()) {
+            if (gLatch.isNull()) { // no living waiter
+                if (verbose>=3) debug("unlock no living waiter");
+                assert me.waitCount==-1;
+                me.lockPlaceId = -1;
+                return;
+            } 
             if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
+            me.lockPlaceId = gLatch.home.id;
             val g = gLatch;
             lowLevelSend(g.home, ()=>{
                 if (verbose>=3) debug("unlock releasing gLatch="+g);
                 g.getLocalOrCopy().release();
                 if (verbose>=3) debug("unlock released gLatch="+g);
             });
-        }
+        });
         if (verbose>=3) debug("unlock returning (unlocked)");
     }
+    
+    public def notifyPlaceDeath():void { // called from the lock user (TOOD: change this)
+        if (verbose>=3) debug("notifyPlaceDeath called");
+        if (root.home!=here) {
+            if (verbose>=3) debug("notifyPlaceDeath returning, not my place");
+            return;
+        }
+        val me = getMe();
+        atomic {
+            if (me.waitCount < 0) {
+                if (verbose>=3) debug("notifyPlaceDeath returning, not locked");
+                return;
+            }
+            if (!Place.isDead(me.lockPlaceId)) {
+                if (verbose>=3) debug("notifyPlaceDeath returning, lockPlace is alive");
+                return;
+            }
+            if (verbose>=3) debug("lockPlace " + me.lockPlaceId + " died, force unlock");
+            unlock();
+            if (verbose>=3) debug("notifyPlaceDeath forced unlock, new waitCount=" + me.waitCount);
+        }
+        if (verbose>=3) debug("notifyPlaceDeath returning");
+    }
+    
     // public def unlock():void {
     //     if (verbose>=3) debug("unlock called");
-    //     lowLevelAt(root.home, ()=>{
+    //     val toRelease = new Cell[GlobalRef[MyLatch]](GlobalRef(null as MyLatch));
+    //     lowLevelFetch(root.home, toRelease, ()=>{
     //         val me = getMe();
     //         var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
     //         atomic {
     //             if (--me.waitCount >= 0) gLatch = me.waitQueue.remove();
     //         }
-    //         if (gLatch.isNull()) return;
+    //         return gLatch;
+    //     });
+    //     val gLatch = toRelease();
+    //     if (!gLatch.isNull()) {
     //         if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
     //         val g = gLatch;
     //         lowLevelSend(g.home, ()=>{
@@ -175,7 +213,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     //             g.getLocalOrCopy().release();
     //             if (verbose>=3) debug("unlock released gLatch="+g);
     //         });
-    //     });
+    //     }
     //     if (verbose>=3) debug("unlock returning (unlocked)");
     // }
 }
