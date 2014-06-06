@@ -36,7 +36,7 @@ public class ResilientMontePi {
                         val x = rand.nextDouble();
                         val y = rand.nextDouble();
                         if (x*x + y*y <= 1.0) total++;
-			if (iter % 1000 == 0) {
+			if (iter % 10000 == 0) {
                             val id = here.id;
 			    myResultsMap.put(id, total + " " + iter);
                             if (here.id == victim && iter > ITERS/2) {
