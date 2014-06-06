@@ -472,7 +472,7 @@ public class DenseMatrixBLAS {
      */
     public static def symRankKUpdateTrans(
             alpha:Double, A:DenseMatrix,
-            beta:Double,  C:DenseMatrix{C.M==C.N,C.N==A.N},
+            beta:Double,  C:DenseMatrix,
             dim:Rail[Long], offset:Rail[Long], upper:Boolean):void {
         if (CompilerFlags.checkBounds()) {
             Debug.assure(offset(0)+dim(1) <= A.M && offset(1)+dim(0) <= A.N,
