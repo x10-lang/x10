@@ -9,8 +9,7 @@ import x10.compiler.*;
  * using a resilient map provided by X10RT.
  * To run using Hazelcast, invoke x10 script like: 
  * <pre>
- *    X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_DATASTORE=Hazelcast ResilientMontePi 2
- * </pre>
+ * X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePi   
  */
 public class ResilientMontePi {
 
