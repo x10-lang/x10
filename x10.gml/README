@@ -11,33 +11,53 @@
 
 ============== X10 Global Matrix Library (GML) =================
 
-X10 Global Matrix Library implements (double-precision) dense and
+The X10 Global Matrix Library implements double-precision dense and
 sparse matrices, partitioned into blocks and distributed across
-multiple places. Operations provided include cell-wise
-addition/multiplication etc, matrix multiply (using the SUMMA
-algorithm) and others, such as Euclidean distance, sum and etc. 
-The library can run on the Native backend (on sockets and MPI transport), 
-and on the Managed backend (on sockets transport). It has been tested on 
-cluster of multi-core x86 nodes interconnected with Infiniband and ethernet.
+multiple places. Operations provided include cell-wise addition and
+multiplication, matrix multiply (using the SUMMA algorithm) and 
+others including various norm and distance metrics, sum and trace. 
+High-level operations operate on entire matrices and are intended to 
+support a programmer to write in a sequential style while fully 
+exploiting available parallelism.
 
-Some application programs are provided, including Gaussian
-non-negative matrix factorization, pagerank, linear regression and
-logistic regression. Programmers typically call the library by
-creating matrices with an appropriate distribution and then writing
-sequential code to operate on these matrices in parallel.
+The library runs on both Native and Managed backends using the X10RT
+transport; on Native X10 it can also run using a combination of X10RT
+and Native MPI calls. It has been tested on clusters of multi-core x86
+nodes connected with Infiniband and Ethernet and on the IBM Power775
+system.
+
+Some example application programs are provided, including Gaussian
+non-negative matrix factorization, PageRank, linear regression and
+logistic regression.
 
 
 =============================================================
 Instructions
 
-1) System dependency and settings (scripts/system_setting.mk)
+1) System dependencies and settings
    * BLAS (basic linear algebra subprograms). 
-     This library is generally available in most HPC computing systems.
-     If not found, you can download the reference BLAS implementation from http://netlib.org/blas 
-     or multi-threaded GotoBLAS2 from http://www.tacc.utexas.edu/tacc-projects/gotoblas2 .
-  
-     To configure BLAS path, check x10.gml/scripts/system_setting.mk, in which you
-     will find definition lines for "blas_path" and "blas_name".
+     An optimized BLAS implementation is usually available on high-performance
+     computing systems.
+
+   * LAPACK - Linear Algebra PACKage (optional)
+     LAPACK is used to find eigenvalues/vectors and solve linear equations.
+     It is not required to build GML.  If GML is built without LAPACK enabled,
+     an exception will be thrown if the corresponding solver method is called.
+    
+     In system_setting.mk, uncomment "add_lapack=yes" line to build GML with 
+     LAPACK library.  
+     Also make sure "lapack_path" and "lapack_name" are defined correctly.
+
+     The file scripts/system_setting.mk defines build variables POST_CXXFLAGS
+     and POST_LDFLAGS to compile against several commonly used BLAS and LAPACK 
+     implementations, including:
+      - NetLib reference implementation - http://netlib.org/blas
+      - GotoBLAS2 - http://www.tacc.utexas.edu/tacc-projects/gotoblas2
+      - IBM ESSL
+      - Intel MKL
+    
+     If GML fails to compile against the BLAS implementation on your system,
+     you can modify the values of POST_CXXFLAGS and POST_LDFLAGS accordingly.
 
    * Native-MPI backend:
      Uses x10rt=mpi with the corresponding MPI post-compiler.
@@ -45,32 +65,24 @@ Instructions
    * Managed backend: Java SDK include path
      In system_setting.mk, check "JNI_LIBS" is defined correctly.
 
-	- LAPACK - Linear Algebra PACKage (optional)
-	Currently, LAPACK is used to find eigenvalues/vectors and solve linear equations.
-	It is not required by GML, as far as its corresponding methods are not used, otherwise 
-	java.lang.NoClassDefFoundError exception is thrown.
-	
-	In system_setting.mk, uncomment "add_lapack=yes" line to build GML with LAPACK library.
-	and also make sure "lapack_path" and "lapack_name" are defined correctly
-	 
 
 2) Build libraries
-make help    -- Print help and make instruction for different transport and backend
-make native  -- Make native backend library
-make managed -- Make managed backend library
+make help       -- Print help and make instruction for different transport and backend
+make native     -- Make native backend library
+make managed    -- Make managed backend library
 make native_mpi -- Make native backend for MPI transport
 
 Output
 Include dir:  include/. 
 Library dir:  lib/.
-  Native backend		: native_gml.jar, native_gml.so 
-  Native MPI transport	: native_mpi_gml.jar native_mpi_gml.so,
-  Managed backend		: managed_gml.jar
+  Native backend         : native_gml.jar,     native_gml.so 
+  Native MPI transport   : native_mpi_gml.jar, native_mpi_gml.so
+  Managed backend        : managed_gml.jar
 
 property files
-  Native backend		: native_gml.properties
-  Native MPI transport	: native_mpi_gml.properties
-  Managed backend		: managed_gml.properites
+  Native backend         : native_gml.properties
+  Native MPI transport   : native_mpi_gml.properties
+  Managed backend        : managed_gml.properties
 
 3) Building applications
 - Add [native|native_mpi|managed]_gml.jar in "-classpath" 
@@ -161,7 +173,7 @@ output also serves as input operand in the operation.
   - trace
 
 1.3) Matrix multiplication
-	- multiply
+    - multiply
     - multiply with first operand transposed
     - multiply with second operand transposed
 
