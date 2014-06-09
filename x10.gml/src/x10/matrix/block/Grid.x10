@@ -18,31 +18,21 @@ import x10.util.StringBuilder;
 
 import x10.matrix.util.Debug;
 
-/**
- * This class represents meta-information for block matrices, 
- * with the rows divided into equal-sized blocks, 
- * and the columns divided into equal-sized blocks. 
- * If the number of rows (or columns) in the matrix cannot be equally divided
- * the first row blocks (or column blocks) are assigned with one more row (or column).
- * <p>
- * In grid partitioning, blocks in the same row of partition grid (row blocks) share the same number of rows.
- * Blocks in the same column of partition grid (column blocks) share the same number of columns.
- * 
- * <p> Public field of "rowBs" is used to specify the list of numbers of rows for blocks, 
- * and field "colBs" specifies the list of numbers of columns for blocks. 
- *
- * <p> The constructor in this class divides rows (columns) of matrix evenly
- * among partitioning row blocks (column blocks). If it cannot evenly divide, 
- * the first row blocks (column blocks) are assigned with one extra row (column) 
- * than the rest of row blocks (column blocks).
- *
- * <p> Users can specified their own partitioning by constructing instance
- * based on specified "rowBs" and "colBs", as far as, it complies with
- * grid-partitioning.
- */
 public type Grid(bM:Long,bN:Long)=Grid{self.numRowBlocks==bM, self.numColBlocks==bN};
 public type Grid(m:Long,n:Long,bM:Long,bN:Long)=Grid{self.M==m,self.N==n,self.numRowBlocks==bM,self.numColBlocks==bN};
 
+/**
+ * This class represents a grid-based decomposition of a block matrix,
+ * with the rows divided into equal-sized blocks, 
+ * and the columns divided into equal-sized blocks. 
+ * If the number of rows (or columns) in the matrix cannot be equally divided
+ * the lower-numbered row blocks (or column blocks) are assigned with one more row (or column).
+ * <p>
+ * In grid partitioning, blocks in the same row of partition grid (row blocks) share the same number of rows.
+ * Blocks in the same column of partition grid (column blocks) share the same number of columns.
+ * <p> Users can specify their own partitioning by constructing an instance
+ * with specified "rowBs" and "colBs".
+ */
 public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	/**
 	 * Number of blocks in partitioning
@@ -474,15 +464,19 @@ public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	}	
 
 	public def toString() : String {
-		val strbld = new StringBuilder();
-		strbld.add("Partition "+M+" rows into "+numRowBlocks+" [");
-		for (var i:Long=0; i<numColBlocks; i++, strbld.add(","))
-			strbld.add(rowBs(i));
-		strbld.add("]\nPartition "+N+" cols into "+numColBlocks+" [");
-		for (var i:Long=0; i<numRowBlocks; i++, strbld.add(","))
-			strbld.add(colBs(i));
-		strbld.add("]\n");
-		return strbld.toString();
+		val sb = new StringBuilder();
+		sb.add("Grid:\nPartition "+M+" rows into "+numRowBlocks+" blocks [");
+		for (var i:Long=0; i<numRowBlocks; i++) {
+            if (i > 0) sb.add(",");
+			sb.add(rowBs(i));
+        }
+		sb.add("]\nPartition "+N+" cols into "+numColBlocks+" blocks [");
+		for (var i:Long=0; i<numColBlocks; i++) {
+            if (i > 0) sb.add(",");
+			sb.add(colBs(i));
+        }
+		sb.add("]");
+		return sb.toString();
 	}
 }
 
