@@ -1374,7 +1374,9 @@ public class RoseTranslator extends Translator {
 
 		public void visit(Async_c n) {
 			toRose(n, "Async:");
+			JNI.cactionAsync(createJavaToken(n, n.toString()));
 			visitChild(n, n.body());
+			JNI.cactionAsyncEnd(createJavaToken(n, n.toString()));
 		}
 		
 		public void visit(Atomic_c n) {
@@ -1591,7 +1593,7 @@ public class RoseTranslator extends Translator {
 			else if (n instanceof AmbTypeNode_c) 
 				class_name = ((X10AmbTypeNode_c) n).name().toString().replaceAll("\\{amb\\}", "");
 		   else 
-		       throw new RuntimeException("Unexpected node type are detected");
+		       throw new RuntimeException("Unexpected node type is detected");
 		
 			classMemberMap.put(class_name, memberMap);
 
@@ -1638,7 +1640,7 @@ public class RoseTranslator extends Translator {
                     classMemberMap.put(class_name, memberMap);
                     previsit(fieldDecl);
                 }
-	 			else if (m instanceof TypeNode_c) { System.out.println("TypeNode_c : " + m);  }
+	 			else if (m instanceof TypeNode_c) { System.out.println("TypeNode_c : " + m);  }	
 	 			else if (m instanceof TypeDecl_c) { System.out.println("TypeDecl_c : " + m);  }		
 	 			else if (m instanceof X10ClassDecl_c) {  System.out.println("X10ClassDecl_c : " + m);  }
 	 			else if (m instanceof ClassDecl_c) { System.out.println("ClassDecl_c : " + m);  }
@@ -2720,7 +2722,7 @@ public class RoseTranslator extends Translator {
 				}
 
 				public void visit(Async_c n) {
-					toRose(n, "Async:");
+					toRose(n, "Async in TypeVisitor:");
 					visitChild(n, n.body());
 				}
 				

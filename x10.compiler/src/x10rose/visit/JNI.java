@@ -266,6 +266,9 @@ class JNI implements Callable<Boolean> {
 	public static native void cactionSetCurrentClassName(String typename);
 	public static native void cactionSetCurrentFilePath(String filepath);
 
+	public static native void cactionAsync(JavaToken jToken);
+	public static native void cactionAsyncEnd(JavaToken jToken);
+	
     //**********************************************************
     //*                                                        *
     //*    Start of JavaDoc Nodes.                             *
