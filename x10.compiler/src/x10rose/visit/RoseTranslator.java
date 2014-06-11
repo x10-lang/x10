@@ -1338,7 +1338,9 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(Finish_c n) {
 			toRose(n, "Finish:");
+			JNI.cactionFinish(createJavaToken(n, n.toString()));
 			visitChild(n, n.body());
+			JNI.cactionFinishEnd(createJavaToken(n, n.toString()));
 		}
 
 		public void visit(AtStmt_c n) {
@@ -2686,8 +2688,10 @@ public class RoseTranslator extends Translator {
 
 				
 				public void visit(Finish_c n) {
-					toRose(n, "Finish:");
+					toRose(n, "Finish in TypeVisitor:");
+					JNI.cactionFinish(createJavaToken(n, n.toString()));
 					visitChild(n, n.body());
+					JNI.cactionFinishEnd(createJavaToken(n, n.toString()));
 				}
 
 				public void visit(AtStmt_c n) {
@@ -2723,7 +2727,9 @@ public class RoseTranslator extends Translator {
 
 				public void visit(Async_c n) {
 					toRose(n, "Async in TypeVisitor:");
+					JNI.cactionAsync(createJavaToken(n, n.toString()));
 					visitChild(n, n.body());
+					JNI.cactionAsyncEnd(createJavaToken(n, n.toString()));
 				}
 				
 				public void visit(Atomic_c n) {
