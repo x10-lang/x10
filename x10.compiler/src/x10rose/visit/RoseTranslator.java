@@ -1345,8 +1345,10 @@ public class RoseTranslator extends Translator {
 
 		public void visit(AtStmt_c n) {
 			toRose(n, "AtStmt:");
+			JNI.cactionAt(createJavaToken(n, n.toString()));
 			visitChild(n, n.place());
 			visitChild(n, n.body());
+			JNI.cactionAtEnd(createJavaToken(n, n.toString()));
 		}
 
 		public void visit(AtHomeStmt_c n) {
@@ -2695,9 +2697,11 @@ public class RoseTranslator extends Translator {
 				}
 
 				public void visit(AtStmt_c n) {
-					toRose(n, "AtStmt:");
+					toRose(n, "AtStmt in TypeVisitor:");
+					JNI.cactionAt(createJavaToken(n, n.toString()));
 					visitChild(n, n.place());
 					visitChild(n, n.body());
+					JNI.cactionAtEnd(createJavaToken(n, n.toString()));
 				}
 
 				public void visit(AtHomeStmt_c n) {
