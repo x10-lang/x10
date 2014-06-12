@@ -12,6 +12,7 @@
 import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.Random;
+import x10.util.resilient.ResilientMap;
 
 /**
  * Resilient calculation of PI using MonteCarlo simulation
@@ -20,14 +21,8 @@ import x10.util.Random;
  * <pre>
  * X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePi
  * </pre>
- *
- * TODO: Rewrite this example to use x10.util.resilient APIs instead of HC directly.
  */
 public class ResilientMontePi {
-
-    static def getMap(s:String) {
-        return x10.x10rt.X10RT.getResilientMap(s);
-    }
 
     static class Result {
         var inCircle:long;
@@ -82,7 +77,7 @@ public class ResilientMontePi {
         finish for (p in Place.places()) if (p != here) async {
             try {
                 at (p) {
-		    val myResultsMap = getMap("result");
+		    val myResultsMap = ResilientMap.getMap[Long,Result]("result");
                     val rand = new Random(System.nanoTime());
                     var inCircle:Long = 0;
                     var total:Long = 0;
@@ -108,10 +103,10 @@ public class ResilientMontePi {
                 }
             } catch (e:DeadPlaceException) {
                 Console.OUT.println("Got DeadPlaceException from "+e.place);
-		val v = getMap("result").get(e.place.id) as Result;
+		val v = ResilientMap.getMap[Long,Result]("result").get(e.place.id);
                 Console.OUT.println("Retrieved from "+e.place + " "  + v);
 		atomic {
-                    result().accum(v);
+                    result().accum(v.value);
 		}
             }
         }
