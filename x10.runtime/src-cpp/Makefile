@@ -89,9 +89,6 @@ xrx: $(XRX_ARCHIVE)
 #
 # By convention, we also ignore all packages called 'managed' when compiling Native X10.
 #
-# For Resilient X10: files in directory /x10.runtime/src-x10/x10/util/resilient/managed
-# are specific to the managed implementation and should be ignored by the native compiler.
-# We thus have '-name managed -prune -o' below.
 XRX_REL_SRCS  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name managed -prune -o -name '*.x10' -print | sort )
 XRX_SRCS = $(subst ../src-x10/,, $(XRX_REL_SRCS))
 
