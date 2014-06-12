@@ -55,7 +55,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         case Configuration.RESILIENT_MODE_SAMPLE:
             return ResilientStorePlace0.make[FinishID,State](name);
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
-            return ResilientStoreHC.make[FinishID,State](name, FinishID.NULL);
+//@@            return ResilientStoreHC.make[FinishID,State](name, FinishID.NULL);
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }

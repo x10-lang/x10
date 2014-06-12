@@ -9,16 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 package x10.lang;
-import x10.util.resilient.ResilientMap; // ResilientMap using Hazelcast
+//@@import x10.util.resilient.ResilientMap; // ResilientMap using Hazelcast
 
 class ResilientStoreHC[K,V] extends ResilientStore[K,V] {
     private static val verbose = ResilientStore.verbose;
 
-    private transient val map:ResilientMap[K,V];
+//@@    private transient val map:ResilientMap[K,V];
     private val lockKey:K; // Dummy key for lock/unlock
 
     private def this(name:String, lockKey:K) { //TODO: any good way to pass lockKey?
-        map = ResilientMap.getMap[K,V](name);
+//@@        map = ResilientMap.getMap[K,V](name);
         this.lockKey = lockKey;
     }
     public static def make[K,V](name:Any, lockKey:K):ResilientStoreHC[K,V] {
@@ -37,33 +37,34 @@ class ResilientStoreHC[K,V] extends ResilientStore[K,V] {
     public def create(key:K, value:V):void { put(key, value); }
     public def put(key:K, value:V):void {
         if (verbose>=3) debug("put called, key="+key + " value="+value);
-        map.put(key, value);
+//@@        map.put(key, value);
         if (verbose>=3) debug("put returning");
     }
     
     public def getOrElse(key:K, orelse:V):V {
-        if (verbose>=3) debug("getOrElse called, key="+key);
-        val boxed = map.get(key);
-        val r = (boxed==null) ? orelse : boxed();
-        if (verbose>=3) debug("getOrElse returning, result="+r);
-        return r;
+return orelse;//@@
+//@@        if (verbose>=3) debug("getOrElse called, key="+key);
+//@@        val boxed = map.get(key);
+//@@        val r = (boxed==null) ? orelse : boxed();
+//@@        if (verbose>=3) debug("getOrElse returning, result="+r);
+//@@        return r;
     }
     
     public def remove(key:K):void {
         if (verbose>=3) debug("remove called, key="+key);
-        map.remove(key);
+//@@        map.remove(key);
         if (verbose>=3) debug("remove returning");
     }
     
     public def lock():void { //TODO: should support recursive lock?
         if (verbose>=3) debug("lock called");
-        map.lock(lockKey);
+//@@        map.lock(lockKey);
         if (verbose>=3) debug("lock returning (locked)");
     }
     
     public def unlock():void {
         if (verbose>=3) debug("unlock called");
-        map.unlock(lockKey);
+//@@        map.unlock(lockKey);
         if (verbose>=3) debug("unlock returning (unlocked)");
     }
 }
