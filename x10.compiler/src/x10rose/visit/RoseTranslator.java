@@ -733,6 +733,9 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(X10MethodDecl_c n) {
 			toRose(n, "method decl: ", n.name().id().toString());
+			if (n.body() == null)
+				return;
+			
 			List<Formal> formals = n.formals();
 			
 			String method_name = n.name().id().toString();
@@ -939,6 +942,8 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10ConstructorDecl_c n) {
 			toRose(n, "X10ConstructorDecl:", n.name().id().toString());
+			if (n.body() == null)
+				return;
 			
 			List<Formal> formals = n.formals();
 			
@@ -1344,7 +1349,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(AtStmt_c n) {
-			toRose(n, "AtStmt:");
+			toRose(n, "AtStmt:", n.place().toString(), n.body().toString());
 			JNI.cactionAt(createJavaToken(n, n.toString()));
 			visitChild(n, n.place());
 			visitChild(n, n.body());
