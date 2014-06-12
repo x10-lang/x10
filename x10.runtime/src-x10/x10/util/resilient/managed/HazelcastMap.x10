@@ -90,7 +90,7 @@ CustomSerialization {
     /**
      * Check if the resilient map contains value v.
      */
-    public def containsValue(v: V): Boolean = keyValueMap.containsValue(Java.serialize(v));
+    public def containsValue(v: V): Boolean = keyValueMap.containsValue(v);
 
     /**
      * Applies the user defined EntryProcessor to the all entries in the map.
@@ -118,7 +118,7 @@ CustomSerialization {
      */
     public def get(k: K): Box[V] {
         val v = keyValueMap.get(k);
-        return v == null ? null : new Box[V](Java.deserialize(v as Java.array[Byte]) as V);
+        return v == null ? null : new Box[V](v  as V);
     };
 
 
@@ -172,8 +172,8 @@ CustomSerialization {
      * Associate value v with key k in the resilient map.
      */
     public def put(k: K, v: V): Box[V] {
-        val oldv = keyValueMap.put(k, Java.serialize(v));
-        return oldv == null ? null : new Box[V](Java.deserialize(oldv as Java.array[Byte]) as V);
+        val oldv = keyValueMap.put(k, v);
+        return oldv == null ? null : new Box[V](oldv as V);
     };
 
     /**
@@ -181,13 +181,13 @@ CustomSerialization {
      * a future.  Thread can continue executing before put completes.
      */
     public def putAsync(k:K, v:V):()=>Box[V] {
-        val future = keyValueMap.putAsync(k, Java.serialize(v));
+        val future = keyValueMap.putAsync(k, v);
         return ()=>{
             var result: Box[V] = null;
             try {
                 val evaluatedFuture = future.get();
                 if (evaluatedFuture != null)
-		    result = new Box[V](Java.deserialize(evaluatedFuture as Java.array[Byte]) as V);
+		    result = new Box[V](evaluatedFuture as V);
             } catch (e:java.lang.InterruptedException) {
                 throw new WrappedThrowable(e);
             } catch (e:java.util.concurrent.ExecutionException) {
@@ -202,7 +202,7 @@ CustomSerialization {
      */
     public def remove(k: K): Box[V] {
         val v = keyValueMap.remove(k);
-        return v == null ? null : new Box[V](Java.deserialize(v as Java.array[Byte]) as V);
+        return v == null ? null : new Box[V](v as V);
     };
 
     /**
@@ -215,7 +215,7 @@ CustomSerialization {
             try {
                 val evaluatedFuture = future.get();
                 if (evaluatedFuture != null)
-		    result = new Box[V](Java.deserialize(evaluatedFuture as Java.array[Byte]) as V);
+		    result = new Box[V](evaluatedFuture as  V);
             } catch (e:java.lang.InterruptedException) {
                 throw new WrappedThrowable(e);
             } catch (e:java.util.concurrent.ExecutionException) {
@@ -275,7 +275,7 @@ CustomSerialization {
     public def getValue(): V {
         if (mapEntry == null)
 	    throw new Exception("HazelcastMap.getValue(): Error: mapEntry is null.  mapEntry must be instantiated (e.g. by iterator.next) before it can be used.");
-        return Java.deserialize(mapEntry.getValue() as Java.array[Byte]) as V;
+        return mapEntry.getValue() as V;
     };
 
     /**
