@@ -132,8 +132,7 @@ public abstract class ResilientMap[K,V] {
     public abstract def unlock(k:K):void;
 
 
-    /** The following methods are for iterating over/examining all entries in t\
-he map */
+    /** The following methods are for iterating over/examining all entries in the map */
 
     /**
      * Get key from map entry.
