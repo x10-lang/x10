@@ -31,7 +31,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     }
     
     public static def make[K,V](name:Any):ResilientStorePlace0[K,V] {
-        if (verbose>=3) debug("make called, name="+name);
+        if (verbose>=3) debug("ResilientStorePlace0.make called, name="+name);
         val result = new Cell[ResilientStorePlace0[K,V]](null);
         lowLevelFetch(Place(0), result, ()=>{
             var rs:ResilientStorePlace0[K,V];
@@ -45,7 +45,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
             return rs;
         });
         val r = result();
-        if (verbose>=3) debug("make returning result="+r);
+        if (verbose>=3) debug("ResilientStorePlace0.make returning result="+r);
         return r;
     }
     
@@ -95,26 +95,37 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     /*
      * Lock/unlock mechanism without blocking inside lowLevelAt
+     * Should be used inside atomic
      */
     private static class MyQueue[E] {
         private static class Entry[E] { val e:E; var next:Entry[E] = null; def this(e:E) { this.e = e; } }
         private var head:Entry[E] = null, tail:Entry[E] = null;
-        def add(e:E):void { // should be called inside atomic
+        private var size:Long = 0;
+        def size():Long = size;
+        def add(e:E):Long { // returns old size
             val entry = new Entry[E](e);
             if (tail == null) head = entry; else tail.next = entry;
             tail = entry;
+            val oldSize = size++;
+            return oldSize;
         }
-        def remove():E { // should be called inside atomic
+        def remove():E {
+            assert size>0;
             val entry = head; // should not be null
             head = entry.next; if (head == null) tail = null;
+            size--;
+            return entry.e;
+        }
+        def peek():E {
+            assert size>0;
+            val entry = head; // should not be null
             return entry.e;
         }
     }
+    
     private static class MyLatch extends SimpleLatch implements Runtime.Mortal { }
     
-    private transient val waitQueue:MyQueue[GlobalRef[MyLatch]] = new MyQueue[GlobalRef[MyLatch]]();
-    private transient var waitCount:Long = -1; // number of waiters, -1 means not locked
-    private transient var lockPlaceId:Long = -1; // place id of current lock owner
+    private transient val lockQueue:MyQueue[GlobalRef[MyLatch]] = new MyQueue[GlobalRef[MyLatch]]();
     
     public def lock():void { //TODO: should support recursive lock?
         if (verbose>=3) debug("lock called");
@@ -122,13 +133,9 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
         val needWait = new Cell[Boolean](false);
         lowLevelFetch(root.home, needWait, ()=>{
             val me = getMe();
-            atomic {
-                if (++me.waitCount == 0) {
-                    me.lockPlaceId = gLatch.home.id;
-                    return false; // need not wait
-                }
-                me.waitQueue.add(gLatch); return true;
-            }
+            var oldSize:Long;
+            atomic { oldSize = me.lockQueue.add(gLatch); }
+            return (oldSize > 0);
         });
         if (needWait()) {
             if (verbose>=3) debug("lock waiting gLatch="+gLatch);
@@ -146,20 +153,19 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
             val me = getMe();
             var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
             atomic {
-                while (--me.waitCount >= 0) {
-                    gLatch = me.waitQueue.remove();
-                    if (!gLatch.home.isDead()) break;
-                    if (verbose>=3) debug("unlock skipped deadPlace gLatch="+gLatch);
+                me.lockQueue.remove(); // remove the current gLatch  TODO: racing with notifyPlaceDeath?
+                while (me.lockQueue.size() > 0) {
+                    val g = me.lockQueue.peek();
+                    if (!g.home.isDead()) { gLatch = g; break; }
+                    if (verbose>=3) debug("unlock skipping deadPlace gLatch="+gLatch);
+                    me.lockQueue.remove(); // remove the gLatch at dead place
                 }
             }
             if (gLatch.isNull()) { // no living waiter
                 if (verbose>=3) debug("unlock no living waiter");
-                assert me.waitCount==-1;
-                me.lockPlaceId = -1;
                 return;
-            } 
+            }
             if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
-            me.lockPlaceId = gLatch.home.id;
             val g = gLatch;
             lowLevelSend(g.home, ()=>{
                 if (verbose>=3) debug("unlock releasing gLatch="+g);
@@ -172,23 +178,22 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     public def notifyPlaceDeath():void { // called from the lock user (TOOD: change this)
         if (verbose>=3) debug("notifyPlaceDeath called");
-        if (root.home!=here) {
-            if (verbose>=3) debug("notifyPlaceDeath returning, not my place");
-            return;
-        }
-        val me = getMe();
-        atomic {
-            if (me.waitCount < 0) {
-                if (verbose>=3) debug("notifyPlaceDeath returning, not locked");
-                return;
+        if (root.home != here) {
+            if (verbose>=3) debug("not my place");
+        } else { // Place0
+            val me = getMe();
+            atomic {
+                if (me.lockQueue.size() > 0) {
+                    val gLatch = me.lockQueue.peek();
+                    val lockerPlace = gLatch.home;
+                    if (verbose>=3) debug("lockerPlace=" + lockerPlace);
+                    if (lockerPlace.isDead()) {
+                        if (verbose>=3) debug("forcing unlock because lockerPlace is dead");
+                        unlock();
+                        if (verbose>=3) debug("forced unlock");
+                    }
+                }
             }
-            if (!Place.isDead(me.lockPlaceId)) {
-                if (verbose>=3) debug("notifyPlaceDeath returning, lockPlace is alive");
-                return;
-            }
-            if (verbose>=3) debug("lockPlace " + me.lockPlaceId + " died, force unlock");
-            unlock();
-            if (verbose>=3) debug("notifyPlaceDeath forced unlock, new waitCount=" + me.waitCount);
         }
         if (verbose>=3) debug("notifyPlaceDeath returning");
     }

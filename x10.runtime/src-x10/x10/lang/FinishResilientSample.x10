@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 package x10.lang;
-import x10.compiler.*;
 import x10.util.concurrent.SimpleLatch;
+import x10.util.*;
 
 // /*
 //  * Skeleton
@@ -48,14 +48,14 @@ import x10.util.concurrent.SimpleLatch;
  */
 class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
     private static val verbose = FinishResilient.verbose;
-
+    
     private static val RS = getResilientStore("FinishResilientSample");
     private static def getResilientStore(name:String):ResilientStore[FinishID,State] {
         switch (Runtime.RESILIENT_MODE) { //TODO: this should be controlled by another environment
         case Configuration.RESILIENT_MODE_SAMPLE:
             return ResilientStorePlace0.make[FinishID,State](name);
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
-//@@        return ResilientStoreHC.make[FinishID,State](name, FinishID.NULL);
+            return ResilientStoreHC.make[FinishID,State](name, FinishID.NULL);
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
@@ -72,13 +72,13 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         val transitAdopted = new Rail[Int](Place.MAX_PLACES * Place.MAX_PLACES, 0n);
         val live = new Rail[Int](Place.MAX_PLACES, 0n);
         val liveAdopted = new Rail[Int](Place.MAX_PLACES, 0n);
-        val excs = new x10.util.GrowableRail[Exception](); // exceptions to report
-        val children = new x10.util.GrowableRail[FinishID](); // children
+        val excs = new GrowableRail[Exception](); // exceptions to report
+        val children = new GrowableRail[FinishID](); // children
         var adopterId:FinishID = FinishID.NULL; // adopter (if adopted)
         def isAdopted() = (adopterId != FinishID.NULL);
         var numDead:Long = 0;
         def dump(msg:Any) {
-            val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
+            val s = new StringBuilder(); s.add(msg); s.add('\n');
             s.add("           live:"); for (v in live          ) s.add(" " + v); s.add('\n');
             s.add("    liveAdopted:"); for (v in liveAdopted   ) s.add(" " + v); s.add('\n');
             s.add("        transit:"); for (v in transit       ) s.add(" " + v); s.add('\n');
@@ -89,40 +89,46 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         }
     }
     
-    private static val ALL = new x10.util.GrowableRail[FinishResilientSample](); // all active finishes in this place
+    // all active finishes in this place
+    private static val ALL = new GrowableRail[FinishResilientSample](); //TODO: reuse localIds
     
-    @NonEscaping private val id:FinishID; // should be global
+    // fields of this FinishState
+    private val id:FinishID; // should be global
     private transient val latch:SimpleLatch; // latch is stored only in the original local finish
+    
     public def toString():String = System.identityToString(this) + "(id="+id+")";
     
     private def this(id:FinishID, latch:SimpleLatch) { this.id = id; this.latch = latch; }
-    static def make(parent:FinishState, latch:SimpleLatch):FinishResilientSample { // parent is null for rootFinish
-        if (verbose>=1) debug(">>>> make called, parent="+parent + " latch="+latch);
+    static def make(parent:FinishState, latch:SimpleLatch):FinishResilientSample {
+        if (verbose>=1) debug(">>>> FinishResilientSample.make called, parent="+parent + " latch="+latch);
+        val parentId = (parent instanceof FinishResilientSample) ? (parent as FinishResilientSample).id : FinishID.NULL; // ok to ignore other cases?
         
+        // create FinishState
         var id:FinishID, fs:FinishResilientSample;
        atomic {
         val placeId = here.id, localId = ALL.size();
         id = FinishID(placeId, localId);
         fs = new FinishResilientSample(id, latch);
         ALL.add(fs); // will be used in notifyPlaceDeath, and removed in waitForFinish
-        assert ALL(localId)==fs;
        }
-
+        assert ALL(fs.id.localId)==fs;
+        
+        // create State in ResilientStore
         val state = new State();
         state.live(here.id) = 1n; // for myself, will be decremented in waitForFinish
        RS.lock();
         RS.create(id, state);
-        if (parent instanceof FinishResilientSample) { // ok to ignore other cases?
-            val parentId = (parent as FinishResilientSample).id;
+        if (parentId != FinishID.NULL) {
             val parentState = RS.getOrElse(parentId, null);
             parentState.children.add(id);
             RS.put(parentId, parentState);
         }
        RS.unlock();
-
-        if (verbose>=1) debug("<<<< make returning fs="+fs);
+        
+        if (verbose>=1) debug("<<<< FinishResilientSample.make returning fs="+fs);
         return fs;
     }
+    
     static def notifyPlaceDeath():void {
         if (verbose>=1) debug(">>>> notifyPlaceDeath called");
         if (RS instanceof ResilientStorePlace0[FinishID,State]) { //TODO: clean up this
@@ -143,13 +149,14 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
        RS.unlock();
         if (verbose>=2) debug("<<<< notifyPlaceDeath released locks and returning");
     }
+    
     private def releaseLatch() { // can be called from any place
         val id = this.id;
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
         lowLevelSend(Place(id.placeId), ()=>{
-            val fs = ALL(id.localId); // get the original local finish
+            val fs = ALL(id.localId); // get the original local FinishState
             if (verbose>=2) debug("calling latch.release for id="+id);
-            fs.latch.release(); // latch.wait is in waitForFinish
+            fs.latch.release(); // latch.await is in waitForFinish
         });
         if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
@@ -158,12 +165,14 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         // assert RS.isLocked();
         var currentId:FinishID = id;
         while (true) {
+            assert currentId!=FinishID.NULL;
             val state = RS.getOrElse(currentId, null);
             if (!state.isAdopted()) break;
             currentId = state.adopterId;
         }
         return currentId;
     }
+    
     def notifySubActivitySpawn(place:Place):void {
         val srcId = here.id, dstId = place.id;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
@@ -182,6 +191,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
        RS.unlock();
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
+    
     def notifyActivityCreation(srcPlace:Place):Boolean {
         val srcId = srcPlace.id, dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
@@ -207,6 +217,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning true");
         return true;
     }
+    
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
@@ -225,6 +236,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
        RS.unlock();
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
+    
     def pushException(t:Exception):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
        RS.lock();
@@ -235,14 +247,16 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
     }
     
-    def waitForFinish():void { // can be called only for the original local finish returned by make
+    def waitForFinish():void { // can be called only for the original local FinishState returned by make
         assert id.placeId==here.id;
-        assert latch!=null; // original local finish
+        assert latch!=null; // original local FinishState
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
+        
         notifyActivityTermination(); // terminate myself
         if (verbose>=2) debug("calling latch.await for id="+id);
         latch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
+        
         var e:MultipleExceptions = null;
        RS.lock();
         val state = RS.getOrElse(id, null);
