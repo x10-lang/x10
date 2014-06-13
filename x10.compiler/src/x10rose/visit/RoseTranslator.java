@@ -386,6 +386,8 @@ public class RoseTranslator extends Translator {
 	private static HashMap<String, HashMap<String, Integer>> classMemberMap = new HashMap<String, HashMap<String, Integer>>();
 	
 	private static HashMap<String, Integer> memberMap = new HashMap<String, Integer>();
+
+	private static int fileIndex;
 	
 	public static class ToRoseVisitor extends X10DelegatingVisitor {
 		Node parent;
@@ -488,8 +490,6 @@ public class RoseTranslator extends Translator {
 		
 		private static boolean isDecl = true;
 		
-		private static int fileIndex;
-		
 		private static int numSourceFile;
 		
 		private static String currentClassName;
@@ -524,6 +524,16 @@ public class RoseTranslator extends Translator {
 //						}
 				
 				FileSource source = (FileSource) job.source();
+				String sourceName = source.toString();
+				boolean isFoundSourceFile = false;
+				for (int i = 0; i <= fileIndex; ++i) { // including currently processing file
+					String sourceFileGiven = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
+					if (sourceName.equals(sourceFileGiven)) 
+						isFoundSourceFile = true;
+				}
+				if (isFoundSourceFile) 
+					continue;
+
 				Reader reader = source.open();
 				ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 				Parser p = job.extensionInfo().parser(reader, source, eq);
@@ -2152,6 +2162,16 @@ public class RoseTranslator extends Translator {
 					String fileName =  (packageName.length() == 0 ? "" : ".") + typeName + ".x10";
 					for (Job job : jobList) {
 						FileSource source = (FileSource) job.source();
+		                                String sourceName = source.toString();
+						boolean isFoundSourceFile = false;
+                                		for (int i = 0; i <= fileIndex; ++i) { // including currently processing file
+                                        		String sourceFileGiven = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
+                                        		if (sourceName.equals(sourceFileGiven)) 
+                                                		isFoundSourceFile = true; 
+                                		}
+                                		if (isFoundSourceFile) 
+                                        		continue;
+
 						Reader reader = source.open();
 						ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 						Parser p = job.extensionInfo().parser(reader, source, eq);
