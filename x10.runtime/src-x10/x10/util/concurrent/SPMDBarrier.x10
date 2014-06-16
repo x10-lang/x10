@@ -40,6 +40,7 @@ public final class SPMDBarrier(count:Int) {
     private val alive = new AtomicInteger(count);
     private val workers = new Rail[Runtime.Worker](count);
     private val index = new AtomicInteger(0n);
+    private val phase = new AtomicInteger(0n);
 
     /**
      * Construct an SPMDBarrier for the given task count.
@@ -59,13 +60,15 @@ public final class SPMDBarrier(count:Int) {
 
     /** Block until all tasks have called advance. */
     public def advance() {
+        val p = phase.get();
         if (alive.decrementAndGet() == 0n) {
             alive.set(count);
+            phase.getAndIncrement();
             val me = Runtime.worker();
             for (var i:Int=0n; i<count; ++i)
                 if (workers(i) != me) workers(i).unpark();
         } else {
-            Runtime.Worker.park();
+            while (p == phase.get()) Runtime.Worker.park();
         }
     }
 }
