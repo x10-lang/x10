@@ -832,7 +832,7 @@ public final class Runtime {
      */
     public static def submit(job:()=>void):Watcher {
         val watcher = new Watcher();
-        val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { watcher.raise(t); } finally { watcher.release(); } };
+        val wrapper = ()=>{ try { finish async job(); } catch (t:MultipleExceptions) { watcher.raise(t); } finally { watcher.release(); } };
         submitUncounted(wrapper);
         return watcher;
     }
@@ -872,7 +872,7 @@ public final class Runtime {
     public static def start(job:()=>void):void {
         start(NTHREADS-1n);
         if (hereLong() == 0) {
-            val wrapper = ()=>{ try { finish job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminateAll(); } };
+            val wrapper = ()=>{ try { finish async job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminateAll(); } };
             submitUncounted(wrapper);
         }
         pool.run();
