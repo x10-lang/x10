@@ -780,20 +780,18 @@ public class RoseTranslator extends Translator {
 //			}
 
 			int method_index = memberMap.get(method_name+"("+param+")");
+
+			
+			JNI.cactionBuildMethodSupportStart(method_name, method_index, new JavaToken(method_name+"("+param+")", 
+        		  		new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine())));
 			
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();
-				JNI.cactionSetCurrentClassName(typeParam);
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport("", class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));
 			}
-			if (typeParamList.size() > 0)
-				JNI.cactionSetCurrentClassName(class_name);
 			
-			JNI.cactionBuildMethodSupportStart(method_name, method_index, new JavaToken(method_name+"("+param+")", 
-        		  		new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine())));
-
 			visitChild(n, n.returnType());			
 			visitChildren(n, n.formals());
 			
@@ -829,12 +827,9 @@ public class RoseTranslator extends Translator {
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();
-				JNI.cactionSetCurrentClassName(typeParam);
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport("", class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));
 			}
-			if (typeParamList.size() > 0)
-				JNI.cactionSetCurrentClassName(class_name);
 			
           JNI.cactionBuildMethodSupportStart(method_name, method_index, new JavaToken(method_name+"("+param+")", 
   		  		new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine())));
@@ -1801,32 +1796,17 @@ public class RoseTranslator extends Translator {
 			}
 
 			int method_index = memberMap.get(method_name+"("+param+")");
-			
-			List<TypeParamNode> typeParamList = n.typeParameters();
+
+			List<TypeParamNode> typeParamList = n.typeParameters();			
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();
-				JNI.cactionSetCurrentClassName(typeParam);
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport("", class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));
 			}
-			if (typeParamList.size() > 0)
-				JNI.cactionSetCurrentClassName(class_name);
-			
+
           JNI.cactionBuildMethodSupportStart(method_name, method_index, new JavaToken(method_name+"("+param+")", 
         		  		new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine())));
-			
-//          List<TypeParamNode> typeParam = n.typeParameters();
-//          if (typeParam.size() > 0) { // so far, skip processing type parameters
-//        	  System.out.println("Type parameter size " + typeParam.size());
-//  				visitChild(n, n.returnType());			
-//  				JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
-//						 false, false, false, 0, 0,
-//						 true, /* user-defined-method */
-//						 new JavaToken(n.name().id().toString(), new JavaSourcePositionInformation(n.position().line())), 
-//						 new JavaToken(n.name().id().toString()+"_args", new JavaSourcePositionInformation(n.position().line())));	
-//  				return;
-//          	}
-          
+        
 			visitChild(n, n.returnType());			
 			visitChildren(n, n.formals());
 
@@ -1850,13 +1830,9 @@ public class RoseTranslator extends Translator {
 					
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			for (int i = 0; i < typeParamList.size(); ++i) {
-				String typeParam = typeParamList.get(i).name().toString();
-				JNI.cactionSetCurrentClassName(typeParam);
-				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
+				String typeParam = typeParamList.get(i).name().toString();				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport("", class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));
 			}
-			if (typeParamList.size() > 0)
-				JNI.cactionSetCurrentClassName(class_name);
 		
           JNI.cactionBuildMethodSupportStart(method_name, method_index, new JavaToken(method_name+"("+param+")", 
   		  		new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine())));
