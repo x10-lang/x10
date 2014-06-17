@@ -103,7 +103,10 @@ public class SocketTransport {
 			nplaces = Integer.parseInt(nplacesFlag);
 		
 		String placeFlag = System.getenv(X10_LAUNCHER_PLACE);
-		if (placeFlag != null) myPlaceId = Integer.parseInt(placeFlag);
+		if (placeFlag != null) 
+			myPlaceId = Integer.parseInt(placeFlag);
+		else if (nplaces == 1)
+			myPlaceId = 0;
 		
 		try {
 			localListenSocket = ServerSocketChannel.open();
