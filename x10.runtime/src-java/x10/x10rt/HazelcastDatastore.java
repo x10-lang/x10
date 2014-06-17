@@ -21,6 +21,7 @@ public class HazelcastDatastore {
 		String launcherProvidedHostname = System.getenv("X10_LAUNCHER_HOST");
 
 		Config config = new Config();
+		config.setProperty("hazelcast.logging.type", "none"); // disables Hazelcast logging
 		NetworkConfig netconfig = config.getNetworkConfig();
 		if (launcherProvidedHostname != null) { // override the network interfaces used to match the hostfile/hostlist
 			try {
