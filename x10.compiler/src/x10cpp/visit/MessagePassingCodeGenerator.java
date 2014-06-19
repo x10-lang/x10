@@ -1358,28 +1358,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
 		    if (!parentImpls.isEmpty()) {
 		        boolean emitUsing = false;
-		        if (childImpls.size() < parentImpls.size()) {
-		            // Parent has more implementations than the child, we there must be at least one we need to inherit with a using.
-		            emitUsing = true;
-		        } else {
-		            parentLoop: for (MethodInstance parentImpl : parentImpls) {
-		                childLoop: for (MethodInstance childImpl : childImpls) {
-		                    // Look for a childImpl with the same (baseType) signature as the parent.
-		                    if (childImpl.formalTypes().size() != parentImpl.formalTypes().size()) continue childLoop; // match failed, try next child
-		                    for (int i = 0; i<childImpl.formalTypes().size(); i++) {
-		                        Type ct = Types.baseType(childImpl.formalTypes().get(i));
-		                        Type pt = Types.baseType(parentImpl.formalTypes().get(i));
-		                        if (!ct.typeEquals(pt, context)) continue childLoop; // match failed; try next child
-		                    }
-		                    // Found a child that overrides the parent (baseType matches for all formal params).
-		                    continue parentLoop;
+
+		        parentLoop: for (MethodInstance parentImpl : parentImpls) {
+		            // Skip static methods; we don't need using declarations for them
+		            // because we will always invoke them in the generated code via fully-qualified names.
+		            if (parentImpl.flags().isStatic()) continue parentLoop;
+		            
+		            childLoop: for (MethodInstance childImpl : childImpls) {
+		                // Look for a childImpl with the same (baseType) signature as the parent.
+		                if (childImpl.formalTypes().size() != parentImpl.formalTypes().size()) continue childLoop; // match failed, try next child
+		                for (int i = 0; i<childImpl.formalTypes().size(); i++) {
+		                    Type ct = Types.baseType(childImpl.formalTypes().get(i));
+		                    Type pt = Types.baseType(parentImpl.formalTypes().get(i));
+		                    if (!ct.typeEquals(pt, context)) continue childLoop; // match failed; try next child
 		                }
-		                // If we get to here, then there is a parentImpl that is not overriden by a childImpl
-		                // and therefore must be brought into scope in the child with a using declaration
-		                emitUsing = true;
-		                break parentLoop;                 
+		                // Found a child that overrides the parent (baseType matches for all formal params).
+		                continue parentLoop;
 		            }
-		        } 
+		            // If we get to here, then there is a parentImpl that is not overriden by a childImpl
+		            // and therefore must be brought into scope in the child with a using declaration
+		            emitUsing = true;
+		            break parentLoop;                 
+		        }
+		         
 		        if (emitUsing) {
 		            names.remove();
 		            if (superClass.isAny()) {
