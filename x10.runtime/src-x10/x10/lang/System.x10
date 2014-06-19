@@ -17,7 +17,6 @@ import x10.compiler.NativeCPPInclude;
 import x10.io.Console;
 import x10.util.Map;
 import x10.util.Timer;
-import x10.util.Pair;
 
 @NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public class System {
