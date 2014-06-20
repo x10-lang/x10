@@ -174,19 +174,14 @@ lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
 
 
-X10_FLAG	+= -VERBOSE_CHECKS -O -NO_CHECKS -g
+X10FLAGS	+= -VERBOSE_CHECKS -O -NO_CHECKS -g
 ifdef COVERAGE
-    X10_FLAG += -cxx-prearg --coverage
-    POST_LDFLAGS += --coverage
+    X10CXXFLAGS += --coverage
 endif
 
 #-define ENABLE_RING_COMM
 
-MPI_X10CXXFLAGS   = -x10rt mpi -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
-
-X10CXXFLAGS += -report postcompile=1 -post ' \# $(POST_CXXFLAGS) \# $(POST_LDFLAGS)'
-
-POST_CPP_SLNK = $(BLAS_CFLAG) $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+MPI_X10CXXFLAGS = -x10rt mpi -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
 
 ###################################################
 # X10 file built rules
@@ -196,7 +191,7 @@ POST_CPP_SLNK = $(BLAS_CFLAG) $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH
 ## build for managed backend
 jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 	@echo "------------------ build lib for $(target) on $(HOSTNAME)-------------------"
-	cd $(src_path) && $(X10C) $(X10_FLAG) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
+	cd $(src_path) && $(X10C) $(X10FLAGS) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
 	@echo "------------ making properties file for $(target) ------------"
 	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(target).properties
 
@@ -204,7 +199,7 @@ jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
 ## build for native backend
 clib : $(clib_src) chk_dir
 	@echo "------------------ build lib for $(target) on $(HOSTNAME) -------------------"
-	cd $(src_path) && $(X10CXX) $(X10_FLAG) $(X10CXXFLAGS) $(extra_opts) -buildx10lib ../. $(src) -d ../include -o $(target)
+	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../. $(src) -d ../include -o $(target)
 	@echo "-------- Packaging source files into jar for $(target)--------"
 	cd $(src_path) && $(JAR) -cf ../lib/$(target).jar $(src)
 	@echo "------------ making properties file for $(target) ------------"
@@ -244,7 +239,7 @@ jni_blas.o 	: jni_blas.cc
 			$(CXX) $(JNI_INCLUDES) -c -fPIC $< -o $@
 
 libjblas.so	: wrap_blas.o jni_blas.o
-			$(CXX) $(JNI_INCLUDES) -shared -fPIC $^ $(POST_LDFLAGS) -o $@ 
+			$(CXX) $(JNI_INCLUDES) -shared -fPIC $^ $(X10CXX_POSTARGS:-cxx-postarg=) -o $@ 
 
 jblas		: libjblas.so
 			cp $< $(lib_path)/.
@@ -263,7 +258,7 @@ jni_lapack.o: jni_lapack.cc
 			g++ $(JNI_INCLUDES) -c -fPIC $< -o $@
 
 libjlapack.so: wrap_lapack.o jni_lapack.o
-			g++ -shared -fPIC $^ -o $@ $(POST_LDFLAGS)
+			g++ -shared -fPIC $^ -o $@ $(X10CXX_POSTARGS:-cxx-postarg=)
 
 jlapack		: libjlapack.so
 			cp $< $(lib_path)/.
