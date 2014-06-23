@@ -153,22 +153,6 @@ CustomSerialization {
     };
 
     /**
-     * Return a key that is specific to the current place.  Useful for
-     * storing place local handles.
-     */
-    public static def placeSpecificKey(key: String): String {
-        return key + here.id();
-    }
-
-    /**
-     * Return a key that is specific to place "placeID".  Useful for
-     * storing place local handles.
-     */
-    public static def placeSpecificKey(key: String, placeID: Long): String {
-        return key + placeID;
-    }
-
-    /**
      * Associate value v with key k in the resilient map.
      */
     public def put(k: K, v: V): Box[V] {
