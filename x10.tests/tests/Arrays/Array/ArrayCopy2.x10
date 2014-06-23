@@ -149,17 +149,18 @@ public class ArrayCopy2 extends x10Test {
     static class dist2 {
 
         static BLOCK: int = 0n;
-        static CONSTANT: int = 1n;
-        //static BLOCKCYCLIC: int = 1;
-	static N_DIST_TYPES=2n;
+        static BLOCKBLOCK: int = 1n;
+        static CONSTANT: int = 2n;
+	static N_DIST_TYPES=3n;
+
         /**
          * Return a dist with region r, of type disttype
          */
         public static def getDist(distType: Long, R: Region): Dist(R) = {
             switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
+                case BLOCKBLOCK: return Dist.makeBlockBlock(R, 0,1) as Dist(R);
                 case CONSTANT: return (R->here) as Dist(R);
-                // case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
                 default: throw new Exception();
             }
         }

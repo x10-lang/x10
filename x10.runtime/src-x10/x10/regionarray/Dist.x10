@@ -77,27 +77,6 @@ public abstract class Dist(
 
     /**
      * Create a distribution over the specified region that varies in
-     * place only along the specified axis, and maps the ith
-     * coordinate along that axis to place i%Place.NUM_PLACES.
-     *
-     * @param r the given region
-     * @param axis the dimension to cycle over
-     * @return a "cyclic" distribution over r.
-     */     
-    public static def makeCyclic(r:Region, axis:Long):Dist(r) = makeBlockCyclic(r, axis, 1);
-    
-    /**
-     * Create a distribution over the specified region that varies in
-     * place only along the zeroth axis, and maps the ith
-     * coordinate along that axis to place i%Place.NUM_PLACES.
-     *
-     * @param r the given region
-     * @return a "cyclic" distribution over r, cycling over the zeroth axis.
-     */
-    public static def makeCyclic(r:Region):Dist(r) = makeBlockCyclic(r, 0, 1);
-    
-    /**
-     * Create a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
      * along that axis into Place.MAX_PLACES blocks, and assigns
      * successive blocks to successive places.  If the number of coordinates
@@ -147,21 +126,6 @@ public abstract class Dist(
     public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
 
     /**
-     * Create a distribution over the specified region that varies in
-     * place only along the specified axis. It divides the coordinates
-     * along that axis into blocks of the specified size, and assigns
-     * block i to place i%Place.MAX_PLACES.
-     *
-     * @param r the given region
-     * @param axis the dimension to block over
-     * @param blockSize the size of the block
-     * @return a "block-cyclic" distribution over r.
-     */
-    public static def makeBlockCyclic(r:Region, axis:Long, blockSize:Long):Dist(r) {
-        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
-    }
-
-    /**
      * Create a distribution over a rank-1 region that maps every
      * point in the region to a place in pg, and which maps some
      * point in the region to every place in ps.
@@ -187,20 +151,6 @@ public abstract class Dist(
      */
     public static def makeConstant(r:Region, p:Place):Dist(r) {
         return new ConstantDist(r, p);
-    }
-
-    /**
-     * Create a distribution over the specified region that varies in
-     * place only along the specified axis, and maps the ith
-     * coordinate along that axis to place ps(i%ps.length).
-     *
-     * @param r the given region
-     * @param axis the dimension to cycle over
-     * @param pg the PlaceGroup over which to distribute the region
-     * @return a "cyclic" distribution over r, cycling over the places in ps.
-     */
-    public static def makeCyclic(r:Region, axis:Long, pg:PlaceGroup):Dist(r) {
-        throw new UnsupportedOperationException(); // short term while eliminating BaseDist
     }
 
     /**

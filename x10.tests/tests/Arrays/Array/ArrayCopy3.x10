@@ -159,10 +159,9 @@ public class ArrayCopy3 extends x10Test {
     static class dist2 {
 
         static BLOCK: int = 0n;
-        //public static val CYCLIC: int = 1;
-        //public static val BLOCKCYCLIC: int = 2;
-        static CONSTANT: int = 1n;
-        static N_DIST_TYPES: int = 2n;
+        static BLOCKBLOCK: int = 1n;
+        static CONSTANT: int = 2n;
+        static N_DIST_TYPES: int = 3n;
 
         /**
          * Return a dist with region r, of type disttype
@@ -170,8 +169,7 @@ public class ArrayCopy3 extends x10Test {
         public static def getDist(distType: Long, r: Region): Dist(r) = {
             switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(r);
-                // case CYCLIC: return Dist.makeCyclic(r);
-                // case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
+                case BLOCKBLOCK: return Dist.makeBlockBlock(r, 0,1);
                 case CONSTANT: return r->here;
                 default: throw new Exception();
             }

@@ -106,11 +106,9 @@ public class DistBounds2D extends x10Test {
 
         // X10 has poor support for enum
         static BLOCK: int = 0n;
-        static CONSTANT: int = 1n;
-        //public static val CYCLIC: int = 2;
-        //public static val RANDOM: int = 3;
-        //public static val ARBITRARY: int = 4;
-        static N_DIST_TYPES: int = 2n; //5;
+        static BLOCKBLOCK: int = 1n;
+        static CONSTANT: int = 2n;
+        static N_DIST_TYPES: int = 3n;
 
         /**
          * Return a dist with region r, of type disttype
@@ -118,10 +116,8 @@ public class DistBounds2D extends x10Test {
         public static def getDist(val distType: int, val r: Region): Dist{region==r} = {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
-                //case CYCLIC: return Dist.makeCyclic(r, 0);
+                case BLOCKBLOCK: return Dist.makeBlockBlock(r, 0, 1);
                 case CONSTANT: return r->here;
-                //case RANDOM: return Dist.makeRandom(r);
-                //case ARBITRARY: return Dist.makeArbitrary(r);
                 default:throw new Exception("TODO");
             }
         }
