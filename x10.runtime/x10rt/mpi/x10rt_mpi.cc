@@ -1332,7 +1332,7 @@ struct TeamDB {
 
     TeamDB (void) : teamc(0), team_next(0), teamv(NULL) { }
 
-    ~TeamDB (void) { delete[] teamv; }
+    ~TeamDB (void) { safe_free (teamv); }
 
     MPI_Comm &operator[] (x10rt_team t) { assert(t<teamc); return teamv[t]; }
 
