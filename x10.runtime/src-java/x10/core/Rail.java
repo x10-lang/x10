@@ -448,7 +448,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2$2$2(Type T, Rail<T> src, long srcIndexL, GlobalRail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, Rail<T> src, long srcIndexL, GlobalRail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
@@ -553,7 +553,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         }
     }
 
-    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2$2$2(Type T, GlobalRail<T> src, long srcIndexL, Rail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
+    public static <T> void uncountedCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, GlobalRail<T> src, long srcIndexL, Rail<T> dst, long dstIndexL, long numElemsL, VoidFun_0_0 notifier) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
