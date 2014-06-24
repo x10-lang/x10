@@ -16,13 +16,20 @@ import x10.util.resilient.ResilientMap;
 
 /**
  * Resilient calculation of PI using MonteCarlo simulation
- * with checkpointing via a resilient map provided by X10RT.
- * To run using Hazelcast, invoke x10 script like: 
+ * with periodic checkpointing of partial results via 
+ * x10.util.ResilientMap.  
+ *
+ * To illustrate that the partial results can be used 
+ * when a Place fails, this version includes extra code
+ * to artifically kill a Place in the middle of the run.
+ *
+ * To run using the Hazelcast-based implementation of
+ * x10.util.ResilientMap, invoke the x10 script like: 
  * <pre>
- * X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePi
+ * X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePiCheckpoint
  * </pre>
  */
-public class ResilientMontePi {
+public class ResilientMontePiCheckpoint {
 
     static class Result {
         var inCircle:long;
@@ -90,6 +97,7 @@ public class ResilientMontePi {
                         }
                         val tmp = new Result(inCircle, total);
                         myResultsMap.put(here.id, tmp); 
+                        // Hook to kill current place for testing purposes.
                         if (here.id == victim && cp > num_checkpoints/2) {
                             Console.OUT.println("BOOM: at "+here+" with partial result "+tmp);
                             System.killHere();
@@ -104,7 +112,7 @@ public class ResilientMontePi {
             } catch (e:DeadPlaceException) {
                 Console.OUT.println("Got DeadPlaceException from "+e.place);
 		val v = ResilientMap.getMap[Long,Result]("result").get(e.place.id);
-                Console.OUT.println("Retrieved from "+e.place + " "  + v);
+                Console.OUT.println("Retrieved partial result from "+e.place + " "  + v);
 		atomic {
                     result().accum(v.value);
 		}
@@ -118,4 +126,3 @@ public class ResilientMontePi {
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
-
