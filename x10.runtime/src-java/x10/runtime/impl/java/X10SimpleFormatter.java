@@ -19,12 +19,17 @@ public class X10SimpleFormatter extends SimpleFormatter {
     @Override
     public synchronized String format(LogRecord record) {
         String message = super.format(record);
-        if (x10.x10rt.X10RT.isBooted()) {
+        long timestamp = java.lang.System.nanoTime() / 1000000L;
+        try {
 	        x10.lang.Runtime.Worker worker = (x10.lang.Runtime.Worker) x10.core.Thread.currentThread();
 	        long placeId = x10.x10rt.X10RT.here();
 	        int workerId = worker.workerId;
-	        long timestamp = java.lang.System.nanoTime() / 1000000L;
 	        message = String.format("[P%d,W%d,T%d] %s", placeId, workerId, timestamp, message);
+        } catch (Exception e) {
+            // During startup/shutdown it is possible for currentThread or X10RT.here() to fail.
+            // If that happens we want to swallow the exception and simply return
+            // the formatted message with just a timestamp.
+            message = String.format("[P? W? T%d] %s", timestamp, message); 
         }
         return message;
     }
