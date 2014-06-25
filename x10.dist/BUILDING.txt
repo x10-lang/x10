@@ -1,0 +1,14 @@
+This is a source distribution of the 
+X10 Programming Language (http://x10-lang.org/).
+
+Detailed instructions for building X10 from source can be found online
+at http://x10-lang.org/x10-development/building-x10-from-source.html.
+
+In a nutshell, building X10 is driven by ant.  
+
+If you have the prerequisites installed on your machine 
+(see the online documentation for details), then building X10 
+from source can be done with a single ant command:
+
+  cd x10.dist && ant -Doptimize=true dist
+
