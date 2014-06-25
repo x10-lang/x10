@@ -750,7 +750,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
     <target name="src-tar" depends="srctar"/>
     <target name="srctar" depends="init,set-tar-location,build">
         <tar destfile="${src.tar.location}/x10-${x10.version}-src.tar.bz2" compression="bzip2" longfile="gnu">
-            <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,README.txt,INSTALL.txt"/>
+            <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,BUILDING.txt"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="bin/**,releng/**,**/.*.swp,lib/**,stdlib/**,etc/**"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/runx10" filemode="755"/>
@@ -763,7 +763,8 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
-            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
+            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
+            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
             <tarfileset prefix="apgas.cpp" dir="${x10.home}/apgas.cpp" excludes="bin/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="apgas.cpp.examples" dir="${x10.home}/apgas.cpp.examples" excludes="bin/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="apgas.java" dir="${x10.home}/apgas.java" excludes="bin/**,**/.*.swp,classes/**"/>
@@ -775,7 +776,8 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <tar destfile="${test.tar.location}/x10-${x10.version}-testsuite.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset fullpath="TESTS-README" dir="${x10.tests.location}" includes="README"/>
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html"/>
-            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,tests/README,**/*.x10"/>
+            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
+            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
         </tar>
     </target>
     <!--
