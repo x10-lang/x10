@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/serialization.h>
 
 #include <x10/lang/Any.h>
 

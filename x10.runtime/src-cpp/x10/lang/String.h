@@ -17,7 +17,6 @@
 #include <x10aux/config.h>
 
 #include <x10/lang/X10Class.h>
-#include <x10/lang/Fun_0_1.h>
 #include <x10/lang/CharSequence.h>
 #include <x10/lang/Comparable.h>
 
