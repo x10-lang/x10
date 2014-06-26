@@ -121,14 +121,30 @@ public abstract class ResilientMap[K,V] {
     public abstract def putAsync(k:K, v:V):()=>Box[V];
 
     /**
+     * Asynchronously put value v with key k in the resilient map.  Instead of
+     * returning a future like putAsync, this method asynchronously returns
+     * the value of the put operation.  Its completion is tied to the
+     * dynamically enclosing finish.
+     */
+    public abstract def putAsync2(k:K, v:V): void;
+
+    /**
      * Remove any value associated with key k from the resilient map.
      */
     public abstract def remove(k:K): Box[V];
 
     /**
-     * Asynchronously remove the given key.
+     * Asynchronously remove the given key.  Return a future.  Thread can 
+     * continue executing before remove completes.
      */
     public abstract def removeAsync(k:K):()=>Box[V];
+
+    /**
+     * Asynchronously remove the given key.  Instead of returning a future,
+     * this method asynchronously returns the value of the remove operation.
+     * Its completion is tied to the dynamically enclosing finish.
+     */
+    public abstract def removeAsync2(k:K): void;
 
     /**
      * Return number of key-value pairs in the resilient map.
