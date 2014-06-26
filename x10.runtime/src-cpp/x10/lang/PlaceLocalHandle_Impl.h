@@ -26,7 +26,7 @@ namespace x10 {
             RTT_H_DECLS_STRUCT
 
             T FMGL(localStorage);
-            x10_int FMGL(id);
+            x10_long FMGL(id);
             bool FMGL(cached);
 
             PlaceLocalHandle_Impl<T>* operator->() { return this; }
@@ -46,7 +46,7 @@ namespace x10 {
             }
             
             void _constructor () {
-                x10_int id = ::x10aux::place_local::nextId();
+                x10_long id = ::x10aux::place_local::nextId();
                 FMGL(id) = id;
                 FMGL(cached) = false;
             }
@@ -103,7 +103,7 @@ namespace x10 {
         template<class T> PlaceLocalHandle_Impl<T> PlaceLocalHandle_Impl<T>::_deserialize(::x10aux::deserialization_buffer& buf) {
             // NOTE specialized semantics.  Only id is serialized, cached is automatically set to false; will be looked up on first use.
             PlaceLocalHandle_Impl<T> this_;
-            this_->FMGL(id) = buf.read<x10_int>();
+            this_->FMGL(id) = buf.read<x10_long>();
             this_->FMGL(cached) = false;
             return this_;
         }

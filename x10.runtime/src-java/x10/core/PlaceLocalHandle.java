@@ -29,15 +29,10 @@ import x10.serialization.X10JavaSerializer;
  */
 public final class PlaceLocalHandle<T> implements X10JavaSerializable {
 
-//    private static final HashMap<java.lang.Long,Object> data = new HashMap<java.lang.Long,Object>();
     private static final HashMap<Id,Object> data = new HashMap<Id,Object>();
-
-//    private static final int placeShift = 48;
-//    private static final AtomicLong lastId = new AtomicLong(0L);
 
     transient private boolean initialized = false;
     transient private Object myData = null;
-//    private java.lang.Long id;
     
     /*
      * [PLH_GC] GlobalGC support for PlaceLocalHandle (kawatiya 2013/06)
@@ -83,29 +78,11 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
         return new Id(gref.home.id, gref.getId());
     }
 
-//    // TODO: The X10 code currently ensures that PlaceLocalHandle's are only
-//    //       created at Place 0 by doing an at.  We've contemplated moving to
-//    //       more of a SVD style implementation where each place would be able to
-//    //       create place local handles by either encoding the place in the id like we
-//    //       did here or by having the places get ids in "chunks" from the master id server
-//    //       at place 0. 
-//    //       Since we are thinking about making this change, I went ahead and did a poor-man's
-//    //       version of it here instead of asserting nextId is only called at place 0 
-//    //       (which would have been true currently).
-//    private static long nextId() {
-//        long here = Thread.currentThread().home().id;
-//        long newId  = lastId.incrementAndGet();
-//        assert newId < (1L << placeShift);
-//        newId |= (here << placeShift);
-//        return newId;
-//    }
-
     // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy, Type<T> T) {
     }
 
     public final PlaceLocalHandle x10$core$PlaceLocalHandle$$init$S() {
-//        id = nextId();
         initSentinel();
         if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: PlaceLocalHandle created at " + x10.lang.Runtime.home() + " -> " + getId());
         return this;
@@ -148,7 +125,6 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
     
     @Override
     public String toString() {
-//        return "PlaceLocalHandle(" + this.id + ")";
         Id id = getId();
         return "PlaceLocalHandle(" + id + ")";
     }
@@ -158,12 +134,10 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
     }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-//        $serializer.write((long) id);
         $serializer.write(this.gref);
     }
 
     public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle $_obj, X10JavaDeserializer $deserializer) throws IOException {
-//        $_obj.id = (java.lang.Long) $deserializer.readLong();
         $_obj.gref = $deserializer.readObject();
         return $_obj;
     }

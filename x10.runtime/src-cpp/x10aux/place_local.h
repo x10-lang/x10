@@ -26,16 +26,16 @@ namespace x10aux {
     public:
 #endif
         static x10_int _nextId;
-        static simple_hashmap<int, void*> *_map;
+        static simple_hashmap<x10_long, void*> *_map;
         static x10aux::reentrant_lock* _lock;
 
     public:
         static void** _fastData;
         static void initialize();
-        static x10_int nextId();
-        static void* get(x10_int id);
-        static void put(x10_int id, void *data);
-        static void remove(x10_int id);
+        static x10_long nextId();
+        static void* get(x10_long id);
+        static void put(x10_long id, void *data);
+        static void remove(x10_long id);
         template<class T> friend const char *::x10aux::typeName();
     };
 
