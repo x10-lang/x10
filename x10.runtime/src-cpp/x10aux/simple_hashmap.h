@@ -19,8 +19,7 @@
 
 namespace x10aux {
     // a specific hashCode method is needed for each concrete instantiation
-    x10_uint simple_hash_code(int id);
-    x10_uint simple_hash_code(long id);
+    x10_uint simple_hash_code(x10_long id);
     x10_uint simple_hash_code(const void* id);
 
     template<typename Key, typename T>class simple_hashmap {
