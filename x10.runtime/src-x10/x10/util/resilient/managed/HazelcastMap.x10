@@ -161,10 +161,11 @@ CustomSerialization {
     };
 
     /**
-     * Asynchronously put value v with key k in the resilient map.  Return
-     * a future.  Thread can continue executing before put completes.
+     * Asynchronously put value v with key k in the resilient map returning
+     * a future that when forced will return the previous value (if any) 
+     * that was stored for key k.  
      */
-    public def putAsync(k:K, v:V):()=>Box[V] {
+    public def asyncPutFuture(k:K, v:V):()=>Box[V] {
         val future = keyValueMap.putAsync(k, v);
         return ()=>{
             var result: Box[V] = null;
@@ -182,16 +183,12 @@ CustomSerialization {
     }
 
     /**
-     * Asynchronously put value v with key k in the resilient map.  Instead of
-     * returning a future like putAsync, this method asynchronously returns
-     * the value of the put operation.  Its completion is tied to the
+     * Asynchronously put value v with key k in the resilient map.
+     * The activity created to do the put will be registered with the
      * dynamically enclosing finish.
      */
-    public def putAsync2(k:K, v:V): void {
-        async {
-	    val putClosure = putAsync(k, v);
-            putClosure();    // force future
-	}
+    public def asyncPut(k:K, v:V):void {
+        async { put(k,v); };
     }
 
 
@@ -204,9 +201,11 @@ CustomSerialization {
     };
 
     /**
-     * Asynchronously remove the given key.
+     * Asynchronously remove the given key from the resilient map returning
+     * a future that when forced will return the previous value (if any) 
+     * that was stored for key k.  
      */
-    public def removeAsync(k:K):()=>Box[V]  {
+    public def asyncRemoveFuture(k:K):()=>Box[V] {
         val future = keyValueMap.removeAsync(k);
         return ()=>{
             var result: Box[V] = null;
@@ -224,15 +223,12 @@ CustomSerialization {
     }
 
     /**
-     * Asynchronously remove the given key.  Instead of returning a future,
-     * this method asynchronously returns the value of the remove operation.
-     * Its completion is tied to the dynamically enclosing finish.
+     * Asynchronously remove the given key.
+     * The activity created to do the remove will be registered with the
+     * dynamically enclosing finish.
      */
-    public def removeAsync2(k:K): void {
-        async {
-            val removeClosure = removeAsync(k);
-            removeClosure();    // force future
-        }
+    public def asyncRemove(k:K):void {
+        async { remove(k); }
     }
 
     /**

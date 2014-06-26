@@ -115,18 +115,18 @@ public abstract class ResilientMap[K,V] {
     public abstract def put(k:K, v:V): Box[V];
 
     /**
-     * Asynchronously put value v with key k in the resilient map.  Return
-     * a future.  Thread can continue executing before put completes.
+     * Asynchronously put value v with key k in the resilient map returning
+     * a future that when forced will return the previous value (if any) 
+     * that was stored for key k.  
      */
-    public abstract def putAsync(k:K, v:V):()=>Box[V];
+    public abstract def asyncPutFuture(k:K, v:V):()=>Box[V];
 
     /**
-     * Asynchronously put value v with key k in the resilient map.  Instead of
-     * returning a future like putAsync, this method asynchronously returns
-     * the value of the put operation.  Its completion is tied to the
+     * Asynchronously put value v with key k in the resilient map.
+     * The activity created to do the put will be registered with the
      * dynamically enclosing finish.
      */
-    public abstract def putAsync2(k:K, v:V): void;
+    public abstract def asyncPut(k:K, v:V):void;
 
     /**
      * Remove any value associated with key k from the resilient map.
@@ -134,17 +134,18 @@ public abstract class ResilientMap[K,V] {
     public abstract def remove(k:K): Box[V];
 
     /**
-     * Asynchronously remove the given key.  Return a future.  Thread can 
-     * continue executing before remove completes.
+     * Asynchronously remove the given key from the resilient map returning
+     * a future that when forced will return the previous value (if any) 
+     * that was stored for key k.  
      */
-    public abstract def removeAsync(k:K):()=>Box[V];
+    public abstract def asyncRemoveFuture(k:K):()=>Box[V];
 
     /**
-     * Asynchronously remove the given key.  Instead of returning a future,
-     * this method asynchronously returns the value of the remove operation.
-     * Its completion is tied to the dynamically enclosing finish.
+     * Asynchronously remove the given key.
+     * The activity created to do the remove will be registered with the
+     * dynamically enclosing finish.
      */
-    public abstract def removeAsync2(k:K): void;
+    public abstract def asyncRemove(k:K):void;
 
     /**
      * Return number of key-value pairs in the resilient map.
