@@ -182,6 +182,20 @@ CustomSerialization {
     }
 
     /**
+     * Asynchronously put value v with key k in the resilient map.  Instead of
+     * returning a future like putAsync, this method asynchronously returns
+     * the value of the put operation.  Its completion is tied to the
+     * dynamically enclosing finish.
+     */
+    public def putAsync2(k:K, v:V): void {
+        async {
+	    val putClosure = putAsync(k, v);
+            putClosure();    // force future
+	}
+    }
+
+
+    /**
      * Remove any value associated with key k from the resilient map.
      */
     public def remove(k: K): Box[V] {
@@ -207,6 +221,18 @@ CustomSerialization {
             }
             return result;
         };
+    }
+
+    /**
+     * Asynchronously remove the given key.  Instead of returning a future,
+     * this method asynchronously returns the value of the remove operation.
+     * Its completion is tied to the dynamically enclosing finish.
+     */
+    public def removeAsync2(k:K): void {
+        async {
+            val removeClosure = removeAsync(k);
+            removeClosure();    // force future
+        }
     }
 
     /**
