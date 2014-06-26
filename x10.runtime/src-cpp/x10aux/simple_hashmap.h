@@ -61,7 +61,6 @@ namespace x10aux {
         }
 
         T put(Key id, const T data) {
-            assert(NULL == get(id));
             int bucket = simple_hash_code(id) % NUM_BUCKETS;
             // First, search to see if we are replacing an existing key
             Bucket *cur = _buckets[bucket];
