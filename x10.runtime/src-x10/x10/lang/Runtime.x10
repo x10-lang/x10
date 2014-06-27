@@ -326,6 +326,9 @@ public final class Runtime {
         // return allocated thread index if any
         def increase():Int {
             lock.lock();
+            // convert() is needed to make sure we account for idle threads as parked threads
+            // otherwise we could end up with no thread probing
+            convert();
             if (spareNeeded > 0n) {
                 spareNeeded--;
                 lock.unlock();
