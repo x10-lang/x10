@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -406,21 +407,71 @@ public class CXXCommandBuilder {
     public String getCUDAPostCompiler() {
     	return "nvcc";
     }
-    public List<String> getCUDAArchitectures() {
-        ArrayList<String> ans = new ArrayList<String>();
-    	ans.add("sm_10");
-    	ans.add("sm_11");
-    	ans.add("sm_12");
-    	ans.add("sm_13");
-    	ans.add("sm_20");
-    	ans.add("sm_21");
-    	ans.add("sm_30"); // requires CUDA Toolkit 5.0 or newer
-    	ans.add("sm_35"); 
-        ans.add("sm_50"); // requires CUDA Toolkit 6.0 or newer
-    	return ans;
+
+    public double getCUDAVersion() {
+        String output = null;
+        try {
+            ProcessBuilder pb = new ProcessBuilder(getCUDAPostCompiler(), "-V");
+            pb.redirectErrorStream(true);
+            Process proc = pb.start();
+            InputStreamReader stdout = new InputStreamReader(proc.getInputStream());
+            try {
+                char[] c = new char[72];
+                int len;
+                StringBuilder sb = new StringBuilder();
+                while ((len = stdout.read(c)) > 0) {
+                    sb.append(String.valueOf(c, 0, len));
+                }
+                if (sb.length() != 0) {
+                    output = sb.toString();
+                }
+            }
+            finally {
+                stdout.close();
+            }
+            int procExitValue = proc.waitFor();
+        } catch (Exception e) {
+        }
+
+        double version = -1.0; // unknown
+
+        if (output != null) {
+            String marker = "Cuda compilation tools, release ";
+            int markerPos = output.indexOf(marker);
+            if (markerPos >= 0) {
+                int startPos = markerPos + marker.length();
+                int endPos = startPos + 1;
+                for ( ; endPos < output.length(); ++endPos) {
+                    char c = output.charAt(endPos);
+                    if (!(Character.isDigit(c) || c == '.')) break;
+                }
+                version = Double.parseDouble(output.substring(startPos, endPos));
+            }
+        }
+
+        return version;
     }
 
-	public List<String> getCUDAPreFileArgs() {
+    public List<String> getCUDAArchitectures() {
+        double version = getCUDAVersion();
+        ArrayList<String> ans = new ArrayList<String>();
+//        ans.add("sm_10");
+//        ans.add("sm_11");
+//        ans.add("sm_12");
+//        ans.add("sm_13");
+        ans.add("sm_20");
+        ans.add("sm_21");
+        ans.add("sm_30");
+        if (version >= 5.0) {
+            ans.add("sm_35"); // requires CUDA Toolkit 5.0 or newer
+        }
+        if (version >= 6.0) {
+            ans.add("sm_50"); // requires CUDA Toolkit 6.0 or newer
+        }
+        return ans;
+    }
+
+    public List<String> getCUDAPreFileArgs() {
         ArrayList<String> ans = new ArrayList<String>();
         ans.add("-cubin");
         //ans.add("-Xptxas");
@@ -429,7 +480,7 @@ public class CXXCommandBuilder {
             if (options.x10_config.DEBUG) {
                 ans.add("-I"+pcl.absolutePathToRoot+"/include-dbg");
             }
-        	ans.add("-I"+pcl.absolutePathToRoot+"/include");
+            ans.add("-I"+pcl.absolutePathToRoot+"/include");
         }
         return ans;
     }
