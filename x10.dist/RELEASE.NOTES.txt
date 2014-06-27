@@ -1,4 +1,15 @@
-X10 Release 2.4.3
+X10 Release 2.4.3.2
+
+This minor release contains the following changes from X10 2.4.3.
+  + Performance improvements to X10 2.4.3 fix for MPI PUT and GET 
+    operations in x10rt_mpi
+  + Bug fix in generation of SMAP debug info for Managed X10
+  + Fix to include all of x10.tests when generating src/test tarballs
+  + Improvement to CUDA: determine CUDA levels from CUDA toolkit version
+  + Fix for all idle threads parking (with no one probing)
+
+The original release notes for X10 2.4.3 are appended below.
+
 
 HIGHLIGHTS OF THIS RELEASE
 
