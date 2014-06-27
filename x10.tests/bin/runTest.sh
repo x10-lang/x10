@@ -476,8 +476,11 @@ function junitLog {
 	        s/</\&lt;/g;
 	        s/>/\&gt;/g;
 	        s/"/\&quot;/g;
-    s/'"'"'/\&apos;/g;
+                s/'"'"'/\&apos;/g;
 	        s/([^[:print:]\t\n\r])/sprintf("\&#x%04x;", ord($1))/eg' $2 $3 >> $JUFILE
+    if [[ "${__jen_test_exit_code}" != "0" ]]; then
+	printf "\n\tTest exited with non-zero return code ${__jen_test_exit_code}\n\n"  >> $JUFILE
+    fi
     printf "\t</system-out>\n" >> $JUFILE
     # TODO: include system-err in file
     printf "\t<system-err></system-err>\n" >> $JUFILE
