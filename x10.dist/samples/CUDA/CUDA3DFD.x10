@@ -75,7 +75,7 @@ public class CUDA3DFD {
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, -1n); }
     public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int)
     { return within_epsilon(output, reference, dimx, dimy, dimz, radius, zadjust, 0.0001f); }
-    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float )
+    public static def within_epsilon(output:Rail[Float], reference:Rail[Float], dimx:Int, dimy:Int, dimz:Int, radius:Int, zadjust:Int, delta:Float)
     {
         var retval:Boolean = true;
 
@@ -111,7 +111,7 @@ public class CUDA3DFD {
     }
 
 
-    public static def main (args : Rail[String]) {
+    public static def main (args:Rail[String]) {
 
         //cudaDeviceProp properties;
 
@@ -131,7 +131,7 @@ public class CUDA3DFD {
         var check_correctness:Boolean = true;  // 1=check correcness, 0-don't.  Note that CPU code is very
                                     //   naive and not optimized, so many steps will take a 
                                     //   long time on CPU
-        var pad:Int  = 0n;
+        var pad:Int = 0n;
         var dimx_:Int = 480n+pad;
         var dimy_:Int = 480n;
         var dimz_:Int = 400n;
@@ -169,7 +169,7 @@ public class CUDA3DFD {
         random_data(h_data, dimx,dimy,dimz, 1n, 5n);
 
         // allocate CPU and GPU memory
-        val gpu = here.children().size==0L ? here : here.child(0);
+        val gpu = here.children().size==0 ? here : here.child(0);
         
         val d_input = CUDAUtilities.makeGlobalRail[Float](gpu,nelements,h_data); // allocate 
         val d_output = CUDAUtilities.makeGlobalRail[Float](gpu,nelements); // allocate 
@@ -179,7 +179,7 @@ public class CUDA3DFD {
         val RADIUS = 4n;
 
         // setup coefficients
-        val h_coeff_symmetric = new Rail[Float](RADIUS+1, 1n);
+        val h_coeff_symmetric = new Rail[Float](RADIUS+1, 1.0f);
 
         // kernel launch configuration
 
@@ -197,7 +197,7 @@ public class CUDA3DFD {
             finish async at (gpu) @CUDA @CUDADirectParams {
                 val c_coeff = CUDAConstantRail(h_coeff_symmetric);
                 finish for (block in 0n..(BLOCKS_X*BLOCKS_Y-1n)) async {
-                    val s_data = new Rail[Float]((BLOCK_DIMY+2n*RADIUS)*S_DATA_STRIDE, 0);
+                    val s_data = new Rail[Float]((BLOCK_DIMY+2n*RADIUS)*S_DATA_STRIDE, 0.0f);
                     clocked finish for (thread in 0n..(THREADS-1n)) clocked async {
                         val blockidx = block%BLOCKS_X;
                         val blockidy = block/BLOCKS_X;
@@ -313,7 +313,7 @@ public class CUDA3DFD {
             Console.OUT.println("-------------------------------\n");
             Console.OUT.println("comparing to CPU result...\n");
             reference_3D( h_reference, h_data, h_coeff_symmetric, dimx,dimy,dimz, RADIUS );
-            finish Rail.asyncCopy(d_output, 0L, h_data, 0L, nelements as Long);
+            finish Rail.asyncCopy(d_output, 0, h_data, 0, nelements as Long);
             if( within_epsilon( h_data, h_reference, dimx,dimy,dimz, RADIUS*nreps, 0n ) ) 
             {
                 Console.OUT.println("  Result within epsilon\n");

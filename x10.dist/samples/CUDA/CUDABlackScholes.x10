@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -83,11 +82,11 @@ public class CUDABlackScholes {
     public static def main (Rail[String]) {
 
         // Problem parameters
-        val OPT_N = 4000000l as Long;
-        val RISKFREE = 0.02f as Float;
-        val VOLATILITY = 0.30f as Float;
+        val OPT_N = 4000000l;
+        val RISKFREE = 0.02f;
+        val VOLATILITY = 0.30f;
 
-        if (here.children().size==0l) {
+        if (here.children().size==0) {
             Console.OUT.println("Set X10RT_ACCELS=ALL to enable your GPUs if you have them.");
             Console.OUT.println("Will run the test on the CPU.");
         } else {
@@ -95,23 +94,23 @@ public class CUDABlackScholes {
             Console.OUT.println("This program only supports a single GPU.");
         }
 
-        val gpu = here.children().size==0l ? here : here.child(0);
+        val gpu = here.children().size==0 ? here : here.child(0);
         val NUM_ITERATIONS = gpu==here ? 32 : 512;
         val cpu = here;
         val rand = new Random();
 
         // Host arrays
-        val h_CallResultCPU = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
-        val h_PutResultCPU  = new Rail[Float](OPT_N, (Long)=>-1.0 as Float);
-        val h_CallResultGPU = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
-        val h_PutResultGPU  = new Rail[Float](OPT_N, (Long)=>0.0  as Float);
-        val h_StockPrice    = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
-        val h_OptionStrike  = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
-        val h_OptionYears   = new Rail[Float](OPT_N, (Long)=>rand.nextFloat() as Float);
+        val h_CallResultCPU = new Rail[Float](OPT_N);
+        val h_PutResultCPU  = new Rail[Float](OPT_N, -1.0f);
+        val h_CallResultGPU = new Rail[Float](OPT_N);
+        val h_PutResultGPU  = new Rail[Float](OPT_N);
+        val h_StockPrice    = new Rail[Float](OPT_N, (Long)=>rand.nextFloat());
+        val h_OptionStrike  = new Rail[Float](OPT_N, (Long)=>rand.nextFloat());
+        val h_OptionYears   = new Rail[Float](OPT_N, (Long)=>rand.nextFloat());
 
         // Device arrays
-        val d_CallResult    = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, 0.0 as Float);
-        val d_PutResult     = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, 0.0 as Float);
+        val d_CallResult    = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N);
+        val d_PutResult     = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N);
         val d_StockPrice    = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_StockPrice);
         val d_OptionStrike  = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_OptionStrike);
         val d_OptionYears   = CUDAUtilities.makeGlobalRail[Float](gpu, OPT_N, h_OptionYears);
@@ -138,8 +137,8 @@ public class CUDABlackScholes {
 
         // Read back GPU results
         finish {
-            Rail.asyncCopy(d_CallResult, 0l, h_CallResultGPU, 0l, OPT_N);
-            Rail.asyncCopy(d_PutResult, 0l, h_PutResultGPU, 0l, OPT_N);
+            Rail.asyncCopy(d_CallResult, 0, h_CallResultGPU, 0, OPT_N);
+            Rail.asyncCopy(d_PutResult, 0, h_PutResultGPU, 0, OPT_N);
         }
 
         CUDAUtilities.deleteGlobalRail(d_CallResult);

@@ -11,15 +11,15 @@ public class CUDAMatMul {
     static def fill (A:Rail[Float], N:Long, maxi:Int)
     {
         val r = new Random();
-        for(j in 0n..(N-1n))
-            A(j) = (r.nextInt(maxi*2N) - maxi) / (maxi + 1.0f);
+        for (j in 0n..(N-1n))
+            A(j) = (r.nextInt(maxi*2n) - maxi) / (maxi + 1.0f);
     }
 
     static def diff (m:Long, n:Long, A:Rail[Float], lda:Long, B:Rail[Float], ldb:Long)
     {
         var err:Float = 0;
-        for(j in 0..(n-1))
-            for(i in 0..(m-1))
+        for (j in 0..(n-1))
+            for (i in 0..(m-1))
                 err = Math.max( err, Math.abs( A(i+j*lda) - B(i+j*ldb) ) );
         return err;
     }
@@ -35,13 +35,13 @@ public class CUDAMatMul {
         assert (m%64) == 0 && (n%16) == 0: "unsupported dimensions of matrix C in ourSgemm()";
 
         //dim3 grid( m/64, n/16 ), threads( 16, 4 );
-        if( transb == 'N' || transb == 'n' )
+        if ( transb == 'N' || transb == 'n' )
         {
             assert (k%16) == 0 && k > 0 : "unsupported shared dimension in ourSgemm( 'N', 'N', ... )";
             //sgemmNN<<<grid, threads>>>( A, lda, B, ldb, C, ldc, k, alpha, beta );
             finish async at (gpu) @CUDA @CUDADirectParams {
                 finish for (block in 0n..(((m*n)/64n/16n)-1n)) async {
-                    val bs = new Rail[Float](16*17, 0);
+                    val bs = new Rail[Float](16*17, 0.0f);
                     clocked finish for (thread in 0n..63n) clocked async {
                         val inx = thread % 16n;
                         val iny = thread / 16n;
@@ -50,12 +50,12 @@ public class CUDAMatMul {
                         val id = inx + iny*16n;
 
                         var A_idx:Long = ibx + id;
-                        var B_idx:Long = inx + ( iby + iny) * ( ldb );
-                        var C_idx:Long = ibx + id  + ( iby * ldc );
+                        var B_idx:Long = inx + ( iby + iny ) * ( ldb );
+                        var C_idx:Long = ibx + id + ( iby * ldc );
 
                         val Blast_idx = B_idx + k;
 
-                        @StackAllocate val c = @StackAllocate new Rail[Float](16l);
+                        @StackAllocate val c = @StackAllocate new Rail[Float](16);
 
                         do
                         {
@@ -78,7 +78,7 @@ public class CUDAMatMul {
                             A_idx += 16*lda;
                             B_idx += 16;
 
-                        } while( B_idx < Blast_idx );
+                        } while ( B_idx < Blast_idx );
 
                         @Unroll(16) for (i in 0..15) {
                             C(C_idx + i*ldc) = alpha*c(i) + beta*C(C_idx + i*ldc);
@@ -95,24 +95,18 @@ public class CUDAMatMul {
     }
 
 
-    public static def main (args : Rail[String]) {
+    public static def main (args:Rail[String]) {
 
-        var N_ : Long;
-        if (args.size >= 1) {
-            N_ = Long.parse(args(0));
-        } else {
-            N_ = 4096;
-        }
-        val N = N_;
+        val N = args.size >= 1 ? Long.parse(args(0)) : 4096;
 
         //
         //  init arrays
         //
-        val gpu = here.children().size==0l ? here : here.child(0);
+        val gpu = here.children().size==0 ? here : here.child(0);
 
-        val dA = CUDAUtilities.makeGlobalRail(gpu, N*N, 0 as Float);
-        val dB = CUDAUtilities.makeGlobalRail(gpu, N*N, 0 as Float);
-        val dC = CUDAUtilities.makeGlobalRail(gpu, N*N, 0 as Float);
+        val dA = CUDAUtilities.makeGlobalRail[Float](gpu, N*N);
+        val dB = CUDAUtilities.makeGlobalRail[Float](gpu, N*N);
+        val dC = CUDAUtilities.makeGlobalRail[Float](gpu, N*N);
 
         val A = new Rail[Float](N*N);
         val B = new Rail[Float](N*N);
@@ -123,8 +117,8 @@ public class CUDAMatMul {
         fill( C, N*N, 31n );
 
         finish {
-            Rail.asyncCopy(A, 0l, dA, 0l, N*N);
-            Rail.asyncCopy(B, 0l, dB, 0l, N*N);
+            Rail.asyncCopy(A, 0, dA, 0, N*N);
+            Rail.asyncCopy(B, 0, dB, 0, N*N);
         }
 
         val cublas_result = new Rail[Float](N*N);
@@ -141,7 +135,7 @@ public class CUDAMatMul {
             Console.OUT.println("\ntesting sgemm( '"+transa+"', '"+transb+"', n, n, n, ... )\n");
 
             val nb = 64;
-            //for(var idim:Int = 1; idim <= N/nb; idim = ((idim+1)*1.1) as Int )
+            //for (var idim:Int = 1n; idim <= N/nb; idim = ((idim+1)*1.1) as Int)
             val idim = N/nb;
             {
                 val dim = idim*nb;
@@ -169,7 +163,7 @@ public class CUDAMatMul {
                 var start_time : Long = System.currentTimeMillis();
                 val iters = 10;
                 finish for (iter in 0..(iters-1)) {
-                    ourSgemm(gpu, transa, transb, m as Int, n as Int, k as Int, alpha, dA, lda as Int, dB, ldb as Int, beta, dC, ldc as Int );
+                    ourSgemm(gpu, transa, transb, m as Int, n as Int, k as Int, alpha, dA, lda as Int, dB, ldb as Int, beta, dC, ldc as Int);
                 }
                 val elapsed_time = (System.currentTimeMillis() - start_time)/1E3/iters;
 
@@ -190,4 +184,3 @@ public class CUDAMatMul {
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
-

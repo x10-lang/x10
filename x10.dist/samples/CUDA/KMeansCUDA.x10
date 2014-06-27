@@ -41,9 +41,9 @@ class KernelWorker {
     private var kernelTime:Long;
     private var dmaTime:Long;
 
-    private val gpuPoints : GlobalRail[Float]{home==gpu};
-    private val gpuClusters : GlobalRail[Float]{home==gpu};
-    private val gpuNearest : GlobalRail[Int]{home==gpu};
+    private val gpuPoints:GlobalRail[Float]{home==gpu};
+    private val gpuClusters:GlobalRail[Float]{home==gpu};
+    private val gpuNearest:GlobalRail[Int]{home==gpu};
     private val hostNearest:Rail[Int];
     
     private static def round_up (x:Long, n:Long) = (x-1) - ((x-1)%n) + n;
@@ -66,18 +66,17 @@ class KernelWorker {
         val MEM_ALIGN = 32n; // FOR CUDA
         kernelNumPointsStride = round_up(kernelNumPoints, MEM_ALIGN);
 
-        val dim = 4l;
+        val dim = 4;
 
         // these are pretty big so allocate up front
 
-        gpuPoints = CUDAUtilities.makeGlobalRail(this.gpu, kernelNumPointsStride*dim, 0 as Float);
+        gpuPoints = CUDAUtilities.makeGlobalRail[Float](this.gpu, kernelNumPointsStride*dim);
         // DMA them from global_points
         finish for (d in 0..(dim-1)) {
             Rail.asyncCopy(global_points, d*global_num_points + kernelOffset, gpuPoints, d*kernelNumPointsStride, kernelNumPoints);
         }
-        this.gpuClusters = CUDAUtilities.makeGlobalRail(this.gpu, num_clusters*dim, 0 as Float);
-        this.gpuNearest = CUDAUtilities.makeGlobalRail(this.gpu, kernelNumPoints, 0 as Int);
-
+        this.gpuClusters = CUDAUtilities.makeGlobalRail[Float](this.gpu, num_clusters*dim);
+        this.gpuNearest = CUDAUtilities.makeGlobalRail[Int](this.gpu, kernelNumPoints);
     }
 
     def doWork() {
@@ -88,7 +87,7 @@ class KernelWorker {
         val gpu_nearest = this.gpuNearest;
         val the_host_clusters = this.hostClusters;
         val the_num_clusters = this.numClusters;
-        val the_dim = 4l;
+        val the_dim = 4;
 
         val kernel_start_time : Long = System.currentTimeMillis();
         // classify kernel
@@ -100,13 +99,13 @@ class KernelWorker {
                 clocked finish for (thread in 0n..(threads-1n)) clocked async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
-                    for (var p:Long=tid ; p<kernel_num_points ; p+=tids) {
+                    for (var p:Long=tid; p<kernel_num_points; p+=tids) {
                         var closest:Int = -1n;
                         var closest_dist:Float = Float.MAX_VALUE;
                         @Unroll(20) for (k in 0n..(the_num_clusters-1n)) { 
                             // Pythagoras (in dim dimensions)
-                            var dist : Float = 0;
-                            for (d in 0l..(the_dim-1l)) { 
+                            var dist:Float = 0.0f;
+                            for (d in 0..(the_dim-1)) { 
                                 val tmp = gpu_points(p+d*kernel_num_points_stride) 
                                           - clustercache(k*the_dim+d);
                                 dist += tmp * tmp;
@@ -127,7 +126,7 @@ class KernelWorker {
 
         // bring gpu results onto host
         val dma_start_time = System.currentTimeMillis();
-        finish Rail.asyncCopy(gpuNearest, 0l, hostNearest, gpuIndex * kernelNumPoints, kernelNumPoints);
+        finish Rail.asyncCopy(gpuNearest, 0, hostNearest, gpuIndex * kernelNumPoints, kernelNumPoints);
         dmaTime = System.currentTimeMillis() - dma_start_time;
         //if (verbose) Console.OUT.println("dma: "+(System.currentTimeMillis() - start_time));
     }
@@ -144,8 +143,8 @@ class KernelWorker {
 public class KMeansCUDA {
 
     public static def printClusters (clusters:Rail[Float], dims:Long) {
-        for (var d:Long=0 ; d<dims ; ++d) { 
-            for (var k:Long=0 ; k<clusters.size/dims ; ++k) { 
+        for (var d:Long=0; d<dims; ++d) { 
+            for (var k:Long=0; k<clusters.size/dims; ++k) { 
                 if (k>0) Console.OUT.print(" ");
                 Console.OUT.printf("%.2f",clusters(k*dims+d));
             }
@@ -154,7 +153,7 @@ public class KMeansCUDA {
     }
 
 
-    public static def main (args : Rail[String]) {
+    public static def main (args:Rail[String]) {
         val opts = new OptionsParser(args, [
             Option("q","quiet","just print time taken"),
             Option("v","verbose","print out each iteration")
@@ -167,12 +166,12 @@ public class KMeansCUDA {
         ]);
         val fname = opts("-p", "points.dat");
         val num_clusters=opts("-c",8n);
-        val global_num_points=opts("-n", 100000l);
-        val iterations=opts("-i",500l);
+        val global_num_points=opts("-n", 100000);
+        val iterations=opts("-i",500);
         val verbose = opts("-v");
         val quiet = opts("-q");
         val work = opts("-w", 100000n);
-        val dim = 4l; // must be compiletime constant
+        val dim = 4; // must be compiletime constant
 
 
         if (!quiet)
@@ -188,7 +187,7 @@ public class KMeansCUDA {
         val global_points = new Rail[Float](global_num_points*dim, init_global_points);
 
         if (!quiet) {
-            if (Place.NUM_ACCELS==0l) {
+            if (Place.NUM_ACCELS==0) {
                 Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
                 Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all GPUs at each place.");
                 Console.OUT.println("For more information, see the X10/CUDA documentation.");
@@ -205,15 +204,15 @@ public class KMeansCUDA {
 
 
 
-            val host_nearest = new Rail[Int](host_num_points, 0n);
+            val host_nearest = new Rail[Int](host_num_points);
             val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>{ val p = i/dim, d=i%dim ; return global_points(p+host_offset + d*global_num_points); } );
-            val host_cluster_counts = new Rail[Int](num_clusters as Long, 0n);
+            val host_cluster_counts = new Rail[Int](num_clusters as Long);
 
 
 
-            val kernel_workers = here.numChildren()==0l
+            val kernel_workers = here.numChildren()==0
                                ? [new KernelWorker(quiet, here,0,1, global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest) as KernelWorker]
-                               : new Rail[KernelWorker](here.numChildren(), (i:Long)=>new KernelWorker(quiet, here.child(i as Int), i, here.numChildren(), global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest));
+                               : new Rail[KernelWorker](here.numChildren(), (i:Long)=>new KernelWorker(quiet, here.child(i), i, here.numChildren(), global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest));
 
 
             var k_time:Long = 0;
@@ -223,7 +222,7 @@ public class KMeansCUDA {
 
             val toplevel_start_time = System.currentTimeMillis();
 
-            main_loop: for (var iter:Int=0n ; iter<iterations ; iter++) {
+            main_loop: for (var iter:Int=0n; iter<iterations; iter++) {
 
                 finish for (kernel_worker in kernel_workers) async {
                     kernel_worker.doWork();
@@ -235,15 +234,15 @@ public class KMeansCUDA {
                 val cpu_start_time = System.currentTimeMillis();
                 host_clusters.clear();
                 host_cluster_counts.clear();
-                finish for (var p_start:Long=0 ; p_start<host_num_points ; p_start+=work) {
+                finish for (var p_start:Long=0; p_start<host_num_points; p_start+=work) {
                     val p_start_ = p_start;
                     async {
-                        for (i in 0l..(work-1)) {
+                        for (i in 0..(work-1)) {
                             val p = p_start_ + i;
                             if (p >= host_num_points) break;
                             val closest = host_nearest(p);
                             //Console.ERR.println("closest = "+closest);
-                            for (var d:Long=0 ; d<dim ; ++d)
+                            for (var d:Long=0; d<dim; ++d)
                                 host_clusters(closest*dim+d) += global_points(global_num_points*d + p + host_offset);
                             host_cluster_counts(closest)++;
                         }
@@ -253,18 +252,18 @@ public class KMeansCUDA {
                 //if (verbose) Console.OUT.println("reaverage: "+(System.currentTimeMillis() - start_time));
 
                 val reduce_start_time = System.currentTimeMillis();
-                Team.WORLD.allreduce(host_clusters, 0l, host_clusters, 0l, host_clusters.size, Team.ADD);
-                Team.WORLD.allreduce(host_cluster_counts, 0l, host_cluster_counts, 0l, host_cluster_counts.size, Team.ADD);
+                Team.WORLD.allreduce(host_clusters, 0, host_clusters, 0, host_clusters.size, Team.ADD);
+                Team.WORLD.allreduce(host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size, Team.ADD);
                 r_time += System.currentTimeMillis() - reduce_start_time;
 
-                for (var k:Long=0 ; k<num_clusters ; ++k) { 
-                    if (here.id==0l) {
+                for (var k:Long=0; k<num_clusters; ++k) { 
+                    if (here.id==0) {
                         if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
                     }
-                    for (var d:Long=0 ; d<dim ; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
+                    for (var d:Long=0; d<dim; ++d) host_clusters(k*dim+d) /= host_cluster_counts(k);
                 }
 
-                if (here.id==0l) {
+                if (here.id==0) {
                     Console.OUT.println("Iteration: "+iter);
                     if (verbose) printClusters(host_clusters,dim);
                 }
@@ -272,7 +271,7 @@ public class KMeansCUDA {
 
                 /*
                 // TEST FOR CONVERGENCE
-                for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
+                for (var j:Int=0n; j<num_clusters*dim ; ++j) {
                     if (Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
                 }
 
@@ -292,7 +291,7 @@ public class KMeansCUDA {
             Console.OUT.println("reduce: "+r_time/1E3);
 
             // results
-            if (!quiet && here.id==0l) printClusters(host_clusters,dim);
+            if (!quiet && here.id==0) printClusters(host_clusters,dim);
 
             finish for (kernel_worker in kernel_workers) async kernel_worker.delete();
 
