@@ -69,9 +69,6 @@ final class Configuration {
     
     // Note that "X10_RESILIENT_MODE" is also checked in x10rt/sockets/Launcher.cc
     static val RESILIENT_MODE_NONE = 0n;
-    static val RESILIENT_MODE_PLACE_ZERO  = 1n;
-    static val RESILIENT_MODE_DISTRIBUTED = 2n;
-    static val RESILIENT_MODE_ZOO_KEEPER  = 3n;
     static val RESILIENT_MODE_PLACE0      = 11n; // FinishResilientPlace0 (TODO to be changed to default)
     static val RESILIENT_MODE_DIST        = 12n; // not implemented yet
     static val RESILIENT_MODE_SAMPLE      = 91n; // FinishResilientSample + ResilientStorePlace0

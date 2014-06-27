@@ -32,8 +32,4 @@ public interface Pragma(pragma:Int) extends StatementAnnotation {
 
     public static FINISH_ASYNC_AND_BACK = FINISH_HERE;
     public static FINISH_ATEACH_UNIQUE = FINISH_SPMD;
-
-    public static FINISH_RESILIENT_PLACE_ZERO = 100n;
-    public static FINISH_RESILIENT_ZOO_KEEPER = 101n;
-    public static FINISH_RESILIENT_DISTRIBUTED = 102n;
 }

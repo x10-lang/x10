@@ -77,17 +77,6 @@ abstract class FinishResilient extends FinishState {
             fs = FinishResilientPlace0.make(p, l);
             break;
         }
-            
-            //TODO: followings will be restrucutured
-        case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            fs = new FinishState.FinishResilientPlaceZero(latch);
-            break;
-        case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            fs = new FinishState.FinishResilientDistributed(latch==null ? new SimpleLatch() : latch);
-            break;
-        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            fs = new FinishState.FinishResilientZooKeeper(latch);
-            break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
@@ -104,24 +93,6 @@ abstract class FinishResilient extends FinishState {
             break;
         case Configuration.RESILIENT_MODE_PLACE0:
             FinishResilientPlace0.notifyPlaceDeath();
-            break;
-            
-            //TODO: followings will be restructured
-        case Configuration.RESILIENT_MODE_PLACE_ZERO:
-            if (here.id == 0) {
-                // most finishes are woken up by 'atomic'
-                atomic { }
-                // the root one also needs to have its latch released
-                // also adopt activities of finishes whose homes are dead into closest live parent
-                ResilientStorePlaceZero.notifyPlaceDeath((Runtime.rootFinish as FinishResilientPlaceZero).id);
-            }
-            break;
-        case Configuration.RESILIENT_MODE_DISTRIBUTED:
-            FinishState.FinishResilientDistributedMaster.notifyAllPlaceDeath();
-            // merge backups to parent
-            break;
-        case Configuration.RESILIENT_MODE_ZOO_KEEPER:
-            //
             break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);

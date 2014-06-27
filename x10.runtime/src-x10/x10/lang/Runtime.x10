@@ -715,7 +715,7 @@ public final class Runtime {
                         //}
                     }
                     // release any finishes that may have quiesced due to activities vanishing
-                    FinishState.notifyPlaceDeath();
+                    notifyPlaceDeath();
                 }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
@@ -1429,11 +1429,22 @@ public final class Runtime {
         else
             return FinishResilient.make(null/*parent*/, null/*latch*/);
     }
+
     static def makeDefaultFinish(latch:SimpleLatch):FinishState { // only for rootFinish
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
             return new FinishState.Finish(latch);
         else
             return FinishResilient.make(null/*parent*/, latch);
+    }
+
+    static def notifyPlaceDeath() : void {
+        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
+            // This case seems occur naturally on shutdown, so transparently ignore it.
+            // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
+            //throw new Exception("Only resilient X10 handles place death");
+        } else {
+            FinishResilient.notifyPlaceDeath();
+        }
     }
 
     /**
@@ -1457,12 +1468,6 @@ public final class Runtime {
             f = new FinishState.LocalFinish(); break;
         case Pragma.FINISH_DENSE:
             f = new FinishState.DenseFinish(); break;
-        case Pragma.FINISH_RESILIENT_PLACE_ZERO:
-            f = new FinishState.FinishResilientPlaceZero(null); break;
-        case Pragma.FINISH_RESILIENT_ZOO_KEEPER:
-            f = new FinishState.FinishResilientZooKeeper(null); break;
-        case Pragma.FINISH_RESILIENT_DISTRIBUTED:
-            f = new FinishState.FinishResilientDistributed(null); break;
         default: 
             f = makeDefaultFinish();
         }
