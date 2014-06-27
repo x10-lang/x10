@@ -14,8 +14,8 @@
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
-    <property name="ecj.jar" value="${lib}/ecj-4.3.2.jar"/>
-    <property name="math.jar" value="${lib}/commons-math3-3.2.jar"/>
+    <property name="ecj.jar" value="${lib}/ecj-4.4.jar"/>
+    <property name="math.jar" value="${lib}/commons-math3-3.3.jar"/>
     <property name="log.jar" value="${lib}/commons-logging-1.1.3.jar"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast-3.2.jar"/>
     <property name="shrike.jar" value="${lib}/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
