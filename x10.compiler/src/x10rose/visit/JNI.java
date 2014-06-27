@@ -238,7 +238,8 @@ class JNI implements Callable<Boolean> {
     public static native void cactionUpdatePushMethodParameterScope(String package_name, String typename, JavaToken jToken);
     public static native void cactionUpdateTypeParameterSupport(String name, int method_index, int num_bounds, JavaToken jToken);
     public static native void cactionUpdatePopMethodParameterScope(JavaToken jToken);
-    public static native void cactionBuildClassExtendsAndImplementsSupport(int num_type_parameters, boolean has_super_class, int num_interfaces, JavaToken jToken);
+//    public static native void cactionBuildClassExtendsAndImplementsSupport(int num_type_parameters, boolean has_super_class, int num_interfaces, JavaToken jToken);
+	public static native void cactionBuildClassExtendsAndImplementsSupport(int num_type_parameters, String[] type_parameters, boolean has_super_class, String super_class_name, int num_interfaces, String[] interfaces, JavaToken jToken);
 //MH-20140414
 //    public static native void cactionBuildClassSupportEnd(String className, int num_class_members, JavaToken jToken);
     public static native void cactionBuildClassSupportEnd(String className, JavaToken jToken);
