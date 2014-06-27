@@ -175,3 +175,5 @@ public class CUDABlackScholes {
         Console.OUT.println((L1norm < 1e-6f) ? "TEST PASSED" : "TEST FAILED");
     }
 }
+
+// vim: shiftwidth=4:tabstop=4:expandtab
