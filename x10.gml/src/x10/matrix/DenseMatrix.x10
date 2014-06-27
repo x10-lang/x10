@@ -800,17 +800,6 @@ public class DenseMatrix extends Matrix {
     // Cellwise multiplication
 
     /**
-     * Cell-wise matrix multiply: this = this &#42 [v]
-     * 
-     * @param   v    value to multiply to all elements
-     * @return        result matrix ("this")
-     */
-    public def cellMult(v:Double):DenseMatrix(this) {
-        for (var i:Long=0; i<M*N; i++) 
-            this.d(i) *= v;
-        return this;
-    }
-    /**
      * Cell-wise matrix multiply: this = this &#42 x
      *
      * @param  x    the multiplying matrix

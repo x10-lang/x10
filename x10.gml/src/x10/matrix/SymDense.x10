@@ -291,8 +291,6 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	// 			this.d(i) *= v;
 	// 	return this;
 	// }
-	public def cellMult(v:Double):SymDense(this) =
-		super.cellMult(v) as SymDense(this);
 	
 	public def cellMult(x:SymDense(M,N)):SymDense(this) =
 		super.cellMult(x as DenseMatrix(M,N)) as SymDense(this);

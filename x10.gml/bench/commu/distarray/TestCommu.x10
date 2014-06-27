@@ -243,7 +243,7 @@ class TestDistArrayCommu {
 			val dat=new DenseMatrix(M, 1, dstA(here.id()) as Rail[Double]);
 			//dat.print("Result");
 			val tgt=new DenseMatrix(M, 1, org);
-			tgt.cellMult(nplace);
+			tgt.scale(nplace);
 			ret = dat.equals(tgt as Matrix(dat.M, dat.N));
 			if (ret)
 				Console.OUT.println("Test reduce of DistArray passed!");
