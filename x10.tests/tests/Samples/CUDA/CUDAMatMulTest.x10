@@ -17,7 +17,8 @@ import harness.x10Test;
 public class CUDAMatMulTest extends x10Test {
     public def run():boolean {
          val args:Rail[String];
-         if (here.numChildren() == 0) {
+	 val topo = PlaceTopology.getTopology();
+         if (topo.numChildren(here) == 0) {
              args = ["64" as String];
          } else {
              args = new Rail[String](0);

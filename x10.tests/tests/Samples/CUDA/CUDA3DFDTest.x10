@@ -18,7 +18,8 @@ import harness.x10Test;
 public class CUDA3DFDTest extends x10Test {
     public def run():boolean {
          val args:Rail[String];
-         if (here.numChildren() == 0) {
+	 val topo = PlaceTopology.getTopology();
+         if (topo.numChildren(here) == 0) {
              args = ["16" as String, "16", "16"];
          } else {
              args = new Rail[String](0);
