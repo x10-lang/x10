@@ -27,7 +27,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         private val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this); // ERR
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.
@@ -41,7 +41,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         private val y:GlobalRef[Test1]{self.home==x.home} = GlobalRef[Test1](this);
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.
@@ -55,7 +55,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         private val y:GlobalRef[Test2]{self.home==here} = GlobalRef[Test2](this); // ERR: Cannot use "here" in this context
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.
@@ -69,7 +69,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         private val y = GlobalRef[Test3](this);
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.
@@ -83,7 +83,7 @@ public class AtThisIntoAtHere1_MustFailCompile extends x10Test {
         private val y = GlobalRef(this);
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.

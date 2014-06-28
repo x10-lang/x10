@@ -28,7 +28,7 @@ public class TestBlockBlockDist extends x10Test {
 
         val region5 = Region.make(1..10, -2..10, 1..10);
         val dist5 = Dist.makeBlockBlock(region5, 0, 1);
-        val regionForZero = dist5(Place.place(0));
+        val regionForZero = dist5(Place(0));
         chk(region5.minPoint().equals(regionForZero.minPoint()));
 
         return true;

@@ -27,7 +27,7 @@ class PolyDistAlgebra1 extends TestDist {
 
         //Check range restriction to a place
         for (var k: int = 0; k<Place.MAX_PLACES; k++) {
-            var p: Place = Place.place(k);
+            var p: Place = Place(k);
             var dp: Dist(2) = d | p;
             prDist(name + "|" + s(p), dp);
         }

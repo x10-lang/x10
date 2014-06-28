@@ -27,7 +27,7 @@ public class B_AtThisIntoAtHere_MustFailCompile extends x10Test {
         private val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this); // ShouldNotBeERR
 
         def n() {
-            val p = Place.place(1);
+            val p = Place(1);
             at (x) {
                 at (p) {
                     // this is not ok because of the place shift.

@@ -33,7 +33,7 @@ public class FutureFieldAccessStruct extends x10Test {
     val c = C[String]("1");
 
     public def run02(): boolean = {
-    		val p = Place.place(1);
+    		val p = Place(1);
     		val cc = this.c;
             val f = Future.make[boolean](() => at(p) {
             	// cannot access a field that is not global
