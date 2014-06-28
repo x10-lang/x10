@@ -123,7 +123,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
 		val by  = loc(3);
 		val pid = dmat.handleBS().getDistMap().findPlace(bid);
 		//Remote capture: bid, bx, by, 
-		at(Place.place(pid)) {
+		at(Place(pid)) {
 			val blkset:BlockSet = dmat.handleBS();
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 
@@ -141,7 +141,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
 		val by  = loc(3);
 		val pid = dmat.handleBS().getDistMap().findPlace(bid);
 		//Remote capture: bid, bx, by, 
-		val ret = at(Place.place(pid)) {
+		val ret = at(Place(pid)) {
 			val blkset:BlockSet = dmat.handleBS();
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 

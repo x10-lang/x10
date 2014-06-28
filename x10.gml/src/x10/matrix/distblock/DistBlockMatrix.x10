@@ -454,7 +454,7 @@ public class DistBlockMatrix extends Matrix {
 		val by  = loc(3);
 		val pid = handleBS().dmap.findPlace(bid);
 		//Remote capture: bid, bx, by, 
-		val dv = at(Place.place(pid)) {
+		val dv = at(Place(pid)) {
 			val blkset:BlockSet = this.handleBS();
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 
@@ -472,7 +472,7 @@ public class DistBlockMatrix extends Matrix {
 		val by  = loc(3);
 		val pid = handleBS().dmap.findPlace(bid);
 		//Remote capture: bid, bx, by, 
-		at(Place.place(pid)) {
+		at(Place(pid)) {
 			val blkset:BlockSet = handleBS();
 			val blk:MatrixBlock = blkset.find(bid);
 			if (blk == null) 
