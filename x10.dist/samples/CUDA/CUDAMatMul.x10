@@ -113,7 +113,8 @@ public class CUDAMatMul {
         //
         //  init arrays
         //
-        val gpu = here.children().size==0 ? here : here.child(0);
+        val topo = PlaceTopology.getTopology();
+        val gpu = topo.numChildren(here)==0 ? here : topo.getChild(here, 0);
 
         val dA = CUDAUtilities.makeGlobalRail[Float](gpu, N*N);
         val dB = CUDAUtilities.makeGlobalRail[Float](gpu, N*N);

@@ -28,7 +28,8 @@ public class X10RT {
 	public static final String X10RT_DATASTORE = "X10RT_DATASTORE"; // only hazelcast is valid currently
 
     static State state = State.UNINITIALIZED;
-    static int here;
+    static int hereId;
+    static x10.lang.Place here = null;
     static boolean forceSinglePlace = false;
     public static SocketTransport javaSockets = null;
     
@@ -83,8 +84,8 @@ public class X10RT {
 
         state = State.INITIALIZED;
         if (forceSinglePlace) {
-        	here = 0;
-        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
+        	hereId = 0;
+         	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
             state = State.RUNNING;
         	return null;
         }
@@ -106,7 +107,7 @@ public class X10RT {
     public static synchronized boolean connect_library(int myPlace, String[] connectionInfo) {
     	if (state != State.INITIALIZED) return true; // already initialized
 
-        X10RT.here = myPlace;
+        X10RT.hereId = myPlace;
         
     	int errcode;
     	if (X10RT.javaSockets != null)
@@ -160,7 +161,7 @@ public class X10RT {
     		  System.err.println("Unable to establish links!  errorcode: "+ret+". Forcing single place execution");
     	  }
     	  else {
-    		  here = X10RT.javaSockets.x10rt_here();
+    		  hereId = X10RT.javaSockets.x10rt_here();
     		  x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
     	  }
       }
@@ -177,7 +178,7 @@ public class X10RT {
 
               TeamSupport.initialize();
 
-              here = x10rt_here();
+              hereId = x10rt_here();
               x10.runtime.impl.java.Runtime.MAX_PLACES = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
@@ -186,7 +187,7 @@ public class X10RT {
       }
 
       if (forceSinglePlace) {
-          here = 0;
+          hereId = 0;
           x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
       }
       else {
@@ -269,8 +270,20 @@ public class X10RT {
      * Return the numeric id of the current Place.
      * @return the numeric id of the current Place.
      */
-    public static int here() {
+    public static int hereId() {
       assert isBooted();
+      return hereId;
+    }
+
+    /**
+     * Return the current Place.
+     * @return the current Place.
+     */
+    public static x10.lang.Place here() {
+      assert isBooted();
+      if (null == here) {
+          here = new x10.lang.Place(hereId);
+      }
       return here;
     }
 
@@ -385,7 +398,7 @@ public class X10RT {
     	// and the cluster is seeded via at least one other hazelcast instance.  place 0 doesn't join
     	// an existing cluster - it is the start of one.
     	
-    	if (here == 0 && "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))) {
+    	if (hereId == 0 && "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"))) {
     		if (X10RT.javaSockets == null) {
     			System.err.println("Error: you specified X10RT_DATASTORE=Hazelcast, but are not using JavaSockets, which is required.  Hazelcast is disabled.");
     			return;

@@ -247,7 +247,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             X10JavaSerializer serializer = new X10JavaSerializer();
             
             serializer.write(finishState);
-            serializer.write(Place.place(X10RT.here()));
+            serializer.write(X10RT.here());
             long before_bytes = serializer.dataBytesWritten();
             serializer.write(body);
             long ser_bytes = serializer.dataBytesWritten() - before_bytes;
@@ -341,7 +341,7 @@ public abstract class Runtime implements VoidFun_0_0 {
      * Return true if place(id) is local to this node
      */
     public static boolean local(int id) {
-        int hereId = X10RT.here();
+        int hereId = X10RT.hereId();
         return (hereId == id);
     }
 

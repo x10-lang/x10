@@ -203,6 +203,7 @@ public class CUDAKernelTest {
         val len = args.size==1 ? Long.parse(args(0)) : 1000;
 
         for (host in Place.places()) at (host) {
+            val topo = PlaceTopology.getTopology();
 
             val init = new Rail[Float](len,(i:Long)=>i as Float);
             val recv = new Rail[Float](len);
@@ -211,7 +212,7 @@ public class CUDAKernelTest {
 
             var done_work:Boolean = false;
 
-            for (gpu in here.children()) if (gpu.isCUDA()) {
+            for (gpu in topo.children(here)) if (gpu.isCUDA()) {
                 Console.OUT.println("Running test on GPU called "+gpu);
                 doTest1(init, recv, gpu, len);
                 doTest1d(init_d, recv_d, gpu, len);

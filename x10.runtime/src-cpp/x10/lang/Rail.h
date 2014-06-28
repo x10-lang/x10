@@ -483,7 +483,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::Rail<T>
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw[srcIndex]);
     void* dstAddr;
-    if (::x10::lang::Place::place(dst->FMGL(rail)->location)->isCUDA()) {
+    if (::x10::lang::Place::_make(dst->FMGL(rail)->location)->isCUDA()) {
         dstAddr = &((T*)(dst->FMGL(rail)->__apply()))[dstIndex];
     } else {
         dstAddr = (void*)(&dst->FMGL(rail)->__apply()->raw[dstIndex]);
@@ -493,7 +493,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::Rail<T>
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    ::x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::place(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
+    ::x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::_make(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
 }
 
 template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalRail<T> src, x10_long srcIndex,
@@ -502,7 +502,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalR
                                                             ::x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr;
-    if (::x10::lang::Place::place(src->FMGL(rail)->location)->isCUDA()) {
+    if (::x10::lang::Place::_make(src->FMGL(rail)->location)->isCUDA()) {
         srcAddr = &((T*)(src->FMGL(rail)->__apply()))[srcIndex];
     } else {
         srcAddr = (void*)(&src->FMGL(rail)->__apply()->raw[srcIndex]);
@@ -513,7 +513,7 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalR
     checkBounds(srcIndex+numElems, src->FMGL(size)+1);
     checkBounds(dstIndex, dst->FMGL(size));
     checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
-    ::x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::place(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
+    ::x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::_make(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
 }
 
 /*

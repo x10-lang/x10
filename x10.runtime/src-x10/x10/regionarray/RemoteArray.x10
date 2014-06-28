@@ -11,9 +11,6 @@
 
 package x10.regionarray;
 
-import x10.compiler.Global;
-import x10.compiler.Native;
-
 /**
  * A class that encapsulates sufficient information about a remote
  * array to enable DMA operations via Array.copyTo and Array.copyFrom

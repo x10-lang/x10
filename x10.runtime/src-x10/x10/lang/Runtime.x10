@@ -764,7 +764,7 @@ public final class Runtime {
      * Return the current place
      */
     @Native("c++", "::x10::lang::Place::_make(::x10aux::here)")
-    @Native("java", "x10.lang.Place.place(x10.x10rt.X10RT.here())")
+    @Native("java", "x10.x10rt.X10RT.here()")
     public native static def home():Place;
 
     /**
@@ -772,11 +772,11 @@ public final class Runtime {
      * @Deprecated("Use hereLong()")
      */
     @Native("c++", "::x10aux::here")
-    @Native("java", "x10.x10rt.X10RT.here()")
+    @Native("java", "x10.x10rt.X10RT.hereId()")
     public static def hereInt():Int = here.id as Int;
 
     @Native("c++", "((x10_long)::x10aux::here)")
-    @Native("java", "((long)x10.x10rt.X10RT.here())")
+    @Native("java", "((long)x10.x10rt.X10RT.hereId())")
     public static def hereLong():Long = here.id;
 
 

@@ -186,13 +186,14 @@ public class KMeansCUDA {
         val init_global_points = (i:Long) => { val p = (i%global_num_points)%file_num_points, d=i/global_num_points; return file_points(p*dim + d); };
         val global_points = new Rail[Float](global_num_points*dim, init_global_points);
 
+        val topo = PlaceTopology.getTopology();
         if (!quiet) {
-            if (Place.NUM_ACCELS==0) {
+            if (topo.numChildrenPlaces() == 0) {
                 Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
                 Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all GPUs at each place.");
                 Console.OUT.println("For more information, see the X10/CUDA documentation.");
             } else {
-                Console.OUT.println("Running using "+Place.NUM_ACCELS+" GPUs.");
+                Console.OUT.println("Running using "+topo.numChildrenPlaces()+" GPUs.");
             }
         }
 
@@ -208,12 +209,13 @@ public class KMeansCUDA {
             val host_clusters  = new Rail[Float](num_clusters*dim, (i:Long)=>{ val p = i/dim, d=i%dim ; return global_points(p+host_offset + d*global_num_points); } );
             val host_cluster_counts = new Rail[Int](num_clusters as Long);
 
-
-
-            val kernel_workers = here.numChildren()==0
-                               ? [new KernelWorker(quiet, here,0,1, global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest) as KernelWorker]
-                               : new Rail[KernelWorker](here.numChildren(), (i:Long)=>new KernelWorker(quiet, here.child(i), i, here.numChildren(), global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest));
-
+            val numGPUs = topo.numChildren(here);
+            val kernel_workers:Rail[KernelWorker];
+            if (numGPUs == 0) {
+                kernel_workers = [new KernelWorker(quiet, here,0,1, global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest) as KernelWorker];
+            } else {
+                kernel_workers = new Rail[KernelWorker](numGPUs, (i:Long)=>new KernelWorker(quiet, topo.getChild(here, i), i, numGPUs, global_points, global_num_points, host_offset, host_num_points, host_clusters, num_clusters, host_nearest));
+            }
 
             var k_time:Long = 0;
             var c_time:Long = 0;

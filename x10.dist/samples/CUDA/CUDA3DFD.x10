@@ -180,7 +180,8 @@ public class CUDA3DFD {
         random_data(h_data, dimx,dimy,dimz, 1n, 5n);
 
         // allocate CPU and GPU memory
-        val gpu = here.children().size==0 ? here : here.child(0);
+        val topo = PlaceTopology.getTopology();
+        val gpu = topo.numChildren(here) > 0 ? topo.getChild(here,0) : here;
         
         val d_input = CUDAUtilities.makeGlobalRail[Float](gpu,nelements,h_data); // allocate 
         val d_output = CUDAUtilities.makeGlobalRail[Float](gpu,nelements); // allocate 

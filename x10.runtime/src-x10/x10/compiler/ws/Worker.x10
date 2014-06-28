@@ -158,7 +158,7 @@ public final class Worker {
     public static def start() {
         val worker = startHere(); // init place 0 first
         for (var i:Int = 1n; i<Place.MAX_PLACES; i++) { // init place >0
-            val p = Place.place(i);
+            val p = Place(i);
             at(p) async startHere().run();
         }
         return worker;

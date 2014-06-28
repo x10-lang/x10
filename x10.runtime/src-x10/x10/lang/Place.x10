@@ -48,23 +48,6 @@ public final struct Place(
     @Native("c++", "((x10_long)x10rt_ndead())")
     public static numDead(): Long = 0;
 
-    /** The number of accelerators. */
-    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
-
-    /**
-     * Find number of children under a place.
-     * For hosts, this returns the number of accelerators at that host.
-     * For accelerators, it returns 0.
-     */
-    @Native("c++", "((x10_long)::x10aux::num_children((x10_int)#id))")
-    public static def numChildren(id:Long):Long = 0;
-
-    /**
-     * Returns whether a place is a host.
-     */
-    @Native("c++", "::x10aux::is_host((x10_int)#id)")
-    public static def isHost(id:Long):Boolean = true;
-
     /**
      * Returns whether a place is dead.
      */
@@ -79,39 +62,6 @@ public final struct Place(
     @Native("c++", "((x10_long)::x10aux::num_places)")
     public static def numPlaces():Long = ALL_PLACES;
     
-    /**
-     * Returns whether a place is a CUDA GPU.
-     */
-    @Native("c++", "::x10aux::is_cuda((x10_int)#id)")
-    public static def isCUDA(id:Long):Boolean = false;
-
-    /**
-     * Find parent of a place.
-     * For hosts, this returns the host itself.
-     * For accelerators, it is the host of the accelerator.
-     */
-    @Native("c++", "::x10aux::parent((x10_int)#id)")
-    public static def parent(id:Long):Long = id;
-
-    /**
-     * Return id of ith child of place p.
-     * Use i between 0 and numChildren(p)-1 inclusive.
-     * Throws BadPlaceException if i invalid.
-     */
-    @Native("c++", "((x10_long)::x10aux::child((x10_int)#p,(x10_int)#i))")
-    public static def child(p:Long, i:Long):Long { throw new BadPlaceException(); }
-
-    /**
-     * Return the index of a given child, within a place.
-     * Throws BadPlaceException if given place is not a child.
-     */
-    @Native("c++", "((x10_long)::x10aux::child_index((x10_int)#id))")
-    public static def childIndex(id:Long):Long { throw new BadPlaceException(); }
-
-    public static children =
-        new Rail[Rail[Place]](ALL_PLACES,
-            (p: Long) => new Rail[Place](numChildren(p), (i:Long) => Place(child(p, i))));
-
     /**
      * A convenience for iterating over all host places.
      */
@@ -128,7 +78,7 @@ public final struct Place(
     public static INVALID_PLACE:Place(-1) = Place(-1);
 
     /**
-     * Creates a Place struct from an integer place id.
+     * Creates a Place struct from an place id.
      */
     public def this(id:Long):Place(id) { 
         property(id); 
@@ -136,11 +86,6 @@ public final struct Place(
             throw new IllegalArgumentException(id+" is not a valid Place id");
         }
     }
-
-    /**
-     * Another way to get a place from an id. @deprecated
-     */
-    public static def place(id:Long):Place(id) = Place(id);
 
     /**
      * Returns the place with the next higher integer index.
@@ -161,10 +106,11 @@ public final struct Place(
      * Returns the same place as would be obtained by using next() 'i' times.
      */
     public def next(i:Long):Place {
+        val pt = PlaceTopology.getTopology();
         // -1 % n == -1, not n-1, so need to add n
-        if (isHost(id)) {
+        if (pt.isPrimary(Place(id))) {
             val k = (id + i % MAX_PLACES + MAX_PLACES) % MAX_PLACES;
-            return place(k);
+            return Place(k);
         }
         // FIXME: iterate through peers
         return this;
@@ -176,41 +122,16 @@ public final struct Place(
     public def isFirst():Boolean = id == 0;
     public def isLast():Boolean = id == MAX_PLACES - 1;
 
-    /** Is this place a host (i.e. not an accelerator)? */
-    public def isHost():Boolean = isHost(id);
-
-    /** Is this place a CUDA GPU? */
-    public def isCUDA():Boolean = isCUDA(id);
-
     /** Is this place dead? */
     public def isDead():Boolean = isDead(id);
 
-    /** 
-     * How many accelerators does this place have?
-     * Returns 0 if this place is an accelerator. 
-     */
-    public def numChildren() = numChildren(id);
+    // TODO: Should probably remove in favor of PlaceTopology
+    @Native("c++", "::x10aux::is_cuda((x10_int)((#this)->FMGL(id)))")
+    public def isCUDA():Boolean = false;
 
-    /** 
-     * Get the child of this place at the given index.  0 is the first child, etc.
-     */
-    public def child(i:Long) = Place(child(id,i));
-
-    /** A convenience for iterating over this place's children. */
-    public def children() = children(id);
-
-    /** The host of this place if this place is an accelerator, otherwise returns this place. */
-    public def parent() = Place(parent(id));
-
-    /** Returns the index of this child place amongst the other children of its parent.
-     * This function complements child(Long):Place.
-     * @throws BadPlaceException if this place is not an accelerator. */
-    public def childIndex() {
-        if (isHost()) {
-            throw new BadPlaceException();
-        }
-        return childIndex(id);
-    }
+    // TODO: Should probably remove in favor of PlaceTopology
+    @Native("c++", "::x10::lang::Place::_make(::x10aux::parent((x10_int)((#this)->FMGL(id))))")
+    public def parent():Place = this;
 
     public def toString() = "Place(" + this.id + ")";
     public def equals(p:Place) = p.id==this.id;
@@ -222,7 +143,7 @@ public final struct Place(
      * Converts a GlobalRef to its home.
      */
     @Native("java", "(#r).home")
-    @Native("c++", "::x10::lang::Place::place(((x10_long)((#r)->location)))")
+    @Native("c++", "::x10::lang::Place::_make(((x10_long)((#r)->location)))")
     public static native operator[T] (r:GlobalRef[T]){T isref}: Place{self==r.home};
 
 }
