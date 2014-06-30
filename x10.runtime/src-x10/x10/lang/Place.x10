@@ -73,7 +73,7 @@ public final struct Place(
     public static FIRST_PLACE:Place(0) = Place(0);
     
     /**
-     * Special place type for non-existent places
+     * Special Place that encodes non-existent Places
      */
     public static INVALID_PLACE:Place(-1) = Place(-1);
 

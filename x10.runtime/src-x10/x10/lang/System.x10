@@ -38,20 +38,28 @@ public class System {
     public static def nanoTime():Long = Timer.nanoTime();
 
     /**
-     * Kills the current place, as if due to a hardware or low level software failure.  Behaviour is only well-defined if executed at a place other than Place.FIRST_PLACE and the language is in resilient mode.
+     * Kills the current place, as if due to a hardware or low level software failure.  
+     * Behaviour is only well-defined if executed at a place other than Place.FIRST_PLACE 
+     * and the program is executing in one of the resilient modes
+     *
+     * @see Configuration#resilient_mode
      */
     @Native("java", "java.lang.System.exit(1)")
     @Native("c++", "::x10::lang::RuntimeNatives::exit(1)")
     public static native def killHere(): void;
 
     /**
-     * Sets the system exit code.
-     * The exit code will be returned from the application when main() terminates.
-     * Can only be invoked in place 0.
+     * Sets the exit code with which the current Place 
+     * will exit assuming it terminates normally.
+     * 
+     * This method is constrained to be invoked only in Place.FIRST_PLACE
+     * (the Place where the user main function was invoked), because the
+     * exit code for the entire X10 computation can only reliably be set
+     * by setting the exitCode for Place.FIRST_PLACE.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#exitCode)")
     @Native("c++", "(::x10aux::exitCode = (#exitCode))")
-    public static def setExitCode(exitCode: Int){here==Place.FIRST_PLACE}: void {}
+    public static def setExitCode(exitCode: Int){here==Place.FIRST_PLACE}:void {}
 
     /**
      * Provides an estimate in bytes of the size of the X10 heap
