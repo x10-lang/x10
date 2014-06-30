@@ -31,22 +31,30 @@ public final struct Place(
     id:Long)  {
     public property id():Long = id;
 
-    /** The number of places including accelerators.
+    /** 
+     * The number of places including accelerators.
      * Accelerator places have limitations on the kinds of code they can run.
+     * @deprecated : replace with Place.numAllPlaces();
      */
     @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
     @Native("c++", "((x10_long)::x10aux::num_places)")
     public static ALL_PLACES:Long = 4;
 
-    /** The number of places not including accelerators. */
+    /** 
+     * The number of places not including accelerators. 
+     * @deprecated : replace with Place.numPlaces();
+     */
     @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
     @Native("c++", "((x10_long)::x10aux::num_hosts)")
-    public static MAX_PLACES: Long = 4;
+    public static MAX_PLACES:Long = 4;
 
-    /** The number of dead places not including accelerators. */
+    /** 
+     * The number of primary places known to be dead by the 
+     * current place, does not include accelerators. 
+     */
     @Native("java", "((long)x10.x10rt.X10RT.numDead())")
     @Native("c++", "((x10_long)x10rt_ndead())")
-    public static numDead(): Long = 0;
+    public static native def numDead():Long;
 
     /**
      * Returns whether a place is dead.
@@ -55,20 +63,28 @@ public final struct Place(
     @Native("c++", "x10rt_is_place_dead((x10_int)#id)")
     public static def isDead(id:Long):Boolean = false;
 
-    /**
-     * The number of places including accelerators.
+    /** 
+     * The total number of all kinds of places (both primary and children/accelerators).
      */
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
     @Native("c++", "((x10_long)::x10aux::num_places)")
-    public static def numPlaces():Long = ALL_PLACES;
+    public static native def numAllPlaces():Long;
+
+    /**
+     * The number of primary places (does not include accelerators).
+     * Invariant: Place.numPlaces() == Place.places().numPlaces().
+     */
+    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
+    @Native("c++", "((x10_long)::x10aux::num_hosts)")
+    public static native def numPlaces():Long;
     
     /**
-     * A convenience for iterating over all host places.
+     * A PlaceGroup the contains all the currently live primary Places.
      */
     public static def places():PlaceGroup = PlaceGroup.WORLD;
 
     /**
-     * The place that runs 'main'.
+     * The place in which the user 'main' function is run.
      */
     public static FIRST_PLACE:Place(0) = Place(0);
     

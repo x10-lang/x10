@@ -76,12 +76,12 @@ public abstract class Dist(
     public static def make(r:Region):Dist(r) = makeConstant(r);
 
     /**
-     * Create a distribution over the specified region that varies in
-     * place only along the specified axis. It divides the coordinates
-     * along that axis into Place.MAX_PLACES blocks, and assigns
-     * successive blocks to successive places.  If the number of coordinates
+     * Create a distribution of the specified region over all 
+     * Places that varies in place only along the specified axis.
+     * It divides the coordinates along that axis into Place.numPlaces() blocks, 
+     * and assigns successive blocks to successive places.  If the number of coordinates
      * in the axis does not divide evenly into the number of blocks, then 
-     * the first (max(axis)-min(axis)+1)%Place.MAX_PLACES blocks will be assigned 
+     * the first (max(axis)-min(axis)+1)%Place.numPlaces() blocks will be assigned 
      * one more coordinate than the remaining blocks.
      *
      * @param r the given region
@@ -112,12 +112,12 @@ public abstract class Dist(
     }
 
     /**
-     * Create a distribution over the specified region that varies in
+     * Create a distribution of the specified region over all places that varies in
      * place only along the 0-th axis. It divides the coordinates
-     * along the 0-th axis into Place.MAX_PLACES blocks, and assigns
+     * along the 0-th axis into Place.numPlaces() blocks, and assigns
      * successive blocks to successive places.  If the number of coordinates
      * in the axis does not divide evenly into the number of blocks, then 
-     * the first (max(axis)-min(axis)+1)%Place.MAX_PLACES blocks will be assigned 
+     * the first (max(axis)-min(axis)+1)%Place.numPlaces() blocks will be assigned 
      * one more coordinate than the remaining blocks.
      *
      * @param r the given region

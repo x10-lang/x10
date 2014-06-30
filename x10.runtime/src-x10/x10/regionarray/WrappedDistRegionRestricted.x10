@@ -31,8 +31,9 @@ final class WrappedDistRegionRestricted extends Dist {
     public def numPlaces() = base.numPlaces();
 
     public def regions():Iterable[Region(rank)] {
-        return new Rail[Region(rank)](Place.MAX_PLACES, 
-                                      (i:Long)=>base.get(Place(i as Int)).intersection(filter));
+        val pg = base.places();
+        return new Rail[Region(rank)](pg.numPlaces(),
+                                      (i:Long)=>base.get(pg(i)).intersection(filter));
     }
 
     public def get(p:Place):Region(rank) {

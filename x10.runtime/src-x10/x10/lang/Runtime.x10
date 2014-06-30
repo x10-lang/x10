@@ -646,7 +646,7 @@ public final class Runtime {
         }
 
         operator this(n:Int):void {
-            workers.multiplace = Place.ALL_PLACES>1; // ALL_PLACES includes accelerators
+            workers.multiplace = Place.numAllPlaces()>1; // numAllPlaces includes accelerators
             // workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
             workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || (RESILIENT_MODE!=Configuration.RESILIENT_MODE_NONE);
             workers.count = n;
@@ -899,7 +899,8 @@ public final class Runtime {
      * No job should be submitted to XRX past this call.
      */
     public static def terminateAll() {
-        if (Place.MAX_PLACES >= 1024) {
+        val numPlaces = Place.numPlaces();
+        if (numPlaces >= 1024) {
             val cl1 = ()=> @x10.compiler.RemoteInvocation("start_1") {
                 val h = hereInt();
                 val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {terminate();};
@@ -908,12 +909,12 @@ public final class Runtime {
                 }
                 terminate();
             };
-            for(var i:Long=Place.MAX_PLACES-1; i>0; i-=32) {
+            for(var i:Long=numPlaces-1; i>0; i-=32) {
                 x10rtSendMessage(i, cl1, null);
             }
         } else {
             val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {terminate();};
-            for (var i:Long=Place.MAX_PLACES-1; i>0; --i) {
+            for (var i:Long=numPlaces-1; i>0; --i) {
                 x10rtSendMessage(i, cl, null);
             }
         }

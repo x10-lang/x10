@@ -33,7 +33,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
    * A PlaceGroup that represents exactly Place.places().
    * All places, in order of increasing Place.id.
    */
-  public static val WORLD = new SimplePlaceGroup(Place.MAX_PLACES);
+  public static val WORLD = new SimplePlaceGroup(Place.numPlaces());
 
   /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
