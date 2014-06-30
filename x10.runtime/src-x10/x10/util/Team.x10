@@ -14,26 +14,18 @@ package x10.util;
 import x10.compiler.Native;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
-import x10.util.Pair;
-import x10.compiler.Uncounted;
 import x10.compiler.Pragma;
 
-/** Interface to low level collective operations, using the Rail API.  
+/**
  * A team is a collection of activities that work together by simultaneously 
  * doing 'collective operations', expressed as calls to methods in the Team struct.
- * All methods are blocking operations.
+ * All methods are blocking operations and must be called by each member of the
+ * team before the collective operation can progress.
  */
 public struct Team {
     private static struct DoubleIdx(value:Double, idx:Int) {}
     private static val DEBUG:Boolean = false;
     private static val DEBUGINTERNALS:Boolean = false;
-    
-    // on native X10, probe is faster, but sleep works too.
-    // on Managed X10, probe sometimes deadlocks, so sleep is required
-    // TODO: Figure out why probe doesn't work on Managed X10
-    @Native("java", "false")
-    @Native("c++", "false") // was true
-    public static native def useProbeNotSleep():Boolean;
 
     /** A team that has one member at each place. */
     public static val WORLD = Team(0n, PlaceGroup.WORLD, here.id());
@@ -80,7 +72,8 @@ public struct Team {
     	}
     }
 
-    /** Create a team by defining the place where each member lives.
+    /** 
+     * Create a team by defining the place where each member lives.
      * Unlike most methods on Team, this is called by only ONE place, not all places
      * @param places The place of each member in the team
      */
@@ -107,13 +100,15 @@ public struct Team {
 	                Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
 	       	    Team.roles(teamidcopy) = places.indexOf(here) as Int;
 	        });
-	    }
-	    else
+	    } else {
 	    	this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
+        }
 	    if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
 	    if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+            val tempId = Team.state.size() as Int;
             val teamidcopy = this.id;
             PlaceGroup.WORLD.broadcastFlat(()=>{
+                if (DEBUG) Runtime.println(here + " broadcast creating Team ID "+tempId);
                 if (Team.state.capacity() <= teamidcopy)
                     Team.state.grow(teamidcopy+1);
                 while (Team.state.size() < teamidcopy)
@@ -720,6 +715,13 @@ public struct Team {
 		        	Runtime.println("ERROR: Unknown reduction operation: "+operation);
 	        }
 	    }
+
+        // on native X10, probe is faster, but sleep works too.
+        // on Managed X10, probe sometimes deadlocks, so sleep is required
+        // TODO: Figure out why probe doesn't work on Managed X10
+        @Native("java", "false")
+        @Native("c++", "false") // was true
+        public static native def useProbeNotSleep():Boolean;
 	    
 	    /*
 	     * This method contains the implementation for all collectives.  Some arguments are only valid
