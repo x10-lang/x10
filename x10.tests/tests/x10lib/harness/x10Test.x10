@@ -79,14 +79,12 @@ abstract public class x10Test {
 
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");
-	   at (Place.FIRST_PLACE) 
-	     System.setExitCode(0n);
+        System.setExitCode(0n);
     }
 
     public static def failure(): void = {
         println(PREFIX+"Test failed.");
-        at (Place.FIRST_PLACE)
-           System.setExitCode(1n);
+        System.setExitCode(1n);
     }
 
     protected static def reportResult(b: boolean): void = {

@@ -49,17 +49,32 @@ public class System {
     public static native def killHere(): void;
 
     /**
-     * Sets the exit code with which the current Place 
-     * will exit assuming it terminates normally.
+     * Sets the exit code with which the X10 program will exit.
+     * However, calling this method has no effect on the timing
+     * of when the computation will exit.
      * 
-     * This method is constrained to be invoked only in Place.FIRST_PLACE
-     * (the Place where the user main function was invoked), because the
-     * exit code for the entire X10 computation can only reliably be set
-     * by setting the exitCode for Place.FIRST_PLACE.
+     * This method is primarily intended for usage by testing 
+     * frameworks that use non-zero exit codes to encode testcase 
+     * failures.
+     *
+     * Implementation note: This method currently must internally
+     *   shift execution to Place.FIRST_PLACE and set the exitCode
+     *   there because exitCodes are intentionally not implicitly 
+     *   propagated back to Place.FIRST_PLACE when other Places 
+     *   exit.  Therefore the caller should be aware that calling this
+     *   method from within an <code>atomic</code> or <code>when</code>
+     *   will result in an exception being raised.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#exitCode)")
-    @Native("c++", "(::x10aux::exitCode = (#exitCode))")
-    public static def setExitCode(exitCode: Int){here==Place.FIRST_PLACE}:void {}
+    public static def setExitCode(exitCode:Int):void {
+        if (here != Place.FIRST_PLACE) {
+            at (Place.FIRST_PLACE) setExitCode(exitCode);
+        } else {
+            @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(exitCode);")
+            @Native("c++", "::x10aux::exitCode = (exitCode);")
+            { 
+            }
+       }
+    }
 
     /**
      * Provides an estimate in bytes of the size of the X10 heap
