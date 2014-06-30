@@ -105,10 +105,8 @@ public struct Team {
         }
 	    if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
 	    if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
-            val tempId = Team.state.size() as Int;
             val teamidcopy = this.id;
             PlaceGroup.WORLD.broadcastFlat(()=>{
-                if (DEBUG) Runtime.println(here + " broadcast creating Team ID "+tempId);
                 if (Team.state.capacity() <= teamidcopy)
                     Team.state.grow(teamidcopy+1);
                 while (Team.state.size() < teamidcopy)
