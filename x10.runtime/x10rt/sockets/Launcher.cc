@@ -543,7 +543,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	/* end of main loop. kill & wait every process   */
 	/* --------------------------------------------- */
 
-	signal(SIGCHLD, SIG_DFL); // disable the SIGCHLD handler
+	signal(SIGCHLD, SIG_IGN); // disable SIGCHLD
 
 	// send SIGTERM to any remaining children
 	Launcher::cb_sighandler_term(SIGTERM);
