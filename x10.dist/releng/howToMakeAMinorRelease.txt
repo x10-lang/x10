@@ -5,9 +5,17 @@ The steps are the same for making minor releases based off a branch
 weekly build off the trunk. The only difference is the naming scheme
 used for the tags and the portion of the repository that is tagged.
 
-For an X10 only release there are only two steps:
+For an X10 only release there are only three steps:
 
-   1. "Tag" the release by using x10.dist/releng/makeTag.sh
+   1. If you are making a minor release off a release branch
+      (ie, 2.4.3.1 from the x10-2.4.3 branch), update x10.dist/RELEASE_NOTES.txt 
+      on the branch to list the changes made since the last minor release 
+      on this branch.  Add the contents to the top of the file, 
+      leaving the original content of RELEASE_NOTES.txt
+      in place in the rest of the file.  You can get this
+      information by inspecting the svn log for the base branch.
+
+   2. "Tag" the release by using x10.dist/releng/makeTag.sh
        Before tagging verify by inspecting Jenkins test results 
        that you are tagging a "good" svn version.
 
@@ -17,7 +25,7 @@ For an X10 only release there are only two steps:
        To tag basing off the trunk do
          makeTag.sh -rev 27400 -branch trunk -tag WB_20140212 -x10
 
-   2. Go to Jenkins, select the Package-X10-Release job and then select
+   3. Go to Jenkins, select the Package-X10-Release job and then select
       "Build With Parameters".  Select the appropriate svn tag, fill in
       the version number, and other parameters then hit the 'Build' button.
       Note, depending on how loaded slave machines are this step may take
