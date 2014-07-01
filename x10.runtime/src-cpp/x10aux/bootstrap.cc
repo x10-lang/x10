@@ -25,6 +25,7 @@
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Runtime__Worker.h>
+#include <x10/util/Team.h>
 
 using namespace x10aux;
 
@@ -48,6 +49,7 @@ void x10aux::initialize_xrx() {
     x10::lang::Runtime::FMGL(STATIC_THREADS__do_init)();
     x10::lang::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
     x10::lang::Runtime::FMGL(BUSY_WAITING__do_init)();
+    x10::util::Team::FMGL(WORLD__do_init)();
 //    x10::lang::Place::FMGL(places__do_init)();
 //    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
 }

@@ -66,8 +66,13 @@ public struct Team {
             while (Team.state.size() < id)
                 Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
             val teamState = new LocalTeamState(places, id, places.indexOf(here));
-            atomic { Team.state(id) = teamState; }
-            teamState.init();
+            if (id == 0n) {
+                // Team.WORLD is constructed by each place during Runtime.start()
+                Team.state(id) = teamState;
+            } else {
+                atomic { Team.state(id) = teamState; }
+                teamState.init();
+            }
             if (DEBUG) Runtime.println(here + " created our own team "+id);
     	}
     }
