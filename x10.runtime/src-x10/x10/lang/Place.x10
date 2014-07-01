@@ -98,7 +98,7 @@ public final struct Place(
      */
     public def this(id:Long):Place(id) { 
         property(id); 
-        if (CompilerFlags.checkPlace() && (id < -1 || id >= numPlaces())) {
+        if (CompilerFlags.checkPlace() && (id < -1 || id >= numAllPlaces())) {
             throw new IllegalArgumentException(id+" is not a valid Place id");
         }
     }
