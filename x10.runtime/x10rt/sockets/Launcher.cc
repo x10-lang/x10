@@ -543,7 +543,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	/* end of main loop. kill & wait every process   */
 	/* --------------------------------------------- */
 
-	signal(SIGCHLD, SIG_IGN); // disable SIGCHLD
+	signal(SIGCHLD, SIG_DFL); // disable our SIGCHLD handler, restore default handler
 
 	// send SIGTERM to any remaining children
 	Launcher::cb_sighandler_term(SIGTERM);
@@ -580,9 +580,9 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (WIFEXITED(status))
 		{
 			_exitcode = WEXITSTATUS(status);
-			#ifdef DEBUG
+//			#ifdef DEBUG
 				if (_exitcode != 0) fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
-			#endif
+//			#endif
 		}
 		else if (WIFSIGNALED(status))
 		{
@@ -591,17 +591,17 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			else
 			{
 				_exitcode = 128 + WTERMSIG(status);
-				#ifdef DEBUG
+//				#ifdef DEBUG
 					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
-				#endif
+//				#endif
 			}
 		}
 		else if (WIFSTOPPED(status))
 		{
 			_exitcode = 128 + WSTOPSIG(status);
-			#ifdef DEBUG
+//			#ifdef DEBUG
 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
-			#endif
+//			#endif
 		}
 		#ifdef DEBUG
 		else if (WIFCONTINUED(status))
@@ -613,9 +613,10 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	// free up allocated memory (not really needed, since we're about to exit)
 	free(_hostlist);
-	#ifdef DEBUG
-		fprintf(stderr, "Launcher %u: cleanup complete, exit code=%u.  Goodbye!\n", _myproc, _exitcode);
-	#endif
+//	#ifdef DEBUG
+        if (_exitcode != 0)
+		    fprintf(stderr, "Launcher %u: cleanup complete, exit code=%u.  Goodbye!\n", _myproc, _exitcode);
+//	#endif
 	exit(_exitcode);
 }
 
