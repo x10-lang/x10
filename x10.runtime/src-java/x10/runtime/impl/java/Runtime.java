@@ -84,6 +84,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         x10.lang.Runtime.get$STATIC_THREADS();
         x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
         x10.lang.Runtime.get$BUSY_WAITING();
+        x10.util.Team.get$WORLD();
 
         java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
             public void run() {
