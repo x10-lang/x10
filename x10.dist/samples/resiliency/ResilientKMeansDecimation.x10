@@ -19,10 +19,10 @@ import x10.compiler.*;
  * 
  * For Managed X10:
  *   $ x10 ResilientKMeans.x10
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 ResilientKMeans [num_points] [num_clusters]
+ *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 x10 ResilientKMeans [num_points] [num_clusters]
  * For Native X10:
  *   $ x10c++ ResilientKMeans.x10 -o ResilientKMeans
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 runx10 ResilientKMeans [num_points] [num_clusters]
+ *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 runx10 ResilientKMeans [num_points] [num_clusters]
  */
 class ResilientKMeansDecimation {
     

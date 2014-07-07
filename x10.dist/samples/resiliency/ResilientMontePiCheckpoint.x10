@@ -26,7 +26,7 @@ import x10.util.resilient.ResilientMap;
  * To run using the Hazelcast-based implementation of
  * x10.util.ResilientMap, invoke the x10 script like: 
  * <pre>
- * X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePiCheckpoint
+ * X10_RESILIENT_MODE=11 X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast ResilientMontePiCheckpoint
  * </pre>
  */
 public class ResilientMontePiCheckpoint {

@@ -20,10 +20,10 @@ import x10.util.*;
  * 
  * For Managed X10:
  *   $ x10 ResilientSimpleHeatTransfer.x10
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 ResilientSimpleHeatTransfer [size]
+ *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 x10 ResilientSimpleHeatTransfer [size]
  * For Native X10:
  *   $ x10c++ ResilientSimpleHeatTransfer.x10 -o ResilientSimpleHeatTransfer
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 runx10 ResilientSimpleHeatTransfer [size]
+ *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 runx10 ResilientSimpleHeatTransfer [size]
  */
 public class ResilientSimpleHeatTransfer {
     static val epsilon = 1.0e-5;

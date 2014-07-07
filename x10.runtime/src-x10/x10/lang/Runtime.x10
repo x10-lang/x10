@@ -647,8 +647,8 @@ public final class Runtime {
 
         operator this(n:Int):void {
             workers.multiplace = Place.numAllPlaces()>1; // numAllPlaces includes accelerators
-            // workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
-            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || (RESILIENT_MODE!=Configuration.RESILIENT_MODE_NONE);
+            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || 
+                !(RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY);
             workers.count = n;
             workers(0n) = worker();
             for (var i:Int = 1n; i<n; i++) {
@@ -1428,24 +1428,27 @@ public final class Runtime {
 
     // finish
     static def makeDefaultFinish():FinishState {
-        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
+        if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
             return new FinishState.Finish();
-        else
+        } else {
             return FinishResilient.make(null/*parent*/, null/*latch*/);
+        }
     }
 
     static def makeDefaultFinish(latch:SimpleLatch):FinishState { // only for rootFinish
-        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE)
+        if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
             return new FinishState.Finish(latch);
-        else
+        } else {
             return FinishResilient.make(null/*parent*/, latch);
+        }
     }
 
     static def notifyPlaceDeath() : void {
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
             // This case seems occur naturally on shutdown, so transparently ignore it.
             // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
-            //throw new Exception("Only resilient X10 handles place death");
+        } else if (RESILIENT_MODE == Configuration.RESILIENT_MODE_X10RT_ONLY) {
+            // Nothing to do at the XRX level in this mode.
         } else {
             FinishResilient.notifyPlaceDeath();
         }
