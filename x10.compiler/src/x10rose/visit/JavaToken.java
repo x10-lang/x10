@@ -7,7 +7,8 @@ package x10rose.visit;
 public class JavaToken {
     // We mostly just want the token to carry a string version
     // of the parsed code and source position.
-    public String text;
+    public String text;   
+    public String filename;
     private JavaSourcePositionInformation posInfo;
 
     public JavaToken(String s, JavaSourcePositionInformation posInfo) {
@@ -17,6 +18,10 @@ public class JavaToken {
 
     public String getText() {
         return text;
+    }
+    
+    public String getFileName() {
+        return filename;
     }
 
 	 public JavaSourcePositionInformation getJavaSourcePositionInformation() {
