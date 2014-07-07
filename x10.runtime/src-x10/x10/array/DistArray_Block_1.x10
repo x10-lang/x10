@@ -61,14 +61,14 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-element block distributed DistArray
-     * whose data is distrbuted over PlaceGroup.WORLD and 
+     * whose data is distrbuted over Place.places() and 
      * initialized using the provided init closure.
      *
      * @param n number of elements
      * @param init the element initialization function
      */
     public def this(n:Long, init:(Long)=>T) {
-        this(n, PlaceGroup.WORLD, init);
+        this(n, Place.places(), init);
     }
 
 
@@ -86,13 +86,13 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-element block distributed DistArray
-     * whose data is distrbuted over PlaceGroup.WORLD and 
+     * whose data is distrbuted over Place.places() and 
      * zero-initialized.
      *
      * @param n number of elements
      */
     public def this(n:Long){T haszero} {
-        this(n, PlaceGroup.WORLD, (Long)=>Zero.get[T]());
+        this(n, Place.places(), (Long)=>Zero.get[T]());
     }
 
 

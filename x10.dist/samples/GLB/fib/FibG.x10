@@ -129,7 +129,7 @@ public class FibG(n:Long) {
 		val start = ()=>{ (glb.taskQueue()).init(n); };
 		return glb.run(start);
 		
-		//  PlaceGroup.WORLD.broadcastFlat(()=>{
+		//  Place.places().broadcastFlat(()=>{
 		// 	(glb.taskQueue()).reduce();
 		//   
 		// });

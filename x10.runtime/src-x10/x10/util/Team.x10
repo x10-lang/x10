@@ -28,7 +28,7 @@ public struct Team {
     private static val DEBUGINTERNALS:Boolean = false;
 
     /** A team that has one member at each place. */
-    public static val WORLD = Team(0n, PlaceGroup.WORLD, here.id());
+    public static val WORLD = Team(0n, Place.places(), here.id());
     
     // TODO: the role argument is not really needed, and can be buried in lower layers, 
     // but BG/P is difficult to modify so we need to track it for now
@@ -100,7 +100,7 @@ public struct Team {
 	        
 	        // team created - fill in the role at all places
 	        val teamidcopy:Long = this.id as Long;
-	        PlaceGroup.WORLD.broadcastFlat(()=>{
+	        Place.places().broadcastFlat(()=>{
 	            if (Team.roles.capacity() <= teamidcopy) // TODO move this check into the GrowableRail.grow() method
 	                Team.roles.grow(teamidcopy+1);
 	            while (Team.roles.size() < teamidcopy)
@@ -113,7 +113,7 @@ public struct Team {
 	    if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
 	    if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             val teamidcopy = this.id;
-            PlaceGroup.WORLD.broadcastFlat(()=>{
+            Place.places().broadcastFlat(()=>{
                 if (Team.state.capacity() <= teamidcopy)
                     Team.state.grow(teamidcopy+1);
                 while (Team.state.size() < teamidcopy)

@@ -52,7 +52,7 @@ class ResilientKMeans {
         val rnd = new Random(0); // new Random(System.nanoTime());
         val points_region = Region.make(0..(POINTS-1), 0..(DIM-1));
         val points_master = new Array[Float](points_region, (p:Point)=>rnd.nextFloat());
-        val points_local = PlaceLocalHandle.make[Array[Float]{region==points_region}](PlaceGroup.WORLD, ()=>points_master);
+        val points_local = PlaceLocalHandle.make[Array[Float]{region==points_region}](Place.places(), ()=>points_master);
         val creation_after = System.nanoTime();
         Console.OUT.println("Took "+(creation_after-creation_before)/1E9+" seconds");
         
@@ -70,9 +70,9 @@ class ResilientKMeans {
         val central_cluster_counts_gr = GlobalRef(central_cluster_counts);
         val processed_points_gr = GlobalRef(processed_points);
         /* For local calculation */
-        val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, ()=>new Rail[Float](CLUSTERS*DIM));
-        val local_new_clusters = PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, ()=>new Rail[Float](CLUSTERS*DIM));
-        val local_cluster_counts = PlaceLocalHandle.make[Rail[Long]](PlaceGroup.WORLD, ()=>new Rail[Long](CLUSTERS));
+        val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](Place.places(), ()=>new Rail[Float](CLUSTERS*DIM));
+        val local_new_clusters = PlaceLocalHandle.make[Rail[Float]](Place.places(), ()=>new Rail[Float](CLUSTERS*DIM));
+        val local_cluster_counts = PlaceLocalHandle.make[Rail[Long]](Place.places(), ()=>new Rail[Long](CLUSTERS));
         
         /*
          * Calculate KMeans using multiple places

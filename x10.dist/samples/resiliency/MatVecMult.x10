@@ -381,7 +381,7 @@ public class MatVecMult {
 
         var before:Long=0, after:Long=0; // for timings
 
-        val plh = PlaceLocalHandle.make[PerPlaceState](PlaceGroup.WORLD, ()=>new PerPlaceState(cfg));
+        val plh = PlaceLocalHandle.make[PerPlaceState](Place.places(), ()=>new PerPlaceState(cfg));
 
         var need_set_splits : Boolean = true;
 

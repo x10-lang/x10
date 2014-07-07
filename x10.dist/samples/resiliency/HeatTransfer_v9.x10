@@ -222,7 +222,7 @@ public class HeatTransfer_v9 {
         var before : Long;
         var after : Long;
 
-        val plh = PlaceLocalHandle.make[PlaceState](PlaceGroup.WORLD, ()=>new PlaceState(cfg));
+        val plh = PlaceLocalHandle.make[PlaceState](Place.places(), ()=>new PlaceState(cfg));
 
         val active_places = new Rail[Long](Place.MAX_PLACES, (i:Long)=>i);
 

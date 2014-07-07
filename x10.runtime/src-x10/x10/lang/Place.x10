@@ -81,7 +81,7 @@ public final struct Place(
     /**
      * A PlaceGroup the contains all the currently live primary Places.
      */
-    public static def places():PlaceGroup = PlaceGroup.WORLD;
+    public static def places():PlaceGroup{self!=null} = PlaceGroup.WORLD;
 
     /**
      * The place in which the user 'main' function is run.

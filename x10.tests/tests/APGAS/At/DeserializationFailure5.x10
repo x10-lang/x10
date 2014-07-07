@@ -48,7 +48,7 @@ public class DeserializationFailure5 extends x10Test {
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
            try {
-               PlaceGroup.WORLD.broadcastFlat(()=> {
+               Place.places().broadcastFlat(()=> {
                    Console.OUT.println(here+" received timebomb with target "+tb.target);
                });
                Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);

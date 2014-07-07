@@ -258,7 +258,7 @@ public class BlockReduce extends BlockRemoteCopy {
      * Create temporary space used in reduce for storing received data
 	 */
 	public static def makeTempDistBlockMatrix(m:Long, n:Long):BlocksPLH =
-		PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeDense(m*Place.MAX_PLACES, n, Place.MAX_PLACES, 1, Place.MAX_PLACES,1));
 }
 

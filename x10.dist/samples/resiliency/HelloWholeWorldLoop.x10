@@ -22,7 +22,7 @@ class HelloWholeWorldLoop {
          try {
              val nplaces = Place.numPlaces();
              Console.OUT.println(here+" sees "+nplaces+" places");
-             finish for (p in 0..(nplaces-1)) { // can't use Place.places() because that caches numplaces in Place.WORLD
+             finish for (p in 0..(nplaces-1)) { // can't use Place.places() because that caches numplaces in Place.places()
                  at (Place(p)) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
              }
          }

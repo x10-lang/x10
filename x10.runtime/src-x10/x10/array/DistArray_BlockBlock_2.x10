@@ -79,7 +79,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
 
     /**
      * Construct a m by n block-block distributed DistArray
-     * whose data is distrbuted over PlaceGroup.WORLD and 
+     * whose data is distrbuted over Place.places() and 
      * initialized using the provided init closure.
      *
      * @param m number of elements in the first dimension
@@ -87,7 +87,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @param init the element initialization function
      */
     public def this(m:Long, n:Long, init:(Long,Long)=>T) {
-        this(m, n, PlaceGroup.WORLD, init);
+        this(m, n, Place.places(), init);
     }
 
 
@@ -106,14 +106,14 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
 
     /**
      * Construct a m by n block-block distributed DistArray
-     * whose data is distrbuted over PlaceGroup.WORLD and 
+     * whose data is distrbuted over Place.places() and 
      * zero-initialized.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
      */
     public def this(m:Long, n:Long){T haszero} {
-        this(m, n, PlaceGroup.WORLD, (Long,Long)=>Zero.get[T]());
+        this(m, n, Place.places(), (Long,Long)=>Zero.get[T]());
     }
 
 

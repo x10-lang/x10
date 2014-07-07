@@ -20,8 +20,8 @@ import x10.compiler.CompilerFlags;
  * the single point region that matches the indexOf
  * p in the PlaceGroup.
  * In particular, if the PlaceGroup of the UniqueDist 
- * is PlaceGroup.WORLD, then each Place p will be assigned
- * the region p.id..p.id.
+ * is Place.places() and no Place has failed, then each Place p 
+ * will be assigned the region p.id..p.id.
  */
 final class UniqueDist extends Dist/*(1)*/ {
 
@@ -45,10 +45,10 @@ final class UniqueDist extends Dist/*(1)*/ {
     }
 
     /**
-     * Create a unique distribution over all Places.
+     * Create a unique distribution over Place.places();
      */
     def this() {
-        this(PlaceGroup.WORLD);
+        this(Place.places());
     }
 
     public def places():PlaceGroup = pg;

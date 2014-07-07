@@ -43,55 +43,55 @@ public class DupBlockMatrix extends Matrix {
 		//val mat:Matrix = blkhdl().getMatrix();
 		super(bs().getGrid().M, bs().getGrid().N);
 		handleDB  = bs;
-		tmpDB = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD,
+		tmpDB = PlaceLocalHandle.make[BlockSet](Place.places(),
 				()=>new BlockSet(bs().grid, bs().dmap));
 		tmpReady = false;
-		local = PlaceLocalHandle.make[BlockMatrix(M,N)](PlaceGroup.WORLD, 
+		local = PlaceLocalHandle.make[BlockMatrix(M,N)](Place.places(), 
 				()=>((new BlockMatrix(bs().getGrid(), bs().blocklist)) as BlockMatrix(M,N)));
 	}
 
 	public static def make(bset:BlockSet) {
 		val grd = bset.getGrid();
 		//Remote caputre is used, performance.
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, ()=>bset);
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), ()=>bset);
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(grd.M,grd.N);
 	}
 
 	//Remote capture of g to all places
 	public static def make(g:Grid) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>new BlockSet(g, DistMap.makeConstant(g.size, here.id())));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(g.M, g.N);
 	}
 	
 	public static def makeDense(g:Grid) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeDense(g, DistMap.makeConstant(g.size, here.id())));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(g.M, g.N);
 	}
 	
 	public static def makeSparse(g:Grid, nzd:Double) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeSparse(g, DistMap.makeConstant(g.size, here.id()), nzd));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(g.M, g.N);
 	}	
 	
 	public static def make(m:Long, n:Long, blkM:Long, blkN:Long) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>new BlockSet(new Grid(m, n, blkM, blkN), 
 						DistMap.makeConstant(blkM*blkN, here.id())));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
 	}
 
 	public static def makeDense(m:Long, n:Long, blkM:Long, blkN:Long) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeDense(new Grid(m, n, blkM, blkN), 
 						DistMap.makeConstant(blkM*blkN, here.id())));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
 	}
 	
 	public static def makeSparse(m:Long, n:Long, blkM:Long, blkN:Long, nzd:Double) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeSparse(new Grid(m, n, blkM, blkN),
 						DistMap.makeConstant(blkM*blkN, here.id()), nzd));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
@@ -101,7 +101,7 @@ public class DupBlockMatrix extends Matrix {
 	public static def makeSparse(m:Long, n:Long, nzd:Double) = makeSparse(m, n, 1, 1, nzd);
 	
 	public static def makeDense(dmat:DupBlockMatrix) {
-		val hdl = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>BlockSet.makeDense(dmat.handleDB().getGrid(), dmat.handleDB().getDistMap()));
 		val nm = new DupBlockMatrix(hdl) as DupBlockMatrix(dmat.M,dmat.N);
 		dmat.copyTo(nm);
@@ -115,7 +115,7 @@ public class DupBlockMatrix extends Matrix {
 	public def alloc() = alloc(M,N);
 	
 	public def clone():DupBlockMatrix(M,N) {
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>handleDB().clone());	
 	
 		return new DupBlockMatrix(bs) as DupBlockMatrix(M,N);

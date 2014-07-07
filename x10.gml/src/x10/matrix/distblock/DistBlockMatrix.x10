@@ -81,14 +81,14 @@ public class DistBlockMatrix extends Matrix {
 	 */
     public static def make(g:Grid, dmap:DistMap):DistBlockMatrix(g.M, g.N){
 		//Remote capture: g, dmap
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, ()=>(new BlockSet(g, dmap)));//Remote capture
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), ()=>(new BlockSet(g, dmap)));//Remote capture
 		return new DistBlockMatrix(bs) as DistBlockMatrix(g.M,g.N);
 	}
 
     public static def make(g:Grid, gridDist:DistGrid):DistBlockMatrix(g.M, g.N){
 		//Remote capture: g, dmap
 		val dmap = gridDist.dmap;
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, ()=>(new BlockSet(g, dmap)));//Remote capture
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), ()=>(new BlockSet(g, dmap)));//Remote capture
 		return new DistBlockMatrix(gridDist, bs) as DistBlockMatrix(g.M,g.N);
 	}
 	
@@ -108,7 +108,7 @@ public class DistBlockMatrix extends Matrix {
 			rowBs:Long, colBs:Long, 
 			rowPs:Long, colPs:Long):DistBlockMatrix(m,n) {
 		Debug.assure(rowPs*colPs==Place.MAX_PLACES, "Block partitioning error");
-		val blks = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val blks = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.make(m,n,rowBs,colBs,rowPs,colPs)));
 		val gdist = new DistGrid(blks().getGrid(), rowPs, colPs);
 		return new DistBlockMatrix(gdist, blks) as DistBlockMatrix(m,n);
@@ -162,7 +162,7 @@ public class DistBlockMatrix extends Matrix {
 			mapFunc:(Long)=>Long) {
 		
 		val ttbs = rowbs * colbs;
-		val blks = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val blks = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(new BlockSet(Grid.make(rowbs, colbs, rowPartFunc, colPartFunc), DistMap.make(ttbs, mapFunc))));
 		return new DistBlockMatrix(blks);
 	}
@@ -170,33 +170,33 @@ public class DistBlockMatrix extends Matrix {
 	//Make a copy, but sharing partitioning grid and distribution map
 	public static def makeDense(d:DistBlockMatrix):DistBlockMatrix(d.M,d.N) {
 		val sblks = d.handleBS;
-		val dblks = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val dblks = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.makeDense(sblks().grid, sblks().dmap)));
 		
 		return  new DistBlockMatrix(d.gdist, dblks) as DistBlockMatrix(d.M,d.N);
 	}
 
 	public static def makeDense(g:Grid, gd:DistGrid):DistBlockMatrix(g.M,g.N) {
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.makeDense(g, gd.dmap)));//Remote capture
 		return new DistBlockMatrix(gd, bs) as DistBlockMatrix(g.M,g.N);		
 	}
 	
 	public static def makeSparse(g:Grid, gd:DistGrid, nzp:Double):DistBlockMatrix(g.M,g.N) {
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.makeSparse(g, gd.dmap, nzp)));//Remote capture
 		return new DistBlockMatrix(gd, bs) as DistBlockMatrix(g.M,g.N);		
 	}
 
 	
 	public static def makeDense(g:Grid, d:DistMap):DistBlockMatrix(g.M,g.N) {
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.makeDense(g, d)));//Remote capture
 		return new DistBlockMatrix(bs) as DistBlockMatrix(g.M,g.N);		
 	}
 	
 	public static def makeSparse(g:Grid, d:DistMap, nzp:Double):DistBlockMatrix(g.M,g.N) {
-		val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.makeSparse(g, d, nzp)));//Remote capture
 		return new DistBlockMatrix(bs) as DistBlockMatrix(g.M,g.N);		
 	}
@@ -248,7 +248,7 @@ public class DistBlockMatrix extends Matrix {
 	 * of the second operand in SUMMA
 	 */
 	public def makeTempFrontRowBlocks(rowCnt:Long) =
-		PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD,
+		PlaceLocalHandle.make[BlockSet](Place.places(),
 				()=>this.handleBS().makeFrontRowBlockSet(rowCnt));
 	
 	/**
@@ -258,11 +258,11 @@ public class DistBlockMatrix extends Matrix {
 	 * columns from the first operand matrix in SUMMA
 	 */
 	public def makeTempFrontColBlocks(colCnt:Long) =
-		PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD,
+		PlaceLocalHandle.make[BlockSet](Place.places(),
 				()=>this.handleBS().makeFrontColBlockSet(colCnt));
 
 	public def makeTempFrontColDenseBlocks(colCnt:Long) =
-		PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD,
+		PlaceLocalHandle.make[BlockSet](Place.places(),
 				()=>this.handleBS().makeFrontColDenseBlockSet(colCnt));
 	
     public def init(dval:Double):DistBlockMatrix(this){
@@ -350,7 +350,7 @@ public class DistBlockMatrix extends Matrix {
 	}
 	
 	public def clone():DistBlockMatrix(M,N) {
-        val bs = PlaceLocalHandle.make[BlockSet](PlaceGroup.WORLD, 	
+        val bs = PlaceLocalHandle.make[BlockSet](Place.places(), 	
 					()=>(this.handleBS().clone()));
 		
 		return new DistBlockMatrix(bs) as DistBlockMatrix(M,N);

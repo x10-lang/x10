@@ -77,11 +77,11 @@ class TestDistArrayCommu {
 
 		segt = new Rail[Long](nplace, (i:Long)=>m);   
 
-        val localA = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>(new Rail[Double](m)));
+        val localA = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>(new Rail[Double](m)));
         dstA = DistArray.make[Rail[Double]](Dist.makeUnique(), (Point)=>localA());
         this.localA = localA;
 
-        val localB = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>(new Rail[Double](m)));
+        val localB = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>(new Rail[Double](m)));
         dstB = DistArray.make[Rail[Double]](Dist.makeUnique(), (Point)=>localB());
         this.localB = localB;
 

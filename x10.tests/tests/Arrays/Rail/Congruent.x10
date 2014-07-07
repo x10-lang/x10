@@ -23,7 +23,7 @@ public class Congruent extends x10Test {
     public def run () {
         val allocator = Runtime.MemoryAllocator.requestAllocator(false, true);
         val elements = (probsize * 1024/8) as long;
-        val plh = PlaceLocalHandle.make[Rail[Long]](PlaceGroup.WORLD, ()=>new Rail[Long](elements, allocator));
+        val plh = PlaceLocalHandle.make[Rail[Long]](Place.places(), ()=>new Rail[Long](elements, allocator));
         Console.OUT.println("Construction complete.");
         val str0 = plh().toString();
         for (p in Place.places()) {

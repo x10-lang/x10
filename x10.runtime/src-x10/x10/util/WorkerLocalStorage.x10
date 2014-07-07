@@ -33,7 +33,7 @@ package x10.util;
  * 
  */
 public class WorkerLocalStorage[Key,Value] {
-    private val store = PlaceLocalHandle.make(PlaceGroup.WORLD,
+    private val store = PlaceLocalHandle.make(Place.places(),
             ():Rail[HashMap[Key,Value]] => new Rail[HashMap[Key,Value]](Runtime.MAX_THREADS));
 
     public def get(key:Key):Box[Value] {

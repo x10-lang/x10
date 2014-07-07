@@ -178,7 +178,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
     };
     public def equals(thatObj:Any):Boolean {
         if (thatObj instanceof SimplePlaceGroup) {
-            return numPlaces() == (thatObj as PlaceGroup).numPlaces();
+            return numPlaces() == (thatObj as SimplePlaceGroup).numPlaces();
         } else {
             return super.equals(thatObj);
         }

@@ -88,7 +88,7 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region, axis:Long):Dist(r) = makeBlock(r, axis, PlaceGroup.WORLD);
+    public static def makeBlock(r:Region, axis:Long):Dist(r) = makeBlock(r, axis, Place.places());
 
     /**
      * Creates a block, block distribution across all places.
@@ -108,7 +108,7 @@ public abstract class Dist(
      * @return a "block,block" distribution over r.
      */
     public static def makeBlockBlock(r:Region, axis0:Long, axis1:Long):Dist(r) {
-        return new BlockBlockDist(r, axis0, axis1, PlaceGroup.WORLD);
+        return new BlockBlockDist(r, axis0, axis1, Place.places());
     }
 
     /**
@@ -123,7 +123,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r:Region) = makeBlock(r, 0, PlaceGroup.WORLD);
+    public static def makeBlock(r:Region) = makeBlock(r, 0, Place.places());
 
     /**
      * Create a distribution over a rank-1 region that maps every
@@ -134,7 +134,7 @@ public abstract class Dist(
      * @return a "unique" distribution over the places in ps
      */
     public static def makeUnique(pg:PlaceGroup):Dist(1) {
-        if (pg.equals(PlaceGroup.WORLD)) {
+        if (pg.equals(Place.places())) {
             return makeUnique();
         } else {
             return new UniqueDist(pg) as Dist(1);

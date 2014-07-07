@@ -74,7 +74,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
      *       Racing between multiple places are not also considered.
      */
     static class ResilientStoreForDistArrayDistributed[K,V] extends ResilientStoreForDistArray[K,V] {
-        val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](PlaceGroup.WORLD, ()=>new x10.util.HashMap[K,V]());
+        val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](Place.places(), ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG(key, "save called");

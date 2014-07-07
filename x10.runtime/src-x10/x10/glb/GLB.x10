@@ -53,7 +53,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
 	public def this(init:()=>Queue, glbParams:GLBParameters, tree:Boolean) {
 		this.glbParams = glbParams;
 		setupTime = System.nanoTime();
-		plh = PlaceLocalHandle.makeFlat[Worker[Queue, R]](PlaceGroup.WORLD, 
+		plh = PlaceLocalHandle.makeFlat[Worker[Queue, R]](Place.places(), 
 				()=>new Worker[Queue, R](init, glbParams.n, glbParams.w, glbParams.l, glbParams.z, glbParams.m, tree));
 		Worker.initContexts[Queue, R](plh);
 		setupTime = System.nanoTime() - setupTime;
@@ -157,7 +157,7 @@ public final class GLB[Queue, R]{Queue<:TaskQueue[Queue, R]} {
         val tmpPlh = plh; // trick taught by Dave, caputure this.plh (as a pointer) instead
                           // of calling plh() directly inside the closure, which will encapsulate
                           // this (i.e. the whole rail of 
-		PlaceGroup.WORLD.broadcastFlat(()=>{
+		Place.places().broadcastFlat(()=>{
 			if(here == resultGlobal.home){
 			    val tmpresultGlobal = resultGlobal as GlobalRef[GLBResult[R]]{self.home == here};
 				Team.WORLD.allreduce(tmpresultGlobal().submitResult(), // Source buffer.

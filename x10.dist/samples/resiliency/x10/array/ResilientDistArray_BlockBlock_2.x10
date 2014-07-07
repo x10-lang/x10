@@ -23,9 +23,9 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
         this.da = new DistArray_BlockBlock_2[T](m, n, pg, init);
         this.savedPg = null;
     }
-    public def this(m:Long, n:Long, init:(Long,Long)=>T) { this(m, n, PlaceGroup.WORLD, init); }
+    public def this(m:Long, n:Long, init:(Long,Long)=>T) { this(m, n, Place.places(), init); }
     public def this(m:Long, n:Long, pg:PlaceGroup{self!=null}){T haszero} { this(m, n, pg, (Long,Long)=>Zero.get[T]()); }
-    public def this(m:Long, n:Long){T haszero} { this(m, n, PlaceGroup.WORLD, (Long,Long)=>Zero.get[T]()); }
+    public def this(m:Long, n:Long){T haszero} { this(m, n, Place.places(), (Long,Long)=>Zero.get[T]()); }
     
     public final def placeGroup():PlaceGroup = da.placeGroup();
     public final def globalIndices():DenseIterationSpace_2{self!=null} = da.globalIndices();

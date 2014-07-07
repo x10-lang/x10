@@ -20,7 +20,7 @@ public class ZYN {
 		getBuf = new GlobalRail(new Rail[Char](1024*1024));
 		putBuf = new GlobalRail(new Rail[Char](1024*1024));
 		//Console.OUT.println("about to create plh");
-		plh = PlaceLocalHandle.makeFlat[ZYNPlayer](PlaceGroup.WORLD, 
+		plh = PlaceLocalHandle.makeFlat[ZYNPlayer](Place.places(), 
 				()=>new ZYNPlayer(params.len));
 		//Console.OUT.println("plh is created.");
 		initSatellites();

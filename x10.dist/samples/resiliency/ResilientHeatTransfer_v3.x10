@@ -289,11 +289,11 @@ public class ResilientHeatTransfer_v3 {
     }
 
     public static def main(Rail[String]) {
-      val heatArrayPlh = PlaceLocalHandle.make[PartitionedHeatArray](PlaceGroup.WORLD, ()=>initializeHeatArray());
-      val tempArrayPlh = PlaceLocalHandle.make[PartitionedHeatArray](PlaceGroup.WORLD, ()=>initializeTempArray());
-      val columnArrayPlh = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>initializeColumnArray());
-      val columnArrayPlhHigh = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>initializeColumnArray());
-      val backupPlh = PlaceLocalHandle.make[BackupPartitions](PlaceGroup.WORLD, ()=>new BackupPartitions(arrayColsPerPlace));
+      val heatArrayPlh = PlaceLocalHandle.make[PartitionedHeatArray](Place.places(), ()=>initializeHeatArray());
+      val tempArrayPlh = PlaceLocalHandle.make[PartitionedHeatArray](Place.places(), ()=>initializeTempArray());
+      val columnArrayPlh = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>initializeColumnArray());
+      val columnArrayPlhHigh = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>initializeColumnArray());
+      val backupPlh = PlaceLocalHandle.make[BackupPartitions](Place.places(), ()=>new BackupPartitions(arrayColsPerPlace));
       var keepIterating : Boolean = true;
       val continueVariables = new Rail[Boolean](Place.MAX_PLACES);
       val outputResults : Boolean = false;

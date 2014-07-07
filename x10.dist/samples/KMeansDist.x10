@@ -30,13 +30,13 @@ public class KMeansDist {
     static val points_region = Region.make(0..(POINTS-1), 0..(DIM-1));
 
     public static def main (Rail[String]) {
-        val rnd = PlaceLocalHandle.make[Random](PlaceGroup.WORLD, () => new Random(0));
+        val rnd = PlaceLocalHandle.make[Random](Place.places(), () => new Random(0));
         val local_curr_clusters = 
-            PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, () => new Rail[Float](CLUSTERS*DIM));
+            PlaceLocalHandle.make[Rail[Float]](Place.places(), () => new Rail[Float](CLUSTERS*DIM));
         val local_new_clusters = 
-            PlaceLocalHandle.make[Rail[Float]](PlaceGroup.WORLD, () =>  new Rail[Float](CLUSTERS*DIM));
+            PlaceLocalHandle.make[Rail[Float]](Place.places(), () =>  new Rail[Float](CLUSTERS*DIM));
         val local_cluster_counts = 
-            PlaceLocalHandle.make[Rail[Int]](PlaceGroup.WORLD, ()=> new Rail[Int](CLUSTERS));
+            PlaceLocalHandle.make[Rail[Int]](Place.places(), ()=> new Rail[Int](CLUSTERS));
 
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = DistArray.make[Float](points_dist, (p:Point)=>rnd().nextFloat());

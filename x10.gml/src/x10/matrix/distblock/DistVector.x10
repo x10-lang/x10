@@ -43,11 +43,11 @@ public class DistVector(M:Long) {
         property(m);
         distV  = vs;
         segSize = segsz;
-        distData = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>vs().d);
+        distData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>vs().d);
     }
 
     public static def make(m:Long, segNum:Long):DistVector(m) {
-        val hdv = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD,
+        val hdv = PlaceLocalHandle.make[Vector](Place.places(),
                             ()=>Vector.make(Grid.compBlockSize(m, segNum, here.id())));
         val slst = new Rail[Long](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int));
         return new DistVector(m, hdv, slst) as DistVector(m);
@@ -56,7 +56,7 @@ public class DistVector(M:Long) {
     public static def make(m:Long) = make (m, Place.MAX_PLACES);
 
     public static def make(m:Long, segsz:Rail[Long]):DistVector(m) {
-        val hdv = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, ()=>Vector.make(segsz(here.id())));
+        val hdv = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(segsz(here.id())));
         return new DistVector(m, hdv, segsz) as DistVector(m);
     }
 
@@ -64,7 +64,7 @@ public class DistVector(M:Long) {
     public def alloc() = alloc(M);
     
     public def clone():DistVector(M) {
-        val dv = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, 
+        val dv = PlaceLocalHandle.make[Vector](Place.places(), 
                 ()=>distV().clone());    
         return new DistVector(M, dv, segSize) as DistVector(M);
     }

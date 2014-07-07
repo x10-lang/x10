@@ -44,7 +44,7 @@ public class NonResilientHeatTransfer {
         /* Variables to be recalculated when place dies */
         // for (pl in Place.places()) livePlaces.add(pl); // livePlaces should be sorted
         // var BigD:Dist(2) = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
-        var BigD:Dist(2) = Dist.makeBlock(BigR, 0, PlaceGroup.WORLD); printDist(BigD);
+        var BigD:Dist(2) = Dist.makeBlock(BigR, 0, Place.places()); printDist(BigD);
         var SmallD:Dist(2) = BigD | SmallR;
         var D_Base:Dist = Dist.makeUnique(SmallD.places());
         

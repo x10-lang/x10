@@ -91,9 +91,9 @@ public class HeatTransfer_v8 {
     }
 
     public static def main(Rail[String]) {
-      val heatArrayPlh = PlaceLocalHandle.make[Rail[double]](PlaceGroup.WORLD, ()=>initializeHeatArray());
-      val tempArrayPlh = PlaceLocalHandle.make[Rail[double]](PlaceGroup.WORLD, ()=>initializeTempArray());
-      val columnArrayPlh = PlaceLocalHandle.make[Rail[double]](PlaceGroup.WORLD, ()=>initializeColumnArray());
+      val heatArrayPlh = PlaceLocalHandle.make[Rail[double]](Place.places(), ()=>initializeHeatArray());
+      val tempArrayPlh = PlaceLocalHandle.make[Rail[double]](Place.places(), ()=>initializeTempArray());
+      val columnArrayPlh = PlaceLocalHandle.make[Rail[double]](Place.places(), ()=>initializeColumnArray());
       var keepIterating : Boolean = true;
       val continueVariables = new Rail[Boolean](Place.MAX_PLACES as Int);
       val outputResults : Boolean = true;

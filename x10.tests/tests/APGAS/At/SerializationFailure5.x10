@@ -48,7 +48,7 @@ public class SerializationFailure5 extends x10Test {
        for (victim in Place.places()) {
            val tb = new TimeBomb(victim);
            try {
-               PlaceGroup.WORLD.broadcastFlat(()=> {
+               Place.places().broadcastFlat(()=> {
                    Console.OUT.println(here+" received timebomb with target "+tb.target);
                });
                if (victim == here) {

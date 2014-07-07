@@ -41,19 +41,19 @@ public class DupVector(M:Long) {
 		property(m);
 		dupV  = vs;
 		tmpReady = false;
-		dupData = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>vs().d);
+		dupData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>vs().d);
 	}
 
 	public static def make(v:Vector):DupVector(v.M){
 		val m = v.M;
-		val hdl = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, ()=>Vector.make(m));
+		val hdl = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(m));
 		val newDV = new DupVector(hdl);
 		newDV.sync();
 		return newDV as DupVector(m);
 	}
 	
 	public static def make(m:Long) {
-		val hdl = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, ()=>Vector.make(m));
+		val hdl = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(m));
 		return new DupVector(hdl) as DupVector(m);
 	}
 	
@@ -61,7 +61,7 @@ public class DupVector(M:Long) {
 	public def alloc() = alloc(M);
 	
 	public def clone():DupVector(M) {
-		val bs = PlaceLocalHandle.make[Vector](PlaceGroup.WORLD, 
+		val bs = PlaceLocalHandle.make[Vector](Place.places(), 
 				()=>dupV().clone());	
 		return new DupVector(bs) as DupVector(M);
 	}
@@ -75,7 +75,7 @@ public class DupVector(M:Long) {
 	public def allocTmp() : void {
 		if (tmpReady) return;
 		tmpReady = true;
-		tmpData = PlaceLocalHandle.make[Rail[Double]](PlaceGroup.WORLD, ()=>new Rail[Double](dupV().M));
+		tmpData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>new Rail[Double](dupV().M));
 	}
 
 	public def init(dv:Double) : DupVector(this) {

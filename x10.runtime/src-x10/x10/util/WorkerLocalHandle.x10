@@ -32,7 +32,7 @@ public class WorkerLocalHandle[T]{T isref, T haszero} implements ()=>T,(T)=>void
     public def this() = this(null);
 
     public def this(init:() => T) {
-        val state = PlaceLocalHandle.make[State[T]](PlaceGroup.WORLD, ()=>new State[T](init));
+        val state = PlaceLocalHandle.make[State[T]](Place.places(), ()=>new State[T](init));
         this.state = state;
     }
 
