@@ -81,7 +81,29 @@ public final struct Place(
     /**
      * A PlaceGroup the contains all the currently live primary Places.
      */
-    public static def places():PlaceGroup{self!=null} = PlaceGroup.WORLD;
+    public static def places():PlaceGroup{self!=null} {
+                
+        if (numDead() == 0) {
+            return new PlaceGroup.SimplePlaceGroup(numPlaces());
+        } else {
+            val np = numPlaces();  // ask once to get a consistient view
+            val live = new x10.util.GrowableRail[Place](np);
+            for (i in 0..(np-1)) {
+                val p = Place(i);
+                if (!p.isDead()) {
+                    live.add(p);
+                }
+            }
+            // TODO: This constructor is inefficient.
+            //   Validates that live is sorted and also does extra copy.
+            //   We can add a package-level constructor to SparsePlaceGroup
+            //   to optimize this if it ever turns out to matter.
+            // TODO: Consider an optimized PlaceGroup subclass for a mostly dense
+            //   set of Place from 0..N (for example list the exclusions)?
+            //   Probably only matters at medium to large scale.
+            return new SparsePlaceGroup(live.toRail());
+        }
+    } 
 
     /**
      * The place in which the user 'main' function is run.
