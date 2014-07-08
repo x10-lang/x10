@@ -20,10 +20,10 @@ class HelloWholeWorldLoop {
      
      for (i:Long in 0..(Long.parse(args(1)))){
          try {
-             val nplaces = Place.numPlaces();
-             Console.OUT.println(here+" sees "+nplaces+" places");
-             finish for (p in 0..(nplaces-1)) { // can't use Place.places() because that caches numplaces in Place.places()
-                 at (Place(p)) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
+             val world = Place.places();
+             Console.OUT.println(here+" sees "+world.numPlaces()+" places");
+             finish for (p in world) {
+                 at (p) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
              }
          }
          catch (e:DeadPlaceException) {
