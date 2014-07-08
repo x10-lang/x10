@@ -135,6 +135,7 @@ import polyglot.util.StringUtil;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.TypeChecker;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.AmbDepTypeNode_c;
 import x10.ast.AnnotationNode_c;
@@ -535,7 +536,7 @@ public class RoseTranslator extends Translator {
 				ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 				Parser p = job.extensionInfo().parser(reader, source, eq);
 				Node ast = p.parse();
-				TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, source);
+				TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, source, job);
 
 				ast.visit(tVisitor);
 
@@ -975,7 +976,16 @@ public class RoseTranslator extends Translator {
 				return;
 			}
 			
-			JNI.cactionMessageSend("", n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
+			polyglot.types.Package package_ = n.target().type().toPackage();
+			String package_name = "";
+			if (package_ != null)
+				package_name = package_.toString();
+			else {
+				String full = n.target().type().fullName().toString();
+				int lastDot = full.lastIndexOf('.');
+				package_name = full.substring(0, lastDot);
+			}
+			JNI.cactionMessageSend(package_name, n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
 			visitChild(n, n.target());
 			
 			List<Expr> args = n.arguments();
@@ -990,12 +1000,34 @@ public class RoseTranslator extends Translator {
 				Type t = args.get(i).type();
 //				System.out.println(i + ":" + t + ", " + args.get(i));
 				Node n2 = args.get(i);
-				JNI.cactionTypeReference("", t.name().toString(), this, createJavaToken());
+				String type_name = t.name().toString();
+				polyglot.types.Package arg_package_ = t.toPackage();
+				String arg_package_name = "";
+				if (arg_package_ != null)
+					arg_package_name = arg_package_.toString();
+				else {
+					String full = t.fullName().toString();
+					int lastDot = full.lastIndexOf('.');
+					arg_package_name = full.substring(0, lastDot);
+				}
+				if (   type_name.equals("void") 
+						|| type_name.equals("boolean")	|| type_name.equals("Boolean")
+						|| type_name.equals("byte") 	|| type_name.equals("Byte")
+						|| type_name.equals("char")		|| type_name.equals("Char")
+						|| type_name.equals("int")		|| type_name.equals("Int")
+						|| type_name.equals("short")	|| type_name.equals("Short")
+						|| type_name.equals("float")	|| type_name.equals("Float")
+						|| type_name.equals("long")		|| type_name.equals("Long")
+						|| type_name.equals("double")	|| type_name.equals("Double")) {
+						JNI.cactionTypeReference("", type_name, this, createJavaToken());
+					}
+				else
+					JNI.cactionTypeReference(arg_package_name, t.name().toString(), this, createJavaToken());
 			}
 // 			visitChildren(n, argTypes);
 //			visitChildren(n, n.typeArguments());
 //			visitChildren(n, n.arguments());
-			JNI.cactionTypeReference("", n.target().type().name().toString(), this, createJavaToken());
+			JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, createJavaToken());
 			
 			int num_parameters = n.arguments().size();
 			int numTypeArguments = n.typeArguments().size();
@@ -1619,15 +1651,17 @@ public class RoseTranslator extends Translator {
 		private boolean isPackageMatched = true; // so far, set true;
 		private int memberIndex;
 		private Node_c node;
+		private Job currentJob;
 		
 		private static HashMap<Operator, Integer> opTable = new HashMap<Operator, Integer>();
 
 		
-		public TypeVisitor(String pack, String clazz, FileSource src) {
+		public TypeVisitor(String pack, String clazz, FileSource src, Job job) {
 			System.out.println("package=" + pack + ", class=" + clazz + ", source=" + src);
 			package_name = pack;
 			class_name = trimTypeParameterClause(clazz); // Rail is not supposed to be here 
 //			source = src;
+			currentJob = job;
 		}				
 		
 		public void visitDeclarations() {}
@@ -1705,6 +1739,7 @@ public class RoseTranslator extends Translator {
 				superClass = decl.superClass();
 				interfaces = decl.interfaces();
 			}
+			// TODO remove ambiguous types...
 			else if (n instanceof AmbTypeNode_c) {
 				X10AmbTypeNode_c decl = (X10AmbTypeNode_c) n;
 				// TODO create a list of type parameters instead of just creating empty list
@@ -1761,6 +1796,13 @@ public class RoseTranslator extends Translator {
 	        String[] interfaceNames = new String[interfaces.size()];
        		for (int i = 0; i < interfaces.size(); ++i) {
        			TypeNode intface = interfaces.get(i);
+       			if (intface instanceof AmbTypeNode_c) {
+       				System.out.println("AmbTypeNode_c " + intface + " found.");
+       				AmbTypeNode_c ambtype = (AmbTypeNode_c) intface;
+//       			
+//       				ambtype.disambiguate(this);
+       			}
+       			
         		String interfaceName = trimTypeParameterClause(intface.toString().replaceAll("\\{amb\\}", ""));
         		interfaceNames[i] = interfaceName;
         		System.out.println("classname=" + class_name + ", interface=" + interfaceName + ", class=" + intface.getClass());
@@ -2335,7 +2377,7 @@ public class RoseTranslator extends Translator {
 						ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 						Parser p = job.extensionInfo().parser(reader, source, eq);
 						Node ast = p.parse();
-						TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, source);
+						TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, source, job);
 		
 						ast.visit(tVisitor);
 						source.close();
@@ -2453,7 +2495,7 @@ public class RoseTranslator extends Translator {
 						return;
 					}
 					
-					JNI.cactionMessageSend("", n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
+					JNI.cactionMessageSend(package_name, n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
 					visitChild(n, n.target());
 					
 					List<Expr> args = n.arguments();
@@ -2468,12 +2510,12 @@ public class RoseTranslator extends Translator {
 						Type t = args.get(i).type();
 //						System.out.println(i + ":" + t + ", " + args.get(i));
 						Node n2 = args.get(i);
-						JNI.cactionTypeReference("", t.name().toString(), this, createJavaToken());
+						JNI.cactionTypeReference(package_name, t.name().toString(), this, createJavaToken());
 					}
 //		 			visitChildren(n, argTypes);
 //					visitChildren(n, n.typeArguments());
 //					visitChildren(n, n.arguments());
-					JNI.cactionTypeReference("", n.target().type().name().toString(), this, createJavaToken());
+					JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, createJavaToken());
 					
 					int num_parameters = n.arguments().size();
 					int numTypeArguments = n.typeArguments().size();
