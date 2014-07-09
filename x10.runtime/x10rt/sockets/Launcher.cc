@@ -858,7 +858,7 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			if (WIFEXITED(status))
 			{
 				_exitcode = WEXITSTATUS(status);
-				if (_exitcode > 0 && _myproc > 0 && _myproc != 0xFFFFFFFF)
+				if (_exitcode > 0 && _myproc != 0xFFFFFFFF)
 					fprintf(stderr, "Place %u exited unexpectedly with exit code: %i\n", _myproc, _exitcode);
 			}
 			else if (WIFSIGNALED(status))
@@ -1141,9 +1141,9 @@ void Launcher::cb_sighandler_cld(int signo)
 	{
         // Note that "X10_RESILIENT_MODE" is also checked in Configuration.x10
         char* resilient_mode = getenv(X10_RESILIENT_MODE);
-        bool resilient_x10 = (resilient_mode!=NULL && atoi(resilient_mode)!=0);
+        bool resilient_x10 = (resilient_mode!=NULL && strtol(resilient_mode, NULL, 10) != 0);
         if ((_singleton->_myproc == 0 && signo!=SIGCHLD) || !resilient_x10) {
-            _singleton->_dieAt = 2+time(NULL);
+            _singleton->_dieAt = 3+time(NULL);
             #ifdef DEBUG
                 fprintf(stderr, "Launcher %u: started the doomsday device\n", _singleton->_myproc);
             #endif
