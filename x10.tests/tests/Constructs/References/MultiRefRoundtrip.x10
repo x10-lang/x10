@@ -22,12 +22,12 @@ class MultiRefRoundtrip extends x10Test {
 	val obj = new Empty();
         val local_ = GlobalRef[Empty](obj);
         val second = GlobalRef[Empty](obj);
-        at (here.next()) {
+        at (Place.places().next(here)) {
             at (local_) {
                 Console.OUT.println(local_ == second);
             }
         }
-        return at (here.next()) at (local_) second == local_;
+        return at (Place.places().next(here)) at (local_) second == local_;
     }
 
     public static def main(Rail[String]) {

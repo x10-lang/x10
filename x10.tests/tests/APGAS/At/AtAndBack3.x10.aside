@@ -25,7 +25,7 @@ public class AtAndBack3 extends x10Test {
  
     public def doit(var x:int):boolean {
 	val h = here;
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	    at (h) {
                 x = x + 1;
                 x += 1;

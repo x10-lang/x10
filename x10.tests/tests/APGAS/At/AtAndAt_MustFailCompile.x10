@@ -20,8 +20,8 @@ public class AtAndAt_MustFailCompile extends x10Test {
 
     public def run():boolean {
 	var x:long = 10;
-	at (here.next()) {
-	    at (here.next()) {
+	at (Place.places().next(here)) {
+	    at (Place.places().next(here)) {
                 x = 20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
             }
         }

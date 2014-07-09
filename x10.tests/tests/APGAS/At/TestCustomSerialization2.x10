@@ -53,7 +53,7 @@ public class TestCustomSerialization2 extends x10Test {
         chk(map2.get("b")().sum == 30);        
         chk(map2.get("c")().sum == 30);        
 
-        at (here.next()) {
+        at (Place.places().next(here)) {
             // The custom serialization logic re-establishes that sum = x + y
             // Default serialzation would result in sum having the value of zero.
             chk(map.get("a")().sum == 30);        

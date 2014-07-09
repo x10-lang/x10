@@ -35,8 +35,9 @@ public class ArrayDecl extends x10Test {
         chk(v_ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), here)));
         for (val [i]: Point in v_ia2.region) chk(v_ia2(i) == (i as int));
 
-        val ia2: DistArray[byte](1) = DistArray.make[byte](Dist.makeConstant(Region.make(0, N-1), (here).prev().prev()), (Point)=> (0 as byte));
-        chk(ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), (here).prev().prev())));
+        val w = Place.places();
+        val ia2: DistArray[byte](1) = DistArray.make[byte](Dist.makeConstant(Region.make(0, N-1), w.prev(w.prev(here))), (Point)=> (0 as byte));
+        chk(ia2.dist.equals(Dist.makeConstant(Region.make(0, N-1), w.prev(w.prev(here)))));
         finish ateach ([i]: Point in ia2.dist) chk(ia2(i) == (0 as byte));
 
         //Examples similar to section 10.3 of X10 reference manual

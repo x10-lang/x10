@@ -13,14 +13,14 @@ import harness.x10Test;
 
 /**
  * Testing the ability to assign to the field of an Any
- * at place here a reference to an Any at place here.next().
+ * at place here a reference to an Any at place Place.places().next(here).
  *
  * @author vj
  */
 public class AsyncNext extends x10Test {
 
 	public def run(): boolean = {
-		val Other: Place = here.next();
+		val Other: Place = Place.places().next(here);
 		val t = new T();
 		val troot = t.root;
 		finish async at(Other) {

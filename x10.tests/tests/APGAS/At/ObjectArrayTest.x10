@@ -35,7 +35,7 @@ public class ObjectArrayTest  extends x10Test {
     val a2 = new Rail[Blat](n, ub);
 
     var start:long = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a1(i) == a1(i+2));
           chk(a1(i) != a1(i+1));
@@ -45,7 +45,7 @@ public class ObjectArrayTest  extends x10Test {
     Console.OUT.println("Mixed Blat time "+((end-start) as double/1e6)+" ms");
 
     start = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a2(i) == a2(i+2));
           chk(a2(i) == a2(i+1));
@@ -60,7 +60,7 @@ public class ObjectArrayTest  extends x10Test {
     val a4 = new Rail[Empty](n, uo);
 
     start = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a3(i) == a3(i+2));
           chk(a3(i) != a3(i+1));
@@ -70,7 +70,7 @@ public class ObjectArrayTest  extends x10Test {
     Console.OUT.println("Mixed Object time "+((end-start) as double/1e6)+" ms");
 
     start = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a4(i) == a4(i+2));
           chk(a4(i) == a4(i+1));
@@ -85,7 +85,7 @@ public class ObjectArrayTest  extends x10Test {
     val a6 = new Rail[String](n, us);
 
     start = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a5(i) == a5(i+2));
           chk(a5(i) != a5(i+1));
@@ -95,7 +95,7 @@ public class ObjectArrayTest  extends x10Test {
     Console.OUT.println("Mixed String time "+((end-start) as double/1e6)+" ms");
 
     start = System.nanoTime();
-    at (here.next()) {
+    at (Place.places().next(here)) {
         for (var i:long = 0; i<n-2; i += 2) {
           chk(a6(i) == a6(i+2));
           chk(a6(i) == a6(i+1));

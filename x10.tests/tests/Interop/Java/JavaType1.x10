@@ -19,7 +19,7 @@ public class JavaType1 extends x10Test {
         val d:Any = new java.util.Date();
         val s = d.typeName();
         chk("java.util.Date".equals(s));
-        val dd = at (here.next()) {
+        val dd = at (Place.places().next(here)) {
             val ss = d.typeName();
             chk(s.equals(ss));
             return d;

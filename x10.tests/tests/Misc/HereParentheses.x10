@@ -20,10 +20,11 @@ import harness.x10Test;
 public class HereParentheses extends x10Test {
 
 	public def run(): boolean = {
-		x10.io.Console.OUT.println("(here).id="+(here).id+" (here).next()="+(here).next()
-				   + " (here).prev()="+(here).prev());
-		x10.io.Console.OUT.println("here.id="+here.id+ " here.next()=" 
-				   + here.next()+" here.prev()"+here.prev());
+                val w = Place.places();
+		x10.io.Console.OUT.println("(here).id="+(here).id+" w.next(here)="+w.next(here)
+				   + " w.prev(here)="+w.prev(here));
+		x10.io.Console.OUT.println("here.id="+(here).id+" w.next(here)="+w.next(here)
+				   + " w.prev(here)="+w.prev(here));
 		return true;
 	}
 

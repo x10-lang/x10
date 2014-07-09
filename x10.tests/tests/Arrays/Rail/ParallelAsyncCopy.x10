@@ -50,12 +50,12 @@ public class ParallelAsyncCopy extends x10Test {
        val rail2 = new Rail[Double](sz, (i:Long)=>(2 as Double));
        val grail2: GlobalRail[Double] = new GlobalRail(rail2);
    
-       at (here.next()) {
+       at (Place.places().next(here)) {
            val local = new Rail[Double](sz, (i:Long)=>(3 as Double));
            finish Rail.asyncCopy(local, 0, grail1, 0, sz);
        }
    
-       at (here.next()) {
+       at (Place.places().next(here)) {
            val local = new Rail[Double](sz, (i:Long)=>(4 as Double));
            finish Rail.asyncCopy(local, 0, grail2, 0, sz);
        }

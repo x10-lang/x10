@@ -20,7 +20,7 @@ class GetLocalOrCopy extends x10Test {
         val x = new Cell[Long](1);
         val globalX = new GlobalRef[Cell[Long]](x);
         val home = here;
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val y = globalX.getLocalOrCopy();
             chk( x().equals( y() ) );
             if (globalX.home == here) {

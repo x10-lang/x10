@@ -21,7 +21,7 @@ public class AtAndBack_MustFailCompile extends x10Test {
     public def run():boolean {
 	var x:long = 10;
 	val h = here;
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	    at (h) {
                 x = 20; // ERR: Local variable is accessed at a different place.
             }

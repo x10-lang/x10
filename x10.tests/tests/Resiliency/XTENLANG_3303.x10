@@ -24,7 +24,7 @@ public class XTENLANG_3303 extends x10Test {
 
     public def run() {
         if (Place.MAX_PLACES != 4) return false;
-        val place1 = here.next();
+        val place1 = Place.places().next(here);
         val t = new Timer();
         val startTime = t.nanoTime();
         finish for (i in 1..4) {

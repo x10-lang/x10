@@ -24,7 +24,7 @@ public class XTENLANG_2440(x:Int) extends x10Test {
     public static def oughttowork() {
         val result : Int; // Uninitialized
         val start = here;
-        at(here.next()) {
+        at(Place.places().next(here)) {
             val heavyMath = 1+1;
             at(start) {
                 result = heavyMath;

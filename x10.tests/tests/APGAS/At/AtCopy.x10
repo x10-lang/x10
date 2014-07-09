@@ -34,7 +34,7 @@ public class AtCopy extends x10Test {
 
 	passed &= at (here) mutate(head);
 	passed &= validate(head, 1n);
-	passed &= at (here.next()) mutate(head);
+	passed &= at (Place.places().next(here)) mutate(head);
 	passed &= validate(head, 1n);
 
         return passed;

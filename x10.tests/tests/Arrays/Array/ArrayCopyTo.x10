@@ -22,8 +22,8 @@ public class ArrayCopyTo extends x10Test {
     public def run() {
        val localA = new Array[long](R1,(p:Point)=>p(0));
        val localB = new Array[long](R2,(p:Point(2))=>10*p(1)+p(0));
-       val remoteA = at (here.next()) new RemoteArray[long](new Array[long](R1));
-       val remoteB = at (here.next()) new RemoteArray[long](new Array[long](R2));
+       val remoteA = at (Place.places().next(here)) new RemoteArray[long](new Array[long](R1));
+       val remoteB = at (Place.places().next(here)) new RemoteArray[long](new Array[long](R2));
        val finalA = new Array[long](R1);
        val finalB = new Array[long](R2);
        var fail:boolean = false;

@@ -23,7 +23,7 @@ import x10.util.Pair;
 public class RailUncountedCopy extends x10Test {
     public static def doTest[T](n:long, init:(long)=>T){T haszero}:boolean {
         val start = new Rail[T](n, init);
-        val remote = at (here.next()) new GlobalRail[T](new Rail[T](n));
+        val remote = at (Place.places().next(here)) new GlobalRail[T](new Rail[T](n));
         val end = new Rail[T](n);
         val completed = DistArray.make[Boolean](Dist.makeUnique());
         var fail:boolean = false;

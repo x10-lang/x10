@@ -3,7 +3,7 @@ class ClosureBang {
 		def n():void { throw new Exception(); }
 	}
 	def m(x:()=> GlobalRef[C]{self.home==here}) {
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x()(); // shd be ok.
 		}
 	}

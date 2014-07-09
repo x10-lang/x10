@@ -38,7 +38,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def getNotHere() = here.next();
+	public static def getNotHere() = Place.places().next(here);
 	public var foo: int;
 	public def foo_method() = 42;
 

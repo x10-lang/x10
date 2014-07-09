@@ -31,7 +31,7 @@ public class JavaSerialization4b extends x10Test {
         val j = e.intValue();
         Console.OUT.println(j);
         if (99n != j) return false;
-        val ok = at (here.next()) {
+        val ok = at (Place.places().next(here)) {
             val i = e.intValue();
             Console.OUT.println(i);
             return 99n == i;

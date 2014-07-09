@@ -28,7 +28,7 @@ public class ExceptionsRemote extends x10Test {
         try {
             finish {
                 async e("LOCAL");
-                async at(here.next()) e("REMOTE");
+                async at(Place.places().next(here)) e("REMOTE");
             }
         }
         catch(e: x10.lang.MultipleExceptions){

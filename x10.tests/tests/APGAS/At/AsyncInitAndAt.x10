@@ -32,7 +32,7 @@ public class AsyncInitAndAt extends x10Test {
         finish {
             async { y = new C(x + 5); }
         }
-	at (here.next()) {
+	at (Place.places().next(here)) {
             chk(y.data == 10); // can access copied async initialized val
             y.data = 20; // mutate copy
         }

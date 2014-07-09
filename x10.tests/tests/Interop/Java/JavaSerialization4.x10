@@ -19,7 +19,7 @@ public class JavaSerialization4 extends x10Test {
         
     static def test():void {
         val e = new MyException();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             e.toString();
         }
     }

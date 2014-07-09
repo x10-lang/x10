@@ -20,7 +20,7 @@ class EvalAtHome extends x10Test {
     public def run(): boolean {
         val x = new Cell[long](1);
         val globalX = new GlobalRef[Cell[long]](x);
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val y = globalX.evalAtHome[long]((a:Cell[long]) => (a()+1));
             chk(y == 2);
         }

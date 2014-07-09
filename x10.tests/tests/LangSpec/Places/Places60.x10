@@ -31,7 +31,7 @@ public class Places60 extends x10Test {
 
   public static def main(argv:Rail[String]) {
     val argref = GlobalRef[Rail[String]](argv);
-    at(here.next())
+    at(Place.places().next(here))
         use(argref);
   }
   static def use(argref : GlobalRef[Rail[String]]) {

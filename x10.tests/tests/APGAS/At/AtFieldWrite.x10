@@ -17,8 +17,8 @@ import harness.x10Test;
 public class AtFieldWrite extends x10Test {
 	var t: GlobalRef[T] = GlobalRef[T](null);
     public def run() {
-       val Second = Place.FIRST_PLACE.next();
-       val newT = (at (Second) new T()).root;
+       val second = Place.places().next(here);
+       val newT = (at (second) new T()).root;
        at (newT) { 
 	      newT().i = 3n; 
        }

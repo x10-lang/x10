@@ -20,7 +20,7 @@ public class JavaSerialization6 extends x10Test {
     def testArray(): Boolean {
         type Data = Pair[Pair[Java.array[Byte],Int],Pair[Java.array[Byte],Int]];
         val arr = new Array[Any](10L, (i:Long)=>Pair(Pair(Java.newArray[Byte](i as Int),i as Int),Pair(Java.newArray[Byte](i as Int),i as Int)));
-        at (here.next()) {
+        at (Place.places().next(here)) {
             for (var i:Long = 0; i < arr.size; ++i) {
                 val data = arr(i) as Data;
                 val firstbytes = data.first.first;

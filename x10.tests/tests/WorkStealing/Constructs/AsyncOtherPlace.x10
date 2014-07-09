@@ -22,7 +22,7 @@ public class AsyncOtherPlace extends x10Test{
     }
     
     public def run(): boolean = {
-        val Other: Place = here.next();
+        val Other: Place = Place.places().next(here);
         val t = new T();
         val troot = t.root;
         finish async at(Other) {

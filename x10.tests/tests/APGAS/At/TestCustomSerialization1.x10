@@ -40,7 +40,7 @@ public class TestCustomSerialization1 extends x10Test {
 
   public def run():boolean {
     val x = new CS(10n,20n);
-    at (here.next()) {
+    at (Place.places().next(here)) {
         // The custom serialization logic re-establishes that sum = x + y
         // Default serialzation would result in sum having the value of zero.
         chk(x.sum == x.x+x.y);

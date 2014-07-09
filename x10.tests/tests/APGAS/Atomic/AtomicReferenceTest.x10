@@ -31,7 +31,7 @@ public class AtomicReferenceTest extends x10Test {
 	chk(success && ref.get() == obj3); // compareAndSet should have succeeded; value is now false.
 
 	// Now check that serialization works
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	    chk(ref.get().equals(obj3));
 	    chk(ref.get() == obj3);
 	    ref.set("xyz");

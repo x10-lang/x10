@@ -22,7 +22,7 @@ class XTENLANG_2189 extends x10Test {
     public def run(): boolean {
       chk(a == 1n);
       chk(b == 2n);
-      at (here.next()) {
+      at (Place.places().next(here)) {
           chk(a == 1n);
           chk(b == 0n);
       }
@@ -32,7 +32,7 @@ class XTENLANG_2189 extends x10Test {
     static def runS(t:XTENLANG_2189): boolean {
       chk(t.a == 1n);
       chk(t.b == 2n);
-      at (here.next()) {
+      at (Place.places().next(here)) {
           chk(t.a == 1n);
           chk(t.b == 0n);
       }

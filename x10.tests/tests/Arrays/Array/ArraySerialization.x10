@@ -19,7 +19,7 @@ public class ArraySerialization extends x10Test {
 
     public def run():boolean {
         val a1 = new Array[long](20, (i:long)=>i);
-        at (here.next()) {
+        at (Place.places().next(here)) {
 	    for ([i] in a1) {
 	        chk(a1(i) == i);
             }

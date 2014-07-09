@@ -17,7 +17,7 @@ public class JavaSerialization4c extends x10Test {
 
     static def test():void {
         val e = new java.lang.Integer(99n);
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val i = e.intValue();
             chk(i == 99n);
         }

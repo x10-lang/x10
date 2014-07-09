@@ -20,7 +20,7 @@ public class AtAndBack2 extends x10Test {
     public def run():boolean {
 	var x:int = 20;
 	val h = here;
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	    at (h) {
                 x = x + 1;
                 x += 1;

@@ -41,7 +41,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test1():void {
         val c = new C1();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("x10.lang.Int".equals(v.typeName()));
             chk(v == 1n);
@@ -50,7 +50,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test2():void {
         val c = new C2();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("x10.lang.Int".equals(v.typeName()));
             chk(v == 1n);
@@ -59,7 +59,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test3():void {
         val c = new C3();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("x10.lang.UInt".equals(v.typeName()));
             chk(v == 1un);
@@ -68,7 +68,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test4():void {
         val c = new C4();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("x10.lang.UInt".equals(v.typeName()));
             chk(v == 1un);
@@ -77,7 +77,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test5():void {
         val c = new C5();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("java.lang.Integer".equals(v.typeName()));
             chk(v.equals(java.lang.Integer.valueOf(1n)));
@@ -86,7 +86,7 @@ public class JavaSerialization5b extends x10Test {
 
     static def test6():void {
         val c = new C6();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val v = c.v;
             chk("java.lang.Integer".equals(v.typeName()));
             chk(v.equals(java.lang.Integer.valueOf(1n)));

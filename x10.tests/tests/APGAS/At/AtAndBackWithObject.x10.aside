@@ -36,7 +36,7 @@ public class AtAndBackWithObject extends x10Test {
         val a = new C(10);
         var b:C = a;
         val w = here;
-        at (here.next()) {
+        at (Place.places().next(here)) {
 	    a.x = 100;  // Copy of the object pointed to by a has its x field changed to 100.
 	    at (w) {
 	        // Here a is referring to a second copy of the object created by the first at, 
@@ -62,7 +62,7 @@ public class AtAndBackWithObject extends x10Test {
         val a = new C(10);
         var b:C = a;
         val w = here;
-        at (here.next()) {
+        at (Place.places().next(here)) {
 	    a.x = 100;  // Copy of the object pointed to by a has its x field changed to 100.
 	    at (w) {
 	        // Here a is referring to a second copy of the object created by the first at, 

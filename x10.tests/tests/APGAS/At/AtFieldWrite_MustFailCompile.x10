@@ -20,10 +20,10 @@ public class AtFieldWrite_MustFailCompile extends x10Test {
 	private val root = GlobalRef[AtFieldWrite_MustFailCompile](this);
 	transient var t: T;
     public def run() {
-	    val Second = Place.FIRST_PLACE.next();
+	    val second = Place.places().next(here);
 	    val newT = new T();
 	    val root = this.root;
-	    at (Second) { 
+	    at (second) { 
 	    	// Note that  this statement will not be flagged as an error by the compiler
 	    	this.t = newT;
 	    	// It is a perfectly legal write to the local object implicitly created

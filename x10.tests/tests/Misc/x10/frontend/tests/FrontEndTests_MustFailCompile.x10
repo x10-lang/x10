@@ -1093,7 +1093,7 @@ class TestAnonymousClass {
 	};
 	val inner = new Inner(); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
 	
-	val qqqq = at (here.next()) this; // ERR: Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+	val qqqq = at (Place.places().next(here)) this; // ERR: Semantic Error: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
 
 	val w:Long{self!=0} = anonymous.bla();
 	val k:Long{self!=0};
@@ -1812,7 +1812,7 @@ class LocalVarInAsyncTests {
 	def atAndAsync() {
 		var i:Long = 2;
 		val p = here;
-		finish at (here.next()) async {
+		finish at (Place.places().next(here)) async {
 		  finish async at (p) 
 			  i++; // ok
 		}
@@ -1970,11 +1970,11 @@ class TestOnlyLocalVarAccess {
 		var x:Long = 0;
 		at (here) use(x);
 		use(x);
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		val place1 = here;
 		val place2 = place1;
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
 				use(x);
@@ -1982,7 +1982,7 @@ class TestOnlyLocalVarAccess {
 				use(x);
 			at (place2) at (here) 
 				use(x);
-			at (place2) at (here.next()) 
+			at (place2) at (Place.places().next(here)) 
 				use(x); // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) at (place2) 
 				use(x);
@@ -1993,11 +1993,11 @@ class TestOnlyLocalVarAccess {
 		var x:Long = 0;
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		val place1 = here;
 		val place2 = place1;
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
 				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -2012,11 +2012,11 @@ class TestOnlyLocalVarAccess {
 		var x:Long = 0;
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		val place1 = here;
 		val place2 = place1;
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
 				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -2030,11 +2030,11 @@ class TestOnlyLocalVarAccess {
 	def test2(var x:Long) {
 		at (here) x=20; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		x=10;
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		val place1 = here;
 		val place2 = place1;
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 			at (place1) 
 				x=3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -2059,23 +2059,23 @@ class TestValInitUsingAt { // see XTENLANG-1942
     static def test2() {
         var x_tmp:Long = 0; // we have to initialize it (otherwise, the dataflow
         val p = here;
-        at (p.next())
+        at (Place.places().next(p))
           at (p)
             x_tmp = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
         val x = x_tmp; // if we hadn't initialized x_tmp, then the dataflow would complain that "x_tmp" may not have been initialized
     }
 	static def testVal() {
 		val x:Long;
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			x = 2; // ERR
 	}
 	static def testVar() {
 		var x:Long;
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			x = 2; // ERR
 	}
 	static def testVarAtScope() {
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			var y:Long;
 			y = 2;
 		}
@@ -2083,11 +2083,11 @@ class TestValInitUsingAt { // see XTENLANG-1942
 	static def testOkVal() {
 		val x:Long;
 		val p = here;
-		at (p.next()) {
+		at (Place.places().next(p)) {
 			at (p)
 				x = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			val z = x;
 		}
 		val y = x;
@@ -2095,11 +2095,11 @@ class TestValInitUsingAt { // see XTENLANG-1942
 	static def testOkVar() {
 		var x:Long;
 		val p = here;
-		at (p.next()) {
+		at (Place.places.next(p)) {
 			at (p)
 				x = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
-		at (here.next())  {
+		at (Place.places().next(here))  {
 			val z = x; // ERR
 		}
 		val y = x;
@@ -2133,7 +2133,7 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			use(r2());
 			use(r3());
 		}
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			use(r()); // ERR
 			use(r2()); // ERR
 			use(r3()); // ERR			
@@ -2164,11 +2164,11 @@ class TestGlobalRefHomeAt2 {
 		 return x();
 	 }
 	 def test2() {
-		 val x = (at (here.next()) new TestGlobalRefHomeAt2()).root; 
+		 val x = (at (Place.places().next(here)) new TestGlobalRefHomeAt2()).root; 
 		 return @ERR x();
 	 }
 	 def test3() {
-		 val x = at (here.next()) (new TestGlobalRefHomeAt2().root); 
+		 val x = at (Place.places().next(here)) (new TestGlobalRefHomeAt2().root); 
 		 return @ERR x();
 	 }
 	 def test4() {
@@ -2194,7 +2194,7 @@ class ReturnStatementTest {
 	
 	class A {
 	  def m() {
-		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
+		at (Place.places().next(here)) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
 		val x = 3; // ERR (unreachable statement)
 	  }
 	}
@@ -2215,7 +2215,7 @@ class ReturnStatementTest {
 				};
 			}
 		}
-		at (here.next())
+		at (Place.places().next(here))
 			return 2; // ShouldNotBeERR ERR todo: we get 2 errors: Cannot return value from void method or closure.		Cannot return a value from method public static x10.lang.Runtime.$dummyAsync(): void		
 	}
 	static def err1(b:Boolean):Long {
@@ -2280,14 +2280,14 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 		assert y==here; // will fail at runtime! but according to the static type it should succeed!
 	}
 	static def bar(y:Place{self==here}) {
-		at (here.next()) foo(y); // ERR: todo: how can we report an error message that won't contain _place6 ?
+		at (Place.places().next(here)) foo(y); // ERR: todo: how can we report an error message that won't contain _place6 ?
 		// Today's error: Method foo(y: x10.lang.Place{self==here}): void in TestHereInGenericTypes{self==TestHereInGenericTypes#this} cannot be called with arguments (x10.lang.Place{self==y, _place6==y});    Invalid Parameter.
 //	 Expected type: x10.lang.Place{self==here}
 //	 Found type: x10.lang.Place{self==y, _place6==y}
 	}
   static def testR() {
 	val r = new R();
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	  val r2:R = r; // This is the only "hole" in my proof: you can say that the type of "r" changed when it crossed the "at" boundary. But that will puzzle programmers...
 	  foo(r2.x); // ERR: we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
 	}
@@ -2303,7 +2303,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
     val b:Box[Place{self==here}] = null;
 	val p1:Place{self==here} = b.t;
 	val HERE = here;
-	at (here.next()) {
+	at (Place.places().next(here)) {
 		val b2:Box[Place{self==here}] = b; // ERR
 		val p2:Place{self==here} = b.t; // ERR
 		val b3:Box[Place{self==HERE}] = b;
@@ -2314,13 +2314,13 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	static def m(p:Place{self==here}) {}
 	static def test1(p:Place{self==here}) {
 		m(p); // ok
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			m(p); // ERR
 		}
 	}
 	static def test2(p:Place) {p==here} {
 		m(p); // OK
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			m(p); // ERR (XTENLANG-1929)
 		}
 	}
@@ -3739,14 +3739,14 @@ class TestSerialization {
 class TestAt {
 	var i:Long{self!=0};
 	def this() { 
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			i=2; // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	}
 }
 class TestSerialize {
 	var i:Long{self!=0};
 	def this() {
-		at (here.next()) 
+		at (Place.places().next(here)) 
 			this.set(3); // ERR: 'this' or 'super' cannot escape via an 'at' statement during construction.
 	    this.set(2);
 	}
@@ -4786,7 +4786,7 @@ class CopyBackTest {
         val result1 : Long; // Uninitialized
         val result2 : Long; // Uninitialized
         val start = here;
-        at(here.next()) {
+        at(Place.places().next(here)) {
             result1 = 3; // ERR
             at(start) {
 	            result2 = 3; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
@@ -4801,7 +4801,7 @@ class CopyBackTest {
         val start = here;
 		use(result1); // ERR
 		use(result2); // ERR
-        at(here.next()) {
+        at(Place.places().next(here)) {
             result1 = 3; // ERR
 			use(result1); // ERR
             at(start) {
@@ -6671,7 +6671,7 @@ class XTENLANG_1448 {
 	class HereAndGenerics {
 		def test(l:Box[Place{self==here}]) {
 			val p1:Place{self==here} = l.value;
-			at (here.next()) {
+			at (Place.places().next(here)) {
 				val p2:Place{self==here} = l.value; // ERR
 			}
 		}

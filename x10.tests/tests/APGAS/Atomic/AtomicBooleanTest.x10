@@ -30,7 +30,7 @@ public class AtomicBooleanTest extends x10Test {
 	val ab2 = new AtomicBoolean();
 	ab2.set(true);	
         chk(ab2.get());
-	at (here.next()) {
+	at (Place.places().next(here)) {
 	    chk(ab2.get());
 	    ab2.set(false);
 	    chk(!ab2.get());

@@ -24,7 +24,7 @@ public class XTENLANG_3304 extends x10Test {
 
     public def run() {
         if (Place.MAX_PLACES != 2) return false;
-        val place1 = here.next();
+        val place1 = Place.places().next(here);
         val t = new Timer();
         val wokenupTime = GlobalCell.make[Long](0);
         async {

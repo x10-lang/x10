@@ -25,7 +25,7 @@ public class JavaSerialization3 extends x10Test {
         try {
             (null as String).length();
         } catch (e:NullPointerException) {
-            at (here.next()) {
+            at (Place.places().next(here)) {
 	        // Checking for a minimal size is not a complete check,
 		// but trying to be too picky about the contents of the
 		// stack trace can be fragile in the presence of inlining, etc.

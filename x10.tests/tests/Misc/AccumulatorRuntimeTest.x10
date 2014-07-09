@@ -52,7 +52,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 		}
 		x<-1;
 		async x<-2;
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x<-1;
 			async x<-2;
 		}
@@ -60,7 +60,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 		async {
 			//try {x()=2; fail(); } catch (e:IllegalAccAccess) {}
 		}
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x()=1;
 			async {
 				//try {x()=2; fail(); } catch (e:IllegalAccAccess) {}
@@ -74,17 +74,18 @@ public class AccumulatorRuntimeTest extends x10Test {
 		m2(x,y);
 	}
 	static def m(x:Accumulator[Long]) {
+                val w = Place.places();
 		//async x.supply(2l);
 		x.supply(2l);
 
 		async x.supply(3l);
-		at (here.next()) x.supply(4l);
-		at (here.next().next()) x.supply(5l);
-		async at (here.next().next()) x.supply(6l);
-		async at (here.next().next()) async x.supply(7l);
-		async at (here.next().next()) { async x.supply(8l); async x.supply(9l); x.supply(10l); }
+		at (w.next(here)) x.supply(4l);
+		at (w.next(w.next(here))) x.supply(5l);
+		async at (w.next(w.next(here))) x.supply(6l);
+		async at (w.next(w.next(here))) async x.supply(7l);
+		async at (w.next(w.next(here))) { async x.supply(8l); async x.supply(9l); x.supply(10l); }
 		val p = here;
-		async at (here.next().next()) async at (p) async x.supply(11l);
+		async at (w.next(w.next(here))) async at (p) async x.supply(11l);
 		async at (p) async at (p) async x.supply(12l);
 	}
 	static def m2(x:Accumulator[Long],y:Accumulator[Long]) {
@@ -103,7 +104,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 	}
 	static def testAcc2() {
 		val x = new Accumulator[Long](LongReducer());
-		at (here.next()) {
+		at (Place.places().next(here)) {
 			x <- 1;
 			assert x()==1l;
 		}
@@ -111,7 +112,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 	}
 	static def testAcc3() {
 		val x = new Accumulator[Long](LongReducer());
-		at (here.next()) {
+		at (Place.places().next(here)) {
 		 finish async {
 		  x <- 1;
 		 }
@@ -121,7 +122,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 	}
 	static def testAcc4() {
 		val acc = new Accumulator[Long](LongReducer());
-		at (here.next()) {
+		at (Place.places().next(here)) {
 		 val c = Clock.make();
 		 async clocked (c) {
 		  acc <- 1;

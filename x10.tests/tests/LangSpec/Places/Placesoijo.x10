@@ -30,7 +30,7 @@ public class Placesoijo extends x10Test {
  static  class Example {
  def example() {
 val h0 = here;
-at (here.next()) {
+at (Place.places().next(here)) {
   val h1 = here;
   assert (h0 != h1);
 }

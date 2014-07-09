@@ -27,7 +27,7 @@ public class JavaSerialization5 extends x10Test {
 
     static def test():void {
         val c = new C();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             c.toString();
         }
     }

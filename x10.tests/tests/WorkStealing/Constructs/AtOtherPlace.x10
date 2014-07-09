@@ -22,7 +22,7 @@ public class AtOtherPlace extends x10Test{
 	}
     
     public def run(): boolean = {
-        val Other  = here.next();
+        val Other  = Place.places().next(here);
         val t = (new T()).root;
         at (Other) {
             val t1 = new T();

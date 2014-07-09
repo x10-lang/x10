@@ -18,7 +18,7 @@ import x10.io.Serializer;
 
 /**
  * Test that exceptions during serialization do not hang X10
- * Pattern: at (p) async at (p.next()) loop
+ * Pattern: at (p) async at (Place.places().next(p)) loop
  */
 public class SerializationFailure3 extends x10Test {
 
@@ -52,7 +52,7 @@ public class SerializationFailure3 extends x10Test {
            try {
                finish for (p in Place.places()) {
                    at (p) async {
-                       at (p.next()) async { 
+                       at (Place.places().next(p)) async { 
                            Console.OUT.println(here+" received timebomb with target "+tb.target);
                        }
 		       if (victim == here) {

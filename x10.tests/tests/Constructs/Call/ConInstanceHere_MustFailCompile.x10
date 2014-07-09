@@ -22,7 +22,7 @@ public class ConInstanceHere_MustFailCompile extends x10Test {
 	private val root = GlobalRef[ConInstanceHere_MustFailCompile](this);
 	def m() {}
 	def n() {
-		at (here.next()) {
+		at (Place.places().next(here)) {
 		  root().m(); // ERR: Semantic Error: Method or static constructor not found for given call.	 Call: root()
 		}
 	}

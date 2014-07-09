@@ -41,7 +41,7 @@ class RootException11b extends x10Test {
         var ok:Boolean = false;
         try {
             finish
-                at (here.next())
+                at (Place.places().next(here))
                     async
                         throw new Exception();
         } catch (ex: Exception) {
@@ -55,7 +55,7 @@ class RootException11b extends x10Test {
         var ok:Boolean = false;
         try {
             finish
-                at (here.next())
+                at (Place.places().next(here))
                     async
                         throw new MyException1();
         } catch (ex: Exception) {
@@ -69,7 +69,7 @@ class RootException11b extends x10Test {
         var ok:Boolean = false;
         try {
             finish
-                at (here.next())
+                at (Place.places().next(here))
                     async
                         throw new MyException2();
         } catch (ex: Exception) {
@@ -83,7 +83,7 @@ class RootException11b extends x10Test {
         var ok:Boolean = false;
         try {
             finish
-                at (here.next())
+                at (Place.places().next(here))
                     async
                         throw new MyException3();
         } catch (ex: Exception) {
@@ -97,7 +97,7 @@ class RootException11b extends x10Test {
         var ok:Boolean = false;
         try {
             finish
-                at (here.next())
+                at (Place.places().next(here))
                     async
                         throw new MyException9();
         } catch (ex: Exception) {

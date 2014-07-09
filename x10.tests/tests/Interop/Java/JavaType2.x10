@@ -22,7 +22,7 @@ public class JavaType2 extends x10Test {
         val d:Any = new java.util.Date();
         l.add(d);
         l.add(d);
-        val ll = at (here.next()) {
+        val ll = at (Place.places().next(here)) {
             val d0 = l.get(0n);
             val d1 = l.get(1n);
             chk(d0 != null);

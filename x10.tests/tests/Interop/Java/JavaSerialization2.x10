@@ -17,7 +17,7 @@ public class JavaSerialization2 extends x10Test {
         
     static def test1():void {
         val e = new java.util.ArrayList();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val tmp = e;
         }
         Console.OUT.println("test1 passed");
@@ -26,7 +26,7 @@ public class JavaSerialization2 extends x10Test {
     static class C extends java.util.ArrayList {}
     static def test2a():void {
         val e = new C();
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val tmp = e;
         }
         Console.OUT.println("test2a passed");
@@ -34,7 +34,7 @@ public class JavaSerialization2 extends x10Test {
 
     static def test2b():void {
         val e = new java.util.ArrayList(){};
-        at (here.next()) {
+        at (Place.places().next(here)) {
             val tmp = e;
         }
         Console.OUT.println("test2b passed");

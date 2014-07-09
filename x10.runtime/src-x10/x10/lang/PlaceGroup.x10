@@ -87,6 +87,31 @@ public abstract class PlaceGroup implements Iterable[Place] {
    */
   public abstract operator this(i:Long):Place;
 
+  /**
+   * Return the next Place in itertion order from
+   * the argument Place, with a wrap around to the 
+   * first Place in iteration order if the argument 
+   * Place is the last Place in iteration order.
+   */
+  public def next(p:Place):Place {
+      val idx = indexOf(p);
+      if (idx == -1) return Place.INVALID_PLACE;
+      val nIdx = (idx + 1 == numPlaces()) ? 0 : idx+1;
+      return this(nIdx);
+  }
+
+  /**
+   * Return the previous Place in itertion order from
+   * the argument Place, with a wrap around to the 
+   * last Place in iteration order if the argument 
+   * Place is the first Place in iteration order.
+   */
+  public def prev(p:Place):Place {
+      val idx = indexOf(p);
+      if (idx == -1) return Place.INVALID_PLACE;
+      val pIdx = (idx == 0) ? numPlaces()-1 : idx-1;
+      return this(pIdx);    
+  }
 
   /**
    * Two place groups are equal iff they contain the same places

@@ -19,9 +19,9 @@ public class AtFieldAccess extends x10Test {
 
 	var t: T;
 	public def run():boolean {
-		val Second = Place.FIRST_PLACE.next();
+	        val second = Place.places().next(here);
 		val r  = Region.makeRectangular(0, 0);
-		val D = r->Second;
+		val D = r->second;
 		for (p  in D.region) {
 			t = at (D(p)) new T();
 		}

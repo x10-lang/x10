@@ -22,7 +22,7 @@ public class XTENLANG_3305 extends x10Test {
 
     public def run() {
         if (Place.MAX_PLACES != 2) return false;
-        val place0 = here, place1 = here.next();
+        val place0 = here, place1 = Place.places().next(here);
         async {
             Console.OUT.println("Sleep 5 sec"); Console.OUT.flush();
             System.sleep(5000);

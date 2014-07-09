@@ -33,7 +33,7 @@ public class ThisEscapingViaAt_MustFailCompile extends x10Test {
  static class Example {
   val a: Long;
   def this() {
-    at(here.next()) {
+    at(Place.places().next(here)) {
       // Recall that 'this' is a copy of 'this' outside 'at'.
       Console.OUT.println("this.a = " + this.a);
     }
