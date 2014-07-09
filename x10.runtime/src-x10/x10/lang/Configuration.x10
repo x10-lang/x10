@@ -44,6 +44,12 @@ final class Configuration {
 
     static def busy_waiting():Boolean = envOrElse("X10_BUSY_WAITING", false);
 
+    /**
+     * Enable support for job cancellation
+     * Off by default to mitigate performance penalty
+     */
+    static def cancellable():Boolean = envOrElse("X10_CANCELLABLE", false);
+
     static def nthreads():Int {
         var v:Int = 0n;
         try {

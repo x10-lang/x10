@@ -4380,6 +4380,7 @@ public class Emitter {
             }
             throwsClause = new Join(this, "", "throws ", new Join(this, ", ", l));
         }
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
 
         //w.writeln("@SuppressWarnings(\"serial\")");
         w.writeln("public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME);
@@ -4396,7 +4397,11 @@ public class Emitter {
         w.newline(4);
         w.begin(0);
         w.writeln("// start native runtime");
-        w.write("new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);");
+        if (opts.x10_config.EXECUTOR_MODE) {
+            w.write("new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().startExecutor(args);");
+        } else {
+            w.write("new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);");
+        }
         w.end();
         w.newline();
         w.write("}");

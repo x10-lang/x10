@@ -23,6 +23,8 @@ import x10.compiler.Pinned;
 
     // can only be called once
     public def await():void {
+        val activity = Runtime.activity();
+        if (activity.epoch < Runtime.epoch()) throw new DeadPlaceException("Cancelled");
         if (state) return;
         lock();
         if (state) {
@@ -32,6 +34,11 @@ import x10.compiler.Pinned;
         Runtime.increaseParallelism(); // likely to be blocked for a while
         worker = Runtime.worker();
         while (!state) {
+            if (activity.epoch < Runtime.epoch()) {
+                unlock();
+                release();
+                throw new DeadPlaceException("Cancelled");
+            }
             unlock();
             Worker.park();
             lock();

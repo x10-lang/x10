@@ -133,6 +133,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean APGAS_LIB_MODE = false;
     private static final String APGAS_LIB_MODE_desc = "Allow compilation with incomplete X10 libraries for building APGAS Library";
 
+    public boolean EXECUTOR_MODE = false;
+    private static final String EXECUTOR_MODE_desc = "Allow main method to submit and cancel jobs";
+
     /**
      * Parses one argument from the command line.  This allows the user
      * to specify options also on the command line (in addition to the

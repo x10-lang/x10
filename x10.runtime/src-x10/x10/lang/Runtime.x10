@@ -27,6 +27,7 @@ import x10.util.Random;
 import x10.util.Box;
 
 import x10.util.concurrent.Condition;
+import x10.util.concurrent.Latch;
 import x10.util.concurrent.Lock;
 import x10.util.concurrent.Monitor;
 import x10.util.concurrent.SimpleLatch;
@@ -87,7 +88,20 @@ public final class Runtime {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt((int)(#id), #msgBody, #prof, #preSendAction)")
     @Native("c++", "::x10aux::run_closure_at((x10_int)#id, #msgBody, #prof, #preSendAction)")
-    public static native def x10rtSendMessage(id:Long, msgBody:()=>void, prof:Profile, preSendAction:()=>void):void;
+    public static native def x10rtSendMessageInternal(id:Long, msgBody:()=>void, prof:Profile, preSendAction:()=>void):void;
+
+    public static def x10rtSendMessage(id:Long, msgBody:()=>void, prof:Profile, preSendAction:()=>void):void {
+        var body:()=>void = msgBody;
+        if (CANCELLABLE) {
+            val epoch = epoch();
+            if (activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+            body = ()=> {
+                if (epoch > epoch()) pool.flush(epoch);
+                if (epoch == epoch()) msgBody();
+            };
+        }
+        x10rtSendMessageInternal(id, body, prof, preSendAction);
+    }
 
     /**
      * Send async to another place.
@@ -102,12 +116,22 @@ public final class Runtime {
      *            before sending the message (but after finishState and body are serialized)
      *            (may be null)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((int)(#id), #body, #finishState, #prof, #preSendAction)")
+    // TODO add epoch to c++
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((long)(#epoch), (int)(#id), #body, #finishState, #prof, #preSendAction)")
     @Native("c++", "::x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof, #preSendAction)")
-    public static native def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, 
+    public static native def x10rtSendAsyncInternal(epoch:Long, id:Long, body:()=>void, finishState:FinishState, 
                                             prof:Profile, preSendAction:()=>void):void;
 
-    /**
+    public static def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, 
+                                            prof:Profile, preSendAction:()=>void):void {
+        val epoch = epoch();
+        if (CANCELLABLE) {
+            if (activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+        }
+        x10rtSendAsyncInternal(epoch, id, body, finishState, prof, preSendAction);
+    }
+
+                                                    /**
      * Process one incoming active message if any (non-blocking).
      */
     @Native("c++", "::x10aux::event_probe()")
@@ -236,6 +260,7 @@ public final class Runtime {
     public static STATIC_THREADS = Configuration.static_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
+    public static CANCELLABLE = Configuration.cancellable();
     public static RESILIENT_MODE = Configuration.resilient_mode();
 
     // External process execution
@@ -298,10 +323,12 @@ public final class Runtime {
     public interface Mortal {}
 
     static final class Workers {
+        var epoch:Long = 42;
+
         val lock = new Lock(); // master lock for all thread pool adjustments
 
         // every x10 thread (including promoted native threads)
-        val workers = new Rail[Worker](MAX_THREADS);
+        private val workers = new Rail[Worker](MAX_THREADS);
 
         // parked x10 threads (parkedCount == spareCount + idleCount)
         val parkedWorkers = new Rail[Worker](MAX_THREADS);
@@ -493,6 +520,22 @@ public final class Runtime {
 
         public operator this(i:Int) = workers(i);
         public operator this(i:Int)=(worker:Worker) { workers(i) = worker; }
+
+        def flush(e:Long) {
+            lock.lock();
+            if (e > epoch) {
+                epoch = e;
+                for (var i:Int=0n; i<count; i++) {
+                    while (workers(i).steal() != null);
+                }
+            }
+            val p = probing;
+            lock.unlock();
+            if (p && multiplace) x10rtUnblockProbe();
+            for (var i:Int=0n; i<count; i++) {
+                if (workers(i) != null) workers(i).unpark();
+            }
+        }
     }
 
     public final static class Worker extends Thread implements Unserializable {
@@ -529,7 +572,7 @@ public final class Runtime {
             // where access of thread-local storage occurs from a native java thread and triggers the creation
             // of a new Worker.
             // Using Place(0) is OK because the Uncounted finish passed into the activity does not use srcPlace.
-            activity = new Activity(()=>{}, Place(0), FinishState.UNCOUNTED_FINISH);
+            activity = new Activity(epoch(), ()=>{}, Place(0), FinishState.UNCOUNTED_FINISH);
         }
 
         // return size of the deque
@@ -562,11 +605,11 @@ public final class Runtime {
         // inner loop to help j9 jit
         private def loop():Boolean {
             for (var i:Int = 0n; i < BOUND; i++) {
-                do activity = poll(); while (activity != null && pool.deal(activity));
-                if (activity == null) {
-                    activity = pool.scan(random, this);
-                    if (activity == null) return false; // [DC] only happens when pool's latch is released
-                }
+                activity = poll();
+                if (activity == null) activity = pool.scan(random, this);
+                if (activity == null) return false; // [DC] only happens when pool's latch is released
+                if (activity.epoch < epoch()) continue;
+                if (pool.deal(activity)) continue;
                 activity.run();
                 Unsafe.dealloc(activity);
             }
@@ -579,7 +622,7 @@ public final class Runtime {
             x10rtProbe();
             for (;;) {
                 activity = poll();
-                if (activity == null) {
+                if (activity == null || activity.epoch < epoch()) {
                     activity = tmp; // restore current activity
                     return;
                 }
@@ -591,16 +634,18 @@ public final class Runtime {
         // run activities while waiting on finish
         def join(latch:SimpleLatch):void {
             val tmp = activity; // save current activity
-            while (loop2(latch));
+            while (loop2(tmp.epoch, latch));
             activity = tmp; // restore current activity
         }
 
         // inner loop to help j9 jit
-        private def loop2(latch:SimpleLatch):Boolean {
+        private def loop2(epoch:Long, latch:SimpleLatch):Boolean {
             for (var i:Int = 0n; i < BOUND; i++) {
-                if (latch()) return false;
-                do activity = poll(); while (activity != null && pool.deal(activity));
+                if (epoch < epoch() || latch()) return false;
+                activity = poll();
                 if (activity == null) return false;
+                if (activity.epoch < epoch()) continue;
+                if (pool.deal(activity)) continue;
 //                if (activity.finishState().simpleLatch() != latch) {
 //                    push(activity);
 //                    return false;
@@ -629,12 +674,12 @@ public final class Runtime {
     }
 
     static class Pool {
-        val latch = new SimpleLatch();
+        val latch = new Latch();
         val watcher = new Watcher();
         
         var wsEnd:Boolean = false;
 
-        private val workers = new Workers();
+        val workers = new Workers();
 
         var wsBlockedContinuations:Deque = null;
 
@@ -649,8 +694,8 @@ public final class Runtime {
             workers.multiplace = Place.numAllPlaces()>1; // numAllPlaces includes accelerators
             workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || 
                 !(RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY);
-            workers.count = n;
             workers(0n) = worker();
+            workers.count = n;
             for (var i:Int = 1n; i<n; i++) {
                 workers(i) = new Worker(i);
             }
@@ -736,6 +781,8 @@ public final class Runtime {
         }
 
         def size() = workers.count;
+
+        def flush(e:Long) { workers.flush(e); }
     }
 
 
@@ -787,16 +834,13 @@ public final class Runtime {
      */
     public static def surplusActivityCount():Int = worker().size();
 
-    /** The finish state that manages the 'main' activity and sub activities. */
-    static rootFinish = makeDefaultFinish(pool.latch);
-
     private static val processStartNanos_ = new Cell[Long](0);
     public static def processStartNanos() = processStartNanos_();
 
     public static final class Watcher extends Condition implements Unserializable {
-        private var t:MultipleExceptions = null;
+        private var t:Exception = null;
 
-        public def raise(t:MultipleExceptions):void { this.t = t; }
+        public def raise(t:Exception):void { this.t = t; }
 
         /**
          * Wait for job to complete.
@@ -823,7 +867,7 @@ public final class Runtime {
      * @param job Job being submitted
      */
     public static def submitUncounted(job:()=>void):void {
-        pool.workers(0n).push(new Activity(job, here, FinishState.UNCOUNTED_FINISH));
+        pool.workers(0n).push(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
         pool.workers.wakeup();
     }
 
@@ -835,7 +879,7 @@ public final class Runtime {
      */
     public static def submit(job:()=>void):Watcher {
         val watcher = new Watcher();
-        val wrapper = ()=>{ try { finish async job(); } catch (t:MultipleExceptions) { watcher.raise(t); } finally { watcher.release(); } };
+        val wrapper = ()=>{ try { finish async job(); } catch (t:Exception) { watcher.raise(t); } finally { watcher.release(); } };
         submitUncounted(wrapper);
         return watcher;
     }
@@ -850,6 +894,10 @@ public final class Runtime {
         pool(n+1n);
     }
 
+    public static def start():void {
+        start(NTHREADS);
+    }
+    
     /**
      * Wait for XRX to terminate at the current place.
      * Block calling thread.
@@ -875,7 +923,7 @@ public final class Runtime {
     public static def start(job:()=>void):void {
         start(NTHREADS-1n);
         if (hereLong() == 0) {
-            val wrapper = ()=>{ try { finish async job(); } catch (t:MultipleExceptions) { pool.watcher.raise(t); } finally { terminateAll(); } };
+            val wrapper = ()=>{ try { finish async job(); } catch (t:Exception) { pool.watcher.raise(t); } finally { terminateAll(); } };
             submitUncounted(wrapper);
         }
         pool.run();
@@ -921,47 +969,30 @@ public final class Runtime {
         terminate();
     }
 
-    /**
-     * @deprecated
-     * Run main activity in a finish.
-     * @param init Static initializers
-     * @param body Main activity
-     */
-    public static def startDeprecated(body:()=>void):void {
-        // initialize thread pool for the current process
-        // initialize runtime
+    public static def terminateAllJob() {
+        submitUncounted(()=>{terminateAll();});
+    }
 
-        processStartNanos_(System.nanoTime());
-
-        if (hereInt() == 0n) {
-            // [DC] at this point: rootFinish has an implicit notifySubActivitySpawn and notifyActivityBegin
-            // (due to constructor initialising counters appropriately)
-            // do not need to alter rootFinish in activity constructor
-            pool(NTHREADS);
-            executeLocal(new Activity(body, here, rootFinish, false));
-            pool.run();
-
-            // [DC] during call to pool(NTHREADS), queued activity runs, and eventually calls rootFinish.notifyActivityTermination
-            // this ultimately triggers the return of pool(NTHREADS)
-
-            // [DC] therefore, this call blocks until body has finished executing
-
-            // [DC] at this point, rootFinish has quiescent (counters are zero)
-
-            // we need to call waitForFinish here to see the exceptions thrown by main if any
+    static def cancelWave() {
+        val epoch = epoch() + 1;
+        pool.flush(epoch);
+        activity().epoch = epoch; // back to the future
+        // touch every place with the current epoch
+        finish for (p in Place.places()) {
             try {
-                rootFinish.waitForFinish();
-                // [DC] finish counters may now be negative due to implicit call to notifyActivityTermination inside waitForFinish
-            } finally {
-                // root finish has terminated, kill remote processes if any
-                terminateAll();
-            }
-        } else {
-            // wait for thread pool to die
-            // (happens when a kill signal is received from place 0)
-            pool(NTHREADS);
-            pool.run();
+                at(p) async {}
+            } catch (DeadPlaceException) {}
         }
+    }
+
+    /*
+     * Cancel all jobs
+     */
+    public static def cancelAll():Watcher {
+        val watcher = new Watcher();
+        val wrapper = ()=>{ try { cancelWave(); } catch (t:Exception) { watcher.raise(t); } finally { watcher.release(); } };
+        submitUncounted(wrapper);
+        return watcher;
     }
 
     // asyncat, async, at statement, and at expression implementation
@@ -978,6 +1009,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
+        val epoch = a.epoch;
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         if (place.id == hereLong()) {
@@ -998,10 +1030,10 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(asyncBody, here, state, clockPhases));
+            executeLocal(new Activity(epoch, asyncBody, here, state, clockPhases));
         } else {
             val src = here;
-            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { execute(new Activity(body, src, state, clockPhases)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { pushActivity(new Activity(epoch, body, src, state, clockPhases)); };
             val preSendAction = ()=> { state.notifySubActivitySpawn(place); };
             x10rtSendMessage(place.id, closure, prof, preSendAction);
             Unsafe.dealloc(closure);
@@ -1014,6 +1046,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
+        val epoch = a.epoch;
         val state = a.finishState();
         if (place.id == hereLong()) {
             // Synchronous serialization
@@ -1033,7 +1066,7 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(asyncBody, here, state));
+            executeLocal(new Activity(epoch, asyncBody, here, state));
         } else {
             val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
             x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
@@ -1049,10 +1082,11 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
+        val epoch = a.epoch;
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(body, here, state, clockPhases));
+        executeLocal(new Activity(epoch, body, here, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
@@ -1060,9 +1094,10 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
+        val epoch = a.epoch;
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(body, here, state));
+        executeLocal(new Activity(epoch, body, here, state));
     }
 
 	public static def runFinish(body:()=>void):void {
@@ -1077,6 +1112,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
+        val epoch = a.epoch;
         if (place.id == hereLong()) {
             // Synchronous serialization
 	    val start = prof != null ? System.nanoTime() : 0;
@@ -1094,11 +1130,11 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(asyncBody, here, FinishState.UNCOUNTED_FINISH));
+            executeLocal(new Activity(epoch, asyncBody, here, FinishState.UNCOUNTED_FINISH));
         } else {
             // [DC] passing FIRST_PLACE instead of the correct src, since UNCOUNTED_FINISH does not use this value
             // and it saves sending some bytes over the network
-            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { execute(new Activity(body, Place.FIRST_PLACE, FinishState.UNCOUNTED_FINISH)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { pushActivity(new Activity(epoch, body, Place.FIRST_PLACE, FinishState.UNCOUNTED_FINISH)); };
             x10rtSendMessage(place.id, closure, prof);
             Unsafe.dealloc(closure);
         }
@@ -1112,8 +1148,9 @@ public final class Runtime {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
-        
-        executeLocal(new Activity(body, here, new FinishState.UncountedFinish()));
+
+        val epoch = a.epoch;
+        executeLocal(new Activity(epoch, body, here, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -1435,14 +1472,6 @@ public final class Runtime {
         }
     }
 
-    static def makeDefaultFinish(latch:SimpleLatch):FinishState { // only for rootFinish
-        if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
-            return new FinishState.Finish(latch);
-        } else {
-            return FinishResilient.make(null/*parent*/, latch);
-        }
-    }
-
     static def notifyPlaceDeath() : void {
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
             // This case seems occur naturally on shutdown, so transparently ignore it.
@@ -1526,17 +1555,25 @@ public final class Runtime {
     }
 
     // submit an activity to the pool
-    static def execute(activity:Activity):void {
+    static def pushActivity(activity:Activity):void {
         worker().push(activity);
     }
 
     static def executeLocal(activity:Activity):void {
-        if (!pool.deal(activity)) worker().push(activity);
+        if (activity().epoch < epoch()) throw new DeadPlaceException("Cancelled");
+        if (!pool.deal(activity)) pushActivity(activity);
     }
 
-    // submit 
+    // TODO: remove this once all backends and x10rt impls have epochs
     public static def execute(body:()=>void, src:Place, finishState:FinishState):void {
-        execute(new Activity(body, src, finishState));
+        pushActivity(new Activity(42, body, src, finishState));
+    }
+
+    public static def execute(epoch:Long, body:()=>void, src:Place, finishState:FinishState):void {
+        if (epoch > epoch()) {
+            pool.flush(epoch);
+        }
+        if (epoch == epoch()) pushActivity(new Activity(epoch, body, src, finishState));
     }
 
     public static def probe() {
@@ -1564,6 +1601,8 @@ public final class Runtime {
     public static def wrapNativeThread():Worker {
         return pool.wrapNativeThread();
     }
+
+    public static def epoch() = pool.workers.epoch;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

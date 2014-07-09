@@ -107,6 +107,67 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.exit(exitCode);
     }
 
+    protected void startExecutor(final String[] args) {
+        this.args = args;
+
+        // load libraries
+        String property = System.getProperty("x10.LOAD");
+        if (null != property) {
+            String[] libs = property.split(":");
+            for (int i = libs.length - 1; i >= 0; i--)
+                System.loadLibrary(libs[i]);
+        }
+
+        boolean initialized = X10RT.init(); // TODO retry?
+        if (!initialized) {
+            System.err.println("Failed to initialize X10RT.");
+            throw new InternalError("Failed to initialize X10RT.");
+        }
+
+        x10.lang.Runtime.get$staticMonitor();
+        x10.lang.Runtime.get$STRICT_FINISH();
+        x10.lang.Runtime.get$NTHREADS();
+        x10.lang.Runtime.get$MAX_THREADS();
+        x10.lang.Runtime.get$STATIC_THREADS();
+        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
+        x10.lang.Runtime.get$BUSY_WAITING();
+        x10.util.Team.get$WORLD();
+
+        java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
+            public void run() {
+                System.out.flush();
+            }
+        });
+
+        x10.lang.Runtime.start();
+        // x10rt-level registration of MessageHandlers
+        X10RT.registerHandlers();
+        X10RT.registration_complete();
+
+        // build up Rail[String] for args
+        final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
+            }
+        }
+
+        try {
+            if (X10RT.hereId() == 0) {
+                new $Closure$Main(this, aargs).$apply();
+                x10.lang.Runtime.terminateAllJob();
+            }
+            x10.lang.Runtime.join();
+        } catch (java.lang.Throwable t) {
+            // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
+            if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
+            t.printStackTrace();
+            setExitCode(1);
+        }
+        X10RT.X10_EXITING_NORMALLY = true;
+        System.exit(exitCode);
+    }
+
     // body of main activity
     static class $Closure$Main implements VoidFun_0_0 {
         private final Runtime out$;
@@ -236,7 +297,8 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
-    public static void runAsyncAt(int place, VoidFun_0_0 body, FinishState finishState, 
+    // TODO: add epoch to x10rt transports
+    public static void runAsyncAt(long epoch, int place, VoidFun_0_0 body, FinishState finishState, 
                                   x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 		// skipping the intermediate buffers contained within the X10JavaSerializer class.
@@ -249,6 +311,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             
             serializer.write(finishState);
             serializer.write(X10RT.here());
+            if (X10RT.javaSockets != null) serializer.write(epoch);
             long before_bytes = serializer.dataBytesWritten();
             serializer.write(body);
             long ser_bytes = serializer.dataBytesWritten() - before_bytes;

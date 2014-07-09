@@ -128,6 +128,7 @@ abstract class FinishResilient extends FinishState {
         
         // XTENLANG-3357: clockPhases must be passed and returned
         val myActivity = Runtime.activity();
+        val epoch = myActivity.epoch;
         val clockPhases = myActivity.clockPhases;
         val cpCell = new Cell[Activity.ClockPhases](clockPhases);
         val cpGref = GlobalRef(cpCell);
@@ -167,7 +168,7 @@ abstract class FinishResilient extends FinishState {
                 if (verbose>=2) debug("FinishResilient.runAt exec_body finished");
             };
             if (verbose>=2) debug("FinishResilient.runAt create a new activity to execute");
-            Runtime.executeLocal(new Activity(exec_body, home, real_finish, false, false));
+            Runtime.executeLocal(new Activity(epoch, exec_body, home, real_finish, false, false));
             // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
         };
         if (verbose>=2) debug("FinishResilient.runAt sending closure");

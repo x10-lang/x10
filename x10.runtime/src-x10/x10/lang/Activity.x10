@@ -94,17 +94,20 @@ public class Activity {
      * Depth of enclosong atomic blocks
      */
     private var atomicDepth:Int = 0n;
+    
+    public var epoch:Long;
 
     /**
      * Create activity.
      */
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
-        this(body, srcPlace, finishState, true);
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState) {
+        this(epoch, body, srcPlace, finishState, true);
     }
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
-        this(body, srcPlace, finishState, nac, true);
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
+        this(epoch, body, srcPlace, finishState, nac, true);
     }
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
+        this.epoch = epoch;
         this.finishState = finishState;
         this.shouldNotifyTermination = nt;
         if (nac) {
@@ -118,8 +121,8 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
-        this(body, srcPlace, finishState);
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
+        this(epoch, body, srcPlace, finishState);
         this.clockPhases = clockPhases;
     }
 
@@ -174,7 +177,11 @@ public class Activity {
                 finishState.pushException(t);
             }
             if (null != clockPhases) clockPhases.drop();
-            if (shouldNotifyTermination) finishState.notifyActivityTermination();
+            if (shouldNotifyTermination) {
+                try {
+                    finishState.notifyActivityTermination();
+                } catch (DeadPlaceException) {}
+            }
         }
         if (DEALLOC_BODY) Unsafe.dealloc(body);
     }

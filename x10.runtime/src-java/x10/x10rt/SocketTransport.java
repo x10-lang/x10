@@ -935,15 +935,17 @@ public class SocketTransport {
     	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
     	FinishState finishState = (FinishState) deserializer.readObject();
     	Place src = (Place) deserializer.readObject();
+        long epoch = deserializer.readLong();
     	VoidFun_0_0 actObj;
     	try {
     	    actObj = (VoidFun_0_0) deserializer.readObject();
     	} catch (Throwable e) {
+    	    // TODO: handle epoch?
             finishState.notifyActivityCreation$O(src);
             finishState.pushException(new x10.io.SerializationException(e));
             finishState.notifyActivityTermination();
             return;
     	}
-    	x10.lang.Runtime.execute(actObj, src, finishState);
+    	x10.lang.Runtime.execute(epoch, actObj, src, finishState);
     }
 }
