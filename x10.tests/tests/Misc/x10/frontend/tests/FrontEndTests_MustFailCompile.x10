@@ -2095,7 +2095,7 @@ class TestValInitUsingAt { // see XTENLANG-1942
 	static def testOkVar() {
 		var x:Long;
 		val p = here;
-		at (Place.places.next(p)) {
+		at (Place.places().next(p)) {
 			at (p)
 				x = 2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
 		}
