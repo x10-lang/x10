@@ -82,26 +82,43 @@ public final struct Place(
      * A PlaceGroup the contains all the currently live primary Places.
      */
     public static def places():PlaceGroup{self!=null} {
-                
-        if (numDead() == 0) {
+        val nd = numDead();
+        if (nd == 0) {
             return new PlaceGroup.SimplePlaceGroup(numPlaces());
         } else {
-            val np = numPlaces();  // ask once to get a consistient view
-            val live = new x10.util.GrowableRail[Place](np);
-            for (i in 0..(np-1)) {
-                val p = Place(i);
-                if (!p.isDead()) {
-                    live.add(p);
+            val np = numPlaces();
+            try {
+                CUR_WORLD.lock.lock();
+                if (CUR_WORLD.numPlaces == np && CUR_WORLD.numDead == nd) {
+                    // cache hit.  Simply return the pre-built place group for (np, nd)
+                    val world = CUR_WORLD.world;
+                    return world; // finally will unlock.
+                } else {
+                    // cache miss.  Have to construct a PlaceGroup.
+                    //              This is expensive, so hold CUR_WORLD.lock
+                    //              to avoid doing it more than we have to.
+                    val live = new x10.util.GrowableRail[Place](np);
+                    var seenDead:long = 0;
+                    for (i in 0..(np-1)) {
+                        val p = Place(i);
+                        if (p.isDead()) {
+                            seenDead++;
+                        } else {
+                            live.add(p);
+                        }
+                    }
+                    val res = new SparsePlaceGroup(live.toRail());
+                    if (seenDead == nd) {
+                        // Didn't observably change while we were building res.  Cache it.
+                        CUR_WORLD.numPlaces = np;
+                        CUR_WORLD.numDead = nd;
+                        CUR_WORLD.world = res;
+                    }
+                    return res; // finally will unlock
                 }
+            } finally {
+                CUR_WORLD.lock.unlock();
             }
-            // TODO: This constructor is inefficient.
-            //   Validates that live is sorted and also does extra copy.
-            //   We can add a package-level constructor to SparsePlaceGroup
-            //   to optimize this if it ever turns out to matter.
-            // TODO: Consider an optimized PlaceGroup subclass for a mostly dense
-            //   set of Place from 0..N (for example list the exclusions)?
-            //   Probably only matters at medium to large scale.
-            return new SparsePlaceGroup(live.toRail());
         }
     } 
 
@@ -183,6 +200,23 @@ public final struct Place(
     @Native("java", "(#r).home")
     @Native("c++", "::x10::lang::Place::_make(((x10_long)((#r)->location)))")
     public static native operator[T] (r:GlobalRef[T]){T isref}: Place{self==r.home};
+
+
+    private static CUR_WORLD:PlaceGroupCache = new PlaceGroupCache(0, 0, new PlaceGroup.SimplePlaceGroup(0));
+
+    private static class PlaceGroupCache {
+        var numPlaces:Long;
+        var numDead:Long;
+        var world:PlaceGroup{self!=null};
+        val lock:x10.util.concurrent.Lock;
+
+        def this(np:Long, nd:Long, w:PlaceGroup{self!=null}) {
+          numPlaces = np;
+          numDead = nd;
+          world = w;
+          lock = new x10.util.concurrent.Lock();
+        }
+    }
 
 }
 
