@@ -46,7 +46,7 @@ class TestDB {
 	}
 
     public def run (): void {
-		Console.OUT.println("Starting dist block matrix clone/add/sub/scaling tests");
+		Console.OUT.println("DistBlockMatrix clone/add/sub/scaling tests");
 
 		var ret:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
@@ -60,53 +60,42 @@ class TestDB {
 		ret &= (testCellMult());
 		ret &= (testCellDiv());
     }
-		if (ret)
-			Console.OUT.println("Test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 	public def testClone():Boolean{
 		var ret:Boolean = true;
-		Console.OUT.println("Starting dist block matrix clone test on dense blocks");
+		Console.OUT.println("DistBlockMatrix clone test on dense blocks");
 		val ddm = DistBlockMatrix.makeDense(grid, dmap).init((r:Long, c:Long)=>(1.0+r+c));
-		Debug.flushln("Initialization done");
 		
 		val ddm1 = ddm.clone();
-		Debug.flushln("Clone done");
 		ret = ddm.equals(ddm1);
-		Debug.flushln("Equal test done");
 		
 		val den = DenseMatrix.make(grid.M, grid.N).init((r:Long,c:Long)=>(1.0+r+c));
 		ret &= den.equals(ddm);
-		Debug.flushln("Test initial func");
 		
-		if (ret)
-			Console.OUT.println("DistBlockMatrix Clone test passed!");
-		else
+		if (!ret)
 		 	Console.OUT.println("--------DistBlockMatrix Clone test failed!--------");
 		return ret;
 	}
 
 	public def testCopyTo():Boolean {
 		var ret:Boolean = true;
-		Console.OUT.println("Starting dist block Matrix copyTo test");
+		Console.OUT.println("DistBlockMatrix copyTo test");
 		val dstblk = DistBlockMatrix.makeDense(grid, dmap);
 		val blkden = BlockMatrix.makeDense(grid);
 		val den    = DenseMatrix.make(M,N);
 
-		Debug.flushln("Copy dist block matrix to block matrix (at here)");
 		dstblk.initRandom();
 		dstblk.copyTo(blkden);
 		ret &= dstblk.equals(blkden as Matrix(dstblk.M, dstblk.N));
 		if (! ret)  return ret;
 		
-		Debug.flushln("Copy data in block matrix from here to distributed block matrix");
 		dstblk.reset();
 		dstblk.copyFrom(blkden);
 		ret &= blkden.equals(dstblk as Matrix(blkden.M,blkden.N));
 		if (! ret) return ret;
 
-		Debug.flushln("Copy data dist block matrix to dense matrix(vector) at here");
 		val dmat = DistBlockMatrix.make(M, 1, bM, 1, Place.MAX_PLACES, 1).allocDenseBlocks().initRandom();
 		val denm = DenseMatrix.make(M, 1);
 		
@@ -115,60 +104,52 @@ class TestDB {
 		if (! ret) return ret;
 		
 		
-		if (ret)
-			Console.OUT.println("Dist dense Matrix copyTo test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist dense matrix copyTo test failed!--------");	
 		return ret;
 	}
 
  	public def testScale():Boolean{
- 		Console.OUT.println("Starting dist block matrix scaling test");
+ 		Console.OUT.println("DistBlockMatrix scaling test");
  		val dm = DistBlockMatrix.make(M, N, bM, bN).allocDenseBlocks().initRandom();
 
  		val dm1  = dm * 2.5;
  		val m = dm.toDense();
  		val m1 = m * 2.5;
  		val ret = dm1.equals(m1);
- 		if (ret)
- 			Console.OUT.println("Dist block Matrix scaling test passed!");
- 		else
+ 		if (!ret)
  			Console.OUT.println("--------Dist block matrix Scaling test failed!--------");	
  		return ret;
  	}
  
 	public def testAdd():Boolean {
-		Console.OUT.println("Starting dist block dense matrix add test");
+		Console.OUT.println("DistBlockMatrix add test");
 		val dm = DistBlockMatrix.make(M, N, bM, bN).allocDenseBlocks().initRandom();
 
 		val dm1 = dm  * -1.0;
 		val dm0 = dm + dm1;
 		val ret = dm0.equals(0.0);
-		if (ret)
-			Console.OUT.println("DistBlockMatrix Add: dm + dm*-1 test passed");
-		else
+		if (!ret)
 			Console.OUT.println("--------DistBlockMatrix Add: dm + dm*-1 test failed--------");
 		return ret;
 	}
 
 	public def testAddSub():Boolean {
-		Console.OUT.println("Starting DistBlockMatrix add-sub test");
+		Console.OUT.println("DistBlockMatrix add-sub test");
 		val dm = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		val dm1= DistBlockMatrix.makeDense(grid, dmap).initRandom();
 
 		val dm2   = dm  + dm1;
 		val dm_c  = dm2 - dm1;
 		val ret   = dm.equals(dm_c as Matrix(dm.M, dm.N));
-		if (ret)
-			Console.OUT.println("DistBlockMatrix Add-sub test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------DistBlockMatrix Add-sub test failed!--------");
 		return ret;
 	}
 
 
 	public def testAddAssociative():Boolean {
-		Console.OUT.println("Starting dist block matrix associative test");
+		Console.OUT.println("DistBlockMatrix associative test");
 
 		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();;
@@ -177,15 +158,13 @@ class TestDB {
 		val c1 = a + b + c;
 		val c2 = a + (b + c);
 		val ret = c1.equals(c2);
-		if (ret)
-			Console.OUT.println("DistBlockMatrix Add associative test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------DistBlockMatrix Add associative test failed!--------");
 		return ret;
 	}
 
 	public def testScaleAdd():Boolean {
-		Console.OUT.println("Starting dist block Matrix scaling-add test");
+		Console.OUT.println("DistBlockMatrix scaling-add test");
 
 		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 
@@ -195,15 +174,13 @@ class TestDB {
 		var ret:Boolean = a.equals(a1+a2);
 		ret &= a.equals(m);
 
-		if (ret)
-			Console.OUT.println("DistBlockMatrix scaling-add test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------DistBlockeMatrix scaling-add test failed!--------");
 		return ret;
 	}
 
 	public def testCellMult():Boolean {
-		Console.OUT.println("Starting dist block Matrix cellwise mult test");
+		Console.OUT.println("DistBlockMatrix cellwise mult test");
 
 		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();
@@ -217,15 +194,13 @@ class TestDB {
 		val dc= (da + db) * da;
 		ret &= dc.equals(c);
 
-		if (ret)
-			Console.OUT.println("Dist block Matrix cellwise mult passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist block matrix cellwise mult test failed!--------");
 		return ret;
 	}
 
 	public def testCellDiv():Boolean {
-		Console.OUT.println("Starting DistBlockMatrix cellwise mult-div test");
+		Console.OUT.println("DistBlockMatrix cellwise mult-div test");
 
 		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();
@@ -234,9 +209,7 @@ class TestDB {
 		val d =  c / (a + b);
 		var ret:Boolean = d.equals(a);
 
-		if (ret)
-			Console.OUT.println("Dist block Matrix cellwise mult-div passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist block matrix cellwise mult-div test failed!--------");
 		return ret;
 	}

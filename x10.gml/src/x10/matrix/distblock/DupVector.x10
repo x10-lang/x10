@@ -46,7 +46,7 @@ public class DupVector(M:Long) {
 
 	public static def make(v:Vector):DupVector(v.M){
 		val m = v.M;
-		val hdl = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(m));
+		val hdl = PlaceLocalHandle.make[Vector](Place.places(), () => v);
 		val newDV = new DupVector(hdl);
 		newDV.sync();
 		return newDV as DupVector(m);
