@@ -27,7 +27,7 @@ public class HeatTransfer_v9 {
         var iterations : Long;
 
         public def toString() {
-            return "Array Dimension: ("+(globalDim.max0+1)+" x "+(globalDim.max1+1)+"), iterations: "+iterations+", number of places: "+Place.MAX_PLACES;
+            return "Array Dimension: ("+(globalDim.max0+1)+" x "+(globalDim.max1+1)+"), iterations: "+iterations+", number of places: "+Place.numPlaces();
         }
     }
 
@@ -224,7 +224,7 @@ public class HeatTransfer_v9 {
 
         val plh = PlaceLocalHandle.make[PlaceState](Place.places(), ()=>new PlaceState(cfg));
 
-        val active_places = new Rail[Long](Place.MAX_PLACES, (i:Long)=>i);
+        val active_places = new Rail[Long](Place.numPlaces(), (i:Long)=>i);
 
         finish for (active_id in active_places.range()) {
             if (active_places(active_id)==-1) continue;

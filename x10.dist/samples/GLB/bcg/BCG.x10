@@ -38,7 +38,7 @@ public final class BCG {
         val l = cmdLineParams("-l", 32n);
         val m = cmdLineParams("-m", 1024n);
 
-        val P = Place.MAX_PLACES;
+        val P = Place.numPlaces();
 
         var z0:Int = 1n;
         var zz:Int = l;

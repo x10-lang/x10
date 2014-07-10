@@ -82,9 +82,9 @@ public class KMeansSPMD {
         val file_points = new Rail[Float](num_file_points*dim, init_points);
 
         //val team = Team.WORLD;
-        val team = Team(new SparsePlaceGroup(new Rail[Place](num_slices * Place.MAX_PLACES, (i:long) => Place(i/num_slices))));
+        val team = Team(new SparsePlaceGroup(new Rail[Place](num_slices * Place.numPlaces(), (i:long) => Place(i/num_slices))));
 
-        val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
+        val num_slice_points = num_global_points / num_slices / Place.numPlaces();
 
         finish {
 

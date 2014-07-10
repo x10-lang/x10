@@ -200,7 +200,7 @@ public class KMeansCUDA {
         finish for (h in Place.places()) at (h) async {
 
             // carve out local portion of points (point-major)
-            val host_num_points = global_num_points / Place.MAX_PLACES;
+            val host_num_points = global_num_points / Place.numPlaces();
             val host_offset = h.id * host_num_points;
 
 

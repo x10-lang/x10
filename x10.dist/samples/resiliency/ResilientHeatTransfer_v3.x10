@@ -3,7 +3,7 @@
 public class ResilientHeatTransfer_v3 {
     static val arrayColsPerPlace : Long = 256;
     static val epsilon = 1.0e-3;
-    static val dimensionSize : Long = arrayColsPerPlace * Place.MAX_PLACES;
+    static val dimensionSize : Long = arrayColsPerPlace * Place.numPlaces();
     static val iterationsPerBackup = 0;
     
 
@@ -123,8 +123,8 @@ public class ResilientHeatTransfer_v3 {
       var numCheckPoints : Long;
 
       def this() {
-        activePlaces = new Rail[Boolean](Place.MAX_PLACES, true);
-	lastActivePlace = Place.MAX_PLACES - 1;
+        activePlaces = new Rail[Boolean](Place.numPlaces(), true);
+	lastActivePlace = Place.numPlaces() - 1;
 	lastCheckPointIter = 0;
 	numCheckPoints = 0;
       }
@@ -295,7 +295,7 @@ public class ResilientHeatTransfer_v3 {
       val columnArrayPlhHigh = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>initializeColumnArray());
       val backupPlh = PlaceLocalHandle.make[BackupPartitions](Place.places(), ()=>new BackupPartitions(arrayColsPerPlace));
       var keepIterating : Boolean = true;
-      val continueVariables = new Rail[Boolean](Place.MAX_PLACES);
+      val continueVariables = new Rail[Boolean](Place.numPlaces());
       val outputResults : Boolean = false;
       val printDebugInfo : Boolean = false;
       var iterationNumber : Long = 0;
@@ -310,7 +310,7 @@ public class ResilientHeatTransfer_v3 {
       var checkPointSucceeded : Boolean;
 
       Console.OUT.printf("Array Dimension: %i, heat difference threshold: %e, number of places: %i\n", 
-                           dimensionSize, epsilon, Place.MAX_PLACES);
+                           dimensionSize, epsilon, Place.numPlaces());
       Console.OUT.printf("Array columns per place: %i\n", arrayColsPerPlace);
       Console.OUT.printf("Loop iterations between checkpoints: %i\n", iterationsPerBackup);
       before = System.nanoTime();
@@ -326,7 +326,7 @@ public class ResilientHeatTransfer_v3 {
 	  continue;
         }
         keepIterating = false;
-        for (i in 0..(Place.MAX_PLACES-1)) {
+        for (i in 0..(Place.numPlaces()-1)) {
 	  if (recoveryInfo.activePlaces(i))
             if (continueVariables(i) == true) {
               keepIterating = true;  // only 1 needs to be true to continue iterating

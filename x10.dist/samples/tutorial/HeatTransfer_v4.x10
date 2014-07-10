@@ -89,7 +89,7 @@ public class HeatTransfer_v4 {
     public static def main(Rail[String]) {
         Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
         Console.OUT.println("Initializing data structures");
-        Console.OUT.println("NUM_PLACES=" + Place.MAX_PLACES);
+        Console.OUT.println("NUM_PLACES=" + Place.numPlaces());
         val s = new HeatTransfer_v4();
         Console.OUT.print("Beginning computation...");
         val start = System.nanoTime();

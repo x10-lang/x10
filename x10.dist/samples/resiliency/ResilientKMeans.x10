@@ -35,7 +35,7 @@ class ResilientKMeans {
         val POINTS = (args.size>=1) ? Long.parseLong(args(0)) : 1000000L;
         val CLUSTERS = (args.size>=2) ? Long.parseLong(args(1)): 4L;
         Console.OUT.println("KMeans: Divide " + DIM + " dim " + POINTS + " points into "
-                            + CLUSTERS + " clusters, using " + Place.MAX_PLACES + " places");
+                            + CLUSTERS + " clusters, using " + Place.numPlaces() + " places");
         
         finish for (p in Place.places()) at (p) {
             Console.OUT.println(here+" running in "+Runtime.getName());
@@ -128,7 +128,7 @@ class ResilientKMeans {
              */
             //Console.OUT.println("Computing new clusters...  ");
             //val compute_clusters_before = System.nanoTime();
-            val numAvail = Place.MAX_PLACES - Place.numDead(); // number of available places
+            val numAvail = Place.numPlaces() - Place.numDead(); // number of available places
             val div = POINTS/numAvail; // share for each place
             val rem = POINTS%numAvail; // extra share for Place0
             var places_used : Long = 0L;

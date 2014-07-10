@@ -73,7 +73,7 @@ public class ResilientSimpleHeatTransfer {
                  */
                 if (restore_needed()) {
                     /* Create new PlaceGroup on available places */
-                    Console.OUT.println("Create new PlaceGroup over available " + (Place.MAX_PLACES-Place.numDead()) + " places");
+                    Console.OUT.println("Create new PlaceGroup over available " + (Place.numPlaces()-Place.numDead()) + " places");
                     // BigD = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
                     // SmallD = BigD | SmallR;
                     // D_Base = Dist.makeUnique(SmallD.places());

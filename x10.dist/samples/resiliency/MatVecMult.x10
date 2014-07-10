@@ -257,7 +257,7 @@ public class MatVecMult {
     static def child2(n:Long) = 2*n+2;
 
     static def launchTree[T](p:Long, plh:PlaceLocalHandle[T], cl:()=>void) { T <: Task, T isref } {
-        if (p >= Place.MAX_PLACES) return;
+        if (p >= Place.numPlaces()) return;
         if (plh().isPlaceActive(Place(p))) {
             at (Place(p)) async {
                 launchTree[T](child1(p), plh, cl);
@@ -386,12 +386,12 @@ public class MatVecMult {
         var need_set_splits : Boolean = true;
 
         // initial task assignment -- assumes no places are dead yet
-        val splits_assignments = new Rail[ArrayList[Long]](Place.MAX_PLACES, new ArrayList[Long]());
-        val active_places = new Rail[Boolean](Place.MAX_PLACES, true);
+        val splits_assignments = new Rail[ArrayList[Long]](Place.numPlaces(), new ArrayList[Long]());
+        val active_places = new Rail[Boolean](Place.numPlaces(), true);
         var last_end : Long = 0L;
         for (i in active_places.range()) {
             val splits = new ArrayList[Long]();
-            val num_assigned_splits = (cfg.numSplits+i)/Place.MAX_PLACES;
+            val num_assigned_splits = (cfg.numSplits+i)/Place.numPlaces();
             val start = last_end;
             val end = last_end + num_assigned_splits;
             for (split in start..(end-1)) splits.add(split);
@@ -468,12 +468,12 @@ public class MatVecMult {
                     // reassign lost splits
                     for (split in lost_splits) {
                         // find next place with
-                        while (!active_places(recover_place)) recover_place = (recover_place+1) % Place.MAX_PLACES;
+                        while (!active_places(recover_place)) recover_place = (recover_place+1) % Place.numPlaces();
                         if (cfg.verbose) {
                             Console.OUT.println("Place "+recover_place+" now gets split: "+split);
                         }
                         splits_assignments(recover_place).add(split);
-                        recover_place = (recover_place+1) % Place.MAX_PLACES;
+                        recover_place = (recover_place+1) % Place.numPlaces();
                     }
 
                     need_set_splits = true;

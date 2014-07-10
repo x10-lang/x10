@@ -104,7 +104,7 @@ public class NQueensDist {
         Console.OUT.println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();
-        val P = Place.MAX_PLACES;
+        val P = Place.numPlaces();
         val nq = new NQueensDist(n,P);
         var start:Long = -System.nanoTime();
         val answer = nq.run();

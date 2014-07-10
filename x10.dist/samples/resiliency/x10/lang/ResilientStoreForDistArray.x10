@@ -83,13 +83,13 @@ public abstract class ResilientStoreForDistArray[K,V] {
             at (here) hm().put(key, value); // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
-            var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
+            var backupPlace:Long = key.hashCode() % Place.numPlaces();
             var trial:Long;
-            for (trial = 0L; trial < Place.MAX_PLACES; trial++) {
+            for (trial = 0L; trial < Place.numPlaces(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) break; // found appropriate place
-                backupPlace = (backupPlace+1) % Place.MAX_PLACES;
+                backupPlace = (backupPlace+1) % Place.numPlaces();
             }
-            if (trial == Place.MAX_PLACES) {
+            if (trial == Place.numPlaces()) {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
@@ -114,9 +114,9 @@ public abstract class ResilientStoreForDistArray[K,V] {
                 /* falls through, check other places */
             }
             /* Try to load from another place */
-            var backupPlace:Long = key.hashCode() % Place.MAX_PLACES;
+            var backupPlace:Long = key.hashCode() % Place.numPlaces();
             var trial:Long;
-            for (trial = 0L; trial < Place.MAX_PLACES; trial++) {
+            for (trial = 0L; trial < Place.numPlaces(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
@@ -131,7 +131,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
                         /* falls through, try next place */
                     }
                 }
-                backupPlace = (backupPlace+1) % Place.MAX_PLACES;
+                backupPlace = (backupPlace+1) % Place.numPlaces();
             }
             if (verbose>=1) DEBUG(key, "no backup found, ERROR");
             if (verbose>=1) DEBUG(key, "load throwing exception");
@@ -159,7 +159,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
      *         x10 x10.lang.ResilientStoreForDistArray
      */
     public static def main(ars:Rail[String]) {
-        if (Place.MAX_PLACES < 3) throw new Exception("numPlaces should be >=3");
+        if (Place.numPlaces() < 3) throw new Exception("numPlaces should be >=3");
        
         val rs = ResilientStoreForDistArray.make[Place,Rail[String]]();
         

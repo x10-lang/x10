@@ -34,8 +34,8 @@ class ResilientKMeansDecimation {
     public static def main(args:Rail[String]) {here == Place.FIRST_PLACE} {
         val POINTS = (args.size>=1) ? Long.parseLong(args(0)) : 1000000L;
         val CLUSTERS = (args.size>=2) ? Long.parseLong(args(1)): 4L;
-        Console.OUT.println("KMeans: Abstract " + Place.MAX_PLACES*POINTS + " points in " + DIM + "D space into "
-                            + CLUSTERS + " clusters, using " + Place.MAX_PLACES + " places");
+        Console.OUT.println("KMeans: Abstract " + Place.numPlaces()*POINTS + " points in " + DIM + "D space into "
+                            + CLUSTERS + " clusters, using " + Place.numPlaces() + " places");
         
         /*
         finish for (p in Place.places()) at (p) {

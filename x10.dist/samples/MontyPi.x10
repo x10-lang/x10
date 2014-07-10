@@ -36,7 +36,7 @@ public class MontyPi {
             result
         };
         val result = DistArray.make[Double](Dist.makeUnique(), initializer);
-        val pi = 4*result.reduce((x:Double,y:Double) => x+y,0.0)/(N*Place.MAX_PLACES);
+        val pi = 4*result.reduce((x:Double,y:Double) => x+y,0.0)/(N*Place.numPlaces());
         Console.OUT.println("The value of pi is " + pi);
     }
 }

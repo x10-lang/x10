@@ -29,7 +29,7 @@ public final class UTSG {
         val m = opts("-m", 1024n);
         val verbose = opts("-v", GLBParameters.SHOW_RESULT_FLAG);
 
-        val P = Place.MAX_PLACES;
+        val P = Place.numPlaces();
 
         var z0:Int = 1n;
         var zz:Int = l;

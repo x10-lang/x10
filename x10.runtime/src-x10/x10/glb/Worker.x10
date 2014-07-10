@@ -59,7 +59,7 @@ final class Worker[Queue, R]{Queue<:TaskQueue[Queue, R]} {
     @x10.compiler.Volatile transient var waiting:Boolean = false;
     
     /* Number of places.*/
-    val P = Place.MAX_PLACES;
+    val P = Place.numPlaces();
     
     /*Context object accessible to user code, which can be used to yield.*/
     var context:Context[Queue, R];
@@ -362,7 +362,7 @@ final class Worker[Queue, R]{Queue<:TaskQueue[Queue, R]} {
     
     
     // static def stats[Queue, R](st:PlaceLocalHandle[Worker[Queue, R]], verbose:Boolean){Queue<:TaskQueue[Queue, R]} {
-    //     val P = Place.MAX_PLACES;
+    //     val P = Place.numPlaces();
     //     val logs:Rail[Logger];
     //     if (P >= 1024) {
     //         logs = new Rail[Logger](P/32, (i:Long)=>at (Place(i*32)) {
@@ -388,7 +388,7 @@ final class Worker[Queue, R]{Queue<:TaskQueue[Queue, R]} {
      * @param st PLH of Worker
      */
     static def broadcast[Queue, R](st:PlaceLocalHandle[Worker[Queue, R]]){Queue<:TaskQueue[Queue, R]} {
-        val P = Place.MAX_PLACES;
+        val P = Place.numPlaces();
         @Pragma(Pragma.FINISH_DENSE) finish {
             if (P < 256) {
                 for(var i:Long=0; i<P; i++) {
@@ -412,7 +412,7 @@ final class Worker[Queue, R]{Queue<:TaskQueue[Queue, R]} {
      * @param st: PLH of Worker
      */
     static def initContexts[Queue,R](st:PlaceLocalHandle[Worker[Queue, R]]){Queue<:TaskQueue[Queue, R]}{
-    	val P = Place.MAX_PLACES;
+    	val P = Place.numPlaces();
     	@Pragma(Pragma.FINISH_DENSE) finish {
     		if (P < 256) {
     			for(var i:Long=0; i<P; i++) {

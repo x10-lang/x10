@@ -4,7 +4,7 @@ import x10.compiler.*;
 
 public class ResilientMontePi {
 
-    static val ITERS = 1000000000l / Place.MAX_PLACES;
+    static val ITERS = 1000000000l / Place.numPlaces();
 
     public static def main (args : Rail[String]) {
 
