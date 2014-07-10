@@ -54,6 +54,9 @@
 #define X10_LIBRARY_MODE "X10_LIBRARY_MODE" // Don't use our own launcher, but instead rely on some external system.
 // don't miss X10_DEBUGGER_ID and X10_DEBUGGER_NAME over in DebugHelper.h
 
+// how many seconds to wait after the first runtime exits, before we force any remaining runtimes to die
+#define SHUTDOWN_GRACE_PERIOD 3
+
 // Enable/disable debug information
 //#define DEBUG 1
 
