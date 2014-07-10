@@ -33,7 +33,7 @@ public class AtEach {
         // all places
         // and that an activity ran in each place
         val result = disagree.reduce( (x:Int,y:Int)=>x+y ,0) == 0 &&
-            nplaces == Place.MAX_PLACES;
+            nplaces == Place.numPlaces();
         Console.OUT.println("AtEach: result = " + result);
         return result;
     }

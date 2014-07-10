@@ -55,7 +55,7 @@ public class PreCommit extends x10Test {
         // Note: precommit runs x10c tests with only 1 place due to
         //       limitations of multi-vm on windows.  Therefore can't
         //       require that all of these tests will be run.
-        if (Place.MAX_PLACES >= 2) {
+        if (Place.numPlaces() >= 2) {
             result &= myExecute(new AsyncTest3());
             result &= myExecute(new AtCopy());
 

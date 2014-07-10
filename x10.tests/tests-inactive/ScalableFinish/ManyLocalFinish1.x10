@@ -7,7 +7,7 @@ public class ManyLocalFinish1 {
             finish{
 	           var i:int = 0;
 	           for(i=0;i<1000;i++){
-		       val p = Place.place(i % Place.MAX_PLACES);
+		       val p = Place.place(i % Place.numPlaces());
 	    	   async at (p){
             		@FinishAsync(1,1,true,1)
             		finish{

@@ -7,14 +7,14 @@ public class SimpleFinish5 {
 	   val start = Timer.milliTime();
 	   finish{ 
 	   for(i=0;i<1000;i++){
-		val p1 = Place.place(i % Place.MAX_PLACES);
+		val p1 = Place.place(i % Place.numPlaces());
 	    	async at (p1){    
 		    @FinishAsync(1,1,false,2)
                     finish {
 			for(var j:int = 0; j< 500; j++){
                         	async{}
 			}
-                        for(var p:int = 0; p<Place.MAX_PLACES; p++){
+                        for(var p:int = 0; p<Place.numPlaces(); p++){
                             val p_ = p;
                             async at (Place.place(p_)){
                                 for(var pp:int = 0; pp<50; pp++){
@@ -22,7 +22,7 @@ public class SimpleFinish5 {
                                 }
                             }
                         }
-                        for(var p3:int = Place.MAX_PLACES-1; p3>=0;p3--){
+                        for(var p3:int = Place.numPlaces()-1; p3>=0;p3--){
                             val p3_ = p3;
                             async at (Place.place(p3_)){}
                         }
