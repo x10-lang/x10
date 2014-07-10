@@ -3005,7 +3005,7 @@ public class Emitter {
         
 	names = new Name[def.formalTypes().size()];
         for (int i = 0; i < def.formalTypes().size(); i++) {
-            Type f = dispatch.formalTypes().get(i);
+            Type df = dispatch.formalTypes().get(i);
             if (!first || i != 0) {
                 w.write(", ");
             }
@@ -3032,8 +3032,9 @@ public class Emitter {
                 
                 names[i] = name1;
             } else {
+                // XTENLANG-3402 : if formal parameter of dispatch method is boxed primitive, it will be passed to the actual method as boxed.
                 w.write("final ");
-                printType(f, 0);
+                printType(df, 0);
                 
                 w.write(" ");
                 
@@ -3122,10 +3123,19 @@ public class Emitter {
                     w.write(", ");
                 }
                 boolean closeParen = false;
-                if (isBoxedType(def.formalTypes().get(i).get())) {
+                Type type = def.formalTypes().get(i).get();
+                if (isBoxedType(type)) {
                     Type bf = Types.baseType(f);
                     if (!isBoxedType(f)) {
-                        closeParen = printUnboxConversion(f);
+                        Type df = dispatch.formalTypes().get(i);
+                        // XTENLANG-3402 : if formal parameter of dispatch method is boxed primitive, it will be passed to the actual method as boxed.
+                        if (isBoxedType(df)) {
+                            w.write("(");
+                            printType(f, BOX_PRIMITIVES);
+                            w.write(")");
+                        } else {
+                            closeParen = printUnboxConversion(f);
+                        }
                     } else if (!isMethodParameter(bf, mi, tr.context())) {
                         // TODO:CAST
                         w.write("(");
