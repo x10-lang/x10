@@ -15,8 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.CompilerFlags;
 
 /**
- * Representation of a place within the APGAS model.
- * 
+ * Representation of a Place within the APGAS model.
  */
 public final struct Place(
     /*
@@ -31,22 +30,30 @@ public final struct Place(
     id:Long)  {
     public property id():Long = id;
 
-    /** 
-     * The number of places including accelerators.
-     * Accelerator places have limitations on the kinds of code they can run.
-     * @deprecated : replace with Place.numAllPlaces();
+    /**
+     * The place in which the user 'main' function is run.
      */
-    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
-    @Native("c++", "((x10_long)::x10aux::num_places)")
-    public static ALL_PLACES:Long = 4;
+    public static FIRST_PLACE:Place(0) = Place(0);
+    
+    /**
+     * Special Place that encodes non-existent Places
+     */
+    public static INVALID_PLACE:Place(-1) = Place(-1);
 
-    /** 
-     * The number of places not including accelerators. 
-     * @deprecated : replace with Place.numPlaces();
+    /**
+     * The number of primary places (does not include accelerators).
+     * Invariant: Place.numPlaces() == Place.places().numPlaces().
      */
     @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
     @Native("c++", "((x10_long)::x10aux::num_hosts)")
-    public static MAX_PLACES:Long = 4;
+    public static native def numPlaces():Long;
+    
+    /** 
+     * The total number of all kinds of places (both primary and children/accelerators).
+     */
+    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
+    @Native("c++", "((x10_long)::x10aux::num_places)")
+    public static native def numAllPlaces():Long;
 
     /** 
      * The number of primary places known to be dead by the 
@@ -63,21 +70,6 @@ public final struct Place(
     @Native("c++", "x10rt_is_place_dead((x10_int)#id)")
     public static def isDead(id:Long):Boolean = false;
 
-    /** 
-     * The total number of all kinds of places (both primary and children/accelerators).
-     */
-    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)::x10aux::num_places)")
-    public static native def numAllPlaces():Long;
-
-    /**
-     * The number of primary places (does not include accelerators).
-     * Invariant: Place.numPlaces() == Place.places().numPlaces().
-     */
-    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
-    @Native("c++", "((x10_long)::x10aux::num_hosts)")
-    public static native def numPlaces():Long;
-    
     /**
      * A PlaceGroup the contains all the currently live primary Places.
      */
@@ -123,17 +115,7 @@ public final struct Place(
     } 
 
     /**
-     * The place in which the user 'main' function is run.
-     */
-    public static FIRST_PLACE:Place(0) = Place(0);
-    
-    /**
-     * Special Place that encodes non-existent Places
-     */
-    public static INVALID_PLACE:Place(-1) = Place(-1);
-
-    /**
-     * Creates a Place struct from an place id.
+     * Creates a Place struct from a place id.
      */
     public def this(id:Long):Place(id) { 
         property(id); 
@@ -141,41 +123,6 @@ public final struct Place(
             throw new IllegalArgumentException(id+" is not a valid Place id");
         }
     }
-
-    /**
-     * Returns the place with the next higher integer index.
-     */
-    public def next():Place = next(1);
-
-    /**
-     * Returns the place with the next lower integer index.
-     */
-    public def prev():Place = next(-1);
-
-    /**
-     * Returns the same place as would be obtained by using prev() 'i' times.
-     */
-    public def prev(i:Long):Place = next(-i);
-
-    /**
-     * Returns the same place as would be obtained by using next() 'i' times.
-     */
-    public def next(i:Long):Place {
-        val pt = PlaceTopology.getTopology();
-        // -1 % n == -1, not n-1, so need to add n
-        if (pt.isPrimary(Place(id))) {
-            val k = (id + i % MAX_PLACES + MAX_PLACES) % MAX_PLACES;
-            return Place(k);
-        }
-        // FIXME: iterate through peers
-        return this;
-    }
-
-    /**
-     * 
-     */
-    public def isFirst():Boolean = id == 0;
-    public def isLast():Boolean = id == MAX_PLACES - 1;
 
     /** Is this place dead? */
     public def isDead():Boolean = isDead(id);
