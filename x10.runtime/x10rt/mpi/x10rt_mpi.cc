@@ -1301,7 +1301,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
  * For example, following code may cause a deadlock:
  * \code
 
-val team = Team(new Array[Place](Place.MAX_PLACES, (i:int) => Place.places()(i)));
+val team = Team(new Rail[Place](Place.numPlaces(), (i:long) => Place(i)));
 for (p in Place.places()) async at (p) {
     if (here.id() == 0) {
         // it takes long time
