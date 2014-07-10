@@ -848,7 +848,7 @@ public class DupDenseMatrix extends Matrix {
 	// Check integrity 
 	public def syncCheck():Boolean {
 		val m = local();
-		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.numPlaces(); p++) {
 			//if (p == here.id()) Clock.advanceAll();
 			val pid = p;
 			val dm = at(dupMs.dist(pid)) local();
@@ -870,7 +870,7 @@ public class DupDenseMatrix extends Matrix {
 
 	public def allToString() : String {
 		var output:String = "Duplicated Dense Matrix size:["+M+"x"+N+"]\n";
-		for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
+		for (var p:Long=0; p<Place.numPlaces(); p++) { 
 			val pid = p;
 			val mstr = at(dupMs.dist(pid)) dupMs(pid).toString();
 			output += "Duplication at place " + pid + "\n"+mstr;

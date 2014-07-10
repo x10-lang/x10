@@ -42,7 +42,7 @@ class SummaSparseMultDenseTest {
 		K   = args.size > 2 ? Long.parse(args(2)):27;	
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist sparse*dense matrix over %d places and sparsity: %f\n", 
 							numP, nzd);
 		pA = Grid.make(M, K);
@@ -62,7 +62,7 @@ class SummaSparseMultDenseTest {
 	}
 	
 	public def testSparseMultDense():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist sparse*dense matrix over %d places and sparsity %f\n", 
 				numP, nzd);
 		val da = DistSparseMatrix.make(pA, nzd);
@@ -88,7 +88,7 @@ class SummaSparseMultDenseTest {
 	}
 	
 	public def testSparseMultDenseTrans():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA x10 dist sparse*dense^T over %d places\n", numP);
 
 		val da = DistSparseMatrix.make(M, K, nzd); 

@@ -43,7 +43,7 @@ class SummaSparseMultTest {
 		K   = args.size > 2 ? Long.parse(args(2)):17;	
 		nzd = args.size > 3 ?Double.parse(args(3)):0.5; 
 		
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist sparse matrix over %d places and sparsity: %f, %d %d %d\n", 
 							numP, nzd, M, N, K);
 		pA = Grid.make(M, K);
@@ -64,7 +64,7 @@ class SummaSparseMultTest {
 	}
 
 	public def testSparse():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist sparse matrix over %d places and sparsity %f\n", 
 							numP, nzd);
 		val da = DistSparseMatrix.make(pA, nzd);
@@ -91,7 +91,7 @@ class SummaSparseMultTest {
 	}
 	
 	public def testSparseMultTrans():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA x10 dist dense matrix multTrans over %d places\n", numP);
 		val da = DistSparseMatrix.make(M, K, nzd); 
 		da.initRandom();

@@ -68,7 +68,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
 	protected static def mpiBcast(dmlist:DataArrayPLH, dataCnt:Long):void {
 		@Ifdef("MPI_COMMU") {
 			
-			if (Place.MAX_PLACES <= 1) return;
+			if (Place.numPlaces() <= 1) return;
 			
 			val root   = here.id();
 			finish ateach([p] in WrapMPI.world.dist) {
@@ -83,7 +83,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
 	 *  Broadcast data to number of places from here
 	 */
 	protected static def x10Bcast(dmlist:DataArrayPLH, dataCnt:Long): void {
-		val pcnt = Place.MAX_PLACES;
+		val pcnt = Place.numPlaces();
 
 		if (pcnt <= 1 || dataCnt == 0L) return;
 		
@@ -180,7 +180,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
 	protected static def mpiBcast(smlist:CompArrayPLH, dataCnt:Long):void {
 		@Ifdef("MPI_COMMU") {
 			
-			if (Place.MAX_PLACES <= 1) return;
+			if (Place.numPlaces() <= 1) return;
 			
 			val root   = here.id();
 			finish ateach([p] in WrapMPI.world.dist) {
@@ -197,7 +197,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
 	 *  Broadcast compress array among the pcnt number of places followed from here
 	 */
 	protected static def x10Bcast(smlist:CompArrayPLH, dataCnt:Long): void {
-		val pcnt = Place.MAX_PLACES;
+		val pcnt = Place.numPlaces();
 		if (pcnt <= 1 || dataCnt == 0L) return;
 		
 		binaryTreeCast(smlist, dataCnt, pcnt);

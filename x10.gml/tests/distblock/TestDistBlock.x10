@@ -42,7 +42,7 @@ class TestDB {
 		
 		grid = new Grid(M, N, bM, bN);
 		dmap = DistGrid.make(grid).dmap; 
-		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.MAX_PLACES);
+		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
 	}
 
     public def run (): void {
@@ -96,7 +96,7 @@ class TestDB {
 		ret &= blkden.equals(dstblk as Matrix(blkden.M,blkden.N));
 		if (! ret) return ret;
 
-		val dmat = DistBlockMatrix.make(M, 1, bM, 1, Place.MAX_PLACES, 1).allocDenseBlocks().initRandom();
+		val dmat = DistBlockMatrix.make(M, 1, bM, 1, Place.numPlaces(), 1).allocDenseBlocks().initRandom();
 		val denm = DenseMatrix.make(M, 1);
 		
 		dmat.copyTo(denm);

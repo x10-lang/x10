@@ -39,7 +39,7 @@ public class DistSparseExample {
 			g   = Grid.make(M,N); 
 			
 			//Partition matrix in MxN into 1 row blocks
-			grow= new Grid(M, N, 1, Place.MAX_PLACES);  
+			grow= new Grid(M, N, 1, Place.numPlaces());  
 		}
  
 

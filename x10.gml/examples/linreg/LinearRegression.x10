@@ -72,12 +72,12 @@ public class LinearRegression{
 	}
 	
 	public static def make(mV:Long, nV:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long) {
-		//grid = new Grid(mV, nV, Place.MAX_PLACES, 1);
-		val V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, Place.MAX_PLACES, 1, nzd);
+		//grid = new Grid(mV, nV, Place.numPlaces(), 1);
+		val V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, Place.numPlaces(), 1, nzd);
 		val b = Vector.make(nV);
 
 		Console.OUT.printf("Start init sparse matrix V(%d,%d) blocks(%dx%d) ", mV, nV, nRowBs, nColBs);
-		Console.OUT.printf("dist(%dx%d) nzd:%f\n", Place.MAX_PLACES, 1, nzd);
+		Console.OUT.printf("dist(%dx%d) nzd:%f\n", Place.numPlaces(), 1, nzd);
 		V.initRandom();
 
 		Debug.flushln("Done. Start init other matrices, b, r, p, q, and w");		

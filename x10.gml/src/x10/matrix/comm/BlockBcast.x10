@@ -150,7 +150,7 @@ public class BlockBcast extends BlockRemoteCopy {
 			};
 		} else {
 			val rtblk = distBS().findBlock(rootbid);
-			if (Place.MAX_PLACES > 1) {
+			if (Place.numPlaces() > 1) {
 				datcnt = compBlockDataSize(distBS, rootbid, colOff, colCnt);
 				if (datcnt == 0L) return 0L;
 				if (rtblk.isSparse()) {
@@ -179,7 +179,7 @@ public class BlockBcast extends BlockRemoteCopy {
 				val sttpl = 0;
 				copyCastToBranch(distBS, srcblk, colOff, colCnt, datcnt, sttpl, plcnt);
 			}
-			val plcnt = Place.MAX_PLACES-here.id();
+			val plcnt = Place.numPlaces()-here.id();
 			if (plcnt > 1 ) async {
 				castToBranch(distBS, srcblk, colOff, colCnt, datcnt, plcnt);
 			}
@@ -261,7 +261,7 @@ public class BlockBcast extends BlockRemoteCopy {
 	// 		//Remote block set update
 	// 		val bset = distBS();
 	// 		val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
-	// 		if (blk.isSparse() && Place.MAX_PLACES > 1) {
+	// 		if (blk.isSparse() && Place.numPlaces() > 1) {
 	// 			val spa = blk.getMatrix() as SparseCSC;
 	// 			if (here.id() != rootpid)
 	// 				spa.finalizeRemoteCopyAtDest();

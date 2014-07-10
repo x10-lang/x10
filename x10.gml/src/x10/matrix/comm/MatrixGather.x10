@@ -345,7 +345,7 @@ public class MatrixGather {
 	// Gather block size 
 	protected static def mpiGatherSize(src:DistArray[SparseBlock](1)):Rail[Long] {
 		val root = here.id();
-		val rcvbuf = new Rail[Long](Place.MAX_PLACES);
+		val rcvbuf = new Rail[Long](Place.numPlaces());
 
 		@Ifdef("MPI_COMMU") {
 		//Collecting size
@@ -367,7 +367,7 @@ public class MatrixGather {
 				// MPI prrocess will hang
 				val srcspa = src(root).getMatrix();
 				val datasz = new Rail[Long](1, srcspa.getNonZeroCount());
-				val rcvcnt = new Rail[Long](Place.MAX_PLACES, 1L);
+				val rcvcnt = new Rail[Long](Place.numPlaces(), 1L);
 				WrapMPI.world.gatherv(datasz, 0, 1, rcvbuf, 0, rcvcnt, root);
 			}
 		}

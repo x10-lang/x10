@@ -54,16 +54,16 @@ class RunDistDupMult {
 		nzd =  args.size > 6 ?Double.parse(args(6)):0.99;
 		
 		gA = new Grid(M, K, bM, bK);
-		dA = (new DistGrid(gA, Place.MAX_PLACES, 1)).dmap;		
+		dA = (new DistGrid(gA, Place.numPlaces(), 1)).dmap;		
 
 		gTransA = new Grid(K, M, bK, bM);
-		dTransA = (new DistGrid(gTransA, 1, Place.MAX_PLACES)).dmap;
+		dTransA = (new DistGrid(gTransA, 1, Place.numPlaces())).dmap;
 		
 		gB = new Grid(K, N, bK, bN);
 		gTransB = new Grid(N, K, bN, bK);
 		
 		gC = new Grid(M, N, bM, bN);
-		dC = (new DistGrid(gC, Place.MAX_PLACES, 1)).dmap;
+		dC = (new DistGrid(gC, Place.numPlaces(), 1)).dmap;
 		dTransC = DistGrid.makeHorizontal(gC).dmap;
 	}
 
@@ -91,7 +91,7 @@ class RunDistDupMult {
 		//This is not best way to create dist block matrix. 
 		//Partition gA and distribution dA are remotely captured to all places
 		val A = DistBlockMatrix.makeDense(gA, dA) as DistBlockMatrix(M,K);
-		//val A = DistBlockMatrix.make(M, K, bM, bK, 1, Place.MAX_PLACES);
+		//val A = DistBlockMatrix.make(M, K, bM, bK, 1, Place.numPlaces());
 
 		//val B = DistBlockMatrix.makeSparse(gB, dB, nzd) as DistBlockMatrix(K,N);
 		val B = DupBlockMatrix.makeDense(gB) as DupBlockMatrix(K,N);
@@ -120,9 +120,9 @@ class RunDistDupMult {
 		var ret:Boolean = true;
 		Console.OUT.println("Starting Dist-Dup block matrix trans-multiply test (transpose 1st operand)");
 		
-		val A = DistBlockMatrix.makeDense(K, M, bK, bM, 1, Place.MAX_PLACES);
+		val A = DistBlockMatrix.makeDense(K, M, bK, bM, 1, Place.numPlaces());
 		val B = DupBlockMatrix.makeDense(K, N, bK, bN);
-		val C = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1) as DistBlockMatrix(M,N);
+		val C = DistBlockMatrix.makeDense(M, N, bM, bN, Place.numPlaces(), 1) as DistBlockMatrix(M,N);
 		
 		A.init((r:Long,c:Long)=>1.0*(r+c));
 		B.init((r:Long,c:Long)=>1.0*(r+c));

@@ -48,7 +48,7 @@ public class DistDistToDup{
 	val dupP:DupVector(M);
 	
     public def this(m:Long, b:Long, nnz:Double, i:Long, v:Long) {
-    	val pN = Place.MAX_PLACES;
+    	val pN = Place.numPlaces();
     	M=m;
     	it = i; vrf=v;
     	bN = b<0?pN:b;

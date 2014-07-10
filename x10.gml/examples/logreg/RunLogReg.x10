@@ -33,7 +33,7 @@ public class RunLogReg {
 		if ((mX<=0) ||(nX<=0) ||(tV<0))
 			Console.OUT.println("Error in settings");
 		else {
-			val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, mB, nB, Place.MAX_PLACES, 1, nzd);
+			val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, mB, nB, Place.numPlaces(), 1, nzd);
 			val y:Vector(X.M) = Vector.make(X.M);
 			val w:Vector(X.N) = Vector.make(X.N);
 			

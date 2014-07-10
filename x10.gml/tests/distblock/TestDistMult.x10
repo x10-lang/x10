@@ -59,11 +59,11 @@ class RunDistBlockMatrix {
 		gTransA = new Grid(K, M, bK, bM);
 		gTransB = new Grid(N, K, bN, bK);
 		
-		dA = (new DistGrid(gA, 1, Place.MAX_PLACES)).dmap;
-		dB = (new DistGrid(gB, Place.MAX_PLACES, 1)).dmap;
+		dA = (new DistGrid(gA, 1, Place.numPlaces())).dmap;
+		dB = (new DistGrid(gB, Place.numPlaces(), 1)).dmap;
 		
-		dTransA = (new DistGrid(gTransA, Place.MAX_PLACES, 1)).dmap;
-		dTransB = (new DistGrid(gTransB, 1, Place.MAX_PLACES)).dmap;
+		dTransA = (new DistGrid(gTransA, Place.numPlaces(), 1)).dmap;
+		dTransB = (new DistGrid(gTransB, 1, Place.numPlaces())).dmap;
 	}
 
     public def run (): void {

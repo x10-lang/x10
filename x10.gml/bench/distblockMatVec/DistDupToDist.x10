@@ -47,7 +47,7 @@ public class DistDupToDist{
 	val P:Vector(M);
 	
     public def this(m:Long, b:Long, nnz:Double, i:Long, v:Long) {
-    	val pM = Place.MAX_PLACES;
+    	val pM = Place.numPlaces();
     	M=m;
     	it = i; vrf=v;
     	bM = b<0?pM:b;

@@ -60,8 +60,8 @@ class RunSummaExample {
 		nzd = args.size > 5 ?Double.parse(args(5)):1.0;
 		vrf = args.size > 6 ?true:false;
 
-		pM = MathTool.sqrt(Place.MAX_PLACES); // number of row-wise places
-		pN = Place.MAX_PLACES/pM;             // number of column-wise places
+		pM = MathTool.sqrt(Place.numPlaces()); // number of row-wise places
+		pN = Place.numPlaces()/pM;             // number of column-wise places
 		
 	}
 
@@ -190,12 +190,12 @@ class RunSummaExample {
 		val gB = new Grid(K, N, bM, bN);
 		val gC = new Grid(M, N, bM, bN);
 		//Block distribution
-		val dmap = DistMap.makeCylic(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
 		
 		Console.OUT.println("Starting SUMMA on multiply dense block Matrix example using cylic distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("cylic distribution in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gB, dmap).initRandom();
@@ -224,12 +224,12 @@ class RunSummaExample {
 		val gBt = new Grid(N, K, bM, bN);
 		val gC = new Grid(M, N, bM, bN);
 		//Block distribution
-		val dmap = DistMap.makeCylic(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
 		
 		Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix example using cylic distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("cylic distribution in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gBt, dmap).initRandom() as DistBlockMatrix{self.N==a.N};
@@ -260,12 +260,12 @@ class RunSummaExample {
 		val gB = new Grid(K, N, bM, bN);
 		val gC = new Grid(M, N, bM, bN);
 		//Block distribution
-		val dmap = DistMap.makeRandom(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeRandom(bM*bN, Place.numPlaces());
 		
 		Console.OUT.println("Starting SUMMA on mult dense block Matrix example using random distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("randomly distributed in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("randomly distributed in %d places\n", Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gB, dmap).initRandom() as DistBlockMatrix(a.N);
@@ -294,12 +294,12 @@ class RunSummaExample {
 		val gBt = new Grid(N, K, bM, bN);
 		val gC = new Grid(M, N, bM, bN);
 		//Block distribution
-		val dmap = DistMap.makeRandom(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeRandom(bM*bN, Place.numPlaces());
 
 		Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix example using random distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("randomly distributed in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("randomly distributed in %d places\n", Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gBt, dmap).initRandom() as DistBlockMatrix{self.N==a.N};

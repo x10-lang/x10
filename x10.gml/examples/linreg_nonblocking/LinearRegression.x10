@@ -49,7 +49,7 @@ public class LinearRegression{
 	public var commT:Long;
 	
 	public def this(mV:Long, nV:Long, nzd:Double, it:Long) {
-		grid = new Grid(mV, nV, Place.MAX_PLACES, 1);
+		grid = new Grid(mV, nV, Place.numPlaces(), 1);
 		V = DistSparseMatrix.make(grid, nzd);
 		b = DenseMatrix.make(nV, 1L);
 		//V.printBlockMemAlloc(); 
@@ -63,7 +63,7 @@ public class LinearRegression{
 		
 		iteration = it;
 		lambda = 0.000001;
-		Vp = DistDenseMatrix.make(new Grid(V.M, 1L, Place.MAX_PLACES, 1L));
+		Vp = DistDenseMatrix.make(new Grid(V.M, 1L, Place.numPlaces(), 1L));
 		
 		r  = DenseMatrix.make(V.N, 1L);
 		d_p= DupDenseMatrix.make(V.N, 1L);

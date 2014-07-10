@@ -38,7 +38,7 @@ public class BlockGrid{
 	 * @param  g     the partitioning blocks
 	 * @return       the map of block IDs to place IDs.
 	 */
-	public static def make(g:Grid) = make(g, Math.sqrt(Place.MAX_PLACES) as Long, Place.MAX_PLACES);
+	public static def make(g:Grid) = make(g, Math.sqrt(Place.numPlaces()) as Long, Place.numPlaces());
 	
 	/**
 	 * Partition all blocks into clusters, in the same way as matrix is partitioned to blocks.
@@ -51,7 +51,7 @@ public class BlockGrid{
 	public static def make(matgrid:Grid, maxRowClusters:Long, totalClusters:Long):BlockGrid {
 		val nbs   = matgrid.size;
 		val sqmap = DistMap.make(nbs);		
-		val nps   = Place.MAX_PLACES;
+		val nps   = Place.numPlaces();
 		Debug.assure(totalClusters <= nps, 
 				"Partitioning blocks error - too many clusters :"+totalClusters+" cannot be bigger than total places "+nps);
 		
@@ -81,11 +81,11 @@ public class BlockGrid{
 	/**
 	 * Partition blocks into (1, num_places) clusters among all places for the given matrix partitioning.
 	 */
-	public static def makeHorizon(g:Grid) = make(g, 1, Place.MAX_PLACES);
+	public static def makeHorizon(g:Grid) = make(g, 1, Place.numPlaces());
 	
 
 	/**
 	 * Partition blocks into (num_places, 1) clusters among all places for the given matrix partitioning.
 	 */
-	public static def makeVertical(g:Grid) = make(g, Place.MAX_PLACES, Place.MAX_PLACES);
+	public static def makeVertical(g:Grid) = make(g, Place.numPlaces(), Place.numPlaces());
 }

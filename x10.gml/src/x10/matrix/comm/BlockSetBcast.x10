@@ -159,7 +159,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				x10Bcast(distBS, rootpid)
 			};
 		} else {
-			if (Place.MAX_PLACES > 1) {
+			if (Place.numPlaces() > 1) {
 				val itr=distBS().iterator();
 				while (itr.hasNext()) {
 					val blk = itr.next();
@@ -187,7 +187,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				val sttpl = 0;
 				copyCastToBranch(distBS, srcblk, datcnt, sttpl, plcnt);
 			}
-			val plcnt = Place.MAX_PLACES-here.id();
+			val plcnt = Place.numPlaces()-here.id();
 			if (plcnt > 1 ) async {
 				castToBranch(distBS, srcblk, datcnt, plcnt);
 			}

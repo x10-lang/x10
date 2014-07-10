@@ -44,7 +44,7 @@ class TestArrayCommu {
 	public val iter:Long;
 	public val M:Long;
 
-	public val nplace:Long = Place.MAX_PLACES;
+	public val nplace:Long = Place.numPlaces();
 	public val segt:Rail[Long];
 	
 	public var syncTime:Long = 0;
@@ -64,7 +64,7 @@ class TestArrayCommu {
 	
 	public val szlist:Rail[Long];
 	
-	public val checkTime = new Rail[Long](Place.MAX_PLACES);
+	public val checkTime = new Rail[Long](Place.numPlaces());
 	
 	public def this(args:Rail[String]) {
 		val m = args.size > 0 ? Long.parse(args(0)):1024;

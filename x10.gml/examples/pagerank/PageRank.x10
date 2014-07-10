@@ -31,7 +31,7 @@ import x10.matrix.distblock.DistBlockMatrix;
  * <p> 4) Iterations
  * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
- * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
+ * are distributed to (Place.numPlaces(), 1) places, or vertical distribution.
  * <p>[g_(0,0),           g_(0,1),           ..., g(0,numColBsG-1)]
  * <p>[g_(1,0),           g_(1,1),           ..., g(1,numColBsG-1)]
  * <p>......
@@ -77,7 +77,7 @@ public class PageRank {
 
 	public static def make(gN:Long, nzd:Double, it:Long, numRowBs:Long, numColBs:Long) {
 		//---- Distribution---
-		val numRowPs = Place.MAX_PLACES;
+		val numRowPs = Place.numPlaces();
 		val numColPs = 1;
 		
 		val g = DistBlockMatrix.makeSparse(gN, gN, numRowBs, numColBs, numRowPs, numColPs, nzd);
@@ -152,7 +152,7 @@ public class PageRank {
 		Console.OUT.printf("Input Matrix G:(%dx%d), partition:(%dx%d) blocks, ",
 				G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
 		Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 
-				Place.MAX_PLACES, 1,  nzd, nzc);
+				Place.numPlaces(), 1,  nzd, nzc);
 
 		Console.OUT.printf("Input duplicated vector P(%d), duplicated in all places\n", P.M);
 

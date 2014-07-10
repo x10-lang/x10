@@ -40,7 +40,7 @@ class SummaMultTest {
 		N = args.size > 1 ? Long.parse(args(1)):23;
 		K = args.size > 2 ? Long.parse(args(2)):25;	
 		
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist dense matrix over %d places\n", numP);
 		pA = Grid.make(M, K);
 		pB = Grid.make(K, N);
@@ -64,7 +64,7 @@ class SummaMultTest {
 
 	//This method only works for native C++ and MPI transport
 	public def testMPI():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest C-SUMMA dist dense matrix MPI over %d places\n", numP);
 		val da = DistDenseMatrix.make(pA);
 		da.initRandom();
@@ -89,7 +89,7 @@ class SummaMultTest {
 
 	//This method only works for native C++ and MPI transport
 	public def testMultTransMPI():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA C-MPI dist dense matrix multTrans MPI over %d places\n", numP);
 		val da = DistDenseMatrix.make(M, K);
 		da.initRandom();
@@ -114,7 +114,7 @@ class SummaMultTest {
 	}	
 
 	public def testDenseMult():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist dense matrix over %d places\n", numP);
 		val da = DistDenseMatrix.make(pA);
 		da.initRandom();
@@ -139,7 +139,7 @@ class SummaMultTest {
 	}
 
 	public def testDenseMultTrans():Boolean {
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest SUMMA dist dense matrix multTrans over %d places\n", numP);
 		val da = DistDenseMatrix.make(M, K);
 		da.initRandom();

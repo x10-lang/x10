@@ -299,7 +299,7 @@ public class SummaDense {
             mapBsPs:DistArray[Rail[Long]](1),
             work1:DistArray[DenseMatrix](1)): void {
         
-        finish for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
+        finish for (var p:Long=0; p<Place.numPlaces(); p++) { 
             val myColId = dA.grid.getColBlockId(p);
             if (myColId == itCol) {
                 at(dA.distBs.dist(p)) async {
@@ -328,7 +328,7 @@ public class SummaDense {
             mapBsPs:DistArray[Rail[Long]](1),
             work2:DistArray[DenseMatrix](1)):void {
         
-        finish for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
+        finish for (var p:Long=0; p<Place.numPlaces(); p++) { 
             val myRowId = dB.grid.getRowBlockId(p);
             // Broadcast to all column blocks
             if (myRowId == itRow) {
@@ -423,7 +423,7 @@ public class SummaDense {
             work1:DistArray[DenseMatrix](1),
             tmpwk:DistArray[DenseMatrix](1)): void {
         
-        finish for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+        finish for (var p:Long=0; p<Place.numPlaces(); p++) {
             val myRowId  = dC.grid.getRowBlockId(p);
             val root_pid = dC.grid.getBlockId(myRowId, itCol);
             if (p == root_pid) {
@@ -502,7 +502,7 @@ public class SummaDense {
 			work2:DistArray[DenseMatrix](1),
 			tmpwk:DistArray[DenseMatrix](1)): void {
 		
-		finish for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+		finish for (var p:Long=0; p<Place.numPlaces(); p++) {
 			val pid = p;
 			val myColId  = dC.grid.getColBlockId(p);
 			val root_pid = dC.grid.getBlockId(itRow, myColId);

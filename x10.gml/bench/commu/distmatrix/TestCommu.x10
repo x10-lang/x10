@@ -46,7 +46,7 @@ class TestDistMatrixCommu {
 	public val iter:Long;
 	public val M:Long;
 
-	public val nplace:Long = Place.MAX_PLACES;
+	public val nplace:Long = Place.numPlaces();
 	public val segt:Rail[Long];
 	
 	public var syncTime:Long = 0;

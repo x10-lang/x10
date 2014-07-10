@@ -57,12 +57,12 @@ public class LogisticRegression {
 					it:Long, nit:Long) {
 		X=x_; y=y_ as DenseMatrix(X.M, 1);	w=w_ as DenseMatrix(X.N, 1);
 		
-		prt_y = new Grid(X.M, 1, Place.MAX_PLACES, 1);
+		prt_y = new Grid(X.M, 1, Place.numPlaces(), 1);
 		dst_y  = DistDenseMatrix.make(prt_y) as DistDenseMatrix(X.M, 1);
 		dup_w  = DupDenseMatrix.make(X.N, 1);
 		//dup_w_ = DupDenseMatrix.make(X.N,1);
 		
-		prt_ty = new Grid(1, X.M, 1, Place.MAX_PLACES);
+		prt_ty = new Grid(1, X.M, 1, Place.numPlaces());
 		dst_ty = DistDenseMatrix.make(prt_ty) as DistDenseMatrix(1, X.M);
 
 		tmp_w  = DenseMatrix.make(X.N,1);

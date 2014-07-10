@@ -39,7 +39,7 @@ class TestArrayP2PCopy {
 	public val M:Long;
 	public val N:Long;
 
-	public val np:Int = Place.MAX_PLACES;
+	public val np:Int = Place.numPlaces();
 	public val checkTime:Array[Long](1);
 
 

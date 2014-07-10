@@ -57,7 +57,7 @@ class DVMultColwise {
 		M=m;
 		it = i; vrf=v;
 		
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("\nTest Dist sparse mult dist dense over %d places\n", numP);
 		
 		partA = new Grid(M, M, 1, numP);

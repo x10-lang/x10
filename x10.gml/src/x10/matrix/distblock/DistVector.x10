@@ -53,7 +53,7 @@ public class DistVector(M:Long) {
         return new DistVector(m, hdv, slst) as DistVector(m);
     }
     
-    public static def make(m:Long) = make (m, Place.MAX_PLACES);
+    public static def make(m:Long) = make (m, Place.numPlaces());
 
     public static def make(m:Long, segsz:Rail[Long]):DistVector(m) {
         val hdv = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(segsz(here.id())));
@@ -300,7 +300,7 @@ public class DistVector(M:Long) {
         
     public def equals(dv:DistVector(this.M)):Boolean {
         var ret:Boolean = true;
-        for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+        for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
             val pid = p;
             ret &= at(Place(pid)) {
                 val srcv = distV();
@@ -322,7 +322,7 @@ public class DistVector(M:Long) {
     
     public def equals(dval:Double):Boolean {
         var ret:Boolean = true;
-        for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+        for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
             val pid = p;
             ret &= at(Place(pid)) distV().equals(dval);
         }

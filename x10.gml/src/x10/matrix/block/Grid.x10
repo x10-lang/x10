@@ -218,7 +218,7 @@ public class Grid(M:Long, N:Long, numRowBlocks:Long, numColBlocks:Long) {
 	 * This method creates a squared or close to squared partitioning.
 	 */
 	public static def make(m:Long, n:Long) =
-		makeMaxRow(m, n, Math.sqrt(Place.MAX_PLACES) as Long, Place.MAX_PLACES); 
+		makeMaxRow(m, n, Math.sqrt(Place.numPlaces()) as Long, Place.numPlaces()); 
 
 	public static def make(rbs:Long, cbs:Long, 
 			rowPartFunc:(Long)=>Long, colPartFunc:(Long)=>Long) {

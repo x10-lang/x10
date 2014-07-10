@@ -60,7 +60,7 @@ public class VecMatMult {
 	
 	public def demoDistDistMult() {
 		Console.OUT.println("Starting DistVector * DistBlockMatrix -> DupVector demo, matrix has vertical dist");
-		val pM = Place.MAX_PLACES, pN= 1;//Vertical distribution
+		val pM = Place.numPlaces(), pN= 1;//Vertical distribution
 
 		val vA = DistVector.make(M, pM).initRandom();
 		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN).initRandom();
@@ -83,7 +83,7 @@ public class VecMatMult {
 
 	public def demoDupDistMult() : Boolean {
 		Console.OUT.println("Starting DupVector * DistBlockMatrix -> DistVector, matrix has horizontal dist");
-		val pM = 1, pN=Place.MAX_PLACES; //Horizontal distribution
+		val pM = 1, pN=Place.numPlaces(); //Horizontal distribution
 
 		val vA = DupVector.make(M).initRandom();
 		val gPart = new Grid(M, N, bM, bN); //May not be balanced when dist over (pM x pN) places;
@@ -108,8 +108,8 @@ public class VecMatMult {
 
 
 	public def demoDupDistDupMult():Boolean{
-		val pM:Long = MathTool.sqrt(Place.MAX_PLACES);
-		val pN:Long = Place.MAX_PLACES / pM;
+		val pM:Long = MathTool.sqrt(Place.numPlaces());
+		val pN:Long = Place.numPlaces() / pM;
 		
 		Console.OUT.printf("Starting DupVector += DupVector * DistBlockMatrix, matrix is dist over %dx%d places\n", pM, pN);
 		val vA = DupVector.make(M).initRandom();

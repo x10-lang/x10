@@ -51,8 +51,8 @@ public class PageRank {
 		iterations = it;
 		nzDensity=nzd;
 
-		gridG = new Grid(rowG, rowG, Place.MAX_PLACES, 1);
-		gridGP= new Grid(rowG, colP, Place.MAX_PLACES, 1);
+		gridG = new Grid(rowG, rowG, Place.numPlaces(), 1);
+		gridGP= new Grid(rowG, colP, Place.numPlaces(), 1);
 
 		G = DistSparseMatrix.make(gridG, nzDensity) as DistSparseMatrix(rowG, rowG);
 		P = DupDenseMatrix.make(rowG, colP);
@@ -118,7 +118,7 @@ public class PageRank {
 
 	public def printInfo() {
 		Console.OUT.printf("Place: %d, G:(%dx%d) P:(%dx%d))", 
-						   Place.MAX_PLACES, G.M, G.N, P.M, P.N);
+						   Place.numPlaces(), G.M, G.N, P.M, P.N);
 		Console.OUT.printf("distG(%dx%d)  nzDensity:%.3f\n",
 						   gridG.numRowBlocks, gridG.numColBlocks, nzDensity);
 		Console.OUT.flush();

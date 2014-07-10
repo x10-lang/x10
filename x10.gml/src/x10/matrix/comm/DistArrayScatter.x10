@@ -183,7 +183,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 			src:Rail[Rail[Double]], 
 			dst:DataArrayPLH) : void {
 		
-		val nb = Place.MAX_PLACES;
+		val nb = Place.numPlaces();
 		Debug.assure(nb==src.size, 
 		"Number blocks in dist and local array mismatch");
 		
@@ -215,7 +215,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 			dst:DataArrayPLH, 
 			gp:Rail[Long]): void {
 
-		Debug.assure(gp.size == Place.MAX_PLACES);
+		Debug.assure(gp.size == Place.numPlaces());
 
 		@Ifdef("MPI_COMMU") {
 			mpiScatter(src, dst, gp);

@@ -42,7 +42,7 @@ class SymTest {
 
 	public def testDense():Boolean{
 		Console.OUT.println("Dist symmetric dense init test");
-		val nblk = Place.MAX_PLACES;
+		val nblk = Place.numPlaces();
 		val dbld = DistSymMatrixBuilder.make(M, nblk);
 		val dmat = dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
@@ -56,7 +56,7 @@ class SymTest {
 
 	public def testSparse():Boolean{
 		Console.OUT.println("Dist symmetric sparse random initialization method test");
-		val nblk = Place.MAX_PLACES;
+		val nblk = Place.numPlaces();
 		val sbld = DistSymMatrixBuilder.make(M, nblk);
 		val dspa = sbld.allocAllSparseBlocks(nzd).initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 

@@ -107,7 +107,7 @@ public class DistBlockMatrix extends Matrix {
 	public static def make(m:Long, n:Long, 
 			rowBs:Long, colBs:Long, 
 			rowPs:Long, colPs:Long):DistBlockMatrix(m,n) {
-		Debug.assure(rowPs*colPs==Place.MAX_PLACES, "Block partitioning error");
+		Debug.assure(rowPs*colPs==Place.numPlaces(), "Block partitioning error");
 		val blks = PlaceLocalHandle.make[BlockSet](Place.places(), 
 				()=>(BlockSet.make(m,n,rowBs,colBs,rowPs,colPs)));
 		val gdist = new DistGrid(blks().getGrid(), rowPs, colPs);
@@ -127,8 +127,8 @@ public class DistBlockMatrix extends Matrix {
 	 * @return DistBlockMatrix instance without memory allocation for matrix data
 	 */
 	public static def make(m:Long, n:Long, rowBs:Long, colBs:Long):DistBlockMatrix(m,n) {
-		val colPs:Long = MathTool.sqrt(Place.MAX_PLACES);//Math.sqrt(Place.MAX_PLACES) as Int;
-		val rowPs = Place.MAX_PLACES / colPs;
+		val colPs:Long = MathTool.sqrt(Place.numPlaces());//Math.sqrt(Place.numPlaces()) as Int;
+		val rowPs = Place.numPlaces() / colPs;
 		return make(m, n, rowBs, colBs, rowPs, colPs);
 	}
 	
@@ -139,8 +139,8 @@ public class DistBlockMatrix extends Matrix {
 	 * @return DistBlockMatrix instance
 	 */
 	public static def make(m:Long, n:Long):DistBlockMatrix(m,n) {
-		val colBs = MathTool.sqrt(Place.MAX_PLACES);
-		val rowBs = Place.MAX_PLACES / colBs;
+		val colBs = MathTool.sqrt(Place.numPlaces());
+		val rowBs = Place.numPlaces() / colBs;
 		return make(m, n, rowBs, colBs, rowBs, colBs);
 	}
 	
@@ -732,7 +732,7 @@ public class DistBlockMatrix extends Matrix {
 	
 	public def getAllDataCount():Long {
 		var tt:Long = 0;
-		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.numPlaces(); p++) {
 			val ds = at(Place(p)) handleBS().getAllBlocksDataCount();
 			tt += ds;
 		}
@@ -799,7 +799,7 @@ public class DistBlockMatrix extends Matrix {
 	public def checkAllBlocksEqual() : Boolean {
 		val rtmat:Matrix = handleBS().getFirst().getMatrix();
 		var retval:Boolean = true;
-		for (var p:Long=0 ; p<Place.MAX_PLACES && retval; p++) {
+		for (var p:Long=0 ; p<Place.numPlaces() && retval; p++) {
 			//Debug.flushln("Check block local sync at "+p);
 			if (here.id() != p) {
 				retval &= at(Place(p)) {

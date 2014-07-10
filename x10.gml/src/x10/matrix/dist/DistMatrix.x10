@@ -79,7 +79,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         property(g);
         dist   = Dist.makeUnique();
         distBs = DistArray.make[MatrixBlock](dist);
-        //Debug.assure(g.size==Place.MAX_PLACES, 
+        //Debug.assure(g.size==Place.numPlaces(), 
         //             "Partition blocks cannot have unique distribution among all places");
     }
 
@@ -103,7 +103,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  n      number of columns
      */    
     public static def makeDense(m:Long, n:Long) : DistMatrix(m, n) {
-        val g =  Grid.make(m, n, Place.MAX_PLACES);
+        val g =  Grid.make(m, n, Place.numPlaces());
         return makeDense(g);
     }
 
@@ -138,7 +138,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @return
      */    
     public static def makeSparse(m:Long, n:Long, nzd:Double) : DistMatrix(m, n) {
-        val g =  Grid.make(m, n, Place.MAX_PLACES);
+        val g =  Grid.make(m, n, Place.numPlaces());
         return makeSparse(g, nzd);
     }
 

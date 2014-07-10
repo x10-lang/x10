@@ -47,7 +47,7 @@ class BuilderTest {
 	public def testInit():Boolean{
 		var ret:Boolean = true;
 		Console.OUT.println("Starting dist matrix builder");
-		val nblk = Place.MAX_PLACES;
+		val nblk = Place.numPlaces();
 		val dmat = DistBlockMatrix.make(M,M, nblk, nblk); 
 		val dbld = new DistMatrixBuilder(dmat);
 		dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c);

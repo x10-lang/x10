@@ -623,7 +623,7 @@ public class DupBlockMatrix extends Matrix {
 	public def checkSync():Boolean {
 		val rootmat  = local();
 		var retval:Boolean = true;
-		for (var p:Long=0; p < Place.MAX_PLACES && retval; p++) {
+		for (var p:Long=0; p < Place.numPlaces() && retval; p++) {
 			val blkitr = handleDB().iterator();
 			while (blkitr.hasNext() && retval) {
 				val blk = blkitr.next();

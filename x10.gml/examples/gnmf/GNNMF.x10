@@ -34,7 +34,7 @@ import x10.matrix.distblock.DupBlockMatrix;
  * <p>......
  * <p>[v_(rowBsV-1,0), v_(rowBsV-1,1), ..., v(rowBsV-1,colBsV-1)]
  * <p>
- * All rowBsV &#42 colBsV blocks are distributed to (Place.MAX_PLACES &#42 1) 
+ * All rowBsV &#42 colBsV blocks are distributed to (Place.numPlaces() &#42 1) 
  * places, or in vertical distribution.
  * 
  * <p>
@@ -46,7 +46,7 @@ import x10.matrix.distblock.DupBlockMatrix;
  * <p>[w_(rowBsV-1,0), w_(rowBsV,1), ..., w(rowBsV-1,colBsW-1)]
  * <p>
  * <p>Matrix W is partitioned in the same way as V row-wise. 
- * All numRowBsV &#42 numColBsW blocks in W are distributed to (Place.MAX_PLACES &#42 1) places, 
+ * All numRowBsV &#42 numColBsW blocks in W are distributed to (Place.numPlaces() &#42 1) places, 
  * or vertical distribution.
  * 
  * <p>
@@ -90,7 +90,7 @@ public class GNNMF {
 		val gV = V.getGrid();
 		val gW = W.getGrid();
 		val gH = h.getGrid();
-		val rowPls = Place.MAX_PLACES;
+		val rowPls = Place.numPlaces();
 		val colPls = 1;
 
 		//This has least overhead in creating matrix, but not compatible if W, V,and H are created in a different way
@@ -131,7 +131,7 @@ public class GNNMF {
 		//Preset parameters
 		val wColBs = 1;
 		//Vertical distribution
-		val rowPls = Place.MAX_PLACES;
+		val rowPls = Place.numPlaces();
 		val colPls = 1;
 		//------Input matrix data allocation------
 		Debug.flushln("Start creating input-output matrix and memory allocation");		

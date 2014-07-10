@@ -36,7 +36,7 @@ public class DistPConsole {
 
 	public def getAllStream():String {
 		var ostream:String = "";
-		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.numPlaces(); p++) {
 			val pid = p;
 			val pp:Point(pconsole.dist.region.rank) = Point.make(p);
 			ostream += at(pconsole.dist(pp)) pconsole(pid).getOutStream(true);
@@ -51,7 +51,7 @@ public class DistPConsole {
 	}
 
 	public def fflush() {
-		for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+		for (var p:Long=0; p<Place.numPlaces(); p++) {
 			val pid = p;
 			val pp:Point(pconsole.dist.region.rank) = Point.make(p);
 			at(pconsole.dist(pp)) {

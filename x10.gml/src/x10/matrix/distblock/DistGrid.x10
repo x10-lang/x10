@@ -85,7 +85,7 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
      * @param  g     the partitioning blocks
      * @return       the map of block IDs to place IDs.
      */
-    public static def make(g:Grid) = makeMaxRow(g, Math.sqrt(Place.MAX_PLACES) as Long, Place.MAX_PLACES);
+    public static def make(g:Grid) = makeMaxRow(g, Math.sqrt(Place.numPlaces()) as Long, Place.numPlaces());
         
     
     /**
@@ -114,9 +114,9 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
         return new DistGrid(matgrid, rowPs, colPs);
     }
     
-    public static def makeHorizontal(g:Grid) = makeMaxRow(g, 1, Place.MAX_PLACES);
+    public static def makeHorizontal(g:Grid) = makeMaxRow(g, 1, Place.numPlaces());
     
-    public static def makeVertical(g:Grid) = makeMaxRow(g, Place.MAX_PLACES, Place.MAX_PLACES);
+    public static def makeVertical(g:Grid) = makeMaxRow(g, Place.numPlaces(), Place.numPlaces());
 
     public static def isHorizontal(g:Grid, dmap:DistMap):Boolean {
         for (var c:Long=0; c<g.numColBlocks; c++) {

@@ -186,9 +186,9 @@ class TestRunSumma {
 		Console.OUT.println("Starting SUMMA on multiply dense block Matrix test using cylic distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("cylic distribution in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
 		var ret:Boolean = true;
-		val dmap = DistMap.makeCylic(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gB, dmap).initRandom();
@@ -211,9 +211,9 @@ class TestRunSumma {
 		Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix test using cylic distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("cylic distribution in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
 		var ret:Boolean = true;
-		val dmap = DistMap.makeCylic(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gTransB, dmap).initRandom() as DistBlockMatrix{self.N==a.N};
@@ -237,9 +237,9 @@ class TestRunSumma {
 		Console.OUT.println("Starting SUMMA on mult dense block Matrix test using random distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("randomly distributed in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("randomly distributed in %d places\n", Place.numPlaces());
 		var ret:Boolean = true;
-		val dmap = DistMap.makeRandom(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeRandom(bM*bN, Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gB, dmap).initRandom() as DistBlockMatrix(a.N);
@@ -263,9 +263,9 @@ class TestRunSumma {
 		Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix test using random distribution");
 		Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 				M, K, K, N, bM, bN);
-		Console.OUT.printf("randomly distributed in %d places\n", Place.MAX_PLACES);
+		Console.OUT.printf("randomly distributed in %d places\n", Place.numPlaces());
 		var ret:Boolean = true;
-		val dmap = DistMap.makeRandom(bM*bN, Place.MAX_PLACES);
+		val dmap = DistMap.makeRandom(bM*bN, Place.numPlaces());
 		
 		val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(gTransB, dmap).initRandom() as DistBlockMatrix{self.N==a.N};

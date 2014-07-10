@@ -21,7 +21,7 @@ import pagerank.SeqPageRank;
  * <p> (1) Rows and columns of G. Default 10000
  * <p> (2) Iterations number. Default 20
  * <p> (3) Verification flag. Default 0 or false.
- * <p> (4) Row-wise partition of G. Default Place.MAX_PLACES, or number of places
+ * <p> (4) Row-wise partition of G. Default Place.numPlaces(), or number of places
  * <p> (5) Column-wise partition of G. Default 1.
  * <p> (6) Nonzero density of G: Default 0.001
  * <p> (7) Print output flag: Default false. 
@@ -31,7 +31,7 @@ public class RunPageRank {
         val mG = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of G
         val iT = args.size > 1 ? Long.parse(args(1)):20; // Iterations
         val vf = args.size > 2 ? Int.parse(args(2)):0n; // Verify result or not
-        val rG = args.size > 3 ? Long.parse(args(3)):Place.MAX_PLACES;
+        val rG = args.size > 3 ? Long.parse(args(3)):Place.numPlaces();
         val cG = args.size > 4 ? Long.parse(args(4)):1;
         val nZ = args.size > 5 ? Double.parse(args(5)):0.9001; //G's nonzero density
         val pP = args.size > 6 ? Int.parse(args(6)):0n; //Print out input and output matrices

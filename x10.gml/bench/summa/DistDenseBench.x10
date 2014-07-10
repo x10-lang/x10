@@ -36,7 +36,7 @@ class RunDistDenseBench {
 	public val iter:Long;
 	public val testps:Long, lastps:Long;
 	public val M:Long, N:Long, K:Long;
-	public val nplace:Long = Place.MAX_PLACES;
+	public val nplace:Long = Place.numPlaces();
 
 	public val aPart:Grid, bPart:Grid, btPart:Grid, cPart:Grid;
 		

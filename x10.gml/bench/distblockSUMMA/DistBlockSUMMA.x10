@@ -50,8 +50,8 @@ class BenchRunSumma {
 	val summaT:SummaMultTrans;
 	
 	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long, pnl:Long, blkmn:Long) {
-		val pM = MathTool.sqrt(Place.MAX_PLACES);
-		val pN = Place.MAX_PLACES/pM;
+		val pM = MathTool.sqrt(Place.numPlaces());
+		val pN = Place.numPlaces()/pM;
 
 		itnum = it;	panel = pnl; 
 		M = m; K=k; N=n;

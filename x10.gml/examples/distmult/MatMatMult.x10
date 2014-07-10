@@ -42,9 +42,9 @@ public class MatMatMult {
 		M = args.size > 0 ? Long.parse(args(0)):30;
 		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+1;
 		K = args.size > 2 ? Long.parse(args(2)):(M as Int)+2;
-		bM= args.size > 3 ? Long.parse(args(3)):(Place.MAX_PLACES as Int)+1;
+		bM= args.size > 3 ? Long.parse(args(3)):(Place.numPlaces() as Int)+1;
 		bK= args.size > 4 ? Long.parse(args(4)):(bM as Int)+1;
-		bN= args.size > 5 ? Long.parse(args(5)):(Place.MAX_PLACES as Int)+15;
+		bN= args.size > 5 ? Long.parse(args(5)):(Place.numPlaces() as Int)+15;
 		nzp = args.size > 6 ?Double.parse(args(6)):0.9;
 		vrf = args.size > 7 ?false:true;
 		
@@ -61,7 +61,7 @@ public class MatMatMult {
 
     public def demoDistDupMult():Boolean{
     	Console.OUT.println("Starting Dist-Dup block matrix multiply. Dist matrix must have vertical distribution");
-    	val pM = Place.MAX_PLACES	;
+    	val pM = Place.numPlaces()	;
     	val pN = 1;
     	val A = DistBlockMatrix.makeDense(M, K, bM, bK, pM, pN).initRandom();
      	val B = DupBlockMatrix.makeDense(K, N, bK, bN).initRandom();
@@ -85,8 +85,8 @@ public class MatMatMult {
     	Console.OUT.println("Starting DistMatrix-DistMatrix multiply.");
     	Console.OUT.println("First DistMatrix has horizontal and second has vertical distribution");
     	
-    	val A = DistBlockMatrix.makeDense(M, K, bM, bK, 1, Place.MAX_PLACES).initRandom();
-    	val B = DistBlockMatrix.makeDense(K, N, bK, bN, Place.MAX_PLACES,1).initRandom();
+    	val A = DistBlockMatrix.makeDense(M, K, bM, bK, 1, Place.numPlaces()).initRandom();
+    	val B = DistBlockMatrix.makeDense(K, N, bK, bN, Place.numPlaces(),1).initRandom();
     	val C = DupBlockMatrix.makeDense(M, N, bM, bN);
     	
     	DistDistMult.mult(A, B, C, false);
@@ -108,12 +108,12 @@ public class MatMatMult {
     	Console.OUT.println("First DistMatrix has horizontal and second has vertical distribution");
     	
     	//val gPartA = new Grid(M, K, bM, bK); may not be balanced in row-wise partitioning
-    	val gPartA = DistGrid.makeGrid(M, K, bM, bK, 1, Place.MAX_PLACES);
+    	val gPartA = DistGrid.makeGrid(M, K, bM, bK, 1, Place.numPlaces());
     	val gDistA = DistGrid.makeHorizontal(gPartA);
     	val A = DistBlockMatrix.makeDense(gPartA, gDistA.dmap).initRandom() as DistBlockMatrix(M,K);
 
     	//val gPartB = new Grid(K, N, bK, bN); may not be balanced in column-wise partitioning
-    	val gPartB = DistGrid.makeGrid(K, N, bK, bN, Place.MAX_PLACES, 1);
+    	val gPartB = DistGrid.makeGrid(K, N, bK, bN, Place.numPlaces(), 1);
     	val gDistB = DistGrid.makeVertical(gPartB);
     	val B = DistBlockMatrix.makeDense(gPartB, gDistB).initRandom() as DistBlockMatrix(K,N);
 
@@ -137,8 +137,8 @@ public class MatMatMult {
 
     public def demoDistDistSUMMA():Boolean {
     	Console.OUT.println("Demo of using SUMMA for DistMatrix-DistMatrix multiplication");
-    	val pM = MathTool.sqrt(Place.MAX_PLACES);
-    	val pN = Place.MAX_PLACES/pM;
+    	val pM = MathTool.sqrt(Place.numPlaces());
+    	val pN = Place.numPlaces()/pM;
     	   	
     	Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
     			M, K, K, N, bM, bN);

@@ -48,8 +48,8 @@ public class DistDupToDup{
 	val dupP:DupVector(M);
 	
     public def this(m:Long, b:Long, nnz:Double, i:Long, v:Long) {
-    	val pM = MathTool.sqrt(Place.MAX_PLACES);
-    	val pN = Place.MAX_PLACES/pM;
+    	val pM = MathTool.sqrt(Place.numPlaces());
+    	val pN = Place.numPlaces()/pM;
     	M=m;
     	it = i; vrf=v;
     	bM = b<0?pM:b;

@@ -31,7 +31,7 @@ import x10.matrix.distblock.DistDupMult;
  * <p> 4) Iteration
  * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
- * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
+ * are distributed to (Place.numPlaces(), 1) places, or vertical distribution.
  * <p>[g_(0,0),           g_(0,1),           ..., g(0,numColBsG-1)]
  * <p>[g_(1,0),           g_(1,1),           ..., g(1,numColBsG-1)]
  * <p>......
@@ -81,7 +81,7 @@ public class PageRankMatMat {
 		iteration = it;
 		val gG = g.getGrid();
 		val gP = p.getGrid();
-		val rowPs = Place.MAX_PLACES;
+		val rowPs = Place.numPlaces();
 		
 		val gridGP = new Grid(G.M, P.N, gG.rowBs, gP.colBs);
 		val distGP = new DistGrid(gridGP, rowPs, 1);
@@ -99,7 +99,7 @@ public class PageRankMatMat {
 		val gN = gM;
 		val pColBs = 1;
 		//---- Distribution---
-		val gRowPs = Place.MAX_PLACES;
+		val gRowPs = Place.numPlaces();
 		val gColPs = 1;
 		
 		val g = DistBlockMatrix.makeSparse(gM, gN, gRowBs, gColBs, gRowPs, gColPs, nzd) as DistBlockMatrix(gM,gN);
@@ -175,7 +175,7 @@ public class PageRankMatMat {
 		Console.OUT.printf("Input G:(%dx%d), partition:(%dx%d) blocks, ",
 				G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
 		Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 
-				Place.MAX_PLACES, 1,  nzd, nzc);
+				Place.numPlaces(), 1,  nzd, nzc);
 
 		Console.OUT.printf("Input P:(%dx%d), partition:(%dx%d) blocks, duplicated in all places\n",
 				P.M, P.N, P.getGrid().numRowBlocks, P.getGrid().numColBlocks);

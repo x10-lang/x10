@@ -48,7 +48,7 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
     }
 
     public static def make(numBlk:Long):DistMap {
-        return new DistMap(numBlk, Place.MAX_PLACES);
+        return new DistMap(numBlk, Place.numPlaces());
     }
     
     public static def make(numBlk:Long, mapfunc:(Long)=>Long) {
@@ -58,9 +58,9 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
         return dmap;
     }
     
-    public static def makeCylic(numBlk:Long) = make(numBlk, (i:Long)=>i%Place.MAX_PLACES);
+    public static def makeCylic(numBlk:Long) = make(numBlk, (i:Long)=>i%Place.numPlaces());
     public static def makeCylic(numBlk:Long, numPlc:Long) = make(numBlk, (i:Long)=>i%numPlc);
-    public static def makeUnique() = make(Place.MAX_PLACES, (i:Long)=>i);
+    public static def makeUnique() = make(Place.numPlaces(), (i:Long)=>i);
     public static def makeUnique(numBlk:Long) = make(numBlk, (i:Long)=>i);
     
     public static def makeConstant(numBlk:Long) = make(numBlk, (i:Long)=>0L);

@@ -159,7 +159,7 @@ class TestRunDV {
 	
 	public def testReduce():Boolean {
 		Console.OUT.println("DupVector cellwise mult-div test");
-		val np = Place.MAX_PLACES as Double;
+		val np = Place.numPlaces() as Double;
 		val a = DupVector.make(M).init(1);
 		a.reduceSum();
 		var ret:Boolean = a.local().equals(np);

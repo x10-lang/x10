@@ -28,7 +28,7 @@ public class RunLogReg {
 		if ((mX<=0) ||(nX<=0) ||(tV<0))
 			Console.OUT.println("Error in settings");
 		else {
-			val prt:Grid = new Grid(mX, nX, Place.MAX_PLACES, 1);
+			val prt:Grid = new Grid(mX, nX, Place.numPlaces(), 1);
 			val X = DistSparseMatrix.make(prt, nzd) as DistSparseMatrix(mX, nX);
 			val y = DenseMatrix.make(X.M, 1);
 			val w = DenseMatrix.make(X.N, 1);

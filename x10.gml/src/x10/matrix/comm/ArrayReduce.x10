@@ -49,7 +49,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
 		}
 		@Ifndef("MPI_COMMU") {
 			//Debug.flushln("start bcast to "+numPlaces);
-			x10ReduceToHere(dat, tmp, datCnt, Place.MAX_PLACES, opFunc);
+			x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), opFunc);
 		}
 	} 
 		
@@ -67,7 +67,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
 		}
 		@Ifndef("MPI_COMMU") {
 			//Debug.flushln("start bcast to "+numPlaces);
-			x10ReduceToHere(dat, tmp, datCnt, Place.MAX_PLACES, 
+			x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), 
 					(src:Rail[Double], dst:Rail[Double], c:Long)=>arraySum(src,dst,c));
 		}
 	}
@@ -198,7 +198,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
 	protected static def x10AllReduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long,
 			opFunc:(Rail[Double],Rail[Double],Long)=>Int){
 	
-		x10ReduceToHere(dat, tmp, datCnt, Place.MAX_PLACES, opFunc);
+		x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), opFunc);
 		ArrayBcast.x10Bcast(dat, datCnt);
 	}
 

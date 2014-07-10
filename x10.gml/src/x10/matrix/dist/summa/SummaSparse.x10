@@ -209,7 +209,7 @@ public class SummaSparse {
 										mapBsPs:DistArray[Rail[Long]](1),
 										work1:DistArray[SparseCSC](1)) {
 		
-		finish for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
+		finish for (var p:Long=0; p<Place.numPlaces(); p++) { 
 			val myColId = dsA.grid.getColBlockId(p);
 			val myRowId = dsA.grid.getRowBlockId(p);
 			if (myColId == itCol) {
@@ -228,7 +228,7 @@ public class SummaSparse {
 									   mapBsPs:DistArray[Rail[Long]](1),
 									   work2:DistArray[SparseCSC](1)):void {
 		
-		finish for (var p:Long=0; p<Place.MAX_PLACES; p++) { 
+		finish for (var p:Long=0; p<Place.numPlaces(); p++) { 
 			val myColId = dsB.grid.getColBlockId(p);
 			val myRowId = dsB.grid.getRowBlockId(p);
 			// Broadcast to all column blocks

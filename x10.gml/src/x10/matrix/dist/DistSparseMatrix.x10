@@ -127,7 +127,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param  nzd     nonzero elements sparsity
      */
     public static def make(m:Long, n:Long, nzd:Double) =
-        make(Grid.make(m, n, Place.MAX_PLACES), 
+        make(Grid.make(m, n, Place.numPlaces()), 
              Dist.makeUnique(), nzd);
 
     /**
@@ -164,7 +164,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param nzd     nonzero sparsity 
      */
     public static def makeRand(m:Long, n:Long, nzd:Double) {
-        val g =  Grid.make(m, n, Place.MAX_PLACES);
+        val g =  Grid.make(m, n, Place.numPlaces());
         val d =  Dist.makeUnique();
         val dsm = make(g, d, nzd);
         dsm.initRandom(nzd);
@@ -293,7 +293,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      *
      */
     public def alloc(m:Long, n:Long, nzd:Double):DistSparseMatrix(m,n) {
-        val g =  Grid.make(m, n, Place.MAX_PLACES);
+        val g =  Grid.make(m, n, Place.numPlaces());
         val nm = DistSparseMatrix.make(g, this.dist, nzd);
         return nm;
     }

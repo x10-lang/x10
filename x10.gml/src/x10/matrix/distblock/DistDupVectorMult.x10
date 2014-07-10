@@ -28,7 +28,7 @@ public class DistDupVectorMult  {
 		val stt = Timer.milliTime();
 		var offb:Long = 0;
 		val rootpid = here.id();
-		finish for (var p:Long=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.numPlaces(); offb+=vB.segSize(p), p++) {
 			val pid = p;
 			val offsetB = offb;
 			at(Place(pid)) async {
@@ -47,7 +47,7 @@ public class DistDupVectorMult  {
 		Debug.assure(mA.isDistVertical(), "First dist block matrix must have vertical distribution");
 		val stt = Timer.milliTime();
 		var offc:Long = 0;
-		finish for (var p:Long=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.numPlaces(); offc+=vC.segSize(p), p++) {
 			val pid = p;
 			val offsetC = offc;
 			//Debug.flushln("stating offset of C at for place "+here.id()+" is "+offsetC);
@@ -67,7 +67,7 @@ public class DistDupVectorMult  {
 		val stt = Timer.milliTime();
 		var offb:Long=0;
 		val rootpid = here.id();
-		finish for (var p:Long=0; p<Place.MAX_PLACES; offb+=vB.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.numPlaces(); offb+=vB.segSize(p), p++) {
 			val pid = p;
 			val offsetB = offb;
 			at(Place(pid)) async {
@@ -86,7 +86,7 @@ public class DistDupVectorMult  {
 				"Second operand dist block matrix must have horizontal distribution");
 		val stt = Timer.milliTime();
 		var offc:Long = 0;
-		finish for (var p:Long=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
+		finish for (var p:Long=0; p<Place.numPlaces(); offc+=vC.segSize(p), p++) {
 			val pid = p;
 			val offsetC = offc;
 			at(Place(pid)) async {

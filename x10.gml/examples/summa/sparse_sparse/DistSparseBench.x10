@@ -30,7 +30,7 @@ public class DistSparseBench {
 class RunDistSparseBench{
 	public val M:Long, N:Long, K:Long, iter:Long, nzD:Double, pCmp:Double;
 	public val testps:Long; lastps:Long;
-	public val nplace = Place.MAX_PLACES;
+	public val nplace = Place.numPlaces();
 
 	public val aPart:Grid;
 	public val bPart:Grid;

@@ -40,7 +40,7 @@ class RunSummaMPIBench {
 	public val iter:Long;
 	public val M:Long, N:Long, K:Long;
 	public val testps:Long, lastps:Long;
-	public val nplace:Long = Place.MAX_PLACES;
+	public val nplace:Long = Place.numPlaces();
 	public val aPart:Grid, bPart:Grid, btPart:Grid, cPart:Grid;
 
 	val A:DistDenseMatrix(aPart.M, aPart.N);

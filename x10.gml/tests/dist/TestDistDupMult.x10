@@ -58,7 +58,7 @@ class DDMult {
 	public def testDistS_DupD():Boolean {
         var ret:Boolean = true;
     @Ifndef("MPI_COMMU") { // TODO DupDenseMatrix.init deadlocks!
-		val numP = Place.numPlaces();//Place.MAX_PLACES;
+		val numP = Place.numPlaces();//Place.numPlaces();
 		Console.OUT.printf("Test Dist sparse mult Dup dense over %d places\n", numP);
 		val gpartA = new Grid(M, K, numP, 1);
 		val da = DistSparseMatrix.make(gpartA, nnz);

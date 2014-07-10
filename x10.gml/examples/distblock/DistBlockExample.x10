@@ -38,8 +38,8 @@ class RunExample {
 		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
 		N = args.size > 2 ? Long.parse(args(2)):(M as Int)+1;
 		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;
-		bM= args.size > 4 ? Long.parse(args(4)):(Place.MAX_PLACES as Int)+1;
-		bN= args.size > 5 ? Long.parse(args(5)):(Place.MAX_PLACES as Int)+15;
+		bM= args.size > 4 ? Long.parse(args(4)):(Place.numPlaces() as Int)+1;
+		bN= args.size > 5 ? Long.parse(args(5)):(Place.numPlaces() as Int)+15;
 		
 		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
 	}
@@ -93,8 +93,8 @@ class RunExample {
 	public def exampleCellMult():Boolean {
 		Console.OUT.println("Starting dist block Matrix cellwise mult example");
 
-		val a = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1).initRandom();
-		val b = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1).initRandom();
+		val a = DistBlockMatrix.makeDense(M, N, bM, bN, Place.numPlaces(), 1).initRandom();
+		val b = DistBlockMatrix.makeDense(M, N, bM, bN, Place.numPlaces(), 1).initRandom();
 
 		val c = (a + b) * a;
 		val d = a * a + b * a;

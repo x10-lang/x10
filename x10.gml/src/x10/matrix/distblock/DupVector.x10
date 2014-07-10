@@ -341,7 +341,7 @@ public class DupVector(M:Long) {
 	public def checkSync():Boolean {
 		val rootvec  = dupV();
 		var retval:Boolean = true;
-		for (var p:Long=0; p < Place.MAX_PLACES && retval; p++) {
+		for (var p:Long=0; p < Place.numPlaces() && retval; p++) {
 			if (p == here.id()) continue;
 			retval &= at(Place(p)) {
 					val vec = dupV();
@@ -353,7 +353,7 @@ public class DupVector(M:Long) {
 	
 	public def equals(dv:DupVector(this.M)):Boolean {
 		var ret:Boolean = true;
-		for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+		for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
 			ret &= at(Place(p)) this.local().equals(dv.local());
 		}
 		return ret;
@@ -361,7 +361,7 @@ public class DupVector(M:Long) {
 	
 	public def equals(dval:Double):Boolean {
 		var ret:Boolean = true;
-		for (var p:Long=0; p<Place.MAX_PLACES &&ret; p++) {
+		for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
 			ret &= at(Place(p)) this.local().equals(dval);
 		}
 		return ret;

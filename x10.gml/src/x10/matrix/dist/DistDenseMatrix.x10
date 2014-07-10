@@ -135,7 +135,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  n  number of columns in the matrix
 	 */
 	public static def make(m:Long, n:Long) : DistDenseMatrix(m,n) {
-		val g =  Grid.make(m, n, Place.MAX_PLACES);
+		val g =  Grid.make(m, n, Place.numPlaces());
 		return make(g);
 	}
 	
@@ -234,7 +234,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 */
 	public  def alloc(m:Long, n:Long):DistDenseMatrix(m,n) {
 		//Debug.exit("Allocation fail, matrix partition is unknown");
-		val g =  Grid.make(m, n, Place.MAX_PLACES);
+		val g =  Grid.make(m, n, Place.numPlaces());
 		val nm = DistDenseMatrix.make(g);
 		return nm;
     }

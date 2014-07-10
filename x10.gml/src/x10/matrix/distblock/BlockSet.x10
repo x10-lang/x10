@@ -77,7 +77,7 @@ public class BlockSet  {
 	public static def make(m:Long, n:Long, rowBs:Long, colBs:Long, rowPs:Long, colPs:Long) {
 		//val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs
 		val gd = DistGrid.makeGrid(m, n, rowBs, colBs, rowPs, colPs);
-		Debug.assure(rowPs*colPs == Place.MAX_PLACES,
+		Debug.assure(rowPs*colPs == Place.numPlaces(),
 				"number of distributions groups of blocks must equal to number of places");
 		val dp = new DistGrid(gd, rowPs, colPs);
 		return new BlockSet(gd, dp.dmap);

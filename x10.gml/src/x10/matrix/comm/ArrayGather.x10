@@ -42,7 +42,7 @@ public class ArrayGather extends ArrayRemoteCopy {
 			src:DataArrayPLH, 
 			dst:Rail[Rail[Double]]) : void {
 		
-		val nb = Place.MAX_PLACES;
+		val nb = Place.numPlaces();
 		Debug.assure(nb==dst.size, 
 		"Number blocks in dist and local array not match");
 		
@@ -148,8 +148,8 @@ public class ArrayGather extends ArrayRemoteCopy {
 			dstbuf:Rail[Double],
 			gp:Rail[Long]): void {
 
-		Debug.assure(gp.size <= Place.MAX_PLACES, 
-				"Number of segments "+gp.size+" exceeds number of places "+Place.MAX_PLACES);
+		Debug.assure(gp.size <= Place.numPlaces(), 
+				"Number of segments "+gp.size+" exceeds number of places "+Place.numPlaces());
 		val root = here.id();
 		var off:Long=0;
 		for (var cb:Long=0; cb<gp.size; cb++) {

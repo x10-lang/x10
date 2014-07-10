@@ -34,7 +34,7 @@ class TestGridDist {
 
 	public def run():Boolean {
 		var status:Boolean=true;
-		val grid = Grid.make(M, N, Place.MAX_PLACES);
+		val grid = Grid.make(M, N, Place.numPlaces());
 		val m1  = DistMatrix.makeDense(grid);
 		m1.initRandom();
 		val m2 = m1.clone(); 

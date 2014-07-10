@@ -78,7 +78,7 @@ public class BlockReduce extends BlockRemoteCopy {
 		
 		val dmap = distBS().getDistMap();
 		val rootpid:Long = dmap.findPlace(rootbid);
-		var leftpcnt:Long = Place.MAX_PLACES;
+		var leftpcnt:Long = Place.numPlaces();
 		
 		//Debug.assure(here.id() == 0);
 		if (here.id() != rootpid) {
@@ -89,10 +89,10 @@ public class BlockReduce extends BlockRemoteCopy {
 			val rtblk  = distBS().findBlock(rootbid);
 			finish {
 				if (rootpid == 0L) 
-					reduceToHere(distBS, tmpBS, rtblk, Place.MAX_PLACES, opFunc);
+					reduceToHere(distBS, tmpBS, rtblk, Place.numPlaces(), opFunc);
 				else {
 					val lfpcnt = rootpid;
-					val rtpcnt = Place.MAX_PLACES - lfpcnt;
+					val rtpcnt = Place.numPlaces() - lfpcnt;
 					binaryTreeReduce(distBS, tmpBS, rtblk, rtpcnt, 0, lfpcnt, opFunc);
 				}
 			}
@@ -259,6 +259,6 @@ public class BlockReduce extends BlockRemoteCopy {
 	 */
 	public static def makeTempDistBlockMatrix(m:Long, n:Long):BlocksPLH =
 		PlaceLocalHandle.make[BlockSet](Place.places(), 
-				()=>BlockSet.makeDense(m*Place.MAX_PLACES, n, Place.MAX_PLACES, 1, Place.MAX_PLACES,1));
+				()=>BlockSet.makeDense(m*Place.numPlaces(), n, Place.numPlaces(), 1, Place.numPlaces(),1));
 }
 

@@ -70,7 +70,7 @@ class DVMultRowwise {
     	M=m;
     	it = i; vrf=v;
     	
-    	val numP = Place.numPlaces();//Place.MAX_PLACES;
+    	val numP = Place.numPlaces();//Place.numPlaces();
     	Console.OUT.printf("\nTest Dist sparse mult Dup dense in %d places\n", numP);
  
     	partA = new Grid(M, M, numP, 1);

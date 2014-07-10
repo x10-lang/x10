@@ -184,7 +184,7 @@ public class SummaDenseMultSparse {
 
 			//
 		    /* TIMING */ st = Timer.milliTime();
-            finish for (var p:Long=0; p<Place.MAX_PLACES; p++) {
+            finish for (var p:Long=0; p<Place.numPlaces(); p++) {
                 //finish ateach(val [p]:Point in C.dist) { 
                 val pid  = p;
                 at(C.distBs.dist(pid)) async {

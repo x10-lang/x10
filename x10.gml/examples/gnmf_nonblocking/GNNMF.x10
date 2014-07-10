@@ -57,8 +57,8 @@ public class GNNMF {
 		nzDensity=nz;
 		iterations = i;
 		//
-		gridV = new Grid(Vm, Vn, Place.MAX_PLACES, 1);
-		gridW = new Grid(Vm, Wn, Place.MAX_PLACES, 1);
+		gridV = new Grid(Vm, Vn, Place.numPlaces(), 1);
+		gridW = new Grid(Vm, Wn, Place.numPlaces(), 1);
 		//		
 		//------Input matrix data allocation------
 		Debug.flushln("Start memory allocation");		
