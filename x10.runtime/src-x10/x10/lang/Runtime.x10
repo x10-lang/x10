@@ -1561,6 +1561,10 @@ public final class Runtime {
 
     static def executeLocal(activity:Activity):void {
         if (activity().epoch < epoch()) throw new DeadPlaceException("Cancelled");
+        dealOrPush(activity);
+    }
+
+    static def dealOrPush(activity:Activity):void {
         if (!pool.deal(activity)) pushActivity(activity);
     }
 
