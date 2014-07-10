@@ -18,7 +18,7 @@ public class PlaceCast extends x10Test {
     private val root=GlobalRef[PlaceCast](this);
     public def run()  {
 	  val d: Dist = Dist.makeUnique();
-	  Console.OUT.println("num places = " + Place.MAX_PLACES);
+	  Console.OUT.println("num places = " + Place.numPlaces());
 	  val disagree = DistArray.make[BoxedBoolean](d, (Point)=> new BoxedBoolean());
 	  val root = this.root;
 	  finish ateach (p in d) {

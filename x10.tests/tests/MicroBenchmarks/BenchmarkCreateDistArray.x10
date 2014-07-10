@@ -26,7 +26,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Long) extends x10Test {
         // create a dummy array distributed to every place, to make sure they're all ready
         val m = DistArray.make[Int](Dist.makeUnique());
 
-        val arraySize = elementsPerPlace * Place.MAX_PLACES;
+        val arraySize = elementsPerPlace * Place.numPlaces();
 
         val start = System.nanoTime();
         val a = DistArray.make[Long](Dist.makeBlock(Region.make(0, arraySize-1)));

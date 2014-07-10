@@ -32,7 +32,7 @@ public class BenchmarkAllreduce extends x10Test {
 
                 // check correctness
                 for (i in 0..(s-1)) {
-                    chk(dst(i) == src(i)*Place.MAX_PLACES, "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.MAX_PLACES);
+                    chk(dst(i) == src(i)*Place.numPlaces(), "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.numPlaces());
                 }
 
                 if (here == Place.FIRST_PLACE) Console.OUT.printf("allreduce %d: %g ms\n", s, ((stop-start) as Double) / 1e6 / ITERS);

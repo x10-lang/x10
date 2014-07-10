@@ -40,7 +40,7 @@ public class TestBlockBlockDist extends x10Test {
      * this dist. 
      */ 
     private def checkDist(dist:Dist) {
-        val placeCounts = new Rail[Long](Place.MAX_PLACES);
+        val placeCounts = new Rail[Long](Place.numPlaces());
         for (p in dist.region) {
             val place = dist(p);
             placeCounts(place.id)++;

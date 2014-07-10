@@ -83,7 +83,7 @@ public class ConditionalAtomicQueue extends x10Test {
 
     @Pinned public def run(): boolean = {
         val N = T.N;
-        val NP = Place.MAX_PLACES;
+        val NP = Place.numPlaces();
         val D2  = MyDist.val_(N*NP);
         val received = DistArray.make[int](D2);
         val root = this.root;

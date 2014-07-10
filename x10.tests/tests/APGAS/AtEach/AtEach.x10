@@ -35,7 +35,7 @@ public class AtEach extends x10Test {
         // all places
         // and that an activity ran in each place
         return disagree.reduce(((x:Int,y:Int) => x+y),0n) == 0n &&
-                nplaces == Place.MAX_PLACES;
+                nplaces == Place.numPlaces();
     }
 
     public static def main(Rail[String])  {

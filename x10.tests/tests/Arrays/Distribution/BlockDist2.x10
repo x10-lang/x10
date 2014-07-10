@@ -34,7 +34,7 @@ public class BlockDist2 extends x10Test {
      for (n in 10..100) {
         val R = Region.make(1,n);
         val D = Dist.makeBlock(R);
-        val M = Place.MAX_PLACES;
+        val M = Place.numPlaces();
         val l : long = (n / M) as long; // Minimum number in a place.
         var prev : Long = -1; 
         for (p in Place.places()) {

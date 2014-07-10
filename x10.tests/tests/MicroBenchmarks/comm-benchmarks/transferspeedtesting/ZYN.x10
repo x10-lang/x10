@@ -43,7 +43,7 @@ public class ZYN {
 				var micros:Double = 1d;
 				for (var j:Long=1 ; j<=16 ; ++j) {
 					micros = runTests(params.iterations/j, j, l, params.put, params.get) / 
-					1000 / (params.iterations/j*j) / 2 / (Place.MAX_PLACES - 1);
+					1000 / (params.iterations/j*j) / 2 / (Place.numPlaces() - 1);
 					Console.OUT.print(Utils.format(""+micros,6n, cellSize, 'l'));
 				}
 				Console.OUT.println(Utils.format(""+l/micros,6n, cellSize,'l'));
@@ -51,7 +51,7 @@ public class ZYN {
 		} else {
 			Console.OUT.println("put/get test");
 			var micros:Double = runTests(params.iterations, params.window, params.len, params.put, params.get)
-			/ 1000 / (params.iterations*params.window) / 2 / (Place.MAX_PLACES - 1);
+			/ 1000 / (params.iterations*params.window) / 2 / (Place.numPlaces() - 1);
 			Console.OUT.println("Half roundtrip time: " + micros +" us  Bandwidth: " + params.len/micros +" MB/s");
 		}
 		//Console.OUT.println("Finish testing");
@@ -91,7 +91,7 @@ public class ZYN {
 	
 	public def runOnePutGetTest(tmpPlh:PlaceLocalHandle[ZYNPlayer],_len:Long, put:Boolean){
 		
-		val P = Place.MAX_PLACES; 
+		val P = Place.numPlaces(); 
 		for(p in 1.. (P-1)){
 			if(put){
 				at(Place(p)) async{
@@ -108,7 +108,7 @@ public class ZYN {
 	}
 	
 	public def runOneSendTest(tmpPlh:PlaceLocalHandle[ZYNPlayer],_len:Long){
-		val P = Place.MAX_PLACES;
+		val P = Place.numPlaces();
 		val sendBuf: Rail[Char] = (tmpPlh().sendbufPool).getOrThrow(_len) ;
 		for(p in 1.. (P-1)){
 			at(Place(p)) async{
@@ -120,7 +120,7 @@ public class ZYN {
 	}
 	
 	public def initSatellites(){
-	    val P = Place.MAX_PLACES;
+	    val P = Place.numPlaces();
 	    val tmpPlh = plh;
 	    @Pragma(Pragma.FINISH_DENSE) finish {
 	    	if (P < 256) {

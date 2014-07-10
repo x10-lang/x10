@@ -29,7 +29,7 @@ public class Places10 extends x10Test {
 // file Places line 38
 
  static class Places1TestExp{
-  def check()  = Place.MAX_PLACES-1;  }
+  def check()  = Place.numPlaces()-1;  }
 
  static class Hook {
    def run():Boolean = true;

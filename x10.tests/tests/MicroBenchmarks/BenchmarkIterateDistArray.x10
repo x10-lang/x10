@@ -23,7 +23,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Long) extends x10Test 
     }
 
 	public def run(): Boolean = {
-        val arraySize = elementsPerPlace * Place.MAX_PLACES;
+        val arraySize = elementsPerPlace * Place.numPlaces();
 
         val a = DistArray.make[Long](Dist.makeBlock(Region.make(0, arraySize-1)));
 
@@ -68,7 +68,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Long) extends x10Test 
 
         Console.OUT.printf("iterate DistArray with getLocalPortion Rect avg: %g ms\n", ((stop-start) as Double) / 1e08);
 
-	if (Place.MAX_PLACES == 1L) {
+	if (Place.numPlaces() == 1L) {
             start = System.nanoTime();
             for (t in 1..100) {
                 // iterate and update each element of the distributed array

@@ -33,7 +33,7 @@ public class AtEach2 extends x10Test {
              atomic root().nplaces++;  
         }
         // ensure that an activity ran in each place
-        return nplaces == Place.MAX_PLACES;
+        return nplaces == Place.numPlaces();
     }
 
     public static def main(Rail[String])  {

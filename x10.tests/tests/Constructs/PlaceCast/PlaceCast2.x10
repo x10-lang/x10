@@ -21,7 +21,7 @@ public class PlaceCast2 extends x10Test {
     private val root = GlobalRef[PlaceCast2](this);
     public def run(): boolean = {
             val d = Dist.makeUnique();
-            x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
+            x10.io.Console.OUT.println("num places = " + Place.numPlaces());
             val root = this.root;
             val disagree = DistArray.make[BoxedBoolean](d, ([p]: Point): BoxedBoolean => {
                 x10.io.Console.OUT.println("The currentplace is:" + here);

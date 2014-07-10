@@ -23,7 +23,7 @@ import harness.x10Test;
  */
 public class XTENLANG_3323 extends x10Test  {
 	public def run() {
-	    if (Place.MAX_PLACES < 3) {
+	    if (Place.numPlaces() < 3) {
 		    Console.OUT.println("3 places are necessary for this test");
 		    return false;
 	    }

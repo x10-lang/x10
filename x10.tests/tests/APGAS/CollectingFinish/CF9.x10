@@ -49,7 +49,7 @@ public class CF9 extends x10Test{
             };
             var ret : Boolean = false ;
             if ((finalResult.left == 2L) && (finalResult.right == 2L)
-               && (result.left == iteration * Place.MAX_PLACES) &&(result.right == iteration * 2 *Place.MAX_PLACES ))
+               && (result.left == iteration * Place.numPlaces()) &&(result.right == iteration * 2 *Place.numPlaces() ))
                 ret = true;
             return ret;
  

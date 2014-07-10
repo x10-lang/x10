@@ -100,7 +100,7 @@ public class Reduce extends x10Test {
         Console.OUT.println("Doing reduce for World ("+Place.numPlaces()+" places)");
         val res:Cell[Boolean] = new Cell[Boolean](true);
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
-        val root = Place(Place.MAX_PLACES-1);
+        val root = Place(Place.numPlaces()-1);
         finish for (p in Place.places()) {
             async at(p) reduceTest(Team.WORLD, root, gr);
         }

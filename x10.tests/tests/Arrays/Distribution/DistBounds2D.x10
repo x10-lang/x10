@@ -63,7 +63,7 @@ public class DistBounds2D extends x10Test {
 
         var withinBounds: boolean = true;
         try {
-            chk(a.dist(i, j).id<Place.MAX_PLACES &&
+            chk(a.dist(i, j).id<Place.numPlaces() &&
                     a.dist(i, j).id >= 0);
             finish async at(a.dist(i, j)) {
                 a(i, j) = ( 0xabcdef07L as Int);

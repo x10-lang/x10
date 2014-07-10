@@ -23,7 +23,7 @@ import x10.util.Timer;
 public class XTENLANG_3303 extends x10Test {
 
     public def run() {
-        if (Place.MAX_PLACES != 4) return false;
+        if (Place.numPlaces() != 4) return false;
         val place1 = Place.places().next(here);
         val t = new Timer();
         val startTime = t.nanoTime();

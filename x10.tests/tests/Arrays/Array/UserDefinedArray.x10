@@ -26,7 +26,7 @@ public class UserDefinedArray extends x10Test {
 
     public def run(): boolean = {
 
-        chk(Place.MAX_PLACES <= 1 || D(0) != D(1));
+        chk(Place.numPlaces() <= 1 || D(0) != D(1));
         // create an array a such that
         // a[0] is in D[0] but points to an object in D[1]
         // and a[1] is in D[1] but points to an object in D[0]

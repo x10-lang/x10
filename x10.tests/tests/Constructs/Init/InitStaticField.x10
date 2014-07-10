@@ -47,7 +47,7 @@ public class InitStaticField extends x10Test {
             ok = false;
         }
         
-        if (Place.MAX_PLACES >= 2) {
+        if (Place.numPlaces() >= 2) {
             val timea2 = at (Place.places().next(here)) { return InitStaticField.timea; };
             Console.OUT.println(timea2);
             if (timea2 == timea) {

@@ -19,7 +19,7 @@ public class Exceptions_BadPlace extends x10Test {
 
 	public static M: int = 10;
 	public def run(): boolean = {
-		if (place.MAX_PLACES == 1) return true;
+		if (Place.numPlaces() == 1) return true;
 
 		var gotException: boolean;
 
@@ -96,7 +96,7 @@ public class Exceptions_BadPlace extends x10Test {
 
 	const int M = 10;
 	public boolean run() {
-		if (place.MAX_PLACES == 1) return true;
+		if (Place.numPlaces() == 1) return true;
 
 		boolean gotException;
 
@@ -178,7 +178,7 @@ public class Exceptions_BadPlace extends x10Test {
 
 	const int M = 10;
 	public boolean run() {
-		if (place.MAX_PLACES == 1) return true;
+		if (Place.numPlaces() == 1) return true;
 
 		boolean gotException;
 

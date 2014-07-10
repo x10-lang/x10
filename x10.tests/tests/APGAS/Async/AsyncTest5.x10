@@ -23,7 +23,7 @@ public class AsyncTest5 extends x10Test {
 
     public def run(): boolean = {
         val A: DistArray[int](1) = DistArray.make[int](Dist.makeUnique());
-        chk(Place.MAX_PLACES >= 2);
+        chk(Place.numPlaces() >= 2);
         finish async chk(A.dist(0) == here);
         // verify unique distribution
         for (val [i]: Point in A)

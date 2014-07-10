@@ -22,7 +22,7 @@ import harness.x10Test;
 public class AtCopy extends x10Test {
 
     public def run():Boolean {
-	chk(Place.MAX_PLACES > 1, "Test must be run with at least 2 places");
+	chk(Place.numPlaces() > 1, "Test must be run with at least 2 places");
         var passed:Boolean = true;
 
         var h:Link = null;

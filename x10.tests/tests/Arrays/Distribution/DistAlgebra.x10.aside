@@ -95,12 +95,12 @@ public class DistAlgebra extends x10Test {
         val DR1orR2orR3:Dist(2)  = Dist.makeCyclic(R1orR2orR3, 0);
         pr("DR1orR2orR3", DR1orR2orR3);
         for (val (i,j): Point in DR1orR2orR3) {
-            val p = (i - DR1orR2orR3.region.min(0))%Place.MAX_PLACES;
+            val p = (i - DR1orR2orR3.region.min(0))%Place.numPlaces();
             chk(DR1orR2orR3(i, j) == Place.places(p));
         }
 
         //Check range restriction to a place
-        for (val (k): Point in 0..Place.MAX_PLACES-1) {
+        for (val (k): Point in 0..Place.numPlaces()-1) {
             val DR1orR2orR3Here  = DR1orR2orR3 | P(k);
             pr("DR1orR2orR3Here("+k+")", DR1orR2orR3Here);
             for (val (i,j): Point(2) in DR1orR2orR3) {

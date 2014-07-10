@@ -26,14 +26,14 @@ public class BenchmarkReduce extends x10Test {
                 val dst = new Rail[Double](s);
                 val start = System.nanoTime();
                 for (iter in 1..ITERS) {
-                    Team.WORLD.reduce(Place(Place.MAX_PLACES-1), src, 0, dst, 0, s, Team.ADD);
+                    Team.WORLD.reduce(Place(Place.numPlaces()-1), src, 0, dst, 0, s, Team.ADD);
                 }
                 val stop = System.nanoTime();
 
-                if (here == Place(Place.MAX_PLACES-1)) {
+                if (here == Place(Place.numPlaces()-1)) {
                     // check correctness
                     for (i in 0..(s-1)) {
-                        chk(dst(i) == src(i)*Place.MAX_PLACES, "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.MAX_PLACES);
+                        chk(dst(i) == src(i)*Place.numPlaces(), "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.numPlaces());
                     }
                 }
                 if (here == Place.FIRST_PLACE) Console.OUT.printf("reduce %d: %g ms\n", s, ((stop-start) as Double) / 1e6 / ITERS);

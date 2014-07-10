@@ -41,7 +41,7 @@ public class TestRemoteFail extends x10Test {
     }
 
     public def run() {
-        if (Place.MAX_PLACES != 2) return false;
+        if (Place.numPlaces() != 2) return false;
         val p1 = Place.places().next(here);
 
         try {

@@ -45,7 +45,7 @@ public class CF8 extends x10Test{
             };
             }
             var ret : Boolean = false ;
-            if ((result.left == iteration * Place.MAX_PLACES) &&(result.right == iteration * 2 *Place.MAX_PLACES ))
+            if ((result.left == iteration * Place.numPlaces()) &&(result.right == iteration * 2 *Place.numPlaces() ))
                 ret = true;
             return ret;
  

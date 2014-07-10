@@ -40,7 +40,7 @@ class VarAt1 {
      return local_sum;
   }
   public static def sum(m:Int, n:Int, f:(Int)=>Int) {
-    val k = Place.MAX_PLACES;
+    val k = Place.numPlaces();
     var s : Int = 0;
     val start = here;
     finish for(p in Place.places()) {
