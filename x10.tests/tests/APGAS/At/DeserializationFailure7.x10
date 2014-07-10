@@ -50,7 +50,7 @@ public class DeserializationFailure7 extends x10Test {
            val there = here;
            try {
                for (p in Place.places()) {
-                   val res = at (p) (victim == here ? new TimeBomb(there) : new TimeBomb(tPlace.places().next(here)));
+                   val res = at (p) (victim == here ? new TimeBomb(there) : new TimeBomb(Place.places().next(here)));
                    count += res.target != here ? 1 : 0;
                }
                Console.OUT.println("Sub-test fail: exception was not raised with victim "+victim);
