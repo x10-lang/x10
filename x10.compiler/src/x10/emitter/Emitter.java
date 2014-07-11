@@ -2456,7 +2456,7 @@ public class Emitter {
 
     private void printBridgeMethodForInheritedMethod(ClassType ct, MethodInstance mi) {
     	    MethodDef def = mi.def();
-    	    w.write("// bridge for " + def);
+    	    w.write("// bridge for inherited " + def);
     	    w.newline();
     
     	    Flags flags = mi.flags();
@@ -2511,6 +2511,10 @@ public class Emitter {
     	        closeParen = printUnboxConversion(mi.returnType());
     	    }
     
+    	    if (def.flags().isAbstract()) {
+    	    	// abstract method cannot be called with super
+        	    w.write("/*super.*/");    	    	
+    	    } else
     	    w.write("super.");
     	    
     	    // call
