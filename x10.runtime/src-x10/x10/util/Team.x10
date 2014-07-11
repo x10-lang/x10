@@ -683,40 +683,6 @@ public struct Team {
 		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
 		}
 	    
-        private def performReduction[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int) {
-            val reduce = (op:(a:T,b:T)=>T) => {
-                for (i in 0..(count-1)) {
-                    dst(i+dst_off) = op( dst(i+dst_off), src(i+src_off) );
-                }       
-            };
-
-            switch (operation) {
-                case ADD:
-                    reduce((a:T, b:T) => (a as Arithmetic[T] + b));
-                break;
-                case MUL:
-                    reduce((a:T, b:T) => (a as Arithmetic[T] * b));
-                break;
-                case AND:
-                    reduce((a:T, b:T) => (a as Bitwise[T] & b));
-                break;
-                case OR:
-                    reduce((a:T, b:T) => (a as Bitwise[T] | b));
-                break;
-                case XOR:
-                    reduce((a:T, b:T) => (a as Bitwise[T] ^ b));
-                break;
-                case MAX:
-                    reduce((a:T, b:T) => (a as Ordered[T] < b ? b : a));
-                break;
-                case MIN:
-                    reduce((a:T, b:T) => (a as Ordered[T] < b ? a : b));
-                break;
-                default:
-                    Runtime.println("ERROR: Unknown reduction operation: "+operation);
-            }
-        }
-
         // on Managed X10, probe sometimes deadlocks, so sleep is required
         // TODO: Figure out why probe doesn't work on Managed X10
         @Native("java", "true")
@@ -824,9 +790,9 @@ public struct Team {
 
             if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
                 if (local_child1Index != -1) { // reduce local and child data
-                    performReduction(src, src_off, dst, dst_off, count, operation);
+                    TeamReductionHelper.performReduction(src, src_off, dst, dst_off, count, operation);
                     if (local_child2Index != -1) {
-                        performReduction(local_temp_buff as Rail[T], 0, dst, dst_off, count, operation);
+                        TeamReductionHelper.performReduction(local_temp_buff as Rail[T], 0, dst, dst_off, count, operation);
                     }
                 } else { // no children
                     Rail.copy(src, src_off, dst, dst_off, count);
