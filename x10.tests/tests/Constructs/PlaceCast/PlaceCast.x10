@@ -25,7 +25,7 @@ public class PlaceCast extends x10Test {
 	      // remember if here and d[p] disagree
 	      // at any activity at any place
 	      try {
-		    val q  = d(p).next();
+		    val q  = Place.places().next(d(p));
 		    // Always throws ClassCastException
 		    val x = disagree(p).root as GlobalRef[BoxedBoolean]{self.home==q};
 		    at (root) atomic root().nplaces++; 

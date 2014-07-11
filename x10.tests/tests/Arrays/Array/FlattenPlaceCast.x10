@@ -31,7 +31,7 @@ public class FlattenPlaceCast extends x10Test {
 
     public def run():boolean  = {
 	chk(Place.numPlaces() >= 2, "This test must be run with at least two places");
-        val d1next = d(1).next();
+        val d1next = Place.places().next(d(1));
         val x = a(1,1);
         return !(x instanceof Test{x.root.home == d1next}) && (x instanceof Test{x.root.home == here});
     }
