@@ -29,8 +29,8 @@ public class XTENLANG_3324  extends x10Test  {
 			return false;
 		}
 		val place0 = here;
-		val place1 = place0.next();
-		val place2 = place1.next();
+	        val place1 = Place.places().next(place0);
+	        val place2 = Place.places().next(place1);
 		var ret:Boolean = true;
 		val timesOfTests = 20;
 		
