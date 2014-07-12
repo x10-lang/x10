@@ -27,6 +27,8 @@ package x10.util;
  */
 class TeamReductionHelper {
 
+    // TODO: the casts to Any are to workaround XTENLANG-3407.
+    //       Remove them when it is fixed.
     static def performReduction[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int) {
         if ((src as Any) instanceof Rail[Double]) {
             reduce(src as Any as Rail[Double], src_off, dst as Any as Rail[Double], dst_off, count, operation);
