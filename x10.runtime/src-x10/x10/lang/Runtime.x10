@@ -666,6 +666,8 @@ public final class Runtime {
         }
 
         // unpark worker
+        // FIXME remove NoInline when XTENLANG-3397 is fixed
+        @x10.compiler.NoInline
         public def unpark() {
             if (!STATIC_THREADS) {
                 super.unpark();
