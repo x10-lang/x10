@@ -230,6 +230,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         ConstructorDecl_c n = (ConstructorDecl_c) this.visitSignature(new NodeVisitor() {
             int key = 0;
+            @Override
             public Node override(Node n) {
                 return X10ConstructorDecl_c.this.visitChild(n, tbx.pushCode(mix));
             }

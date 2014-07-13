@@ -406,6 +406,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 	private static Node setReachable (Term x) {
 		if (x==null) return null;
 		return x.visit(new NodeVisitor() {
+			@Override
 			public Node leave(Node parent, Node old, Node child, NodeVisitor v) {
 				if (child instanceof Term) {
 					Term child_term = (Term) child;

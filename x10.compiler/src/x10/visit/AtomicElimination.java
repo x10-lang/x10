@@ -147,6 +147,7 @@ public class AtomicElimination extends NodeVisitor {
     private int numFieldRefs_(Expr e) {
         final Ctr c = new Ctr(); 
         e.visit( new NodeVisitor() {
+            @Override
             public Node leave( Node old, Node n, NodeVisitor v) {
                 if ( n instanceof Field ||
                      n instanceof ArrayAccess ||

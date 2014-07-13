@@ -200,6 +200,7 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
         final FieldDef mix = fi;
         
         FieldDecl_c n = (FieldDecl_c) this.visitSignature(new NodeVisitor() {
+            @Override
             public Node override(Node n) {
                 return FieldDecl_c.this.visitChild(n, tbx.pushDef(mix));
             }

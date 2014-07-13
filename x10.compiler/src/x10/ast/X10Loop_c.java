@@ -481,6 +481,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 		
 		// Set the final flag on all formals introduced in the loop.
 		Formal f = (Formal) n.formal().visit(new NodeVisitor() {
+			@Override
 			public Node leave(Node old, Node n, NodeVisitor v) {
 				if (n instanceof Formal) {
 					Formal f = (Formal) n;

@@ -146,6 +146,7 @@ public class Initializer_c extends Term_c implements Initializer
         final InitializerDef mix = ii;
 
         Initializer_c n = (Initializer_c) this.visitSignature(new NodeVisitor() {
+            @Override
             public Node override(Node n) {
                 return Initializer_c.this.visitChild(n, tbx.pushCode(mix));
             }

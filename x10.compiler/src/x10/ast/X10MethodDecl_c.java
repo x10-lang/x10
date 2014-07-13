@@ -226,7 +226,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		final TypeBuilder tbx = tb;
 		final MethodDef mdx = md;
 		n = (X10MethodDecl_c) n.visitSignature(new NodeVisitor() {
-			
+		    @Override
 		    public Node override(Node n) {
 		        return X10MethodDecl_c.this.visitChild(n, tbx.pushCode(mdx));
 		    }

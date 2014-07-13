@@ -478,6 +478,7 @@ public class StaticInitializer extends ContextVisitor {
         // find the target declaration of constructor or method
         final ProcedureDecl[] decl = new ProcedureDecl[1];
         ast.visit(new NodeVisitor() {
+            @Override
             public Node override(Node n) {
                 if (decl[0] != null)
                     // already found the decl, short-circuit search
@@ -547,6 +548,7 @@ public class StaticInitializer extends ContextVisitor {
         // check static field references in the body of constructor or method
         final AtomicBoolean found = new AtomicBoolean(false);
         body.visit(new NodeVisitor() {
+            @Override
             public Node override(Node n) {
                 if (found.get())
                     // already found

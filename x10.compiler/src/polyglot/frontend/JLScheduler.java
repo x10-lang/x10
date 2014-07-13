@@ -113,6 +113,7 @@ public class JLScheduler extends Scheduler {
     public Goal ReassembleAST(final Job job) {
     	final Map<Node, Node> memo = job.nodeMemo();
     	return new VisitorGoal("ReassembleAST", job, new NodeVisitor() {
+    		@Override
     		public Node leave(Node old, Node n, NodeVisitor v) {
     			Node m = memo.get(old);
     			

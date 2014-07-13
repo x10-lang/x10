@@ -336,6 +336,7 @@ public class DeadCodeEliminator extends DataFlow {
 	final Position pos = Position.COMPILER_GENERATED;
 
 	NodeVisitor v = new NodeVisitor() {
+		@Override
 		public Node override(Node parent, Node n) {
 			if (n instanceof Assign || n instanceof ProcedureCall) {
 				return leave(parent, n, n, this);
@@ -355,6 +356,7 @@ public class DeadCodeEliminator extends DataFlow {
 		return n;
 	    }
 
+	    @Override
 	    public Node leave(Node old, Node n, NodeVisitor v) {
 		if (n instanceof Assign || n instanceof ProcedureCall) {
 		    result.add(nf.Eval(pos, (Expr)n));
