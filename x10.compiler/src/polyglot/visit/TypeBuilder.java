@@ -86,18 +86,22 @@ public class TypeBuilder extends NodeVisitor
         return ts;
     }
 
+    @Override
     public NodeVisitor begin() {
         return this;
     }
     
+    @Override
     public Node override(Node n) {
         return n.del().buildTypesOverride(this);
     }
 
+    @Override
     public NodeVisitor enter(Node n) {
 	    return n.del().buildTypesEnter(this);
     }
 
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
 	    return n.del().buildTypes((TypeBuilder) v);
     }

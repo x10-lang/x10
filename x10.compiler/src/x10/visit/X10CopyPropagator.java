@@ -474,6 +474,7 @@ public class X10CopyPropagator extends DataFlow {
         throw new InternalCompilerError("CopyPropagator.check should never be " + "called.");
     }
 
+    @Override
     public NodeVisitor begin() {
         return this;
     }

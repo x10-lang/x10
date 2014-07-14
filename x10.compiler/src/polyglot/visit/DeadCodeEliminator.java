@@ -299,6 +299,7 @@ public class DeadCodeEliminator extends DataFlow {
 	    this.use = use;
 	}
 	
+    @Override
 	public Node override(Node parent, Node n) {
 		if (parent instanceof LocalAssign) {
 			LocalAssign a = (LocalAssign) parent;
@@ -310,6 +311,7 @@ public class DeadCodeEliminator extends DataFlow {
 		return null;
 	}
 
+    @Override
 	public Node leave(Node old, Node n, NodeVisitor v) {
 	    if (n instanceof Local) {
 		use.add(((Local)n).localInstance().def());

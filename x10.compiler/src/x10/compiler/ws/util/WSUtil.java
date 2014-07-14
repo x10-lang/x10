@@ -727,6 +727,7 @@ public class WSUtil {
         
         private int noVisitDepth;//if noVisitDepth > 0, not visit
         
+        @Override
         public NodeVisitor enter(Node n) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -735,6 +736,7 @@ public class WSUtil {
             return super.enter(n);
         }
         
+        @Override
         public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
             
             if(n instanceof Closure
@@ -764,6 +766,7 @@ public class WSUtil {
         private boolean isConcurrent;
         private int noVisitDepth;//if noVisitDepth > 0, not visit
         
+        @Override
         public NodeVisitor enter(Node n) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -772,6 +775,7 @@ public class WSUtil {
             return super.enter(n);
         }
         
+        @Override
         public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
             
             if(n instanceof Closure
@@ -815,6 +819,7 @@ public class WSUtil {
         
         private int noVisitDepth;//if noVisitDepth > 0, not visit
         
+        @Override
         public NodeVisitor enter(Node n) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -823,6 +828,7 @@ public class WSUtil {
             return super.enter(n);
         }
 
+        @Override
         public Node leave(Node old, Node n, NodeVisitor v) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -873,6 +879,7 @@ public class WSUtil {
         
         private int noVisitDepth;//if noVisitDepth > 0, not visit
         
+        @Override
         public NodeVisitor enter(Node n) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -881,7 +888,7 @@ public class WSUtil {
             return super.enter(n);
         }
         
-        
+        @Override        
         public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
             if(n instanceof Closure
                     || n instanceof ClassBody){
@@ -934,6 +941,7 @@ public class WSUtil {
             this.lDeclList = lDeclList;
         }
         
+        @Override
         public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
             if (n instanceof LocalDecl) {
                 lDeclList.add((LocalDecl) n);
@@ -955,6 +963,7 @@ public class WSUtil {
            tn = xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, outerDef.asType());
         }
         
+        @Override
         public Node leave(Node parent, Node old, Node n, NodeVisitor v){
             if(n instanceof Special){
                 

@@ -35,6 +35,7 @@ public class FlattenVisitor extends NodeVisitor
 	stack = new LinkedList<List<Node>>();
     }
 
+    @Override
     public Node override(Node parent, Node n) {
 	// Insert Blocks when needed to allow local decls to be inserted.
 	if (parent instanceof Stmt && n instanceof Stmt) {
@@ -83,6 +84,7 @@ public class FlattenVisitor extends NodeVisitor
      * When entering a BlockStatement, place a new StatementList
      * onto the stack
      */
+    @Override
     public NodeVisitor enter(Node parent, Node n) {
 	if (n instanceof Block) {
 	    stack.addLast(new LinkedList<Node>());
@@ -104,6 +106,7 @@ public class FlattenVisitor extends NodeVisitor
     /** 
      * Flatten complex expressions within the AST
      */
+    @Override
     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
         if (noFlatten.contains(old)) {
 	    noFlatten.remove(old);

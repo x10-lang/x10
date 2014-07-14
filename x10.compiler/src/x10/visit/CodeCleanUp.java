@@ -289,6 +289,7 @@ public class CodeCleanUp extends ContextVisitor {
         return xnf.Block(labeled.position(), statements);
     }
 
+    @Override
     public void finish() {
         if (reportStats) {
             System.out.println("CodeCleanUp: Blocks removed " + blockCount);

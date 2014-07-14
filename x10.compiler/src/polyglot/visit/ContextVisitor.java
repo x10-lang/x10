@@ -52,6 +52,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
         this.context = null;
     }
 
+    @Override
     public NodeVisitor begin() {
         context = ts.emptyContext();
         outer = null;
@@ -105,10 +106,12 @@ public class ContextVisitor extends ErrorHandlingVisitor
 		    n.addDecls(context);
     }
     
+    @Override
     public final NodeVisitor enter(Node n) {
     	throw new InternalCompilerError("Cannot call enter(Node n) on a ContextVisitor; use enter(Node parent, Node n) instead");
     }
     
+    @Override
     public final NodeVisitor enter(Node parent, Node n) {
         if (reporter.should_report(Reporter.visit, 5))
             reporter.report(5, "enter(" + n + ")");
@@ -137,6 +140,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
         return super.enter(parent, n);
     }
 
+    @Override
     public final Node leave(Node parent, Node old, Node n, NodeVisitor v) {
         // If the traversal was pruned, just return n since leaveCall
         // might expect a ContextVisitor, not a PruningVisitor.
@@ -149,6 +153,7 @@ public class ContextVisitor extends ErrorHandlingVisitor
         return m;
     }
 
+    @Override
     public final Node leave(Node old, Node n, NodeVisitor v) {
         throw new InternalCompilerError("ContextVisitor.leave(Node, Node, NodeVisitor) should not be called");
     }

@@ -73,6 +73,7 @@ public class AlphaRenamer extends NodeVisitor {
 
     public static final String LABEL_PREFIX = "label ";
 
+    @Override
     public NodeVisitor enter(Node n) {
         if (isNewScope(n)) {
             // Push a new, empty set onto the stack.
@@ -140,6 +141,7 @@ public class AlphaRenamer extends NodeVisitor {
         return tail == prefix.length() ? prefix : prefix.substring(0, tail);
     }
 
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (isNewScope(n)) {
             // Pop the current name set off the stack and remove the

@@ -24,6 +24,7 @@ import polyglot.ast.Node;
 public class PruningVisitor extends NodeVisitor
 {
     public PruningVisitor() { super(); }
+    @Override
     public Node override(Node parent, Node n) {
         return n;
     }

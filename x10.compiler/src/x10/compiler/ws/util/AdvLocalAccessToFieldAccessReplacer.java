@@ -64,7 +64,7 @@ public class AdvLocalAccessToFieldAccessReplacer extends NodeVisitor {
         localDeclaredVar = CollectionFactory.newHashSet(declaredNames);
     }
 
-    
+    @Override
     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
         Node ret = n;
         

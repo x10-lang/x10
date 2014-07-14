@@ -113,7 +113,6 @@ import x10.types.MethodInstance;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
-
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constants.StringValue;
@@ -199,6 +198,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
     
+    @Override
     public Node override(Node parent, Node n) { 
     	if (n instanceof Finish) {
     		Finish finish = (Finish) n;

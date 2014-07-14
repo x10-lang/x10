@@ -44,6 +44,7 @@ public class PreCodeGenASTChecker extends NodeVisitor {
         this.job = job;
     }
 
+    @Override
     public Node visitEdgeNoOverride(Node parent, Node n) {
     	String m = isIllegalAST(n);
 

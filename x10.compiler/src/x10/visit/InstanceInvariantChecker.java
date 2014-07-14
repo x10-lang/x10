@@ -36,6 +36,7 @@ public class InstanceInvariantChecker extends NodeVisitor
         this.reporter = job.extensionInfo().getOptions().reporter;
     }
 
+    @Override
     public Node visitEdgeNoOverride(Node parent, Node n) {
     	if (reporter.should_report(Reporter.InstanceInvariantChecker, 2))
     		reporter.report(2, "Checking invariants for: " + n);

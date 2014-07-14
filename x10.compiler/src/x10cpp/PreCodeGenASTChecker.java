@@ -46,6 +46,7 @@ public class PreCodeGenASTChecker extends NodeVisitor {
         this.stmtExprsAllowed = stmtExprsAllowed;
     }
 
+    @Override
     public Node visitEdgeNoOverride(Node parent, Node n) {
     	String m = isIllegalAST(n);
 

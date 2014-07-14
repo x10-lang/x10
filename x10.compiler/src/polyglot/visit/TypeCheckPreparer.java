@@ -32,6 +32,7 @@ public class TypeCheckPreparer extends ContextVisitor
         this.setMemo(memo);
     }
     
+    @Override
     public Node override(Node parent, Node n) {
     	Node m = n.del().setResolverOverride(parent, this);
     	assert m == null || m == n : "setResolverOverride should not rewrite";

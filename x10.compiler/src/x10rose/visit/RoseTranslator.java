@@ -2108,6 +2108,7 @@ public class RoseTranslator extends Translator {
 		
 	     boolean isClassFound = false;
 	     
+         @Override
 	     public NodeVisitor enter(Node n) {
 			if (isClassFound) 
 				return this;

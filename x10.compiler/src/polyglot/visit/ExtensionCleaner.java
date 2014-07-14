@@ -36,6 +36,7 @@ public class ExtensionCleaner extends NodeVisitor {
         this.ts = javaExt.typeSystem();
     }
 
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         n = n.ext(null);
         n = n.del(null);

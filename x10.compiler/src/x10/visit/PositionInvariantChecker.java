@@ -46,6 +46,7 @@ public class PositionInvariantChecker extends NodeVisitor
         }
     }
 
+    @Override
     public Node visitEdgeNoOverride(Node parent, Node n) {
         if (performOverlapCheck) {
             children.push(new HashSet<Node>());

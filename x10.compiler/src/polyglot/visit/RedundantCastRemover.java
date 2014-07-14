@@ -30,6 +30,7 @@ public class RedundantCastRemover extends NodeVisitor {
         super();
     }
     
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (n instanceof Cast) {
             Cast c = (Cast) n;

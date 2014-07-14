@@ -50,6 +50,7 @@ public class LocalAccessToFieldAccessReplacer extends NodeVisitor {
     }
     
     
+    @Override
     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
         Node ret = n;
         if(n instanceof Local && !(parent instanceof LocalAssign)){

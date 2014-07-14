@@ -71,6 +71,7 @@ public class NodeScrambler extends NodeVisitor
   public class FirstPass extends NodeVisitor 
   {
     @SuppressWarnings("unchecked") // Casting to a generic type
+    @Override
     public NodeVisitor enter( Node n)
     {
       pairs.put( n, (LinkedList<Node>) currentParents.clone());
@@ -80,6 +81,7 @@ public class NodeScrambler extends NodeVisitor
       return this;
     }
     
+    @Override
     public Node leave( Node old, Node n, NodeVisitor v)
     {
       currentParents.remove( n);
@@ -92,6 +94,7 @@ public class NodeScrambler extends NodeVisitor
     return seed;
   }
 
+  @Override
   public Node override( Node n)
   {
     if( coinFlip()) {

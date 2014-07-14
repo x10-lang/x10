@@ -48,6 +48,7 @@ import x10.ast.SettableAssign;
 public class AtomicElimination extends NodeVisitor {
     private final boolean DEBUG_ = false;
     
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         Node ret = n;
 

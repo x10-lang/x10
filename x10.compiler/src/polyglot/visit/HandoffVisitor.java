@@ -30,6 +30,7 @@ public class HandoffVisitor extends NodeVisitor
         this.ext = ext;
     }
 
+    @Override
     public Node override(Node n) {
         if (n instanceof SourceFile || n instanceof SourceCollection) {
             return null;
@@ -37,6 +38,7 @@ public class HandoffVisitor extends NodeVisitor
         return n;
     }
 
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (n instanceof SourceFile) {
             SourceFile sf = (SourceFile) n;

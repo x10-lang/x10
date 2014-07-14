@@ -42,6 +42,7 @@ public class DumpAst extends NodeVisitor
      * that node. Then we begin a new <code>CodeWriter</code> block and traverse
      * the children.
      */
+    @Override
     public NodeVisitor enter(Node n) {
         w.write("(");
         n.dump(w);
@@ -55,6 +56,7 @@ public class DumpAst extends NodeVisitor
      * we must end the <code>CodeWriter</code> block that was begun in 
      * <code>enter</code>.
      */
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         w.end();
         w.write(")");
@@ -62,6 +64,7 @@ public class DumpAst extends NodeVisitor
         return n;
     }
 
+    @Override
     public void finish() {
         try {
             w.flush();

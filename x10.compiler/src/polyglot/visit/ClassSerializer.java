@@ -57,6 +57,7 @@ public class ClassSerializer extends NodeVisitor
         this.ver = ver;
     }
     
+    @Override
     public Node override(Node n) {
         // Stop at class members.  We only want to encode top-level classes.
 	if (n instanceof ClassMember && ! (n instanceof ClassDecl)) {
@@ -66,6 +67,7 @@ public class ClassSerializer extends NodeVisitor
 	return null;
     }
 
+    @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
 	if (! (n instanceof ClassDecl)) {
 	    return n;

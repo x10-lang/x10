@@ -256,6 +256,7 @@ public class ClosureRemover extends ContextVisitor {
             private Block rewriteClosureBody(Block closureBody,final List<VarInstance<? extends VarDef>> capturedEnv, final List<NamedVariable> capturedVarsExThis, final Map<String, X10LocalDef> nameToLocalDef, final List<Formal> formals) {
                 final Position pos = Position.COMPILER_GENERATED;
                 return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
+                    @Override
                     public Node override(Node parent, Node n) {
                         if (n instanceof Closure) {
                             return n;
@@ -555,6 +556,7 @@ public class ClosureRemover extends ContextVisitor {
             ) {
                 final Position pos = Position.COMPILER_GENERATED;
                 return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
+                    @Override
                     public Node override(Node n) {
                         if (n instanceof LocalAssign) {
                             Local local = ((LocalAssign) n).local();

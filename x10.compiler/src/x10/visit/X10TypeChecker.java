@@ -63,6 +63,7 @@ public class X10TypeChecker extends TypeChecker {
 	private x10.ExtensionInfo extensionInfo;
 	
 	// TODO: record the top-level node in a memo only if typechecking a fragment
+    @Override
 	public Node override(Node parent, Node n) {
 	    Node n_ = memo.get(n);
 	    if (n_ != null) {

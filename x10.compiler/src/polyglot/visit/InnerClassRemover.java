@@ -66,6 +66,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
     
     protected abstract ContextVisitor localClassRemover();
 
+    @Override
     public Node override(Node parent, Node n) {
         if (n instanceof SourceFile) {
             ContextVisitor lcv = localClassRemover();

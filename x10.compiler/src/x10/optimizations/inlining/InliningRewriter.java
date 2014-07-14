@@ -102,6 +102,7 @@ public class InliningRewriter extends ContextVisitor {
         failed[0] = false;
     }
 
+    @Override
     public Node override(Node n) {
         if (failed[0]) 
             return n; // abort visit

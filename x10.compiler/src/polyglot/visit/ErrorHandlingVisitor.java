@@ -48,6 +48,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
      * Part of the initialization done by begin() in an ErrorHandlingVisitor
      * method is initializing the error-handling state.
      */
+    @Override
     public NodeVisitor begin() {
         this.error = false;
         return super.begin();
@@ -188,6 +189,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
      * @return The <code>NodeVisitor</code> which should be used to visit the
      * children of <code>n</code>.
      */
+    @Override
     public NodeVisitor enter(Node parent, Node n) {
         if (reporter.should_report(Reporter.visit, 5))
             reporter.report(5, "enter(" + n + ")");
@@ -262,6 +264,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
      * <code>n</code>.
      */
  
+    @Override
     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
         try {
             if (v instanceof ErrorHandlingVisitor &&

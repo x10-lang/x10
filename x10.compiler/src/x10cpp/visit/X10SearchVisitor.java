@@ -170,6 +170,7 @@ public class X10SearchVisitor<T extends Node> extends NodeVisitor {
 		return;
 	}
 
+    @Override
 	public Node override(Node parent, Node child) {
 		if (oneMatch && found)
 		    return child;

@@ -78,7 +78,6 @@ import x10.types.X10ProcedureDef;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
 import x10.types.constraints.ConstraintManager;
-
 import x10.util.AltSynthesizer;
 import x10.util.AnnotationUtils;
 import x10.visit.ConstantPropagator;
@@ -169,6 +168,7 @@ public class Inliner extends ContextVisitor {
      * @return null, if node is to be walked for inlinable calls, or 
      *         node, if inlining should not be performed within it
      */
+    @Override
     public Node override(Node node) {
         Position pos = node.position(); // DEBUG
         if (2 <= VERBOSITY && node instanceof SourceFile) {

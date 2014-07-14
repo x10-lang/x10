@@ -36,7 +36,6 @@ import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -180,6 +179,7 @@ public class VarsBoxer extends ContextVisitor {
 
     private ContextVisitor createAddWriteBackCallVisitor(Context context2, final List<Name> outerLocals) {
         return new ContextVisitor(job, ts, nf) {
+            @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof AtStmt || n instanceof AtExpr) {
                     return n;
@@ -306,6 +306,7 @@ public class VarsBoxer extends ContextVisitor {
     private ContextVisitor createAtExtraNodeVisitor(Context context2, final List<LocalDecl> privatizations,
                                           final List<VarInstance<? extends VarDef>> caps, final EnvironmentCapture ec) {
         return new ContextVisitor(job, ts, nf) {
+            @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof AtStmt || n instanceof AtExpr) {
                     return n;
@@ -352,6 +353,7 @@ public class VarsBoxer extends ContextVisitor {
     private ContextVisitor createAtOuterVarAccessVisitor(Context context2, final List<Name> outerLocals,
                                           final List<VarInstance<? extends VarDef>> caps) {
         return new ContextVisitor(job, ts, nf) {
+            @Override
             public Node override(Node parent, Node n) {
                 if (n instanceof AtStmt || n instanceof AtExpr) {
                     return n;

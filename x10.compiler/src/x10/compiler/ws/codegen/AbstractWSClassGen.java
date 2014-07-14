@@ -503,6 +503,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap {
             return super.enter(n);
         }
 
+        @Override
         public Node leave(Node old, Node n, NodeVisitor v) {
 
             if(n instanceof Closure || n instanceof ClassBody){
