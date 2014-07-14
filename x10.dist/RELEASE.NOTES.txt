@@ -1,28 +1,16 @@
-X10 Release 2.4.3
+X10 Release 2.5.0
+
+This is a pre-release (development version) of X10 2.5.0
+
 
 HIGHLIGHTS OF THIS RELEASE
 
-There were no significant language changes or 
-incompatible class library API changes made in 
-this release of X10. 
+Elastic/Resilient X10
+  Class library changes
+  Hazelcast
 
-A major new feature in X10DT 2.4.3 is support for basic 
-source-level debugging of X10 programs running on Managed X10. 
-With this release debugging operations that rely on source
-line information (e.g. breakpoints, single stepping) can be
-done at the X10 source level.  Debugging operations like variable
-inspection can only be done at the level of the generated Java
-code (due to limitations of JSR-045 SMAP mappings). To try this
-new feature, simply launch a Managed X10 program using the usual
-Eclipse debugging procedures. 
-
-In previous versions of X10, when a Place had no activities
-to execute the XRX runtime would consume CPU by actively pooling
-the network for incoming activities.  In X10 2.4.3 the default has
-been changed to instead block the polling thread on the network, 
-thus allowing idle X10 Places to not consume CPU resources.  
-If the previous behavior is desired (active polling), set the 
-environment variable X10_BUSY_WAITING to true.
+Job Submission/XRX as a library
+  
 
 LIMITATIONS OF THIS RELEASE
 
@@ -50,30 +38,12 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.4.3
+Below is a summary of JIRA issues addressed for the X10 2.5.0
 
-** New Features and Improvements
-    * [XTENLANG-1012] - Busy wait in x10::runtime::Pool::scan()
-    * [XTENLANG-3367] - Handle non-trivial at() expressions in CUDA kernels
-    * [XTENLANG-3370] - generate SMAPI debug info in command line builds
-    * [XTENLANG-3385] - GML: add Manhattan, Chebyshev distances to x10.matrix.Vector
-    * [XTENLANG-3386] - New class x10.util.Date
-
-** Bugs
-    * [XTENLANG-3219] - Exceptions during serialization/deserialization can hang XRX
-    * [XTENLANG-3368] - Resilient X10: failure to reliably raise DPE when System.killHere is called
-    * [XTENLANG-3374] - Team: illegal broadcastFlat within atomic block
-    * [XTENLANG-3376] - bugs in x10.io.File.list() 
-    * [XTENLANG-3377] - Team.WORLD.barrier() intermittent hang with X10RT MPI
-    * [XTENLANG-3383] - Elements of Rail[struct] not initialized to zero
-    * [XTENLANG-3384] - Incomplete type error on cast to constrained type in postcompile
-    * [XTENLANG-3387] - Machine architecture unknown for X10RT MPI bindings
-
-** Tasks
-    * [XTENLANG-3332] - Update install instructions on website
+TODO:
 
 For the details of JIRA issues fixed in this release, see
-http: http://jira.codehaus.org/secure/ReleaseNote.jspa?version=20024&projectId=11812
+URL HERE:
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
