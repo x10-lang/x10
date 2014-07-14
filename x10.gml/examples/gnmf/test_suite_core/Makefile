@@ -9,14 +9,6 @@
 #  (C) Copyright IBM Corporation 2006-2014.
 #
 
-###################################################
-###################################################
-## Name:        X10 global parallel matrix library - GML
-## Created by:  Juemin Zhang
-## Contact:     zhangj@us.ibm.com
-###################################################
-###################################################
-## 
 ## This makefile can be used to launch scalability test with respect to 
 ## the number of cores or places
 ## 1) launch benchmark testsuite,

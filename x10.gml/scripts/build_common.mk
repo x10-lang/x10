@@ -1,11 +1,3 @@
-###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
-###################################################
-
 # Inputs 
 # target      --- default source x10 file
 # target_list --- list of targets, which are built independently

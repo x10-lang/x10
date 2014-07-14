@@ -1,9 +1,4 @@
 ###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
 #This make file is used for building native backend
 #running on MPI transport.
 ###################################################

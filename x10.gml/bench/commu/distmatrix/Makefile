@@ -9,13 +9,6 @@
 #  (C) Copyright IBM Corporation 2006-2014.
 #
 
-###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
-###################################################
 # This is makefile for building and testing benchmark
 # for communication using DistMatrix
 
