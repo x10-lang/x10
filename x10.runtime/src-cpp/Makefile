@@ -65,6 +65,12 @@ ifeq ($(X10RT_PLATFORM),cygwin)
     override XRX_DEP_LIBS += -lgc
   endif
 endif
+ifeq ($(subst 64,,$(X10RT_PLATFORM)),darwin)
+  XRX_DEP_LIBS = -L"$(DISTDIR)"/lib
+  ifdef ENABLE_GC
+    override XRX_DEP_LIBS += -lgc
+  endif
+endif
 XRX_PROPERTIES = libx10.properties
 SHLIB_PROPERTIES = sharedlib.properties
 
