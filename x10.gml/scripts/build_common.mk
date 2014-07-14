@@ -48,11 +48,11 @@ all	:
 
 ###
 clean	::
-		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_lapi
+		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_pami
 
 clean_all:: 
 		rm -rf $(build_path)
-		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_lapi $(f)_pami $(f)_bgp;)
+		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_pami $(f)_bgp;)
 
 ###-----------------------------------------
 ##  build library
@@ -61,10 +61,10 @@ lib	:
 
 check_gml		: 
 	@(if test -d $(gml_inc); then echo "Find GML include path"; \
-	else echo "Cannot find $(gml_inc). Apps compiling may fail. If so, rebuilt your GML library"; fi)
+	else echo "Cannot find $(gml_inc). Apps compiling may fail. If so, rebuild your GML library"; fi)
 
 ####----------------------------------------------
-.PHONY		: lib all runall sock mpi java clean clean_all all_mpi all_sock all_lapi all_java chk_gml_inc help
+.PHONY		: lib all runall sock mpi java clean clean_all all_mpi all_sock all_pami all_java chk_gml_inc help
 ####----------------------------------------------
 
 help ::

@@ -9,16 +9,8 @@
 #  (C) Copyright IBM Corporation 2006-2014.
 #
 
-###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
-###################################################
-
 # Run benchmarks
-# Run [bench] executable: make [run_mpi|run_sock|run_lapi|java]
+# Run [bench] executable: make [run_mpi|run_sock|java]
 
 # Bench mark test suite
 # cd [placehandle|distarray|distmatrix]/test_suite_[java|sock|mpi]; ./ptest_[probsizes|nodes|cores].pl -r

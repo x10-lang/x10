@@ -1,10 +1,3 @@
-###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
-###################################################
 # This is makefile for building SUMMA benchmarks, for
 # distributed dense and sparse matrices, as well as
 # SUMMA C-MPI implmentation

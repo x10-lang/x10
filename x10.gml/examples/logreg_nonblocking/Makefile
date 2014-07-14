@@ -1,15 +1,4 @@
 ###################################################
-###################################################
-## Name:  	X10 application test
-## Created by: 	Juemin Zhang
-## Contact:   	zhangj@us.ibm.com
-###################################################
-###################################################
-
-# Build [mpi|sockets|lapi] transport: make [mpi|sock|lapi]
-# Build java backend: make java
-# Build all excutable and java backend: make all
-###################################################
 # Source and target file
 ###################################################
 target = RunLogReg
