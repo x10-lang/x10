@@ -9,14 +9,6 @@
 #  (C) Copyright IBM Corporation 2006-2014.
 #
 
-###################################################
-###################################################
-## Name:        X10 global parallel matrix library - GML
-## Created by:  Juemin Zhang
-## Contact:     zhangj@us.ibm.com
-###################################################
-###################################################
-## 
 ## This makefile is used to 
 ## 1) launch benchmark testsuite for evaluating panel size in SUMMA
 ## 2) parsing output log
