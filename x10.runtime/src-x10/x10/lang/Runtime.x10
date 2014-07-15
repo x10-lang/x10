@@ -606,10 +606,13 @@ public final class Runtime {
         private def loop():Boolean {
             for (var i:Int = 0n; i < BOUND; i++) {
                 activity = poll();
-                if (activity == null) activity = pool.scan(random, this);
-                if (activity == null) return false; // [DC] only happens when pool's latch is released
-                if (activity.epoch < epoch()) continue;
-                if (pool.deal(activity)) continue;
+                if (activity == null) {
+                    activity = pool.scan(random, this);
+                    if (activity == null) return false; // [DC] only happens when pool's latch is released
+                    if (activity.epoch < epoch()) continue;
+                } else {
+                    if (activity.epoch < epoch() || pool.deal(activity())) continue;
+                }
                 activity.run();
                 Unsafe.dealloc(activity);
             }
