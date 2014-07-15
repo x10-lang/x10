@@ -40,7 +40,7 @@ public class Congruent extends x10Test {
         // do some remote ops
         finish for (p in Place.places()) async at (p) {
             val rail = plh() as Rail[Long]{self!=null};
-	    val gr = Unsafe.getCongruentSibling(rail, p.next());
+	    val gr = Unsafe.getCongruentSibling(rail, Place.places().next(p));
             for (i in 0L..(elements-1)) {
                 val oracle = Math.sqrt(i as Double) as Long;
                 GlobalRail.remoteAdd(gr, i, oracle);
