@@ -19,7 +19,7 @@
 
 class Cancellation {
     static def job(id:Long, iterations:Long) = ()=>{
-        at (here.next()) async {
+        at (Place.places().next(here)) async {
             for (i in 1..iterations) {
                 finish for (p in Place.places()) { 
                     at (p) async Console.OUT.println(here+" says hello (job " + id + ", iteration " + i + ")");
