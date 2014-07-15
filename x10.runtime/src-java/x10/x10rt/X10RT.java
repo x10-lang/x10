@@ -32,6 +32,7 @@ public class X10RT {
     static x10.lang.Place here = null;
     static boolean forceSinglePlace = false;
     public static SocketTransport javaSockets = null;
+    public static long initialEpoch = -1; // set by JavaSockets if we are joining an existing set of places with an existing epoch
     
     public static boolean X10_EXITING_NORMALLY = false;
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;

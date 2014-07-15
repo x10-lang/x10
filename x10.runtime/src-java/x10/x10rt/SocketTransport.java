@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.FinishState;
 import x10.lang.Place;
+import x10.lang.Runtime;
 import x10.serialization.X10JavaDeserializer;
 
 /**
@@ -423,13 +424,14 @@ public class SocketTransport {
 							if (myPlaceId == lowestValidPlaceId) {
 								String allPlaceLinks = getAllPlaceLinks();
 								byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
-								controlMsg = ByteBuffer.allocateDirect(16+allPlaceLinksBytes.length);
+								controlMsg = ByteBuffer.allocateDirect(24+allPlaceLinksBytes.length);
 								controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 								// we handle new place id assignment directly here
 								remote = this.nplaces++;
 								controlMsg.putInt(remote);
 								controlMsg.putInt(myPlaceId);
-								controlMsg.putInt(allPlaceLinksBytes.length);
+								controlMsg.putInt(8+allPlaceLinksBytes.length); // epoch, plus link info
+								controlMsg.putLong(Runtime.epoch$O());
 								controlMsg.put(allPlaceLinksBytes);
 								controlMsg.flip();
 								writeNBytes(sc, controlMsg);
@@ -544,11 +546,12 @@ public class SocketTransport {
 						if (newPlace != null) {
 							String allPlaceLinks = getAllPlaceLinks();
 							byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
-							ByteBuffer controlMsg = ByteBuffer.allocateDirect(16+allPlaceLinksBytes.length);
+							ByteBuffer controlMsg = ByteBuffer.allocateDirect(24+allPlaceLinksBytes.length);
 							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 							controlMsg.putInt(remote); // actually the new place id
 							controlMsg.putInt(myPlaceId);
-							controlMsg.putInt(allPlaceLinksBytes.length);
+							controlMsg.putInt(8+allPlaceLinksBytes.length); // epoch, plus link info
+							controlMsg.putLong(Runtime.epoch$O());
 							controlMsg.put(allPlaceLinksBytes);
 							controlMsg.flip();
 							writeNBytes(newPlace.sc, controlMsg);
@@ -794,7 +797,8 @@ public class SocketTransport {
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 
 					// now we have one link.  Establish the rest of them
-					int datalen = controlMsg.getInt();
+					int datalen = controlMsg.getInt() - 8;
+					X10RT.initialEpoch = controlMsg.getLong(); // save epoch of existing places
 					byte[] connectionStringBuffer = new byte[datalen];
 					ByteBuffer connectionStringBB = ByteBuffer.wrap(connectionStringBuffer);
 					while (!readNBytes(sc, connectionStringBB, datalen));
