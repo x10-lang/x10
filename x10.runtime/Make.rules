@@ -109,6 +109,7 @@ ifdef JAVA_HOME
     # We don't want to build the jni-bindings for x10rt on cygwin
   else
   ifeq ($(shell uname -s),Darwin)
+    export MACOSX_DEPLOYMENT_TARGET=10.6
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/darwin
     ifeq ($(jarch),x86_64)
       jarch=amd64
