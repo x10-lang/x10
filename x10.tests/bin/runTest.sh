@@ -333,7 +333,7 @@ thrunstate="UNKNOWN_STATE"
 tcbackend="native"
 
 # resiliency modes
-tc_all_resilient_modes="0 1"
+tc_all_resilient_modes="0 1 99"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
@@ -721,10 +721,13 @@ function main {
 		    mode_name="main"
 		    ;;
 		1) 
-		    mode_name="resilient_x10rt"
+		    mode_name="resilient_x10"
 		    ;;
 		11) 
 		    mode_name="place_zero_resilient_finish"
+		    ;;
+		99) 
+		    mode_name="resilient_x10rt"
 		    ;;
 		*)
 		    mode_name="resilient_mode_${jen_resiliency_mode}"
