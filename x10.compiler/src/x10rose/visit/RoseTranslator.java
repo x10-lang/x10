@@ -626,8 +626,8 @@ public class RoseTranslator extends Translator {
 		
 		public void visitDeclarations(X10ClassDecl_c n) {
 			toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id().toString());
-			SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
-			List<Import> imports = srcfile.imports();
+//			SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
+//			List<Import> imports = srcfile.imports();
 //			for (Import import_ : imports) {
 //				System.out.println("Import=" + import_.name() + ", kind=" + import_.kind());
 //			if (import_.kind() == Import.CLASS) {
@@ -658,7 +658,6 @@ public class RoseTranslator extends Translator {
 			JNI.cactionInsertClassEnd(class_name, createJavaToken(n, class_name));
 			
 	        List<ClassMember> members = ((X10ClassBody_c)n.body()).members();
-
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			
 			String[] typeParamNames = new String[typeParamList.size()];
@@ -1057,7 +1056,21 @@ public class RoseTranslator extends Translator {
 // 			visitChildren(n, argTypes);
 //			visitChildren(n, n.typeArguments());
 //			visitChildren(n, n.arguments());
-			JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, createJavaToken());
+			String target_type_name = n.target().type().name().toString();
+			if (   target_type_name.equals("void") 
+					|| target_type_name.equals("boolean")	|| target_type_name.equals("Boolean")
+					|| target_type_name.equals("byte") 	|| target_type_name.equals("Byte")
+					|| target_type_name.equals("char")		|| target_type_name.equals("Char")
+					|| target_type_name.equals("int")		|| target_type_name.equals("Int")
+					|| target_type_name.equals("short")	|| target_type_name.equals("Short")
+					|| target_type_name.equals("float")	|| target_type_name.equals("Float")
+					|| target_type_name.equals("long")		|| target_type_name.equals("Long")
+					|| target_type_name.equals("double")	|| target_type_name.equals("Double")) {
+					JNI.cactionTypeReference("", target_type_name, this, createJavaToken());
+				}
+			else
+				JNI.cactionTypeReference(package_name, target_type_name, this, createJavaToken());
+//			JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, createJavaToken());
 			
 			int num_parameters = n.arguments().size();
 			int numTypeArguments = n.typeArguments().size();
@@ -1395,9 +1408,9 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10LocalDecl_c n) {
 			toRose(n, "X10LocalDecl:", n.name().id().toString());		
-//			System.out.println("init=" + n.init());
-			visitChild(n, n.type());		
-			JNI.cactionLocalDeclaration(0, n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
+			System.out.println("init=" + n.flags().flags().isFinal());
+			visitChild(n, n.type());
+			JNI.cactionLocalDeclaration(0, n.name().id().toString(), n.flags().flags().isFinal(), createJavaToken(n, n.name().id().toString()));
 			JNI.cactionLocalDeclarationEnd(n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
 		}
 
