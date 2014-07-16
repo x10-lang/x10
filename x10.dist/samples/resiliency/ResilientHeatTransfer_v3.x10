@@ -235,7 +235,7 @@ public class ResilientHeatTransfer_v3 {
       try {
         finish {
           while (placeNum < recoveryInfo.lastActivePlace) {
-            val nextPlace = findActivePlace(p.next(), recoveryInfo.activePlaces, true);
+            val nextPlace = findActivePlace(Place.places().next(p), recoveryInfo.activePlaces, true);
 	    val currPlace = p;
             at (nextPlace) async backupPlh().updatePartition(at (currPlace) heatArrayPlh(), iterationNumber);
 	    p = nextPlace;
@@ -281,9 +281,9 @@ public class ResilientHeatTransfer_v3 {
 
       while (!activePlaces(p1.id())) {
         if (ascending)
-          p1 = p1.next();
+          p1 = Place.places().next(p1);
         else
-          p1 = p1.prev();
+          p1 = Place.places().prev(p1);
       }
       return p1;
     }
@@ -340,8 +340,8 @@ public class ResilientHeatTransfer_v3 {
         // Copy border columns across partitions
 	  try {
             finish {
-              val secondPlace : Place = findActivePlace((Place.FIRST_PLACE).next(), recoveryInfo.activePlaces, true);
-	      val secondToLastPlace = findActivePlace(Place(recoveryInfo.lastActivePlace).prev(), recoveryInfo.activePlaces, false);
+              val secondPlace : Place = findActivePlace(Place.places().next(Place.FIRST_PLACE), recoveryInfo.activePlaces, true);
+	      val secondToLastPlace = findActivePlace(Place.places().prev(Place(recoveryInfo.lastActivePlace)), recoveryInfo.activePlaces, false);
 	      async {
                 at (secondPlace) getColumn(heatArrayPlh(), false, columnArrayPlh());
                 at(Place.FIRST_PLACE) replaceColumn(heatArrayPlh(), true, at (secondPlace) columnArrayPlh());
@@ -360,7 +360,7 @@ public class ResilientHeatTransfer_v3 {
                   at (prevPlace) getColumn(heatArrayPlh(), true, columnArrayPlhHigh());
                   at (p1) replaceColumn(heatArrayPlh(), false, at (prevPlace) columnArrayPlhHigh());
                 }
-		val nextPlace = findActivePlace(p1.next(), recoveryInfo.activePlaces, true);
+		val nextPlace = findActivePlace(Place.places().next(p1), recoveryInfo.activePlaces, true);
 		async {
  		  at (nextPlace) getColumn(heatArrayPlh(), false, columnArrayPlh());
                   at (p1) replaceColumn(heatArrayPlh(), true, at (nextPlace) columnArrayPlh());

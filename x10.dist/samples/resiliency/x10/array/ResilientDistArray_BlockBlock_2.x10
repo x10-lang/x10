@@ -171,7 +171,7 @@ public class ResilientDistArray_BlockBlock_2[T] implements (Long,Long)=>T {
         val pg = new SparsePlaceGroup(livePlaces.toRail());
         val A = new ResilientDistArray_BlockBlock_2[Long](10, 1, pg, (x:Long,y:Long)=>x);
         A.snapshot();
-        livePlaces.remove(here.next());
+        livePlaces.remove(Place.places().next(here));
         val newPg = new SparsePlaceGroup(livePlaces.toRail());
         A.restore(newPg);
         for (pt:Point(2) in A.globalIndices()) Console.OUT.print(at(A.place(pt))A(pt) + " ");

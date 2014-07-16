@@ -10,11 +10,11 @@
  */
 
 public class HeatTransfer_v8 {
-    static val arrayColsPerPlace : Int = 2;
+    static val arrayColsPerPlace : Int = 2n;
     static val epsilon = 1.0e-2;
     static val dimensionSize : Int = arrayColsPerPlace * (Place.numPlaces() as Int);
 
-    static def tupleToIndex(row:int, col:int, colSize:int): int {
+    static def tupleToIndex(row:Long, col:Long, colSize:Long): Long {
 // Console.OUT.printf("row %i, col %i, colSize %i, real index %i\n", row, col, colSize, (row * colSize) + col);
       return (row * colSize) + col;
     }
@@ -40,7 +40,7 @@ public class HeatTransfer_v8 {
     }
 
     static def getColumn(heatArray:Rail[Double], j:Int, column:Rail[double]) {
-      for (i : int in 0..(dimensionSize + 1))
+      for (i in 0..(dimensionSize + 1))
         column(i) = heatArray(tupleToIndex(i,j,arrayColsPerPlace+2));
     }
 
@@ -98,7 +98,7 @@ public class HeatTransfer_v8 {
       val continueVariables = new Rail[Boolean](Place.numPlaces() as Int);
       val outputResults : Boolean = true;
       val printDebugInfo : Boolean = false;
-      var iterationNumber : Int = 0;
+      var iterationNumber : Int = 0n;
       var before : Long;
       var after : Long;
 
@@ -124,19 +124,19 @@ public class HeatTransfer_v8 {
         if (keepIterating)
         // Copy border columns across partitions
           finish {
-            val secondPlace : Place = (Place.FIRST_PLACE).next();
+            val secondPlace : Place = Place.places().next(Place.FIRST_PLACE);
             val lastPlace : Place =  (Place(Place.numPlaces()-1));
-            at (secondPlace) getColumn(heatArrayPlh(), 1, columnArrayPlh());
-            at(Place.FIRST_PLACE) async replaceColumn(heatArrayPlh(),  arrayColsPerPlace+1, at (secondPlace) columnArrayPlh());
-            at (lastPlace.prev()) getColumn(heatArrayPlh(), arrayColsPerPlace, columnArrayPlh());
-            at(lastPlace) async replaceColumn(heatArrayPlh(), 0, at (lastPlace.prev()) columnArrayPlh());
+            at (secondPlace) getColumn(heatArrayPlh(), 1n, columnArrayPlh());
+            at(Place.FIRST_PLACE) async replaceColumn(heatArrayPlh(),  arrayColsPerPlace+1n, at (secondPlace) columnArrayPlh());
+            at (Place.places().prev(lastPlace)) getColumn(heatArrayPlh(), arrayColsPerPlace, columnArrayPlh());
+            at(lastPlace) async replaceColumn(heatArrayPlh(), 0n, at (Place.places().prev(lastPlace)) columnArrayPlh());
             for (placeNum in 1..(Place.numPlaces()-2)) {
  	      val p : Place = Place(placeNum); 
               at (p) {
-                at (p.prev()) getColumn(heatArrayPlh(), arrayColsPerPlace, columnArrayPlh());
-                async replaceColumn(heatArrayPlh(), 0, at (p.prev()) columnArrayPlh());
- 		at (p.next()) getColumn(heatArrayPlh(), 1, columnArrayPlh());
-                async replaceColumn(heatArrayPlh(), arrayColsPerPlace+1, at (p.next()) columnArrayPlh());
+                at (Place.places().prev(p)) getColumn(heatArrayPlh(), arrayColsPerPlace, columnArrayPlh());
+                async replaceColumn(heatArrayPlh(), 0n, at (Place.places().prev(p)) columnArrayPlh());
+ 		at (Place.places().next(p)) getColumn(heatArrayPlh(), 1n, columnArrayPlh());
+                async replaceColumn(heatArrayPlh(), arrayColsPerPlace+1n, at (Place.places().next(p)) columnArrayPlh());
               }
             }
           }
