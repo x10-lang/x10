@@ -62,19 +62,20 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=1) debug("FinishResilient.make called, parent=" + parent + " latch=" + latch);
         var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
+        case Configuration.RESILIENT_MODE_DEFAULT:
+        case Configuration.RESILIENT_MODE_PLACE0:
+        {
+            val p = (parent!=null) ? parent : getCurrentFS();
+            val l = (latch!=null) ? latch : new SimpleLatch();
+            fs = FinishResilientPlace0.make(p, l);
+            break;
+        }
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
             val l = (latch!=null) ? latch : new SimpleLatch();
             fs = FinishResilientSample.make(p, l);
-            break;
-        }
-        case Configuration.RESILIENT_MODE_PLACE0:
-        {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientPlace0.make(p, l);
             break;
         }
         default:
@@ -87,12 +88,13 @@ abstract class FinishResilient extends FinishState {
     static def notifyPlaceDeath() {
         if (verbose>=1) debug("FinishResilient.notifyPlaceDeath called");
         switch (Runtime.RESILIENT_MODE) {
+        case Configuration.RESILIENT_MODE_DEFAULT:
+        case Configuration.RESILIENT_MODE_PLACE0:
+            FinishResilientPlace0.notifyPlaceDeath();
+            break;
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
             FinishResilientSample.notifyPlaceDeath();
-            break;
-        case Configuration.RESILIENT_MODE_PLACE0:
-            FinishResilientPlace0.notifyPlaceDeath();
             break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);

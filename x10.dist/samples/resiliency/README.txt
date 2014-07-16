@@ -11,9 +11,12 @@ resilient unless the environment variable X10_RESILIENT_MODE is set to
 a non-zero value.  The currently supported values of
 X10_RESILIENT_MODE are:
   X10_RESILIENT_MODE=0	-> Non-resilient X10 (normal execution)
-  X10_RESILIENT_MODE=1	-> Non-resilient X10, but resilient/elastic X10RT
-  X10_RESILIENT_MODE=11	-> Place0-based resilient finish 
-                            (most stable resilient mode)
+  X10_RESILIENT_MODE=1	-> Most stable resilient mode (now is an alias to 11)
+  X10_RESILIENT_MODE=11	-> Place0-based resilient finish
+  X10_RESILIENT_MODE=99	-> Non-resilient X10, but resilient/elastic X10RT
+
+We are planning to add various implementations of resilient finish,
+but you can choose the most stable one by "X10_RESILIENT_MODE=1".
 
 A paper describing Resilient X10 appeared in PPoPP 2014
 (http://dl.acm.org/citation.cfm?doid=2555243.2555248). 

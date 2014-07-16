@@ -75,8 +75,9 @@ final class Configuration {
     
     // Note that "X10_RESILIENT_MODE" is also checked in x10rt/sockets/Launcher.cc
     static val RESILIENT_MODE_NONE = 0n;
-    static val RESILIENT_MODE_X10RT_ONLY  = 1n;  // Resilient/Elastic X10RT, no resilient finish
+    static val RESILIENT_MODE_DEFAULT     = 1n;  // Most stable implementation of resilient finish (see FinishResilient.x10)
     static val RESILIENT_MODE_PLACE0      = 11n; // FinishResilientPlace0
+    static val RESILIENT_MODE_X10RT_ONLY  = 99n; // Resilient/Elastic X10RT, no resilient finish
     // The modes below are under development and not yet complete.
     static val RESILIENT_MODE_SAMPLE      = 91n; // FinishResilientSample + ResilientStorePlace0
     static val RESILIENT_MODE_SAMPLE_HC   = 92n; // FinishResilientSample + ResilientStoreHC
