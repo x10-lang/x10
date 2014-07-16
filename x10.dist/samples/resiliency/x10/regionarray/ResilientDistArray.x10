@@ -154,7 +154,7 @@ public class ResilientDistArray[T](region:Region) implements (Point(region.rank)
         val D = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
         val A = ResilientDistArray.make[Long](D, ([x]:Point(1))=>x);
         A.snapshot();
-        livePlaces.remove(Place.places().next(here));
+        livePlaces.remove(Place(1));
         val newD = Dist.makeBlock(R, 0, new SparsePlaceGroup(livePlaces.toRail()));
         A.restore(newD);
         for (pt:Point(1) in A.region) Console.OUT.print(at(A.dist(pt))A(pt) + " ");
