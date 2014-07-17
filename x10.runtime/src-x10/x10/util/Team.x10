@@ -169,6 +169,7 @@ public struct Team {
     	finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
     }
 
+    /** @deprecated use {@link barrier() instead} */
     private static def nativeBarrier (id:Int, role:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeBarrier(id, role);")
         @Native("c++", "x10rt_barrier(id, role, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
