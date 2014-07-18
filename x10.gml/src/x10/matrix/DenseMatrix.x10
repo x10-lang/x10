@@ -251,10 +251,10 @@ public class DenseMatrix extends Matrix {
     
     
     /**
-     * Reset all element to 0.0
+     * Reset all elements to 0.0
      */
     public  def reset():void {
-        for (var i:Long=0; i<M*N; i++) d(i)=0.0;
+        d.clear(0, M*N);
     }
 
     /**
@@ -266,7 +266,7 @@ public class DenseMatrix extends Matrix {
         if (CompilerFlags.checkBounds()) {
             Debug.assure(c<this.N, "Illegal specified column");
         }
-        for (var i:Long = c*this.M; i<(c+1)*this.M; i++) d(i) = 0.0;
+        d.clear(c*this.M, this.M);
     }
 
     /**

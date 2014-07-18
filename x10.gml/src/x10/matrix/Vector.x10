@@ -132,9 +132,8 @@ public class Vector(M:Long) implements (Long) => Double {
 		return new Vector(na);
 	}
 	
-	public  def reset():void {
- 		for (i in 0..(M-1))
-            this.d(i) = 0.0;
+	public def reset():void {
+        d.clear(0, M);
 	}
 
 	// Copy all data from vector v to local at dst_off
