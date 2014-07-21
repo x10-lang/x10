@@ -49,10 +49,8 @@ public abstract class Dist(
      * @return a "unique" distribution over all places.
      */
     public static def makeUnique():Dist(1) {
-        return UNIQUE as Dist(1);        
+        return new UniqueDist() as Dist(1);
     }
-    // Cache pre-allocated UniqueDist to optimize makeUnique calls.
-    private static val UNIQUE = new UniqueDist();
 
     /**
      * Create a distribution over the specified region that maps
