@@ -12,6 +12,7 @@
 
 package x10.matrix;
 
+import x10.compiler.Inline;
 import x10.compiler.CompilerFlags;
 import x10.util.StringBuilder;
 
@@ -422,7 +423,7 @@ public class DenseMatrix extends Matrix {
      * @param  x  the x-th row 
      * @param  y  the y-th column
      */
-    public  operator this(x:Long, y:Long):Double=d(y*this.M+x);
+    public final @Inline operator this(x:Long, y:Long):Double=d(y*M+x);
 
     /**
      * Set the value v at(x, y) in the dense matrix
@@ -430,8 +431,8 @@ public class DenseMatrix extends Matrix {
      * @param  x  the x-th row 
      * @param  y  the y-th column
      */
-    public  operator this(x:Long,y:Long) = (v:Double):Double {
-        d(y*this.M+x) = v;
+    public final @Inline operator this(x:Long,y:Long) = (v:Double):Double {
+        d(y*M+x) = v;
         return v;
     }
 

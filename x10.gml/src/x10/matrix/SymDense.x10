@@ -175,24 +175,6 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		mirrorToUpper(this);
 		return this;
 	}
-	
-
-	// Data access and set
-
-	public  operator this(x:Long, y:Long):Double {
-		if (y < x)
-			return this.d(y*M+x);
-		else
-			return this.d(x*M+y);
-	}
-	
-	public  operator this(x:Long,y:Long) = (v:Double):Double {
-		if (y < x) 
-			this.d(y*M +x) = v;
-		else
-			this.d(x*M +y) = v;
-		return v;
-	}	
 
 	// Transpose
 

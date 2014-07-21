@@ -210,24 +210,6 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		
 	}
 
-	// Data access and set
-    public operator this(x:Long, y:Long):Double {
-		if (upper && x<=y)
-			return this.d(y*M+x);
-		if (upper==false && x >= y)
-			return this.d(y*M+x);
-		return 0;
-	}
-	
-    public operator this(x:Long,y:Long) = (v:Double):Double {
-		if (upper && x<=y)
-			this.d(y*M +x) = v;
-		if (upper==false && x>=y)
-			this.d(y*M +x) = v;
-		return v;
-	}	
-	
-
     /** Return the transpose of this matrix. */
 	public def selfT():TriDense(this) {
 		var src_idx:Long =0;
