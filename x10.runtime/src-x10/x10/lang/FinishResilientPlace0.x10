@@ -133,12 +133,13 @@ class FinishResilientPlace0 extends FinishResilient {
             val state = states(id);
             if (!state.isAdopted()) {
                 state.live(dstId)--;
+                if (quiescent(id)) releaseLatch(id);
             } else {
                 val adopterId = getCurrentAdopterId(id);
                 val adopterState = states(adopterId);
                 adopterState.liveAdopted(dstId)--;
+                if (quiescent(adopterId)) releaseLatch(adopterId);
             }
-            if (quiescent(id)) releaseLatch(id);
         }});
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
@@ -214,7 +215,14 @@ class FinishResilientPlace0 extends FinishResilient {
         assert here==place0; // should be called inside atomic
         if (verbose>=2) debug("quiescent(id="+id+") called");
         val state = states(id);
-        if (state==null) return false;
+        if (state==null) {
+            if (verbose>=2) debug("quiescent(id="+id+") returning false, state==null");
+            return false;
+        }
+        if (state.isAdopted()) {
+            if (verbose>=2) debug("quiescent(id="+id+") returning false, already adopted by adopterId=="+state.adopterId);
+            return false;
+        }
         
         // 1 pull up dead children
         val nd = Place.numDead();

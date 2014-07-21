@@ -143,15 +143,14 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
             val fs = ALL(localId);
             if (verbose>=2) debug("notifyPlaceDeath checking localId=" + localId + " fs=" + fs);
             if (fs == null) continue;
-            if (fs.quiescent()) fs.releaseLatch();
+            if (quiescent(fs.id)) releaseLatch(fs.id);
         }
        }
        RS.unlock();
         if (verbose>=2) debug("<<<< notifyPlaceDeath released locks and returning");
     }
     
-    private def releaseLatch() { // can be called from any place
-        val id = this.id;
+    private static def releaseLatch(id:FinishID) { // can be called from any place
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
         lowLevelSend(Place(id.placeId), ()=>{
             val fs = ALL(id.localId); // get the original local FinishState
@@ -226,13 +225,14 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (!state.isAdopted()) {
             state.live(dstId)--;
             RS.put(id, state);
+            if (quiescent(id)) releaseLatch(id);
         } else {
             val adopterId = getCurrentAdopterId();
             val adopterState = RS.getOrElse(adopterId, null);
             adopterState.liveAdopted(dstId)--;
             RS.put(adopterId, adopterState);
+            if (quiescent(adopterId)) releaseLatch(adopterId);
         }
-        if (quiescent()) releaseLatch();
        RS.unlock();
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
@@ -272,11 +272,18 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (e != null) throw e;
     }
     
-    private def quiescent():Boolean {
+    private static def quiescent(id:FinishID):Boolean {
         if (verbose>=2) debug("quiescent(id="+id+") called");
         // assert RS.isLocked();
         val state = RS.getOrElse(id, null);
-        if (state==null) return false; // already finished
+        if (state==null) { // already finished
+            if (verbose>=2) debug("quiescent(id="+id+") returning false, state==null");
+            return false;
+        }
+        if (state.isAdopted()) {
+            if (verbose>=2) debug("quiescent(id="+id+") returning false, already adopted by adopterId=="+state.adopterId);
+            return false;
+        }
         
         // 1 pull up dead children
         val nd = Place.numDead();
@@ -346,7 +353,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;
     }
-    private def addDeadPlaceException(state:State, placeId:Long) {
+    private static def addDeadPlaceException(state:State, placeId:Long) {
         val e = new DeadPlaceException(Place(placeId));
         e.fillInStackTrace(); // meaningless?
         state.excs.add(e);
