@@ -270,7 +270,18 @@ public abstract class Runtime implements VoidFun_0_0 {
      * Disable Assertions
      */
     public static final boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");
+    
+    public static boolean sysPropOrElse(String s, boolean b) {
+        if (System.getProperty(s) == null) {
+            return b;
+        } else {
+            return Boolean.getBoolean(s);
+        }
+    }
 
+    public static int sysPropOrElse(String s, int i) {
+        return Integer.getInteger(s, i);
+    }
 
     /**
      * Trace serialization

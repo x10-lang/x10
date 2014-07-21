@@ -36,6 +36,16 @@ final class Configuration {
         return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
     }
 
+    @Native("java", "x10.runtime.impl.java.Runtime.sysPropOrElse(#s, #b)")
+    static def sysPropOrElse(s:String, b:Boolean):Boolean {
+        return b;
+    }
+
+    @Native("java", "x10.runtime.impl.java.Runtime.sysPropOrElse(#s, #i)")
+    static def sysPropOrElse(s:String, i:Int):Int {
+        return i;
+    }
+
     static def strict_finish():Boolean = envOrElse("X10_STRICT_FINISH", false);
 
     static def static_threads():Boolean = envOrElse("X10_STATIC_THREADS", DEFAULT_STATIC_THREADS);
@@ -48,7 +58,11 @@ final class Configuration {
      * Enable support for job cancellation
      * Off by default to mitigate performance penalty
      */
-    static def cancellable():Boolean = envOrElse("X10_CANCELLABLE", false);
+    static def cancellable():Boolean { 
+        val envVar = envOrElse("X10_CANCELLABLE", false);
+        val sysProp = sysPropOrElse("X10_CANCELLABLE", envVar);
+        return sysProp;
+    }
 
     static def nthreads():Int {
         var v:Int = 0n;
@@ -88,6 +102,7 @@ final class Configuration {
             v = Int.parse(Runtime.env.getOrElse("X10_RESILIENT_MODE", "0"));
         } catch (NumberFormatException) {
         }
+        v = sysPropOrElse("X10_RESILIENT_MODE", v);
         return v;
     }
 }
