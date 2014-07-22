@@ -159,7 +159,7 @@ public class SocketTransport {
 	// this form is used in elastic X10. It links to any known place 
 	// and gets config information from it
 	public int establishLinks(String initialLink) {
-		if (DEBUG) System.out.println("Joining existing computation at "+initialLink);
+		if (DEBUG) System.err.println("Joining existing computation at "+initialLink);
 		try {
 			initLink(-1, initialLink);
 			return RETURNCODE.X10RT_ERR_OK.ordinal();
@@ -773,7 +773,7 @@ public class SocketTransport {
 			if (DEBUG) System.err.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
 		else {
-	    	if (DEBUG) System.out.println("Place "+myPlaceId+" sending connection info of "+myConnectionInfo+" to place "+remotePlace);
+	    	if (DEBUG) System.err.println("Place "+myPlaceId+" sending connection info of "+myConnectionInfo+" to place "+remotePlace);
 	    	controlMsg.putInt(myConnectionInfoBytes.length);
 			controlMsg.put(myConnectionInfoBytes);
 			controlMsg.flip();
@@ -795,10 +795,16 @@ public class SocketTransport {
 					if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
 					sc.register(selector, SelectionKey.OP_READ);
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
-
-					// now we have one link.  Establish the rest of them
 					int datalen = controlMsg.getInt() - 8;
-					X10RT.initialEpoch = controlMsg.getLong(); // save epoch of existing places
+					
+					// save epoch of existing places
+					ByteBuffer epochBuffer = ByteBuffer.allocateDirect(8);
+					while (!readNBytes(sc, epochBuffer, 8));
+					epochBuffer.flip();
+					X10RT.initialEpoch = epochBuffer.getLong();
+					if (DEBUG) System.err.println("Setting epoch to "+X10RT.initialEpoch);
+					
+					// now we have one link.  Establish the rest of them
 					byte[] connectionStringBuffer = new byte[datalen];
 					ByteBuffer connectionStringBB = ByteBuffer.wrap(connectionStringBuffer);
 					while (!readNBytes(sc, connectionStringBB, datalen));
