@@ -40,52 +40,52 @@ public class TestNestedFinishMiddleFail extends x10Test  {
         }
     }
 
-	public def run() {
-	    if (Place.numPlaces() < 3) {
-		    Console.OUT.println("3 places are necessary for this test");
-		    return false;
-	    }
-	    val p0 = here;
-	    val p1 = Place.places().next(p0);
-	    val p2 = Place.places().next(p1);
+    public def run() {
+        if (Place.numPlaces() < 3) {
+            Console.OUT.println("3 places are necessary for this test");
+            return false;
+        }
+        val p0 = here;
+        val p1 = Place.places().next(p0);
+        val p2 = Place.places().next(p1);
 
-	    try {
+        try {
 	    
-	        finish {
-	            at (p1) async {
-	                good_dec();
-	                finish {
-	                    at (p2) async {
-	                        good_dec();
-	                        System.sleep(5000);
-	                        good_dec();
-	                    }
-	                    good_dec();
-	                    System.killHere();
-	                }
-	            }
-	        }
+            finish {
+                at (p1) async {
+                    good_dec();
+                    finish {
+                        at (p2) async {
+                            good_dec();
+                            System.sleep(5000);
+                            good_dec();
+                        }
+                        good_dec();
+                        System.killHere();
+                    }
+                }
+            }
 	        
-	        bad_inc();
-	        Runtime.println("End of finish loop (should not happen due to exception)");
+            bad_inc();
+            Runtime.println("End of finish loop (should not happen due to exception)");
 	        
-	    } catch (e:MultipleExceptions) {
+        } catch (e:MultipleExceptions) {
 	    
-	        assert e.exceptions.size == 1l : e.exceptions;
+            assert e.exceptions.size == 1l : e.exceptions;
 
-	        val e2 = e.exceptions(0);
+            val e2 = e.exceptions(0);
 
-	        val e3 = e2 as DeadPlaceException;
+            val e3 = e2 as DeadPlaceException;
 
-	        assert e3.place == p1 : e3.place;
+            assert e3.place == p1 : e3.place;
 
-	        good_dec();
-	    }
+            good_dec();
+        }
 	    
-	    good_dec();
+        good_dec();
 	    
-	    if (bad_counter() == 0 && good_counter() == 0) return true;
-	    else return false;
+        if (bad_counter() == 0 && good_counter() == 0) return true;
+        else return false;
     }
 
     public static def main(Rail[String]) {

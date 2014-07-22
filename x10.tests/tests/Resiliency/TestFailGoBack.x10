@@ -40,68 +40,68 @@ public class TestFailGoBack extends x10Test  {
         }
     }
 
-	public def run() {
-	    if (Place.numPlaces() < 2) {
-		    Console.OUT.println("2 places are necessary for this test");
-		    return false;
-	    }
-	    val p0 = here;
-	    val p1 = Place.places().next(p0);
+    public def run() {
+        if (Place.numPlaces() < 2) {
+            Console.OUT.println("2 places are necessary for this test");
+            return false;
+        }
+        val p0 = here;
+        val p1 = Place.places().next(p0);
 
-	    try {
+        try {
 
-	        finish {
-	            at (p1) {
-	                System.sleep(1000);
-	                System.killHere();
-	            }
-	        }
+            finish {
+                at (p1) {
+                    System.sleep(1000);
+                    System.killHere();
+                }
+            }
 
-	        Runtime.println("End of finish loop (should not happen due to exception)");
-	        bad_inc();
+            Runtime.println("End of finish loop (should not happen due to exception)");
+            bad_inc();
 
-	    } catch (e:MultipleExceptions) {
+        } catch (e:MultipleExceptions) {
 
-	        assert e.exceptions.size == 1l : e.exceptions;
+            assert e.exceptions.size == 1l : e.exceptions;
 
-	        val e2 = e.exceptions(0) as DeadPlaceException;
+            val e2 = e.exceptions(0) as DeadPlaceException;
 
-	        assert e2.place == p1 : e2.place;
+            assert e2.place == p1 : e2.place;
 
-	        good_dec();
+            good_dec();
 
-	    }
+        }
 
-	    good_dec();
+        good_dec();
 
-	    try {
+        try {
 
-	        finish {
-	            at (p1) {
-	                Runtime.println("Place 1 should be dead");
-	                bad_inc();
-	            }
-	        }
+            finish {
+                at (p1) {
+                    Runtime.println("Place 1 should be dead");
+                    bad_inc();
+                }
+            }
 
-	        Runtime.println("End of finish loop (should not happen due to exception)");
-	        bad_inc();
+            Runtime.println("End of finish loop (should not happen due to exception)");
+            bad_inc();
 
-	    } catch (e:MultipleExceptions) {
+        } catch (e:MultipleExceptions) {
 
-	        assert e.exceptions.size == 1l : e.exceptions;
+            assert e.exceptions.size == 1l : e.exceptions;
 
-	        val e2 = e.exceptions(0) as DeadPlaceException;
+            val e2 = e.exceptions(0) as DeadPlaceException;
 
-	        assert e2.place == p1 : e2.place;
+            assert e2.place == p1 : e2.place;
 
-	        good_dec();
+            good_dec();
 
-	    }
+        }
 
-	    good_dec();
+        good_dec();
 	    
-	    if (bad_counter() == 0l && good_counter() == 0l) return true;
-	    else return false;
+        if (bad_counter() == 0l && good_counter() == 0l) return true;
+        else return false;
     }
 
     public static def main(Rail[String]) {
