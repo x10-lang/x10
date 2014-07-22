@@ -135,6 +135,35 @@ public class X10RT {
         return true;
     }
 
+    // elastic X10 form of connect_library, to connect to an existing computation
+    public static synchronized boolean connect_library(String join) {
+    	if (state != State.INITIALIZED) return true; // already initialized
+
+    	int errcode;
+    	if (X10RT.javaSockets != null) {
+    		errcode = X10RT.javaSockets.establishLinks(join);
+    		if (errcode != 0) {
+    			System.err.println("Failed to initialize X10RT. errorcode = "+errcode);
+    			try { x10rt_finalize();
+    			} catch (java.lang.UnsatisfiedLinkError e){}
+    			return false;
+    		}
+    	}
+    	else {
+    		System.err.println("Joining an existing computation is currently only available with JavaSockets");
+    		return false;
+    	}
+
+    	hereId = X10RT.javaSockets.x10rt_here();
+       	x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
+
+        state = State.RUNNING;
+        initDataStore();
+
+        return true;
+    }
+
+
     
     /*
      * This method returns true if the runtime was successfully initialized.
