@@ -215,7 +215,7 @@ public class SocketTransport {
 	private void setSocketOptions(SocketChannel sc) throws IOException {
 		sc.configureBlocking(false);
 		if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
-		sc.socket().setTcpNoDelay(true); // enable Nagle's algorithm
+		sc.socket().setTcpNoDelay(true); // disable Nagle's algorithm
 		if (DEBUG) {
 			System.out.println("TCPDelay = "+sc.socket().getTcpNoDelay());
 			System.out.println("ReceiveBufferSize = "+sc.socket().getReceiveBufferSize());
