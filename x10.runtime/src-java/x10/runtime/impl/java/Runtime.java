@@ -353,7 +353,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             
             start = prof!=null ? System.nanoTime() : 0;
             if (X10RT.javaSockets != null) {
-            	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())}) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+            	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
             		System.err.println("Unable to send a message to "+place);
             		throw new DeadPlaceException("Unable to send a message to "+place);
             	}
@@ -406,7 +406,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 
 			start = prof!=null ? System.nanoTime() : 0;
 			if (X10RT.javaSockets != null) {
-			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), new ByteBuffer[]{ByteBuffer.wrap(serializer.getDataBytes())});
+			    X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), serializer.getDataBytes());
 			} else {
 			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
 			}

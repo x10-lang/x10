@@ -212,6 +212,20 @@ public class SocketTransport {
 		return RETURNCODE.X10RT_ERR_OK.ordinal();
 	}
 	
+	private void setSocketOptions(SocketChannel sc) throws IOException {
+		sc.configureBlocking(false);
+		if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+		sc.socket().setTcpNoDelay(true); // enable Nagle's algorithm
+		if (DEBUG) {
+			System.out.println("TCPDelay = "+sc.socket().getTcpNoDelay());
+			System.out.println("ReceiveBufferSize = "+sc.socket().getReceiveBufferSize());
+			System.out.println("SendBufferSize = "+sc.socket().getSendBufferSize());
+			System.out.println("Linger = "+sc.socket().getSoLinger());
+			System.out.println("Timeout = "+sc.socket().getSoTimeout());
+			System.out.println("Keepalive = "+sc.socket().getKeepAlive());
+		}
+	}
+	
 	// this form is used when config information is provided from outside, after initial loading
     public int establishLinks(int myPlaceId, String[] connectionStrings) {
     	if (this.myPlaceId != -1 || this.nplaces != -1) // make we are in the right state to establish links
@@ -416,8 +430,7 @@ public class SocketTransport {
 						controlMsg.flip();
 						writeNBytes(sc, controlMsg);
 						channels.put(remote, new CommunicationLink(sc, remote, linkString));
-						sc.configureBlocking(false);
-						if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+						setSocketOptions(sc);
 						sc.register(selector, SelectionKey.OP_READ);
 						if (DEBUG) System.err.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 						
@@ -451,17 +464,14 @@ public class SocketTransport {
 								controlMsg.flip();
 								writeNBytes(sc, controlMsg);
 								channels.put(remote, new CommunicationLink(sc, remote, linkString));
-								sc.configureBlocking(false);
-								if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+								setSocketOptions(sc);
 								sc.register(selector, SelectionKey.OP_READ);
 								if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 								
 								// tell the new place to connect to the hazelcast cluster
 								if (X10RT.hazelcastDatastore != null) {
-									ByteBuffer[] connectionBytes;
 									try {
-										connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
-						      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, connectionBytes);
+						      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8)));
 									} catch (UnsupportedEncodingException e) {
 										// this won't happen, because UTF8 is a required encoding
 										e.printStackTrace();
@@ -578,8 +588,7 @@ public class SocketTransport {
 							controlMsg.flip();
 							writeNBytes(newPlace.sc, controlMsg);
 							channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
-							sc.configureBlocking(false);
-							if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+							setSocketOptions(sc);
 							sc.register(selector, SelectionKey.OP_READ);
 							if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 							
@@ -589,10 +598,8 @@ public class SocketTransport {
 							
 							// tell the new place to connect to the hazelcast cluster
 							if (X10RT.hazelcastDatastore != null) {
-								ByteBuffer[] connectionBytes;
 								try {
-									connectionBytes = new ByteBuffer[]{ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8))};
-					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, connectionBytes);
+					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8)));
 								} catch (UnsupportedEncodingException e) {
 									// this won't happen, because UTF8 is a required encoding
 									e.printStackTrace();
@@ -654,11 +661,16 @@ public class SocketTransport {
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
-    public int sendMessage(int place, int msg_id, ByteBuffer[] bytes) {
-    	return sendMessage(MSGTYPE.STANDARD, place, msg_id, bytes);
+    public int sendMessage(int place, int msg_id, byte[] bytes) {
+/*    	ByteBuffer bb = ByteBuffer.allocateDirect(bytes.length);
+    	bb.put(bytes);
+    	bb.flip();
+*/
+    	ByteBuffer bb = ByteBuffer.wrap(bytes);
+    	return sendMessage(MSGTYPE.STANDARD, place, msg_id, bb);
     }
     
-    public int sendMessage(MSGTYPE msgtype, int place, int msg_id, ByteBuffer[] bytes) {
+    public int sendMessage(MSGTYPE msgtype, int place, int msg_id, ByteBuffer buffer) {
     	if (isPlaceDead(place)) // don't send messages to dead or uninitialized places
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
 
@@ -674,10 +686,9 @@ public class SocketTransport {
     	ByteBuffer controlData = ByteBuffer.allocateDirect(12);
     	controlData.putInt(msgtype.ordinal());
     	controlData.putInt(msg_id);
-    	int len = 0;
-    	if (bytes != null)
-    		for (int i=0; i<bytes.length; i++)
-    			len+=bytes[i].remaining();
+    	int len = 0; 
+    	if (buffer != null)
+    		len = buffer.remaining();
     	controlData.putInt(len);
     	controlData.flip();
     	if (DEBUG) System.err.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
@@ -686,9 +697,8 @@ public class SocketTransport {
 	    	cl.writeLock.lock();
 	    	try {
 		    	writeBytes(cl, controlData);
-		    	if (bytes != null)
-		    		for (int i=0; i<bytes.length; i++)
-		    			writeBytes(cl, bytes[i]);
+		    	if (len > 0)
+	    			writeBytes(cl, buffer);
 				if (DEBUG) System.err.println("Sent");
 	    	} 
 	    	finally {
@@ -814,8 +824,7 @@ public class SocketTransport {
 					remotePlace = controlMsg.getInt(); // save the ID of the place we're linked to
 					
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
-					sc.configureBlocking(false);
-					if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+					setSocketOptions(sc);
 					sc.register(selector, SelectionKey.OP_READ);
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 					int datalen = controlMsg.getInt() - 8;
@@ -843,8 +852,7 @@ public class SocketTransport {
 				}
 				else {
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
-					sc.configureBlocking(false);
-					if (socketTimeout != -1) sc.socket().setSoTimeout(socketTimeout);
+					setSocketOptions(sc);
 					sc.register(selector, SelectionKey.OP_READ);
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 				}
@@ -886,10 +894,7 @@ public class SocketTransport {
     			link.pendingWrites.addLast(data); // store the current write request at the end of the queue
     		}
     		else { // nothing pending.  Write immediately
-    			long bytesWrittenThisRound;
-    			do { bytesWrittenThisRound=link.sc.write(data);
-    			} while (bytesWrittenThisRound > 0 && data.hasRemaining());
-    			
+    			link.sc.write(data);
     			// Did we get the whole message out?
     			if (data.hasRemaining()) {
     				// nope.  Set the buffer aside and register with the selector to write when ready
