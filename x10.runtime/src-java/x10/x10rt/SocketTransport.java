@@ -14,6 +14,7 @@ package x10.x10rt;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -82,6 +83,15 @@ public class SocketTransport {
 		LinkedList<ByteBuffer> pendingWrites;
     }
 	
+	private class Message {
+		private Message(int callbackId, int bufferSize) {
+			this.callbackId = callbackId;
+			data = ByteBuffer.allocateDirect(bufferSize);
+		}
+		int callbackId;
+		ByteBuffer data;
+	}
+	
 	private volatile int nplaces = -1; // number of places
 	private int myPlaceId = -1; // my place ID
 	private volatile int lowestValidPlaceId = 0; // responsible for global knowledge of nplaces. Increases as places die
@@ -90,6 +100,7 @@ public class SocketTransport {
 	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
 	private final boolean bufferedWrites;
 	private final LinkedList<CommunicationLink> pendingJoins = new LinkedList<CommunicationLink>();
+	private final ConcurrentHashMap<SocketChannel, Message> pendingReads = new ConcurrentHashMap<SocketChannel, Message>();
 	
 	private final ReentrantLock selectorLock = new ReentrantLock(); // protects both the selector and events objects
 	private Selector selector = null;
@@ -188,7 +199,7 @@ public class SocketTransport {
 			}
 			for (int i=myPlaceId+1; i<nplaces; i++)
 				while (!shuttingDown && !channels.containsKey(i))
-					x10rt_probe(PROBE_TYPE.ACCEPT, 0); // wait for connections from all upper places
+					x10rt_probe(PROBE_TYPE.ACCEPT, true); // wait for connections from all upper places
 		} 
 /* a single place may have other places join it later		
 		else {
@@ -244,7 +255,7 @@ public class SocketTransport {
 	    	}
 			for (int i=myPlaceId+1; i<nplaces; i++)
 				while (!shuttingDown && !channels.containsKey(i))
-					x10rt_probe(PROBE_TYPE.ACCEPT, 0); // wait for connections from all upper places
+					x10rt_probe(PROBE_TYPE.ACCEPT, true); // wait for connections from all upper places
 	    }
     	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
@@ -337,7 +348,7 @@ public class SocketTransport {
     // onlyProcessAccept is set to true only during startup time, to prioritize establishing links
     // timeout is how long we're willing to block waiting for something to happen. 
     // returns true if something is processed
-    boolean x10rt_probe(PROBE_TYPE probeType, long timeout) {
+    boolean x10rt_probe(PROBE_TYPE probeType, boolean blocking) {
 /* a single place may have other places join it later
     	if (!onlyProcessAccept && nplaces == 1)
     		return false;
@@ -345,7 +356,7 @@ public class SocketTransport {
     	int eventCount = 0;
     	try {
     		SelectionKey key;
-    		if (timeout == 0) // blocking probe, wait for the selector to become available
+    		if (blocking) // blocking probe, wait for the selector to become available
     			selectorLock.lock();
     		else if (!selectorLock.tryLock()) // non-blocking probe, return immediately if selector is busy
     			return false;
@@ -356,7 +367,11 @@ public class SocketTransport {
 	    			events.remove();
     			}
 	    		else {
-	    			eventCount = selector.select(timeout);
+	    			if (blocking)
+	    				eventCount = selector.select();
+	    			else
+	    				eventCount = selector.selectNow();
+	    			
 	    			if (eventCount == 0) return false;
 	    			
 	    			events = selector.selectedKeys().iterator();
@@ -497,31 +512,38 @@ public class SocketTransport {
 			if (key.isReadable()) {
 				if (DEBUG) System.err.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
+				Message m = pendingReads.get(sc);
+				if (m != null) {
+					sc.read(m.data);
+					if (!m.data.hasRemaining()) {
+						pendingReads.remove(sc);
+						m.data.flip();
+						runCallback(m.callbackId, m.data);
+					}
+					return true;
+				}
+				
 				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
-				ByteBuffer bb = null;
 				int msgType=0, callbackId=0, datalen;				
 				try {
-					synchronized (sc) {
-						if (!readNBytes(sc, controlData, controlData.capacity()))
-							return false;
-						controlData.flip(); // switch from write to read mode
-						// Format: type, p.type, p.len, p.msg
-						msgType = controlData.getInt();
-						callbackId = controlData.getInt();
-						datalen = controlData.getInt();
-						if (DEBUG) System.err.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
-						//TODO - eliminate this buffer by modifying the deserializer to take the channel as input
-						bb = ByteBuffer.allocate(datalen);
-						while (!readNBytes(sc, bb, datalen));
-						bb.flip();
-					}
+					if (!readNBytes(sc, controlData, controlData.capacity()))
+						return false;
+					controlData.flip(); // switch from write to read mode
+					// Format: type, p.type, p.len, p.msg
+					msgType = controlData.getInt();
+					callbackId = controlData.getInt();
+					datalen = controlData.getInt();
+					if (DEBUG) System.err.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
+
 					if (msgType == MSGTYPE.STANDARD.ordinal()) {
-					    if (callbackId == CALLBACKID.closureMessageID.ordinal())
-							SocketTransport.runClosureAtReceive(bb);
-						else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
-							SocketTransport.runSimpleAsyncAtReceive(bb);
-						else
-							System.err.println("Unknown message callback type: "+callbackId);
+						m = new Message(callbackId, datalen);
+						sc.read(m.data);
+						if (m.data.hasRemaining()) // more left to read later
+							pendingReads.put(sc, m);
+						else {
+							m.data.flip();
+							runCallback(callbackId, m.data);
+						}
 						
 						//if (DEBUG) System.err.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
 						if (DEBUG) System.err.println("done");
@@ -583,7 +605,8 @@ public class SocketTransport {
 					}
 					else if (msgType == MSGTYPE.CONNECT_DATASTORE.ordinal()) {
 						byte[] linkdata = new byte[datalen];
-						bb.get(linkdata);
+						ByteBuffer bb = ByteBuffer.wrap(linkdata);
+						while (!readNBytes(sc, bb, datalen));
 						String linkString = new String(linkdata, UTF8);
 						X10RT.initDataStore(linkString);
 					}
@@ -620,14 +643,14 @@ public class SocketTransport {
     
     public int x10rt_probe() {
     	boolean somethingProcessed;
-    	do somethingProcessed = x10rt_probe(PROBE_TYPE.ALL, 1);
+    	do somethingProcessed = x10rt_probe(PROBE_TYPE.ALL, false);
     	while (somethingProcessed);
     	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
     public int x10rt_blocking_probe() {
-    	x10rt_probe(PROBE_TYPE.ALL, 0);
+    	x10rt_probe(PROBE_TYPE.ALL, true);
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
     }
     
@@ -849,7 +872,7 @@ public class SocketTransport {
 				return false;
 			else if (bufferedWrites) {
 				// while we wait for data to come in, flush anything waiting to go out
-				x10rt_probe(PROBE_TYPE.ACCEPTORWRITE, 100);
+				x10rt_probe(PROBE_TYPE.ACCEPTORWRITE, false);
 			}
 		} while (totalBytesRead < bytes);
 		return true;
@@ -932,17 +955,32 @@ public class SocketTransport {
 		do { sc.write(data);
 		} while (!shuttingDown && data.hasRemaining());
     }
+    
+    static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
+    	byte[] data;
+    	if (bb.hasArray())
+    		data = bb.array();
+    	else {
+    		data = new byte[bb.remaining()];
+    		bb.get(data);
+    	}
+    	
+    	if (callbackId == CALLBACKID.closureMessageID.ordinal())
+			SocketTransport.runClosureAtReceive(new ByteArrayInputStream(data));
+		else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
+			SocketTransport.runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
+		else
+			System.err.println("Unknown message callback type: "+callbackId);
+    }
 
-    static void runClosureAtReceive(ByteBuffer input) throws IOException {
-    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
+    static void runClosureAtReceive(InputStream input) throws IOException {
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
     	VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
     	actObj.$apply();
     }
     
-    static void runSimpleAsyncAtReceive(ByteBuffer input) throws IOException {
-    	//X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(Channels.newInputStream(input)));
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(new ByteArrayInputStream(input.array())));
+    static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
     	FinishState finishState = (FinishState) deserializer.readObject();
     	Place src = (Place) deserializer.readObject();
         long epoch = deserializer.readLong();
