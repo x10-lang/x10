@@ -2,9 +2,9 @@
 
 public class ResilientHeatTransfer_v3 {
     static val arrayColsPerPlace : Long = 256;
-    static val epsilon = 1.0e-3;
+    static val epsilon = 1.0e-2;
     static val dimensionSize : Long = arrayColsPerPlace * Place.numPlaces();
-    static val iterationsPerBackup = 0;
+    static val iterationsPerBackup = 6;
     
 
     public static class PartitionedHeatArray {
