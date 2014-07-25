@@ -21,7 +21,7 @@ public class VirtualPlaceMap {
      * numPlaces places.  Throw an exception if numPlaces is out of range
      */
     public def this(numPlaces: Long) {
-        if (numPlaces < 1L || numPlaces > Place.MAX_PLACES)
+        if (numPlaces < 1L || numPlaces > Place.numPlaces())
             throw new Exception("Error: Number of places specified for VirtualPlaceMap constructor is out of range");
         numVirtualPlaces = numPlaces;
         virtualMap = new Rail[Place](numVirtualPlaces);
