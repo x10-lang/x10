@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-
 import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
@@ -72,6 +71,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch;
@@ -87,6 +87,7 @@ import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Expr_c;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FieldDecl_c;
@@ -128,6 +129,7 @@ import polyglot.ast.Throw_c;
 import polyglot.ast.Try;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
@@ -153,7 +155,8 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; 
+import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
@@ -164,6 +167,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
+import x10.ast.AssignPropertyCall;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
@@ -211,7 +215,6 @@ import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
-
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ThisDef;
@@ -225,10 +228,8 @@ import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-
 import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
-
 import x10.visit.ExpressionFlattener;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
@@ -935,8 +936,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         return types;
     }
-
-
 
 	public void visit(LocalClassDecl_c n) {
 		assert (false) : ("Local classes should have been removed by a separate pass");
@@ -3339,6 +3338,41 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         return false;
     }
+
+    /**
+     * This method walks the argument AST and finds the all "free" type variables.
+     */
+    private Set<Name> referencedTypeVars(Node n) {
+        final Set<Name> typeVars = new HashSet<Name>();
+        class FindTypes extends NodeVisitor {
+            @Override
+            public Node override(Node n) {
+                if (n instanceof Typed) {
+                    extractParameterTypes(((Typed)n).type());
+                };
+                return null;
+            }
+            
+            private void extractParameterTypes(Type t) {
+                t = Types.baseType(t);
+                if (t.isParameterType()) {
+                    typeVars.add(t.name());
+                } else if (t.isClass()) {
+                    List<Type> ta = t.toClass().typeArguments();
+                    if (ta != null) {
+                        for (Type arg : ta) {
+                            extractParameterTypes(arg);
+                        }
+                    }
+                }
+            }
+        }
+        FindTypes finder = new FindTypes();
+        n.visit(finder);
+
+        return typeVars;
+    }
+    
     public void visit(Closure_c n) {
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
@@ -3352,14 +3386,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10ClassDef hostClassDef = hostClassType.x10Def();
         TypeSystem xts = tr.typeSystem();
 
+        // Construct the list of possible free type parameters
         List<Type> freeTypeParams = new ArrayList<Type>();
         while (ci instanceof ClosureInstance)
             ci = ((ClosureDef) ci.def()).methodContainer().get();
         if (ci instanceof MethodInstance) {
             MethodInstance xmi = (MethodInstance) ci;
             // in X10, static methods do not inherit the template params of their classes
-            if (!xmi.flags().isStatic())
+            if (!xmi.flags().isStatic()) {
                 freeTypeParams.addAll(hostClassDef.typeParameters());
+            }
             freeTypeParams.addAll(xmi.typeParameters());
         } else if (ci instanceof InitializerInstance) {
             InitializerInstance ii = (InitializerInstance) ci;
@@ -3369,6 +3405,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // could be a constructor or other non-static thing
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
+        // Now filter by seeing which are actually used.
+        if (!freeTypeParams.isEmpty()) {
+            Set<Name> usedTypeVars = referencedTypeVars(n); 
+            List<Type> filteredFreeTypeParams = new ArrayList<Type>();
+            for (Type ftp : freeTypeParams) {
+                if (usedTypeVars.contains(ftp.name())) {
+                    filteredFreeTypeParams.add(ftp);
+                }
+            }
+            freeTypeParams = filteredFreeTypeParams;
+        }       
 
         String hostClassName = translate_mangled_FQN(Emitter.fullName(hostClassType).toString(), "_");
 
