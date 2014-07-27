@@ -3406,7 +3406,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
         // Now filter by seeing which are actually used.
-        if (!freeTypeParams.isEmpty()) {
+        boolean inGenericMethod = !freeTypeParams.isEmpty();
+        if (inGenericMethod) {
             Set<Name> usedTypeVars = referencedTypeVars(n); 
             List<Type> filteredFreeTypeParams = new ArrayList<Type>();
             for (Type ftp : freeTypeParams) {
@@ -3480,7 +3481,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write("static ::x10aux::itable_entry _itables[2];"); sw.newline(); sw.forceNewline();
         sw.write("virtual ::x10aux::itable_entry* _getITables() { return _itables; }"); sw.newline(); sw.forceNewline();
 
-        sw.write("// closure body"); sw.newline();
         sw.write(Emitter.translateType(retType, true)+" "+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
         prefix = "";
         for (Formal formal : n.formals()) {
@@ -3488,9 +3488,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             n.print(formal, sw, tr);
             prefix = ", ";
         }
-        sw.write(") ");
-        n.print(n.body(), sw, tr);
-        sw.newline(); sw.forceNewline();
+        sw.write(")");
+        if (inGenericMethod && !in_template_closure) {
+            // a non-generic closure in a generic method.
+            // We will push the implementation of the closure into the defn_stream to 
+            // reduce junk in the header file.
+            sw.writeln(";");
+            sw.pushCurrentStream(sw.getNewStream("cc",defn_s, true));
+            emitter.printTemplateSignature(freeTypeParams, sw);
+            sw.write(Emitter.translateType(retType, true)+" "+cnamet+"::"+Emitter.mangled_method_name(ClosureCall.APPLY.toString())+"(");
+            prefix = "";
+            for (Formal formal : n.formals()) {
+                sw.write(prefix);
+                n.print(formal, sw, tr);
+                prefix = ", ";
+            }
+            sw.write(") ");
+            n.print(n.body(), sw, tr);
+            sw.newline(); sw.forceNewline();
+            sw.popCurrentStream();
+        } else {
+            // emit body inline; no benefit to declaring out-of-line
+            n.print(n.body(), sw, tr);
+            sw.newline(); sw.forceNewline();
+         }
 
         sw.write("// captured environment"); sw.newline();
         List<VarInstance<?>> refs = computeBoxedRefs(c, closureDef);
