@@ -73,7 +73,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
    *
    * <p>If the PlaceGroup pg contains the argument Place, 
    * then the invariant
-   * <code>pg(indexOf(id)).equals(Place.place(id)) == true</code> holds.</p>
+   * <code>pg(indexOf(id)).equals(Place(id)) == true</code> holds.</p>
    * 
    * @return the index of the Place encoded by id
    */
