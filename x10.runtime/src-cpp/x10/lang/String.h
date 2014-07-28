@@ -172,11 +172,6 @@ namespace x10 {
             x10_boolean endsWith(::x10::lang::String* s);
 
             String () : FMGL(content)(NULL) { }
-            virtual ~String () {
-                #ifndef X10_USE_BDWGC
-                ::x10aux::dealloc(FMGL(content));
-                #endif
-            }
 
             // For use in compiler generated code for static string literals.
             // Invariant: Caller must ensure lifetime of content
