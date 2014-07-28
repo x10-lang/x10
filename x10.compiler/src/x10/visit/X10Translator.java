@@ -245,8 +245,8 @@ public class X10Translator extends Translator {
         	path += "/";
         return path;
     }
-    
-    private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream) throws IOException {
+  
+    private static void addFileToJar(File file, String basePath, JarOutputStream jarOutputStream, boolean symbols) throws IOException {
         BufferedInputStream is = null;
         try {
             String path = toJarCompatiblePath(file);
@@ -265,10 +265,15 @@ public class X10Translator extends Translator {
                     jarOutputStream.closeEntry();
                 }
                 for (File childFile: file.listFiles())
-                    addFileToJar(childFile, basePath, jarOutputStream);
+                    addFileToJar(childFile, basePath, jarOutputStream, symbols);
                 return;
             }
-            
+
+            if (!symbols) {
+                // if no symbols are needed, no source files are needed
+                if (path.endsWith(".x10") || path.endsWith(".java")) return;
+            }
+
             JarEntry jarEntry = new JarEntry(path);
             jarEntry.setTime(file.lastModified());
             jarOutputStream.putNextEntry(jarEntry);
@@ -293,10 +298,10 @@ public class X10Translator extends Translator {
     /*
      * equivalent to "jar cmf ${manifest_file} ${jar_file} -C ${base_dir} ."
      */
-    private static void createJarFile(File jarFile, Manifest manifest, File baseDir) throws IOException {
+    private static void createJarFile(File jarFile, Manifest manifest, File baseDir, boolean symbols) throws IOException {
     	JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest);
         String basePath = toJarCompatiblePath(baseDir);
-        addFileToJar(baseDir, basePath, jarOutputStream);
+        addFileToJar(baseDir, basePath, jarOutputStream, symbols);
     	jarOutputStream.close();
     }
 
@@ -517,7 +522,7 @@ public class X10Translator extends Translator {
                     }
 
                     // execute "jar cmf ${manifest_file} ${executable_path} -C ${output_directory} ."
-                    createJarFile(jarFile, mf, options.output_directory); // -d output_directory
+                    createJarFile(jarFile, mf, options.output_directory, options.symbols); // -d output_directory
 
                     // pre XTENLANG-3199
                     //                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
