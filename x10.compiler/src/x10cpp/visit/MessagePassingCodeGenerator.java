@@ -774,6 +774,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.newline();
 		}
 
+		// Aux class to contain all string literals used in this class's body
+		context.stringManager.populate(n);
+		context.stringManager.codeGen(h, context.staticDefinitions);
+		
 		// Open class/namespace bodies
 		emitter.printHeader(n, h, tr);
 		h.allowBreak(0, " ");
@@ -3066,22 +3070,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(StringUtil.escape(n.value()));
             sw.write("\"");
         } else {
-            if (((x10.ExtensionInfo)(tr.job().extensionInfo())).getOptions().x10_config.FLATTEN_EXPRESSIONS) {
+            String cname = ((X10CPPContext_c)tr.context()).stringManager.getCName(n.value());
+            if (cname == null) {
                 sw.write("::x10aux::makeStringLit(\"");
                 sw.write(StringUtil.escape(n.value()));
                 sw.write("\")");
             } else {
-                // Localized C++ codegen trick.  
-                // Use a static local inside of a statement expression so that
-                // the literal is actually only allocated once dynamically.
-                Name litName = Name.makeFresh("strLit");
-                sw.write("(__extension__ ({ static ::x10::lang::String* ");
-                sw.write(mangled_non_method_name(litName.toString()));
-                sw.write(" = ::x10aux::makeStringLit(\"");
-                sw.write(StringUtil.escape(n.value()));
-                sw.write("\"); ");
-                sw.write(mangled_non_method_name(litName.toString()));
-                sw.write("; }))");
+                sw.write(cname);
             }
         }
 	}

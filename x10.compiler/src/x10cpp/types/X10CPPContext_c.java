@@ -39,6 +39,7 @@ import x10.util.CollectionFactory;
 import x10.types.X10MethodDef;
 import x10.util.ClassifiedStream;
 import x10cpp.visit.ITable;
+import x10cpp.visit.StringLiteralManager;
 
 public class X10CPPContext_c extends Context {
 
@@ -78,6 +79,7 @@ public class X10CPPContext_c extends Context {
 
     protected ArrayList<ClassMember> pendingStaticDecls;
     protected ArrayList<PropertyDecl> classProperties;
+    public StringLiteralManager stringManager;
     
     public List<PropertyDecl> classProperties() { return classProperties; }
     public List<ClassMember> pendingStaticDecls() { return pendingStaticDecls; }
@@ -93,6 +95,7 @@ public class X10CPPContext_c extends Context {
         assert kind == SOURCE;
         pendingStaticDecls = new ArrayList<ClassMember>();
         classProperties = new ArrayList<PropertyDecl>(props);
+        stringManager = new StringLiteralManager();
     }
 
     /**
