@@ -34,6 +34,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
     public Configuration x10_config;
 
     public String buildX10Lib = null;
+    public boolean symbols = true;
 
     /**
      * Absolute path to the X10 distribution
@@ -116,12 +117,15 @@ public class X10CompilerOptions extends polyglot.main.Options {
 			assertions = false;
 			return ++i;
 		}
+        if (args[i].equals("-nosymbols")) {
+            symbols = false;
+            return ++i;
+        }
 		if (args[i].equals("-o")) {
 		    ++i;
 		    executable_path = args[i];
 		    return ++i;
 		}
-		
 		if (args[i].equals("-x10lib")) {
 		    ++i;
 		    String libFile = args[i];
@@ -138,7 +142,6 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	        }
 	        return ++i;
 		}
-
 		if (args[i].equals("-buildx10lib")) {
 		    ++i;
 			buildX10Lib = args[i];
@@ -178,9 +181,10 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	public void usage(PrintStream out) {
 		super.usage(out);
 		usageForFlag(out, "-noassert", "turn off assertion generation");
-		usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
+        usageForFlag(out, "-nosymbols", "generate executable without symbols (it won't be used for type check)");
+        usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
+        usageForFlag(out, "-buildx10lib <path>", "build an x10 library");
 		usageForFlag(out, "-x10lib <lib.properties>", "use the precompiled x10 library described by <lib.properties>");
-		usageForFlag(out, "-buildx10lib <path>", "build an x10 library");
 
 		String[][] options = x10_config.options();
 		for (int i = 0; i < options.length; i++) {
