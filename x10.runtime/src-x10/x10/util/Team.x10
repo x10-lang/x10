@@ -50,7 +50,7 @@ public struct Team {
     
     // this constructor is intended to be called at all places of a split, at the same time.
     private def this (id:Int, places:PlaceGroup, role:Long) {
-    	this.id = id;
+        this.id = id;
         collectiveSupportLevel = collectiveSupport();
         if (DEBUG) Runtime.println(here + " reported native collective support level of " + collectiveSupportLevel);
         if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES) {
@@ -60,7 +60,7 @@ public struct Team {
                 Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
             Team.roles(id) = role as Int;
             if (DEBUG) Runtime.println(here + " created native team "+id);
-    	}
+        }
         if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " creating our own team "+id);
             if (Team.state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
@@ -76,7 +76,7 @@ public struct Team {
                 teamState.init();
             }
             if (DEBUG) Runtime.println(here + " created our own team "+id);
-    	}
+        }
     }
 
     /** 
@@ -88,30 +88,30 @@ public struct Team {
         if (DEBUG) Runtime.println(here + " creating new team ");
         collectiveSupportLevel = collectiveSupport();
         if (DEBUG) Runtime.println(here + " reported native collective support level of " + collectiveSupportLevel);
-	    if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES) {
-	        val result = new Rail[Int](1);
-	        val count = places.size();
-	        // CRITICAL!! placeRail is a Rail of Int because in x10rt "x10rt_place" is 32bits
-	        val placeRail = new Rail[Int](count);
-	        for (var i:Long=0; i<count; i++)
-	            placeRail(i) = places(i).id() as Int;
-	        finish nativeMake(placeRail, count as Int, result);
-	        this.id = result(0);
-	        
-	        // team created - fill in the role at all places
-	        val teamidcopy:Long = this.id as Long;
-	        Place.places().broadcastFlat(()=>{
-	            if (Team.roles.capacity() <= teamidcopy) // TODO move this check into the GrowableRail.grow() method
-	                Team.roles.grow(teamidcopy+1);
-	            while (Team.roles.size() < teamidcopy)
-	                Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
-	       	    Team.roles(teamidcopy) = places.indexOf(here) as Int;
-	        });
-	    } else {
-	    	this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
+        if (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES) {
+            val result = new Rail[Int](1);
+            val count = places.size();
+            // CRITICAL!! placeRail is a Rail of Int because in x10rt "x10rt_place" is 32bits
+            val placeRail = new Rail[Int](count);
+            for (var i:Long=0; i<count; i++)
+                placeRail(i) = places(i).id() as Int;
+            finish nativeMake(placeRail, count as Int, result);
+            this.id = result(0);
+            
+            // team created - fill in the role at all places
+            val teamidcopy:Long = this.id as Long;
+            Place.places().broadcastFlat(()=>{
+                if (Team.roles.capacity() <= teamidcopy) // TODO move this check into the GrowableRail.grow() method
+                    Team.roles.grow(teamidcopy+1);
+                while (Team.roles.size() < teamidcopy)
+                    Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
+                   Team.roles(teamidcopy) = places.indexOf(here) as Int;
+            });
+        } else {
+            this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
         }
-	    if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
-	    if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
+        if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
+        if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             val teamidcopy = this.id;
             Place.places().broadcastFlat(()=>{
                 if (Team.state.capacity() <= teamidcopy)
@@ -121,12 +121,12 @@ public struct Team {
                 Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, places.indexOf(here));
                 Team.state(teamidcopy).init();
             });
-	    }
+        }
     }
 
     private static def nativeMake (places:Rail[Int], count:Int, result:Rail[Int]) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeMake(places, count, result);")
-    	@Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw, ::x10aux::coll_handler2, ::x10aux::coll_enter2(result->raw));") {}
+        @Native("c++", "x10rt_team_new(count, (x10rt_place*)places->raw, ::x10aux::coll_handler2, ::x10aux::coll_enter2(result->raw));") {}
     }
 
     private static def collectiveSupport():Int {
@@ -135,16 +135,16 @@ public struct Team {
     }
     
     private static def nativeCollectiveSupport() : Int {
-    	@Native("java", "return x10.x10rt.X10RT.collectiveSupport();")
-    	@Native("c++", "return x10rt_coll_support();") { return -1n; }
+        @Native("java", "return x10.x10rt.X10RT.collectiveSupport();")
+        @Native("c++", "return x10rt_coll_support();") { return -1n; }
     }
 
     /** Returns the number of places in the team. */
     public def size () : Long {
-    	if (collectiveSupportLevel >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-    	    return nativeSize(id);
-    	else
-    	    return Team.state(id).places.size();
+        if (collectiveSupportLevel >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
+            return nativeSize(id);
+        else
+            return Team.state(id).places.size();
     }
 
     private static def nativeSize (id:Int) : Int {
@@ -154,20 +154,20 @@ public struct Team {
 
     /** Blocks until all team members have reached the barrier. */
     public def barrier () : void {
-    	if (collectiveSupportLevel >= X10RT_COLL_NONBLOCKINGBARRIER) {
+        if (collectiveSupportLevel >= X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering native barrier on team "+id);
             finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
-    	}
-    	else {
+        }
+        else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 barrier on team "+id);
-    	    state(id).collective_impl[Int](LocalTeamState.COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n);
-    	}
+            state(id).collective_impl[Int](LocalTeamState.COLL_BARRIER, Place.FIRST_PLACE, null, 0, null, 0, 0, 0n);
+        }
         if (DEBUG) Runtime.println(here + " leaving barrier of team "+id);
     }
     
     /** @deprecated use {@link barrier() instead} */
     public def nativeBarrier () : void {
-    	finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
+        finish nativeBarrier(id, (id==0n?here.id() as Int:Team.roles(id)));
     }
 
     private static def nativeBarrier (id:Int, role:Int) : void {
@@ -201,8 +201,8 @@ public struct Team {
             barrier();
             finish nativeScatter(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
         }
-    	else
-    	    state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root, src, src_off, dst, dst_off, count, 0n);
+        else
+            state(id).collective_impl[T](LocalTeamState.COLL_SCATTER, root, src, src_off, dst, dst_off, count, 0n);
     }
 
     private static def nativeScatter[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -231,8 +231,8 @@ public struct Team {
             barrier();
             finish nativeBcast(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
         }
-     	else
-     	    state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root, src, src_off, dst, dst_off, count, 0n);
+         else
+             state(id).collective_impl[T](LocalTeamState.COLL_BROADCAST, root, src, src_off, dst, dst_off, count, 0n);
     }
 
     private static def nativeBcast[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
@@ -264,14 +264,14 @@ public struct Team {
         }
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering pre-alltoall barrier of team "+id);
-       	    barrier();
-       	    if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
+               barrier();
+               if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
         }
-    	else {
+        else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 alltoall of team "+id);
-    	    state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, 0n);
-    	}
+            state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, 0n);
+        }
         if (DEBUG) Runtime.println(here + " leaving alltoall of team "+id);
     }
     
@@ -323,13 +323,13 @@ public struct Team {
             barrier();
             finish nativeReduce(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
         } else {
-    	    state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
+            state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
         }
     }
-	
+    
     private static def nativeReduce[T](id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeReduce(id, role, root, src, src_off, dst, dst_off, count, op);")
-    	@Native("c++", "x10rt_reduce(id, role, root, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_reduce(id, role, root, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
 
     /** Performs a reduction on a single value, returning the result at the root */
@@ -391,14 +391,14 @@ public struct Team {
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
         } else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 allreduce on team "+id);
-    	    state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
-    	}
+            state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
+        }
         if (DEBUG) Runtime.println(here + " Finished allreduce on team "+id);
     }
 
     private static def nativeAllreduce[T](id:Int, role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
         @Native("java", "x10.x10rt.TeamSupport.nativeAllReduce(id, role, src, src_off, dst, dst_off, count, op);")
-    	@Native("c++", "x10rt_allreduce(id, role, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+        @Native("c++", "x10rt_allreduce(id, role, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
 
     /** Performs a reduction on a single value, returning the result */
@@ -503,7 +503,7 @@ public struct Team {
     public def split (color:Int, new_role:Long) : Team {
         val result = new Rail[Int](1);
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
-        	if (DEBUG) Runtime.println(here + " calling native split on team "+id+" color="+color+" new_role="+new_role);        
+            if (DEBUG) Runtime.println(here + " calling native split on team "+id+" color="+color+" new_role="+new_role);        
             finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
             if (DEBUG) Runtime.println(here + " finished native split on team "+id+" color="+color+" new_role="+new_role);
             return Team(result(0), null, new_role);
@@ -523,35 +523,35 @@ public struct Team {
             allInfo(myTeamPosition+1) = new_role as Int;
             
             if (DEBUGINTERNALS) Runtime.println(here + " completed alltoall for splitting team "+id+" color="+color+" new_role="+new_role+" allInfo="+allInfo);
-        	// use the above to figure out the members of *my* team
+            // use the above to figure out the members of *my* team
             // count the new team size
             var numPlacesInMyTeam:Int = 0n;
             for (var i:Long=0; i<allInfo.size; i+=2)
                 if (allInfo(i) == color)
-                	numPlacesInMyTeam++;
+                    numPlacesInMyTeam++;
 
             if (DEBUGINTERNALS) Runtime.println(here + " my new team has "+numPlacesInMyTeam+" places");
             // create a new PlaceGroup with all members of my new team
             val newTeamPlaceRail:Rail[Place] = new Rail[Place](numPlacesInMyTeam);
             for (var i:Long=0; i<allInfo.size; i+=2) {
-            	if (allInfo(i) == color) {
+                if (allInfo(i) == color) {
                     if (DEBUGINTERNALS) Runtime.println(here + " setting new team position "+allInfo(i+1)+" to place "+Team.state(this.id).places(i/2));
-            	    newTeamPlaceRail(allInfo(i+1)) = Team.state(this.id).places(i/2);
+                    newTeamPlaceRail(allInfo(i+1)) = Team.state(this.id).places(i/2);
             }   }
             newTeamPlaceGroup:SparsePlaceGroup = new SparsePlaceGroup(newTeamPlaceRail);
             if (DEBUGINTERNALS) Runtime.println(here + " Created PlaceGroup for splitting team "+id+" color="+color+" new_role="+new_role+": "+newTeamPlaceRail);
             // now that we have a PlaceGroup for the new team, create it
             if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
                 if (DEBUGINTERNALS) Runtime.println(here + " calling pre-native split barrier on team "+id+" color="+color+" new_role="+new_role);
-            	barrier();
+                barrier();
                 if (DEBUGINTERNALS) Runtime.println(here + " calling native split on team "+id+" color="+color+" new_role="+new_role);
-            	finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
+                finish nativeSplit(id, id==0n?here.id() as Int:Team.roles(id), color, new_role as Int, result);
                 if (DEBUG) Runtime.println(here + " finished native split on team "+id+" color="+color+" new_role="+new_role);
-            	return Team(result(0), newTeamPlaceGroup, new_role);
+                return Team(result(0), newTeamPlaceGroup, new_role);
             }
             else {
                 if (DEBUG) Runtime.println(here + " returning new split team "+id+" color="+color+" new_role="+new_role);
-            	return Team((Team.state.size() as Int) + color, newTeamPlaceGroup, new_role);
+                return Team((Team.state.size() as Int) + color, newTeamPlaceGroup, new_role);
             }
         }
     }
@@ -656,47 +656,47 @@ public struct Team {
             }
             else {
                 if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
-                	return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
+                    return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex);
                 else // go down the left branch (first child)
                     return getLinks(startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2));
             }
         }
-	    
-	    // This is an internal barrier which can be called at the end of team creation.  The regular
-	    // barrier method assumes that the team is already in place.  This method adds some pre-checks
-	    // to ensure that the state information for the entire team is in place before running the 
-	    // regular barrier, which does not have these checks.
-	    private def init() {
+        
+        // This is an internal barrier which can be called at the end of team creation.  The regular
+        // barrier method assumes that the team is already in place.  This method adds some pre-checks
+        // to ensure that the state information for the entire team is in place before running the 
+        // regular barrier, which does not have these checks.
+        private def init() {
             if (DEBUGINTERNALS) Runtime.println(here + " creating team "+teamid);
-	        val myLinks:TreeStructure = getLinks(-1, 0, places.numPlaces()-1);
+            val myLinks:TreeStructure = getLinks(-1, 0, places.numPlaces()-1);
 
-	        if (DEBUGINTERNALS) { 
-	        	Runtime.println(here+":team"+this.teamid+", root=0 has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
-	        	Runtime.println(here+":team"+this.teamid+", root=0 has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
-	        }
-	    	val teamidcopy = this.teamid; // needed to prevent serializing "this"
-		    if (myLinks.parentIndex != -1) {
-			    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-			        when (Team.state.size() > teamidcopy) {}
-			}   }
-		    if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
-		    collective_impl[Int](COLL_BARRIER, places(0), null, 0, null, 0, 0, 0n); // barrier
-		    if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
-		}
-	    
+            if (DEBUGINTERNALS) { 
+                Runtime.println(here+":team"+this.teamid+", root=0 has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+                Runtime.println(here+":team"+this.teamid+", root=0 has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+            }
+            val teamidcopy = this.teamid; // needed to prevent serializing "this"
+            if (myLinks.parentIndex != -1) {
+                @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                    when (Team.state.size() > teamidcopy) {}
+            }   }
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
+            collective_impl[Int](COLL_BARRIER, places(0), null, 0, null, 0, 0, 0n); // barrier
+            if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
+        }
+        
         // on Managed X10, probe sometimes deadlocks, so sleep is required
         // TODO: Figure out why probe doesn't work on Managed X10
         @Native("java", "true")
         @Native("c++", "false")
         private static native def useSleepNotProbe():Boolean;
-	    
-	    /*
-	     * This method contains the implementation for all collectives.  Some arguments are only valid
-	     * for specific collectives.
-	     */
-	    private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root);
-	        val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
+        
+        /*
+         * This method contains the implementation for all collectives.  Some arguments are only valid
+         * for specific collectives.
+         */
+        private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root);
+            val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
 
             /**
              * Block the current activity until condition is set to true by
@@ -730,31 +730,31 @@ public struct Team {
                 }
             };
 
-	        // block if some other collective is in progress.
+            // block if some other collective is in progress.
             sleepUntil(() => this.phase.compareAndSet(PHASE_READY, PHASE_INIT));
-	        
-	        // figure out our links in the tree structure
-	        val myLinks:TreeStructure;
-	        val rootIndex:Long = places.indexOf(root);
-	        if (myIndex > rootIndex || rootIndex == 0)
-	        	myLinks = getLinks(-1, rootIndex, places.numPlaces()-1);
-	        else if (myIndex < rootIndex)
-	            myLinks = getLinks(rootIndex, 0, rootIndex-1);
-	        else // non-zero root
-	            myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1);
+            
+            // figure out our links in the tree structure
+            val myLinks:TreeStructure;
+            val rootIndex:Long = places.indexOf(root);
+            if (myIndex > rootIndex || rootIndex == 0)
+                myLinks = getLinks(-1, rootIndex, places.numPlaces()-1);
+            else if (myIndex < rootIndex)
+                myLinks = getLinks(rootIndex, 0, rootIndex-1);
+            else // non-zero root
+                myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1);
 
-	        if (DEBUGINTERNALS) { 
-	            Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
-	            Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
-	        }
-	        
-	        // make my local data arrays visible to other places
-	        local_src = src;
-	        local_src_off = src_off;
-	        local_dst = dst;
-	        local_dst_off = dst_off;
-	        local_count = count;
-	        local_grandchildren = myLinks.totalChildren;
+            if (DEBUGINTERNALS) { 
+                Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
+                Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+            }
+            
+            // make my local data arrays visible to other places
+            local_src = src;
+            local_src_off = src_off;
+            local_dst = dst;
+            local_dst_off = dst_off;
+            local_count = count;
+            local_grandchildren = myLinks.totalChildren;
             local_child1Index = myLinks.child1Index;
             local_child2Index = myLinks.child2Index;
             if ((collType == COLL_REDUCE || collType == COLL_ALLREDUCE) && local_child2Index != -1) {
@@ -769,13 +769,13 @@ public struct Team {
             }
 
             // check for valid input.  TODO: remove for performance?
-	        //if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
-	        //if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
-	        
+            //if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
+            //if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
+            
             if (collType == COLL_INDEXOFMAX || collType == COLL_INDEXOFMIN)
                 dst(0) = src(0);
-	        
-	        // allow children to update our dst array
+            
+            // allow children to update our dst array
             if (local_child1Index == -1) { // no children to wait for
                 this.phase.set(PHASE_SCATTER);
             } else if (local_child2Index == -1) { // only one child, so skip a phase waiting for the second child.
@@ -783,7 +783,7 @@ public struct Team {
             } else {
                 this.phase.set(PHASE_GATHER1);
             }
-	    
+        
             // wait for phase updates from children
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
             probeUntil(() => this.phase.get() == PHASE_SCATTER);
@@ -799,17 +799,17 @@ public struct Team {
                     Rail.copy(src, src_off, dst, dst_off, count);
                 }
             }
-	    
-	        // all children have checked in.  Update our parent, and then wait for the parent to update us 
-	    	if (myLinks.parentIndex == -1) { // this is the root
-	    		// copy data locally from src to dst if needed
-	    		if (collType == COLL_BROADCAST)
-	    			Rail.copy(src, src_off, dst, dst_off, count);
-	    		else if (collType == COLL_SCATTER)
-			    	Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
+        
+            // all children have checked in.  Update our parent, and then wait for the parent to update us 
+            if (myLinks.parentIndex == -1) { // this is the root
+                // copy data locally from src to dst if needed
+                if (collType == COLL_BROADCAST)
+                    Rail.copy(src, src_off, dst, dst_off, count);
+                else if (collType == COLL_SCATTER)
+                    Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
                 else if (collType == COLL_ALLTOALL)
                     Rail.copy(src, src_off+(count*myIndex), dst, dst_off+(count*myIndex), count);
-	    		this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
+                this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
             } else {
                 val waitForParentToReceive = () => {
                     if (DEBUGINTERNALS) Runtime.println(here+" waiting for parent phase "+Team.state(teamidcopy).phase.get());
@@ -825,19 +825,19 @@ public struct Team {
                         Runtime.println("ERROR incrementing the parent "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
                 };
 
-	            // move data from children to parent
-   	            // Scatter and broadcast only move data from parent to children, so they have no code here
-	            if (collType >= COLL_ALLTOALL) {
-	                if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
-	                val notnulldst = dst as Rail[T]{self!=null};
+                // move data from children to parent
+                   // Scatter and broadcast only move data from parent to children, so they have no code here
+                if (collType >= COLL_ALLTOALL) {
+                    if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
+                    val notnulldst = dst as Rail[T]{self!=null};
                     val gr = new GlobalRail[T](notnulldst);
                     if (collType == COLL_ALLTOALL) {
                         val totalData:Long = count*(myLinks.totalChildren+1);
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
                             waitForParentToReceive();
-	                        // copy my data, plus all the data filled in by my children, to my parent
-	                        Rail.uncountedCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData, incrementParentPhase);
-	                    }
+                            // copy my data, plus all the data filled in by my children, to my parent
+                            Rail.uncountedCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData, incrementParentPhase);
+                        }
                     } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
                         // copy reduced data to parent
                         val sourceIndex = places.indexOf(here);
@@ -854,56 +854,56 @@ public struct Team {
                             }
                             Rail.uncountedCopy(gr, dst_off, target, off, count, incrementParentPhase);
                         }
-	                } else if (collType == COLL_INDEXOFMAX) {
-	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                    } else if (collType == COLL_INDEXOFMAX) {
+                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
                             waitForParentToReceive();
-	                        sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
-	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
-	                        if (DEBUGINTERNALS) Runtime.println(here+" IndexOfMax: parent="+ldi(0).value+" child="+childVal.value);
-	                        
-	                        // TODO: If there is  more than one instance of the min/max value, this 
-	                        // implementation will return the index associated with "one of" them, not necessarily
-	                        // the first one.  Do we need to return the "first", as the API says, or is that not really necessary?
-	                        if (childVal.value > ldi(0).value)
-	                            ldi(0) = childVal;
-	                        Team.state(teamidcopy).dstLock.unlock();
+                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
+                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+                            if (DEBUGINTERNALS) Runtime.println(here+" IndexOfMax: parent="+ldi(0).value+" child="+childVal.value);
+                            
+                            // TODO: If there is  more than one instance of the min/max value, this 
+                            // implementation will return the index associated with "one of" them, not necessarily
+                            // the first one.  Do we need to return the "first", as the API says, or is that not really necessary?
+                            if (childVal.value > ldi(0).value)
+                                ldi(0) = childVal;
+                            Team.state(teamidcopy).dstLock.unlock();
                             incrementParentPhase();
-	                    }
-	                } else if (collType == COLL_INDEXOFMIN) {
-	                    val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                        }
+                    } else if (collType == COLL_INDEXOFMIN) {
+                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
                             waitForParentToReceive();
-	                        sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
-	                        val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
-	                        if (childVal.value < ldi(0).value)
-	                            ldi(0) = childVal;
-	                        Team.state(teamidcopy).dstLock.unlock();
+                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
+                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
+                            if (childVal.value < ldi(0).value)
+                                ldi(0) = childVal;
+                            Team.state(teamidcopy).dstLock.unlock();
                             incrementParentPhase();
-	                     }
-	                }
-	            } else {
+                         }
+                    }
+                } else {
                     @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
                         waitForParentToReceive();
-	                    incrementParentPhase();
-	    		    }
+                        incrementParentPhase();
+                    }
                 }
-	            
-	            if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+places(myLinks.parentIndex)+":team"+teamidcopy+" to release us from phase "+phase.get());
+                
+                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+places(myLinks.parentIndex)+":team"+teamidcopy+" to release us from phase "+phase.get());
                 probeUntil(() => this.phase.get() == PHASE_DONE);
                 if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
-	    	}
+            }
 
-	    	// move data from parent to children
-	    	// reduce and barrier do not move data in this direction, so they are not included here
-	    	if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE) {
-	    		val notnulldst = dst as Rail[T]{self!=null};
-	            val gr = new GlobalRail[T](notnulldst);
+            // move data from parent to children
+            // reduce and barrier do not move data in this direction, so they are not included here
+            if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE) {
+                val notnulldst = dst as Rail[T]{self!=null};
+                val gr = new GlobalRail[T](notnulldst);
 
                 if (collType == COLL_ALLTOALL) {
-		            // only copy over the data that did not come from this child in the first place
-		            @Pragma(Pragma.FINISH_SPMD) finish {
-		                at (places(local_child1Index)) async {
+                    // only copy over the data that did not come from this child in the first place
+                    @Pragma(Pragma.FINISH_SPMD) finish {
+                        at (places(local_child1Index)) async {
                             @Pragma(Pragma.FINISH_ASYNC) finish {
                                 // position 0 up to the child id
                                 Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count*Team.state(teamidcopy).myIndex);
@@ -911,91 +911,91 @@ public struct Team {
                                 Rail.asyncCopy(gr, dst_off+(Team.state(teamidcopy).local_count*(Team.state(teamidcopy).local_grandchildren+1)), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
                             }
                         }
-		                if (local_child2Index != -1) {
-		                    at (places(local_child2Index)) async {
-		                        @Pragma(Pragma.FINISH_ASYNC) finish {
-		                        // position 0 up to the child id
-		                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-		                        // position of last child range, to the end
-		                        Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-		                        }
-		                    }
-		                }
-		            }
-		        } else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE || 
-		    		collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) {
-		    		// these all move a single value from root to all other team members
-		            @Pragma(Pragma.FINISH_SPMD) finish {
-		    			at (places(local_child1Index)) async {
-		                    if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
-		                    @Pragma(Pragma.FINISH_ASYNC) finish {
-		    					Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-		                    }
-		    			}
-		    			if (local_child2Index != -1) {
-		    				at (places(local_child2Index)) async {
-		                        if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
-		                        @Pragma(Pragma.FINISH_ASYNC) finish {
-		    						Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-		                        }
-		    				}
-		    			}
-		    		}
-		    	}
-		    	else if (collType == COLL_SCATTER) {
-		            // TODO: scatter is more difficult because we want places to carry data that is not intended for them, so we need temp buffers
-	    		}
-		    	if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
-	    	}
+                        if (local_child2Index != -1) {
+                            at (places(local_child2Index)) async {
+                                @Pragma(Pragma.FINISH_ASYNC) finish {
+                                // position 0 up to the child id
+                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+                                // position of last child range, to the end
+                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+                                }
+                            }
+                        }
+                    }
+                } else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE || 
+                    collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) {
+                    // these all move a single value from root to all other team members
+                    @Pragma(Pragma.FINISH_SPMD) finish {
+                        at (places(local_child1Index)) async {
+                            if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
+                            @Pragma(Pragma.FINISH_ASYNC) finish {
+                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+                            }
+                        }
+                        if (local_child2Index != -1) {
+                            at (places(local_child2Index)) async {
+                                if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+gr+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
+                                @Pragma(Pragma.FINISH_ASYNC) finish {
+                                    Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (collType == COLL_SCATTER) {
+                    // TODO: scatter is more difficult because we want places to carry data that is not intended for them, so we need temp buffers
+                }
+                if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
+            }
 
-	    	// our parent has updated us - update any children, and leave the collective
-	        if (local_child1Index != -1) { // free the first child, if it exists
-	            // NOTE: there is some trickery here, which allows the parent to continue past this section
-	            //   before the children have been set free.  This is necessary when there is a blocking
-	            //   call immediately after this collective completes (e.g. the barrier before a blocking 
-	            //   collective in MPI-2), because otherwise the at may not return before the barrier
-	            //   locks up the worker thread.
-	            // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
-	            val origPlace:Place = here;
-	            @Pragma(Pragma.FINISH_HERE) finish {
-	                at (places(local_child1Index)) async {
-	                    at (origPlace) async {}
-	    		        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	    				    Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    			    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	                }
-	    		}
-	    		if (local_child2Index != -1) {
-	    		    @Pragma(Pragma.FINISH_HERE) finish {
-	                    at (places(local_child2Index)) async {
-	                        at (origPlace) async {}
-	    		            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	    					    Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    			        else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	    			    }
-	    		    }
-	    	    }
-	        }
+            // our parent has updated us - update any children, and leave the collective
+            if (local_child1Index != -1) { // free the first child, if it exists
+                // NOTE: there is some trickery here, which allows the parent to continue past this section
+                //   before the children have been set free.  This is necessary when there is a blocking
+                //   call immediately after this collective completes (e.g. the barrier before a blocking 
+                //   collective in MPI-2), because otherwise the at may not return before the barrier
+                //   locks up the worker thread.
+                // TODO: convert to Runtime.runUncountedAsync(), or Runtime.x10rtSendAsync(), or other such simpler mechanism
+                val origPlace:Place = here;
+                @Pragma(Pragma.FINISH_HERE) finish {
+                    at (places(local_child1Index)) async {
+                        at (origPlace) async {}
+                        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+                            Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+                        else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
+                    }
+                }
+                if (local_child2Index != -1) {
+                    @Pragma(Pragma.FINISH_HERE) finish {
+                        at (places(local_child2Index)) async {
+                            at (origPlace) async {}
+                            if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
+                                Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
+                            else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
+                        }
+                    }
+                }
+            }
 /* alternative form of the above
             val free_child = ()=> @x10.compiler.RemoteInvocation("free_child") {
                 if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-       		        Runtime.println("ERROR setting child "+here+" to PHASE_DONE");
+                       Runtime.println("ERROR setting child "+here+" to PHASE_DONE");
             };
-	        if (local_child1Index != -1) {
-	            Runtime.x10rtSendMessage(places(local_child1Index).id, free_child, null);
-	    		if (local_child2Index != -1)
-	                Runtime.x10rtSendMessage(places(local_child2Index).id, free_child, null);
-	        }
-	        Unsafe.dealloc(free_child);
-*/	        
-	        local_src = null;
-	        local_dst = null;
-	        local_temp_buff = null;
-	        this.phase.set(PHASE_READY);
-	        // done!
-	        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
-	    }
-	}
+            if (local_child1Index != -1) {
+                Runtime.x10rtSendMessage(places(local_child1Index).id, free_child, null);
+                if (local_child2Index != -1)
+                    Runtime.x10rtSendMessage(places(local_child2Index).id, free_child, null);
+            }
+            Unsafe.dealloc(free_child);
+*/            
+            local_src = null;
+            local_dst = null;
+            local_temp_buff = null;
+            this.phase.set(PHASE_READY);
+            // done!
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
+        }
+    }
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
