@@ -3076,7 +3076,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write(StringUtil.escape(n.value()));
                 sw.write("\")");
             } else {
-                sw.write(cname);
+                sw.write("(&"+cname+")");
             }
         }
 	}

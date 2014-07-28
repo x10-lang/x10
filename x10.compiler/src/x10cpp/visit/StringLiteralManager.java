@@ -46,11 +46,11 @@ public class StringLiteralManager {
     public String getCName(String lit) {
         Name n = map.get(lit);
         if (n == null) return null;
-        return fqcname+"::"+Emitter.mangled_non_method_name(n.toString());
+        return "::"+fqcname+"::"+Emitter.mangled_non_method_name(n.toString());
     }
 
     public void populate(X10ClassDecl_c n) {
-        fqcname = "::"+Emitter.translate_mangled_FQN(Emitter.fullName(n.classDef().asType()).toString())+"_Strings";
+        fqcname = Emitter.translate_mangled_FQN(Emitter.fullName(n.classDef().asType()).toString())+"_Strings";
         cname = Emitter.mangled_non_method_name(n.name().id().toString())+"_Strings";
         class FindStrings extends NodeVisitor {
             public Node override(Node n) {
@@ -72,9 +72,8 @@ public class StringLiteralManager {
             h.writeln("  public:");
             for (Entry<String,Name> e : map.entrySet()) {
                 String var = Emitter.mangled_non_method_name(e.getValue().toString());
-                h.writeln("    static ::x10::lang::String* "+var+";");
-                d.write("::x10::lang::String* "+fqcname+"::"+var+" = ");
-                d.write("::x10aux::makeStringLit(\"");
+                h.writeln("    static ::x10::lang::String "+var+";");
+                d.write("::x10::lang::String "+fqcname+"::"+var+"(\"" );
                 d.write(StringUtil.escape(e.getKey()));
                 d.writeln("\");");
             }
