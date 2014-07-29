@@ -29,13 +29,13 @@ public class FilterReader extends Reader {
         this.r.read(r,off,len); 
     }
     
-    public def available():Int = r.available();
+    public def available():Long = r.available();
 
     public def skip(off:Long):void {
         r.skip(off); 
     }
 
-    public def mark(off:Int):void  { 
+    public def mark(off:Long):void  { 
         r.mark(off); 
     }
 

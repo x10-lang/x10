@@ -103,18 +103,18 @@ public class InputStream extends Ref {
         }
     }
     
-    public int available() {
+    public long available() {
         try {
-            return stream.available();
+            return (long) stream.available();
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }
     }
     
     // XTENLANG-2680
-    public int available$O() {
+    public long available$O() {
         try {
-            return stream.available();
+            return (long) stream.available();
         } catch (java.io.IOException e) {
             throw new x10.io.IOException(e.getMessage());
         }
@@ -128,8 +128,9 @@ public class InputStream extends Ref {
         }
     }
     
-    public void mark(int readlimit) {
-        stream.mark(readlimit);
+    // LONG_RAIL: unsafe int cast
+    public void mark(long readlimit) {
+        stream.mark((int) readlimit);
     }
     
     public void reset() {

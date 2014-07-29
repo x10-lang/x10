@@ -50,11 +50,11 @@ public abstract class Reader {
      * the read is made, in particular this method may return 0 even
      * if a non-zero number of bytes are actually available.
      */
-    public abstract def available():Int;
+    public abstract def available():Long;
 
     public abstract def skip(v:Long):void;
 
-    public abstract def mark(m:Int):void;
+    public abstract def mark(m:Long):void;
     public abstract def reset():void;
     public abstract def markSupported(): Boolean;
     

@@ -47,11 +47,11 @@ namespace x10 {
                                  x10_int off,
                                  x10_int len);
             
-            virtual x10_int available() { return 0; }
+            virtual x10_long available() { return 0L; }
 
             virtual void skip(x10_long) = 0;
 
-            virtual void mark(x10_int) { };
+            virtual void mark(x10_long) { };
 
             virtual void reset() { }
 

@@ -30,13 +30,13 @@ public class InputStreamReader extends Reader {
         public native def read(r:Rail[Byte], off:Long, len:Long):void;
 
         @Native("java", "#this.available()")
-        public native def available():Int;
+        public native def available():Long;
 
         @Native("java", "#this.skip(#v)")
         public native def skip(v:Long):void;
 
         @Native("java", "#this.mark(#m)")
-        public native def mark(m:Int):void;
+        public native def mark(m:Long):void;
 
         @Native("java", "#this.reset()")
         public native def reset():void;
@@ -65,13 +65,13 @@ public class InputStreamReader extends Reader {
         stream.read(r,off,len); 
     }
 
-    public def available():Int = stream.available();
+    public def available():Long = stream.available();
 
     public def skip(off:Long):void { 
         stream.skip(off); 
     }
 
-    public def mark(off:Int):void {
+    public def mark(off:Long):void {
        stream.mark(off);
     }
 
