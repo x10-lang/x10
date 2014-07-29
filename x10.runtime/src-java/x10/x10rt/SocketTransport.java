@@ -404,8 +404,13 @@ public class SocketTransport {
 				
 				// see the format of "ctrl_msg" in Launcher.h
 				ByteBuffer controlMsg = ByteBuffer.allocateDirect(16);
-				if (!readNBytes(sc, controlMsg, controlMsg.capacity()))
+				try {
+					if (!readNBytes(sc, controlMsg, controlMsg.capacity()))
+						return false;
+				} catch (IOException e) {
+					// ignore errors reading the initial header - this may be a network scanner or other unrelated port prober
 					return false;
+				}
 				controlMsg.flip();
 				int msgtype = controlMsg.getInt();
 				
@@ -522,122 +527,124 @@ public class SocketTransport {
 			if (key.isReadable()) {
 				if (DEBUG) System.err.println("Place "+myPlaceId+" detected incoming message");
 				SocketChannel sc = (SocketChannel) key.channel();
-				Message m = pendingReads.get(sc);
-				if (m != null) {
-					sc.read(m.data);
-					if (!m.data.hasRemaining()) {
-						pendingReads.remove(sc);
-						m.data.flip();
-						runCallback(m.callbackId, m.data);
-					}
-					return true;
-				}
-				
-				ByteBuffer controlData = ByteBuffer.allocateDirect(12);
-				int msgType=0, callbackId=0, datalen;				
-				try {
-					if (!readNBytes(sc, controlData, controlData.capacity()))
-						return false;
-					controlData.flip(); // switch from write to read mode
-					// Format: type, p.type, p.len, p.msg
-					msgType = controlData.getInt();
-					callbackId = controlData.getInt();
-					datalen = controlData.getInt();
-					if (DEBUG) System.err.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
-
-					if (msgType == MSGTYPE.STANDARD.ordinal()) {
-						m = new Message(callbackId, datalen);
+				Message toProcess = null;
+				synchronized (sc) {
+					Message m = pendingReads.get(sc);
+					if (m != null) { // there is an existing message partially read in from this socket
 						sc.read(m.data);
-						if (m.data.hasRemaining()) // more left to read later
-							pendingReads.put(sc, m);
-						else {
+						if (!m.data.hasRemaining()) {
+							pendingReads.remove(sc);
 							m.data.flip();
-							runCallback(callbackId, m.data);
+							toProcess = m;
 						}
-						
-						//if (DEBUG) System.err.println("Place "+myPlaceId+" finished processing message type "+callbackId+" and size "+datalen);
-						if (DEBUG) System.err.println("done");
 					}
-					else if (msgType == MSGTYPE.GET_PLACE_REQUEST.ordinal()) {
-						// this comes into the lowest numbered place, which is responsible for place assignment
-						// assign a new place id, increment nplaces
-						controlData.clear(); 
-						controlData.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
-						controlData.putInt(this.nplaces++);
-						controlData.putInt(myPlaceId);
-						controlData.flip();// switch from write to read mode (for outputting to the socket)
-						writeNBytes(sc, controlData); // write back to the original requester, not "remote"
-					}
-					else if (msgType == MSGTYPE.GET_PLACE_RESPONSE.ordinal()) {
-						// get the socket channel we stashed earlier
-						int remote = callbackId;
-						CommunicationLink newPlace = null;
-						synchronized (pendingJoins) {
-							newPlace = pendingJoins.poll();
-						}
-						if (newPlace != null) {
-							String allPlaceLinks = getAllPlaceLinks();
-							byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
-							ByteBuffer controlMsg = ByteBuffer.allocateDirect(24+allPlaceLinksBytes.length);
-							controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
-							controlMsg.putInt(remote); // actually the new place id
-							controlMsg.putInt(myPlaceId);
-							controlMsg.putInt(8+allPlaceLinksBytes.length); // epoch, plus link info
-							controlMsg.putLong(Runtime.epoch$O());
-							controlMsg.put(allPlaceLinksBytes);
-							controlMsg.flip();
-							writeNBytes(newPlace.sc, controlMsg);
-							channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
-							setSocketOptions(sc);
-							sc.register(selector, SelectionKey.OP_READ);
-							if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
-							
-							// update nplaces here, because we won't get a connection from the new place, as it already exists
-							if (remote >= nplaces)
-								this.nplaces = remote+1;
-							
-							// tell the new place to connect to the hazelcast cluster
-							if (X10RT.hazelcastDatastore != null) {
-								try {
-					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8)));
-								} catch (UnsupportedEncodingException e) {
-									// this won't happen, because UTF8 is a required encoding
-									e.printStackTrace();
-									assert(false);
+					else { // this is a new message coming in
+						ByteBuffer controlData = ByteBuffer.allocateDirect(12);
+						int msgType=0, callbackId=0, datalen;				
+						try {
+							if (!readNBytes(sc, controlData, controlData.capacity()))
+								return false;
+							controlData.flip(); // switch from write to read mode
+							// Format: type, p.type, p.len, p.msg
+							msgType = controlData.getInt();
+							callbackId = controlData.getInt();
+							datalen = controlData.getInt();
+							if (DEBUG) System.err.print("Place "+myPlaceId+" processing an incoming message of type "+callbackId+" and size "+datalen+"...");
+		
+							if (msgType == MSGTYPE.STANDARD.ordinal()) {
+								m = new Message(callbackId, datalen);
+								sc.read(m.data);
+								if (m.data.hasRemaining()) // more left to read later
+									pendingReads.put(sc, m);
+								else {
+									m.data.flip();
+									toProcess = m;
 								}
 							}
-						}
-						else
-							System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
-					}
-					else if (msgType == MSGTYPE.CONNECT_DATASTORE.ordinal()) {
-						byte[] linkdata = new byte[datalen];
-						ByteBuffer bb = ByteBuffer.wrap(linkdata);
-						while (!readNBytes(sc, bb, datalen));
-						String linkString = new String(linkdata, UTF8);
-						X10RT.initDataStore(linkString);
-					}
-					else 
-						System.err.println("Unknown message type: "+msgType);
-				}
-				catch (IOException e) {
-					// figure out which place this is
-					for (Integer place : channels.keySet()) {
-						try {
-							CommunicationLink cl = channels.get(place);
-							if (cl != null && sc.equals(cl.sc)) {
-								if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
-								markPlaceDead(place);
-								cl.pendingWrites = null;
-								break;
+							else if (msgType == MSGTYPE.GET_PLACE_REQUEST.ordinal()) {
+								// this comes into the lowest numbered place, which is responsible for place assignment
+								// assign a new place id, increment nplaces
+								controlData.clear();
+								controlData.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
+								controlData.putInt(this.nplaces++);
+								controlData.putInt(myPlaceId);
+								controlData.flip();// switch from write to read mode (for outputting to the socket)
+								writeNBytes(sc, controlData); // write back to the original requester, not "remote"
 							}
-						} catch (NullPointerException e2){} // channels[i] can become null after we check for null
+							else if (msgType == MSGTYPE.GET_PLACE_RESPONSE.ordinal()) {
+								// get the socket channel we stashed earlier
+								int remote = callbackId;
+								CommunicationLink newPlace = null;
+								synchronized (pendingJoins) {
+									newPlace = pendingJoins.poll();
+								}
+								if (newPlace != null) {
+									String allPlaceLinks = getAllPlaceLinks();
+									byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
+									ByteBuffer controlMsg = ByteBuffer.allocateDirect(24+allPlaceLinksBytes.length);
+									controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
+									controlMsg.putInt(remote); // actually the new place id
+									controlMsg.putInt(myPlaceId);
+									controlMsg.putInt(8+allPlaceLinksBytes.length); // epoch, plus link info
+									controlMsg.putLong(Runtime.epoch$O());
+									controlMsg.put(allPlaceLinksBytes);
+									controlMsg.flip();
+									writeNBytes(newPlace.sc, controlMsg);
+									channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
+									setSocketOptions(sc);
+									sc.register(selector, SelectionKey.OP_READ);
+									if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
+									
+									// update nplaces here, because we won't get a connection from the new place, as it already exists
+									if (remote >= nplaces)
+										this.nplaces = remote+1;
+									
+									// tell the new place to connect to the hazelcast cluster
+									if (X10RT.hazelcastDatastore != null) {
+										try {
+							      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(X10RT.hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8)));
+										} catch (UnsupportedEncodingException e) {
+											// this won't happen, because UTF8 is a required encoding
+											e.printStackTrace();
+											assert(false);
+										}
+									}
+								}
+								else
+									System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
+							}
+							else if (msgType == MSGTYPE.CONNECT_DATASTORE.ordinal()) {
+								byte[] linkdata = new byte[datalen];
+								ByteBuffer bb = ByteBuffer.wrap(linkdata);
+								while (!readNBytes(sc, bb, datalen));
+								String linkString = new String(linkdata, UTF8);
+								X10RT.initDataStore(linkString);
+							}
+							else 
+								System.err.println("Unknown message type: "+msgType);
+						}
+						catch (IOException e) {
+							// figure out which place this is
+							for (Integer place : channels.keySet()) {
+								try {
+									CommunicationLink cl = channels.get(place);
+									if (cl != null && sc.equals(cl.sc)) {
+										if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
+										markPlaceDead(place);
+										cl.pendingWrites = null;
+										break;
+									}
+								} catch (NullPointerException e2){} // channels[i] can become null after we check for null
+							}
+							try {sc.close();}
+				    		catch (Exception e2){}
+				    		return false;
+						}
 					}
-					try {sc.close();}
-		    		catch (Exception e2){}
-		    		return false;
 				}
-				// TODO GET & PUT message types
+				// run the callback if it was set
+				if (toProcess != null)
+					runCallback(toProcess.callbackId, toProcess.data);
 				return true;
 			}
 		} catch (CancelledKeyException e) {
