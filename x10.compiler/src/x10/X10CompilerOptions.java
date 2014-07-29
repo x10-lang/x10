@@ -154,13 +154,6 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		}
 		catch (OptionError e) { }
 		catch (ConfigurationError e) { }
-
-		// XTENLANG-3397 disable x10 level inlining of methods with method calls when -commandlineonly is specified
-		if (compile_command_line_only) {
-			x10_config.INLINE = false;
-			x10_config.INLINE_SIZE = 0;
-		}
-
 		return index;
 	}
 
