@@ -66,20 +66,22 @@ public class StringLiteralManager {
         n.visit(new FindStrings());
     }
     
+    public boolean hasStrings() {
+        return !map.isEmpty();
+    }
+    
     public void codeGen(ClassifiedStream h, ClassifiedStream d) {
-        if (!map.isEmpty()) {
-            h.writeln("class "+cname+" {");
-            h.writeln("  public:");
-            for (Entry<String,Name> e : map.entrySet()) {
-                String var = Emitter.mangled_non_method_name(e.getValue().toString());
-                h.writeln("    static ::x10::lang::String "+var+";");
-                d.write("::x10::lang::String "+fqcname+"::"+var+"(\"" );
-                d.write(StringUtil.escape(e.getKey()));
-                d.writeln("\");");
-            }
-            h.writeln("};");
-            h.forceNewline();
-            d.forceNewline();
+        h.writeln("class "+cname+" {");
+        h.writeln("  public:");
+        for (Entry<String,Name> e : map.entrySet()) {
+            String var = Emitter.mangled_non_method_name(e.getValue().toString());
+            h.writeln("    static ::x10::lang::String "+var+";");
+            d.write("::x10::lang::String "+fqcname+"::"+var+"(\"" );
+            d.write(StringUtil.escape(e.getKey()));
+            d.writeln("\");");
         }
+        h.writeln("};");
+        h.forceNewline();
+        d.forceNewline();
     }
 }

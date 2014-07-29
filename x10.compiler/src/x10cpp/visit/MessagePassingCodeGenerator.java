@@ -744,13 +744,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 allIncludes.add(header);
             }
         }
-
-		if (def.package_() != null) {
-		    QName pkgName = def.package_().get().fullName();
-		    Emitter.openNamespaces(h, pkgName);
-		    h.newline(0);
-		    h.forceNewline(0);
-		}
+        h.forceNewline();
 
         /*
          * Ideally, classProperties would be added to the child context
@@ -758,11 +752,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          * is no way to do that.  So instead we add and remove the properties
          * in the global context, for each class.
          */
-		context.resetStateForClass(n.properties());
+        context.resetStateForClass(n.properties());
 
-		if (inTemplate && !def.isStruct()) {
-			// Pre-declare the void specialization for statics
-			emitter.printTemplateSignature(def.typeParameters(), h);
+        context.stringManager.populate(n);
+
+        if (def.package_() != null) {
+            QName pkgName = def.package_().get().fullName();
+            Emitter.openNamespaces(h, pkgName);
+            h.newline(0);
+            h.forceNewline(0);
+        }
+
+        if (context.stringManager.hasStrings()) {
+            context.stringManager.codeGen(h, context.staticDefinitions);
+        }
+
+        if (inTemplate && !def.isStruct()) {
+            // Pre-declare the void specialization for statics
+            emitter.printTemplateSignature(def.typeParameters(), h);
 			h.write("class ");
 			h.write(mangled_non_method_name(def.name().toString()));
 			h.write(";");
@@ -773,10 +780,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write(";");
 			h.newline();
 		}
-
-		// Aux class to contain all string literals used in this class's body
-		context.stringManager.populate(n);
-		context.stringManager.codeGen(h, context.staticDefinitions);
 		
 		// Open class/namespace bodies
 		emitter.printHeader(n, h, tr);
@@ -874,6 +877,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream incS = implInHeader ? h : w_header;
         for (String header : allIncludes) {
             incS.writeln("#include <" + header + ">");
+        }
+        if (context.stringManager.hasStrings()) {
+            incS.writeln("#include <x10/lang/String.h>");
         }
 
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
