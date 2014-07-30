@@ -388,7 +388,7 @@ public class AltSynthesizer {
      * @return
      */
     public Expr createNotNull(Position pos, Expr expr, ContextVisitor visitor) {
-        return createBinary(pos, createNull(pos, expr.type()), Binary.NE, expr, visitor).type(ts.Boolean());
+        return createBinary(pos, expr, Binary.NE, createNull(pos, expr.type()), visitor).type(ts.Boolean());
     }
 
     /**
