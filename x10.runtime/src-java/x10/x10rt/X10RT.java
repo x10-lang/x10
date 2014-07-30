@@ -56,7 +56,7 @@ public class X10RT {
                 System.loadLibrary(libs[i]);
         }
 
-        String libName = System.getProperty(X10RT_IMPL, "sockets");
+        String libName = System.getProperty(X10RT_IMPL, "JavaSockets");
         if (libName.equals("disabled"))
             forceSinglePlace = true;
         else if (libName.equalsIgnoreCase("JavaSockets")) {
@@ -172,7 +172,7 @@ public class X10RT {
     public static synchronized boolean init() {
       if (state != State.UNINITIALIZED) return true; // already initialized
 
-      String libName = System.getProperty("X10RT_IMPL", "sockets");
+      String libName = System.getProperty("X10RT_IMPL", "JavaSockets");
       if (libName.equals("disabled")) {
           forceSinglePlace = true;
       } 
