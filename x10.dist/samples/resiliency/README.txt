@@ -21,12 +21,17 @@ but you can choose the most stable one by "X10_RESILIENT_MODE=1".
 A paper describing Resilient X10 appeared in PPoPP 2014
 (http://dl.acm.org/citation.cfm?doid=2555243.2555248). 
 
+A paper describing how to make X10 applications fault tolerant in X10 2014
+(http://x10.sourceforge.net/documentation/papers/X10Workshop2014/x1014-kawachiya.pdf
+ http://x10.sourceforge.net/documentation/papers/X10Workshop2014/x1014-kawachiya-slides.pdf).
+
 How to run each sample app:
 
 ./ResilientMontePi
 ./ResilientKMeans [num_points] [num_clusters]
 ./ResilientHeatTransfer [size]
 ./ResilientSimpleHeatTransfer [size]
+./ResilientPlhHeatTransfer [size]
 
 MatVecMult assumes data exists on disk in a particular format.  This
 data is not publicly available, although the format is simple and

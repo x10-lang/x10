@@ -8,21 +8,23 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-import x10.regionarray.*;
-import x10.util.*;
+import x10.resilient.regionarray.DistArray;
+import x10.regionarray.Dist;
+import x10.regionarray.Region;
+import x10.util.ArrayList;
 
 /**
- * Resilient HeatTransfer which uses resilient DistArray
+ * Resilient HeatTransfer which uses Resilient DistArray
  * Partially based on HeatTransfer_v2.x10
- * Uses ResilientDistArray
+ * Uses Resilient DistArray
  * @author kawatiya
  * 
  * For Managed X10:
  *   $ x10 ResilientHeatTransfer.x10
- *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 x10 ResilientHeatTransfer [size]
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 ResilientHeatTransfer [size]
  * For Native X10:
  *   $ x10c++ ResilientHeatTransfer.x10 -o ResilientHeatTransfer
- *   $ X10_RESILIENT_MODE=11 X10_NPLACES=4 runx10 ResilientHeatTransfer [size]
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 runx10 ResilientHeatTransfer [size]
  */
 public class ResilientHeatTransfer {
     static val epsilon = 1.0e-5;
@@ -34,6 +36,7 @@ public class ResilientHeatTransfer {
     public static def main(args:Rail[String]) {
         val n = (args.size>=1) ? Long.parseLong(args(0)) : 10L;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
+        for (p in Place.places()) at (p) Console.OUT.println(here+" running in "+Runtime.getName());
         
         /*
          * Initialize the data
@@ -49,9 +52,9 @@ public class ResilientHeatTransfer {
         var D_Base:Dist = Dist.makeUnique(SmallD.places());
         
         /* Resilient DistArrays */
-        val A = ResilientDistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-        val Temp = ResilientDistArray.make[Double](BigD);
-        val Scratch = ResilientDistArray.make[Double](BigD);
+        val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+        val Temp = DistArray.make[Double](BigD);
+        val Scratch = DistArray.make[Double](BigD);
         
         /*
          * Do the computation
@@ -138,14 +141,14 @@ public class ResilientHeatTransfer {
         }
     }
     
-    private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
+    private static def stencil_1(A:DistArray[Double](2), [x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
                 (at(A.dist(x,y+1)) A(x,y+1))) / 4;
     }
     // /* Tentative workaround since DeatPlaceException is not thrown for "at (p) ..." */
-    // private static def stencil_1(A:ResilientDistArray[Double](2), [x,y]:Point(2)): Double {
+    // private static def stencil_1(A:DistArray[Double](2), [x,y]:Point(2)): Double {
     //     val a:Double, b:Double, c:Double, d:Double;
     //     finish a = at(A.dist(x-1,y)) A(x-1,y);
     //     finish b = at(A.dist(x+1,y)) A(x+1,y);
@@ -154,7 +157,7 @@ public class ResilientHeatTransfer {
     //     return (a+b+c+d)/4;
     // }
     
-    private static def prettyPrint(A:ResilientDistArray[Double](2)) {
+    private static def prettyPrint(A:DistArray[Double](2)) {
         for ([i] in A.region.projection(0)) {
             for ([j] in A.region.projection(1)) {
                 val tmp = at (A.dist(i,j)) A(i,j);

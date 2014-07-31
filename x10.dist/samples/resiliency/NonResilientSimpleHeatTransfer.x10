@@ -11,28 +11,28 @@
 // import x10.resilient.regionarray.DistArray;
 // import x10.regionarray.Dist;
 // import x10.regionarray.Region;
-import x10.resilient.array.DistArray_BlockBlock_2;
+// import x10.resilient.array.DistArray_BlockBlock_2;
+import x10.array.DistArray_BlockBlock_2;
 import x10.util.ArrayList;
 
 /**
- * Resilient HeatTransfer which uses simple resilient DistArray
- * Based on ResilientHeatTransfer.x10
- * Uses simple Resilient DistArray
+ * Non-Resilient HeatTransfer which uses simple resilient DistArray
+ * Should be maintained together with ResilientSimpleHeatTransfer.x10
  * @author kawatiya
  * 
  * For Managed X10:
- *   $ x10 ResilientSimpleHeatTransfer.x10
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 ResilientSimpleHeatTransfer [size]
+ *   $ x10 NonResilientSimpleHeatTransfer.x10
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 x10 NonResilientSimpleHeatTransfer [size]
  * For Native X10:
- *   $ x10c++ ResilientSimpleHeatTransfer.x10 -o ResilientSimpleHeatTransfer
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 runx10 ResilientSimpleHeatTransfer [size]
+ *   $ x10c++ NonResilientSimpleHeatTransfer.x10 -o NonResilientSimpleHeatTransfer
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=4 runx10 NonResilientSimpleHeatTransfer [size]
  */
-public class ResilientSimpleHeatTransfer {
+public class NonResilientSimpleHeatTransfer {
     static val epsilon = 1.0e-5;
     static val ITERATIONS=200L;
     
     static val livePlaces = new ArrayList[Place]();
-    static val restore_needed = new Cell[Boolean](false);
+//  static val restore_needed = new Cell[Boolean](false);
     
     public static def main(args:Rail[String]) {
         val n = (args.size>=1) ? Long.parseLong(args(0)) : 10L;
@@ -65,33 +65,33 @@ public class ResilientSimpleHeatTransfer {
         /*
          * Do the computation
          */
-        A.snapshot();
-        var snapshot_iter:Long = 0L;
+//      A.snapshot();
+//      var snapshot_iter:Long = 0L;
         var delta:Double = 1.0;
         for (i in 1..ITERATIONS) {
             Console.OUT.println("---- Iteration: "+i);
-            try {
-                /*
-                 * Restore if necessary
-                 */
-                if (restore_needed()) {
-                    /* Create new PlaceGroup on available places */
-                    Console.OUT.println("Create new PlaceGroup over available " + (Place.numPlaces()-Place.numDead()) + " places");
-                    // BigD = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
-                    // SmallD = BigD | SmallR;
-                    // D_Base = Dist.makeUnique(SmallD.places());
-                    pg = new SparsePlaceGroup(livePlaces.toRail());
-                    /* Restore from a snapshot */
-                    Console.OUT.println("Restore from a snapshot at iteration " + snapshot_iter);
-                    // A.restore(BigD); // RESTORE with new Dist!
-                    // Temp.remake(BigD);
-                    // Scratch.remake(BigD);
-                    A.restore(pg);
-                    Temp.remake(pg);
-                    Scratch.remake(pg);
-                    printDist(A, n+2, n+2);
-                    restore_needed() = false;
-                }
+//          try {
+//              /*
+//               * Restore if necessary
+//               */
+//              if (restore_needed()) {
+//                  /* Create new PlaceGroup on available places */
+//                  Console.OUT.println("Create new PlaceGroup over available " + (Place.numPlaces()-Place.numDead()) + " places");
+//                  // BigD = Dist.makeBlock(BigR, 0, new SparsePlaceGroup(livePlaces.toRail())); printDist(BigD);
+//                  // SmallD = BigD | SmallR;
+//                  // D_Base = Dist.makeUnique(SmallD.places());
+//                  pg = new SparsePlaceGroup(livePlaces.toRail());
+//                  /* Restore from a snapshot */
+//                  Console.OUT.println("Restore from a snapshot at iteration " + snapshot_iter);
+//                  // A.restore(BigD); // RESTORE with new Dist!
+//                  // Temp.remake(BigD);
+//                  // Scratch.remake(BigD);
+//                  A.restore(pg);
+//                  Temp.remake(pg);
+//                  Scratch.remake(pg);
+//                  printDist(A, n+2, n+2);
+//                  restore_needed() = false;
+//              }
                 
                 /*
                  * Core part of the calculation
@@ -139,17 +139,17 @@ public class ResilientSimpleHeatTransfer {
                     Console.OUT.println("Result converged"); break;
                 }
                 
-                /*
-                 * Create a snapshot at every 10th iteration
-                 */
-                if (i % 10 == 0) {
-                    Console.OUT.println("Create a snapshot at iteration " + i);
-                    A.snapshot(); snapshot_iter = i; // SNAPSHOT!
-                }
-                
-            } catch (e:Exception) {
-                processException(e, 0);
-            } /* try */
+//              /*
+//               * Create a snapshot at every 10th iteration
+//               */
+//              if (i % 10 == 0) {
+//                  Console.OUT.println("Create a snapshot at iteration " + i);
+//                  A.snapshot(); snapshot_iter = i; // SNAPSHOT!
+//              }
+//              
+//          } catch (e:Exception) {
+//              processException(e, 0);
+//          } /* try */
         } /* for (i) */
         
         /*
@@ -160,25 +160,25 @@ public class ResilientSimpleHeatTransfer {
         prettyPrint(A, n+2, n+2);
     }
     
-    /**
-     * Process Exception(s)
-     * l is the nest level of MultipleExceptions (for pretty print)
-     */
-    private static def processException(e:Exception, l:Long) {
-        if (e instanceof DeadPlaceException) {
-            val deadPlace = (e as DeadPlaceException).place;
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
-            livePlaces.remove(deadPlace); // may be removed multiple times
-            restore_needed() = true;
-        } else if (e instanceof MultipleExceptions) {
-            val exceptions = (e as MultipleExceptions).exceptions();
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
-            for (ec in exceptions) processException(ec, l+1);
-        } else {
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
-            throw e;
-        }
-    }
+//  /**
+//   * Process Exception(s)
+//   * l is the nest level of MultipleExceptions (for pretty print)
+//   */
+//  private static def processException(e:Exception, l:Long) {
+//      if (e instanceof DeadPlaceException) {
+//          val deadPlace = (e as DeadPlaceException).place;
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
+//          livePlaces.remove(deadPlace); // may be removed multiple times
+//          restore_needed() = true;
+//      } else if (e instanceof MultipleExceptions) {
+//          val exceptions = (e as MultipleExceptions).exceptions();
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
+//          for (ec in exceptions) processException(ec, l+1);
+//      } else {
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
+//          throw e;
+//      }
+//  }
     
     // private static def stencil_1(A:DistArray[Double](2), [x,y]:Point(2)): Double {
     private static def stencil_1(A:DistArray_BlockBlock_2[Double], [x,y]:Point(2)): Double {

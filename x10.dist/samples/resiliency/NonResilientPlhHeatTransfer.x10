@@ -8,30 +8,30 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-import x10.resilient.lang.PlaceLocalHandle;
+// import x10.resilient.lang.PlaceLocalHandle;
 import x10.util.ArrayList;
 
 /**
- * Resilient HeatTransfer which uses Resilient PlaceLocalHandle
- * Wrote from scratch
+ * Non-Resilient HeatTransfer which uses Resilient PlaceLocalHandle
+ * Should be maintained together with ResilientPlhHeatTransfer.x10
  * Uses Resilient PlaceLocalHandle
  * @author kawatiya
  * 
  * For Managed X10:
- *   $ x10 ResilientPlhHeatTransfer.x10
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=8 x10 ResilientPlhHeatTransfer [size]
+ *   $ x10 NonResilientPlhHeatTransfer.x10
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=8 x10 NonResilientPlhHeatTransfer [size]
  * For Native X10:
- *   $ x10c++ ResilientPlhHeatTransfer.x10 -o ResilientPlheatTransfer
- *   $ X10_RESILIENT_MODE=1 X10_NPLACES=8 runx10 ResilientPlhHeatTransfer [size]
+ *   $ x10c++ NonResilientPlhHeatTransfer.x10 -o NonResilientPlheatTransfer
+ *   $ X10_RESILIENT_MODE=1 X10_NPLACES=8 runx10 NonResilientPlhHeatTransfer [size]
  */
-public class ResilientPlhHeatTransfer {
+public class NonResilientPlhHeatTransfer {
     static val epsilon = 1.0e-5;
     static val ITERATIONS=1000L;
     static val NUM_BACKUP = 2; // number of backup places
     
     static val MAX_PLACES = Place.numPlaces();
     static val livePlaces = new ArrayList[Place]();
-    static val restore_needed = new Cell[Boolean](false);
+//  static val restore_needed = new Cell[Boolean](false);
     
     /* Part of large 2-D array, divided by x */
     static class PartialArray[T](xStart:Long, xEnd:Long, ySize:Long){T haszero} { // xEnd is inclusive
@@ -86,32 +86,32 @@ public class ResilientPlhHeatTransfer {
         /*
          * Do the computation
          */
-        A.snapshot();
-        var snapshot_iter:Long = 0;
+//      A.snapshot();
+//      var snapshot_iter:Long = 0;
         var countFromRestore:Long = 0; // even value indicates that A contains the latest values
         for (iter in 1..ITERATIONS) {
             Console.OUT.println("---- Iteration: "+iter);
-            try {
-                /*
-                 * Restore if necessary
-                 */
-                if (restore_needed()) {
-                    /* Create new usePlaces */
-                    if (livePlaces.size() < num_use) throw new Exception("no more place to replace");
-                    usePlaces.clear();
-                    for (var i:Long = 0; i < num_use; ++i) usePlaces.add(livePlaces(i)); // use first num_use place
-                    Console.OUT.println("usePlaces: " + usePlaces);
-                    val newPg = new SparsePlaceGroup(usePlaces.toRail());
-                    /* Restore from a snapshot */
-                    Console.OUT.println("Restore from a snapshot at iteration " + snapshot_iter);
-                    A.restore(newPg);
-                    B.remake(newPg, ()=>{
-                        val i = usePlaces.indexOf(here); // get my index
-                        return new PartialArray[Double](part(i)-1, part(i+1), n+2, (x:Long, y:Long)=>( (x==0) ? 1.0 : 0.0 ));
-                    });
-                    restore_needed() = false;
-                    countFromRestore = 0;
-                }
+//          try {
+//              /*
+//               * Restore if necessary
+//               */
+//              if (restore_needed()) {
+//                  /* Create new usePlaces */
+//                  if (livePlaces.size() < num_use) throw new Exception("no more place to replace");
+//                  usePlaces.clear();
+//                  for (var i:Long = 0; i < num_use; ++i) usePlaces.add(livePlaces(i)); // use first num_use place
+//                  Console.OUT.println("usePlaces: " + usePlaces);
+//                  val newPg = new SparsePlaceGroup(usePlaces.toRail());
+//                  /* Restore from a snapshot */
+//                  Console.OUT.println("Restore from a snapshot at iteration " + snapshot_iter);
+//                  A.restore(newPg);
+//                  B.remake(newPg, ()=>{
+//                      val i = usePlaces.indexOf(here); // get my index
+//                      return new PartialArray[Double](part(i)-1, part(i+1), n+2, (x:Long, y:Long)=>( (x==0) ? 1.0 : 0.0 ));
+//                  });
+//                  restore_needed() = false;
+//                  countFromRestore = 0;
+//              }
                 
                 /*
                  * Core part of the calculation
@@ -164,18 +164,18 @@ public class ResilientPlhHeatTransfer {
                     break;
                 }
                 
-                /*
-                 * Create a snapshot at every 10th iteration
-                 */
-                if (++countFromRestore % 10 == 0) {
-                    assert To==A;
-                    Console.OUT.println("Create a snapshot at iteration " + iter);
-                    A.snapshot(); snapshot_iter = iter; // SNAPSHOT!
-                }
-                
-            } catch (e:Exception) {
-                processException(e, 0);
-            } /* try */
+//              /*
+//               * Create a snapshot at every 10th iteration
+//               */
+//              if (++countFromRestore % 10 == 0) {
+//                  assert To==A;
+//                  Console.OUT.println("Create a snapshot at iteration " + iter);
+//                  A.snapshot(); snapshot_iter = iter; // SNAPSHOT!
+//              }
+//              
+//          } catch (e:Exception) {
+//              processException(e, 0);
+//          } /* try */
         } /* for (i) */
     }
     
@@ -195,23 +195,23 @@ public class ResilientPlhHeatTransfer {
         }
     }
     
-    /**
-     * Process Exception(s)
-     * l is the nest level of MultipleExceptions (for pretty print)
-     */
-    private static def processException(e:Exception, l:Long) {
-        if (e instanceof DeadPlaceException) {
-            val deadPlace = (e as DeadPlaceException).place;
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
-            livePlaces.remove(deadPlace); // may be removed multiple times
-            restore_needed() = true; // TODO: better to check usePlaces.contains(deadPlace)
-        } else if (e instanceof MultipleExceptions) {
-            val exceptions = (e as MultipleExceptions).exceptions();
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
-            for (ec in exceptions) processException(ec, l+1);
-        } else {
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
-            throw e;
-        }
-    }
+//  /**
+//   * Process Exception(s)
+//   * l is the nest level of MultipleExceptions (for pretty print)
+//   */
+//  private static def processException(e:Exception, l:Long) {
+//      if (e instanceof DeadPlaceException) {
+//          val deadPlace = (e as DeadPlaceException).place;
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
+//          livePlaces.remove(deadPlace); // may be removed multiple times
+//          restore_needed() = true; // TODO: better to check usePlaces.contains(deadPlace)
+//      } else if (e instanceof MultipleExceptions) {
+//          val exceptions = (e as MultipleExceptions).exceptions();
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
+//          for (ec in exceptions) processException(ec, l+1);
+//      } else {
+//          Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
+//          throw e;
+//      }
+//  }
 }
