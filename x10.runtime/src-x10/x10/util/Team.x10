@@ -264,8 +264,8 @@ public struct Team {
         }
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             if (DEBUG) Runtime.println(here + " entering pre-alltoall barrier of team "+id);
-               barrier();
-               if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
+            barrier();
+            if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
         }
         else {
@@ -785,9 +785,9 @@ public struct Team {
             }
         
             // wait for phase updates from children
-            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children");
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children phase "+Team.state(teamidcopy).phase.get());
             probeUntil(() => this.phase.get() == PHASE_SCATTER);
-            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children");
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children phase "+Team.state(teamidcopy).phase.get());
 
             if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
                 if (local_child1Index != -1) { // reduce local and child data
@@ -798,6 +798,8 @@ public struct Team {
                 } else { // no children
                     Rail.copy(src, src_off, dst, dst_off, count);
                 }
+            } else if (collType == COLL_ALLTOALL) {
+                Rail.copy(src, src_off, dst, dst_off+(count*myIndex), count);
             }
         
             // all children have checked in.  Update our parent, and then wait for the parent to update us 
@@ -807,8 +809,6 @@ public struct Team {
                     Rail.copy(src, src_off, dst, dst_off, count);
                 else if (collType == COLL_SCATTER)
                     Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
-                else if (collType == COLL_ALLTOALL)
-                    Rail.copy(src, src_off+(count*myIndex), dst, dst_off+(count*myIndex), count);
                 this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
             } else {
                 val waitForParentToReceive = () => {
@@ -826,17 +826,18 @@ public struct Team {
                 };
 
                 // move data from children to parent
-                   // Scatter and broadcast only move data from parent to children, so they have no code here
+                // Scatter and broadcast only move data from parent to children, so they have no code here
                 if (collType >= COLL_ALLTOALL) {
                     if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
                     val notnulldst = dst as Rail[T]{self!=null};
                     val gr = new GlobalRail[T](notnulldst);
                     if (collType == COLL_ALLTOALL) {
-                        val totalData:Long = count*(myLinks.totalChildren+1);
+                        val sourceIndex = myIndex;
+                        val totalData = count*(myLinks.totalChildren+1);
                         @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
                             waitForParentToReceive();
                             // copy my data, plus all the data filled in by my children, to my parent
-                            Rail.uncountedCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, totalData, incrementParentPhase);
+                            Rail.uncountedCopy(gr, dst_off+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), totalData, incrementParentPhase);
                         }
                     } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
                         // copy reduced data to parent
@@ -902,24 +903,22 @@ public struct Team {
 
                 if (collType == COLL_ALLTOALL) {
                     // only copy over the data that did not come from this child in the first place
-                    @Pragma(Pragma.FINISH_SPMD) finish {
-                        at (places(local_child1Index)) async {
-                            @Pragma(Pragma.FINISH_ASYNC) finish {
-                                // position 0 up to the child id
-                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count*Team.state(teamidcopy).myIndex);
-                                // position of last child range, to the end
-                                Rail.asyncCopy(gr, dst_off+(Team.state(teamidcopy).local_count*(Team.state(teamidcopy).local_grandchildren+1)), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-                            }
+                    val copyToChild = () => {
+                        val count = Team.state(teamidcopy).local_count;
+                        val teamSize = Team.state(teamidcopy).places.size();
+                        val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
+                        @Pragma(Pragma.FINISH_ASYNC) finish {
+                            // position 0 up to the child id
+                            Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, count*Team.state(teamidcopy).myIndex);
+                            // position of last child range, to the end
+                            Rail.asyncCopy(gr, dst_off+(count*lastChild), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*lastChild), count*(teamSize-lastChild));
                         }
+                    };
+
+                    @Pragma(Pragma.FINISH_SPMD) finish {
+                        at (places(local_child1Index)) async copyToChild();
                         if (local_child2Index != -1) {
-                            at (places(local_child2Index)) async {
-                                @Pragma(Pragma.FINISH_ASYNC) finish {
-                                // position 0 up to the child id
-                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-                                // position of last child range, to the end
-                                Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-                                }
-                            }
+                            at (places(local_child2Index)) async copyToChild();
                         }
                     }
                 } else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE || 
