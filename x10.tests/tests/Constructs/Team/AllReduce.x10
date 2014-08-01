@@ -69,7 +69,7 @@ public class AllReduce extends x10Test {
         }
 
         val src3 = new Rail[Long](1, here.id+1);
-        val dst3 = new Rail[Long](1);
+        val dst3 = src3; // Alias to make sure the Team implementation supports this (XTENLANG-3420).
 
         {
             team.allreduce(src3, 0, dst3, 0, 1, Team.ADD);
@@ -79,7 +79,7 @@ public class AllReduce extends x10Test {
                 oracle_base += p.id+1;
             }
             if (dst3(0) != oracle_base) {
-                Console.OUT.printf("Team %d place %d received invalid sum %d instead of %d\n",
+                Console.OUT.printf("Team %d place %d received invalid sum %d instead of %d with aliased buffers\n",
                                    team.id(), here.id, dst3(0), oracle_base);
                 success = false;
             }
