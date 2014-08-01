@@ -4,8 +4,8 @@ package x10.glb;
  * </p>
  */
 public interface TaskBag {
-	/**
-	 * Returns the size of TaskBag
-	 */
+    /**
+     * Returns the size of TaskBag
+     */
     public def size():Long;
 }

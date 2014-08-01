@@ -5,9 +5,9 @@ package x10.glb;
  * </p>
  */
 public interface ContextI {
-	
-	/**
-	 * Yield method
-	 */
-	public def yielding():void;
+    
+    /**
+     * Yield method
+     */
+    public def yielding():void;
 }

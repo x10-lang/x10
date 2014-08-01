@@ -4,8 +4,8 @@ package x10.glb;
  * </p>
  */
 public final class Logger {
-	
-	/* workload sent/recieved stat*/
+    
+    /* workload sent/recieved stat*/
     public var nodesCount:Long = 0;
     public var nodesGiven:Long = 0;
     public var lifelineNodesReceived:Long = 0;

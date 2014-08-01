@@ -7,10 +7,10 @@ import x10.compiler.*;
  * </p>
  */
 public final class FixedSizeStack[T]{T haszero} {
-	
-	/**
-	 * Backing Rail.
-	 */
+    
+    /**
+     * Backing Rail.
+     */
     private val data:Rail[T];
     /**
      * Number of elements in the stack.
