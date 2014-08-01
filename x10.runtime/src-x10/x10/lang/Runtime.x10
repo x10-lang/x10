@@ -289,6 +289,7 @@ public final class Runtime {
     public static atomicMonitor = new Monitor();
     static pool = new Pool();
     static finishStates = new FinishState.FinishStates();
+    static submissionLock = new Lock(); // lock for Runtime.submitUncounted(..) and related methods
 
     // Work-stealing runtime
     
@@ -872,7 +873,12 @@ public final class Runtime {
      * @param job Job being submitted
      */
     public static def submitUncounted(job:()=>void):void {
-        pool.workers(0n).push(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
+        submissionLock.lock();
+        try {
+            pool.workers(0n).push(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
+        } finally {
+            submissionLock.unlock();
+        }
         pool.workers.wakeup();
     }
 
