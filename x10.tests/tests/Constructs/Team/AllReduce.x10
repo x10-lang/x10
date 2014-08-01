@@ -68,7 +68,22 @@ public class AllReduce extends x10Test {
             }
         }
 
+        val src3 = new Rail[Long](1, here.id+1);
+        val dst3 = new Rail[Long](1);
 
+        {
+            team.allreduce(src3, 0, dst3, 0, 1, Team.ADD);
+
+            var oracle_base:long = 0;
+            for (p in Place.places()) {
+                oracle_base += p.id+1;
+            }
+            if (dst3(0) != oracle_base) {
+                Console.OUT.printf("Team %d place %d received invalid sum %d instead of %d\n",
+                                   team.id(), here.id, dst3(0), oracle_base);
+                success = false;
+            }
+        }
 
         {
             team.allreduce(src, 0L, dst, 0L, count, Team.MIN);
