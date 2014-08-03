@@ -214,12 +214,14 @@ public final class GL {
     @Native("c++", "::glTexParameteri(#target, #value, #data)")
     public static def glTexParameteri (target:Int, value:Int, data:Int) : void { }
     // this the version associated with GL.GL_PIXEL_UNPACK_BUFFER
+// FIXME raytracer#GLFrontend.x10 needs this
 //    @Native("c++", "::glTexSubImage2D(#target, #level, #xOffset, #yOffset, #width, #height, #format, #typ, #bufferOffset)")
 //    public static def glTexSubImage2D (target:Int, level:Int, xOffset:Int, yOffset:Int, width:Int, height:Int, format:Int, typ:Int, bufferOffset:Int) : void { }
     @Native("c++", "::glTexImage2D(#target, #level, #xOff, #yOff, #w, #h, #border, #fmt, x10aux::lookup_or_null(#data, #dataOffset))")
     public static def glTexImage2D[T] (target:Int, level:Int, xOff:Int, yOff:Int, w:Int, h:Int, border:Int, fmt:Int, data:Rail[T], dataOffset:Int) : void { }
     public static def glMapBuffer[T] (target:Int, value:Int, len:Int) : Rail[T] {
         @Native("c++", "TPMGL(T) *tmp = (TPMGL(T)*)::glMapBuffer(target, value);") { }
+// FIXME raytracer#GLFrontend.x10 needs this
         @Native("c++", "return typename x10::lang::Rail<TPMGL(T)>::Rail(tmp, tmp, len);") { }
         return Zero.get[Rail[T]]();
     }
