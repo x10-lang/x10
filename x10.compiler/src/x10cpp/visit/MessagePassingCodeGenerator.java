@@ -1496,7 +1496,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         // Attempt to make it easy for the post compiler to inline trivial struct methods
         // by putting them in the h stream instead of the sw stream whenever possible. 
-        // Don't bother doing this for generic structs the body stream is already in the header file.
+        // Don't bother doing this for generic structs because the body stream is already in the header file.
         if (!flags.isNative() && !inlineInClassDecl && container.isX10Struct() && container.x10Def().typeParameters().size() == 0) {
             StructMethodAnalyzer analyze = new StructMethodAnalyzer(tr.job(), xts, tr.nodeFactory(), container);
             dec.visit(analyze.begin());
