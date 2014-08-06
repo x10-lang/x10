@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 //import java.lang.ProcessBuilder.Redirect;  // Java 7.  Sigh.
+import java.util.ArrayList;
 
 public class Launcher {
 	
@@ -47,31 +48,29 @@ public class Launcher {
 		
 		boolean isDebug = args[0].equals("-debug")? true : false;
 		
-		String[] newArgs;
+		ArrayList<String> newArgs = new ArrayList<String>();
 		
 		if (isDebug){
-			newArgs = new String[args.length+8];
-			newArgs[0] = System.getProperty("java.home").concat("/bin/java");
-			newArgs[1] = "-XX:+UseParallelGC";
-			newArgs[2] = "-Xdebug";
-			newArgs[3] = "-Xrunjdwp:transport=dt_socket,server=y,suspend=y";
-			newArgs[4] = "-ea";
-			newArgs[5] = "-Djava.library.path="+System.getProperty("java.library.path");
-			newArgs[6] = "-Djava.class.path="+System.getProperty("java.class.path");
-			newArgs[7] = "-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file");
-			newArgs[8] = SlaveLauncher.class.getName();
+			newArgs.add(System.getProperty("java.home").concat("/bin/java"));
+			newArgs.add("-XX:+UseParallelGC");
+			newArgs.add("-Xdebug");
+			newArgs.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y");
+			newArgs.add("-ea");
+			newArgs.add("-Djava.library.path="+System.getProperty("java.library.path"));
+			newArgs.add("-Djava.class.path="+System.getProperty("java.class.path"));
+			newArgs.add("-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
+			newArgs.add(SlaveLauncher.class.getName());
 			for (int i=1; i<args.length; i++)
-				newArgs[i+8] = args[i];
+				newArgs.add(args[i]);
 		} else {
-			newArgs = new String[args.length+6];
-			newArgs[0] = System.getProperty("java.home").concat("/bin/java");
-			newArgs[1] = "-ea";
-			newArgs[2] = "-Djava.library.path="+System.getProperty("java.library.path");
-			newArgs[3] = "-Djava.class.path="+System.getProperty("java.class.path");
-			newArgs[4] = "-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file");
-			newArgs[5] = SlaveLauncher.class.getName();
+			newArgs.add(System.getProperty("java.home").concat("/bin/java"));
+			newArgs.add("-ea");
+			newArgs.add("-Djava.library.path="+System.getProperty("java.library.path"));
+			newArgs.add("-Djava.class.path="+System.getProperty("java.class.path"));
+			newArgs.add("-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
+			newArgs.add(SlaveLauncher.class.getName());
 			for (int i=0; i<args.length; i++)
-				newArgs[i+6] = args[i];
+				newArgs.add(args[i]);
 		}
 		
 		// launch the places
@@ -115,32 +114,32 @@ public class Launcher {
 		}
 		
 		// gather up the connection info from each place
-				for (int i=0; i<numPlaces; i++) {
-					try {
-						BufferedReader reader = new BufferedReader(new InputStreamReader(inFrom[i]), 1024);
-						connectionInfo[i] = reader.readLine();
-						while (connectionInfo[i] == null) {
-							Thread.yield();
-							connectionInfo[i] = reader.readLine();
-						} 
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
+		for (int i=0; i<numPlaces; i++) {
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(inFrom[i]), 1024);
+				connectionInfo[i] = reader.readLine();
+				while (connectionInfo[i] == null) {
+					Thread.yield();
+					connectionInfo[i] = reader.readLine();
+				} 
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 		// tell each place its ID, and where to find the others
 		for (int i=0; i<numPlaces; i++) {
 			try {
 				PrintStream writer = new PrintStream(outTo[i]);
 				//System.err.println("sending placecount of "+numPlaces+" to place "+i);
-			    writer.println(numPlaces);
-			    writer.flush();
-			    for (int j=0; j<numPlaces; j++) {
-		    		writer.println(connectionInfo[j]);
-			    	writer.flush();
-			    }
-			    //System.err.println("finished sending connection information to place "+i);
+				writer.println(numPlaces);
+				writer.flush();
+				for (int j=0; j<numPlaces; j++) {
+					writer.println(connectionInfo[j]);
+					writer.flush();
+				}
+				//System.err.println("finished sending connection information to place "+i);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -255,7 +254,7 @@ public class Launcher {
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}				
-        	}
+			}
 			catch (Exception e){
 				e.printStackTrace();
 			}
