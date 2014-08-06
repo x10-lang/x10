@@ -909,6 +909,8 @@ public class SocketTransport {
     				link.pendingWrites.addLast(data);
     				link.sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), link.placeid);
     				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+link.placeid);
+    				// poke the selector if there is a thread already waiting on it which does not include the new registration
+    				selector.wakeup();
     			}
     		}
     	}
