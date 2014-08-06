@@ -907,7 +907,7 @@ public struct Team {
                         val count = Team.state(teamidcopy).local_count;
                         val teamSize = Team.state(teamidcopy).places.size();
                         val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
-                        @Pragma(Pragma.FINISH_ASYNC) finish {
+                        finish {
                             // position 0 up to the child id
                             Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, count*Team.state(teamidcopy).myIndex);
                             // position of last child range, to the end
