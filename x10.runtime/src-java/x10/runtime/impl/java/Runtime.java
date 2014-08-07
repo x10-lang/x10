@@ -53,8 +53,8 @@ public abstract class Runtime implements VoidFun_0_0 {
     public Runtime() {}
 
     /**
-     * Body of main java thread
-     * (only called in non-library mode)
+     * Default start method used by the X10 compiler to run the X10 main.
+     * (The current thread is joined the X10 thread pool.)
      */
     protected void start(final String[] args) {
         this.args = args;
@@ -73,25 +73,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             throw new InternalError("Failed to initialize X10RT.");
         }
 
-        x10.lang.Runtime.get$staticMonitor();
-        x10.lang.Runtime.get$STRICT_FINISH();
-        x10.lang.Runtime.get$NTHREADS();
-        x10.lang.Runtime.get$MAX_THREADS();
-        x10.lang.Runtime.get$STATIC_THREADS();
-        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
-        x10.lang.Runtime.get$BUSY_WAITING();
-        if (X10RT.initialEpoch != -1) {
-        	// initialize epoch to match other places
-        	x10.lang.Runtime.epoch$O(); 
-        	x10.lang.Runtime.get$pool().workers.epoch = X10RT.initialEpoch;
-        }
-        x10.util.Team.get$WORLD();
-
-        java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
-            public void run() {
-                System.out.flush();
-            }
-        });
+        commonInit();
 
         // start and join main x10 thread in place 0
         x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
@@ -108,23 +90,10 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.exit(exitCode);
     }
 
-    protected void startExecutor(final String[] args) {
-        this.args = args;
-
-        // load libraries
-        String property = System.getProperty("x10.LOAD");
-        if (null != property) {
-            String[] libs = property.split(":");
-            for (int i = libs.length - 1; i >= 0; i--)
-                System.loadLibrary(libs[i]);
-        }
-
-        boolean initialized = X10RT.init(); // TODO retry?
-        if (!initialized) {
-            System.err.println("Failed to initialize X10RT.");
-            throw new InternalError("Failed to initialize X10RT.");
-        }
-
+    /**
+     * Initializes X10-level statics that need to be there before we boot the X10 runtime.
+     */
+    public static void commonInit() {
         x10.lang.Runtime.get$staticMonitor();
         x10.lang.Runtime.get$STRICT_FINISH();
         x10.lang.Runtime.get$NTHREADS();
@@ -133,9 +102,9 @@ public abstract class Runtime implements VoidFun_0_0 {
         x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
         x10.lang.Runtime.get$BUSY_WAITING();
         if (X10RT.initialEpoch != -1) {
-        	// initialize epoch to match other places
-        	x10.lang.Runtime.epoch$O(); 
-        	x10.lang.Runtime.get$pool().workers.epoch = X10RT.initialEpoch;
+            // initialize epoch to match other places
+            x10.lang.Runtime.epoch$O(); 
+            x10.lang.Runtime.get$pool().workers.epoch = X10RT.initialEpoch;
         }
         x10.util.Team.get$WORLD();
 
@@ -144,11 +113,15 @@ public abstract class Runtime implements VoidFun_0_0 {
                 System.out.flush();
             }
         });
-
-        x10.lang.Runtime.start();
-        // x10rt-level registration of MessageHandlers
-        X10RT.registerHandlers();
-        X10RT.registration_complete();
+    }
+    
+    /**
+     * Alternate start method used by the X10 compiler to run the X10 runtime as an executor service
+     * and use the main method as a single-threaded client for this service.
+     * (The current thread is not joined the X10 thread pool.)
+     */
+    protected void startExecutor(final String[] args) {
+        startEngine();
 
         // build up Rail[String] for args
         final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
@@ -174,6 +147,33 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.exit(exitCode);
     }
 
+    /**
+     * Starts the X10 runtime engine as a thread pool separate from the calling thread.
+     */
+    protected static void startEngine() {
+        // load libraries
+        String property = System.getProperty("x10.LOAD");
+        if (null != property) {
+            String[] libs = property.split(":");
+            for (int i = libs.length - 1; i >= 0; i--)
+                System.loadLibrary(libs[i]);
+        }
+
+        boolean initialized = X10RT.init(); // TODO retry?
+        if (!initialized) {
+            System.err.println("Failed to initialize X10RT.");
+            throw new InternalError("Failed to initialize X10RT.");
+        }
+
+        commonInit();
+
+        x10.lang.Runtime.start();
+
+        // x10rt-level registration of MessageHandlers
+        X10RT.registerHandlers();
+        X10RT.registration_complete();
+    }
+    
     // body of main activity
     static class $Closure$Main implements VoidFun_0_0 {
         private final Runtime out$;
