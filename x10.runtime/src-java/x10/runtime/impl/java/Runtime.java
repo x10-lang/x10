@@ -120,7 +120,7 @@ public abstract class Runtime implements VoidFun_0_0 {
      * and use the main method as a single-threaded client for this service.
      * (The current thread is not joined the X10 thread pool.)
      */
-    public void startExecutor(final String[] args) {
+    protected void startExecutor(final String[] args) {
         startEngine();
 
         // build up Rail[String] for args
@@ -150,7 +150,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Starts the X10 runtime engine as a thread pool separate from the calling thread.
      */
-    protected static void startEngine() {
+    public static void startEngine() {
         // load libraries
         String property = System.getProperty("x10.LOAD");
         if (null != property) {
