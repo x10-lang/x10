@@ -44,6 +44,10 @@ import x10c.visit.StaticInitializer;
 import x10c.visit.VarsBoxer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
+    
+    public boolean isNativeX10() { return false; }
+    public boolean isManagedX10() { return true; }
+    
     @Override
     protected Scheduler createScheduler() {
         return new X10CScheduler(this);

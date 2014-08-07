@@ -161,7 +161,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     		continue;
 
                     	// workaround for XTENLANG-3348
-                    	boolean isManaged = ts.extensionInfo() instanceof x10c.ExtensionInfo;
+                    	boolean isManaged = ((x10.ExtensionInfo) ts.extensionInfo()).isManagedX10();
                     	if (isManaged && mi.name().toString().equals("compareTo") && rt.fullName().toString().equals("x10.lang.Comparable")) {
                     		ErrorQueue eq = ts.extensionInfo().compiler().errorQueue();
                     		eq.enqueue(ErrorInfo.WARNING, ct.fullName()+" does not define "+mi.signature()+", which is declared in "+rt.fullName()+".  This is usually an error, but skipping this for Java interop.", ct.errorPosition());

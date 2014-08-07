@@ -216,11 +216,12 @@ public abstract class AnnotationUtils {
     public static List<X10ClassType> getNativeAnnotations (Node node, Job job) {
         List<X10ClassType> result = new ArrayList<X10ClassType>();
         X10ClassType type = job.extensionInfo().typeSystem().NativeType();
+        boolean isManaged = ((x10.ExtensionInfo) job.extensionInfo()).isManagedX10();
         List<X10ClassType> annotations = getAnnotations(node, type);
         for (X10ClassType annotation : annotations) {
             assertNumberOfInitializers(annotation, 2);
             String platform = getStringPropertyInit(annotation, 0);
-            List<String> nativeStrings = (ExpressionFlattener.javaBackend(job) ? javaNativeStrings : cppNativeStrings);
+            List<String> nativeStrings = (isManaged ? javaNativeStrings : cppNativeStrings);
             for (String ns : nativeStrings) {
                 if (platform != null && platform.equals(ns)) {
                     result.add(annotation);

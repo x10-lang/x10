@@ -44,7 +44,7 @@ public class Optimizer {
     public static boolean FLATTENING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
         if (config.FLATTEN_EXPRESSIONS) return true;
-        if (extInfo instanceof x10c.ExtensionInfo) return true;
+        if (extInfo.isManagedX10()) return true;
         return false;
     }
 
@@ -85,7 +85,7 @@ public class Optimizer {
             goals.add(ConstructorSplitter());
         }
         if (config.LOOP_OPTIMIZATIONS) {
-            if (!(extInfo instanceof x10c.ExtensionInfo)) {
+            if (!(extInfo.isManagedX10())) {
                 goals.add(LoopUnrolling());
             }
             goals.add(ForLoopOptimizations());

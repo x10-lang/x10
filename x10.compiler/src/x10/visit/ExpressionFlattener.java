@@ -77,6 +77,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ExtensionInfo;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
@@ -184,8 +185,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     public static boolean cannotFlatten(Node n, Job job) {
         Position pos = n.position(); // for DEBUGGING
+        boolean isManaged = ((x10.ExtensionInfo) job.extensionInfo()).isManagedX10();
 
-        if (n instanceof ConstructorDecl && javaBackend(job)) { // can't flatten constructors unless local assignments can precede super() and this() in Java
+        if (n instanceof ConstructorDecl && isManaged) { // can't flatten constructors unless local assignments can precede super() and this() in Java
             ClassType type = ((ConstructorDecl) n).constructorDef().container().get().toClass();
             if (ConstructorSplitterVisitor.isUnsplittable(type))
                 return true;
@@ -205,16 +207,6 @@ public final class ExpressionFlattener extends ContextVisitor {
         return false;
     }
     
-    /**
-     * @param job
-     * @return
-     */
-    public static boolean javaBackend(Job job) {
-        if (job.extensionInfo() instanceof x10c.ExtensionInfo)
-            return true;
-        return false;
-    }
-
     @Override
     protected NodeVisitor enterCall(Node parent, Node child) {
         if (child instanceof Loop) {

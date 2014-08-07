@@ -174,6 +174,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     public String compilerName() {
         return "x10c";
     }
+    
+    // Could be either, so return true here and override in subclass
+    public boolean isManagedX10() { return true; }
+    public boolean isNativeX10() { return true; }
 
     //
     // Replace the Flex/Cup parser with a JikesPG parser
