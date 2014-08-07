@@ -21,7 +21,20 @@ public class Condition implements Unserializable {
      * Blocks the calling thread until release is invoked.
      * Returns instantly if release has already been invoked.
      * Does not return spuriously.
-     * Cannot be called more than once.
+     * Cannot be called by more than one thread.
      */
     public native def await():void;
+    /**
+     * Blocks the calling thread until release is invoked.
+     * Returns instantly if release has already been invoked.
+     * Timout after timeout nano seconds.
+     * May return spuriously.
+     * Cannot be called by more than one thread.
+     */
+    public native def await(timeout:Long):void;
+    
+    /**
+     * Returns true if release() has been called on this condition.
+     */
+    public native def complete():Boolean;
 }

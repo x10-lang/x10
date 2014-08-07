@@ -546,6 +546,9 @@ public final class Runtime {
         // activity (about to be) executed by this worker
         var activity:Activity = null;
 
+        // is this worker a promoted java thread?
+        val promoted:Boolean;
+
         // pending activities
         private val queue = new Deque();
 
@@ -560,12 +563,14 @@ public final class Runtime {
 
         def this(workerId:Int) {
             super("X10 worker thread-" + workerId);
+            promoted = false;
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
         }
 
-        def this(workerId:Int, dummy:Boolean) {
+        def this(workerId:Int, promoted:Boolean) {
             super();
+            this.promoted = promoted;
             this.workerId = workerId;
             random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
             // [DC] Using 'here' as the srcPlace for the new activity causes a cycle:  The managed X10
@@ -729,7 +734,7 @@ public final class Runtime {
         // create pseudo X10 worker for native thread
         public def wrapNativeThread():Worker {
             val i = workers.promote();
-            val worker = new Worker(i, false);
+            val worker = new Worker(i, true);
             workers(i) = worker;
             return worker;
         }
@@ -847,15 +852,38 @@ public final class Runtime {
         private var t:Exception = null;
 
         public def raise(t:Exception):void { this.t = t; }
-
+        
         /**
          * Wait for job to complete.
-         * Block calling thread.
+         * Block calling thread if not an X10 thread.
          * Rethrow MultipleException collected by root finish for the job if any.
-         * May be called multiple times (idempotent).
+         * May be called multiple times by a unique thread.
          */
         public def await():void {
-            super.await();
+            if(Runtime.worker().promoted) {
+                super.await();
+            } else {
+                Runtime.increaseParallelism();
+                super.await();
+                Runtime.decreaseParallelism(1n);
+            }
+            if (null != t) throw t;
+        }
+
+        /**
+         * Wait for job to complete with a timeout.
+         * Block calling thread if not an X10 thread.
+         * Rethrow MultipleException collected by root finish for the job if any.
+         * May be called multiple times by a unique thread.
+         */
+        public def await(timeout:Long):void {
+            if(Runtime.worker().promoted) {
+                super.await(timeout);
+            } else {
+                Runtime.increaseParallelism();
+                super.await(timeout);
+                Runtime.decreaseParallelism(1n);
+            }
             if (null != t) throw t;
         }
 

@@ -41,6 +41,8 @@ namespace x10 {
             void unlock() { _pcond.unlock(); }
             void release() { _pcond.release(); }
             void await() { _pcond.await(); }
+            void await(x10_long timeout) { _pcond.await(timeout); }
+            x10_boolean complete() { return _pcond.complete(); }
 
         private:
             ::x10aux::pcond _pcond;

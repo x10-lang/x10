@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+#include <x10aux/config.h>
 #include <x10aux/pcond.h>
 
 #include <errno.h>
@@ -47,4 +48,16 @@ void x10aux::pcond::await() {
     pthread_mutex_unlock(&__mutex);
 }
 
+void x10aux::pcond::await(x10_long timeout) {
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = timeout;
+    pthread_mutex_lock(&__mutex);
+    pthread_cond_timedwait(&__cond, &__mutex, &ts);
+    pthread_mutex_unlock(&__mutex);
+}
+
+x10_boolean x10aux::pcond::complete() {
+    return unblocked;
+}
 // vim:tabstop=4:shiftwidth=4:expandtab
