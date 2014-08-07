@@ -761,7 +761,7 @@ function main {
 		__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 	    fi
 
-        if [[ $tcresilient_x10_only == 1 && "$mode_name" == "main" ]]; then
+        if [[ $tcresilient_x10_only == 1 && ( "$mode_name" == "main" || "$mode_name" == "resilient_x10rt" ) ]]; then
         printf "\n ++ E [EXECUTION]"
         let 'tcsexeccnt += 1'
         printf "\n *** S ***"
