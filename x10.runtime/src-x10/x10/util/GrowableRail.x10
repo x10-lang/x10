@@ -112,12 +112,12 @@ public final class GrowableRail[T] implements CustomSerialization {
         size = newLen;
     }
 
-    public @Inline operator this(idx:Long):T {
+    public operator this(idx:Long):T {
         if (CompilerFlags.checkBounds() && idx >= size) raiseIndexOutOfBounds(idx, size);
         return data(idx);
     }
 
-    public @Inline operator this(idx:Long)=(v:T):void {
+    public operator this(idx:Long)=(v:T):void {
         if (CompilerFlags.checkBounds() && idx > size) illegalGap(idx, size);
         if (idx == size) {
             add(v);

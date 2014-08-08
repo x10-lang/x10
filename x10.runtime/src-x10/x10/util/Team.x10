@@ -12,6 +12,7 @@
 package x10.util;
 
 import x10.compiler.Native;
+import x10.compiler.NoInline;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
 import x10.compiler.Pragma;
@@ -703,7 +704,7 @@ public struct Team {
              * another activity, giving preference to activities incoming
              * from the network (x10rt probe).
              */
-            val probeUntil = (condition:() => Boolean) => {
+            val probeUntil = (condition:() => Boolean) => @NoInline {
                 if (useSleepNotProbe()) {
                     if (!condition()) {
                         Runtime.increaseParallelism();
@@ -722,7 +723,7 @@ public struct Team {
              * another activity, giving preference to activities running
              * locally on another worker thread.
              */
-            val sleepUntil = (condition:() => Boolean) => {
+            val sleepUntil = (condition:() => Boolean) => @NoInline {
                 if (!condition()) {
                     Runtime.increaseParallelism();
                     while (!condition()) System.threadSleep(0);
@@ -811,7 +812,7 @@ public struct Team {
                     Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
                 this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
             } else {
-                val waitForParentToReceive = () => {
+                val waitForParentToReceive = () => @NoInline {
                     if (DEBUGINTERNALS) Runtime.println(here+" waiting for parent phase "+Team.state(teamidcopy).phase.get());
                      sleepUntil(() => {val state = Team.state(teamidcopy).phase.get();
                                        (state >= PHASE_GATHER1 && state < PHASE_SCATTER)
@@ -819,7 +820,7 @@ public struct Team {
                     if (DEBUGINTERNALS) Runtime.println(here+" parent ready to receive phase "+Team.state(teamidcopy).phase.get());
                 };
 
-                val incrementParentPhase = () => {
+                val incrementParentPhase = () => @NoInline {
                     if ( !(Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)
                         || Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) )
                         Runtime.println("ERROR incrementing the parent "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
@@ -903,7 +904,7 @@ public struct Team {
 
                 if (collType == COLL_ALLTOALL) {
                     // only copy over the data that did not come from this child in the first place
-                    val copyToChild = () => {
+                    val copyToChild = () => @NoInline {
                         val count = Team.state(teamidcopy).local_count;
                         val teamSize = Team.state(teamidcopy).places.size();
                         val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
