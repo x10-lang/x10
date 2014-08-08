@@ -86,7 +86,6 @@ public class X10RT {
         state = State.INITIALIZED;
         if (forceSinglePlace) {
         	hereId = 0;
-         	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
             state = State.RUNNING;
         	return null;
         }
@@ -124,11 +123,6 @@ public class X10RT {
             return false;
         }
 
-        if (connectionInfo == null)
-        	x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
-        else
-        	x10.runtime.impl.java.Runtime.MAX_PLACES = connectionInfo.length;
-
         state = State.RUNNING;
         initDataStore();
 
@@ -155,7 +149,6 @@ public class X10RT {
     	}
 
     	hereId = X10RT.javaSockets.x10rt_here();
-       	x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
 
         state = State.RUNNING;
         initDataStore();
@@ -192,7 +185,6 @@ public class X10RT {
     	  }
     	  else {
     		  hereId = X10RT.javaSockets.x10rt_here();
-    		  x10.runtime.impl.java.Runtime.MAX_PLACES = X10RT.javaSockets.x10rt_nplaces();
     	  }
       }
       else {
@@ -209,7 +201,6 @@ public class X10RT {
               TeamSupport.initialize();
 
               hereId = x10rt_here();
-              x10.runtime.impl.java.Runtime.MAX_PLACES = x10rt_nplaces();
           } catch (UnsatisfiedLinkError e) {
               System.err.println("Unable to load "+libName+". Forcing single place execution");
               forceSinglePlace = true;
@@ -218,7 +209,6 @@ public class X10RT {
 
       if (forceSinglePlace) {
           hereId = 0;
-          x10.runtime.impl.java.Runtime.MAX_PLACES = 1;
       }
       else {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown

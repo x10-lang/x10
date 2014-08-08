@@ -258,11 +258,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     /**
-     * The number of places in the system
-     */
-    public static int MAX_PLACES = 0; // updated in initialization
-    
-    /**
      * Disable Assertions
      */
     public static final boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");

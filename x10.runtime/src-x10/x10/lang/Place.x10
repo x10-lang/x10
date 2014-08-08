@@ -24,7 +24,7 @@ public final struct Place(
      * only support int (32 bit) Place id's. 
      * When entering/exiting the native layer we simply truncate/extend the id.
      * The truncation is unchecked.  This is safe because we check in the constructor
-     * of Place that the id is between -1 and MAX_PLACES and MAX_PLACES will be limited
+     * of Place that the id is between -1 and numAllPlaces() and numAllPlaces() will be limited
      * by the native runtime (which sets it) to a positive 32 bit int.
      */
     id:Long)  {
