@@ -44,7 +44,7 @@ public final struct Place(
      * The number of primary places (does not include accelerators).
      * Invariant: Place.numPlaces() == Place.places().numPlaces().
      */
-    @Native("java", "((long)x10.runtime.impl.java.Runtime.MAX_PLACES)")
+    @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
     @Native("c++", "((x10_long)::x10aux::num_hosts)")
     public static native def numPlaces():Long;
     
