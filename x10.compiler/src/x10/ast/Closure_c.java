@@ -570,8 +570,9 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	public boolean isConstant() {
-	    // TODO: Dave G.  Hack around replication of closures by constant propagation.
+	    // TODO: Dave G.  Hacks around replication of closures by constant propagation.
 	    if (AnnotationUtils.hasAnnotation(this.body, type.typeSystem().RemoteInvocation())) return false;
+	    if (AnnotationUtils.hasAnnotation(this.body, type.typeSystem().NoInline())) return false;
 		return true;
 	}
 
