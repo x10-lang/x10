@@ -230,6 +230,7 @@ import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.visit.ExpressionFlattener;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
@@ -1836,26 +1837,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String name = dec.name().id().toString();
         TypeSystem xts = tr.typeSystem();
         ClassifiedStream h = sw.header();
+       
         String fname = mangled_field_name(name);
         String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
         String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
         String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
         String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
         
+        boolean trivialConstant = false;
+        ConstantValue cv = dec.init().constantValue();
+        if (cv != null && (dec.type().type().isNumeric() || dec.type().type().isBoolean())) {
+            trivialConstant = true;
+        }
+        
         // define the field.
         emitter.printType(dec.type().type(), sw);
         sw.allowBreak(2, " ");
         sw.write(container+"::");
         sw.write(mangled_field_name(dec.name().id().toString()));
-        sw.writeln(";");
-
-        generateStaticFieldInitializer(dec, container, sw);
+        if (trivialConstant) {
+            sw.writeln(" = "+cv+";");
+        } else {
+            sw.writeln(";");
+            generateStaticFieldInitializer(dec, container, sw);
+        }
         
-        // declare the initialization flag
-        h.writeln("static volatile ::x10aux::StaticInitController::status "+status+";");;
+        if (!trivialConstant) {
+            // declare the initialization flag
+            h.writeln("static volatile ::x10aux::StaticInitController::status "+status+";");;
 
-        // declare the exception holder
-        h.writeln("static "+make_ref("::x10::lang::CheckedThrowable")+" "+except+";");;
+            // declare the exception holder
+            h.writeln("static "+make_ref("::x10::lang::CheckedThrowable")+" "+except+";");;
+        }
 
         // declare the accessor method
         h.write("static ");
@@ -1874,12 +1887,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         gh.write("() {");
         gh.newline(4); gh.begin(0);
 
-        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
-        gh.newline(4); gh.begin(0);
-        gh.write(init + "();");
-        gh.end(); gh.newline();
-        gh.write("}");
-        gh.newline();
+        if (!trivialConstant) {
+            gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+            gh.newline(4); gh.begin(0);
+            gh.write(init + "();");
+            gh.end(); gh.newline();
+            gh.write("}");
+            gh.newline();
+        }
 
         gh.write("return ");
         gh.write(container+"::");
@@ -1889,18 +1904,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         gh.write("}");
         gh.newline(); gh.forceNewline();
 
-        // define the initialization flag
-        sw.write("volatile ::x10aux::StaticInitController::status ");
-        sw.write(container+"::");
-        sw.write(status);
-        sw.writeln(";");
-        
-        // define the exception holder flag
-        sw.write(make_ref("::x10::lang::CheckedThrowable")+" ");
-        sw.write(container+"::");
-        sw.write(except);
-        sw.writeln(";");
+        if (!trivialConstant) {
+            // define the initialization flag
+            sw.write("volatile ::x10aux::StaticInitController::status ");
+            sw.write(container+"::");
+            sw.write(status);
+            sw.writeln(";");
 
+            // define the exception holder flag
+            sw.write(make_ref("::x10::lang::CheckedThrowable")+" ");
+            sw.write(container+"::");
+            sw.write(except);
+            sw.writeln(";");
+        }
 	}
 
 	public void visit(PropertyDecl_c n) {
