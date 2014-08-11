@@ -37,7 +37,7 @@ abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation(srcPlace:Place):Boolean;
     abstract def notifyActivityTermination():void;
-    abstract def pushException(t:Exception):void;
+    abstract def pushException(t:CheckedThrowable):void;
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
     abstract def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void;
@@ -49,7 +49,7 @@ abstract class FinishState {
     static class LocalFinish extends FinishState {
         @Embed private val count = @Embed new AtomicInteger(1n);
         @Embed private val latch = @Embed new SimpleLatch();
-        private var exceptions:GrowableRail[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[CheckedThrowable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
@@ -58,9 +58,9 @@ abstract class FinishState {
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
         }
-        public def pushException(t:Exception) {
+        public def pushException(t:CheckedThrowable) {
             latch.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
             latch.unlock();
         }
@@ -101,16 +101,16 @@ abstract class FinishState {
     static class RootFinishSPMD extends RootFinishSkeleton {
         @Embed protected val latch = @Embed new SimpleLatch();
         @Embed private val count = @Embed new AtomicInteger(1n);
-        private var exceptions:GrowableRail[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[CheckedThrowable]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
         }
-        public def pushException(t:Exception) {
+        public def pushException(t:CheckedThrowable) {
             latch.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
             latch.unlock();
         }
@@ -126,7 +126,7 @@ abstract class FinishState {
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
         @Embed private val count = @Embed new AtomicInteger(1n);
-        private var exceptions:GrowableRail[Exception]; // lazily initialized
+        private var exceptions:GrowableRail[CheckedThrowable]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -155,9 +155,9 @@ abstract class FinishState {
                 Unsafe.dealloc(closure);
             }
         }
-        public def pushException(t:Exception) {
+        public def pushException(t:CheckedThrowable) {
             lock.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
             lock.unlock();
         }
@@ -183,12 +183,12 @@ abstract class FinishState {
 
     static class RootFinishAsync extends RootFinishSkeleton{
         @Embed protected val latch = @Embed new SimpleLatch();
-        protected var exception:Exception = null;
+        protected var exception:CheckedThrowable = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
             latch.release();
         }
-        public def pushException(t:Exception):void {
+        public def pushException(t:CheckedThrowable):void {
             exception = t;
         }
         public def waitForFinish():void {
@@ -200,13 +200,13 @@ abstract class FinishState {
     }
 
     static class RemoteFinishAsync extends RemoteFinishSkeleton {
-        protected var exception:Exception;
+        protected var exception:CheckedThrowable;
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
         public def notifyActivityCreation(srcPlace:Place) = true;
         public def notifySubActivitySpawn(place:Place):void {}
-        public def pushException(t:Exception):void {
+        public def pushException(t:CheckedThrowable):void {
             exception = t;
         }
         public def notifyActivityTermination():void {
@@ -251,7 +251,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) {}
         public def notifyActivityCreation(srcPlace:Place) = true; 
         public def notifyActivityTermination() {}
-        public def pushException(t:Exception) {
+        public def pushException(t:CheckedThrowable) {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
         }
@@ -341,7 +341,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation(srcPlace:Place) { return me.notifyActivityCreation(srcPlace); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
-        public def pushException(t:Exception) { me.pushException(t); }
+        public def pushException(t:CheckedThrowable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
         public def simpleLatch() = me.simpleLatch();
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
@@ -380,7 +380,7 @@ abstract class FinishState {
     static class RootFinish extends RootFinishSkeleton {
         @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1n; // locally created activities
-        protected var exceptions:GrowableRail[Exception]; // captured remote exceptions.  lazily initialized
+        protected var exceptions:GrowableRail[CheckedThrowable]; // captured remote exceptions.  lazily initialized
         // remotely spawned activities (created RemoteFinishes). lazily initialized
         protected var remoteActivities:HashMap[Long,Int]; // key is place id, value is count for that place.
 
@@ -421,11 +421,11 @@ abstract class FinishState {
             latch.unlock();
             latch.release();
         }
-        public def process(t:Exception):void {
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+        public def process(t:CheckedThrowable):void {
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
         }
-        public def pushException(t:Exception):void {
+        public def pushException(t:CheckedThrowable):void {
             latch.lock();
             process(t);
             latch.unlock();
@@ -483,7 +483,7 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(remoteMapBytes:Rail[Byte], t:Exception):void {
+        def notify(remoteMapBytes:Rail[Byte], t:CheckedThrowable):void {
             remoteMap:HashMap[Long, Int] = new x10.io.Deserializer(remoteMapBytes).readAny() as HashMap[Long, Int];
             latch.lock();
             process(t);
@@ -513,7 +513,7 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(remoteEntry:Pair[Long, Int], t:Exception):void {
+        def notify(remoteEntry:Pair[Long, Int], t:CheckedThrowable):void {
             latch.lock();
             process(t);
             process(remoteEntry);
@@ -524,7 +524,7 @@ abstract class FinishState {
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:GrowableRail[Exception];
+        protected var exceptions:GrowableRail[CheckedThrowable];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0n;
         protected var remoteActivities:HashMap[Long,Int]; // key is place id, value is count for that place.
@@ -552,9 +552,9 @@ abstract class FinishState {
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
         }
-        public def pushException(t:Exception):void {
+        public def pushException(t:CheckedThrowable):void {
             lock.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
             lock.unlock();
         }
@@ -622,7 +622,7 @@ abstract class FinishState {
     }
 
     static class DenseRemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:GrowableRail[Exception];
+        protected var exceptions:GrowableRail[CheckedThrowable];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0n;
         protected var remoteActivities:HashMap[Long,Int]; // key is place id, value is count for that place.
@@ -650,9 +650,9 @@ abstract class FinishState {
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
         }
-        public def pushException(t:Exception):void {
+        public def pushException(t:CheckedThrowable):void {
             lock.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
             lock.unlock();
         }

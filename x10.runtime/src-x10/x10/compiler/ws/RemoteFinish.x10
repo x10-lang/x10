@@ -37,7 +37,7 @@ public final class RemoteFinish extends FinishFrame {
         throw Abort.ABORT;
     }
 
-    @Inline public static def update(ffRef:GlobalRef[FinishFrame], exceptions:GrowableRail[Exception]) {
+    @Inline public static def update(ffRef:GlobalRef[FinishFrame], exceptions:GrowableRail[CheckedThrowable]) {
         val body = ()=> @x10.compiler.RemoteInvocation {
             val ff = (ffRef as GlobalRef[FinishFrame]{home==here})();
             ff.append(exceptions);

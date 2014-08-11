@@ -12,8 +12,6 @@
 package x10.lang;
 
 import x10.util.GrowableRail;
-import x10.io.Printer;
-
 
 /**
  * MultipleExceptions is used to to summarize all uncaught exceptions
@@ -21,10 +19,10 @@ import x10.io.Printer;
  * them as a single exception when all activities controlled by the 
  * <code>finish</code> have terminated.
  */
-public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
-    public property exceptions():Rail[Exception] = exceptions;
+public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Exception {
+    public property exceptions():Rail[CheckedThrowable] = exceptions;
 
-    public def this(es:GrowableRail[Exception]) {
+    public def this(es:GrowableRail[CheckedThrowable]) {
         property(es.toRail());
     }
 
@@ -32,8 +30,8 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
         property(null);
     }
 
-    public def this(t:Exception) {
-        property(new Rail[Exception](1, t));
+    public def this(t:CheckedThrowable) {
+        property(new Rail[CheckedThrowable](1, t));
     }
 
     public def printStackTrace(): void {
@@ -42,34 +40,12 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
         }
     }
 
-    // FIXME CheckedThrowable.printStackTrace(Printer) is now final
-    /*
-    public def printStackTrace(p:Printer): void {
-        for (t in exceptions.values()) {
-            t.printStackTrace(p);
-        }
-    }
-    */
-
-    // FIXME CheckedThrowable.toString() is now final
-    /*
-    public def toString() {
-        var me:String = super.toString();
-        if (exceptions.size > 0) {
-	  for (e in exceptions.values()) {
-              me += "\n\t"+e;
-          }
-        }
-        return me;
-    }
-    */
-
-    public static def make(es:GrowableRail[Exception]):MultipleExceptions {
+    public static def make(es:GrowableRail[CheckedThrowable]):MultipleExceptions {
         if (null == es || es.isEmpty()) return null;
         return new MultipleExceptions(es);
     }
 
-    public static def make(t:Exception):MultipleExceptions {
+    public static def make(t:CheckedThrowable):MultipleExceptions {
         if (null == t) return null;
         return new MultipleExceptions(t);
     }

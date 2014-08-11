@@ -58,7 +58,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         val tmp = remap();
         tmp.redirect = tmp;
         if (null != exceptions) {
-            tmp.exceptions = new GrowableRail[Exception]();
+            tmp.exceptions = new GrowableRail[CheckedThrowable]();
             Runtime.atomicMonitor.lock();
             while (!exceptions.isEmpty()) tmp.exceptions.add(exceptions.removeLast());
             exceptions = null;

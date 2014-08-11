@@ -48,7 +48,7 @@ abstract class FinishResilient extends FinishState {
     // def notifySubActivitySpawn(place:Place):void;
     // def notifyActivityCreation(srcPlace:Place):Boolean;
     // def notifyActivityTermination():void;
-    // def pushException(t:Exception):void;
+    // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
     
     /*
@@ -151,8 +151,7 @@ abstract class FinishResilient extends FinishState {
                             throw e.getCheckedCause();
                         } 
                     } catch (t:CheckedThrowable) {
-                        val e = Exception.ensureException(t);
-                        tmp_finish.pushException(e);
+                        tmp_finish.pushException(t);
                     }
                     // XTENLANG-3357: return the (maybe modified) clockPhases, similar code as "at (cpGref) { cpGref().set(clockPhases); }"
                     // TODO: better to merge this with notifyActivityTermination to reduce send
@@ -183,10 +182,12 @@ abstract class FinishResilient extends FinishState {
             myActivity.clockPhases = cpCell(); // XTENLANG-3357: set the (maybe modified) clockPhases
         } catch (e:MultipleExceptions) {
             assert e.exceptions.size == 1 : e.exceptions();
-            val e2 = e.exceptions(0);
+            var e2:CheckedThrowable = e.exceptions(0);
             if (verbose>=1) debug("FinishResilient.runAt received exception="+e2);
-            if (e2 instanceof WrappedThrowable) Runtime.throwCheckedWithoutThrows(e2.getCause());
-            else throw e2;
+            if (e2 instanceof WrappedThrowable) {
+                e2 = e2.getCause();
+            }
+            Runtime.throwCheckedWithoutThrows(e2);
         }
         if (verbose>=1) debug("FinishResilient.runAt returning (remotely executed)");
     }
@@ -257,7 +258,7 @@ abstract class FinishResilient extends FinishState {
         }
         
         // remote call
-        val exc = GlobalRef(new Cell[Exception](null));
+        val exc = GlobalRef(new Cell[CheckedThrowable](null));
         val done = GlobalRef(new AtomicBoolean());
         if (verbose>=4) debug("----lowLevelAt remote execution");
         Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_at_out") {
@@ -303,7 +304,7 @@ abstract class FinishResilient extends FinishState {
         val t = exc()();
         if (t != null) {
             if (verbose>=4) debug("----lowLevelAt throwing exception " + t);
-            throw t;
+            Runtime.throwCheckedWithoutThrows(t);
         }
         if (verbose>=4) debug("----lowLevelAt returning true");
         return true; // success
@@ -320,7 +321,7 @@ abstract class FinishResilient extends FinishState {
         }
         
         // remote call
-        val exc = GlobalRef(new Cell[Exception](null));
+        val exc = GlobalRef(new Cell[CheckedThrowable](null));
         val done = GlobalRef(new AtomicBoolean(false));
         val gresult = GlobalRef(result);
         if (verbose>=4) debug("----lowLevelFetch remote execution");
@@ -367,7 +368,7 @@ abstract class FinishResilient extends FinishState {
         val t = exc()();
         if (t != null) {
             if (verbose>=4) debug("----lowLevelFetch throwing exception " + t);
-            throw t;
+            Runtime.throwCheckedWithoutThrows(t);
         }
         if (verbose>=4) debug("----lowLevelFetch returning true");
         return true; // success

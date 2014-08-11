@@ -24,7 +24,7 @@ import x10.util.GrowableRail;
 
 abstract public class FinishFrame extends Frame {
     @Uninitialized public var asyncs:Int;
-    @Uninitialized transient protected var exceptions:GrowableRail[Exception];
+    @Uninitialized transient protected var exceptions:GrowableRail[CheckedThrowable];
 
     @Ifdef("__CPP__")
     @Uninitialized public var redirect:FinishFrame;
@@ -56,7 +56,7 @@ abstract public class FinishFrame extends Frame {
         val tmp = remap();
         tmp.redirect = tmp;
         if (null != exceptions) {
-            tmp.exceptions = new GrowableRail[Exception](exceptions.size());
+            tmp.exceptions = new GrowableRail[CheckedThrowable](exceptions.size());
             Runtime.atomicMonitor.lock();
 	    while (!exceptions.isEmpty()) tmp.exceptions.add(exceptions.removeLast());
             exceptions = null;
@@ -82,10 +82,10 @@ abstract public class FinishFrame extends Frame {
         worker.throwable = MultipleExceptions.make(exceptions);
     }
 
-    @Inline public final def append(s:GrowableRail[Exception]) {
+    @Inline public final def append(s:GrowableRail[CheckedThrowable]) {
         if (null != s) { //nobody will change s again. No need lock to protect s.
             Runtime.atomicMonitor.lock();
-            if (null == exceptions) exceptions = new GrowableRail[Exception]();
+            if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
 	    while (!s.isEmpty()) exceptions.add(s.removeLast());
             Runtime.atomicMonitor.unlock();
         }
@@ -95,11 +95,11 @@ abstract public class FinishFrame extends Frame {
         append(ff.exceptions);
     }
 
-    @NoInline public final def caught(t:Exception) {
+    @NoInline public final def caught(t:CheckedThrowable) {
 //        Runtime.println("CAUGHT: " + t);
         if (t == Abort.ABORT) throw Abort.ABORT;
         Runtime.atomicMonitor.lock();
-        if (null == exceptions) exceptions = new GrowableRail[Exception]();
+        if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
         exceptions.add(t);
         Runtime.atomicMonitor.unlock();
     }

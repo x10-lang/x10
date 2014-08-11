@@ -35,7 +35,7 @@ import x10.util.*;
 //     def notifyActivityTermination():void {
 //         if (verbose>=1) debug("notifyActivityTermination called");
 //     }
-//     def pushException(t:Exception):void {
+//     def pushException(t:CheckedThrowable):void {
 //         if (verbose>=1) debug("pushException called, t=" + t);
 //     }
 //     def waitForFinish():void {
@@ -72,7 +72,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         val transitAdopted = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
         val live = new Rail[Int](Place.numPlaces(), 0n);
         val liveAdopted = new Rail[Int](Place.numPlaces(), 0n);
-        val excs = new GrowableRail[Exception](); // exceptions to report
+        val excs = new GrowableRail[CheckedThrowable](); // exceptions to report
         val children = new GrowableRail[FinishID](); // children
         var adopterId:FinishID = FinishID.NULL; // adopter (if adopted)
         def isAdopted() = (adopterId != FinishID.NULL);
@@ -237,7 +237,7 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
     
-    def pushException(t:Exception):void {
+    def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
        RS.lock();
         val state = RS.getOrElse(id, null);

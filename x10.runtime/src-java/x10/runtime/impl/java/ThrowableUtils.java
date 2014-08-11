@@ -104,9 +104,9 @@ public abstract class ThrowableUtils {
     private static void printStackTrace(java.lang.Throwable t, java.io.PrintStream ps) {
         if (t instanceof x10.lang.MultipleExceptions) {
             x10.lang.MultipleExceptions me = (x10.lang.MultipleExceptions) t;
-            x10.core.Rail<java.lang.RuntimeException> exceptions = (x10.core.Rail<java.lang.RuntimeException>) me.exceptions;
-            for (java.lang.RuntimeException re : exceptions.getGenericArray()) {
-                printStackTrace(re, ps);
+            x10.core.Rail<java.lang.Throwable> exceptions = (x10.core.Rail<java.lang.Throwable>) me.exceptions;
+            for (java.lang.Throwable ct : exceptions.getGenericArray()) {
+                printStackTrace(ct, ps);
             }
         } else {
             t.printStackTrace(ps); //TODO replace the use of j.l.StackTraceElement#getClassName() with x10.rtt.Types#typeName(Object)

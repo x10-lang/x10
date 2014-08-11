@@ -25,7 +25,7 @@ class FinishResilientPlace0 extends FinishResilient {
         val transitAdopted = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
         val live = new Rail[Int](Place.numPlaces(), 0n);
         val liveAdopted = new Rail[Int](Place.numPlaces(), 0n);
-        val excs = new x10.util.GrowableRail[Exception](); // exceptions to report
+        val excs = new x10.util.GrowableRail[CheckedThrowable](); // exceptions to report
         val children = new x10.util.GrowableRail[Long](); // children
         var adopterId:Long = -1; // adopter (if adopted)
         def isAdopted() = (adopterId != -1);
@@ -143,7 +143,7 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
-    def pushException(t:Exception):void {
+    def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
         lowLevelAt(place0, ()=>{ atomic {
             val state = states(id);
