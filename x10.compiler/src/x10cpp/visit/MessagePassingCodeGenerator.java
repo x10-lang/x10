@@ -1842,14 +1842,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
         String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
         String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-        String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
+        String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);                
         
+        ConstantValue cv = null; 
         boolean trivialConstant = false;
-        ConstantValue cv = dec.init().constantValue();
-        if (cv != null && (dec.type().type().isNumeric() || dec.type().type().isBoolean())) {
-            trivialConstant = true;
+        if ((dec.type().type().isNumeric() || dec.type().type().isBoolean()) && dec.init().isConstant()) {
+            cv = dec.init().constantValue();
+            trivialConstant = cv != null;
         }
-        
+
         // define the field.
         emitter.printType(dec.type().type(), sw);
         sw.allowBreak(2, " ");
