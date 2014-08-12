@@ -497,21 +497,22 @@ public class RoseTranslator extends Translator {
 		 */
 		private int getOperatorKind(Binary.Operator op) {
 			if (binaryOpTable.isEmpty()) {
-				binaryOpTable.put(Binary.Operator.ADD, 14);
-				binaryOpTable.put(Binary.Operator.SUB, 13);
-				binaryOpTable.put(Binary.Operator.MUL, 15);
-				binaryOpTable.put(Binary.Operator.DIV, 9);
-				binaryOpTable.put(Binary.Operator.MOD, 16);
-				binaryOpTable.put(Binary.Operator.GT, 6);
-				binaryOpTable.put(Binary.Operator.GE, 7);
-				binaryOpTable.put(Binary.Operator.LT, 4);
-				binaryOpTable.put(Binary.Operator.LE, 5);
-				binaryOpTable.put(Binary.Operator.SHL, 10);
-				binaryOpTable.put(Binary.Operator.SHR, 17);
-				binaryOpTable.put(Binary.Operator.USHR, 19);
 				binaryOpTable.put(Binary.Operator.BIT_AND, 2); // or COND_AND?
 				binaryOpTable.put(Binary.Operator.BIT_OR, 3);  // or COND_OR?
+				binaryOpTable.put(Binary.Operator.LT, 4);
+				binaryOpTable.put(Binary.Operator.LE, 5);
+				binaryOpTable.put(Binary.Operator.GT, 6);
+				binaryOpTable.put(Binary.Operator.GE, 7);
 				binaryOpTable.put(Binary.Operator.BIT_XOR, 8);
+				binaryOpTable.put(Binary.Operator.DIV, 9);
+				binaryOpTable.put(Binary.Operator.SHL, 10);
+				binaryOpTable.put(Binary.Operator.SUB, 13);
+				binaryOpTable.put(Binary.Operator.ADD, 14);
+				binaryOpTable.put(Binary.Operator.MUL, 15);
+				binaryOpTable.put(Binary.Operator.MOD, 16);
+				binaryOpTable.put(Binary.Operator.SHR, 17);
+				binaryOpTable.put(Binary.Operator.USHR, 19);
+				binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
 				binaryOpTable.put(Binary.Operator.COND_OR, 100);
 				binaryOpTable.put(Binary.Operator.COND_AND, 101);
 			}
@@ -1525,7 +1526,8 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(X10Binary_c n) {
-			toRose(n, "X10Binary:", n.operator().toString());
+			toRose(n, "X10Binary:", n.operator().toString());					
+			System.out.println("OP=" + getOperatorKind(n.operator()));
 			JNI.cactionBinaryExpression(createJavaToken(n, n.toString()));	
 			visitChild(n, n.left());
 			visitChild(n, n.right());
@@ -2059,13 +2061,27 @@ public class RoseTranslator extends Translator {
 
 
 		public void visit(X10New_c n) {
-			toRose(n, "X10New: ", n.objectType().toString());
-			JNI.cactionAllocationExpression(createJavaToken(n, n.toString()));
-			visitChildren(n, n.typeArguments());
-			visitChildren(n, n.arguments());
-			visitChild(n, n.objectType());
-			visitChild(n, n.body());
-			JNI.cactionAllocationExpressionEnd(n.objectType() != null, n.arguments().size(), createJavaToken(n, n.toString()));
+			toRose(n, "X10New: ", n.objectType().toString(), "n=" + n.toString(), "objectType=" + n.objectType(), "body=" + n.body());
+			boolean isRail = n.objectType().type().isRail();
+			
+			if (isRail) {
+				JNI.cactionArrayAllocationExpression(createJavaToken(n, n.toString()));
+				visitChildren(n, n.typeArguments());
+				List<Expr> args = n.arguments();
+//				for (int i = 0; i < args.size(); ++i)
+//					System.out.println(i + " : " + args.get(i));	
+//				System.out.println("ArrayOf=" + n.objectType().type().arrayOf());
+//				visitChild(n, n.objectType());
+				visitChildren(n, n.arguments());
+				JNI.cactionArrayAllocationExpressionEnd(1, false, createJavaToken(n, n.toString()));
+			}
+			else {
+				JNI.cactionAllocationExpression(createJavaToken(n, n.toString()));
+				visitChildren(n, n.typeArguments());
+				visitChild(n, n.objectType());
+				visitChildren(n, n.arguments());
+				JNI.cactionAllocationExpressionEnd(n.objectType() != null, n.arguments().size(), createJavaToken(n, n.toString()));
+			}
 		}
 
 		public void visit(Allocation_c n) {
@@ -3326,7 +3342,7 @@ public class RoseTranslator extends Translator {
 					visitChild(n, n.expr());
 					JNI.cactionReturnStatementEnd((n.expr() != null), createJavaToken(n, n.toString()));
 				}
-
+				
 				public void visit(X10Binary_c n) {
 					toRose(n, "X10Binary:", n.operator().toString());
 					JNI.cactionBinaryExpression(createJavaToken(n, n.toString()));
