@@ -41,10 +41,10 @@ public class CheckedExceptions1 extends x10Test {
                 ok = false;
                 Console.OUT.println("Error: incorrect number of MultipleExceptions elements: " + e.exceptions.size);
             }
-            val wrapper = e.exceptions()(0);
-            if (!(wrapper.getCheckedCause() instanceof MyCheckedException)) {
+            val se = e.exceptions()(0);
+            if (!(se instanceof MyCheckedException)) {
                 ok = false;
-                Console.OUT.println("Error: unrapped exception has wrong type: " + wrapper.getCheckedCause().typeName());
+                Console.OUT.println("Error: suppressed exception has wrong type: " + se.typeName());
             }
             res = true;
         } finally {
@@ -66,10 +66,10 @@ public class CheckedExceptions1 extends x10Test {
                 ok = false;
                 Console.OUT.println("Error: incorrect number of MultipleExceptions elements: " + e.exceptions.size);
             }
-            val wrapper = e.exceptions()(0);
-            if (!(wrapper.getCheckedCause() instanceof MyError)) {
+            val se = e.exceptions()(0);
+            if (!(se instanceof MyError)) {
                 ok = false;
-                Console.OUT.println("Error: unrapped exception has wrong type: " + wrapper.getCheckedCause().typeName());
+                Console.OUT.println("Error: unrapped exception has wrong type: " + se.typeName());
             }
             res = true;
         } finally {
