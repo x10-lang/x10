@@ -172,7 +172,7 @@ public class Activity {
             try {
                 body();
             } catch (wt:WrappedThrowable) {
-                finishState.pushException(wt.getCause());
+                finishState.pushException(wt.getCheckedCause());
             } catch (t:CheckedThrowable) {
                 finishState.pushException(t);
             }

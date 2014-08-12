@@ -185,7 +185,7 @@ abstract class FinishResilient extends FinishState {
             var e2:CheckedThrowable = e.exceptions(0);
             if (verbose>=1) debug("FinishResilient.runAt received exception="+e2);
             if (e2 instanceof WrappedThrowable) {
-                e2 = e2.getCause();
+                e2 = e2.getCheckedCause();
             }
             Runtime.throwCheckedWithoutThrows(e2);
         }
