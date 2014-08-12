@@ -289,7 +289,6 @@ public final class Runtime {
     public static atomicMonitor = new Monitor();
     static pool = new Pool();
     static finishStates = new FinishState.FinishStates();
-    static submissionLock = new Lock(); // lock for Runtime.submitUncounted(..) and related methods
 
     // Work-stealing runtime
     
@@ -436,6 +435,13 @@ public final class Runtime {
         def take(worker:Worker):Activity {
             if (multiplace && busyWaiting && (idleCount - spareNeeded >= NTHREADS - 1)) return null;
             lock.lock();
+//            if(pool.workers(0n).promoted) {
+                val task = pool.workers(0n).steal();
+                if(task != null) {
+                    lock.unlock();
+                    return task;
+                }
+//            }
             convert();
             if (multiplace && busyWaiting && (idleCount >= NTHREADS - 1)) {
                 lock.unlock();
@@ -461,18 +467,19 @@ public final class Runtime {
             return worker.activity;
         }
         
-        def wakeup():void {
-            if (idleCount - spareNeeded <= 0n && !probing) return;
+        def submit(activity:Activity):void {
             lock.lock();
             convert();
             if (idleCount <= 0n) {
                 val p = probing;
+                pool.workers(0n).push(activity);
                 lock.unlock();
                 if (p && multiplace) x10rtUnblockProbe();
                 return;
             }
             val i = spareCount + --idleCount;
             val worker = parkedWorkers(i);
+            worker.activity = activity;
             parkedWorkers(i) = null;
             lock.unlock();
             worker.unpark();
@@ -901,13 +908,7 @@ public final class Runtime {
      * @param job Job being submitted
      */
     public static def submitUncounted(job:()=>void):void {
-        submissionLock.lock();
-        try {
-            pool.workers(0n).push(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
-        } finally {
-            submissionLock.unlock();
-        }
-        pool.workers.wakeup();
+        pool.workers.submit(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
     }
 
     /**
