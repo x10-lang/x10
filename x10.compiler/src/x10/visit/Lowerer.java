@@ -829,12 +829,9 @@ public class Lowerer extends ContextVisitor {
 
         Stmt closure_body = async_body;
 
-        // [DC] don't add the try/catch if this is a CUDA kernel
-        // rationale: CUDA kernels may not throw exceptions (although this is not enforced)
-        // in particular, it is hard to think of why an interop exception would emerge from a CUDA kernel
-        // So, the lack of enforcement is very unlikely to create a noticable problem.
-
-        if (!(async_body instanceof CUDAKernel)) {
+        if (isManagedX10) {
+            // A closure's apply method can't throw checked exceptions in Java.
+            // So wrap in a try/catch and wrap & rethrow any checked exceptions that arise.
 
             // try { async_body }
             Block tryBlock = synth.toBlock(async_body);
