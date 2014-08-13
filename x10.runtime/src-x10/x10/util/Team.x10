@@ -628,6 +628,7 @@ public struct Team {
         private var local_dst:Any = null; // becomes type Rail[T]{self!=null}
         private var local_dst_off:Long = 0;
         private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
+        private var local_temp_buff2:Any = null;
         private var local_count:Long = 0;
         private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us
         private var local_child1Index:Long = -1;
@@ -758,9 +759,14 @@ public struct Team {
             local_grandchildren = myLinks.totalChildren;
             local_child1Index = myLinks.child1Index;
             local_child2Index = myLinks.child2Index;
-            if ((collType == COLL_REDUCE || collType == COLL_ALLREDUCE) && local_child2Index != -1) {
-                // (all)reduce uses destination buffer for child 1, temp buffer for child 2
-                local_temp_buff = Unsafe.allocRailUninitialized[T](local_count);
+            if ((collType == COLL_REDUCE || collType == COLL_ALLREDUCE)) {
+                if (local_child1Index > -1 && src == dst) {
+                    // src and dst aliased, use temp storage for child 1
+                    local_temp_buff = Unsafe.allocRailUninitialized[T](count);
+                }
+                if (local_child2Index > -1) {
+                    local_temp_buff2 = Unsafe.allocRailUninitialized[T](count);
+                }
             //} else if (myLinks.parentIndex != -1 && collType == COLL_SCATTER || collType == COLL_GATHER) {
                 // data size may differ between places
             //    local_temp_buff = Unsafe.allocRailUninitialized[T](myLinks.dataToCarryForChildren);
@@ -792,11 +798,15 @@ public struct Team {
 
             if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
                 if (local_child1Index != -1) { // reduce local and child data
-                    TeamReductionHelper.performReduction(src, src_off, dst, dst_off, count, operation);
-                    if (local_child2Index != -1) {
+                    if (src == dst) {
                         TeamReductionHelper.performReduction(local_temp_buff as Rail[T], 0, dst, dst_off, count, operation);
+                    } else {
+                        TeamReductionHelper.performReduction(src, src_off, dst, dst_off, count, operation);
                     }
-                } else { // no children
+                    if (local_child2Index != -1) {
+                        TeamReductionHelper.performReduction(local_temp_buff2 as Rail[T], 0, dst, dst_off, count, operation);
+                    }
+                } else {
                     Rail.copy(src, src_off, dst, dst_off, count);
                 }
             } else if (collType == COLL_ALLTOALL) {
@@ -847,12 +857,16 @@ public struct Team {
                             waitForParentToReceive();
                             var target:Rail[T];
                             var off:Long;
-                            if (sourceIndex == Team.state(teamidcopy).local_child1Index) {
-                                target = Team.state(teamidcopy).local_dst as Rail[T];
-                                off = Team.state(teamidcopy).local_dst_off;
-                            } else {
+                            if (sourceIndex == Team.state(teamidcopy).local_child2Index) {
+                                target = Team.state(teamidcopy).local_temp_buff2 as Rail[T];
+                                off = 0;
+                            } else if (src == dst) {
                                 target = Team.state(teamidcopy).local_temp_buff as Rail[T];
                                 off = 0;
+                            } else {
+                                // child 1 data written directly to dst
+                                target = Team.state(teamidcopy).local_dst as Rail[T];
+                                off = Team.state(teamidcopy).local_dst_off;
                             }
                             Rail.uncountedCopy(gr, dst_off, target, off, count, incrementParentPhase);
                         }
@@ -991,6 +1005,7 @@ public struct Team {
             local_src = null;
             local_dst = null;
             local_temp_buff = null;
+            local_temp_buff2 = null;
             this.phase.set(PHASE_READY);
             // done!
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
