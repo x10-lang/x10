@@ -424,6 +424,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     } // class RemoteReferenceTracker
 
     private Type<?> T;
+    public long epoch;
     public x10.lang.Place home;
     private long id; // place local id of referenced object
     private transient Object obj;
@@ -564,6 +565,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         $serializer.write(T);
         $serializer.write(home);
         $serializer.write(id);
+        $serializer.write(epoch);
         $serializer.write(weight); // send the weight 
         
         $serializer.addToGrefMap(this, weight); // to adjust the weight when serialized data is used more than once
@@ -580,6 +582,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         $_obj.home = $deserializer.readObject();
         long id = $deserializer.readLong();
         $_obj.id = id;
+        $_obj.epoch = $deserializer.readLong();
         int weight = $deserializer.readInt(); // weight got from sender
         assert((id > 0 && weight > 0) || (id < 0 && weight == 0)); // weight should be > 0 for non-Mortal GlobalRef
         if ($_obj.home.id == x10.lang.Runtime.home().id) { // local GlobalRef

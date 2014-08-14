@@ -32,6 +32,7 @@ namespace x10 {
             ::x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
             x10_ulong value; 
+            x10_long epoch;
             ::x10aux::place location;	
 
             GlobalRef(T obj = NULL) : value((size_t)(obj)), location(::x10aux::here) { }
@@ -144,6 +145,7 @@ namespace x10 {
 template<class T> void x10::lang::GlobalRef<T>::_serialize(::x10::lang::GlobalRef<T> this_,
                                                            ::x10aux::serialization_buffer& buf) {
     buf.write(this_->location);
+    buf.write(this_->epoch);
     buf.write(this_->value);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     if (this_->location == ::x10aux::here) {
@@ -154,6 +156,7 @@ template<class T> void x10::lang::GlobalRef<T>::_serialize(::x10::lang::GlobalRe
 
 template<class T> void x10::lang::GlobalRef<T>::_deserialize_body(::x10aux::deserialization_buffer& buf) {
     location = buf.read< ::x10aux::place>();
+    epoch = buf.read<x10_long>();
     value = buf.read<x10_ulong>();
 }
 

@@ -269,19 +269,21 @@ abstract class FinishState {
 
     // a mapping from finish refs to local finish objects
     static class FinishStates {
+        private var epoch:long = 42;
         private val map = new HashMap[GlobalRef[FinishState],FinishState]();
         @Embed private val lock = @Embed new Lock();
 
         // find or make the local finish for the finish ref
         public operator this(root:GlobalRef[FinishState], factory:()=>FinishState):FinishState{
             lock.lock();
+            clear(root.epoch);
             var f:FinishState = map.getOrElse(root, null);
             if (null != f) {
                 lock.unlock();
                 return f;
             }
             f = factory();
-            map.put(root, f);
+            if(root.epoch >= epoch) map.put(root, f);
             lock.unlock();
             return f;
         }
@@ -290,6 +292,15 @@ abstract class FinishState {
         public def remove(root:GlobalRef[FinishState]) {
             lock.lock();
             map.remove(root);
+            lock.unlock();
+        }
+        
+        public def clear(epoch:long) {
+            lock.lock();
+            if (this.epoch < epoch) {
+                map.clear();
+                this.epoch = epoch;
+            }
             lock.unlock();
         }
     }

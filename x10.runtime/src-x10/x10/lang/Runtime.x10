@@ -537,6 +537,7 @@ public final class Runtime {
                     while (workers(i).steal() != null);
                 }
             }
+            finishStates.clear(e);
             val p = probing;
             lock.unlock();
             if (p && multiplace) x10rtUnblockProbe();
