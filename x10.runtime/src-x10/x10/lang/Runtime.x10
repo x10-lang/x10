@@ -534,7 +534,7 @@ public final class Runtime {
             if (e > epoch) {
                 epoch = e;
                 for (var i:Int=0n; i<count; i++) {
-                    while (workers(i).steal() != null);
+                    if (workers(i) != null) while (workers(i).steal() != null);
                 }
             }
             finishStates.clear(e);
