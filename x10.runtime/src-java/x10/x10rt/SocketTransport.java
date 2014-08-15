@@ -852,10 +852,17 @@ public class SocketTransport {
 					for (int i=0; i<placeStrings.length; i++) {
 						if (DEAD.equals(placeStrings[i]))
 							deadPlaces.add(i);
-						else if (remotePlace != i)
-							initLink(i, placeStrings[i]);
+						else if (remotePlace != i) {
+							try {
+								initLink(i, placeStrings[i]);
+							} catch (IOException e) {
+								// this place appears to be dead.  Mark it as so, and continue with the rest
+								deadPlaces.add(i);
+								if (DEBUG) System.err.println(e.toString());
+							}
+						}
 					}
-					if (DEBUG) System.err.println("Place "+myPlaceId+" established links to "+placeStrings.length+" additional places");
+					if (DEBUG) System.err.println("Place "+myPlaceId+" established links to "+(placeStrings.length-deadPlaces.size())+" additional places");
 				}
 				else {
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
