@@ -19,8 +19,8 @@ public final class GL {
     public static abstract class FrameEventHandler {
         public def display () : void { }
         public def idle () : void { }
-        public def keyboard (key: Char, x:Int, y:Int) : void { }
-        public def keyboardUp (key: Char, x:Int, y:Int) : void { }
+        public def keyboard (key:Char, x:Int, y:Int) : void { }
+        public def keyboardUp (key:Char, x:Int, y:Int) : void { }
         public def click (button:Int, updown:Int, x:Int, y:Int) : void { }
         public def reshape (x:Int, y:Int) : void { }
         public def motion (x:Int, y:Int) : void { }
@@ -31,8 +31,8 @@ public final class GL {
     static the_feh = new Cell[FrameEventHandler](null);
 
     static def display () { the_feh().display(); }
-    static def keyboard (key: UByte, x:Int, y:Int) { the_feh().keyboard(key as Byte as Char, x, y); }
-    static def keyboardUp (key: UByte, x:Int, y:Int) { the_feh().keyboardUp(key as Byte as Char, x, y); }
+    static def keyboard (key:UByte, x:Int, y:Int) { the_feh().keyboard(key as Byte as Char, x, y); }
+    static def keyboardUp (key:UByte, x:Int, y:Int) { the_feh().keyboardUp(key as Byte as Char, x, y); }
     static def click (button:Int, updown:Int, x:Int, y:Int) { the_feh().click(button, updown, x, y); }
     static def reshape (x:Int, y:Int) { the_feh().reshape(x,y); }   
     static def motion (x:Int, y:Int) { the_feh().motion(x,y); }
@@ -40,21 +40,21 @@ public final class GL {
     static def mouse (button:Int, state:Int, x:Int, y:Int) : void { the_feh().mouse(button,state,x,y); }
     static def idle () { the_feh().idle(); }
 
-    public static def glutInit (args: Rail[String]) : Rail[String]{
+    public static def glutInit (args:Rail[String]) : Rail[String]{
         @Native("c++",
-            "    typedef x10::lang::Rail<x10::lang::String *> RS;\n"+
+            "    typedef ::x10::lang::Rail< ::x10::lang::String *> RS;\n"+
             "    typedef RS* pRS;\n"+
             "    int argc = args->FMGL(size);\n"+
-            "    char **argv = x10aux::alloc<char*>(sizeof(char*)*argc);\n"+
+            "    char **argv = ::x10aux::alloc<char*>(sizeof(char*)*argc);\n"+
             "    for (int i=0 ; i<argc ; ++i)\n"+
             "        argv[i] = const_cast<char*>(args->raw[i]->c_str());\n"+
             "    ::glutInit(&argc, argv);\n"+
             "\n"+
-            "    pRS new_args = pRS((new (memset(x10aux::alloc<RS>(), 0, sizeof(RS))) RS(argc)));\n"+
+            "    pRS new_args = pRS((new (memset(::x10aux::alloc<RS>(), 0, sizeof(RS))) RS(argc)));\n"+
             "    new_args->RS::_constructor(argc);\n"+
             "\n"+
             "    for (int i=0 ; i<argc ; ++i)\n"+
-            "        new_args->raw[i] = x10::lang::String::Lit(argv[i]);\n"+
+            "        new_args->raw[i] = ::x10::lang::String::Lit(argv[i]);\n"+
             "    args = new_args;\n"
         ) { }
         return args;
@@ -75,7 +75,7 @@ public final class GL {
     public static def glutWarpPointer (x:Int, y:Int) : void { }
     @Native("c++", "::glutGet(#x)")
     public static def glutGet (x:Int) : Int = 0n;
-    public static def glutMainLoop (callbacks : FrameEventHandler) {
+    public static def glutMainLoop (callbacks:FrameEventHandler) {
         the_feh() = callbacks;
         @Native("c++",
             "    ::glutDisplayFunc(display);\n"+
@@ -158,16 +158,16 @@ public final class GL {
     public static def glewInit () : Boolean = true;
 
     @Native("c++", "::glGenTextures(#n, (GLuint*)&(#buffers)->raw[#offset])")
-    public static def glGenTextures (n:Int, buffers: Rail[Int], offset: Int) : void { }
+    public static def glGenTextures (n:Int, buffers:Rail[Int], offset:Int) : void { }
     @Native("c++", "::glGenBuffers(#n, (GLuint*)&(#buffers)->raw[#offset])")
-    public static def glGenBuffers (n:Int, buffers: Rail[Int], offset: Int) : void { }
+    public static def glGenBuffers (n:Int, buffers:Rail[Int], offset:Int) : void { }
     @Native("c++", "::glDeleteBuffers(#n, (GLuint*)&(#buffers)->raw[#offset])")
-    public static def glDeleteBuffers (n:Int, buffers: Rail[Int], offset: Int) : void { }
+    public static def glDeleteBuffers (n:Int, buffers:Rail[Int], offset:Int) : void { }
     @Native("c++", "::glBindBuffer(#target, #buffer)")
     public static def glBindBuffer (target:Int, buffer:Int) : void { }
     @Native("c++", "::glBindTexture(#target, #buffer)")
     public static def glBindTexture (target:Int, buffer:Int) : void { }
-    @Native("c++", "::glBufferData(#target, (#count), x10aux::lookup_or_null(#data, #offset), #usage)")
+    @Native("c++", "::glBufferData(#target, (#count), ::x10aux::lookup_or_null(#data, #offset), #usage)")
     public static def glBufferData[T] (target:Int, count:Int, data:Rail[T], offset:Int, usage:Int) : void { }
     @Native("c++", "::glGetBufferParameteriv(#target, #value, &(#data)->raw[#offset])")
     public static def glGetBufferParameteriv (target:Int, value:Int, data:Rail[Int], offset:Int) : void { }
@@ -207,7 +207,7 @@ public final class GL {
     public static def glVertex2f(x:Float, y:Float) : void { }
     @Native("c++", "::glVertex3f(#x, #y, #z)")
     public static def glVertex3f(x:Float, y:Float, z:Float) : void { }
-    @Native("c++", "::glVertexPointer(#size, #typ, #stride, x10aux::lookup_or_null(#data, #offset))")
+    @Native("c++", "::glVertexPointer(#size, #typ, #stride, ::x10aux::lookup_or_null(#data, #offset))")
     public static def glVertexPointer[T](size:Int, typ:Int, stride:Int, data:Rail[T], offset:Int) : void { }
     @Native("c++", "::glDrawArrays(#mode, #first, #count)")
     public static def glDrawArrays(mode:Int, first:Int, count:Int) : void { }
@@ -217,12 +217,12 @@ public final class GL {
 // FIXME raytracer#GLFrontend.x10 needs this
 //    @Native("c++", "::glTexSubImage2D(#target, #level, #xOffset, #yOffset, #width, #height, #format, #typ, #bufferOffset)")
 //    public static def glTexSubImage2D (target:Int, level:Int, xOffset:Int, yOffset:Int, width:Int, height:Int, format:Int, typ:Int, bufferOffset:Int) : void { }
-    @Native("c++", "::glTexImage2D(#target, #level, #xOff, #yOff, #w, #h, #border, #fmt, x10aux::lookup_or_null(#data, #dataOffset))")
+    @Native("c++", "::glTexImage2D(#target, #level, #xOff, #yOff, #w, #h, #border, #fmt, ::x10aux::lookup_or_null(#data, #dataOffset))")
     public static def glTexImage2D[T] (target:Int, level:Int, xOff:Int, yOff:Int, w:Int, h:Int, border:Int, fmt:Int, data:Rail[T], dataOffset:Int) : void { }
     public static def glMapBuffer[T] (target:Int, value:Int, len:Int) : Rail[T] {
         @Native("c++", "TPMGL(T) *tmp = (TPMGL(T)*)::glMapBuffer(target, value);") { }
 // FIXME raytracer#GLFrontend.x10 needs this
-        @Native("c++", "return typename x10::lang::Rail<TPMGL(T)>::Rail(tmp, tmp, len);") { }
+        @Native("c++", "return typename ::x10::lang::Rail<TPMGL(T)>::Rail(tmp, tmp, len);") { }
         return Zero.get[Rail[T]]();
     }
     @Native("c++", "::glUnmapBuffer(#target)")
