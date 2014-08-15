@@ -178,6 +178,23 @@ namespace {
             case CUDA_ERROR_NOT_SUPPORTED:
                 errstr = "CUDA_ERROR_NOT_SUPPORTED"; break;
             #endif
+
+            #if CUDA_VERSION >= 6000
+            case CUDA_ERROR_INVALID_PTX:
+                errstr = "CUDA_ERROR_INVALID_PTX"; break;
+            case CUDA_ERROR_ILLEGAL_ADDRESS:
+                errstr = "CUDA_ERROR_ILLEGAL_ADDRESS"; break;
+            case CUDA_ERROR_HARDWARE_STACK_ERROR:
+                errstr = "CUDA_ERROR_HARDWARE_STACK_ERROR"; break;
+            case CUDA_ERROR_ILLEGAL_INSTRUCTION:
+                errstr = "CUDA_ERROR_ILLEGAL_INSTRUCTION"; break;
+            case CUDA_ERROR_MISALIGNED_ADDRESS:
+                errstr = "CUDA_ERROR_MISALIGNED_ADDRESS"; break;
+            case CUDA_ERROR_INVALID_ADDRESS_SPACE:
+                errstr = "CUDA_ERROR_INVALID_ADDRESS_SPACE"; break;
+            case CUDA_ERROR_INVALID_PC:
+                errstr = "CUDA_ERROR_INVALID_PC"; break;
+            #endif
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();
