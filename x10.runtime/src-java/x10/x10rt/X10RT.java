@@ -44,7 +44,7 @@ public class X10RT {
      * must be called before any other methods on this class or on any other X10RT 
      * related class can be successfully invoked.
      */
-    public static synchronized String init_library(final x10.runtime.impl.java.Runtime mainClass) {
+    public static synchronized String init_library() {
     	if (state != State.UNINITIALIZED && 
     			state != State.TORN_DOWN) return null; // already initialized
 
@@ -93,6 +93,13 @@ public class X10RT {
         	return x10rt_preinit();
     }
     
+    /**
+     * @deprecated use {@link #init_library()} instead
+     */
+    public static synchronized String init_library(x10.runtime.impl.java.Runtime mainClass) {
+        return init_library();
+    }
+
     /*
      * This method is the second phase of the init_library() call above.  Init_library only initializes
      * internal variables, minus what is needed for communication with other places.

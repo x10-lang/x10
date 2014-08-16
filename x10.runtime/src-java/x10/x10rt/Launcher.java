@@ -196,9 +196,7 @@ public class Launcher {
 				// start up X10RT
 				System.setProperty("x10.NO_PRELOAD_CLASSES", "false");
 				System.setProperty("X10RT_IMPL", "JavaSockets"); // use java communication library
-				//x10.runtime.impl.java.Runtime userClass = (x10.runtime.impl.java.Runtime) Class.forName(args[0]).newInstance();
-				//String connectionInfo = X10RT.init_library(userClass, false);
-				String connectionInfo = X10RT.init_library(null);
+				String connectionInfo = X10RT.init_library();
 
 				// write connection string to the parent
 				System.out.println(connectionInfo);
