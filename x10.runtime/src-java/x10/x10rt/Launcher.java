@@ -29,7 +29,7 @@ public class Launcher {
 	 */
 	public static void main(String[] args) {
 		if (args.length < 1) {
-			System.out.println("Example Usage: java -cp .:../stdlib/x10.jar x10.x10rt.Launcher HelloWholeWorld hi");
+			System.out.println("Example Usage: java -cp .:../stdlib/x10.jar x10.x10rt.Launcher [-debug] HelloWholeWorld hi");
 			return;
 		}
 		
@@ -45,33 +45,24 @@ public class Launcher {
 		String[] connectionDebugInfo = new String[numPlaces];
 		
 		// gather up the class and arguments to run
-		
-		boolean isDebug = args[0].equals("-debug")? true : false;
+		boolean isDebug = args[0].equals("-debug") ? true : false;
+		int firstarg = isDebug ? 1 : 0; // skip the first -debug flag
 		
 		ArrayList<String> newArgs = new ArrayList<String>();
 		
-		if (isDebug){
-			newArgs.add(System.getProperty("java.home").concat("/bin/java"));
+		newArgs.add(System.getProperty("java.home").concat("/bin/java"));
+		if (isDebug) {
 			newArgs.add("-XX:+UseParallelGC");
 			newArgs.add("-Xdebug");
 			newArgs.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y");
-			newArgs.add("-ea");
-			newArgs.add("-Djava.library.path="+System.getProperty("java.library.path"));
-			newArgs.add("-Djava.class.path="+System.getProperty("java.class.path"));
-			newArgs.add("-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
-			newArgs.add(SlaveLauncher.class.getName());
-			for (int i=1; i<args.length; i++)
-				newArgs.add(args[i]);
-		} else {
-			newArgs.add(System.getProperty("java.home").concat("/bin/java"));
-			newArgs.add("-ea");
-			newArgs.add("-Djava.library.path="+System.getProperty("java.library.path"));
-			newArgs.add("-Djava.class.path="+System.getProperty("java.class.path"));
-			newArgs.add("-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
-			newArgs.add(SlaveLauncher.class.getName());
-			for (int i=0; i<args.length; i++)
-				newArgs.add(args[i]);
 		}
+		newArgs.add("-ea");
+		newArgs.add("-Djava.library.path="+System.getProperty("java.library.path"));
+		newArgs.add("-Djava.class.path="+System.getProperty("java.class.path"));
+		newArgs.add("-Djava.util.logging.config.file="+System.getProperty("java.util.logging.config.file"));
+		newArgs.add(SlaveLauncher.class.getName());
+		for (int i=firstarg; i<args.length; i++)
+			newArgs.add(args[i]);
 		
 		// launch the places
 		ProcessBuilder pb = new ProcessBuilder(newArgs);
