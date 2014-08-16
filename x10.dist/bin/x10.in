@@ -18,7 +18,11 @@ noassert=""
 noclassloadtest=""
 java_args=()
 args=()
+if [ "$X10RT_IMPL" = "local" ]; then
+x10rt_impl="$X10RT_IMPL"
+else
 x10rt_impl=""
+fi
 launcher_args=()
 launcher_env=()
 
@@ -81,7 +85,12 @@ while [ -n "$1" ]; do
         *) if [ -z "$main" ]; then
                main="$1"
            fi
-           args=("${args[@]}" "$1\$${MAIN_CLASS}"); shift; args=("${args[@]}" "$@"); break;;
+           if [ "${x10rt_impl}" = "local" ]; then
+             args=("${args[@]}" "$1")
+           else
+             args=("${args[@]}" "$1\$${MAIN_CLASS}")
+           fi
+           shift; args=("${args[@]}" "$@"); break;;
     esac
     shift
 done
@@ -163,7 +172,12 @@ if [ -n "$extra_lib" ]; then
     externpath="$extra_lib${PATH_SEP}$externpath"
 fi
 
-if [[ "$UNAME" = CYGWIN* ]]; then 
+if [ "${x10rt_impl}" = "local" ]; then
+    unset launcher
+    java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
+    unset X10_HOSTFILE
+    unset X10_HOSTLIST
+elif [[ "$UNAME" = CYGWIN* ]]; then 
     launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
     java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
 else
@@ -247,6 +261,7 @@ fi
 fi
 
 
+[ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
 
