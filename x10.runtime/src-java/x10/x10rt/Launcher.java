@@ -151,8 +151,11 @@ public class Launcher {
 			t.setName("pipe stdout for place "+i);
 			t.start();
 		}
-		
-		// TODO: send stdin to place 0
+
+		// send stdin to place 0
+		Thread t = new Thread(new Piper(System.in, new PrintStream(outTo[0])));
+		t.setName("pipe stdin to place 0");
+		t.start();
 		
 		// places have exited.  Pass the exit code of place 0 on
 		while (true) {
