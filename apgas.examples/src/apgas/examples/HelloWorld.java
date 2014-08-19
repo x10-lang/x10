@@ -6,7 +6,7 @@ import apgas.Place;
 
 final class HelloWorld {
   public static void main(String[] args) {
-    // Run with two places unless specified otherwise
+    // Run with four places unless specified otherwise
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
