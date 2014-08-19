@@ -19,6 +19,10 @@ public final class Configuration {
 
   /**
    * Number of places to spawn (Integer property).
+   * <p>
+   * All the places are spawned on the localhost.
+   *
+   * @see GlobalRuntime
    */
   public static final String APGAS_PLACES = "APGAS_PLACES";
 
@@ -35,12 +39,16 @@ public final class Configuration {
   /**
    * Specifies the ip or socket address of the master node to connect to if any
    * (String property).
+   * <p>
+   * If set to "ip:port" the global runtime will only connect to this port. If
+   * set to "ip" the global runtime will connect to the first available
+   * Hazelcast instance at this ip within the default port range.
    */
   public static final String APGAS_MASTER = "APGAS_MASTER";
 
   /**
    * Disables the implicit shutdown of the global runtime when thread with ID 1
-   * terminates. (Boolean property).
+   * terminates (Boolean property).
    */
   public static final String APGAS_DAEMON = "APGAS_DAEMON";
 }
