@@ -1,5 +1,7 @@
 package apgas.impl;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.hazelcast.config.Config;
@@ -45,20 +47,25 @@ final class HazelcastTransport implements ItemListener<Member>,
    *          runtime instance.
    * @param master
    *          required member to connect to or null
+   * @throws IOException
+   *           if localhost cannot be resolved
    */
-  HazelcastTransport(Runnable kill, String master) {
+  HazelcastTransport(Runnable kill, String master) throws IOException {
     this.kill = kill;
 
     final Config config = new Config();
     final NetworkConfig network = config.getNetworkConfig();
     network.getJoin().getMulticastConfig().setEnabled(false);
     network.getJoin().getTcpIpConfig().setEnabled(true);
-    if (master == null) {
-      network.setInterfaces(network.getInterfaces().addInterface("*"));
-    } else if (master.contains(":")) {
-      network.getJoin().getTcpIpConfig().setRequiredMember(master);
-    } else {
-      network.getJoin().getTcpIpConfig().addMember(master);
+    network.setInterfaces(network.getInterfaces()
+        .addInterface(InetAddress.getLocalHost().getHostAddress())
+        .setEnabled(true));
+    if (master != null) {
+      if (master.contains(":")) {
+        network.getJoin().getTcpIpConfig().setRequiredMember(master);
+      } else {
+        network.getJoin().getTcpIpConfig().addMember(master);
+      }
     }
     config.setProperty("hazelcast.logging.type", "none");
     config.setProperty("hazelcast.wait.seconds.before.join", "0");

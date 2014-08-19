@@ -35,7 +35,6 @@ public final class Configuration {
   /**
    * Specifies the ip or socket address of the master node to connect to if any
    * (String property).
-   * <p>
    */
   public static final String APGAS_MASTER = "APGAS_MASTER";
 
