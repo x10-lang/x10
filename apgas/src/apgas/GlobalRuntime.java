@@ -1,0 +1,172 @@
+package apgas;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+/**
+ * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
+ * down the APGAS global runtime for the application.
+ * <p>
+ * The global runtime is implicitly initialized when this class is loaded.
+ * <p>
+ * If the system property APGAS_PLACES is set to an integer 'n' greater than 1,
+ * this initialization will spawn 'n-1' additional JVMs. These additional JVMs
+ * will execute the same main method as the current one.
+ * <p>
+ * The current runtime can be obtained from the {@link #getRuntime()} method.
+ */
+public abstract class GlobalRuntime {
+  /**
+   * The {@link GlobalRuntime} instance for this application.
+   */
+  private static final GlobalRuntime runtime;
+
+  /**
+   * Throws {@code UnsupportedOperationException}.
+   *
+   * @throws UnsupportedOperationException
+   *           when invoked
+   */
+  protected GlobalRuntime() {
+    if (runtime != null) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  /**
+   * Returns the {@link GlobalRuntime} instance for this application.
+   *
+   * @return the GlobalRuntime instance
+   */
+  public static GlobalRuntime getRuntime() {
+    return runtime;
+  }
+
+  static {
+    try {
+      final String className = System.getProperty(Configuration.APGAS_RUNTIME,
+          "apgas.impl.GlobalRuntimeImpl");
+      final Constructor<?> constructor = Class.forName(className)
+          .getConstructor(new Class<?>[0]);
+      constructor.setAccessible(true);
+      try {
+        runtime = (GlobalRuntime) constructor.newInstance(new Object[0]);
+      } catch (final InvocationTargetException e) {
+        throw e.getCause();
+      }
+    } catch (final Throwable t) {
+      throw new ExceptionInInitializerError(t);
+    }
+  }
+
+  /**
+   * Shuts down the {@link GlobalRuntime} instance.
+   */
+  public abstract void shutdown();
+
+  /**
+   * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
+   * to complete.
+   * <p>
+   * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
+   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param f
+   *          the function to run
+   * @throws MultipleException
+   *           if there are uncaught exceptions
+   */
+  protected abstract void finish(VoidFun f);
+
+  /**
+   * Submits a new local task to the global runtime with body {@code f} and
+   * returns immediately.
+   *
+   * @param f
+   *          the function to run
+   */
+  protected abstract void async(VoidFun f);
+
+  /**
+   * Submits a new task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   */
+  protected abstract void asyncat(Place p, VoidFun f);
+
+  /**
+   * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
+   * transitively spawned by {@code f}.
+   * <p>
+   * Equivalent to {@code finish(()->asyncat(p, f))}
+   *
+   * @param p
+   *          the requested place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   */
+  protected abstract void at(Place p, VoidFun f);
+
+  /**
+   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
+   * transitively spawned by {@code f}, and returns the result.
+   *
+   * @param <T>
+   *          the type of the result
+   * @param p
+   *          the requested place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   * @return the result
+   */
+  protected abstract <T> T at(Place p, Fun<T> f);
+
+  /**
+   * Returns the current {@link Place}.
+   *
+   * @return the current place
+   */
+  protected abstract Place here();
+
+  /**
+   * Returns the place with the given ID.
+   *
+   * @param id
+   *          the requested ID
+   * @return a {@link Place} instance with the given ID
+   * @throws BadPlaceException
+   *           if the ID is not valid
+   */
+  protected abstract Place place(int id);
+
+  /**
+   * Returns the current list of places in the global runtime.
+   * <p>
+   * Subsequent calls to this method may return different lists as more places
+   * are added to the global runtime.
+   *
+   * @return the current list of places in the global runtime
+   */
+  protected abstract List<? extends Place> places();
+
+  /**
+   * Starts the global runtime and waits for incoming tasks.
+   *
+   * @param args
+   *          ignored
+   */
+  public static void main(String[] args) {
+  }
+}

@@ -1,0 +1,127 @@
+package apgas;
+
+import java.util.List;
+
+/**
+ * The {@link Constructs} class defines the APGAS constructs by means of static
+ * methods.
+ */
+public final class Constructs {
+  /**
+   * Prevents instantiation.
+   */
+  private Constructs() {
+  }
+
+  /**
+   * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
+   * to complete.
+   * <p>
+   * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
+   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param f
+   *          the function to run
+   * @throws MultipleException
+   *           if there are uncaught exceptions
+   */
+  public static void finish(VoidFun f) {
+    GlobalRuntime.getRuntime().finish(f);
+  }
+
+  /**
+   * Submits a new local task to the global runtime with body {@code f} and
+   * returns immediately.
+   *
+   * @param f
+   *          the function to run
+   */
+  public static void async(VoidFun f) {
+    GlobalRuntime.getRuntime().async(f);
+  }
+
+  /**
+   * Submits a new task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   */
+  public static void asyncat(Place p, VoidFun f) {
+    GlobalRuntime.getRuntime().asyncat(p, f);
+  }
+
+  /**
+   * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
+   * transitively spawned by {@code f}.
+   * <p>
+   * Equivalent to {@code finish(()->asyncat(p, f))}
+   *
+   * @param p
+   *          the requested place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   */
+  public static void at(Place p, VoidFun f) {
+    GlobalRuntime.getRuntime().at(p, f);
+  }
+
+  /**
+   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
+   * transitively spawned by {@code f}, and returns the result.
+   *
+   * @param <T>
+   *          the type of the result
+   * @param p
+   *          the requested place of execution
+   * @param f
+   *          the function to run
+   * @throws BadPlaceException
+   *           if the place is not valid
+   * @return the result
+   */
+  public static <T> T at(Place p, Fun<T> f) {
+    return GlobalRuntime.getRuntime().at(p, f);
+  }
+
+  /**
+   * Returns the current {@link Place}.
+   *
+   * @return the current place
+   */
+  public static Place here() {
+    return GlobalRuntime.getRuntime().here();
+  }
+
+  /**
+   * Returns the place with the given ID.
+   *
+   * @param id
+   *          the requested ID
+   * @return a {@link Place} instance with the given ID
+   * @throws BadPlaceException
+   *           if the ID is not valid
+   */
+  public static Place place(int id) {
+    return GlobalRuntime.getRuntime().place(id);
+  }
+
+  /**
+   * Returns the current list of places in the global runtime.
+   * <p>
+   * Subsequent calls to this method may return different lists as more places
+   * are added to the global runtime.
+   *
+   * @return the current list of places in the global runtime
+   */
+  public static List<? extends Place> places() {
+    return GlobalRuntime.getRuntime().places();
+  }
+}
