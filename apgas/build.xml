@@ -8,7 +8,7 @@
   </target>
 
   <target name="build" depends="init">
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
+    <javac source="1.8" target="1.8" srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
     </javac>
     <copy todir="${bin}" overwrite="true">
       <fileset dir="${build}"/>

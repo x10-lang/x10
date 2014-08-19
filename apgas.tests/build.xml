@@ -11,7 +11,7 @@
   </target>
 
   <target name="build" depends="init">
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
+    <javac source="1.8" target="1.8" srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
       <classpath location="../apgas/bin/"/>
       <classpath location="../apgas.impl/bin/"/>
       <classpath location="../apgas.impl/lib/hazelcast-3.2.4.jar"/>
