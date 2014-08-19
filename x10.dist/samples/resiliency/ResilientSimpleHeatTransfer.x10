@@ -68,8 +68,9 @@ public class ResilientSimpleHeatTransfer {
         A.snapshot();
         var snapshot_iter:Long = 0L;
         var delta:Double = 1.0;
-        for (i in 1..ITERATIONS) {
-            Console.OUT.println("---- Iteration: "+i);
+        var iter:Long = 1;
+        while (iter <= ITERATIONS) {
+            Console.OUT.println("---- Iteration: "+iter);
             try {
                 /*
                  * Restore if necessary
@@ -89,6 +90,7 @@ public class ResilientSimpleHeatTransfer {
                     A.restore(pg);
                     Temp.remake(pg);
                     Scratch.remake(pg);
+                    iter = snapshot_iter; // may need to re-run some iterations
                     printDist(A, n+2, n+2);
                     restore_needed() = false;
                 }
@@ -138,13 +140,15 @@ public class ResilientSimpleHeatTransfer {
                 if (delta <= epsilon) {
                     Console.OUT.println("Result converged"); break;
                 }
+
+                iter++;
                 
                 /*
                  * Create a snapshot at every 10th iteration
                  */
-                if (i % 10 == 0) {
-                    Console.OUT.println("Create a snapshot at iteration " + i);
-                    A.snapshot(); snapshot_iter = i; // SNAPSHOT!
+                if (iter % 10 == 0) {
+                    Console.OUT.println("Create a snapshot at iteration " + iter);
+                    A.snapshot(); snapshot_iter = iter; // SNAPSHOT!
                 }
                 
             } catch (e:Exception) {
@@ -173,10 +177,14 @@ public class ResilientSimpleHeatTransfer {
         } else if (e instanceof MultipleExceptions) {
             val exceptions = (e as MultipleExceptions).exceptions();
             Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
-            for (ec in exceptions) processException(ec, l+1);
+            val deadPlaceExceptions = (e as MultipleExceptions).getExceptionsOfType[DeadPlaceException]();
+            for (dpe in deadPlaceExceptions) {
+                processException(dpe, l+1);
+            }
+            val filtered = (e as MultipleExceptions).filterExceptionsOfType[DeadPlaceException]();
+            if (filtered != null) throw filtered;
         } else {
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
-            throw e;
+            Console.ERR.println("unhandled exception " + e);
         }
     }
     

@@ -49,4 +49,28 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
         if (null == t) return null;
         return new MultipleExceptions(t);
     }
+
+    /** @return a rail containing only the exceptions of the given type */
+    public final def getExceptionsOfType[T]() {
+        val es = new GrowableRail[T]();
+        for (e in exceptions) {
+            if (e instanceof T) {
+                es.add(e as T);
+            }
+        }
+
+        return es.toRail();
+    }
+
+    /** @return a new MultipleExceptions, filtering out all exceptions of the given type */
+    public final def filterExceptionsOfType[T]():MultipleExceptions {
+        val es = new GrowableRail[CheckedThrowable]();
+        for (e in exceptions) {
+            if (! (e instanceof T)) {
+                es.add(e);
+            }
+        }
+
+        return MultipleExceptions.make(es);
+    }
 }

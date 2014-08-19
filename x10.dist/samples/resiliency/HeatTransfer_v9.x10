@@ -252,11 +252,14 @@ public class HeatTransfer_v9 {
                         state.transmit(plh);
                     }
                 }
-            } catch (e:MultipleExceptions) {
-                for (e2 in e.exceptions()) {
-                    if (!(e2 instanceof DeadPlaceException)) throw e2;
-                    Console.OUT.println(e2);
+            } catch (es:MultipleExceptions) {
+                val deadPlaceExceptions = es.getExceptionsOfType[DeadPlaceException]();
+                for (dpe in deadPlaceExceptions) {
+                    Console.OUT.println(dpe);
+                    // TODO recovery
                 }
+                val filtered = es.filterExceptionsOfType[DeadPlaceException]();
+                if (filtered != null) throw filtered;
             }
             if (cfg.verbose) outputAcrossAllPlaces(plh, iter);
             iterationCounter++;

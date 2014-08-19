@@ -12,6 +12,7 @@ import x10.resilient.regionarray.DistArray;
 import x10.regionarray.Dist;
 import x10.regionarray.Region;
 import x10.util.ArrayList;
+import x10.util.GrowableRail;
 
 /**
  * Resilient HeatTransfer which uses Resilient DistArray
@@ -62,8 +63,9 @@ public class ResilientHeatTransfer {
         A.snapshot();
         var snapshot_iter:Long = 0L;
         var delta:Double = 1.0;
-        for (i in 1..ITERATIONS) {
-            Console.OUT.println("---- Iteration: "+i);
+        var iter:Long = 1;
+        while (iter <= ITERATIONS) {
+            Console.OUT.println("---- Iteration: "+iter);
             try {
                 /*
                  * Restore if necessary
@@ -79,6 +81,7 @@ public class ResilientHeatTransfer {
                     A.restore(BigD); // RESTORE with new Dist!
                     Temp.remake(BigD);
                     Scratch.remake(BigD);
+                    iter = snapshot_iter; // may need to re-run some iterations
                     restore_needed() = false;
                 }
                 
@@ -100,19 +103,21 @@ public class ResilientHeatTransfer {
                 if (delta <= epsilon) {
                     Console.OUT.println("Result converged"); break;
                 }
+
+                iter++;
                 
                 /*
                  * Create a snapshot at every 10th iteration
                  */
-                if (i % 10 == 0) {
-                    Console.OUT.println("Create a snapshot at iteration " + i);
-                    A.snapshot(); snapshot_iter = i; // SNAPSHOT!
+                if (iter % 10 == 0) {
+                    Console.OUT.println("Create a snapshot at iteration " + iter);
+                    A.snapshot(); snapshot_iter = iter; // SNAPSHOT!
                 }
-                
+
             } catch (e:Exception) {
                 processException(e, 0);
             } /* try */
-        } /* for (i) */
+        } /* while (iter <= ITERATIONS) */
         
         /*
          * Pretty print the result
@@ -125,7 +130,7 @@ public class ResilientHeatTransfer {
      * Process Exception(s)
      * l is the nest level of MultipleExceptions (for pretty print)
      */
-    private static def processException(e:Exception, l:Long) {
+    private static def processException(e:CheckedThrowable, l:Long) {
         if (e instanceof DeadPlaceException) {
             val deadPlace = (e as DeadPlaceException).place;
             Console.OUT.println(new String(new Rail[Char](l,' ')) + "DeadPlaceException thrown from " + deadPlace);
@@ -134,10 +139,14 @@ public class ResilientHeatTransfer {
         } else if (e instanceof MultipleExceptions) {
             val exceptions = (e as MultipleExceptions).exceptions();
             Console.OUT.println(new String(new Rail[Char](l,' ')) + "MultipleExceptions size=" + exceptions.size);
-            for (ec in exceptions) processException(ec, l+1);
+            val deadPlaceExceptions = (e as MultipleExceptions).getExceptionsOfType[DeadPlaceException]();
+            for (dpe in deadPlaceExceptions) {
+                processException(dpe, l+1);
+            }
+            val filtered = (e as MultipleExceptions).filterExceptionsOfType[DeadPlaceException]();
+            if (filtered != null) throw filtered;
         } else {
-            Console.OUT.println(new String(new Rail[Char](l,' ')) + e);
-            throw e;
+            Console.ERR.println("unhandled exception " + e);
         }
     }
     

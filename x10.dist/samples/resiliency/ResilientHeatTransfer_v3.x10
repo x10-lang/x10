@@ -268,12 +268,11 @@ public class ResilientHeatTransfer_v3 {
     // 3. While the array values are being checkpointed at remote places.
     // 4. While the array values are being checkpointed locally.  At this stage, all of the information from the current
     //    iteration is recoverable.  Thus, there is no reason to undo the results of recent loop iterations
-      for (e2 in e.exceptions) {
-        if (!(e2 instanceof DeadPlaceException)) {
-          throw e2;
-        }
-        val dead_place = (e2 as DeadPlaceException).place;
-      }
+
+        //val deadPlaceExceptions = e.getExceptionsOfType[DeadPlaceException]();\
+        // TODO do something with dead place exception?
+        val filtered = e.filterExceptionsOfType[DeadPlaceException]();
+        if (filtered != null) throw filtered;
     }
 
     static def findActivePlace(p:Place, activePlaces:Rail[Boolean], ascending:Boolean): Place {

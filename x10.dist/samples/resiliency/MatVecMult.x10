@@ -454,11 +454,11 @@ public class MatVecMult {
                 Console.OUT.println("Iteration ("+iter+") time: "+(after-before)/1E9+" seconds");
                 vector_blocks = dst_vector_blocks_gr();
             } catch (e:MultipleExceptions) {
-                for (e2 in e.exceptions) {
-                    if (!(e2 instanceof DeadPlaceException)) {
-                        throw e2;
-                    }
-                    val dead_place = (e2 as DeadPlaceException).place;
+                val filtered = e.filterExceptionsOfType[DeadPlaceException]();
+                if (filtered != null) throw filtered;
+                val deadPlaceExceptions = e.getExceptionsOfType[DeadPlaceException]();
+                for (dpe in deadPlaceExceptions) {
+                    val dead_place = dpe.place;
                     if (!active_places(dead_place.id)) continue; // this can happen if we get more than one DPE for a given place
                     active_places(dead_place.id) = false;
                     Console.OUT.println("Place died: "+dead_place+", reassigning work to the remaining places...");
