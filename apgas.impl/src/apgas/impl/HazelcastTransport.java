@@ -57,7 +57,7 @@ final class HazelcastTransport implements ItemListener<Member>,
     final NetworkConfig network = config.getNetworkConfig();
     network.getJoin().getMulticastConfig().setEnabled(false);
     network.getJoin().getTcpIpConfig().setEnabled(true);
-    System.setProperty("hazelcast.local.publicAddress", InetAddress
+    System.setProperty("hazelcast.local.localAddress", InetAddress
         .getLocalHost().getHostAddress());
     if (master != null) {
       if (master.contains(":")) {
