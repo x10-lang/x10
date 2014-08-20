@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -54,29 +54,24 @@ final class HazelcastTransport implements ItemListener<Member>,
     this.kill = kill;
 
     final Config config = new Config();
-    final NetworkConfig network = config.getNetworkConfig();
-    network.getJoin().getMulticastConfig().setEnabled(false);
-    network.getJoin().getTcpIpConfig().setEnabled(true);
 
-    if (master != null) {
-      // always add the master as a member to help Hazelcast select the proper
-      // network interface
-      network.getJoin().getTcpIpConfig().addMember(master);
-      if (master.contains(":")) {
-        // if a port is specified then we must connect to it
-        network.getJoin().getTcpIpConfig().setRequiredMember(master);
-      }
-    } else {
+    // join config
+    final JoinConfig join = config.getNetworkConfig().getJoin();
+    join.getMulticastConfig().setEnabled(false);
+    join.getTcpIpConfig().setEnabled(true);
+    if (master == null) {
       // avoid Hazelcast default address picker
       // it is confused by virtual interfaces
       System.setProperty("hazelcast.local.localAddress", InetAddress
           .getLocalHost().getHostAddress());
-    }
-
-    // add the real ip in case the master is expecting it
-    if ("127.0.0.1".equals(master) || "localhost".equals(master)) {
-      network.getJoin().getTcpIpConfig()
-          .addMember(InetAddress.getLocalHost().getHostAddress());
+    } else {
+      join.getTcpIpConfig().addMember(master);
+      // also replace localhost will real ip as master is likely to expect this
+      if (master.startsWith("127.0.0.1") || master.startsWith("localhost")) {
+        join.getTcpIpConfig().addMember(
+            master.replaceFirst("127.0.0.1|localhost", InetAddress
+                .getLocalHost().getHostAddress()));
+      }
     }
 
     config.setProperty("hazelcast.logging.type", "none");
