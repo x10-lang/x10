@@ -50,7 +50,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * The processes we spawned.
    */
-  Process processes[] = null;
+  final List<Process> processes = new ArrayList<Process>();
+
+  /**
+   * Status of the shutdown sequence (0 live, 1 shutting down the Global
+   * Runtime, 2 shutting down the JVM).
+   */
+  int dying;
 
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
@@ -64,7 +70,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     return pb.start();
   }
 
-  private void refresh() {
+  private void refreshPlaces() {
     final List<Place> places = new ArrayList<Place>();
     for (int i = 0; i < transport.places(); i++) {
       places.add(new Place(i));
@@ -85,7 +91,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   public GlobalRuntimeImpl() throws IOException {
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
-    String master = System.getProperty(Configuration.APGAS_MASTER);
+    final String master = System.getProperty(Configuration.APGAS_MASTER);
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
@@ -94,38 +100,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // initialize scheduler and hazelcast
     scheduler = new Scheduler();
-    transport = new HazelcastTransport(scheduler::shutdown, master, localhost);
+    transport = new HazelcastTransport(this::shutdown, master, localhost);
     here = transport.here();
 
-    // launch additional places
-    if (p > 1) {
-      processes = new Process[p - 1];
-      String command = getClass().getSuperclass().getCanonicalName();
-      if (master == null) {
-        master = transport.getAddress();
-      }
-      if (serializationException) {
-        command = "-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION + "=true "
-            + command;
-      }
-      command = "-D" + Configuration.APGAS_DAEMON + "=true " + command;
-      command = "-D" + Configuration.APGAS_MASTER + "=" + master + " "
-          + command;
-      command = "-D" + Configuration.APGAS_LOCALHOST + "=" + localhost + " "
-          + command;
-      command = "java -cp " + System.getProperty("java.class.path") + " "
-          + command;
-      for (int i = 0; i < p - 1; i++) {
-        try {
-          processes[i] = exec(command);
-        } catch (final Throwable t) {
-          shutdown();
-          throw t;
-        }
-      }
-    }
+    // install shutdown hook
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> terminate()));
 
-    // install shutdown hook on main thread if it can be identified
+    // install hook on thread 1
     if (!daemon) {
       final Thread thread[] = new Thread[Thread.activeCount()];
       Thread.enumerate(thread);
@@ -145,54 +126,86 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
     }
 
-    // wait for other places to join the global runtime
-    while (transport.places() < p) {
+    if (p > 1) {
+      // launch additional places
       try {
-        Thread.sleep(100);
-      } catch (final InterruptedException e) {
-      }
-      for (int i = 0; i < p - 1; i++) {
-        if (!processes[i].isAlive()) {
-          shutdown();
-          throw new IOException("A process exited prematurely");
+        String command = getClass().getSuperclass().getCanonicalName();
+        if (serializationException) {
+          command = "-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION
+              + "=true " + command;
         }
+        command = "-D" + Configuration.APGAS_DAEMON + "=true " + command;
+        command = "-D" + Configuration.APGAS_MASTER + "="
+            + (master == null ? transport.getAddress() : master) + " "
+            + command;
+        command = "-D" + Configuration.APGAS_LOCALHOST + "=" + localhost + " "
+            + command;
+        command = "java -cp " + System.getProperty("java.class.path") + " "
+            + command;
+        for (int i = 0; i < p - 1; i++) {
+          Process process = exec(command);
+          synchronized (processes) {
+            if (dying <= 1) {
+              processes.add(process);
+              process = null;
+            }
+          }
+          if (process != null) {
+            process.destroyForcibly();
+            throw new IllegalStateException("Shutdown in progress");
+          }
+        }
+
+        // wait for spawned places to join the global runtime
+        while (transport.places() < p) {
+          try {
+            Thread.sleep(100);
+          } catch (final InterruptedException e) {
+          }
+          for (final Process process : processes) {
+            if (!process.isAlive()) {
+              throw new IOException("A process exited prematurely");
+            }
+          }
+        }
+      } catch (final Throwable t) {
+        // initiate shutdown
+        shutdown();
+        throw t;
       }
     }
-    refresh();
+
+    refreshPlaces();
 
     // start scheduler
     scheduler.start();
   }
 
+  /**
+   * Kills all spawned processes.
+   */
+  private void terminate() {
+    synchronized (processes) {
+      dying = 2;
+    }
+    for (final Process process : processes) {
+      process.destroyForcibly();
+    }
+  }
+
+  /**
+   * Asks the scheduler and the transport to shutdown.
+   */
   @Override
   public void shutdown() {
-    transport.shutdown();
-    if (processes != null) {
-      // waits for 10s max
-      int p = 0;
-      for (int i = 0; i < 100; i++) {
-        // skip over dead processes
-        while (p < processes.length && processes[p] != null
-            && !processes[p].isAlive()) {
-          p++;
-        }
-        if (p == processes.length || processes[p] == null) {
-          // all processes have exited
-          return;
-        }
-        try {
-          Thread.sleep(100);
-        } catch (final InterruptedException e) {
-        }
+    synchronized (processes) {
+      if (dying > 0) {
+        return;
       }
-      // kill all remaining processes
-      for (; p < processes.length && processes[p] != null; p++) {
-        System.err.println("[APGAS] Killing remaining processes...");
-        if (processes[p].isAlive()) {
-          processes[p].destroyForcibly();
-        }
-      }
+      dying = 1;
     }
+    scheduler.shutdown();
+    transport.shutdown();
   }
 
   @Override
@@ -250,7 +263,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public List<? extends Place> places() {
     if (places.size() < transport.places()) {
-      refresh();
+      refreshPlaces();
     }
     return places;
   }

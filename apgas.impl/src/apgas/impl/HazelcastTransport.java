@@ -1,6 +1,5 @@
 package apgas.impl;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.hazelcast.config.Config;
@@ -26,14 +25,45 @@ import com.hazelcast.core.MessageListener;
  */
 final class HazelcastTransport implements ItemListener<Member>,
     MessageListener<Runnable>, MembershipListener {
+  /**
+   * The hazelcast instance for this JVM.
+   */
   private final HazelcastInstance hazelcast;
+
+  /**
+   * The place ID for this JVM.
+   */
   private final int here;
+
+  /**
+   * Current place count including dead places.
+   */
   private int places;
+
+  /**
+   * List of past and present members in join order.
+   */
   private final IList<Member> members;
+
+  /**
+   * Registration ID.
+   */
   private final String regMembershipListener;
+
+  /**
+   * Registration ID.
+   */
   private final String regItemListener;
+
+  /**
+   * Executor service for sending active messages.
+   */
   private final IExecutorService executor;
-  private final Runnable kill;
+
+  /**
+   * Callback invoked when a member is removed from the cluster.
+   */
+  private final Runnable callback;
 
   // private final ITopic<VoidFun> topic;
   // private final String regTopic;
@@ -41,21 +71,20 @@ final class HazelcastTransport implements ItemListener<Member>,
   /**
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
    *
-   * @param kill
-   *          a function to invoke to shutdown the scheduler for this global
-   *          runtime instance.
+   * @param callback
+   *          a function to invoke when a member is removed from the cluster.
    * @param master
-   *          required member to connect to or null
+   *          member to connect to or null
    * @param localhost
    *          the ip address of this host
-   * @throws IOException
-   *           if localhost cannot be resolved
    */
-  HazelcastTransport(Runnable kill, String master, String localhost)
-      throws IOException {
-    this.kill = kill;
+  HazelcastTransport(Runnable callback, String master, String localhost) {
+    this.callback = callback;
 
+    // config
     final Config config = new Config();
+    config.setProperty("hazelcast.logging.type", "none");
+    config.setProperty("hazelcast.wait.seconds.before.join", "0");
 
     // join config
     final JoinConfig join = config.getNetworkConfig().getJoin();
@@ -71,14 +100,13 @@ final class HazelcastTransport implements ItemListener<Member>,
       }
     }
 
-    config.setProperty("hazelcast.logging.type", "none");
-    config.setProperty("hazelcast.wait.seconds.before.join", "0");
     hazelcast = Hazelcast.newHazelcastInstance(config);
     executor = hazelcast.getExecutorService("APGAS");
     members = hazelcast.<Member> getList("APGAS");
 
     members.add(hazelcast.getCluster().getLocalMember());
     regItemListener = members.addItemListener(this, false);
+
     int here = 0;
     for (final Member m : members) {
       if (m.localMember()) {
@@ -107,11 +135,20 @@ final class HazelcastTransport implements ItemListener<Member>,
   }
 
   /**
-   * Shuts down the global runtime.
+   * Shuts down this hazelcast instance.
    */
   void shutdown() {
-    kill.run();
+    hazelcast.getCluster().removeMembershipListener(regMembershipListener);
+    members.removeItemListener(regItemListener);
+    // topic.removeMessageListener(regTopic);
     hazelcast.shutdown();
+  }
+
+  /**
+   * Terminates this hazelcast instance forcefully.
+   */
+  void terminate() {
+    hazelcast.getLifecycleService().terminate();
   }
 
   /**
@@ -152,18 +189,17 @@ final class HazelcastTransport implements ItemListener<Member>,
 
   @Override
   public void memberAdded(MembershipEvent membershipEvent) {
+    // we use itemAdded instead to keep track of past and present members
   }
 
   @Override
   public void memberRemoved(MembershipEvent membershipEvent) {
-    members.removeItemListener(regItemListener);
-    hazelcast.getCluster().removeMembershipListener(regMembershipListener);
-    // topic.removeMessageListener(regTopic);
-    shutdown();
+    callback.run();
   }
 
   @Override
   public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+    // unused
   }
 
   @Override
@@ -173,6 +209,7 @@ final class HazelcastTransport implements ItemListener<Member>,
 
   @Override
   public void itemRemoved(ItemEvent<Member> item) {
+    // we never remove members from the list
   }
 
   @Override
