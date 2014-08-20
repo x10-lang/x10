@@ -1,7 +1,6 @@
 package apgas.impl;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.hazelcast.config.Config;
@@ -43,14 +42,17 @@ final class HazelcastTransport implements ItemListener<Member>,
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
    *
    * @param kill
-   *          a function to invoke to shutdown the sheduler for this global
+   *          a function to invoke to shutdown the scheduler for this global
    *          runtime instance.
    * @param master
    *          required member to connect to or null
+   * @param localhost
+   *          the ip address of this host
    * @throws IOException
    *           if localhost cannot be resolved
    */
-  HazelcastTransport(Runnable kill, String master) throws IOException {
+  HazelcastTransport(Runnable kill, String master, String localhost)
+      throws IOException {
     this.kill = kill;
 
     final Config config = new Config();
@@ -59,18 +61,13 @@ final class HazelcastTransport implements ItemListener<Member>,
     final JoinConfig join = config.getNetworkConfig().getJoin();
     join.getMulticastConfig().setEnabled(false);
     join.getTcpIpConfig().setEnabled(true);
-    if (master == null) {
-      // avoid Hazelcast default address picker
-      // it is confused by virtual interfaces
-      System.setProperty("hazelcast.local.localAddress", InetAddress
-          .getLocalHost().getHostAddress());
-    } else {
+    System.setProperty("hazelcast.local.localAddress", localhost);
+    if (master != null) {
       join.getTcpIpConfig().addMember(master);
       // also replace localhost will real ip as master is likely to expect this
       if (master.startsWith("127.0.0.1") || master.startsWith("localhost")) {
         join.getTcpIpConfig().addMember(
-            master.replaceFirst("127.0.0.1|localhost", InetAddress
-                .getLocalHost().getHostAddress()));
+            master.replaceFirst("127.0.0.1|localhost", localhost));
       }
     }
 

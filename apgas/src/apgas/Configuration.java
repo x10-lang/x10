@@ -51,4 +51,12 @@ public final class Configuration {
    * terminates (Boolean property).
    */
   public static final String APGAS_DAEMON = "APGAS_DAEMON";
+
+  /**
+   * Specifies the ip address of the current host (String property).
+   * <p>
+   * The return value of "{@code InetAddress.getLocalHost().getHostAddress()}"
+   * is used if this property is not set.
+   */
+  public static final String APGAS_LOCALHOST = "APGAS_LOCALHOST";
 }

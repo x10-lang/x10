@@ -2,6 +2,7 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,10 +89,12 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
+    final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
+        InetAddress.getLocalHost().getHostAddress());
 
     // initialize scheduler and hazelcast
     scheduler = new Scheduler();
-    transport = new HazelcastTransport(scheduler::shutdown, master);
+    transport = new HazelcastTransport(scheduler::shutdown, master, localhost);
     here = transport.here();
 
     // launch additional places
@@ -107,6 +110,8 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
       command = "-D" + Configuration.APGAS_DAEMON + "=true " + command;
       command = "-D" + Configuration.APGAS_MASTER + "=" + master + " "
+          + command;
+      command = "-D" + Configuration.APGAS_LOCALHOST + "=" + localhost + " "
           + command;
       command = "java -cp " + System.getProperty("java.class.path") + " "
           + command;
