@@ -57,15 +57,28 @@ final class HazelcastTransport implements ItemListener<Member>,
     final NetworkConfig network = config.getNetworkConfig();
     network.getJoin().getMulticastConfig().setEnabled(false);
     network.getJoin().getTcpIpConfig().setEnabled(true);
-    System.setProperty("hazelcast.local.localAddress", InetAddress
-        .getLocalHost().getHostAddress());
+
     if (master != null) {
+      // always add the master as a member to help Hazelcast select the proper
+      // network interface
+      network.getJoin().getTcpIpConfig().addMember(master);
       if (master.contains(":")) {
+        // if a port is specified then we must connect to it
         network.getJoin().getTcpIpConfig().setRequiredMember(master);
-      } else {
-        network.getJoin().getTcpIpConfig().addMember(master);
       }
+    } else {
+      // avoid Hazelcast default address picker
+      // it is confused by virtual interfaces
+      System.setProperty("hazelcast.local.localAddress", InetAddress
+          .getLocalHost().getHostAddress());
     }
+
+    // add the real ip in case the master is expecting it
+    if ("127.0.0.1".equals(master) || "localhost".equals(master)) {
+      network.getJoin().getTcpIpConfig()
+          .addMember(InetAddress.getLocalHost().getHostAddress());
+    }
+
     config.setProperty("hazelcast.logging.type", "none");
     config.setProperty("hazelcast.wait.seconds.before.join", "0");
     hazelcast = Hazelcast.newHazelcastInstance(config);
