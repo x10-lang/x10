@@ -1,6 +1,7 @@
 package apgas.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.hazelcast.config.Config;
@@ -56,6 +57,8 @@ final class HazelcastTransport implements ItemListener<Member>,
     final NetworkConfig network = config.getNetworkConfig();
     network.getJoin().getMulticastConfig().setEnabled(false);
     network.getJoin().getTcpIpConfig().setEnabled(true);
+    System.setProperty("hazelcast.local.publicAddress", InetAddress
+        .getLocalHost().getHostAddress());
     if (master != null) {
       if (master.contains(":")) {
         network.getJoin().getTcpIpConfig().setRequiredMember(master);
@@ -95,7 +98,7 @@ final class HazelcastTransport implements ItemListener<Member>,
   String getAddress() {
     final InetSocketAddress address = hazelcast.getCluster().getLocalMember()
         .getSocketAddress();
-    return address.getHostString() + ":" + address.getPort();
+    return address.getAddress().getHostAddress() + ":" + address.getPort();
   }
 
   /**
