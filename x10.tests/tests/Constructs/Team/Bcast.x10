@@ -60,7 +60,7 @@ public class Bcast extends x10Test {
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         val root = Place(Place.numPlaces()-1); // more thorough test than 0
         finish for (p in Place.places()) {
-            async at(p) bcastTest(Team.WORLD, root, gr);
+            at(p) async bcastTest(Team.WORLD, root, gr);
         }
 
         return res();

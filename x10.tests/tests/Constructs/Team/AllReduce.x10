@@ -118,7 +118,7 @@ public class AllReduce extends x10Test {
         val res:Cell[Boolean] = new Cell[Boolean](true);
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         finish for (p in Place.places()) {
-            async at(p) allReduceTest(Team.WORLD, gr);
+            at(p) async allReduceTest(Team.WORLD, gr);
         }
 
         return res();

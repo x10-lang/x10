@@ -51,7 +51,7 @@ public class IndexOf extends x10Test {
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         val root = Place(Place.numPlaces()-1);
         finish for (p in Place.places()) {
-            async at(p) indexTest(Team.WORLD, root, gr);
+            at(p) async indexTest(Team.WORLD, root, gr);
         }
 
         return res();
