@@ -15,7 +15,7 @@ import x10.util.Team;
 /**
  * Unit tests for all reduce functionality of teams
  */
-public class AllReduce extends x10Test {
+public class Allreduce extends x10Test {
 
     def allReduceTest(team:Team, res:GlobalRef[Cell[Boolean]]) {
         val count = 113L;
@@ -114,7 +114,7 @@ public class AllReduce extends x10Test {
     }
 
     public def run(): boolean {
-        Console.OUT.println("Doing all reduce for World ("+Place.numPlaces()+" places)");
+        Console.OUT.println("Doing allreduce for World ("+Place.numPlaces()+" places)");
         val res:Cell[Boolean] = new Cell[Boolean](true);
         val gr:GlobalRef[Cell[Boolean]] = GlobalRef[Cell[Boolean]](res);
         finish for (p in Place.places()) {
@@ -125,7 +125,7 @@ public class AllReduce extends x10Test {
     }
 
     public static def main(args: Rail[String]) {
-        new AllReduce().execute();
+        new Allreduce().execute();
     }
 
 }

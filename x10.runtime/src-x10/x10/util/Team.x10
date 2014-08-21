@@ -686,12 +686,6 @@ public struct Team {
             if (DEBUGINTERNALS) Runtime.println(here + " leaving init phase");
         }
         
-        // on Managed X10, probe sometimes deadlocks, so sleep is required
-        // TODO: Figure out why probe doesn't work on Managed X10
-        @Native("java", "true")
-        @Native("c++", "false")
-        private static native def useSleepNotProbe():Boolean;
-        
         /*
          * This method contains the implementation for all collectives.  Some arguments are only valid
          * for specific collectives.
@@ -706,16 +700,8 @@ public struct Team {
              * from the network (x10rt probe).
              */
             val probeUntil = (condition:() => Boolean) => @NoInline {
-                if (useSleepNotProbe()) {
-                    if (!condition()) {
-                        Runtime.increaseParallelism();
-                        while (!condition()) System.threadSleep(0);
-                        Runtime.decreaseParallelism(1n);
-                    }
-                } else {
-                    if (!condition()) {
-                        while (!condition()) Runtime.probe();
-                    }
+                if (!condition()) {
+                    while (!condition()) Runtime.probe();
                 }
             };
 
