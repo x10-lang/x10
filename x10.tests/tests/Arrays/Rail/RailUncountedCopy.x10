@@ -45,19 +45,21 @@ public class RailUncountedCopy extends x10Test {
         for (i in start.range()) {
             if (start(i) != end(i)) {
                 Console.OUT.println("Expected to find "+start(i)+" at "+i+" but found "+end(i));
+                fail = true;
             }
-            fail = true;
         }
-        return !fail;
+        return fail;
     }
 
     public def run() {
-       var fail:boolean = false;
-       fail |= doTest[long](101, (i:long)=>10*i+1);
-       fail |= doTest[byte](101, (i:long)=>((10*i+1) as byte));
-       fail |= doTest[Complex](101, (i:long)=>Complex(10*i, i+1));
-       fail |= doTest[Pair[Complex,double]](101, (i:long)=>Pair[Complex,double](Complex(10*i, -3*i), 1000d*i));
-       fail |= doTest[Pair[Complex,byte]](101, (i:long)=>Pair[Complex,byte](Complex(10*i, -3*i), i as byte));
+        var fail:boolean = false;
+        fail |= doTest[long](101, (i:long)=>10*i+1);
+        fail |= doTest[byte](101, (i:long)=>((10*i+1) as byte));
+        fail |= doTest[Complex](101, (i:long)=>Complex(10*i, i+1));
+        fail |= doTest[Pair[Complex,double]](101, (i:long)=>Pair[Complex,double](Complex(10*i, -3*i), 1000d*i));
+        fail |= doTest[Pair[Complex,byte]](101, (i:long)=>Pair[Complex,byte](Complex(10*i, -3*i), i as byte));
+        // test copy of 0 elements
+        fail |= doTest[long](0, (i:long)=>10*i+1);
        
        return !fail;    
     }

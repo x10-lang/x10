@@ -88,12 +88,7 @@ namespace x10 {
 
         void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place srcPlace, bool overlap, VoidFun_0_0* notif) {
             if (srcPlace->FMGL(id) == x10aux::here) {
-                if (overlap) {
-                    // potentially overlapping, use memmove
-                    memmove(dstAddr, srcAddr, numBytes);
-                } else {
-                    memcpy(dstAddr, srcAddr, numBytes);
-                }
+                Rail_copyBody(srcAddr, dstAddr, numBytes, overlap);
                 if (NULL != notif) {
                     VoidFun_0_0::__apply(notif);
                 }
@@ -112,11 +107,13 @@ namespace x10 {
         }
 
         void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap) {
-            if (overlap) {
-                // potentially overlapping, use memmove
-                memmove(dstAddr, srcAddr, numBytes);
-            } else {
-                memcpy(dstAddr, srcAddr, numBytes);
+            if (numBytes > 0) {
+                if (overlap) {
+                    // potentially overlapping, use memmove
+                    memmove(dstAddr, srcAddr, numBytes);
+                } else {
+                    memcpy(dstAddr, srcAddr, numBytes);
+                }
             }
         }
         

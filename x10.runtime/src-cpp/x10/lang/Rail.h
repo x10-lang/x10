@@ -480,7 +480,15 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::Rail<T>
                                                             ::x10::lang::GlobalRail<T> dst, x10_long dstIndex,
                                                             x10_long numElems,
                                                             ::x10::lang::VoidFun_0_0* notif) {
-    if (numElems <= 0) return;
+    if (numElems <= 0) {
+        if (notif == NULL) return;
+    } else {
+        checkBounds(srcIndex, src->FMGL(size));
+        checkBounds(srcIndex+numElems, src->FMGL(size)+1);
+        checkBounds(dstIndex, dst->FMGL(size));
+        checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
+    }
+
     void* srcAddr = (void*)(&src->raw[srcIndex]);
     void* dstAddr;
     if (::x10::lang::Place::_make(dst->FMGL(rail)->location)->isCUDA()) {
@@ -489,10 +497,6 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::Rail<T>
         dstAddr = (void*)(&dst->FMGL(rail)->__apply()->raw[dstIndex]);
     }
     size_t numBytes = numElems * sizeof(T);
-    checkBounds(srcIndex, src->FMGL(size));
-    checkBounds(srcIndex+numElems, src->FMGL(size)+1);
-    checkBounds(dstIndex, dst->FMGL(size));
-    checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
     ::x10::lang::Rail_copyToBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::_make(dst->FMGL(rail)->location), src->raw == dst->FMGL(rail)->__apply()->raw, notif);
 }
 
@@ -500,7 +504,15 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalR
                                                             ::x10::lang::Rail<T>* dst, x10_long dstIndex,
                                                             x10_long numElems,
                                                             ::x10::lang::VoidFun_0_0* notif) {
-    if (numElems <= 0) return;
+    if (numElems <= 0) {
+        if (notif == NULL) return;
+    } else {
+        checkBounds(srcIndex, src->FMGL(size));
+        checkBounds(srcIndex+numElems, src->FMGL(size)+1);
+        checkBounds(dstIndex, dst->FMGL(size));
+        checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
+    }
+
     void* srcAddr;
     if (::x10::lang::Place::_make(src->FMGL(rail)->location)->isCUDA()) {
         srcAddr = &((T*)(src->FMGL(rail)->__apply()))[srcIndex];
@@ -509,10 +521,6 @@ template<class T> void x10::lang::Rail<void>::uncountedCopy(::x10::lang::GlobalR
     }
     void* dstAddr = (void*)(&dst->raw[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
-    checkBounds(srcIndex, src->FMGL(size));
-    checkBounds(srcIndex+numElems, src->FMGL(size)+1);
-    checkBounds(dstIndex, dst->FMGL(size));
-    checkBounds(dstIndex+numElems, dst->FMGL(size)+1);
     ::x10::lang::Rail_copyFromBody(srcAddr, dstAddr, numBytes, ::x10::lang::Place::_make(src->FMGL(rail)->location), src->FMGL(rail)->__apply()->raw == dst->raw, notif);
 }
 
