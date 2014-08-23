@@ -846,7 +846,7 @@ public struct Team {
                             if (sourceIndex == Team.state(teamidcopy).local_child2Index) {
                                 target = Team.state(teamidcopy).local_temp_buff2 as Rail[T];
                                 off = 0;
-                            } else if (src == dst) {
+                            } else if (Team.state(teamidcopy).local_src == Team.state(teamidcopy).local_dst) {
                                 target = Team.state(teamidcopy).local_temp_buff as Rail[T];
                                 off = 0;
                             } else {
