@@ -1,10 +1,11 @@
-For support in Eclipse 4.4, please install the "Lambda Deserialization Patch" in Eclipse from archive lambda-update-site.zip.
+For support in Eclipse 4.4.0, please install the "Lambda Deserialization Patch" in Eclipse from archive lambda-update-site.zip.
 
-The patch addresses two issues in the org.eclipse.jdt.core.source_3.10.0.v20140604-1726 plugin.
+The patch addresses two issues in the org.eclipse.jdt.core_3.10.0.v20140604-1726 plugin.
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=442416
-https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418.
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418
 
 The source code for the patch is:
+
 diff --git a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java b/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java
 index 74de2bd..652648b 100644
 --- a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java
