@@ -7,6 +7,12 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2014.
+ *
+ * Edited from jsr166 java.util.concurrent.ForkJoinPool (revision 1.216)
+ *
+ * Originally written by Doug Lea with assistance from members of JCP JSR-166
+ * Expert Group and released to the public domain, as explained at
+ * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
 package apgas.impl;
