@@ -1027,7 +1027,13 @@ public final class Runtime {
     }
 
     /*
-     * Cancel all jobs
+     * Cancel all jobs.
+     * 
+     * Cancellation might fail, i.e., waiting on the watcher may throw an exception
+     * if places are lost during cancellation or due to multiple concurrent cancellation calls.
+     * 
+     * If a place is added while cancellation is in progress, the runtime may end up in an incosistent
+     * state were the added place does not belong to the same epoch as the existing places.
      */
     public static def cancelAll():Watcher {
         val watcher = new Watcher();
