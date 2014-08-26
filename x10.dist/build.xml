@@ -477,7 +477,6 @@
             description="configure bin directory"
             depends="bin-deps"
             unless="bin.up-to-date">
-        <antcall target="apgas"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
         <antcall target="x10cj"/>
@@ -500,10 +499,6 @@
     </target>
 
     <target name="bin-deps">
-        <uptodate property="apgas.up-to-date" targetfile="${bin}/apgas">
-            <srcfiles file="${ant.file}"/>
-            <srcfiles file="${bin}/apgas.in"/>
-        </uptodate>
         <uptodate property="x10.up-to-date" targetfile="${bin}/x10">
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10.in"/>
@@ -526,7 +521,6 @@
         </uptodate>
         <condition property="bin.up-to-date">
             <and>
-                <isset property="apgas.up-to-date"/>
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
@@ -711,22 +705,6 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
         <delete file="${bin}/defs"/>
     </target>
 
-    <target name="apgas" unless="apgas.up-to-date"
-            depends="executable-defs"
-            description="creates the executable script apgas">
-        <echo message="Creating ${bin}/apgas"/>
-        <concat destfile="${bin}/apgas" append="no">
-            <filelist dir="${bin}" files="defs"/>
-        </concat>
-        <concat destfile="${bin}/apgas" append="yes">
-            <filelist dir="${bin}" files="apgas.in"/>
-        </concat>
-
-        <chmod perm="+x" file="${bin}/apgas"/>
-
-        <delete file="${bin}/defs"/>
-    </target>
-
     <target name="tar-location" depends="init" unless="tar.location">
         <property name="tar.location" value="${x10.home}"/>
     </target>
@@ -765,10 +743,12 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
+            <tarfileset prefix="apgas" dir="${x10.home}/apgas" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.examples" dir="${x10.home}/apgas.examples" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.impl" dir="${x10.home}/apgas.impl" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.tests" dir="${x10.home}/apgas.tests" excludes="bin/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="apgas.cpp" dir="${x10.home}/apgas.cpp" excludes="bin/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="apgas.cpp.examples" dir="${x10.home}/apgas.cpp.examples" excludes="bin/**,**/.*.swp,classes/**"/>
-            <tarfileset prefix="apgas.java" dir="${x10.home}/apgas.java" excludes="bin/**,**/.*.swp,classes/**"/>
-            <tarfileset prefix="apgas.java.examples" dir="${x10.home}/apgas.java.examples" excludes="bin/**,**/.*.swp,classes/**"/>
         </tar>
     </target>
     <target name="test-tar" depends="testtar"/>

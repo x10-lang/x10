@@ -112,10 +112,12 @@ cd $workdir/x10-$X10_VERSION
 echo
 echo getting distrib
 for i in \
+        apgas \
+        apgas.examples \
+        apgas.impl \
+        apgas.tests \
         apgas.cpp \
         apgas.cpp.examples \
-        apgas.java \
-        apgas.java.examples \
 	x10.common \
 	x10.compiler \
 	x10.constraints \
