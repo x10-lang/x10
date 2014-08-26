@@ -468,6 +468,10 @@ public class CXXCommandBuilder {
         if (version >= 6.0) {
             ans.add("sm_50"); // requires CUDA Toolkit 6.0 or newer
         }
+        if (version >= 6.5) {
+            ans.add("sm_32"); // requires CUDA Toolkit 6.5 or newer
+            ans.add("sm_37"); // requires CUDA Toolkit 6.5 or newer
+        }
         return ans;
     }
 
