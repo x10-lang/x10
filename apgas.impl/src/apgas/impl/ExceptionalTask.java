@@ -37,16 +37,24 @@ public class ExceptionalTask implements SerializableRunnable {
   Throwable t;
 
   /**
+   * The place of the parent task.
+   */
+  int parent;
+
+  /**
    * Constructs a new {@link ExceptionalTask}.
    *
    * @param finish
    *          a finish instance
    * @param t
    *          an exception
+   * @param parent
+   *          the place of the parent task
    */
-  ExceptionalTask(Finish finish, Throwable t) {
+  ExceptionalTask(Finish finish, Throwable t, int parent) {
     this.finish = finish;
     this.t = t;
+    this.parent = parent;
   }
 
   /**
@@ -56,13 +64,14 @@ public class ExceptionalTask implements SerializableRunnable {
    */
   @Override
   public void run() {
-    finish.submit();
+    finish.submit(parent);
     finish.addSuppressed(t);
     finish.tell();
   }
 
   private void writeObject(ObjectOutputStream out) throws IOException {
     out.writeObject(finish);
+    out.writeInt(parent);
     final NotSerializableException e = new NotSerializableException(t
         .getClass().getCanonicalName());
     e.setStackTrace(t.getStackTrace());
@@ -76,6 +85,7 @@ public class ExceptionalTask implements SerializableRunnable {
   private void readObject(ObjectInputStream in) throws IOException,
       ClassNotFoundException {
     finish = (Finish) in.readObject();
+    parent = in.readInt();
     t = (Throwable) in.readObject();
     try {
       t = (Throwable) in.readObject();
@@ -87,8 +97,7 @@ public class ExceptionalTask implements SerializableRunnable {
    * Spawns this {@link ExceptionalTask} instance.
    */
   void spawn() {
-    final int here = GlobalRuntimeImpl.getRuntime().here;
-    final int p = finish.id == null ? here : finish.id.home.id;
+    final int p = finish.home();
     finish.spawn(p);
     GlobalRuntimeImpl.getRuntime().transport.send(p, this);
   }

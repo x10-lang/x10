@@ -39,16 +39,24 @@ final class Task implements SerializableRunnable {
   private VoidFun f;
 
   /**
+   * The place of the parent task.
+   */
+  int parent;
+
+  /**
    * Constructs a new {@link Task}.
    *
    * @param f
    *          the function to run
    * @param finish
    *          the finish object for this task
+   * @param parent
+   *          the place of the parent task
    */
-  Task(VoidFun f, Finish finish) {
-    this.f = f;
+  Task(Finish finish, VoidFun f, int parent) {
     this.finish = finish;
+    this.f = f;
+    this.parent = parent;
   }
 
   /**
@@ -101,7 +109,7 @@ final class Task implements SerializableRunnable {
    *          the worker doing the submission or null if not a worker thread
    */
   void async(Worker worker) {
-    finish.submit();
+    finish.submit(parent);
     GlobalRuntimeImpl.getRuntime().scheduler.submit(worker, this);
   }
 
@@ -144,6 +152,7 @@ final class Task implements SerializableRunnable {
    */
   private void writeObject(ObjectOutputStream out) throws IOException {
     out.writeObject(finish);
+    out.writeInt(parent);
     out.writeObject(f);
   }
 
@@ -167,11 +176,13 @@ final class Task implements SerializableRunnable {
   private void readObject(ObjectInputStream in) throws IOException,
       ClassNotFoundException {
     finish = (Finish) in.readObject();
+    parent = in.readInt();
     try {
       f = (VoidFun) in.readObject();
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException) {
-        new ExceptionalTask(finish, e).spawn();
+        new ExceptionalTask(finish, e, GlobalRuntimeImpl.getRuntime().here)
+            .spawn();
       } else {
         final StackTraceElement elm = e.getStackTrace()[0];
         System.err.println("[APGAS] Failed to a receive remote async at place "

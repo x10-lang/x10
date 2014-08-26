@@ -222,9 +222,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void finish(VoidFun f) {
     final Worker worker = currentWorker();
-    final Finish finish = new Finish();
+    final Finish finish = new DefaultFinish();
     finish.spawn(here);
-    new Task(f, finish).finish(worker);
+    new Task(finish, f, here).finish(worker);
     if (finish.exceptions() != null) {
       throw new MultipleException(finish.exceptions());
     }
@@ -233,9 +233,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void async(VoidFun f) {
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? new Finish() : worker.task.finish;
+    final Finish finish = worker == null ? new DefaultFinish()
+        : worker.task.finish;
     finish.spawn(here);
-    new Task(f, finish).async(worker);
+    new Task(finish, f, here).async(worker);
   }
 
   @Override
@@ -244,9 +245,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       throw new BadPlaceException();
     }
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? new Finish() : worker.task.finish;
+    final Finish finish = worker == null ? new DefaultFinish()
+        : worker.task.finish;
     finish.spawn(p.id);
-    new Task(f, finish).asyncat(p);
+    new Task(finish, f, here).asyncat(p);
   }
 
   @Override
