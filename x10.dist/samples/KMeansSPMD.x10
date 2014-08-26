@@ -13,7 +13,6 @@ import x10.io.Console;
 import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
-import x10.util.Random;
 import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.Team;
