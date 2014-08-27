@@ -33,6 +33,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import x10.core.fun.VoidFun_0_0;
@@ -849,20 +853,27 @@ public class SocketTransport {
 					while (!readNBytes(sc, connectionStringBB, datalen));
 					String connectionStrings = new String(connectionStringBuffer, UTF8);
 					String[] placeStrings = connectionStrings.split(",");
+					
+					// create a thread pool to process all of the connections in parallel in the background					
+					ThreadPoolExecutor linkInitializer = new ThreadPoolExecutor(Math.min(5, placeStrings.length), 20, 35, TimeUnit.SECONDS, 
+							new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+								@Override
+								public Thread newThread(Runnable r) {
+									Thread t = new Thread(r);
+									t.setDaemon(true);
+									return t;
+								}
+							});
+					linkInitializer.setKeepAliveTime(1, TimeUnit.SECONDS);
+					linkInitializer.allowCoreThreadTimeOut(true);
 					for (int i=0; i<placeStrings.length; i++) {
 						if (DEAD.equals(placeStrings[i]))
 							deadPlaces.add(i);
 						else if (remotePlace != i) {
-							try {
-								initLink(i, placeStrings[i]);
-							} catch (IOException e) {
-								// this place appears to be dead.  Mark it as so, and continue with the rest
-								deadPlaces.add(i);
-								if (DEBUG) System.err.println(e.toString());
-							}
+							linkInitializer.execute(new BackgroundLinkInitializer(i, placeStrings[i]));
 						}
 					}
-					if (DEBUG) System.err.println("Place "+myPlaceId+" established links to "+(placeStrings.length-deadPlaces.size())+" additional places");
+					if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links to "+(placeStrings.length-deadPlaces.size())+" additional places");
 				}
 				else {
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
@@ -1016,5 +1027,27 @@ public class SocketTransport {
             return;
     	}
     	x10.lang.Runtime.execute(epoch, actObj, src, finishState);
+    }
+    
+    private class BackgroundLinkInitializer implements Runnable {
+    	private int placeId;
+    	private String connectionInfo;
+    	
+    	BackgroundLinkInitializer(int placeId, String connectionInfo) {
+    		this.placeId = placeId;
+    		this.connectionInfo = connectionInfo;
+		}
+
+    	@Override
+		public void run() {
+			try {
+				if (DEBUG) System.err.println("Establishing background link to place "+placeId+" at "+connectionInfo); 
+				initLink(placeId, connectionInfo);
+			} catch (IOException e) {
+				// this place appears to be dead.  Mark it as so.
+				deadPlaces.add(placeId);
+				if (DEBUG) System.err.println(e.toString());
+			}
+		}
     }
 }
