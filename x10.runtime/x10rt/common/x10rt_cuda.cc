@@ -195,6 +195,11 @@ namespace {
             case CUDA_ERROR_INVALID_PC:
                 errstr = "CUDA_ERROR_INVALID_PC"; break;
             #endif
+
+            #if CUDA_VERSION >= 6050
+            case CUDA_ERROR_INVALID_GRAPHICS_CONTEXT:
+                errstr = "CUDA_ERROR_INVALID_GRAPHICS_CONTEXT"; break;
+            #endif
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
         abort();
