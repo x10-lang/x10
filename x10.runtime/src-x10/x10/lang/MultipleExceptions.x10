@@ -50,27 +50,51 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
         return new MultipleExceptions(t);
     }
 
-    /** @return a rail containing only the exceptions of the given type */
-    public final def getExceptionsOfType[T]() {
+    /** 
+     * Gets exceptions of the given type that are nested within this
+     * instance of MultipleExceptions.
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     *   associated with nested finish constructs
+     * @return a rail containing only the exceptions of the given type 
+     */
+    public final def getExceptionsOfType[T](deep:Boolean):Rail[T] {
         val es = new GrowableRail[T]();
         for (e in exceptions) {
             if (e instanceof T) {
                 es.add(e as T);
+            } else if (deep && e instanceof MultipleExceptions) {
+                val es2 = (e as MultipleExceptions).getExceptionsOfType[T]();
+                for (e2 in es2) es.add(e2);
             }
         }
 
         return es.toRail();
     }
 
-    /** @return a new MultipleExceptions, filtering out all exceptions of the given type */
-    public final def filterExceptionsOfType[T]():MultipleExceptions {
+    public final def getExceptionsOfType[T]() = getExceptionsOfType[T](true);
+
+    /** 
+     * Gets a copy of this MultipleExceptions instance, with all nested
+     * exceptions of the given type removed.
+     * This method may be used for example is to filter all DeadPlaceExceptions
+     * so that exceptions of other types can be handled separately.
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     *   associated with nested finish constructs
+     * @return a new MultipleExceptions, filtering out all exceptions of the given type 
+     */
+    public final def filterExceptionsOfType[T](deep:Boolean):MultipleExceptions {
         val es = new GrowableRail[CheckedThrowable]();
         for (e in exceptions) {
-            if (! (e instanceof T)) {
+            if (deep && e instanceof MultipleExceptions) {
+                val me = (e as MultipleExceptions).filterExceptionsOfType[T]();
+                if (me != null) es.add(me);
+            } else if (! (e instanceof T)) {
                 es.add(e);
             }
         }
 
         return MultipleExceptions.make(es);
     }
+
+    public final def filterExceptionsOfType[T]() = filterExceptionsOfType[T](true);
 }
