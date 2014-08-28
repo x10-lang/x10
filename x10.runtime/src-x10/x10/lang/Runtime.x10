@@ -695,6 +695,7 @@ public final class Runtime {
     static class Pool {
         val latch = new Latch();
         val watcher = new Watcher();
+        var cancelWatcher:Watcher = null;
         
         var wsEnd:Boolean = false;
 
@@ -1037,6 +1038,7 @@ public final class Runtime {
      */
     public static def cancelAll():Watcher {
         val watcher = new Watcher();
+        pool.cancelWatcher = watcher;
         val wrapper = ()=>{ try { cancelWave(); } catch (t:Exception) { watcher.raise(t); } finally { watcher.release(); } };
         submitUncounted(wrapper);
         return watcher;
@@ -1520,6 +1522,12 @@ public final class Runtime {
     }
 
     static def notifyPlaceDeath() : void {
+        if (CANCELLABLE) {
+            if (pool.cancelWatcher != null) {
+                pool.cancelWatcher.raise(new DeadPlaceException());
+                pool.cancelWatcher.release();
+            }
+        }
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
             // This case seems occur naturally on shutdown, so transparently ignore it.
             // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
