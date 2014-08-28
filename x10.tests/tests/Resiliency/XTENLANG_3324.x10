@@ -47,7 +47,7 @@ public class XTENLANG_3324  extends x10Test  {
 				    for (i in 1..100000) x += at (place2) here.id;
 			    }
 		    } catch (e:Exception) {
-			    ret = processDPE(e);
+			    ret = processException(e);
 		    }
 		    if (!ret) return ret;
 		}
@@ -55,19 +55,23 @@ public class XTENLANG_3324  extends x10Test  {
 		return ret;
 	}
 
-	private static def processDPE(e:Exception):Boolean {
+	private static def processException(e:Exception):Boolean {
 		if (e instanceof DeadPlaceException) {
 			val deadPlace = (e as DeadPlaceException).place;
 			Console.OUT.println("DeadPlaceException from " + deadPlace);
 		} else if (e instanceof MultipleExceptions) {
-			val exceptions = (e as MultipleExceptions).exceptions();
-			Console.OUT.println("MultipleExceptions size=" + exceptions.size);
-			for (ec in exceptions) processDPE(ec);
-		} else {
-			Console.OUT.println("Unexpected exception!!!!");
-			//throw e;
-			return false;
-		}
+            val exceptions = (e as MultipleExceptions).exceptions();
+ 		    Console.OUT.println("MultipleExceptions size=" + exceptions.size);
+            val deadPlaceExceptions = (e as MultipleExceptions).getExceptionsOfType[DeadPlaceException]();
+            for (dpe in deadPlaceExceptions) {
+                processException(dpe);
+            }
+            val filtered = (e as MultipleExceptions).filterExceptionsOfType[DeadPlaceException]();
+            if (filtered != null) {
+                Console.OUT.println("Unexpected exception!!!!");
+                return false;
+            }
+	    }
 		return true;
 	}
 	public static def main(Rail[String]) {
