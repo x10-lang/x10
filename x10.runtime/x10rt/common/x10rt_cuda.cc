@@ -759,8 +759,8 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
     // round up to 512 bytes (the granularity of shm allocation)
     int shm = round_up(dyn_shm + static_shm, 512);
 
-    int alloc_size = (minor>=2) ? 512 : 256;
-    int max_threads = (minor>=2) ? 1024 : 768;
+    int alloc_size = (major>=2) ? 512 : 256;
+    int max_threads = (major>=2) ? 1024 : 512;
 
     while (*cfg) {
         int b = *(cfg++);
