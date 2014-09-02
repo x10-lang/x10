@@ -104,7 +104,7 @@ DebugHelper::getNextPid(pid_t& nextPid, pid_t& pidIndex)
 		pid_t pid;
 		char c;
 		dirent* ent = readdir(d);
-		if (ent > 0)
+		if (!ent)
 		{
 			if (1 == sscanf(ent->d_name, "%d%c", &pid, &c))
 				pidIndex = pid;

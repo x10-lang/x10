@@ -1213,7 +1213,7 @@ static void split (void *arg)
     //m.split.role contains our role within the colour we chose
     x10rt_place our_color = m.split.rbuf[m.role];
 
-    x10rt_place first;
+    x10rt_place first = -1;
     x10rt_place new_team_sz = 0;
     {
         bool found_first = false;
