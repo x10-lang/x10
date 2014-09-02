@@ -70,6 +70,20 @@ abstract class FinishResilient extends FinishState {
             fs = FinishResilientPlace0.make(p, l);
             break;
         }
+        case Configuration.RESILIENT_MODE_HC:
+        {
+            val p = (parent!=null) ? parent : getCurrentFS();
+            val l = (latch!=null) ? latch : new SimpleLatch();
+            fs = FinishResilientHC.make(p, l);
+            break;
+        }
+        // case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
+        // {
+        //     val p = (parent!=null) ? parent : getCurrentFS();
+        //     val l = (latch!=null) ? latch : new SimpleLatch();
+        //     fs = FinishResilientPlace0opt.make(p, l);
+        //     break;
+        // }
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
         {
@@ -92,6 +106,12 @@ abstract class FinishResilient extends FinishState {
         case Configuration.RESILIENT_MODE_PLACE0:
             FinishResilientPlace0.notifyPlaceDeath();
             break;
+        case Configuration.RESILIENT_MODE_HC:
+            FinishResilientHC.notifyPlaceDeath();
+            break;
+        // case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
+        //     FinishResilientPlace0opt.notifyPlaceDeath();
+        //     break;
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
             FinishResilientSample.notifyPlaceDeath();
@@ -126,6 +146,7 @@ abstract class FinishResilient extends FinishState {
         // TODO: clockPhases are now passed but their resiliency is not supported yet
         // TODO: This implementation of runAt does not explicitly dealloc things
         val home = here;
+        //real_finish.notifySubActivitySpawn(place);//@@@@
         tmp_finish.notifySubActivitySpawn(place);
         
         // XTENLANG-3357: clockPhases must be passed and returned
@@ -143,6 +164,7 @@ abstract class FinishResilient extends FinishState {
                 if (verbose>=2) debug("FinishResilient.runAt exec_body started");
                 val remoteActivity = Runtime.activity();
                 remoteActivity.clockPhases = clockPhases; // XTENLANG-3357: set passed clockPhases
+                //real_finish.notifyActivityCreation(home);//@@@@
                 if (tmp_finish.notifyActivityCreation(home)) {
                     try {
                         try {
@@ -164,6 +186,7 @@ abstract class FinishResilient extends FinishState {
                     Unsafe.dealloc(cl1);
                     
                     tmp_finish.notifyActivityTermination();
+                    //real_finish.notifyActivityTermination();//@@@@
                 }
                 remoteActivity.clockPhases = null; // XTENLANG-3357
                 if (verbose>=2) debug("FinishResilient.runAt exec_body finished");

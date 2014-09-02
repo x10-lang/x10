@@ -91,8 +91,10 @@ final class Configuration {
     static val RESILIENT_MODE_NONE = 0n;
     static val RESILIENT_MODE_DEFAULT     = 1n;  // Most stable implementation of resilient finish (see FinishResilient.x10)
     static val RESILIENT_MODE_PLACE0      = 11n; // FinishResilientPlace0
+    static val RESILIENT_MODE_HC          = 12n; // FinishResilientHC
     static val RESILIENT_MODE_X10RT_ONLY  = 99n; // Resilient/Elastic X10RT, no resilient finish
     // The modes below are under development and not yet complete.
+    static val RESILIENT_MODE_PLACE0_OPTIMIZED = 21n; // FinishResilientPlace0opt
     static val RESILIENT_MODE_SAMPLE      = 91n; // FinishResilientSample + ResilientStorePlace0
     static val RESILIENT_MODE_SAMPLE_HC   = 92n; // FinishResilientSample + ResilientStoreHC
 
