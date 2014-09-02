@@ -70,4 +70,9 @@ public final class Configuration {
    * is used if this property is not set.
    */
   public static final String APGAS_LOCALHOST = "APGAS_LOCALHOST";
+
+  /**
+   * Turns on resiliency.
+   */
+  public static final String APGAS_RESILIENT = "APGAS_RESILIENT";
 }

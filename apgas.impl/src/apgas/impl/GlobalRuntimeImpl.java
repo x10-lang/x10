@@ -21,6 +21,7 @@ import java.util.List;
 import apgas.BadPlaceException;
 import apgas.Configuration;
 import apgas.Constructs;
+import apgas.DeadPlaceException;
 import apgas.Fun;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
@@ -39,6 +40,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   final boolean serializationException;
 
   /**
+   * The value of the APGAS_RESILIENT system property.
+   */
+  final boolean resilient;
+
+  /**
    * The transport for this global runtime instance.
    */
   final HazelcastTransport transport;
@@ -52,6 +58,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    * The scheduler for this global runtime instance.
    */
   final Scheduler scheduler;
+
+  /**
+   * The array of live and dead places in this global runtime instance.
+   */
+  List<Place> allPlaces = new ArrayList<Place>();
 
   /**
    * The current list of places in this global runtime instance.
@@ -82,11 +93,18 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   private void refreshPlaces() {
-    final List<Place> places = new ArrayList<Place>();
-    for (int i = 0; i < transport.places(); i++) {
-      places.add(new Place(i));
+    synchronized (allPlaces) {
+      for (int i = allPlaces.size(); i < transport.places(); i++) {
+        allPlaces.add(new Place(i));
+      }
+      places = new ArrayList<Place>();
+      for (final Place p : allPlaces) {
+        if (p != null) {
+          places.add(p);
+        }
+      }
+      places = Collections.<Place> unmodifiableList(places);
     }
-    this.places = Collections.<Place> unmodifiableList(places);
   }
 
   public static GlobalRuntimeImpl getRuntime() {
@@ -106,12 +124,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
+    resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
     final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
         InetAddress.getLocalHost().getHostAddress());
 
     // initialize scheduler and hazelcast
     scheduler = new Scheduler();
-    transport = new HazelcastTransport(this::shutdown, master, localhost);
+    transport = new HazelcastTransport(this::callback, master, localhost);
     here = transport.here();
 
     // install shutdown hook
@@ -141,6 +160,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       // launch additional places
       try {
         String command = getClass().getSuperclass().getCanonicalName();
+        if (resilient) {
+          command = "-D" + Configuration.APGAS_RESILIENT + "=true " + command;
+        }
         if (serializationException) {
           command = "-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION
               + "=true " + command;
@@ -205,6 +227,26 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   /**
+   * Handles elasticity events.
+   *
+   * @param place
+   *          the place being removed or -1
+   */
+  void callback(int place) {
+    if (!resilient && place != -1) {
+      shutdown();
+      return;
+    }
+    if (place != -1) {
+      System.err.println(here + " observing the removal of " + place);
+      synchronized (allPlaces) {
+        allPlaces.set(place, null);
+      }
+    }
+    refreshPlaces();
+  }
+
+  /**
    * Asks the scheduler and the transport to shutdown.
    */
   @Override
@@ -219,10 +261,14 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
+  private Finish newFinish() {
+    return resilient ? new ResilientFinish() : new DefaultFinish();
+  }
+
   @Override
   public void finish(VoidFun f) {
     final Worker worker = currentWorker();
-    final Finish finish = new DefaultFinish();
+    final Finish finish = newFinish();
     finish.spawn(here);
     new Task(finish, f, here).finish(worker);
     if (finish.exceptions() != null) {
@@ -233,20 +279,16 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void async(VoidFun f) {
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? new DefaultFinish()
-        : worker.task.finish;
+    final Finish finish = worker == null ? newFinish() : worker.task.finish;
     finish.spawn(here);
     new Task(finish, f, here).async(worker);
   }
 
   @Override
   public void asyncat(Place p, VoidFun f) {
-    if (p.id < 0 || p.id >= places().size()) {
-      throw new BadPlaceException();
-    }
+    p = place(p.id); // validate destination
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? new DefaultFinish()
-        : worker.task.finish;
+    final Finish finish = worker == null ? newFinish() : worker.task.finish;
     finish.spawn(p.id);
     new Task(finish, f, here).asyncat(p);
   }
@@ -270,22 +312,24 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public Place here() {
-    return places.get(here);
+    return allPlaces.get(here);
   }
 
   @Override
   public List<? extends Place> places() {
-    if (places.size() < transport.places()) {
-      refreshPlaces();
-    }
     return places;
   }
 
   @Override
   public Place place(int id) {
-    if (id < 0 || id >= places().size()) {
+    try {
+      final Place p = allPlaces.get(id);
+      if (p == null) {
+        throw new DeadPlaceException();
+      }
+      return p;
+    } catch (final IndexOutOfBoundsException e) {
       throw new BadPlaceException();
     }
-    return places().get(id);
   }
 }

@@ -12,6 +12,7 @@
 package apgas.impl;
 
 import java.net.InetSocketAddress;
+import java.util.function.IntConsumer;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -19,6 +20,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IList;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.ItemListener;
 import com.hazelcast.core.Member;
@@ -72,9 +74,9 @@ final class HazelcastTransport implements ItemListener<Member>,
   private final IExecutorService executor;
 
   /**
-   * Callback invoked when a member is removed from the cluster.
+   * Callback invoked when a member is added or removed from the cluster.
    */
-  private final Runnable callback;
+  private final IntConsumer callback;
 
   // private final ITopic<VoidFun> topic;
   // private final String regTopic;
@@ -83,13 +85,14 @@ final class HazelcastTransport implements ItemListener<Member>,
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
    *
    * @param callback
-   *          a function to invoke when a member is removed from the cluster.
+   *          a function to invoke when a member is added or removed from the
+   *          cluster.
    * @param master
    *          member to connect to or null
    * @param localhost
    *          the ip address of this host
    */
-  HazelcastTransport(Runnable callback, String master, String localhost) {
+  HazelcastTransport(IntConsumer callback, String master, String localhost) {
     this.callback = callback;
 
     // config
@@ -132,6 +135,21 @@ final class HazelcastTransport implements ItemListener<Member>,
     // regTopic = topic.addMessageListener(this);
 
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
+  }
+
+  /**
+   * Returns the distributed map instance with the given name.
+   *
+   * @param <K>
+   *          key type
+   * @param <V>
+   *          value type
+   * @param name
+   *          map name
+   * @return the map
+   */
+  <K, V> IMap<K, V> getMap(String name) {
+    return hazelcast.<K, V> getMap(name);
   }
 
   /**
@@ -205,7 +223,7 @@ final class HazelcastTransport implements ItemListener<Member>,
 
   @Override
   public void memberRemoved(MembershipEvent membershipEvent) {
-    callback.run();
+    callback.accept(members.indexOf(membershipEvent.getMember()));
   }
 
   @Override
@@ -216,6 +234,7 @@ final class HazelcastTransport implements ItemListener<Member>,
   @Override
   public void itemAdded(ItemEvent<Member> item) {
     places = members.size();
+    callback.accept(-1);
   }
 
   @Override
