@@ -128,6 +128,21 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
                 output_directory = new File(current_dir);
             }
         }
+
+        if (executable_path != null) {
+            assert output_directory != null;
+            // make sure that executable_path is outside of output_directory
+            try {
+                String jarFilePath = new File(executable_path).getCanonicalPath();
+                String targetDirPath = output_directory.getCanonicalPath();
+                if (jarFilePath.startsWith(targetDirPath)) {
+                    throw new UsageError("executable should be created outside of output directory");
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
     
     @Override
