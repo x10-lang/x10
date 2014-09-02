@@ -19,6 +19,7 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.block.SymGrid;
 import x10.matrix.builder.MatrixBuilder;
+import x10.matrix.builder.SymDenseBuilder;
 import x10.matrix.comm.BlockSetRemoteCopy;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistMap;
@@ -99,6 +100,9 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 				} else if (blk.myRowId == blk.myColId) {
 					val bdr = blk.getSymBuilder();
 					bdr.initRandom(nzDensity, f);
+                    if (bdr instanceof SymDenseBuilder) {
+                        (bdr as SymDenseBuilder).mirrorToUpper();
+                    }
 				}
 			}
 		}

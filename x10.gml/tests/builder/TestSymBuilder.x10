@@ -69,9 +69,10 @@ class TestBuilder {
     	symbld.initRandom(nzd).toSymSparseCSC();
     	ret = symbld.checkSymmetric();
     	
-    	val src = SparseCSCBuilder.make(M,M).initRandom(1.0, (r:Long,c:Long)=>(r>c)?(1.0+r+2*c):(1.0+c+2*r)).toSparseCSC();
-    	val spa = SymSparseBuilder.make(M).init(false, src).toSymSparseCSC();
-    	
+    	val src = SparseCSCBuilder.make(M,M).init((r:Long,c:Long)=>(r>c)?(1.0+r+2*c):(1.0+c+2*r)).toSparseCSC();
+    	val spb = SymSparseBuilder.make(M).init(false, src);
+        val spa = spb.toSymSparseCSC();
+
     	ret &=  src.equals(spa as Matrix(src.M,src.N));
     	if (!ret)
     		Console.OUT.println("--------Symmetric sparse matrix mirror test failed!--------"); 
