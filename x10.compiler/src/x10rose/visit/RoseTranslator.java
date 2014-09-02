@@ -378,7 +378,35 @@ public class RoseTranslator extends Translator {
 		return id;
 	}
 	
-
+	public static boolean hasFunctionType(X10MethodDecl_c methodDecl) {
+		if (methodDecl.returnType() instanceof FunctionTypeNode_c)
+			return true;
+		
+		List<Formal> args = methodDecl.formals();
+		for (Formal f : methodDecl.formals()) {
+			if (f.type() instanceof FunctionTypeNode_c)
+				return true;
+		}
+		return false;
+	}	
+	
+	public static boolean hasFunctionType(X10ConstructorDecl_c constDecl) {
+		TypeNode ret = constDecl.returnType();
+		if (ret != null 
+				&& ret instanceof FunctionTypeNode_c)
+			return true;
+		
+		List<Formal> args = constDecl.formals();
+		for (Formal f : constDecl.formals()) {
+			if (f.type() instanceof FunctionTypeNode_c)
+				return true;
+		}
+		return false;
+	}	
+	
+	public static boolean hasFunctionType(X10FieldDecl_c fieldDecl) {
+		return fieldDecl.type() instanceof FunctionTypeNode_c;
+	}
 	
 	 public static JavaToken createJavaToken(/*ASTNode node*/) {
 	        JavaSourcePositionInformation pos = null;//this.posFactory.createPosInfo(node);
@@ -423,6 +451,10 @@ public class RoseTranslator extends Translator {
 		if ((token_typeParam = clazz.indexOf('[')) >= 0) { 
 			clazz = clazz.substring(0, token_typeParam);
 		}
+		int token_constraint;
+		if ((token_constraint = clazz.indexOf('{')) >= 0) { 
+			clazz = clazz.substring(0, token_constraint);
+		}
 		// TODO: remove this when operator is available
 		int token_operator;
 		if ((token_operator = clazz.indexOf('(')) >= 0) {
@@ -440,6 +472,7 @@ public class RoseTranslator extends Translator {
 		private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
 
 		public static boolean isGatheringFile = true;
+		private static String currentPackageName = "";
 		
 		/**     
 		 * 
@@ -567,9 +600,7 @@ public class RoseTranslator extends Translator {
 		private static boolean isDecl = true;
 		
 		private static int numSourceFile;
-		
-		private static String currentClassName;
-		
+				
 		public  void searchFileList(String packageName, String typeName) throws IOException {
 			for (Job job : jobList) {
 				FileSource source = (FileSource) job.source();
@@ -630,7 +661,7 @@ public class RoseTranslator extends Translator {
 			visit(file);
 		}
 		
-		public void handleClassMembers(List<ClassMember> members, String package_name, String class_name) {
+		public void handleClassMembers(List<ClassMember> members, String package_name, String type_name) {
 			for (int i = 0; i < members.size(); ++i) {
 				JL m = members.get(i);
 				if (m instanceof X10MethodDecl_c) {
@@ -640,8 +671,8 @@ public class RoseTranslator extends Translator {
 						param.append(f.type().toString().toLowerCase());
 					}
 					memberMap.put(methodDecl.name().toString() + "(" + param + ")", i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(methodDecl, package_name, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(methodDecl, package_name, type_name);
 				} else if (m instanceof X10ConstructorDecl_c) {
 					X10ConstructorDecl_c constructorDecl = (X10ConstructorDecl_c) m;
 					StringBuffer param = new StringBuffer();
@@ -649,19 +680,21 @@ public class RoseTranslator extends Translator {
 						param.append(f.type().toString().toLowerCase());
 					}
 					memberMap.put(((X10ConstructorDecl_c) m).name().toString() + "(" + param + ")", i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(constructorDecl, package_name, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(constructorDecl, package_name, type_name);
 				} else if (m instanceof X10FieldDecl_c) {
 					X10FieldDecl_c fieldDecl = (X10FieldDecl_c) m;
 					memberMap.put(((X10FieldDecl_c) m).name().toString(), i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(fieldDecl, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(fieldDecl, type_name);
 				} else if (m instanceof TypeNode_c) {
 					System.out.println("TypeNode_c : " + m);
 				} else if (m instanceof TypeDecl_c) {
 					System.out.println("TypeDecl_c : " + m);
+				// nested class 
 				} else if (m instanceof X10ClassDecl_c) {
-					System.out.println("X10ClassDecl_c : " + m);
+					System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
+					visitDeclarations((X10ClassDecl_c) m);
 				} else if (m instanceof ClassDecl_c) {
 					System.out.println("ClassDecl_c : " + m);
 				} else {
@@ -693,6 +726,7 @@ public class RoseTranslator extends Translator {
 				if (package_name.length() != 0) {
 					JNI.cactionInsertImportedPackageOnDemand(package_name, createJavaToken(n, n.source().path()));
 					package_ref.add(package_name);
+					currentPackageName = package_name;
 				}
 				JNI.cactionPushPackage(package_name, createJavaToken(n, n.source().path()));
 				JNI.cactionPopPackage();
@@ -711,6 +745,10 @@ public class RoseTranslator extends Translator {
 			toRose(n, "Package:", n.package_().get().toString());
 		}
 		
+//		public void visitDeclarations(X10ClassDecl_c n) {
+//			visitDeclarations(n, null);
+//		}
+		
 		public void visitDeclarations(X10ClassDecl_c n) {
 			toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id().toString());
 //			SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
@@ -724,8 +762,6 @@ public class RoseTranslator extends Translator {
 //				String type_ = importedClass.substring(lastDot+1);
 //				System.out.println("class=" + type_ + ", pacakge=" + package_);
 //				if (import_.name().toString().equals(type_)) {
-//
-//					
 //				}
 //			}
 //			}
@@ -733,7 +769,9 @@ public class RoseTranslator extends Translator {
 			String package_name = (ref==null)? "" : ref.toString();
 			
 			String class_name = n.name().id().toString();
-			currentClassName = class_name;
+//			if (parent != null)
+//				class_name = parent + "." + class_name;
+
 			classMemberMap.put(class_name, memberMap);
 			JNI.cactionSetCurrentClassName(package_name + "." + class_name);
 
@@ -810,17 +848,17 @@ public class RoseTranslator extends Translator {
 			
 			Ref ref = n.classDef().package_();
 			String package_name = (ref==null)? "" : ref.toString();
-
+			
 			if (package_name.length() != 0) {
 				JNI.cactionPushPackage(package_name, createJavaToken(n, n.toString()));
-			JNI.cactionInsertClassStart(class_name, false, false, false, createJavaToken(n, class_name));
+				JNI.cactionInsertClassStart(class_name, false, false, false, createJavaToken(n, class_name));
 			}
 			// Are the following five lines necessary again?
 			visitChildren(n, n.typeParameters());
 			visitChildren(n, n.properties());
 			visitChild(n, n.classInvariant());
 			visitChild(n, n.superClass());
-			visitChildren(n, n.interfaces());			
+			visitChildren(n, n.interfaces());		
 			
 			visitChild(n, n.body());			
 			JNI.cactionTypeDeclarationEnd(createJavaToken(n, class_name));
@@ -908,9 +946,7 @@ public class RoseTranslator extends Translator {
 			int method_index = memberMap.get(method_name+"("+param+")");
 			
 			JNI.cactionBuildMethodSupportStart(method_name, method_index, 
-					createJavaToken(n, method_name+"("+param+")")
-//					new JavaToken(method_name+"("+param+")", new JavaSourcePositionInformation(n.position().startOf().line(), n.position().endLine()))
-			);
+					createJavaToken(n, method_name+"("+param+")"));
 			
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			for (int i = 0; i < typeParamList.size(); ++i) {
@@ -920,8 +956,13 @@ public class RoseTranslator extends Translator {
 				JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));
 				JNI.cactionPopTypeParameterScope(createJavaToken(n, typeParam));
 			}
-			
-			visitChild(n, n.returnType());			
+			// in case the return type is unknown. Such a case will occur by writing 
+			// like"public def toString() = "Place(" + this.id + ")";"
+			if (n.returnType() instanceof UnknownTypeNode_c)
+				JNI.cactionTypeReference("", "void", this, createJavaToken());
+			else 
+				visitChild(n, n.returnType());
+
 			visitChildren(n, n.formals());
 			
 /*
@@ -1043,7 +1084,8 @@ public class RoseTranslator extends Translator {
 
 
 		public void visit(X10Formal_c n) {
-			toRose(n, "formal: ", n.name().id().toString());
+			toRose(n, "formal: ", n + "");
+			System.out.println("");
 
 //                args_location = createJavaToken(args[0], args[args.length - 1]); 
 //
@@ -1058,7 +1100,8 @@ public class RoseTranslator extends Translator {
 //                                                           arg_location);
 //                }
 			visitChild(n, n.type());
-			// so far, all parameters's modifier are set as final
+			// so far, all parameters's modifier are set as final.
+			// For the Point type, 
 			JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size()>0, false, createJavaToken(n, n.name().id().toString()));
 		}
 		
@@ -1468,7 +1511,7 @@ public class RoseTranslator extends Translator {
 				JNI.cactionTypeReference(package_name, type, this, createJavaToken());
 				JNI.cactionArrayTypeReference(1, createJavaToken());
 			}
-			else if (n.node().toString().indexOf("self==this") >= 0) { 
+			else if (n.node().toString().indexOf("{self") >= 0) { 
 				String className = n.node().toString();
 				int index = className.indexOf("[");
 				if (index >= 0)
@@ -1477,6 +1520,7 @@ public class RoseTranslator extends Translator {
 				index = className.indexOf("{");
 				if (index >= 0)
 					className = className.substring(0, index);
+				
 				int lastDot = className.lastIndexOf('.');
 				String pkg = "";
 				String type = "";
@@ -1487,7 +1531,11 @@ public class RoseTranslator extends Translator {
 				else {
 					type = className;
 				}
-				
+				System.out.println("PACKAGE=" + pkg + ", TYPE=" + className);
+				if (pkg.length() != 0) {
+					JNI.cactionPushPackage(pkg, createJavaToken(n, currentPackageName));
+					JNI.cactionPopPackage();
+				}
 				JNI.cactionTypeReference(pkg, type, this, createJavaToken());
 			}
 			else {
@@ -2339,7 +2387,19 @@ System.out.println("abc1");
 			ambTypeName = trimTypeParameterClause(ambTypeName);
 			System.out.println("handleAmbType: " + amb + ", ambTypeName: " + ambTypeName);
 			
-			boolean isRailType = false;
+			if (	ambTypeName.equals("Boolean")
+				||	ambTypeName.equals("Byte")
+				|| 	ambTypeName.equals("Char")
+				|| 	ambTypeName.equals("Int")
+				|| 	ambTypeName.equals("Short")
+				|| 	ambTypeName.equals("Float")
+				|| 	ambTypeName.equals("Long")
+				|| 	ambTypeName.equals("Double")) {
+				JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
+				return;
+			}
+			
+			boolean isRailType = false;				
 			if (	ambTypeName.indexOf("Rail[") >= 0
 				|| 	ambTypeName.indexOf("GrowableRail[") >= 0) {
 				String class_name = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'));
@@ -2452,13 +2512,24 @@ System.out.println("abc1");
 				}
 				
 				if (!isFoundInPackageRef)
-					// treat as a generic type
-					JNI.cactionTypeReference("", amb.name().toString(), this, createJavaToken(amb, amb.toString()));
+					// treat as a generic type					
+					if (isRailType) {					
+						JNI.cactionTypeReference("", type_, this, createJavaToken());
+						JNI.cactionArrayTypeReference(1, createJavaToken());
+					}
+					else
+						JNI.cactionTypeReference("", amb.name().toString(), this, createJavaToken(amb, amb.toString()));
 			
 			} catch (SemanticException e) {
 				// treat as a generic type
-				JNI.cactionTypeReference("", amb.name().toString(), this, createJavaToken(amb, amb.toString()));
+				if (isRailType) {					
+					JNI.cactionTypeReference("", type_, this, createJavaToken());
+					JNI.cactionArrayTypeReference(1, createJavaToken());
+				}
+				else
+					JNI.cactionTypeReference("", amb.name().toString(), this, createJavaToken(amb, amb.toString()));
 			}
+			System.out.println("handleAmbType end");
 		}
 		
 		private void handleAmbType(AmbDepTypeNode_c amb) {
@@ -2469,10 +2540,33 @@ System.out.println("abc1");
 		    String ambTypeName = amb.toString().replaceAll("\\{amb\\}", "");
 			ambTypeName = trimTypeParameterClause(ambTypeName);
 			String type_ =ambTypeName;
-			System.out.println("handleAmbType: " + amb + ", ambTypeName: " + ambTypeName);
+			System.out.println("handleAmbDepType: " + amb + ", ambTypeName: " + ambTypeName);
+			
+			if (	ambTypeName.equals("Boolean")
+				||	ambTypeName.equals("Byte")
+				|| 	ambTypeName.equals("Char")
+				|| 	ambTypeName.equals("Int")
+				|| 	ambTypeName.equals("Short")
+				|| 	ambTypeName.equals("Float")
+				|| 	ambTypeName.equals("Long")
+				|| 	ambTypeName.equals("Double")) {
+				JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
+				return;
+			}
 			
 			boolean isRailType = false;
-			if (	ambTypeName.indexOf("Rail[") >= 0
+			if (	ambTypeName.equals("Boolean")
+					||	ambTypeName.equals("Byte")
+					|| 	ambTypeName.equals("Char")
+					|| 	ambTypeName.equals("Int")
+					|| 	ambTypeName.equals("Short")
+					|| 	ambTypeName.equals("Float")
+					|| 	ambTypeName.equals("Long")
+					|| 	ambTypeName.equals("Double")) {
+					JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
+					return;
+				}
+			else if (	ambTypeName.indexOf("Rail[") >= 0
 				|| 	ambTypeName.indexOf("GrowableRail[") >= 0) {
 				String class_name = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'));
 				int lastDot = class_name.lastIndexOf(".");
@@ -2522,6 +2616,7 @@ System.out.println("abc1");
 						list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 					} catch (polyglot.types.NoClassException e) {
 						System.out.println(package_ + "." + type_ + " not found: " + e);
+						continue;
 					}
 					System.out.println("AMBDEPTYPE list size=" + list.size());
 					if (list.size() != 0) {
@@ -2566,6 +2661,7 @@ System.out.println("abc1");
 							list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 						} catch (polyglot.types.NoClassException e) {
 							System.out.println(package_ + "." + type_ + " not found: " + e);
+							continue;
 						}
 						if (list.size() != 0) {
 							Type t = list.get(0);
@@ -2583,48 +2679,63 @@ System.out.println("abc1");
 					}
 				}
 				
-				if (!isFoundInPackageRef)
+				if (!isFoundInPackageRef) {
 					// treat as a generic type
+					if (isRailType) {					
+						JNI.cactionTypeReference("", type_, this, createJavaToken());
+						JNI.cactionArrayTypeReference(1, createJavaToken());
+					}
 					JNI.cactionTypeReference("", ambTypeName, this, createJavaToken(amb, amb.toString()));
-			
+				}			
 			} catch (SemanticException e) {
-				// treat as a generic type
+				// treat as a generic type					
+				if (isRailType) {					
+					JNI.cactionTypeReference("", type_, this, createJavaToken());
+					JNI.cactionArrayTypeReference(1, createJavaToken());
+				}
 				JNI.cactionTypeReference("", ambTypeName, this, createJavaToken(amb, amb.toString()));
 			}
 		}
 		
-		public void handleClassMembers(List<ClassMember> members, String package_name, String class_name) {
+		public void handleClassMembers(List<ClassMember> members, String package_name, String type_name) throws SemanticException {
 			for (int i = 0; i < members.size(); ++i) {
 				JL m = members.get(i);
 				if (m instanceof X10MethodDecl_c) {
 					X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
+					if (hasFunctionType(methodDecl))
+						continue;
 					StringBuffer param = new StringBuffer();
 					for (Formal f : methodDecl.formals()) {
 						param.append(f.type().toString().toLowerCase());
 					}
 					memberMap.put(methodDecl.name().toString() + "(" + param + ")", i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(methodDecl, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(methodDecl, type_name);
 				} else if (m instanceof X10ConstructorDecl_c) {
 					X10ConstructorDecl_c constructorDecl = (X10ConstructorDecl_c) m;
+					if (hasFunctionType(constructorDecl))
+						continue;
 					StringBuffer param = new StringBuffer();
 					for (Formal f : constructorDecl.formals()) {
 						param.append(f.type().toString().toLowerCase());
 					}
 					memberMap.put(((X10ConstructorDecl_c) m).name().toString() + "(" + param + ")", i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(constructorDecl, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(constructorDecl, package_name, type_name);
 				} else if (m instanceof X10FieldDecl_c) {
 					X10FieldDecl_c fieldDecl = (X10FieldDecl_c) m;
+					if (hasFunctionType(fieldDecl))
+						continue;
 					memberMap.put(((X10FieldDecl_c) m).name().toString(), i);
-					classMemberMap.put(class_name, memberMap);
-					previsit(fieldDecl, class_name);
+					classMemberMap.put(type_name, memberMap);
+					previsit(fieldDecl, type_name);
 				} else if (m instanceof TypeNode_c) {
 					System.out.println("TypeNode_c : " + m);
 				} else if (m instanceof TypeDecl_c) {
 					System.out.println("TypeDecl_c : " + m);
 				} else if (m instanceof X10ClassDecl_c) {
 					System.out.println("X10ClassDecl_c : " + m);
+					visitDeclarations((X10ClassDecl_c) m, (package_name == "")? type_name : package_name+"."+type_name);
 				} else if (m instanceof ClassDecl_c) {
 					System.out.println("ClassDecl_c : " + m);
 				} else {
@@ -2638,7 +2749,12 @@ System.out.println("abc1");
 			
 		}
 		
+		
 		public void visitDeclarations(X10ClassDecl_c n) throws SemanticException {
+			visitDeclarations(n, null);
+		}
+		
+		public void visitDeclarations(X10ClassDecl_c n, String parent) throws SemanticException {
 //		public void visitDeclarations(Term_c n) {
 			toRose(n, "X10ClassDecl_c visitDeclarations in TypeVisitor:", n.toString());
 			X10ClassDecl_c decl = (X10ClassDecl_c) n;
@@ -2682,9 +2798,21 @@ System.out.println("abc1");
 	        // handling of a super class and interfaces    
         	String superClassName = "";
 	        if (superClass != null) {
-	        	superClassName = superClass.nameString();
-	        	if (superClass instanceof AmbTypeNode_c)
+	        	if (superClass instanceof AmbTypeNode_c) {
 	        		handleAmbType((AmbTypeNode_c) superClass);
+	        		superClassName = ((AmbTypeNode_c) superClass).name().toString();
+//	        		superClassName = 
+       			// currently, not handle the function type
+       			// TODO: handle function type
+	        	}
+	        	else if (superClass instanceof AmbDepTypeNode_c) {
+	        		handleAmbType((AmbDepTypeNode_c) superClass);
+	        		superClassName = ((AmbDepTypeNode_c) superClass).toString();
+	        		System.out.println("SUEPRCLASSNAME=" + superClassName);
+	        	}
+	        	else if (superClass instanceof FunctionTypeNode_c) {
+	        		superClass = null;
+	        	}
 	        	else
 	        		visit((X10CanonicalTypeNode_c) superClass);
 	        }
@@ -2695,6 +2823,13 @@ System.out.println("abc1");
 	        	System.out.println("Interface=" + intface);
        			if (intface instanceof AmbTypeNode_c) 
        				handleAmbType((AmbTypeNode_c) intface, interfaceNames, i);
+       			// currently, not handle the function type
+       			// for simplicity, just ignore interfaces
+       			// TODO: handle function type
+       			else if (intface instanceof FunctionTypeNode_c) { 
+       				interfaces = null; 
+       				break;
+       			}
        			else {
        				interfaceNames[i] = trimTypeParameterClause(intface.toString());
        				System.out.println("name=" + interfaceNames[i] + ", " + intface.getClass());
@@ -2718,7 +2853,7 @@ System.out.println("abc1");
 	    	}
 //	        JNI.cactionPopTypeScope();
 	    	
-	    	// TODO: eliminate if-satement after removing the appearance of ambiguous types
+	    	// TODO: eliminate if-satement after removing the appearance of ambiguous typesPlaceLocalHandle
 
 				Flags flags = decl.flags().flags();
 		    	//TODO: enum and interface type
@@ -2844,6 +2979,7 @@ System.out.println("abc1");
 			List<TypeParamNode> typeParamList = n.typeParameters();			
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();
+				System.out.println("TypeParam=" + typeParam + ", package=" + package_name +", type=" + class_name);				
 				JNI.cactionPushTypeParameterScope(package_name, class_name, createJavaToken(n, typeParam));
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));		
@@ -2853,7 +2989,13 @@ System.out.println("abc1");
 			JNI.cactionBuildMethodSupportStart(method_name, method_index, 
 					createJavaToken(n, method_name+"("+param+")"));
 
-          	visitChild(n, n.returnType());	
+			// in case the return type is unknown. Such a case will occur by writing 
+			// like"public def toString() = "Place(" + this.id + ")";"
+			if (n.returnType() instanceof UnknownTypeNode_c) 
+				JNI.cactionTypeReference("", "void", this, createJavaToken());
+			else 
+				visitChild(n, n.returnType());	
+			
 			visitChildren(n, n.formals());
 
            JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method index 
@@ -2863,7 +3005,7 @@ System.out.println("abc1");
                                            createJavaToken(n, n.name().id().toString()+"_args"));
 		}
 		
-		public void previsit(X10ConstructorDecl_c n, String class_name) {
+		public void previsit(X10ConstructorDecl_c n, String package_name, String type_name) {
 			toRose(n, "TypeVisitor.Previsit constructor decl: ", n.name().id().toString());
 			List<Formal> formals = n.formals();			
 			String method_name = n.name().id().toString();
@@ -2877,15 +3019,18 @@ System.out.println("abc1");
 			List<TypeParamNode> typeParamList = n.typeParameters();
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();	
-				JNI.cactionPushTypeParameterScope(package_name, class_name, createJavaToken(n, typeParam));		
+				JNI.cactionPushTypeParameterScope(package_name, type_name, createJavaToken(n, typeParam));		
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
-				JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));	
+				JNI.cactionBuildTypeParameterSupport(package_name, type_name, method_index, typeParam, 0, createJavaToken(n, typeParam));	
 				JNI.cactionPopTypeParameterScope(createJavaToken(n, typeParam));
 			}
 		
           JNI.cactionBuildMethodSupportStart(method_name, method_index, 
         		  createJavaToken(n, method_name+"("+param+")"));
-			visitChild(n, n.returnType());
+          if (n.returnType() == null) 
+        	  JNI.cactionTypeReference(package_name, type_name, this, createJavaToken(n, n.toString()));
+          else
+        	  visitChild(n, n.returnType());
 //          String raw = n.returnType().node().toString();
 //          String ret = raw.substring(0, raw.indexOf("{amb}"));
 //          System.out.println("returnType=" + n.returnType() + " returnType2 = " + ret + ", formals.size=" + n.formals().size());
@@ -2920,15 +3065,22 @@ System.out.println("abc1");
 	            String fieldName = fieldDecl.name().id().toString();
 	            toRose(fieldDecl, "TypeVisitor.Previsit field decl: ", fieldName);
 	            
-	            TypeNode type = fieldDecl.type();
+	            TypeNode type = fieldDecl.type();	        		
 	        	if (type instanceof AmbTypeNode_c)
 	        		handleAmbType((AmbTypeNode_c) type);
+	        	else if (type instanceof AmbDepTypeNode_c)
+	        		visit((AmbDepTypeNode_c) type);
 	        	else if (type instanceof UnknownTypeNode_c) {
-	        		
+	        		// TODO: should look for the type 
+	        		//
+	        		// An example of unknown type is Printer.lock:
+	        		// public class Printer extends FilterWriter {
+	        		// 		private lock = new Lock();
+	        		// 			:
+	        		// }
+	        		JNI.cactionTypeReference("", "Unknown", this, createJavaToken());
 	        	}
 	        	else {
-	        		System.out.println("type's class=" + type.getClass() + ", type3=" + fieldDecl.type() + ", type.type=" + fieldDecl.type().type());
-	        		
 	        		String package_name = fieldDecl.type().type().fullName().qualifier().toString();
 	        		if (package_name.length() != 0) {
 	        			JNI.cactionPushPackage(package_name, createJavaToken(fieldDecl, package_name));
@@ -2936,18 +3088,18 @@ System.out.println("abc1");
 	        		}
 	        		JNI.cactionTypeReference(package_name, fieldDecl.type().nameString(), this, createJavaToken());
 	        	}
-	        	
 	            JNI.cactionBuildFieldSupport(fieldName, createJavaToken());
 	            
-	            boolean hasInitializer = (fieldDecl.init() != null);
-	            if (hasInitializer) {
-	                visitChild(fieldDecl, fieldDecl.init());
-//						int field_index = memberMap.get(fieldName);
-//	              	
-//	              JNI.cactionBuildInitializerSupport(flags.isStatic(), fieldName,
-//	                                                  field_index,
-//	                                                  createJavaToken());
-	            }
+//	            boolean hasInitializer = (fieldDecl.init() != null);
+//	            
+//	            if (hasInitializer) {
+//	                visitChild(fieldDecl, fieldDecl.init());
+////						int field_index = memberMap.get(fieldName);
+////	              	
+////	              JNI.cactionBuildInitializerSupport(flags.isStatic(), fieldName,
+////	                                                  field_index,
+////	                                                  createJavaToken());
+//	            }
 
 	            // MH-20140401 
 	            // needs to invoke cactionTypeReference again, since cactionFieldDeclarationEnd
@@ -2958,7 +3110,7 @@ System.out.println("abc1");
 
 	            JNI.cactionFieldDeclarationEnd(fieldName,
 	                                            false, // is_enum_field
-	                                            hasInitializer,
+	                                            false,
 	                                            flags.isFinal(),
 	                                            flags.isPrivate(),
 	                                            flags.isProtected(),
@@ -2970,20 +3122,20 @@ System.out.println("abc1");
 	                                            createJavaToken());
 
 
-	            toRose(fieldDecl, "Previsit field decl end: ", fieldName);
+	            toRose(fieldDecl, "TypeVisitor.Previsit field decl end: ", fieldName);
 	        }
 		
 	     boolean isClassFound = false;
 	     
 	     public NodeVisitor enter(Node n) {
-			if (isClassFound) 
+			if (isClassFound)
 				return this;
 			
 			try {
 				if (n instanceof X10ClassDecl_c) {
 					String type = ((X10ClassDecl_c) n).name().toString();
-//					System.out.println("TYPE=" + type + ", class_name=" + class_name + ", package_name=" + package_name);
 					if (type.equals(class_name) || type.toLowerCase().equals(class_name)) {
+						System.out.println("TYPE=" + type + ", class_name=" + class_name + ", package_name=" + package_name);
 						isClassMatched = true;
 						if (isPackageMatched) {
 							visitDeclarations((X10ClassDecl_c)n);
@@ -3227,41 +3379,44 @@ System.out.println("abc1");
 
 				
 				public  void searchFileList(String packageName, String typeName) throws IOException {
-					for (Job job : jobList) {
-						FileSource source = (FileSource) job.source();
-						String sourceName = source.toString();
-						boolean isFoundSourceFile = false;
-						for (int i = 0; i <= fileIndex; ++i) { // including currently processing file
-							String sourceFileGiven = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
-							if (sourceName.equals(sourceFileGiven)) 
-								isFoundSourceFile = true;
-						}
-						if (isFoundSourceFile) 
-							continue;
-						
-						Reader reader = source.open();
-						ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
-						Parser p = job.extensionInfo().parser(reader, source, eq);
-						Node ast = p.parse();
-						TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, (SourceFile_c) job.ast(), job);
-		
-						ast.visit(tVisitor);
-						source.close();
-						if (tVisitor.isFound()) {
-							//////
-//							for (int i = 0; i < 5; i++) {
-//								System.out.println("loop test for parser " + i);
-//								reader = source.open();
-//								eq = job.extensionInfo().compiler().errorQueue();
-//								p = job.extensionInfo().parser(reader, source, eq);
-//								tVisitor = new TypeVisitor(packageName, typeName, source);
-//								ast.visit(tVisitor);
-//							}
-							//////
-							tVisitor.createTypeReferenceEnd();	
-							return;
-						}
-					}				
+					System.out.println("TypeVisitor.searchFileList()");
+					return;
+					// MH-20140901 comment out for skipping to lookup library classes from library classess
+//					for (Job job : jobList) {
+//						FileSource source = (FileSource) job.source();
+//						String sourceName = source.toString();
+//						boolean isFoundSourceFile = false;
+//						for (int i = 0; i <= fileIndex; ++i) { // including currently processing file
+//							String sourceFileGiven = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
+//							if (sourceName.equals(sourceFileGiven)) 
+//								isFoundSourceFile = true;
+//						}
+//						if (isFoundSourceFile) 
+//							continue;
+//						
+//						Reader reader = source.open();
+//						ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
+//						Parser p = job.extensionInfo().parser(reader, source, eq);
+//						Node ast = p.parse();
+//						TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, (SourceFile_c) job.ast(), job);
+//		
+//						ast.visit(tVisitor);
+//						source.close();
+//						if (tVisitor.isFound()) {
+//							//////
+////							for (int i = 0; i < 5; i++) {
+////								System.out.println("loop test for parser " + i);
+////								reader = source.open();
+////								eq = job.extensionInfo().compiler().errorQueue();
+////								p = job.extensionInfo().parser(reader, source, eq);
+////								tVisitor = new TypeVisitor(packageName, typeName, source);
+////								ast.visit(tVisitor);
+////							}
+//							//////
+//							tVisitor.createTypeReferenceEnd();	
+//							return;
+//						}
+//					}				
 				}
 				
 				public void visit(AmbDepTypeNode_c n) {
