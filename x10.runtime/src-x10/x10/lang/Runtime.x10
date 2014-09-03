@@ -94,7 +94,7 @@ public final class Runtime {
         var body:()=>void = msgBody;
         if (CANCELLABLE) {
             val epoch = epoch();
-            if (activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+            if (activity() != null && activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
             body = ()=> {
                 if (epoch > epoch()) pool.flush(epoch);
                 if (epoch == epoch()) msgBody();
@@ -126,7 +126,7 @@ public final class Runtime {
                                             prof:Profile, preSendAction:()=>void):void {
         val epoch = epoch();
         if (CANCELLABLE) {
-            if (activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+            if (activity() != null && activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
         }
         x10rtSendAsyncInternal(epoch, id, body, finishState, prof, preSendAction);
     }
