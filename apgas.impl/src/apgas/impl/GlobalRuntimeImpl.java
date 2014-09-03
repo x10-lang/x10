@@ -92,21 +92,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     return pb.start();
   }
 
-  private void refreshPlaces() {
-    synchronized (allPlaces) {
-      for (int i = allPlaces.size(); i < transport.places(); i++) {
-        allPlaces.add(new Place(i));
-      }
-      places = new ArrayList<Place>();
-      for (final Place p : allPlaces) {
-        if (p != null) {
-          places.add(p);
-        }
-      }
-      places = Collections.<Place> unmodifiableList(places);
-    }
-  }
-
   public static GlobalRuntimeImpl getRuntime() {
     return (GlobalRuntimeImpl) GlobalRuntime.getRuntime();
   }
@@ -208,8 +193,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
     }
 
-    refreshPlaces();
-
     // start scheduler
     scheduler.start();
   }
@@ -230,20 +213,28 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    * Handles elasticity events.
    *
    * @param place
-   *          the place being removed or -1
+   *          the total number of places or -ID of the place being removed
    */
   void callback(int place) {
-    if (!resilient && place != -1) {
+    if (!resilient && place <= 0) {
       shutdown();
       return;
     }
-    if (place != -1) {
-      System.err.println(here + " observing the removal of " + place);
-      synchronized (allPlaces) {
-        allPlaces.set(place, null);
+    synchronized (allPlaces) {
+      for (int i = allPlaces.size(); i < (place > 0 ? place : 1 - place); i++) {
+        allPlaces.add(new Place(i));
       }
+      if (place <= 0) {
+        allPlaces.set(-place, null);
+      }
+      places = new ArrayList<Place>();
+      for (final Place p : allPlaces) {
+        if (p != null) {
+          places.add(p);
+        }
+      }
+      places = Collections.<Place> unmodifiableList(places);
     }
-    refreshPlaces();
   }
 
   /**

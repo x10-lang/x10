@@ -12,6 +12,9 @@
 package apgas.impl;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.IntConsumer;
 
 import com.hazelcast.config.Config;
@@ -54,7 +57,7 @@ final class HazelcastTransport implements ItemListener<Member>,
   private int places;
 
   /**
-   * List of past and present members in join order.
+   * Distributed list of past and present members in join order.
    */
   private final IList<Member> members;
 
@@ -90,7 +93,7 @@ final class HazelcastTransport implements ItemListener<Member>,
    * @param master
    *          member to connect to or null
    * @param localhost
-   *          the ip address of this host
+   *          the preferred ip address of this host
    */
   HazelcastTransport(IntConsumer callback, String master, String localhost) {
     this.callback = callback;
@@ -119,22 +122,38 @@ final class HazelcastTransport implements ItemListener<Member>,
     members = hazelcast.<Member> getList("APGAS");
 
     members.add(hazelcast.getCluster().getLocalMember());
+    final String uuid = hazelcast.getCluster().getLocalMember().getUuid();
     regItemListener = members.addItemListener(this, false);
 
     int here = 0;
     for (final Member m : members) {
-      if (m.localMember()) {
+      if (m.getUuid().equals(uuid)) {
         break;
       }
       here++;
     }
     this.here = here;
     places = members.size();
+    callback.accept(places);
 
     // topic = hazelcast.getTopic("APGAS" + here);
     // regTopic = topic.addMessageListener(this);
 
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
+
+    // we need to identify places that are already dead
+    final Set<Member> set = hazelcast.getCluster().getMembers();
+    // we cannot rely on .equals on members as it only compares addresses
+    final List<String> uuids = new ArrayList<String>();
+    for (final Member m : set) {
+      uuids.add(m.getUuid());
+    }
+    for (int i = 0; i < places; i++) {
+      if (!uuids.contains(members.get(i).getUuid())) {
+        System.err.println(here + " observing the removal of " + i);
+        callback.accept(-i);
+      }
+    }
   }
 
   /**
@@ -223,7 +242,15 @@ final class HazelcastTransport implements ItemListener<Member>,
 
   @Override
   public void memberRemoved(MembershipEvent membershipEvent) {
-    callback.accept(members.indexOf(membershipEvent.getMember()));
+    // we cannot rely on .equals on members as it only compares addresses
+    final String uuid = membershipEvent.getMember().getUuid();
+    for (int i = 0; i < places; i++) {
+      if (members.get(i).getUuid().equals(uuid)) {
+        System.err.println(here + " observing the removal of " + i);
+        callback.accept(-i);
+        return;
+      }
+    }
   }
 
   @Override
@@ -234,7 +261,7 @@ final class HazelcastTransport implements ItemListener<Member>,
   @Override
   public void itemAdded(ItemEvent<Member> item) {
     places = members.size();
-    callback.accept(-1);
+    callback.accept(places);
   }
 
   @Override
