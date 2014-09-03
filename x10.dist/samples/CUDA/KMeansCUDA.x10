@@ -154,6 +154,7 @@ public class KMeansCUDA {
 
 
     public static def main (args:Rail[String]) {
+        val topo = PlaceTopology.getTopology();
         val opts = new OptionsParser(args, [
             Option("q","quiet","just print time taken"),
             Option("v","verbose","print out each iteration")
@@ -167,7 +168,7 @@ public class KMeansCUDA {
         val fname = opts("-p", "points.dat");
         val num_clusters=opts("-c",8n);
         val global_num_points=opts("-n", 100000);
-        val iterations=opts("-i",500);
+        val iterations=opts("-i", topo.numChildrenPlaces() == 0 ? 50 : 500);
         val verbose = opts("-v");
         val quiet = opts("-q");
         val work = opts("-w", 100000n);
@@ -186,7 +187,6 @@ public class KMeansCUDA {
         val init_global_points = (i:Long) => { val p = (i%global_num_points)%file_num_points, d=i/global_num_points; return file_points(p*dim + d); };
         val global_points = new Rail[Float](global_num_points*dim, init_global_points);
 
-        val topo = PlaceTopology.getTopology();
         if (!quiet) {
             if (topo.numChildrenPlaces() == 0) {
                 Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
