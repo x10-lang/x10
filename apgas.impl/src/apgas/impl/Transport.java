@@ -34,12 +34,12 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
 /**
- * The {@link HazelcastTransport} class implements the global runtime by means
- * of an Hazelcast cluster.
+ * The {@link Transport} class implements the global runtime by means of an
+ * Hazelcast cluster.
  * <p>
  * It implements active messages on top of a distributed executor service.
  */
-final class HazelcastTransport implements ItemListener<Member>,
+final class Transport implements ItemListener<Member>,
     MessageListener<Runnable>, MembershipListener {
   /**
    * The hazelcast instance for this JVM.
@@ -100,7 +100,7 @@ final class HazelcastTransport implements ItemListener<Member>,
    * @param localhost
    *          the preferred ip address of this host
    */
-  HazelcastTransport(IntConsumer callback, String master, String localhost) {
+  Transport(IntConsumer callback, String master, String localhost) {
     this.callback = callback;
 
     // config
@@ -155,7 +155,7 @@ final class HazelcastTransport implements ItemListener<Member>,
     }
     for (int i = 0; i < places; i++) {
       if (!uuids.contains(members.get(i).getUuid())) {
-        System.err.println(here + " observing the removal of " + i);
+        // System.err.println(here + " observing the removal of " + i);
         callback.accept(-i);
       }
     }
@@ -250,7 +250,7 @@ final class HazelcastTransport implements ItemListener<Member>,
     final String uuid = membershipEvent.getMember().getUuid();
     for (int i = 0; i < places; i++) {
       if (members.get(i).getUuid().equals(uuid)) {
-        System.err.println(here + " observing the removal of " + i);
+        // System.err.println(here + " observing the removal of " + i);
         callback.accept(-i);
         return;
       }
