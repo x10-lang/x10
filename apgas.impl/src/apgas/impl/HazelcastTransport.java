@@ -62,6 +62,11 @@ final class HazelcastTransport implements ItemListener<Member>,
   private final IList<Member> members;
 
   /**
+   * The local member.
+   */
+  private final Member me;
+
+  /**
    * Registration ID.
    */
   private final String regMembershipListener;
@@ -121,13 +126,13 @@ final class HazelcastTransport implements ItemListener<Member>,
     executor = hazelcast.getExecutorService("APGAS");
     members = hazelcast.<Member> getList("APGAS");
 
-    members.add(hazelcast.getCluster().getLocalMember());
-    final String uuid = hazelcast.getCluster().getLocalMember().getUuid();
+    me = hazelcast.getCluster().getLocalMember();
+    members.add(me);
     regItemListener = members.addItemListener(this, false);
 
     int here = 0;
     for (final Member m : members) {
-      if (m.getUuid().equals(uuid)) {
+      if (m.getUuid().equals(me.getUuid())) {
         break;
       }
       here++;
@@ -177,8 +182,7 @@ final class HazelcastTransport implements ItemListener<Member>,
    * @return an address in the form "ip:port"
    */
   String getAddress() {
-    final InetSocketAddress address = hazelcast.getCluster().getLocalMember()
-        .getSocketAddress();
+    final InetSocketAddress address = me.getSocketAddress();
     return address.getAddress().getHostAddress() + ":" + address.getPort();
   }
 
