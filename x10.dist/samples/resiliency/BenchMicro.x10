@@ -158,7 +158,7 @@ public class BenchMicro {
             finish {
                 for (p in Place.places()) {
                     at (p) async {
-                        for (q in Place.places()) async at (q) {
+                        for (q in Place.places()) at (q) async {
                             think(t);
                         }
                     }
@@ -176,7 +176,7 @@ public class BenchMicro {
                 for (p in Place.places()) {
                     at (p) async {
                         finish {
-                            for (q in Place.places()) async at (q) {
+                            for (q in Place.places()) at (q) async {
                                 think(t);
                             }
                         }
