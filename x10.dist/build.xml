@@ -582,17 +582,18 @@
 	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
 UNAME=`uname -smp | sed -e 's/ /,/g'`
-FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
-PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+unset IS_CYGWIN; if [[ "$UNAME" = CYGWIN* ]]; then IS_CYGWIN=1; fi
+FILE_SEP='/'; if [ -n "$IS_CYGWIN" ]; then FILE_SEP='\\'; fi
+PATH_SEP=':'; if [ -n "$IS_CYGWIN" ]; then PATH_SEP=';'; fi
 
 prog="$(readlink "$0" 2&gt;&amp;1)"
 [ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
 TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
-if [[ "$UNAME" = CYGWIN* ]]; then PATH="$PATH:$TOP/lib"; TOP="$(cygpath -am "$TOP")"; fi
+if [ -n "$IS_CYGWIN" ]; then PATH="$PATH:$TOP/lib"; TOP="$(cygpath -am "$TOP")"; fi
 
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
 [ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; JRE_HOME="$(cygpath -am "$JRE_HOME")"; fi
+if [ -n "$IS_CYGWIN" ]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; JRE_HOME="$(cygpath -am "$JRE_HOME")"; fi
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
     JAVA="$JAVA_HOME/bin/java"
     JAR="$JAVA_HOME/bin/jar"
@@ -603,7 +604,7 @@ else
     echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
     exit 1
 fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
+if [ -n "$IS_CYGWIN" ]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
 
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 

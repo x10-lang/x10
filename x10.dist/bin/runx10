@@ -11,6 +11,9 @@
 #  (C) Copyright IBM Corporation 2006-2014.
 #
 
+UNAME=`uname -s`
+unset IS_CYGWIN; if [[ "$UNAME" = CYGWIN* ]]; then IS_CYGWIN=1; fi
+
 # Wrapper only needed on cygwin to get the lib dirs
 # onto users path so they will be loaded. Sigh.
 
@@ -21,7 +24,7 @@ TOP="$(cd "$(dirname "$prog")/.." && pwd)"
 PATH="$PATH:."
 
 # Cygwin: add x10.dist/lib to PATH to pick up the shared libs
-if [[ "`uname -s`" = CYGWIN* ]] ; then
+if [ -n "$IS_CYGWIN" ]; then
     export PATH="$PATH:$TOP/lib:$TOP/stdlib/lib"
 fi
 

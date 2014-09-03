@@ -31,7 +31,7 @@ while [ -n "$1" ]; do
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
         -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"
-                 [[ "$UNAME" = CYGWIN* ]] && propfile="$(cygpath -am "$propfile")"
+                 [ -n "$IS_CYGWIN" ] && propfile="$(cygpath -am "$propfile")"
                  args="$args -x10lib '$propfile'";;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;

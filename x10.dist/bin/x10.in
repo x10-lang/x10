@@ -177,7 +177,7 @@ if [ "${x10rt_impl}" = "local" ]; then
     java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
     unset X10_HOSTFILE
     unset X10_HOSTLIST
-elif [[ "$UNAME" = CYGWIN* ]]; then 
+elif [ -n "$IS_CYGWIN" ]; then 
     launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
     java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
 else

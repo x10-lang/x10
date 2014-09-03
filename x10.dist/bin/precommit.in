@@ -24,7 +24,7 @@ echo "Making temp dir"
 if [ -z "$TMP_DIR" ]; then
   export TMP_DIR=/tmp/precommit-$USER
 fi
-if [[ "$UNAME" = CYGWIN* ]]; then TMP_DIR="$(cygpath -am "$TMP_DIR")"; fi
+if [ -n "$IS_CYGWIN" ]; then TMP_DIR="$(cygpath -am "$TMP_DIR")"; fi
 
 rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
