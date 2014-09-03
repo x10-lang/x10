@@ -1332,15 +1332,15 @@ public final class Runtime {
                     val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure, null);
+                x10rtSendMessageInternal(box.home.id, closure, null, null);
                 Unsafe.dealloc(closure);
             };
-        x10rtSendMessage(place.id, latchedBody, null);
+        x10rtSendMessageInternal(place.id, latchedBody, null, null);
         Unsafe.dealloc(latchedBody);
         me.await(); // wait until body is executed at remote place
       } else { // asynchronous exec
         val simpleBody = () => @x10.compiler.RemoteInvocation("runAtSimple_3") { body(); };
-        x10rtSendMessage(place.id, simpleBody, null);
+        x10rtSendMessageInternal(place.id, simpleBody, null, null);
         Unsafe.dealloc(simpleBody);
         // *not* wait until body is executed at remote place
       }
