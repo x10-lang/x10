@@ -21,14 +21,16 @@ public class BenchMicro {
 
     static OUTER_ITERS = 100;
     static INNER_ITERS = 100;
-    static MIN_NANOS = (10*1e9) as long; // require each test to run for at least 20 seconds (reduce jitter)
+    static MIN_NANOS = (10*1e9) as long; // require each test to run for at least 10 seconds (reduce jitter)
 
-    public static def main(Rail[String]){here==Place.FIRST_PLACE}{
+    public static def main(args:Rail[String]){here==Place.FIRST_PLACE}{
         if (Place.numPlaces() < 2) {
             Console.ERR.println("Fair evaluation of place-zero based finish requires more than one place, and preferably more than one host.");
             System.setExitCode(1n);
             return;
         }
+
+        val think:Long = args.size == 0 ? 0 : Long.parse(args(0));
 
 	if (Runtime.RESILIENT_MODE == 0n) {
             Console.OUT.println("Configuration: DEFAULT (NON-RESILIENT)");
@@ -38,17 +40,18 @@ public class BenchMicro {
 
         Console.OUT.println("Running with "+Place.numPlaces()+" places.");
         Console.OUT.println("Min elapsed time for each test: "+MIN_NANOS/1e9+" seconds.");
+        Console.OUT.println("Think time for each activity: "+think+" nanoseconds.");
         
         Console.OUT.println("Test based from place 0");
-        doTest("place 0 -- ");
+        doTest("place 0 -- ", think);
         Console.OUT.println();
 
         Console.OUT.println("Test based from place 1");
-        at (Place(1)) doTest("place 1 -- ");
+        at (Place(1)) doTest("place 1 -- ", think);
         Console.OUT.println();
     }
 
-    public static def doTest(prefix:String) {
+    public static def doTest(prefix:String, t:Long) {
         var time0:Long, time1:Long;
         var iterCount:Long;
         val home = here;
@@ -58,6 +61,8 @@ public class BenchMicro {
         do {
             for (i in 1..OUTER_ITERS) {
                 finish {
+                    // Completely empty finish to measure cost of finish start/end
+                    // independent of per-activity costs.
                 }
             }
             time1 = System.nanoTime();
@@ -70,14 +75,15 @@ public class BenchMicro {
         do {
             for (i in 1..OUTER_ITERS) {
                 finish {
-                    for (j in 1..INNER_ITERS) async {
-                        }
+                    for (j in 1..INNER_ITERS) { 
+                        async { think(t); };
+                    }
                 }
             }
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"local termination: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
+        Console.OUT.println(prefix+"local termination of "+INNER_ITERS+" activities: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
@@ -85,7 +91,7 @@ public class BenchMicro {
         do {
             for (i in 1..OUTER_ITERS) {
                 finish {
-                    at (next) async { }
+                    at (next) async { think(t); }
                 }
             }
             time1 = System.nanoTime();
@@ -99,7 +105,7 @@ public class BenchMicro {
             for (i in 1..OUTER_ITERS) {
                 finish {
                     for (p in Place.places()) {
-                        at (p) async { }
+                        at (p) async { think(t); }
                     }
                 }
             }
@@ -115,7 +121,7 @@ public class BenchMicro {
                 finish {
                     for (p in Place.places()) {
                         at (p) async {
-                            at (home) async { }
+                            at (home) async { think(t); }
                         }
                     }
                 }
@@ -133,8 +139,9 @@ public class BenchMicro {
                     for (p in Place.places()) {
                         at (p) async {
                             finish {
-                                for (j in 1..INNER_ITERS) async {
-                                    }
+                                for (j in 1..INNER_ITERS) {
+                                    async { think(t); };
+                                }
                             }
                         }
                     }
@@ -143,7 +150,7 @@ public class BenchMicro {
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"fan out, internal work: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
+        Console.OUT.println(prefix+"fan out, internal work "+INNER_ITERS+" activities: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
@@ -152,7 +159,8 @@ public class BenchMicro {
                 for (p in Place.places()) {
                     at (p) async {
                         for (q in Place.places()) async at (q) {
-                            }
+                            think(t);
+                        }
                     }
                 }
             }
@@ -169,7 +177,8 @@ public class BenchMicro {
                     at (p) async {
                         finish {
                             for (q in Place.places()) async at (q) {
-                                }
+                                think(t);
+                            }
                         }
                     }
                 }
@@ -178,5 +187,11 @@ public class BenchMicro {
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
         Console.OUT.println(prefix+"fan out, nested finish broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
+    }
+
+    public static def think(think:Long) {
+        if (think == 0) return;
+        val start = System.nanoTime();
+        do {} while (System.nanoTime() - start < think);
     }
 }
