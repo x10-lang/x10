@@ -72,9 +72,9 @@ public final class Clock(name:String) {
         }
     }
 
-    @Global private def get() = Runtime.activity().clockPhases().get(this).value;
+    @Global private def get() = Runtime.activity().clockPhases().get(this);
     @Global private def put(ph:Int) = Runtime.activity().clockPhases().put(this, ph);
-    @Global private def remove() = Runtime.activity().clockPhases().remove(this).value;
+    @Global private def remove() = Runtime.activity().clockPhases().remove(this);
     @Global def register() {
         if (dropped()) clockUseException("async clocked");
         val ph = get();

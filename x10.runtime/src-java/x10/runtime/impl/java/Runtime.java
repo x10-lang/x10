@@ -449,7 +449,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         Map<String, String> env = System.getenv();
         x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).x10$util$HashMap$$init$S();
         for (Map.Entry<String, String> e : env.entrySet()) {
-            map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
+            map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V$G(e.getKey(), e.getValue());
         }
         return map;
     }

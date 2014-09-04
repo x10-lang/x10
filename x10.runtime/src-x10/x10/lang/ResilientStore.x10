@@ -10,13 +10,13 @@
  */
 package x10.lang;
 
-abstract public class ResilientStore[K,V] {
+public abstract class ResilientStore[K,V] {
     protected static val verbose = FinishResilient.verbose; //TODO: to be separated
     protected static def debug(msg:String) { FinishResilient.debug(msg); }
     
-    public static def make[K,V](name:Any):ResilientStore[K,V] {
+    public static def make[K,V](name:Any){V haszero}:ResilientStore[K,V]{V haszero} {
         if (verbose>=1) debug("ResilientStore.make called, name="+name);
-        var rs:ResilientStore[K,V];
+        var rs:ResilientStore[K,V]{V haszero};
         //TODO: support other implementations
         rs = ResilientStorePlace0.make[K,V](name);
         //rs = ResilientStoreHC.make[K,V](name);

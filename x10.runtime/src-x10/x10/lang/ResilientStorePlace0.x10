@@ -13,14 +13,15 @@ import x10.compiler.*;
 import x10.util.HashMap;
 import x10.util.concurrent.SimpleLatch;
 
-class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
+class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     private static val verbose = ResilientStore.verbose;
     
     private static def lowLevelSend(dst:Place, cl:()=>void) = FinishResilient.lowLevelSend(dst, cl);
     private static def lowLevelAt(dst:Place, cl:()=>void) = FinishResilient.lowLevelAt(dst, cl);
     private static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean = FinishResilient.lowLevelFetch[T](dst, result, cl);
-    
-    static val ALL = (here.id==0) ? new HashMap[Any,Any]() : null;
+
+    static type KLUDGE = Any{KLUDGE haszero};
+    private static val ALL = (here.id==0) ? new HashMap[Any,KLUDGE]() : null;
     
     @NonEscaping private val root:GlobalRef[ResilientStorePlace0[K,V]];
     private def getMe() = root.getLocalOrCopy(); // should be called at place 0
@@ -30,7 +31,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
         root = GlobalRef[ResilientStorePlace0[K,V]](this);
     }
     
-    public static def make[K,V](name:Any):ResilientStorePlace0[K,V] {
+    public static def make[K,V](name:Any){V haszero}:ResilientStorePlace0[K,V] {
         if (verbose>=3) debug("ResilientStorePlace0.make called, name="+name);
         val result = new Cell[ResilientStorePlace0[K,V]](null);
         lowLevelFetch(Place(0), result, ()=>{
@@ -51,7 +52,7 @@ class ResilientStorePlace0[K,V] extends ResilientStore[K,V] {
     
     public static def delete(name:Any):void {
         if (verbose>=3) debug("delete called, name="+name);
-        lowLevelAt(Place(0), ()=>{ atomic { ALL.remove(name); } });
+        lowLevelAt(Place(0), ()=>{ atomic { ALL.delete(name); } });
         if (verbose>=3) debug("delete returning");
     }
     
