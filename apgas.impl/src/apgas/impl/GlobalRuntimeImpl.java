@@ -24,9 +24,9 @@ import apgas.Constructs;
 import apgas.DeadPlaceException;
 import apgas.Fun;
 import apgas.GlobalRuntime;
+import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
-import apgas.Job;
 import apgas.util.GlobalID;
 
 /**
@@ -252,14 +252,15 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
-  private Finish newFinish() {
-    return resilient ? new ResilientFinish() : new DefaultFinish();
+  private Finish newFinish(Finish parent) {
+    return resilient ? new ResilientFinish((ResilientFinish) parent)
+        : new DefaultFinish();
   }
 
   @Override
   public void finish(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = newFinish();
+    final Finish finish = newFinish(worker == null ? null : worker.task.finish);
     finish.spawn(here);
     new Task(finish, f, here).finish(worker);
     if (finish.exceptions() != null) {
@@ -270,7 +271,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void async(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? newFinish() : worker.task.finish;
+    final Finish finish = worker == null ? newFinish(null) : worker.task.finish;
     finish.spawn(here);
     new Task(finish, f, here).async(worker);
   }
@@ -279,7 +280,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   public void asyncat(Place p, Job f) {
     p = place(p.id); // validate destination
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? newFinish() : worker.task.finish;
+    final Finish finish = worker == null ? newFinish(null) : worker.task.finish;
     finish.spawn(p.id);
     new Task(finish, f, here).asyncat(p);
   }

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.IntConsumer;
 
+import apgas.Configuration;
+
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
@@ -155,7 +157,6 @@ final class Transport implements ItemListener<Member>,
     }
     for (int i = 0; i < places; i++) {
       if (!uuids.contains(members.get(i).getUuid())) {
-        // System.err.println(here + " observing the removal of " + i);
         callback.accept(-i);
       }
     }
@@ -250,8 +251,12 @@ final class Transport implements ItemListener<Member>,
     final String uuid = membershipEvent.getMember().getUuid();
     for (int i = 0; i < places; i++) {
       if (members.get(i).getUuid().equals(uuid)) {
-        // System.err.println(here + " observing the removal of " + i);
+        System.err.println(here + " observing the removal of " + i);
         callback.accept(-i);
+        // TODO fix the hack
+        if (here == 0 && Boolean.getBoolean(Configuration.APGAS_RESILIENT)) {
+          ResilientFinish.purge(i);
+        }
         return;
       }
     }
