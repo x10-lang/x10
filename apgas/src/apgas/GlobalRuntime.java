@@ -89,7 +89,7 @@ public abstract class GlobalRuntime {
    * @throws MultipleException
    *           if there are uncaught exceptions
    */
-  protected abstract void finish(VoidFun f);
+  protected abstract void finish(Job f);
 
   /**
    * Submits a new local task to the global runtime with body {@code f} and
@@ -98,7 +98,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void async(VoidFun f);
+  protected abstract void async(Job f);
 
   /**
    * Submits a new task to the global runtime to be run at {@link Place}
@@ -111,7 +111,7 @@ public abstract class GlobalRuntime {
    * @throws BadPlaceException
    *           if the place is not valid
    */
-  protected abstract void asyncat(Place p, VoidFun f);
+  protected abstract void asyncat(Place p, Job f);
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
@@ -126,7 +126,7 @@ public abstract class GlobalRuntime {
    * @throws BadPlaceException
    *           if the place is not valid
    */
-  protected abstract void at(Place p, VoidFun f);
+  protected abstract void at(Place p, Job f);
 
   /**
    * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks

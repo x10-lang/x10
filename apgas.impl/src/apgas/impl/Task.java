@@ -16,7 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import apgas.Place;
-import apgas.VoidFun;
+import apgas.Job;
 
 /**
  * The {@link Task} class represents an APGAS task.
@@ -36,7 +36,7 @@ final class Task implements SerializableRunnable {
   /**
    * The function to run.
    */
-  private VoidFun f;
+  private Job f;
 
   /**
    * The place of the parent task.
@@ -53,7 +53,7 @@ final class Task implements SerializableRunnable {
    * @param parent
    *          the place of the parent task
    */
-  Task(Finish finish, VoidFun f, int parent) {
+  Task(Finish finish, Job f, int parent) {
     this.finish = finish;
     this.f = f;
     this.parent = parent;
@@ -156,7 +156,7 @@ final class Task implements SerializableRunnable {
     out.writeObject(f);
   }
 
-  private static final VoidFun NULL = () -> {
+  private static final Job NULL = () -> {
   };
 
   /**
@@ -178,7 +178,7 @@ final class Task implements SerializableRunnable {
     finish = (Finish) in.readObject();
     parent = in.readInt();
     try {
-      f = (VoidFun) in.readObject();
+      f = (Job) in.readObject();
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException) {
         new ExceptionalTask(finish, e, GlobalRuntimeImpl.getRuntime().here)

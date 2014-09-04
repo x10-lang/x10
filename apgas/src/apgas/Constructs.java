@@ -37,7 +37,7 @@ public final class Constructs {
    * @throws MultipleException
    *           if there are uncaught exceptions
    */
-  public static void finish(VoidFun f) {
+  public static void finish(Job f) {
     GlobalRuntime.getRuntime().finish(f);
   }
 
@@ -48,7 +48,7 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void async(VoidFun f) {
+  public static void async(Job f) {
     GlobalRuntime.getRuntime().async(f);
   }
 
@@ -63,7 +63,7 @@ public final class Constructs {
    * @throws BadPlaceException
    *           if the place is not valid
    */
-  public static void asyncat(Place p, VoidFun f) {
+  public static void asyncat(Place p, Job f) {
     GlobalRuntime.getRuntime().asyncat(p, f);
   }
 
@@ -80,7 +80,7 @@ public final class Constructs {
    * @throws BadPlaceException
    *           if the place is not valid
    */
-  public static void at(Place p, VoidFun f) {
+  public static void at(Place p, Job f) {
     GlobalRuntime.getRuntime().at(p, f);
   }
 
