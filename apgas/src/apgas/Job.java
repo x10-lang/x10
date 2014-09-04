@@ -19,7 +19,7 @@ import java.io.Serializable;
  * The functional method is {@link #run()}.
  */
 @FunctionalInterface
-public interface VoidFun extends Serializable {
+public interface Job extends Serializable {
   /**
    * Runs the function or throws an exception if unable to do so.
    *

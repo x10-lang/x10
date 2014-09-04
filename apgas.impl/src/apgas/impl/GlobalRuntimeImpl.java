@@ -26,7 +26,7 @@ import apgas.Fun;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
 import apgas.Place;
-import apgas.VoidFun;
+import apgas.Job;
 import apgas.util.GlobalID;
 
 /**
@@ -47,7 +47,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * The transport for this global runtime instance.
    */
-  final HazelcastTransport transport;
+  final Transport transport;
 
   /**
    * This place's ID.
@@ -115,7 +115,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // initialize scheduler and hazelcast
     scheduler = new Scheduler();
-    transport = new HazelcastTransport(this::callback, master, localhost);
+    transport = new Transport(this::callback, master, localhost);
     here = transport.here();
 
     // install shutdown hook
@@ -257,7 +257,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void finish(VoidFun f) {
+  public void finish(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = newFinish();
     finish.spawn(here);
@@ -268,7 +268,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void async(VoidFun f) {
+  public void async(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? newFinish() : worker.task.finish;
     finish.spawn(here);
@@ -276,7 +276,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void asyncat(Place p, VoidFun f) {
+  public void asyncat(Place p, Job f) {
     p = place(p.id); // validate destination
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? newFinish() : worker.task.finish;
@@ -285,7 +285,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void at(Place p, VoidFun f) {
+  public void at(Place p, Job f) {
     Constructs.finish(() -> Constructs.asyncat(p, f));
   }
 

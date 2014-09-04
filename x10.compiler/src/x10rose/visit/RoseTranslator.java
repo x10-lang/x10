@@ -462,17 +462,18 @@ public class RoseTranslator extends Translator {
 		}
 		return clazz;
 	}
-	
+
 	public static class ToRoseVisitor extends X10DelegatingVisitor {
 		Node parent;
 		CodeWriter w;
 		private List<Import> imports;
 		private List<String> package_ref;
-		private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
-		private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
 
 		public static boolean isGatheringFile = true;
-		private static String currentPackageName = "";
+		private static String currentPackageName = "";	
+		private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
+		private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
+		
 		
 		/**     
 		 * 
@@ -534,7 +535,7 @@ public class RoseTranslator extends Translator {
 		 * @param op
 		 * @return
 		 */
-		private int getOperatorKind(Binary.Operator op) {
+		private int getOperatorKind(Binary.Operator op) {			
 			if (binaryOpTable.isEmpty()) {
 				binaryOpTable.put(Binary.Operator.BIT_AND, 2); // or COND_AND?
 				binaryOpTable.put(Binary.Operator.BIT_OR, 3);  // or COND_OR?
@@ -552,6 +553,7 @@ public class RoseTranslator extends Translator {
 				binaryOpTable.put(Binary.Operator.SHR, 17);
 				binaryOpTable.put(Binary.Operator.USHR, 19);
 				binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
+				binaryOpTable.put(Binary.Operator.EQ, 21);
 				binaryOpTable.put(Binary.Operator.COND_OR, 100);
 				binaryOpTable.put(Binary.Operator.COND_AND, 101);
 			}
@@ -1085,7 +1087,6 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10Formal_c n) {
 			toRose(n, "formal: ", n + "");
-			System.out.println("");
 
 //                args_location = createJavaToken(args[0], args[args.length - 1]); 
 //
@@ -1101,7 +1102,6 @@ public class RoseTranslator extends Translator {
 //                }
 			visitChild(n, n.type());
 			// so far, all parameters's modifier are set as final.
-			// For the Point type, 
 			JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size()>0, false, createJavaToken(n, n.name().id().toString()));
 		}
 		
@@ -1541,9 +1541,9 @@ public class RoseTranslator extends Translator {
 			else {
 				String className = n.node().toString();
 				int index = className.indexOf("[");
-				if (index >= 0)
-					className = className.substring(0, index);
-				int lastDot = className.lastIndexOf('.');
+//				if (index >= 0)
+//					className = className.substring(0, index);
+				int lastDot = className.lastIndexOf('.', index);
 				
 				String pkg = "";
 				String type = "";
@@ -1637,7 +1637,6 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10Binary_c n) {
 			toRose(n, "X10Binary:", n.operator().toString());					
-			System.out.println("OP=" + getOperatorKind(n.operator()));
 			JNI.cactionBinaryExpression(createJavaToken(n, n.toString()));	
 			visitChild(n, n.left());
 			visitChild(n, n.right());
@@ -2177,7 +2176,13 @@ System.out.println("abc1");
 			}
 			else {
 				JNI.cactionAllocationExpression(createJavaToken(n, n.toString()));
-				visitChildren(n, n.typeArguments());
+				List<TypeNode> typeArg = n.typeArguments();
+				for (int i = 0; typeArg != null && i < typeArg.size(); ++i) {
+//					visitChildren(n, n.typeArguments());
+					String typeParam = typeArg.get(i).nameString();
+					
+
+				}
 				visitChild(n, n.objectType());
 				visitChildren(n, n.arguments());
 				JNI.cactionAllocationExpressionEnd(n.objectType() != null, n.arguments().size(), createJavaToken(n, n.toString()));
@@ -4044,7 +4049,7 @@ System.out.println("abc1");
 
 
 				public void visit(X10New_c n) {
-					toRose(n, "X10New:");
+					toRose(n, "TypeVisitor.X10New:");
 					visitChildren(n, n.typeArguments());
 					visitChildren(n, n.arguments());
 					visitChild(n, n.objectType());

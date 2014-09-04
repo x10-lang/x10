@@ -55,7 +55,7 @@
 // don't miss X10_DEBUGGER_ID and X10_DEBUGGER_NAME over in DebugHelper.h
 
 // how many seconds to wait after the first runtime exits, before we force any remaining runtimes to die
-#define SHUTDOWN_GRACE_PERIOD 3
+#define SHUTDOWN_GRACE_PERIOD 1
 
 // Enable/disable debug information
 //#define DEBUG 1
