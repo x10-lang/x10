@@ -456,12 +456,9 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	if (!onlyCheckForNewConnections)
 		fprintf(stderr, "Launcher %d: main loop start\n", _myproc);
 	#endif
-	bool parent_alive = true;
-    int num_children_alive = _numchildren + 1; // must include runtime
+	bool running = true;
 
-    // [DC] resilient X10: if your parent launcher dies, you always die (TODO: heal the tree)
-    // [DC] resilient X10: only die if you have run out of children
-	while (parent_alive && num_children_alive>0)
+	while (running)
 	{
 		struct timeval timeout = { 0, 100000 };
 		fd_set infds, efds;
@@ -504,10 +501,10 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (_parentLauncherControlLink >= 0)
 		{
 			if (FD_ISSET(_parentLauncherControlLink, &efds))
-				parent_alive = handleDeadParent();
+				running = handleDeadParent();
 			else if (FD_ISSET(_parentLauncherControlLink, &infds))
 				if (handleControlMessage(_parentLauncherControlLink) < 0)
-					parent_alive = handleDeadParent();
+					running = handleDeadParent();
 		}
 		/* runtime and children control, stdout and stderr */
 		for (uint32_t i = 0; i <= _numchildren; i++)
@@ -516,28 +513,27 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			if (_childControlLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childControlLinks[i], &efds))
-					this_child_alive = handleDeadChild(i, 0);
+					running = handleDeadChild(i, 0);
 				else if (FD_ISSET(_childControlLinks[i], &infds))
 					if (handleControlMessage(_childControlLinks[i]) < 0)
-						this_child_alive = handleDeadChild(i, 0);
+						running = handleDeadChild(i, 0);
 			}
 
 			if (_childCoutLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCoutLinks[i], &efds))
-					this_child_alive = handleDeadChild(i, 1);
+					running = handleDeadChild(i, 1);
 				else if (FD_ISSET(_childCoutLinks[i], &infds))
-					this_child_alive = handleChildCout(i);
+					running = handleChildCout(i);
 			}
 
 			if (_childCerrorLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCerrorLinks[i], &efds))
-					this_child_alive = handleDeadChild(i, 2);
+					running = handleDeadChild(i, 2);
 				else if (FD_ISSET(_childCerrorLinks[i], &infds))
-					this_child_alive = handleChildCerror(i);
+					running = handleChildCerror(i);
 			}
-            if (!this_child_alive) num_children_alive--;
 		}
 	}
     #ifdef DEBUG
