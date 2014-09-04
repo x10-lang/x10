@@ -14,7 +14,6 @@ package x10.matrix.distblock;
 import x10.compiler.Inline;
 import x10.util.ArrayList;
 import x10.util.HashMap;
-import x10.util.Box;
 
 import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
@@ -65,7 +64,6 @@ public class CastPlaceMap {
     public static def buildColCastMap(g:Grid, dmap:DistMap) = make(g, dmap, (r:Long,c:Long)=>c);
 	
 	public def getPlaceList(id:Long):Rail[Long] {
-		val bval:Box[Rail[Long]] = castPlaceMap.get(id);
-		return bval.value;
+		return castPlaceMap.get(id);
 	}
 }
