@@ -394,11 +394,6 @@ public final class Runtime {
                 if (new_count < MAX_THREADS + 100 || (new_count % 100 == 0)) {
                     println(here+": TOO MANY THREADS (there are now "+new_count+" threads).");
                 }
-		if (new_count > MAX_THREADS + 2000) {
-                    // die hard
-                    println(here+": WAY TOO MANY THREADS (now "+new_count+"). Initiating forced teardown");
-                    System.killHere();
-                }
                 throw new InternalError(here+": TOO MANY THREADS (there are now "+new_count+" threads).");
             }
             if (WARN_ON_THREAD_CREATION) {
