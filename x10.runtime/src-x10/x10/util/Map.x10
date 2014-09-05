@@ -27,6 +27,11 @@ public interface Map[K,V] {V haszero} {
     public def get(k:K):V;
 
     /**
+     * Shorthand for @link{#get}
+     */
+    public operator this(k:K):V;
+
+    /**
      * If containsKey(k), return the value mapped to k; 
      * otherwise return orlese
      */
@@ -43,6 +48,11 @@ public interface Map[K,V] {V haszero} {
      *  or Zero.get[T]() if k was not previously mapped to a value.
      */
     public def put(k:K, v:V):V;
+
+    /**
+     * Shorthand for @link{#put}
+     */
+    public operator this(k:K)=(v:V):V;
 
     /**
      * Remove the mapping for k from the map, returning

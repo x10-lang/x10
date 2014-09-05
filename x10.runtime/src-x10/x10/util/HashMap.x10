@@ -130,6 +130,8 @@ public class HashMap[K,V] {V haszero} implements Map[K,V], CustomSerialization {
             }
         }
     }
+
+    public operator this(k:K)=(v:V):V = putInternal(k,v,true);
     
     public def put(k:K, v:V):V = putInternal(k,v,true);
     @NonEscaping protected final def putInternal(k:K, v:V, mayRehash:Boolean):V {
