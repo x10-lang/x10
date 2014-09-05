@@ -26,7 +26,7 @@ public class ObjectInitialization20 extends x10Test {
     }
 
 
-// file Classes line 2937
+// file Classes line 2938
  static class Overlord(x:Long) {
   def this(x:Long) { property(x); }
 }//Overlord

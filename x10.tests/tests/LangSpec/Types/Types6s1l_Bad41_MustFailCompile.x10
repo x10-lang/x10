@@ -17,9 +17,18 @@
 
 import harness.x10Test;
 
+
+
+public class Types6s1l_Bad41_MustFailCompile extends x10Test {
+   public def run() : boolean = (new Hook()).run();
+   public static def main(args:Rail[String]):void {
+        new Types6s1l_Bad41_MustFailCompile().execute();
+    }
+
+
 // file Types line 1416
 //OPTIONS: -STATIC_CHECKS
-class Keyed {
+ static class Keyed {
   private val k : Long;
   public def this(k : Long) {
     this.k = k;
@@ -27,8 +36,7 @@ class Keyed {
   public def secret(q:Long){q==this.k} = 11;
   public def key():Long{self==this.k} = this.k;
 }
-
-class Snooper {
+ static class Snooper {
   public static def main(argv:Rail[String]) {
     val keyed : Keyed = new Keyed(8);
  keyed.secret(keyed.k); // ERR
@@ -37,13 +45,6 @@ class Snooper {
     keyed.secret(kk);
   }
 }
-
-
-public class Types6s1l_Bad41_MustFailCompile extends x10Test {
-   public def run() : boolean = (new Hook()).run();
-   public static def main(args:Rail[String]):void {
-        new Types6s1l_Bad41_MustFailCompile().execute();
-    }
 
  static class Hook {
    def run():Boolean = true;

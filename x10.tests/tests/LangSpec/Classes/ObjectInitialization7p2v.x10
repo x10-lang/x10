@@ -26,7 +26,7 @@ public class ObjectInitialization7p2v extends x10Test {
     }
 
 
-// file Classes line 2863
+// file Classes line 2864
  static class UseNoThisAccess {
   static  class IDed {
     protected static val counts = [0 as Long,0];

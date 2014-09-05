@@ -26,7 +26,7 @@ public class Clocks10 extends x10Test {
     }
 
 
-// file Clocks line 36
+// file Clocks line 37
  static class ClockEx {
   static def say(s:String) {
     Console.OUT.println(s);

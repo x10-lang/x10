@@ -26,7 +26,7 @@ public class Clocks60 extends x10Test {
     }
 
 
-// file Clocks.tex,  line 241
+// file Clocks.tex,  line 242
 
  static class Clocks6TestStmt{
   def check(c:Clock)  {

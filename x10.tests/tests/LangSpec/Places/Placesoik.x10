@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package expsome_Places3;
+/* Current test harness gets confused by packages, but it would be in package expsome_Places2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,9 +26,9 @@ public class Placesoik extends x10Test {
     }
 
 
-// file Places line 46
+// file Places line 41
 
- static class Places3TestExp{
+ static class Places2TestExp{
   def check()  = Place.places()(0);  }
 
  static class Hook {

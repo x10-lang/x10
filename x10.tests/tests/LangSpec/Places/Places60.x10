@@ -26,12 +26,13 @@ public class Places60 extends x10Test {
     }
 
 
-// file Places line 1007
+// file Places line 1013
  static  class GR2 {
 
   public static def main(argv:Rail[String]) {
     val argref = GlobalRef[Rail[String]](argv);
-    at(Place.places().next(here))
+    val world = Place.places();
+    at(world.next(here))
         use(argref);
   }
   static def use(argref : GlobalRef[Rail[String]]) {

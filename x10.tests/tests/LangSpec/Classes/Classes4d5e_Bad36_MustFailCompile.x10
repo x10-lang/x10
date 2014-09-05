@@ -41,6 +41,7 @@ public class Classes4d5e_Bad36_MustFailCompile extends x10Test {
     // ERROR: t14.m(true);
   }
 }
+ // SKIP_NATIVE_X10: XTENLANG-1191 Native X10 does not support non-final generic instance methods
 
  static class Hook {
    def run():Boolean = true;

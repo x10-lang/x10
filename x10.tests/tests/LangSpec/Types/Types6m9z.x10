@@ -26,7 +26,7 @@ public class Types6m9z extends x10Test {
     }
 
 
-// file Types line 3047
+// file Types line 3049
 //OPTIONS: -STATIC_CHECKS
  static class Extra(n:Long) {
   val f : Long;

@@ -26,14 +26,14 @@ public class ThisEscapingViaAt_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 2651
+// file Classes line 2652
  
 // This code violates this chapter's constraints
 // and thus will not compile in X10.
  static class Example {
   val a: Long;
   def this() {
-    at(Place.places().next(here)) {
+    at(here.next()) {
       // Recall that 'this' is a copy of 'this' outside 'at'.
       Console.OUT.println("this.a = " + this.a);
     }

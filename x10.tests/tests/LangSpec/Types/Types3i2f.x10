@@ -26,7 +26,7 @@ public class Types3i2f extends x10Test {
     }
 
 
-// file Types line 1970
+// file Types line 1972
  static  class Example{
  static def example() {
 val id : (x:Long) => Long{self==x}

@@ -26,7 +26,7 @@ public class Types7e6v extends x10Test {
     }
 
 
-// file Types line 2616
+// file Types line 2618
  static class Numb(p:Long){
   static def dup(n:Long){n != 0} = new Numb(n);
   public static def example(n:Long) {

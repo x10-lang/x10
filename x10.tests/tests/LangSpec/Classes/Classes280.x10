@@ -26,7 +26,7 @@ public class Classes280 extends x10Test {
     }
 
 
-// file Classes line 2401
+// file Classes line 2402
  static class MyRegion(rank:Long) {
   static type MyRegion(n:Long)=MyRegion{rank==n};
   def this(r:Long):MyRegion(r) {

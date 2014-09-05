@@ -26,7 +26,7 @@ public class Places70 extends x10Test {
     }
 
 
-// file Places line 100
+// file Places line 87
 abstract static  class Thing {}
  static class DoMine {
   static def dealWith(Thing) {}
