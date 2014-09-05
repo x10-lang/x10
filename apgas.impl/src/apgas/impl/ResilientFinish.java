@@ -42,6 +42,7 @@ final class ResilientFinish implements Finish, Serializable {
     int count;
     final GlobalID pid;
     List<GlobalID> children;
+    List<GlobalID> completed;
     int counts[][]; // TODO dynamic array
     List<Throwable> exceptions;
 
@@ -61,10 +62,12 @@ final class ResilientFinish implements Finish, Serializable {
             @Override
             public State process(Map.Entry<GlobalID, State> entry) {
               final State state = entry.getValue();
-              if (state.children == null) {
-                state.children = new ArrayList<GlobalID>();
+              if (state.completed == null || !state.completed.contains(id)) {
+                if (state.children == null) {
+                  state.children = new ArrayList<GlobalID>();
+                }
+                state.children.add(id);
               }
-              state.children.add(id);
               entry.setValue(state);
               return null;
             }
@@ -88,7 +91,6 @@ final class ResilientFinish implements Finish, Serializable {
           new AbstractEntryProcessor<GlobalID, State>() {
             @Override
             public State process(Map.Entry<GlobalID, State> entry) {
-              final GlobalID id = entry.getKey();
               final State state = entry.getValue();
               for (int i = 0; i < state.counts.length; i++) {
                 if (state.counts[p][i] != 0
@@ -121,8 +123,7 @@ final class ResilientFinish implements Finish, Serializable {
           @Override
           public State process(Map.Entry<GlobalID, State> entry) {
             final State state = entry.getValue();
-            if (state.counts[p][here] != Integer.MIN_VALUE
-                && state.counts[here][here] != Integer.MIN_VALUE) {
+            if (state.counts[p][here] != Integer.MIN_VALUE) {
               if (state.counts[p][here] == 0) {
                 state.count++;
               }
@@ -286,7 +287,15 @@ final class ResilientFinish implements Finish, Serializable {
           @Override
           public Object process(Map.Entry<GlobalID, State> entry) {
             final State state = entry.getValue();
-            state.children.remove(id);
+            // TODO state might be null here?
+            if (state.children != null) {
+              state.children.remove(id);
+            } else {
+              if (state.completed == null) {
+                state.completed = new ArrayList<GlobalID>();
+              }
+              state.completed.add(id);
+            }
             entry.setValue(state);
             return state;
           }
@@ -304,7 +313,7 @@ final class ResilientFinish implements Finish, Serializable {
       return true;
     }
     exceptions = state.exceptions;
-    map.remove(id);
+    // map.remove(id);
     return false;
   }
 

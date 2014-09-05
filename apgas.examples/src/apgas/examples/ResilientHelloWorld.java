@@ -36,16 +36,18 @@ final class ResilientHelloWorld {
       try {
         finish(() -> {
           final List<? extends Place> world = places();
-          System.err.println("There are " + world.size());
+          System.err.println("There are " + world.size() + " places");
           for (final Place place : world) {
             finish(() -> asyncat(place,
                 () -> finish(() -> System.out.println("Hello from " + here()))));
           }
         });
-      } catch (final MultipleException e) {
+      } catch (final MultipleException | DeadPlaceException e) {
         System.err.println("Ignoring MultipleException");
-      } catch (final DeadPlaceException e) {
-        System.err.println("Ignoring DeadPlaceException");
+        try {
+          Thread.sleep(2000);
+        } catch (final InterruptedException x) {
+        }
       }
     }
   }
