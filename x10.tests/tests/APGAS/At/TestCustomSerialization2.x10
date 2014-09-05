@@ -49,16 +49,16 @@ public class TestCustomSerialization2 extends x10Test {
         val ser = new Serializer();	
         map.serialize(ser);
 	val map2 = new HashMap[String,CS](new Deserializer(ser));
-        chk(map2.get("a")().sum == 30);        
-        chk(map2.get("b")().sum == 30);        
-        chk(map2.get("c")().sum == 30);        
+        chk(map2.get("a").sum == 30);        
+        chk(map2.get("b").sum == 30);        
+        chk(map2.get("c").sum == 30);        
 
         at (Place.places().next(here)) {
             // The custom serialization logic re-establishes that sum = x + y
             // Default serialzation would result in sum having the value of zero.
-            chk(map.get("a")().sum == 30);        
-            chk(map.get("b")().sum == 30);        
-            chk(map.get("c")().sum == 30);        
+            chk(map.get("a").sum == 30);        
+            chk(map.get("b").sum == 30);        
+            chk(map.get("c").sum == 30);        
         }
         return true;
     }
