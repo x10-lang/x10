@@ -115,7 +115,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // initialize scheduler and hazelcast
     scheduler = new Scheduler();
-    transport = new Transport(this::callback, master, localhost);
+    transport = new Transport(this, master, localhost);
     here = transport.here();
 
     // install shutdown hook
@@ -209,32 +209,33 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     }
   }
 
-  /**
-   * Handles elasticity events.
-   *
-   * @param place
-   *          the total number of places or -ID of the place being removed
-   */
-  void callback(int place) {
-    if (!resilient && place <= 0) {
+  void addPlace(int place) {
+    for (int i = allPlaces.size(); i <= place; i++) {
+      allPlaces.add(null);
+    }
+    allPlaces.set(place, new Place(place));
+    final List<Place> places = new ArrayList<Place>();
+    for (final Place p : allPlaces) {
+      if (p != null) {
+        places.add(p);
+      }
+    }
+    this.places = Collections.<Place> unmodifiableList(places);
+  }
+
+  void removePlace(int place) {
+    if (!resilient) {
       shutdown();
       return;
     }
-    synchronized (allPlaces) {
-      for (int i = allPlaces.size(); i < (place > 0 ? place : 1 - place); i++) {
-        allPlaces.add(new Place(i));
+    allPlaces.set(place, null);
+    final List<Place> places = new ArrayList<Place>();
+    for (final Place p : allPlaces) {
+      if (p != null) {
+        places.add(p);
       }
-      if (place <= 0) {
-        allPlaces.set(-place, null);
-      }
-      places = new ArrayList<Place>();
-      for (final Place p : allPlaces) {
-        if (p != null) {
-          places.add(p);
-        }
-      }
-      places = Collections.<Place> unmodifiableList(places);
     }
+    this.places = Collections.<Place> unmodifiableList(places);
   }
 
   /**

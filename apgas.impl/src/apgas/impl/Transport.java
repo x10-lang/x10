@@ -14,26 +14,18 @@ package apgas.impl;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.function.IntConsumer;
-
-import apgas.Configuration;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
-import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
+import com.hazelcast.core.InitialMembershipEvent;
+import com.hazelcast.core.InitialMembershipListener;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
 
 /**
  * The {@link Transport} class implements the global runtime by means of an
@@ -41,8 +33,7 @@ import com.hazelcast.core.MessageListener;
  * <p>
  * It implements active messages on top of a distributed executor service.
  */
-final class Transport implements ItemListener<Member>,
-    MessageListener<Runnable>, MembershipListener {
+final class Transport implements InitialMembershipListener {
   /**
    * The hazelcast instance for this JVM.
    */
@@ -54,14 +45,9 @@ final class Transport implements ItemListener<Member>,
   private final int here;
 
   /**
-   * Current place count including dead places.
+   * Sparse list of members in join order.
    */
-  private int places;
-
-  /**
-   * Distributed list of past and present members in join order.
-   */
-  private final IList<Member> members;
+  private final List<Member> members = new ArrayList<Member>();
 
   /**
    * The local member.
@@ -74,19 +60,11 @@ final class Transport implements ItemListener<Member>,
   private final String regMembershipListener;
 
   /**
-   * Registration ID.
-   */
-  private final String regItemListener;
-
-  /**
    * Executor service for sending active messages.
    */
   private final IExecutorService executor;
 
-  /**
-   * Callback invoked when a member is added or removed from the cluster.
-   */
-  private final IntConsumer callback;
+  private final GlobalRuntimeImpl runtime;
 
   // private final ITopic<VoidFun> topic;
   // private final String regTopic;
@@ -94,17 +72,13 @@ final class Transport implements ItemListener<Member>,
   /**
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
    *
-   * @param callback
-   *          a function to invoke when a member is added or removed from the
-   *          cluster.
    * @param master
    *          member to connect to or null
    * @param localhost
    *          the preferred ip address of this host
    */
-  Transport(IntConsumer callback, String master, String localhost) {
-    this.callback = callback;
-
+  Transport(GlobalRuntimeImpl runtime, String master, String localhost) {
+    this.runtime = runtime;
     // config
     final Config config = new Config();
     config.setProperty("hazelcast.logging.type", "none");
@@ -126,40 +100,14 @@ final class Transport implements ItemListener<Member>,
 
     hazelcast = Hazelcast.newHazelcastInstance(config);
     executor = hazelcast.getExecutorService("APGAS");
-    members = hazelcast.<Member> getList("APGAS");
 
+    here = (int) hazelcast.getAtomicLong("APGAS").getAndIncrement();
     me = hazelcast.getCluster().getLocalMember();
-    members.add(me);
-    regItemListener = members.addItemListener(this, false);
-
-    int here = 0;
-    for (final Member m : members) {
-      if (m.getUuid().equals(me.getUuid())) {
-        break;
-      }
-      here++;
-    }
-    this.here = here;
-    places = members.size();
-    callback.accept(places);
+    me.setIntAttribute("APGAS", here);
+    regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
 
     // topic = hazelcast.getTopic("APGAS" + here);
     // regTopic = topic.addMessageListener(this);
-
-    regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
-
-    // we need to identify places that are already dead
-    final Set<Member> set = hazelcast.getCluster().getMembers();
-    // we cannot rely on .equals on members as it only compares addresses
-    final List<String> uuids = new ArrayList<String>();
-    for (final Member m : set) {
-      uuids.add(m.getUuid());
-    }
-    for (int i = 0; i < places; i++) {
-      if (!uuids.contains(members.get(i).getUuid())) {
-        callback.accept(-i);
-      }
-    }
   }
 
   /**
@@ -192,7 +140,6 @@ final class Transport implements ItemListener<Member>,
    */
   void shutdown() {
     hazelcast.getCluster().removeMembershipListener(regMembershipListener);
-    members.removeItemListener(regItemListener);
     // topic.removeMessageListener(regTopic);
     hazelcast.shutdown();
   }
@@ -205,13 +152,13 @@ final class Transport implements ItemListener<Member>,
   }
 
   /**
-   * Returns the number of places in the global runtime.
+   * Returns the number of live and dead places in the global runtime.
    *
    * @return the number of Hazelcast instances that have joined the Hazelcast
    *         cluster
    */
   int places() {
-    return places;
+    return members.size();
   }
 
   /**
@@ -241,45 +188,53 @@ final class Transport implements ItemListener<Member>,
   }
 
   @Override
-  public void memberAdded(MembershipEvent membershipEvent) {
-    // we use itemAdded instead to keep track of past and present members
-  }
-
-  @Override
-  public void memberRemoved(MembershipEvent membershipEvent) {
-    // we cannot rely on .equals on members as it only compares addresses
-    final String uuid = membershipEvent.getMember().getUuid();
-    for (int i = 0; i < places; i++) {
-      if (members.get(i).getUuid().equals(uuid)) {
-        System.err.println(here + " observing the removal of " + i);
-        callback.accept(-i);
-        // TODO fix the hack
-        if (here == 0 && Boolean.getBoolean(Configuration.APGAS_RESILIENT)) {
-          ResilientFinish.purge(i);
+  public void init(InitialMembershipEvent event) {
+    for (final Member member : event.getMembers()) {
+      try {
+        final int place = member.getIntAttribute("APGAS");
+        for (int i = members.size(); i <= place; i++) {
+          members.add(null);
         }
-        return;
+        members.set(place, member);
+        runtime.addPlace(place);
+      } catch (final NullPointerException e) {
+        // ignore members that have not yet specified their place ID
       }
     }
   }
 
   @Override
+  public void memberAdded(MembershipEvent membershipEvent) {
+    // ignored since we wait for the memberAttributeEvent to get the place ID
+  }
+
+  @Override
+  public void memberRemoved(MembershipEvent membershipEvent) {
+    final Member member = membershipEvent.getMember();
+    final int place = member.getIntAttribute("APGAS");
+    System.err.println(here + " observing the removal of " + place);
+    members.set(place, null);
+    runtime.removePlace(place);
+    // TODO fix the hack
+    if (here == 0 && runtime.resilient) {
+      ResilientFinish.purge(place);
+    }
+  }
+
+  @Override
   public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-    // unused
+    final Member member = memberAttributeEvent.getMember();
+    final int place = (int) memberAttributeEvent.getValue();
+    System.err.println(here + " observing the arrival of " + place);
+    for (int i = members.size(); i <= place; i++) {
+      members.add(null);
+    }
+    members.set(place, member);
+    runtime.addPlace(place);
   }
 
-  @Override
-  public void itemAdded(ItemEvent<Member> item) {
-    places = members.size();
-    callback.accept(places);
-  }
-
-  @Override
-  public void itemRemoved(ItemEvent<Member> item) {
-    // we never remove members from the list
-  }
-
-  @Override
-  public void onMessage(Message<Runnable> message) {
-    message.getMessageObject().run();
-  }
+  // @Override
+  // public void onMessage(Message<Runnable> message) {
+  // message.getMessageObject().run();
+  // }
 }
