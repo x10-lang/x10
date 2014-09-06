@@ -12,8 +12,10 @@
 package apgas.impl;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import apgas.DeadPlaceException;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -47,7 +49,7 @@ final class Transport implements InitialMembershipListener {
   /**
    * Sparse list of members in join order.
    */
-  private final List<Member> members = new ArrayList<Member>();
+  private final Map<Integer, Member> members = new ConcurrentHashMap<Integer, Member>();
 
   /**
    * The local member.
@@ -65,9 +67,6 @@ final class Transport implements InitialMembershipListener {
   private final IExecutorService executor;
 
   private final GlobalRuntimeImpl runtime;
-
-  // private final ITopic<VoidFun> topic;
-  // private final String regTopic;
 
   /**
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
@@ -182,23 +181,22 @@ final class Transport implements InitialMembershipListener {
     if (place == here) {
       f.run();
     } else {
-      executor.executeOnMember(f, members.get(place));
-      // hazelcast.getTopic("APGAS" + place).publish(f);
+      final Member member = members.get(place);
+      if (member == null) {
+        throw new DeadPlaceException();
+      }
+      executor.executeOnMember(f, member);
     }
   }
 
   @Override
   public void init(InitialMembershipEvent event) {
     for (final Member member : event.getMembers()) {
-      try {
-        final int place = member.getIntAttribute("APGAS");
-        for (int i = members.size(); i <= place; i++) {
-          members.add(null);
-        }
-        members.set(place, member);
-        runtime.addPlace(place);
-      } catch (final NullPointerException e) {
+      final Integer place = member.getIntAttribute("APGAS");
+      if (place != null) {
         // ignore members that have not yet specified their place ID
+        members.put(place, member);
+        runtime.addPlace(place);
       }
     }
   }
@@ -211,30 +209,23 @@ final class Transport implements InitialMembershipListener {
   @Override
   public void memberRemoved(MembershipEvent membershipEvent) {
     final Member member = membershipEvent.getMember();
-    final int place = member.getIntAttribute("APGAS");
-    System.err.println(here + " observing the removal of " + place);
-    members.set(place, null);
-    runtime.removePlace(place);
-    // TODO fix the hack
-    if (here == 0 && runtime.resilient) {
-      ResilientFinish.purge(place);
+    final Integer place = member.getIntAttribute("APGAS");
+    if (place != null) {
+      System.err.println(here + " observing the removal of " + place);
+      members.remove(place);
+      runtime.removePlace(place);
     }
   }
 
   @Override
   public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
     final Member member = memberAttributeEvent.getMember();
+    if (!memberAttributeEvent.getKey().equals("APGAS")) {
+      return;
+    }
     final int place = (int) memberAttributeEvent.getValue();
     System.err.println(here + " observing the arrival of " + place);
-    for (int i = members.size(); i <= place; i++) {
-      members.add(null);
-    }
-    members.set(place, member);
+    members.put(place, member);
     runtime.addPlace(place);
   }
-
-  // @Override
-  // public void onMessage(Message<Runnable> message) {
-  // message.getMessageObject().run();
-  // }
 }

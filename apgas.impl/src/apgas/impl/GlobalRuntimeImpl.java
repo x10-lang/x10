@@ -236,6 +236,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
     }
     this.places = Collections.<Place> unmodifiableList(places);
+    // TODO fix the hack
+    if (transport.here() == 0 && resilient) {
+      ResilientFinish.purge(place);
+    }
   }
 
   /**
