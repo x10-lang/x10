@@ -30,14 +30,16 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 
 /**
- * The {@link Transport} class implements the global runtime by means of an
- * Hazelcast cluster.
- * <p>
- * It implements active messages on top of a distributed executor service.
+ * The {@link Transport} class manages the Hazelcast cluster and implements
+ * active messages.
  */
 final class Transport implements InitialMembershipListener {
+  private static String HERE = "_APGAS_HERE_";
+  private static String PLACES = "_APGAS_PLACES_";
+  private static String EXECUTOR = "_APGAS_EXECUTOR_";
+
   /**
-   * The hazelcast instance for this JVM.
+   * The Hazelcast instance for this JVM.
    */
   private final HazelcastInstance hazelcast;
 
@@ -47,7 +49,7 @@ final class Transport implements InitialMembershipListener {
   private final int here;
 
   /**
-   * Sparse list of members in join order.
+   * The current members indexed by place ID.
    */
   private final Map<Integer, Member> members = new ConcurrentHashMap<Integer, Member>();
 
@@ -66,11 +68,16 @@ final class Transport implements InitialMembershipListener {
    */
   private final IExecutorService executor;
 
+  /**
+   * The global runtime instance to notify of new and dead places.
+   */
   private final GlobalRuntimeImpl runtime;
 
   /**
    * Initializes the {@link HazelcastInstance} for this global runtime instance.
    *
+   * @param runtime
+   *          the global runtime instance
    * @param master
    *          member to connect to or null
    * @param localhost
@@ -98,15 +105,12 @@ final class Transport implements InitialMembershipListener {
     }
 
     hazelcast = Hazelcast.newHazelcastInstance(config);
-    executor = hazelcast.getExecutorService("APGAS");
 
-    here = (int) hazelcast.getAtomicLong("APGAS").getAndIncrement();
+    executor = hazelcast.getExecutorService(EXECUTOR);
+    here = (int) hazelcast.getAtomicLong(PLACES).getAndIncrement();
     me = hazelcast.getCluster().getLocalMember();
-    me.setIntAttribute("APGAS", here);
+    me.setIntAttribute(HERE, here);
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
-
-    // topic = hazelcast.getTopic("APGAS" + here);
-    // regTopic = topic.addMessageListener(this);
   }
 
   /**
@@ -125,7 +129,7 @@ final class Transport implements InitialMembershipListener {
   }
 
   /**
-   * Returns the socket address of this {@link Hazelcast} instance.
+   * Returns the socket address of this Hazelcast instance.
    *
    * @return an address in the form "ip:port"
    */
@@ -135,26 +139,24 @@ final class Transport implements InitialMembershipListener {
   }
 
   /**
-   * Shuts down this hazelcast instance.
+   * Shuts down this Hazelcast instance.
    */
   void shutdown() {
     hazelcast.getCluster().removeMembershipListener(regMembershipListener);
-    // topic.removeMessageListener(regTopic);
     hazelcast.shutdown();
   }
 
   /**
-   * Terminates this hazelcast instance forcefully.
+   * Terminates this Hazelcast instance forcefully.
    */
   void terminate() {
     hazelcast.getLifecycleService().terminate();
   }
 
   /**
-   * Returns the number of live and dead places in the global runtime.
+   * Returns the number of places in the Hazelcast cluster.
    *
-   * @return the number of Hazelcast instances that have joined the Hazelcast
-   *         cluster
+   * @return the place count
    */
   int places() {
     return members.size();
@@ -163,7 +165,7 @@ final class Transport implements InitialMembershipListener {
   /**
    * Returns the current place ID.
    *
-   * @return the ID of this Hazelcast instance in the Hazelcast cluster.
+   * @return the place ID of this Hazelcast instance
    */
   int here() {
     return here;
@@ -176,6 +178,8 @@ final class Transport implements InitialMembershipListener {
    *          the requested place of execution
    * @param f
    *          the function to execute
+   * @throws DeadPlaceException
+   *           if the cluster does not contain this place
    */
   void send(int place, SerializableRunnable f) {
     if (place == here) {
@@ -192,13 +196,16 @@ final class Transport implements InitialMembershipListener {
   @Override
   public void init(InitialMembershipEvent event) {
     for (final Member member : event.getMembers()) {
-      final Integer place = member.getIntAttribute("APGAS");
+      final Integer place = member.getIntAttribute(HERE);
       if (place != null) {
         // ignore members that have not yet specified their place ID
         members.put(place, member);
         runtime.addPlace(place);
       }
     }
+    // final List<Integer> places = new ArrayList<Integer>(members.keySet());
+    // Collections.sort(places);
+    // runtime.initPlaces(places);
   }
 
   @Override
@@ -209,9 +216,9 @@ final class Transport implements InitialMembershipListener {
   @Override
   public void memberRemoved(MembershipEvent membershipEvent) {
     final Member member = membershipEvent.getMember();
-    final Integer place = member.getIntAttribute("APGAS");
+    final Integer place = member.getIntAttribute(HERE);
     if (place != null) {
-      System.err.println(here + " observing the removal of " + place);
+      // System.err.println(here + " observing the removal of " + place);
       members.remove(place);
       runtime.removePlace(place);
     }
@@ -219,12 +226,12 @@ final class Transport implements InitialMembershipListener {
 
   @Override
   public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-    final Member member = memberAttributeEvent.getMember();
-    if (!memberAttributeEvent.getKey().equals("APGAS")) {
+    if (!memberAttributeEvent.getKey().equals(HERE)) {
       return;
     }
+    final Member member = memberAttributeEvent.getMember();
     final int place = (int) memberAttributeEvent.getValue();
-    System.err.println(here + " observing the arrival of " + place);
+    // System.err.println(here + " observing the arrival of " + place);
     members.put(place, member);
     runtime.addPlace(place);
   }
