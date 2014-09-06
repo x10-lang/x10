@@ -108,8 +108,6 @@ public abstract class GlobalRuntime {
    *          the place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    */
   protected abstract void asyncat(Place p, Job f);
 
@@ -123,8 +121,6 @@ public abstract class GlobalRuntime {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    */
   protected abstract void at(Place p, Job f);
 
@@ -138,8 +134,6 @@ public abstract class GlobalRuntime {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    * @return the result
    */
   protected abstract <T> T at(Place p, Fun<T> f);
@@ -157,8 +151,6 @@ public abstract class GlobalRuntime {
    * @param id
    *          the requested ID
    * @return a {@link Place} instance with the given ID
-   * @throws BadPlaceException
-   *           if the ID is not valid
    */
   protected abstract Place place(int id);
 

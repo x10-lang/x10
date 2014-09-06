@@ -13,11 +13,11 @@ package apgas.examples;
 
 import static apgas.Constructs.*;
 
-import java.util.List;
+import java.util.Collection;
 
 import apgas.Configuration;
-import apgas.DeadPlaceException;
 import apgas.MultipleException;
+import apgas.NoSuchPlaceException;
 import apgas.Place;
 
 final class ResilientHelloWorld {
@@ -35,15 +35,15 @@ final class ResilientHelloWorld {
     for (;;) {
       try {
         finish(() -> {
-          final List<? extends Place> world = places();
+          final Collection<? extends Place> world = places();
           System.err.println("There are " + world.size() + " places");
           for (final Place place : world) {
             finish(() -> asyncat(place,
                 () -> finish(() -> System.out.println("Hello from " + here()))));
           }
         });
-      } catch (final MultipleException | DeadPlaceException e) {
-        System.err.println("Ignoring MultipleException");
+      } catch (final MultipleException | NoSuchPlaceException e) {
+        System.err.println("Ignoring Exception");
         try {
           Thread.sleep(2000);
         } catch (final InterruptedException x) {

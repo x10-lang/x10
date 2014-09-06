@@ -22,11 +22,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import apgas.BadPlaceException;
 import apgas.Configuration;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
 import apgas.Place;
+import apgas.util.BadPlaceException;
 import apgas.util.GlobalRef;
 
 @SuppressWarnings("javadoc")

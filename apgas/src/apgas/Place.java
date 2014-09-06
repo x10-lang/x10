@@ -16,7 +16,7 @@ import java.io.Serializable;
 /**
  * The {@link Place} class represents an APGAS place.
  */
-public class Place implements Serializable {
+public class Place implements Serializable, Comparable<Place> {
   private static final long serialVersionUID = -7210312031258955537L;
 
   /**
@@ -50,5 +50,10 @@ public class Place implements Serializable {
   @Override
   public int hashCode() {
     return Integer.hashCode(id);
+  }
+
+  @Override
+  public int compareTo(Place o) {
+    return Integer.compare(id, o.id);
   }
 }

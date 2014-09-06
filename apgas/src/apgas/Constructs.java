@@ -60,8 +60,6 @@ public final class Constructs {
    *          the place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    */
   public static void asyncat(Place p, Job f) {
     GlobalRuntime.getRuntime().asyncat(p, f);
@@ -77,8 +75,6 @@ public final class Constructs {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    */
   public static void at(Place p, Job f) {
     GlobalRuntime.getRuntime().at(p, f);
@@ -94,8 +90,6 @@ public final class Constructs {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @throws BadPlaceException
-   *           if the place is not valid
    * @return the result
    */
   public static <T> T at(Place p, Fun<T> f) {
@@ -117,8 +111,6 @@ public final class Constructs {
    * @param id
    *          the requested ID
    * @return a {@link Place} instance with the given ID
-   * @throws BadPlaceException
-   *           if the ID is not valid
    */
   public static Place place(int id) {
     return GlobalRuntime.getRuntime().place(id);

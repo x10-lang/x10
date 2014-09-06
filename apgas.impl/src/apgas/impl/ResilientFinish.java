@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import apgas.DeadPlaceException;
+import apgas.NoSuchPlaceException;
 import apgas.util.GlobalID;
 
 import com.hazelcast.core.EntryEvent;
@@ -267,7 +267,7 @@ final class ResilientFinish implements Finish, Serializable {
         try {
           final State state = f.get();
           if (state == null) {
-            throw new DeadPlaceException();
+            throw new NoSuchPlaceException();
           }
           if (state.pid != null && state.count == 0
               && (state.children == null || state.children.size() == 0)) {

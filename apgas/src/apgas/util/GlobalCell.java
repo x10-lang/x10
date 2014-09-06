@@ -13,7 +13,6 @@ package apgas.util;
 
 import java.io.Serializable;
 
-import apgas.BadPlaceException;
 import apgas.Place;
 
 /**

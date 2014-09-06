@@ -18,7 +18,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 
-import apgas.BadPlaceException;
 import apgas.Fun;
 import apgas.Place;
 
@@ -106,6 +105,9 @@ public class GlobalRef<T> implements Serializable {
    * Failing to invoke this method on a {@link GlobalRef} instance will prevent
    * the collection of the target objects of this global reference even after
    * the global reference itself has been collected.
+   *
+   * @throws BadPlaceException
+   *           if not invoked from the home place of the global reference
    */
   public void free() {
     if (id == null) {

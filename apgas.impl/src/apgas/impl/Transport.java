@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import apgas.DeadPlaceException;
+import apgas.NoSuchPlaceException;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -47,6 +47,11 @@ final class Transport implements InitialMembershipListener {
    * The place ID for this JVM.
    */
   private final int here;
+
+  /**
+   * The first unused place ID.
+   */
+  private int places;
 
   /**
    * The current members indexed by place ID.
@@ -110,6 +115,8 @@ final class Transport implements InitialMembershipListener {
     here = (int) hazelcast.getAtomicLong(PLACES).getAndIncrement();
     me = hazelcast.getCluster().getLocalMember();
     me.setIntAttribute(HERE, here);
+    places = here + 1;
+
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
   }
 
@@ -154,12 +161,12 @@ final class Transport implements InitialMembershipListener {
   }
 
   /**
-   * Returns the number of places in the Hazelcast cluster.
+   * Returns the first unused place ID.
    *
-   * @return the place count
+   * @return a place ID.
    */
   int places() {
-    return members.size();
+    return places;
   }
 
   /**
@@ -178,7 +185,7 @@ final class Transport implements InitialMembershipListener {
    *          the requested place of execution
    * @param f
    *          the function to execute
-   * @throws DeadPlaceException
+   * @throws NoSuchPlaceException
    *           if the cluster does not contain this place
    */
   void send(int place, SerializableRunnable f) {
@@ -187,7 +194,7 @@ final class Transport implements InitialMembershipListener {
     } else {
       final Member member = members.get(place);
       if (member == null) {
-        throw new DeadPlaceException();
+        throw new NoSuchPlaceException();
       }
       executor.executeOnMember(f, member);
     }
@@ -199,13 +206,13 @@ final class Transport implements InitialMembershipListener {
       final Integer place = member.getIntAttribute(HERE);
       if (place != null) {
         // ignore members that have not yet specified their place ID
+        if (place >= places) {
+          places = place + 1;
+        }
         members.put(place, member);
-        runtime.addPlace(place);
       }
     }
-    // final List<Integer> places = new ArrayList<Integer>(members.keySet());
-    // Collections.sort(places);
-    // runtime.initPlaces(places);
+    runtime.initPlaces(members.keySet());
   }
 
   @Override
@@ -231,6 +238,9 @@ final class Transport implements InitialMembershipListener {
     }
     final Member member = memberAttributeEvent.getMember();
     final int place = (int) memberAttributeEvent.getValue();
+    if (place >= places) {
+      places = place + 1;
+    }
     // System.err.println(here + " observing the arrival of " + place);
     members.put(place, member);
     runtime.addPlace(place);

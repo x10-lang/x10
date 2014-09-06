@@ -98,7 +98,7 @@ final class DefaultFinish implements Finish, Serializable {
           count++;
           return;
         }
-        counts = new int[GlobalRuntimeImpl.getRuntime().allPlaces.size()];
+        counts = new int[GlobalRuntimeImpl.getRuntime().transport.places()];
         counts[here] = count;
         count = 1;
       } else if (p >= counts.length) {
@@ -236,7 +236,7 @@ final class DefaultFinish implements Finish, Serializable {
    */
   private void resize(int min) {
     final int[] tmp = new int[Math.max(min,
-        GlobalRuntimeImpl.getRuntime().allPlaces.size())];
+        GlobalRuntimeImpl.getRuntime().transport.places())];
     System.arraycopy(counts, 0, tmp, 0, counts.length);
     counts = tmp;
   }
@@ -274,7 +274,7 @@ final class DefaultFinish implements Finish, Serializable {
     synchronized (me) {
       final int here = GlobalRuntimeImpl.getRuntime().here;
       if (id.home.id != here && me.counts == null) {
-        me.counts = new int[GlobalRuntimeImpl.getRuntime().allPlaces.size()];
+        me.counts = new int[GlobalRuntimeImpl.getRuntime().transport.places()];
       }
     }
     return me;

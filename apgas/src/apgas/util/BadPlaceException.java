@@ -9,12 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package apgas;
+package apgas.util;
+
+import apgas.Place;
 
 /**
- * A {@link BadPlaceException} is thrown when attempting to reference a
- * {@link Place} that doesn't exist or when attempting to dereference a
- * {@link apgas.util.GlobalRef} that is not defined {@code here}.
+ * A {@link BadPlaceException} is thrown by {@link GlobalRef} instances when
+ * accessed from the wrong {@link Place}.
  */
 public class BadPlaceException extends RuntimeException {
   private static final long serialVersionUID = 8639251079580877933L;

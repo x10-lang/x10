@@ -12,15 +12,15 @@
 package apgas;
 
 /**
- * A {@link DeadPlaceException} is thrown when attempting to access a dead
- * {@link Place} or when a task is lost because a {@link Place} has died.
+ * A {@link NoSuchPlaceException} is thrown when attempting to access a
+ * non-existent {@link Place}.
  */
-public class DeadPlaceException extends RuntimeException {
+public class NoSuchPlaceException extends RuntimeException {
   private static final long serialVersionUID = -4113514316492737844L;
 
   /**
-   * Constructs a new {@link DeadPlaceException}.
+   * Constructs a new {@link NoSuchPlaceException}.
    */
-  public DeadPlaceException() {
+  public NoSuchPlaceException() {
   }
 }

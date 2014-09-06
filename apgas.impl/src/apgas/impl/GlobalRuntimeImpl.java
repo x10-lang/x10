@@ -17,11 +17,12 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import apgas.BadPlaceException;
 import apgas.Configuration;
 import apgas.Constructs;
-import apgas.DeadPlaceException;
 import apgas.Fun;
 import apgas.GlobalRuntime;
 import apgas.Job;
@@ -54,18 +55,20 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   final int here;
 
+  final Place home;
+
   /**
    * The scheduler for this global runtime instance.
    */
   final Scheduler scheduler;
 
   /**
-   * The array of live and dead places in this global runtime instance.
+   * The mutable set of places in this global runtime instance.
    */
-  List<Place> allPlaces = new ArrayList<Place>();
+  final SortedSet<Place> placeSet = new TreeSet<Place>();
 
   /**
-   * The current list of places in this global runtime instance.
+   * An immutable ordered list of the current places.
    */
   List<Place> places;
 
@@ -117,6 +120,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     scheduler = new Scheduler();
     transport = new Transport(this, master, localhost);
     here = transport.here();
+    home = new Place(here);
 
     // install shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> terminate()));
@@ -209,33 +213,46 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     }
   }
 
-  void addPlace(int place) {
-    for (int i = allPlaces.size(); i <= place; i++) {
-      allPlaces.add(null);
+  /**
+   * Initializes the place collections.
+   *
+   * @param set
+   *          the set of live place ids in the global runtime.
+   */
+  void initPlaces(Set<Integer> set) {
+    for (final int id : set) {
+      placeSet.add(new Place(id));
     }
-    allPlaces.set(place, new Place(place));
-    final List<Place> places = new ArrayList<Place>();
-    for (final Place p : allPlaces) {
-      if (p != null) {
-        places.add(p);
-      }
-    }
-    this.places = Collections.<Place> unmodifiableList(places);
+    places = Collections
+        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
   }
 
+  /**
+   * Notifies the runtime of a new place.
+   *
+   * @param place
+   *          the ID of the added place
+   */
+  void addPlace(int place) {
+    placeSet.add(new Place(place));
+    places = Collections
+        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
+  }
+
+  /**
+   * Notifies the runtime of a dead place.
+   *
+   * @param place
+   *          the ID of the removed place
+   */
   void removePlace(int place) {
     if (!resilient) {
       shutdown();
       return;
     }
-    allPlaces.set(place, null);
-    final List<Place> places = new ArrayList<Place>();
-    for (final Place p : allPlaces) {
-      if (p != null) {
-        places.add(p);
-      }
-    }
-    this.places = Collections.<Place> unmodifiableList(places);
+    placeSet.remove(new Place(place));
+    places = Collections
+        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
     // TODO fix the hack
     if (transport.here() == 0 && resilient) {
       ResilientFinish.purge(place);
@@ -309,7 +326,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public Place here() {
-    return allPlaces.get(here);
+    return home;
   }
 
   @Override
@@ -319,14 +336,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public Place place(int id) {
-    try {
-      final Place p = allPlaces.get(id);
-      if (p == null) {
-        throw new DeadPlaceException();
-      }
-      return p;
-    } catch (final IndexOutOfBoundsException e) {
-      throw new BadPlaceException();
-    }
+    return new Place(id);
   }
 }
