@@ -55,6 +55,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   final int here;
 
+  /**
+   * This place.
+   */
   final Place home;
 
   /**
@@ -300,7 +303,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public void asyncat(Place p, Job f) {
-    p = place(p.id); // validate destination
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? newFinish(null) : worker.task.finish;
     finish.spawn(p.id);

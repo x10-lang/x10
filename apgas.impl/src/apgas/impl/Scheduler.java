@@ -55,7 +55,7 @@ final class Scheduler {
    */
   Scheduler() {
     for (int i = 0; i < size; i++) {
-      pool[i] = new Worker();
+      pool[i] = new Worker(this);
     }
   }
 
@@ -122,7 +122,7 @@ final class Scheduler {
           System.arraycopy(pool, 0, tmp, 0, pool.length);
           pool = tmp;
         }
-        pool[size] = new Worker();
+        pool[size] = new Worker(this);
         pool[size++].start();
       }
     }

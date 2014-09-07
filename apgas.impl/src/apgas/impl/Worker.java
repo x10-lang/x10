@@ -23,7 +23,7 @@ final class Worker extends Thread {
   /**
    * The scheduler this worker thread reports to.
    */
-  private Scheduler scheduler;
+  private final Scheduler scheduler;
 
   /**
    * The work-stealing deque for this worker instance.
@@ -36,11 +36,20 @@ final class Worker extends Thread {
   Task task;
 
   /**
+   * Instantiates a worker thread.
+   *
+   * @param scheduler
+   *          the scheduler this worker instance belongs to
+   */
+  Worker(Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
+
+  /**
    * Finds and runs pending tasks until the scheduler is shut down.
    */
   @Override
   public void run() {
-    scheduler = GlobalRuntimeImpl.getRuntime().scheduler;
     final Random random = new Random();
     scheduler.acquirePermit();
     while (scheduler.live()) { // implicit park if too many threads
