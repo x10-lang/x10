@@ -66,7 +66,7 @@ final class Transport implements InitialMembershipListener {
   /**
    * Registration ID.
    */
-  private final String regMembershipListener;
+  private String regMembershipListener;
 
   /**
    * Executor service for sending active messages.
@@ -114,9 +114,14 @@ final class Transport implements InitialMembershipListener {
     executor = hazelcast.getExecutorService(EXECUTOR);
     here = (int) hazelcast.getAtomicLong(PLACES).getAndIncrement();
     me = hazelcast.getCluster().getLocalMember();
-    me.setIntAttribute(HERE, here);
     places = here + 1;
+  }
 
+  /**
+   * Starts monitoring cluster membership events.
+   */
+  void start() {
+    me.setIntAttribute(HERE, here);
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
   }
 

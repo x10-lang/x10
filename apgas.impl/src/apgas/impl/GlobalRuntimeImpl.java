@@ -119,9 +119,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
         InetAddress.getLocalHost().getHostAddress());
 
-    // initialize scheduler and hazelcast
+    // initialize scheduler and transport
     scheduler = new Scheduler();
     transport = new Transport(this, master, localhost);
+
+    // initialize here
     here = transport.here();
     home = new Place(here);
 
@@ -147,6 +149,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         }
       }
     }
+
+    // start monitoring cluster
+    transport.start();
 
     if (p > 1) {
       // launch additional places
@@ -256,8 +261,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     placeSet.remove(new Place(place));
     places = Collections
         .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
-    // TODO fix the hack
-    if (transport.here() == 0 && resilient) {
+    if (here == 0 && resilient) {
       ResilientFinish.purge(place);
     }
   }
