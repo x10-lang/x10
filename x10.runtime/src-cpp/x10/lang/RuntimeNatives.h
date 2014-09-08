@@ -51,6 +51,9 @@ namespace x10 {
             /** Current value of the system timer, in nanoseconds.  May be rounded if system timer does not have nanosecond precision. */
             static x10_long nanoTime();
 
+            /** Make an educated guess on how many CPUs are available. Intended to match Java's availableProcessors() */
+            static x10_int availableProcessors();
+
             /** Converts a time in seconds to a string representation. */
             static ::x10::lang::String* timeToString(long seconds);
 

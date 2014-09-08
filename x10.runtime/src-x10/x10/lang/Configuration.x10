@@ -24,7 +24,8 @@ final class Configuration {
     private static DEFAULT_STATIC_THREADS: Boolean = false;
 
     @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
-    private static AVAILABLE_PROCESSORS:Int = 1n;
+    @Native("c++", "::x10::lang::RuntimeNatives::availableProcessors()")
+    private static native def availableProcessors():Int;
 
     @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
     @Native("c++", "::x10::lang::RuntimeNatives::loadenv()")
@@ -70,7 +71,7 @@ final class Configuration {
             v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "1"));
         } catch (NumberFormatException) {
         }
-        if (v <= 0) v = AVAILABLE_PROCESSORS;
+        if (v <= 0) v = availableProcessors();
         if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
         return v;
     }
