@@ -373,15 +373,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		
 		// Process all static fields and methods
 		for (ClassMember dec : context.pendingStaticDecls()) {
-		    if (dec instanceof FieldDecl_c) {
-		        FieldDecl_c fd = (FieldDecl_c) dec;
-		        ((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
-		        sw.pushCurrentStream(h);
-		        emitter.printHeader(fd, h, tr, false);
-		        h.write(";");
-		        sw.popCurrentStream();
-		        ((X10CPPTranslator)tr).setContext(context); // FIXME
-		    } else if (dec instanceof X10MethodDecl_c) {
+		    if (dec instanceof X10MethodDecl_c) {
 		        X10MethodDecl_c md = (X10MethodDecl_c) dec;
 		        ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
 		        sw.pushCurrentStream(h);
@@ -1722,25 +1714,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        return;
 	    }
 
-        ClassifiedStream h = sw.header();
-        sw.pushCurrentStream(h);
-
-        boolean embed = !((X10Ext)dec.ext()).annotationMatching(xts.Embed()).isEmpty();
-        if (embed) {
-            String tmpName = embeddedName(dec.name().id());
-            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
-        }
-
-        emitter.printHeader(dec, sw, tr, false);
-        sw.writeln(";");
-        sw.popCurrentStream();
 
 	    if (isStatic) {
 	        String container = Emitter.translateType(dec.fieldDef().asInstance().container(), false ,false);
 	        generateStaticFieldSupportCode(dec, container, sw);
+	    } else {	        
+	        ClassifiedStream h = sw.header();
+	        sw.pushCurrentStream(h);
+
+	        boolean embed = !((X10Ext)dec.ext()).annotationMatching(xts.Embed()).isEmpty();
+	        if (embed) {
+	            String tmpName = embeddedName(dec.name().id());
+	            sw.writeln(Emitter.translateType(dec.type().type(), false)+" "+tmpName+";");
+	        }
+	        emitter.printHeader(dec, sw, tr, false);
+	        sw.writeln(";");
+
+	        sw.popCurrentStream();
+
+	        h.newline(); h.forceNewline();
 	    }
 	    
-	    h.newline(); h.forceNewline();
+
 	}
 
 	private static final String STATIC_FIELD_ACCESSOR_SUFFIX = "__get";
@@ -1846,21 +1841,41 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         
         ConstantValue cv = null; 
         boolean trivialConstant = false;
-        if ((dec.type().type().isNumeric() || dec.type().type().isBoolean()) && dec.init().isConstant()) {
+        Type initType = dec.type().type();
+        if ((initType.isNumeric() || initType.isBoolean()) && dec.init().isConstant()) {
             cv = dec.init().constantValue();
             trivialConstant = cv != null;
         }
 
-        // define the field.
-        emitter.printType(dec.type().type(), sw);
-        sw.allowBreak(2, " ");
-        sw.write(container+"::");
-        sw.write(mangled_field_name(dec.name().id().toString()));
-        if (trivialConstant) {
-            sw.writeln(" = "+cv+";");
+        // Declare the field itself. For trivial integral constants, also generate the inline initialization expression.
+        h.writeln("/* Static field: "+mangled_field_name(dec.name().id().toString())+" */");
+        if (trivialConstant && !(initType.isDouble() || initType.isFloat())) {
+            h.write("static const ");
+            emitter.printType(dec.type().type(), h);
+            h.write(" ");
+            h.write(mangled_field_name(dec.name().id().toString()));
+            h.writeln(" = "+cv+";");
         } else {
-            sw.writeln(";");
-            generateStaticFieldInitializer(dec, container, sw);
+            h.write("static ");
+            emitter.printType(dec.type().type(), h);
+            h.write(" ");
+            h.write(mangled_field_name(dec.name().id().toString()));
+            h.writeln(";");
+        }
+        
+        
+        // define & initialize the field if not initialized inline
+        if (!trivialConstant || initType.isFloat() || initType.isDouble()) {
+            emitter.printType(dec.type().type(), sw);
+            sw.allowBreak(2, " ");
+            sw.write(container+"::");
+            sw.write(mangled_field_name(dec.name().id().toString()));
+            if (trivialConstant) {
+                sw.writeln(" = "+cv+";");
+            } else {
+                sw.writeln(";");
+                generateStaticFieldInitializer(dec, container, sw);
+            }
         }
         
         if (!trivialConstant) {
@@ -1917,7 +1932,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(container+"::");
             sw.write(except);
             sw.writeln(";");
+            sw.forceNewline();
         }
+        
+        h.newline(); h.forceNewline();
 	}
 
 	public void visit(PropertyDecl_c n) {
@@ -2047,7 +2065,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 				n.print(n.expr(), sw, tr);
 			}
-			sw.write(": ;"); // Add gratituous ; to avoid post-compiler failure if case is last one in switch and is empty.
+			sw.write(": ;"); // Add gratuitous ; to avoid post-compiler failure if case is last one in switch and is empty.
 		}
 		sw.newline();
 	}
