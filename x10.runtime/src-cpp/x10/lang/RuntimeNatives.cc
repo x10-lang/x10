@@ -35,7 +35,9 @@
 #endif
 #include <sys/time.h>  // for gettimeofday (POSIX)
 
+#ifdef __GNU_LIBRARY__ 
 #include <sys/sysinfo.h> // for get_nprocs
+#endif
 
 #include <strings.h>
 
