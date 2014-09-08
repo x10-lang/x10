@@ -110,14 +110,12 @@ final class Worker extends Thread {
     while (finish.waiting()) {
       final Task task = pop();
       if (task == null) {
-        break;
+        scheduler.increaseParallelism();
+        finish.await();
+        scheduler.decreaseParallelism();
+        return;
       }
       task.run(this);
-    }
-    if (finish.waiting()) {
-      scheduler.increaseParallelism();
-      finish.await();
-      scheduler.decreaseParallelism();
     }
   }
 }
