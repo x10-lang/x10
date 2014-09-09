@@ -68,7 +68,7 @@ final class Configuration {
     static def nthreads():Int {
         var v:Int = 0n;
         try {
-            v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "1"));
+            v = Int.parse(Runtime.env.getOrElse("X10_NTHREADS", "0"));
         } catch (NumberFormatException) {
         }
         if (v <= 0) v = availableProcessors();
