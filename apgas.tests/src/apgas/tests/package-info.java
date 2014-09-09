@@ -9,5 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+/**
+ * The {@link apgas.examples} package contains test programs for the APGAS API.
+ */
 package apgas.tests;
 

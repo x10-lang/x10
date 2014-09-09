@@ -9,5 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+/**
+ * The {@link apgas.util} package defines utility classes.
+ */
 package apgas.util;
 
