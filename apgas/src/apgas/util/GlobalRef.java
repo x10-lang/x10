@@ -32,7 +32,7 @@ import apgas.Place;
  *          the type of the reference
  */
 public class GlobalRef<T> implements Serializable {
-  private static final long serialVersionUID = 5480936903198352190L;
+  private static final long serialVersionUID = 4462229293688114477L;
 
   private static final Object UNDEFINED = new Object();
 
