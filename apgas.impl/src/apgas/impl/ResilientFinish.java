@@ -24,6 +24,7 @@ import apgas.util.GlobalID;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
 
 @SuppressWarnings({ "javadoc", "unchecked", "serial" })
@@ -359,6 +360,14 @@ final class ResilientFinish implements Finish, Serializable {
 
           @Override
           public void entryEvicted(EntryEvent<GlobalID, State> event) {
+          }
+
+          @Override
+          public void mapEvicted(MapEvent event) {
+          }
+
+          @Override
+          public void mapCleared(MapEvent event) {
           }
         }, id, true);
     synchronized (this) {

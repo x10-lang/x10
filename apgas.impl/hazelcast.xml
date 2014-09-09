@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="hazelcast">
+    <target name="hazelcast">
+        <mkdir dir="lib"/>
+        <get src="http://x10.sourceforge.net/dependencies/hazelcast-3.3.jar" dest="lib"/>
+        <get src="http://x10.sourceforge.net/dependencies/hazelcast-3.3.zip" dest="lib"/>
+    </target>
+</project>
+
+
