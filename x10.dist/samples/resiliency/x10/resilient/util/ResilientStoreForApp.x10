@@ -14,7 +14,7 @@ package x10.resilient.util;
  * ResilientStore interface used by Resilient DistArray and PlaceLocalHandle
  * @author kawatiya
  */
-public abstract class ResilientStoreForApp[K,V] {
+public abstract class ResilientStoreForApp[K,V]{V haszero} {
     static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     static def getEnvInt(name:String) {
@@ -23,7 +23,7 @@ public abstract class ResilientStoreForApp[K,V] {
         if (here==Place.FIRST_PLACE) Console.OUT.println(name + "=" + v);
         return v;
     }
-    public static def make[K,V]():ResilientStoreForApp[K,V] {
+    public static def make[K,V](){V haszero}:ResilientStoreForApp[K,V] {
         switch (mode) {
         case 0N: return new ResilientStoreForAppPlace0[K,V]();
         case 1N: return new ResilientStoreForAppDistributed[K,V]();
@@ -38,7 +38,7 @@ public abstract class ResilientStoreForApp[K,V] {
     /**
      * Place0 implementation of ResilientStore
      */
-    static class ResilientStoreForAppPlace0[K,V] extends ResilientStoreForApp[K,V] {
+    static class ResilientStoreForAppPlace0[K,V]{V haszero} extends ResilientStoreForApp[K,V] {
         val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
@@ -73,7 +73,7 @@ public abstract class ResilientStoreForApp[K,V] {
      *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
-    static class ResilientStoreForAppDistributed[K,V] extends ResilientStoreForApp[K,V] {
+    static class ResilientStoreForAppDistributed[K,V]{V haszero} extends ResilientStoreForApp[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](Place.places(), ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
