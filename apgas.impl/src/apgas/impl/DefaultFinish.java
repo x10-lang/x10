@@ -79,6 +79,16 @@ final class DefaultFinish implements Finish, Serializable {
    */
   private transient List<Throwable> exceptions;
 
+  /**
+   * Constructs a finish instance.
+   *
+   * @param p
+   *          the place ID of the main task
+   */
+  DefaultFinish(int p) {
+    spawn(p);
+  }
+
   @Override
   public synchronized void submit(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;

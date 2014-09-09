@@ -47,21 +47,24 @@ final class ResilientHelloWorld {
     System.out.println("Running main at " + here() + " of " + places().size()
         + " places");
 
-    for (;;) {
+    for (int i = 0;; i++) {
+      final int ii = i;
       try {
         finish(() -> {
           final Collection<? extends Place> world = places();
-          System.err.println("There are " + world.size() + " places");
+          System.out.println(ii + ": There are " + world.size() + " places");
           for (final Place place : world) {
-            finish(() -> asyncat(place,
-                () -> finish(() -> System.out.println("Hello from " + here()))));
+            finish(() -> asyncat(
+                place,
+                () -> finish(() -> System.out.println(ii + ": Hello from "
+                    + here()))));
           }
         });
       } catch (final MultipleException | NoSuchPlaceException e) {
         if (bad(e)) {
           e.printStackTrace();
         } else {
-          System.err.println("Ignoring NoSuchPlaceException");
+          System.err.println(ii + ": Ignoring NoSuchPlaceException");
         }
         try {
           Thread.sleep(2000);

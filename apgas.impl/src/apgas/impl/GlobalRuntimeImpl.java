@@ -281,16 +281,25 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
-  private Finish newFinish(Finish parent) {
-    return resilient ? new ResilientFinish((ResilientFinish) parent)
-        : new DefaultFinish();
+  /**
+   * Constructs a new finish instance.
+   *
+   * @param parent
+   *          the parent finish or null
+   * @param place
+   *          the place ID of the main task
+   * @return the finish instance
+   */
+  Finish newFinish(Finish parent, int place) {
+    return resilient ? new ResilientFinish((ResilientFinish) parent, place)
+        : new DefaultFinish(place);
   }
 
   @Override
   public void finish(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = newFinish(worker == null ? null : worker.task.finish);
-    finish.spawn(here);
+    final Finish finish = newFinish(worker == null ? null : worker.task.finish,
+        here);
     new Task(finish, f, here).finish(worker);
     if (finish.exceptions() != null) {
       throw new MultipleException(finish.exceptions());
@@ -300,16 +309,26 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void async(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? newFinish(null) : worker.task.finish;
-    finish.spawn(here);
+    final Finish finish;
+    if (worker == null) {
+      finish = newFinish(null, here);
+    } else {
+      finish = worker.task.finish;
+      finish.spawn(here);
+    }
     new Task(finish, f, here).async(worker);
   }
 
   @Override
   public void asyncat(Place p, Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = worker == null ? newFinish(null) : worker.task.finish;
-    finish.spawn(p.id);
+    final Finish finish;
+    if (worker == null) {
+      finish = newFinish(null, p.id);
+    } else {
+      finish = worker.task.finish;
+      finish.spawn(p.id);
+    }
     new Task(finish, f, here).asyncat(p);
   }
 

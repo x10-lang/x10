@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import apgas.Place;
 import apgas.Job;
+import apgas.Place;
 
 /**
  * The {@link Task} class represents an APGAS task.
@@ -64,7 +64,11 @@ final class Task implements SerializableRunnable {
    */
   @Override
   public void run() {
-    async(null);
+    try {
+      async(null);
+    } catch (final DeadPlaceError e) {
+      // source place has died while task was in transit, discard
+    }
   }
 
   /**
