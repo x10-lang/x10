@@ -312,7 +312,6 @@ final class ResilientFinish implements Finish, Serializable {
       // this place is dead for the world
       System.exit(42);
     } catch (final ExecutionException e) {
-      e.printStackTrace();
       final Throwable t = e.getCause();
       if (t instanceof NoSuchPlaceException) {
         throw (NoSuchPlaceException) t;
@@ -362,18 +361,15 @@ final class ResilientFinish implements Finish, Serializable {
           public void entryEvicted(EntryEvent<GlobalID, State> event) {
           }
         }, id, true);
-    try {
+    synchronized (this) {
       while (waiting()) {
         try {
-          synchronized (this) {
-            wait();
-          }
+          wait(1000);
         } catch (final InterruptedException e) {
         }
       }
-    } finally {
-      map.removeEntryListener(reg);
     }
+    map.removeEntryListener(reg);
   }
 
   @Override
