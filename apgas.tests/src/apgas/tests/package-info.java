@@ -10,7 +10,7 @@
  */
 
 /**
- * The {@link apgas.examples} package contains test programs for the APGAS API.
+ * The {@link apgas.tests} package contains test programs for the APGAS API.
  */
 package apgas.tests;
 
