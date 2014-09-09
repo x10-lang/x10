@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import apgas.Job;
+import apgas.NoSuchPlaceException;
 import apgas.Place;
 
 /**
@@ -66,7 +67,7 @@ final class Task implements SerializableRunnable {
   public void run() {
     try {
       async(null);
-    } catch (final DeadPlaceError e) {
+    } catch (final NoSuchPlaceException e) {
       // source place has died while task was in transit, discard
     }
   }

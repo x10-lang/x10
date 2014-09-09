@@ -316,7 +316,7 @@ final class ResilientFinish implements Finish, Serializable {
       if (t instanceof NoSuchPlaceException) {
         throw (NoSuchPlaceException) t;
       }
-      e.printStackTrace(); // should not happen
+      throw new RuntimeException(t);
     }
   }
 
