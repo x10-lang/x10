@@ -1300,6 +1300,11 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
 
+	bool usePseudoTTY = true;
+	char * pseudoTTYEnv = getenv(X10_LAUNCHER_TTY);
+	if (pseudoTTYEnv != NULL)
+		usePseudoTTY = checkBoolEnvVar(pseudoTTYEnv);
+
     // leak a bunch of memory, we're about to exec anyway and that will clean it up
     // on all OS that we care about
 
@@ -1316,9 +1321,11 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	char ** argv = (char **) alloca (sizeof(char *) * (_argc+environ_sz+32));
 	int z = 0;
 	argv[z] = _ssh_command;
-	static char ttyarg[] = "-t";
-	argv[++z] = ttyarg;
-	argv[++z] = ttyarg; // put in -t twice
+	if (usePseudoTTY) {
+		static char ttyarg[] = "-t";
+		argv[++z] = ttyarg;
+		argv[++z] = ttyarg; // put in -t twice
+	}
 	static char quietarg[] = "-q";
 	argv[++z] = quietarg;
 	argv[++z] = remotehost;

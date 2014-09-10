@@ -52,6 +52,7 @@
 #define X10_LAZYLINKS "X10_LAZYLINKS" // flag to establish place to place links to be at startup, instead of lazily.
 #define X10_NOWRITEBUFFER "X10_NOWRITEBUFFER" // turns off non-blocking sockets
 #define X10_LIBRARY_MODE "X10_LIBRARY_MODE" // Don't use our own launcher, but instead rely on some external system.
+#define X10_LAUNCHER_TTY "X10_LAUNCHER_TTY" // set to false to disable Pseudo-TTY over SSH, which is used by default
 // don't miss X10_DEBUGGER_ID and X10_DEBUGGER_NAME over in DebugHelper.h
 
 // how many seconds to wait after the first runtime exits, before we force any remaining runtimes to die
