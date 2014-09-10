@@ -75,7 +75,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionCompilationUnitDeclarationError(String error_message, JavaToken jToken);
     public static native void cactionTypeDeclaration(String package_name, String type_name, int num_annotations, boolean has_super_class, boolean is_annotation_interface, boolean is_interface, boolean is_enum, boolean is_abstract, boolean is_final, boolean is_private, boolean is_public, boolean is_protected, boolean is_static, boolean is_strictfp, JavaToken jToken);
     public static native void cactionTypeDeclarationHeader(boolean java_has_super_class, int java_numberOfinterfaces, int java_numberofTypeParameters, JavaToken jToken);
-    public static native void cactionTypeDeclarationEnd(JavaToken jToken);
+    public static native void cactionTypeDeclarationEnd(boolean is_user_defined, JavaToken jToken);
 
     public static native void cactionConstructorDeclaration(String filename, int constructor_index, JavaToken jToken);
     public static native void cactionConstructorDeclarationHeader(String filename, boolean java_is_public, boolean java_is_protected, boolean java_is_private, int numberOfTypeParameters, int numberOfArguments, int numberOfThrows, JavaToken jToken);
