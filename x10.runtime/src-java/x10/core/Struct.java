@@ -14,9 +14,9 @@ package x10.core;
 import java.io.Serializable;
 
 import x10.rtt.Types;
-import x10.serialization.SerializationProxy;
 
 // Base class for all X10 structs
+@SuppressWarnings("serial")
 public abstract class Struct implements StructI, Serializable {
 
     public Struct() {}

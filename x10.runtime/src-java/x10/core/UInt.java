@@ -25,7 +25,6 @@ import x10.serialization.X10JavaSerializer;
  * Represents a boxed UInt value. Boxed representation is used when casting
  * a UInt value into type Any or parameter type T.
  */
-@SuppressWarnings("serial")
 final public class UInt extends java.lang.Number implements StructI, java.lang.Comparable<UInt>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>

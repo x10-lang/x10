@@ -25,7 +25,6 @@ import x10.serialization.X10JavaSerializer;
  * an Double value to type Any, parameter type T or superinterfaces such
  * as Comparable<Double>.
  */
-@SuppressWarnings("serial")
 final public class Double extends java.lang.Number implements StructI, java.lang.Comparable<Double>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>

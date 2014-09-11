@@ -21,7 +21,6 @@ import x10.serialization.X10JavaSerializer;
 
 import java.io.IOException;
 
-@SuppressWarnings("serial")
 public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements Any, X10JavaSerializable {
 
     // constructor just for allocation

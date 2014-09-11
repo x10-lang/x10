@@ -25,7 +25,6 @@ import x10.serialization.X10JavaSerializer;
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-@SuppressWarnings("serial")
 final public class Byte extends java.lang.Number implements StructI, java.lang.Comparable<Byte>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>

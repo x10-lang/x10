@@ -16,6 +16,7 @@ import java.io.Serializable;
 /**
  * Abstract implementation-level superclass of all X10 classes.
  */
+@SuppressWarnings("serial")
 public abstract class Ref implements Any, Serializable {
     
     // N.B. this is called implicitly by all subclasses of Ref

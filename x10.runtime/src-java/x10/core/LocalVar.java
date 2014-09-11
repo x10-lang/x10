@@ -21,6 +21,7 @@ import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
+@SuppressWarnings("serial")
 public class LocalVar<T> extends Ref {
     
     public static final RuntimeType<LocalVar<?>> $RTT = NamedType.<LocalVar<?>> make("x10.compiler.LocalVar", LocalVar.class, 1);

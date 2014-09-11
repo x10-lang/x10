@@ -25,7 +25,6 @@ import x10.serialization.X10JavaSerializer;
  * Represents a boxed UByte value. Boxed representation is used when casting
  * a UByte value into type Any or parameter type T.
  */
-@SuppressWarnings("serial")
 final public class UByte extends java.lang.Number implements StructI, java.lang.Comparable<UByte>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>

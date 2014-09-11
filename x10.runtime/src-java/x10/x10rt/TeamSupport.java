@@ -13,7 +13,6 @@ package x10.x10rt;
 import x10.core.Rail;
 import x10.lang.Complex;
 import x10.lang.FinishState;
-import x10.lang.Place;
 import x10.rtt.Type;
 import x10.util.Team.DoubleIdx;
 

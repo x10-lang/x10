@@ -21,7 +21,6 @@ import x10.serialization.X10JavaSerializer;
 
 import java.io.IOException;
 
-@SuppressWarnings("serial")
 public final class NativeFile extends java.io.File implements Any {
 
 	// TODO

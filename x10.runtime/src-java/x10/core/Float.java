@@ -25,7 +25,6 @@ import x10.serialization.X10JavaSerializer;
  * an Float value to type Any, parameter type T or superinterfaces such
  * as Comparable<Float>.
  */
-@SuppressWarnings("serial")
 final public class Float extends java.lang.Number implements StructI, java.lang.Comparable<Float>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
