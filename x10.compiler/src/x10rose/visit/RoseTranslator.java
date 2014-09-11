@@ -602,6 +602,8 @@ public class RoseTranslator extends Translator {
 		private static boolean isDecl = true;
 		
 		private static int numSourceFile;
+		
+		private static HashMap<String, Node> positionMap = new HashMap<String, Node>();
 				
 		public  void searchFileList(String packageName, String typeName) throws IOException {
 			for (Job job : jobList) {
@@ -619,10 +621,13 @@ public class RoseTranslator extends Translator {
 				Reader reader = source.open();
 				ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 				Parser p = job.extensionInfo().parser(reader, source, eq);
-				Node ast = p.parse();
-//				System.out.println("SRC=" + source + ", " + ((SourceFile_c) job.ast()) + 
-//						", decls=" + ((SourceFile_c) job.ast()).decls().size() +
-//						", node=" + job.ast().hashCode());
+				Node ast;
+				if (positionMap.containsKey(sourceName))
+					ast = positionMap.get(sourceName);
+				else {
+					ast = p.parse();
+					positionMap.put(sourceName, ast);
+				}
 				
 				TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, (SourceFile_c) job.ast(), job);
 
@@ -3163,7 +3168,7 @@ System.out.println("abc1");
 	     boolean isClassFound = false;
 	     
 	     public NodeVisitor enter(Node n) {
-//	    	 System.out.println("ENTER:" + n);
+//	    	System.out.println("ENTER:" + n);
 			if (isClassFound)
 				return this;
 			
@@ -3205,10 +3210,6 @@ System.out.println("abc1");
 
 			return this;
 		}
-	     
-	     public Node override(Node n) {
-	    	return n;
-	     }
 		
 		public boolean isFound() {
 			return isPackageMatched & isClassMatched;
