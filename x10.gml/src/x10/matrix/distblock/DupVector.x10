@@ -22,372 +22,423 @@ import x10.matrix.Vector;
 import x10.matrix.comm.ArrayBcast;
 import x10.matrix.comm.ArrayReduce;
 
+import x10.matrix.util.resilient.DistObjectSnapshot;
+import x10.matrix.util.resilient.Snapshottable;
+
 public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};
 
-public class DupVector(M:Long) {
-	public val dupV:PlaceLocalHandle[Vector];
-	private val dupData:PlaceLocalHandle[Rail[Double]];//Repackage vector.d
-	public  var tmpData:PlaceLocalHandle[Rail[Double]];
-	private transient var tmpReady:Boolean;
-	/*
-	 * Time profiling
-	 */
-	transient var commTime:Long = 0;
-	transient var calcTime:Long = 0;
-	
-	public def this(vs:PlaceLocalHandle[Vector]) {
-		val m = vs().M;
-		property(m);
-		dupV  = vs;
-		tmpReady = false;
-		dupData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>vs().d);
-	}
+public class DupVector(M:Long) implements Snapshottable {
+    public var dupV:PlaceLocalHandle[Vector];
+    private var dupData:PlaceLocalHandle[Rail[Double]];//Repackage vector.d
+    public  var tmpData:PlaceLocalHandle[Rail[Double]];
+    private transient var tmpReady:Boolean;
+    /*
+     * Time profiling
+     */
+    transient var commTime:Long = 0;
+    transient var calcTime:Long = 0;
+    
+    /*The place group used for distribution*/
+    private var places:PlaceGroup;
 
-	public static def make(v:Vector):DupVector(v.M){
-		val m = v.M;
-		val hdl = PlaceLocalHandle.make[Vector](Place.places(), () => v);
-		val newDV = new DupVector(hdl);
-		newDV.sync();
-		return newDV as DupVector(m);
-	}
-	
-	public static def make(m:Long) {
-		val hdl = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(m));
-		return new DupVector(hdl) as DupVector(m);
-	}
-	
-	public def alloc(m:Long):DupVector(m) = make(m);
-	public def alloc() = alloc(M);
-	
-	public def clone():DupVector(M) {
-		val bs = PlaceLocalHandle.make[Vector](Place.places(), 
-				()=>dupV().clone());	
-		return new DupVector(bs) as DupVector(M);
-	}
-	
-	public def reset() {
-        finish ateach(Dist.makeUnique()) {
-			dupV().reset();
-		}
-	}
+    public def this(vs:PlaceLocalHandle[Vector], pg:PlaceGroup) {
+        val m = vs().M;
+        property(m);
+        dupV  = vs;
+        tmpReady = false;
+        places = pg;
+        dupData = PlaceLocalHandle.make[Rail[Double]](places, ()=>vs().d);
+    }
 
-	public def allocTmp() : void {
-		if (tmpReady) return;
-		tmpReady = true;
-		tmpData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>new Rail[Double](dupV().M));
-	}
+    public static def make(v:Vector, pg:PlaceGroup):DupVector(v.M){
+        val m = v.M;
+        val hdl = PlaceLocalHandle.make[Vector](pg, () => v);
+        val newDV = new DupVector(hdl, pg);
+        newDV.sync();
+        return newDV as DupVector(m);
+    }
+    
+    public static def make(v:Vector):DupVector(v.M) = make (v, Place.places());
+    
+    public static def make(m:Long, pg:PlaceGroup) {
+        val hdl = PlaceLocalHandle.make[Vector](pg, ()=>Vector.make(m));
+        return new DupVector(hdl, pg) as DupVector(m);
+    }
+    
+    public static def make(m:Long) = make(m, Place.places());
+    
+    public def alloc(m:Long, pg:PlaceGroup):DupVector(m) = make(m, pg);
+    public def alloc(pg:PlaceGroup) = alloc(M, pg);
+    public def alloc(m:Long):DupVector(m) = make(m, Place.places());
+    public def alloc() = alloc(M, Place.places());
+    
+    
+    public def clone():DupVector(M) {
+        val bs = PlaceLocalHandle.make[Vector](places, 
+                ()=>dupV().clone());    
+        return new DupVector(bs, places) as DupVector(M);
+    }
+    
+    public def reset() {
+        finish ateach(Dist.makeUnique(places)) {
+            dupV().reset();
+        }
+    }
 
-	public def init(dv:Double) : DupVector(this) {
-		
-		finish ateach(Dist.makeUnique()) {
-			dupV().init(dv);
-		}
-		return this;
-	}
-	
-	public def initRandom() : DupVector(this) {
-		dupV().initRandom();
-		sync();
-		return this;
-	}
-	
-	public def initRandom(lo:Int, up:Int) : DupVector(this) {
-		dupV().initRandom(lo, up);
-		sync();
-		return this;
-	}
-	
-	public def init(f:(Long)=>Double) : DupVector(this) {
-		dupV().init(f);
-		sync();
-		return this;
-	}
-	
-	public def copyTo(den:DenseMatrix):void {
-		dupV().copyTo(den);
-	}
+    public def allocTmp() : void {
+        if (tmpReady) return;
+        tmpReady = true;
+        tmpData = PlaceLocalHandle.make[Rail[Double]](places, ()=>new Rail[Double](dupV().M));
+    }
 
-	public def copyTo(dst:DupVector(M)):void {
-		finish ateach(Dist.makeUnique()) {
-			dupV().copyTo(dst.dupV());
-		}
-	}
-	
-	public  operator this(x:Long):Double = dupV()(x);
+    public def init(dv:Double) : DupVector(this) {
+        
+        finish ateach(Dist.makeUnique(places)) {
+            dupV().init(dv);
+        }
+        return this;
+    }
+    
+    public def initRandom() : DupVector(this) {
+        dupV().initRandom();
+        sync();
+        return this;
+    }
+    
+    public def initRandom(lo:Int, up:Int) : DupVector(this) {
+        dupV().initRandom(lo, up);
+        sync();
+        return this;
+    }
+    
+    public def init(f:(Long)=>Double) : DupVector(this) {
+        dupV().init(f);
+        sync();
+        return this;
+    }
+    
+    public def copyTo(den:DenseMatrix):void {
+        dupV().copyTo(den);
+    }
 
-	public operator this(x:Long)=(dv:Double):Double {
-		finish ateach(Dist.makeUnique()) {
-			//Remote capture: x, y, d
-			dupV()(x) = dv;	
-		}
-		return dv;
-	}
-	
-	public def local() = dupV() as Vector(M);
+    public def copyTo(dst:DupVector(M)):void {
+        finish ateach(Dist.makeUnique(places)) {
+            dupV().copyTo(dst.dupV());
+        }
+    }
+    
+    public  operator this(x:Long):Double = dupV()(x);
 
-	/**
-	 * Scaling method. All copies are updated concurrently
-	 */
-	public def scale(a:Double) {
-		finish ateach(Dist.makeUnique()) {
-			local().scale(a);
-		}
-		return this;
-	}
+    public operator this(x:Long)=(dv:Double):Double {
+        finish ateach(Dist.makeUnique(places)) {
+            //Remote capture: x, y, d
+            dupV()(x) = dv;    
+        }
+        return dv;
+    }
+    
+    public def local() = dupV() as Vector(M);
 
-	
-	/**
-	 * Cellwise multiplication. 
-	 */
-	public def cellAdd(A:Vector(M)) {
-		val v = local();
-		v.cellAdd(A as Vector(v.M));
-		sync();
-		return this;
-	}
+    /**
+     * Scaling method. All copies are updated concurrently
+     */
+    public def scale(a:Double) {
+        finish ateach(Dist.makeUnique(places)) {
+            local().scale(a);
+        }
+        return this;
+    }
 
-	/**
-	 * Concurrently perform cellwise addition on all copies.
-	 */
-	public def cellAdd(that:DupVector(M))  {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
-		finish ateach(Dist.makeUnique()) {
-			val dstv = local() as Vector(M);
-			val srcv = that.local() as Vector(M);
-			dstv.cellAdd(srcv);
-		}
-		return this;
-	}
+    
+    /**
+     * Cellwise multiplication. 
+     */
+    public def cellAdd(A:Vector(M)) {
+        val v = local();
+        v.cellAdd(A as Vector(v.M));
+        sync();
+        return this;
+    }
 
-	public def cellAdd(dv:Double)  {
-		finish ateach(Dist.makeUnique()) {
-			local().cellAdd(dv);
-		}
-		return this;
-	}
+    /**
+     * Concurrently perform cellwise addition on all copies.
+     */
+    public def cellAdd(that:DupVector(M))  {
+        //Debug.assure(this.M==A.M&&this.N==A.N);
+        finish ateach(Dist.makeUnique(places)) {
+            val dstv = local() as Vector(M);
+            val srcv = that.local() as Vector(M);
+            dstv.cellAdd(srcv);
+        }
+        return this;
+    }
 
-
-	// Cellwise subtraction
-
-	public def cellSub(A:Vector(M)) {
-		val v = local() as Vector(M);
-		v.cellSub(A);
-		sync();
-		return this;
-	}
-	/**
-	 * Concurrently perform cellwise subtraction on all copies
-	 */
-	public def cellSub(A:DupVector(M)) {
-		finish ateach(Dist.makeUnique()) {
-			val dstv = local() as Vector(M);
-			val srcv = A.local() as Vector(M);
-			dstv.cellSub(srcv);
-		}
-		return this;
-	}
-
-	
-	/**
-	 * Perform cell-wise subtraction  this = this - dv.
-	 */
-	public def cellSub(dv:Double):DupVector(this) {
-        finish ateach(Dist.makeUnique()) {
-			local().cellSub(dv);
-		}
-		return this;
-	}
-	
-	/**
-	 * this = dv - this
-	 */
-	protected def cellSubFrom(dv:Double):DupVector(this) {
-        finish ateach(Dist.makeUnique()) {
-			local().cellSubFrom(dv);
-		}
-		return this;
-	}
+    public def cellAdd(dv:Double)  {
+        finish ateach(Dist.makeUnique(places)) {
+            local().cellAdd(dv);
+        }
+        return this;
+    }
 
 
-	// Cellwise multiplication
+    // Cellwise subtraction
 
-	/**
-	 * Cellwise multiplication. 
-	 */
-	public def cellMult(A:Vector(M)) {
-		val dstv = local();
-		dstv.cellMult(A);
-		sync();
-		return this;
-	}
-	
-	/**
-	 * Cellwise multiplication. All copies are modified with
-	 * the corresponding vector copies.
-	 */
-	public def cellMult(A:DupVector(M)) {
-		finish ateach(Dist.makeUnique()) {
-			local().cellMult(A.local());
-		}
-		return this;
-	}
+    public def cellSub(A:Vector(M)) {
+        val v = local() as Vector(M);
+        v.cellSub(A);
+        sync();
+        return this;
+    }
+    /**
+     * Concurrently perform cellwise subtraction on all copies
+     */
+    public def cellSub(A:DupVector(M)) {
+        finish ateach(Dist.makeUnique(places)) {
+            val dstv = local() as Vector(M);
+            val srcv = A.local() as Vector(M);
+            dstv.cellSub(srcv);
+        }
+        return this;
+    }
 
-
-	// Cellwise division
-
-	/**
-	 * this = this / A
-	 */
-	public def cellDiv(A:Vector(M)) {
-		local().cellDiv(A);
-		sync();
-		return this;
-	}
-	
-
-	/**
-	 * Cellwise division. All copies are modified with
-	 * the corresponding vector copies.
-	 */	
-	public def cellDiv(A:DupVector(M)) {
-        finish ateach(Dist.makeUnique()) {
-			local().cellDiv(A.local());
-		}
-		return this;
-	}
-	
-
-	// Operator overloading cellwise operations
+    
+    /**
+     * Perform cell-wise subtraction  this = this - dv.
+     */
+    public def cellSub(dv:Double):DupVector(this) {
+        finish ateach(Dist.makeUnique(places)) {
+            local().cellSub(dv);
+        }
+        return this;
+    }
+    
+    /**
+     * this = dv - this
+     */
+    protected def cellSubFrom(dv:Double):DupVector(this) {
+        finish ateach(Dist.makeUnique(places)) {
+            local().cellSubFrom(dv);
+        }
+        return this;
+    }
 
 
-	public operator - this            = clone().scale(-1.0) as DupVector(M);
-	public operator (v:Double) + this = clone().cellAdd(v)  as DupVector(M);
-	public operator this + (v:Double) = clone().cellAdd(v)  as DupVector(M);
-	public operator this - (v:Double) = clone().cellSub(v)  as DupVector(M);
-	public operator (v:Double) - this = clone().cellSubFrom(v) as DupVector(M);
-	public operator this / (v:Double) = clone().scale(1.0/v)   as DupVector(M);
-	
-	public operator this * (alpha:Double) = clone().scale(alpha) as DupVector(M);
-	public operator (alpha:Double) * this = this * alpha;
-	
-	public operator this + (that:DupVector(M)) = clone().cellAdd(that)  as DupVector(M);
-	public operator this - (that:DupVector(M)) = clone().cellSub(that)  as DupVector(M);
-	public operator this * (that:DupVector(M)) = clone().cellMult(that) as DupVector(M);
-	public operator this / (that:DupVector(M)) = clone().cellDiv(that)  as DupVector(M);
-		
+    // Cellwise multiplication
 
-	// Multiplication operations 
-
-	public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N), plus:Boolean):DupVector(this) =
-		DistDupVectorMult.comp(mA, vB, this, plus);
-	
-	public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
-		DistDupVectorMult.comp(vB, mA, this, plus);
-	
-	public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N), plus:Boolean):DupVector(this) =
-		DistDupVectorMult.comp(mA, vB, this, plus);
-	
-	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
-		DistDupVectorMult.comp(vB, mA, this, plus);
-
-	public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N)) = DistDupVectorMult.comp(mA, vB, this, false);
-	public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
-	public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N))  = DistDupVectorMult.comp(mA, vB, this, false);
-	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M))  = DistDupVectorMult.comp(vB, mA, this, false);
-	
-
-	public operator this % (that:DistBlockMatrix(M)) = 
-		DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getAggColBs()), true);
-
-	public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
-		DistDupVectorMult.comp(that , this, DistVector.make(that.M, that.getAggRowBs()), true);
+    /**
+     * Cellwise multiplication. 
+     */
+    public def cellMult(A:Vector(M)) {
+        val dstv = local();
+        dstv.cellMult(A);
+        sync();
+        return this;
+    }
+    
+    /**
+     * Cellwise multiplication. All copies are modified with
+     * the corresponding vector copies.
+     */
+    public def cellMult(A:DupVector(M)) {
+        finish ateach(Dist.makeUnique(places)) {
+            local().cellMult(A.local());
+        }
+        return this;
+    }
 
 
-	public def sync():void {
-		/* Timing */ val st = Timer.milliTime();
-		ArrayBcast.bcast(dupData);
-		/* Timing */ commTime += Timer.milliTime() - st;
-		//Debug.flushln("Calling sync "+commTime);
-	}
+    // Cellwise division
 
-	
-	public def reduce(opFunc:(Rail[Double],Rail[Double],Long)=>Int): void {
-		allocTmp();
-		/* Timing */ val st = Timer.milliTime();
-		ArrayReduce.reduce(dupData, tmpData, this.M, opFunc);
-		/* Timing */ commTime += Timer.milliTime() - st;
-	}
-	
-	public def reduceSum(): void {
-		allocTmp();
-		/* Timing */ val st = Timer.milliTime();
-		ArrayReduce.reduceSum(dupData, tmpData, this.M);
-		/* Timing */ commTime += Timer.milliTime() - st;
-	}
-	
-	public def allReduceSum(): void {
-		allocTmp();
-		/* Timing */ val st = Timer.milliTime();
-		ArrayReduce.allReduceSum(dupData, tmpData, this.M);
-		/* Timing */ commTime += Timer.milliTime() - st;
-	}	
+    /**
+     * this = this / A
+     */
+    public def cellDiv(A:Vector(M)) {
+        local().cellDiv(A);
+        sync();
+        return this;
+    }
+    
+
+    /**
+     * Cellwise division. All copies are modified with
+     * the corresponding vector copies.
+     */    
+    public def cellDiv(A:DupVector(M)) {
+        finish ateach(Dist.makeUnique(places)) {
+            local().cellDiv(A.local());
+        }
+        return this;
+    }
+    
+
+    // Operator overloading cellwise operations
 
 
-	public def likeMe(that:DupVector): Boolean = (this.M==that.M);
-		
+    public operator - this            = clone().scale(-1.0) as DupVector(M);
+    public operator (v:Double) + this = clone().cellAdd(v)  as DupVector(M);
+    public operator this + (v:Double) = clone().cellAdd(v)  as DupVector(M);
+    public operator this - (v:Double) = clone().cellSub(v)  as DupVector(M);
+    public operator (v:Double) - this = clone().cellSubFrom(v) as DupVector(M);
+    public operator this / (v:Double) = clone().scale(1.0/v)   as DupVector(M);
+    
+    public operator this * (alpha:Double) = clone().scale(alpha) as DupVector(M);
+    public operator (alpha:Double) * this = this * alpha;
+    
+    public operator this + (that:DupVector(M)) = clone().cellAdd(that)  as DupVector(M);
+    public operator this - (that:DupVector(M)) = clone().cellSub(that)  as DupVector(M);
+    public operator this * (that:DupVector(M)) = clone().cellMult(that) as DupVector(M);
+    public operator this / (that:DupVector(M)) = clone().cellDiv(that)  as DupVector(M);
+         
+
+    // Multiplication operations 
+
+    public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N), plus:Boolean):DupVector(this) =
+        DistDupVectorMult.comp(mA, vB, this, plus);
+    
+    public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
+        DistDupVectorMult.comp(vB, mA, this, plus);
+    
+    public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N), plus:Boolean):DupVector(this) =
+        DistDupVectorMult.comp(mA, vB, this, plus);
+    
+    public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
+        DistDupVectorMult.comp(vB, mA, this, plus);
+
+    public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N)) = DistDupVectorMult.comp(mA, vB, this, false);
+    public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
+    public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N))  = DistDupVectorMult.comp(mA, vB, this, false);
+    public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M))  = DistDupVectorMult.comp(vB, mA, this, false);
+    
+    //FIXME: review the correctness of using places here
+    public operator this % (that:DistBlockMatrix(M)) = 
+        DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getAggColBs(), places), true);
+    //FIXME: review the correctness of using places here
+    public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
+        DistDupVectorMult.comp(that , this, DistVector.make(that.M, that.getAggRowBs(), places), true);
 
 
-	public def checkSync():Boolean {
-		val rootvec  = dupV();
-		var retval:Boolean = true;
-		for (var p:Long=0; p < Place.numPlaces() && retval; p++) {
-			if (p == here.id()) continue;
-			retval &= at(Place(p)) {
-					val vec = dupV();
-					rootvec.equals(vec as Vector(rootvec.M))
-			};
-		}
-		return retval;
-	}
-	
-	public def equals(dv:DupVector(this.M)):Boolean {
-		var ret:Boolean = true;
-		for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
-			ret &= at(Place(p)) this.local().equals(dv.local());
-		}
-		return ret;
-	}
-	
-	public def equals(dval:Double):Boolean {
-		var ret:Boolean = true;
-		for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
-			ret &= at(Place(p)) this.local().equals(dval);
-		}
-		return ret;
-	}
+    public def sync():void {
+        /* Timing */ val st = Timer.milliTime();        
+        ArrayBcast.bcast(dupData, places);
+        /* Timing */ commTime += Timer.milliTime() - st;
+        //Debug.flushln("Calling sync "+commTime);
+    }
 
-	public def getCalcTime() = calcTime;
-	public def getCommTime() = commTime;
-	
-	public def toString() :String {
-		val output = new StringBuilder();
-		output.add("---Duplicated Vector:["+M+"], local copy---\n");
-		output.add(dupV().toString());
-		output.add("--------------------------------------------------\n");
-		return output.toString();
-	}
+    
+    public def reduce(opFunc:(Rail[Double],Rail[Double],Long)=>Int): void {
+        allocTmp();
+        /* Timing */ val st = Timer.milliTime();
+        ArrayReduce.reduce(dupData, tmpData, this.M, places, opFunc);
+        /* Timing */ commTime += Timer.milliTime() - st;
+    }
+    
+    public def reduceSum(): void {
+        allocTmp();
+        /* Timing */ val st = Timer.milliTime();        
+        ArrayReduce.reduceSum(dupData, tmpData, this.M, places);        
+        /* Timing */ commTime += Timer.milliTime() - st;
+    }
+    
+    public def allReduceSum(): void {
+        allocTmp();
+        /* Timing */ val st = Timer.milliTime();
+        ArrayReduce.allReduceSum(dupData, tmpData, this.M, places);
+        /* Timing */ commTime += Timer.milliTime() - st;
+    }    
 
-	public def printAllCopies() {
-		val output = new StringBuilder();
-		output.add("-------- Duplicate vector :["+M+"] ---------\n");
-		for (p in Place.places()) {
-			output.add("Copy at place " + p.id() +"\n");
-			output.add(at (p) { dupV().toString()});
-		}
-		output.add("--------------------------------------------------\n");
-		Console.OUT.print(output.toString());
-		Console.OUT.flush();
-	}
+
+    public def likeMe(that:DupVector): Boolean = (this.M==that.M);
+        
+
+
+    public def checkSync():Boolean {
+        val rootvec  = dupV();
+        var retval:Boolean = true;
+        for (var p:Long=0; p < places.size() && retval; p++) {
+            if (p == here.id()) continue;
+            retval &= at(places(p)) {
+                    val vec = dupV();
+                    rootvec.equals(vec as Vector(rootvec.M))
+            };
+        }
+        return retval;
+    }
+    
+    public def equals(dv:DupVector(this.M)):Boolean {
+        var ret:Boolean = true;
+        if (dv.getPlaces().equals(places)){
+            for (var p:Long=0; p<places.size() &&ret; p++) {
+                ret &= at(places(p)) this.local().equals(dv.local());
+            }
+        }
+        else
+            ret = false;
+        return ret;
+    }
+    
+    public def equals(dval:Double):Boolean {
+        var ret:Boolean = true;
+        for (var p:Long=0; p<places.size() &&ret; p++) {
+            ret &= at(places(p)) this.local().equals(dval);
+        }
+        return ret;
+    }
+
+    public def getCalcTime() = calcTime;
+    public def getCommTime() = commTime;
+    public def getPlaces() = places;
+
+    public def toString() :String {
+        val output = new StringBuilder();
+        output.add("---Duplicated Vector:["+M+"], local copy---\n");
+        output.add(dupV().toString());
+        output.add("--------------------------------------------------\n");
+        return output.toString();
+    }
+
+    public def printAllCopies() {
+        val output = new StringBuilder();
+        output.add("-------- Duplicate vector :["+M+"] ---------\n");
+        for (p in places) {
+            output.add("Copy at place " + p.id() +"\n");
+            output.add(at (p) { dupV().toString()});
+        }
+        output.add("--------------------------------------------------\n");
+        Console.OUT.print(output.toString());
+        Console.OUT.flush();
+    }
+    
+    /**
+     * Remake the DupVector over a new PlaceGroup
+     */
+    public def remake(newPg:PlaceGroup){
+        PlaceLocalHandle.destroy(places, dupV, (Place)=>true);    
+        dupV = PlaceLocalHandle.make[Vector](newPg, ()=>Vector.make(M));    
+        if (tmpReady){
+            tmpReady = false;
+            PlaceLocalHandle.destroy(places, tmpData, (Place)=>true);
+        }
+        PlaceLocalHandle.destroy(places, dupData, (Place)=>true);
+        dupData = PlaceLocalHandle.make[Rail[Double]](newPg, ()=>dupV().d); 
+        places = newPg;
+    }
+    
+    /*
+     * Snapshot mechanism
+     */
+    private transient val DUMMY_KEY:Long = 8888L;   
+
+    public def makeSnapshot():DistObjectSnapshot[Any,Any]{        
+        val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();        
+        val data = dupV();
+        snapshot.save(DUMMY_KEY, data);        
+        return snapshot;
+    }
+
+    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {        
+        val data:Vector = snapshot.load(DUMMY_KEY) as Vector;
+        data.copyTo(dupV());
+        sync();                
+    }   
 }
-

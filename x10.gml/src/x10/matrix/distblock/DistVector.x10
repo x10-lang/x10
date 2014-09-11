@@ -24,97 +24,115 @@ import x10.matrix.block.BlockMatrix;
 import x10.matrix.comm.DataArrayPLH;
 import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
+import x10.matrix.util.resilient.DistObjectSnapshot;
+import x10.matrix.util.resilient.Snapshottable;
 
 public type DistVector(m:Long)=DistVector{self.M==m};
 public type DistVector(v:DistVector)=DistVector{self==v};
 
-public class DistVector(M:Long) {
-    public val distV:PlaceLocalHandle[Vector];
+public class DistVector(M:Long) implements Snapshottable {
+    public var distV:PlaceLocalHandle[Vector];
     //Repack dist vector to dist array
-    public val distData:DataArrayPLH;
-    public transient val segSize:Rail[Long];
+    public var distData:DataArrayPLH;
+    public transient var segSize:Rail[Long]; //this should be the same size as the place group
     /*
      * Time profiling
      */
     transient var commTime:Long = 0;
     transient var calcTime:Long = 0;
     
-    public def this(m:Long, vs:PlaceLocalHandle[Vector], segsz:Rail[Long]) {
+    /*The place group used for distribution*/
+    private var places:PlaceGroup;
+    
+    public def this(m:Long, vs:PlaceLocalHandle[Vector], segsz:Rail[Long], pg:PlaceGroup) {
         property(m);
+        Debug.assure(segsz.size == pg.size(),
+            "number of vector segments must be equal to number of places");
         distV  = vs;
         segSize = segsz;
-        distData = PlaceLocalHandle.make[Rail[Double]](Place.places(), ()=>vs().d);
+        places = pg;
+        distData = PlaceLocalHandle.make[Rail[Double]](places, ()=>vs().d);
     }
 
-    public static def make(m:Long, segNum:Long):DistVector(m) {
-        val hdv = PlaceLocalHandle.make[Vector](Place.places(),
-                            ()=>Vector.make(Grid.compBlockSize(m, segNum, here.id())));
+    public static def make(m:Long, segNum:Long, pg:PlaceGroup):DistVector(m) {
+        val hdv = PlaceLocalHandle.make[Vector](pg,
+                            ()=>Vector.make(Grid.compBlockSize(m, segNum, pg.indexOf(here))));
         val slst = new Rail[Long](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int));
-        return new DistVector(m, hdv, slst) as DistVector(m);
+        return new DistVector(m, hdv, slst, pg) as DistVector(m);
     }
     
-    public static def make(m:Long) = make (m, Place.numPlaces());
+    public static def make(m:Long, segNum:Long):DistVector(m) = make (m, segNum, Place.places()); 
+    
+    public static def make(m:Long, pg:PlaceGroup) = make (m, pg.size(), pg);
+    
+    public static def make(m:Long) = make (m, Place.places());
 
-    public static def make(m:Long, segsz:Rail[Long]):DistVector(m) {
-        val hdv = PlaceLocalHandle.make[Vector](Place.places(), ()=>Vector.make(segsz(here.id())));
-        return new DistVector(m, hdv, segsz) as DistVector(m);
+    public static def make(m:Long, segsz:Rail[Long], pg:PlaceGroup):DistVector(m) {
+        val hdv = PlaceLocalHandle.make[Vector](pg, ()=>Vector.make(segsz(pg.indexOf(here))));
+        return new DistVector(m, hdv, segsz, pg) as DistVector(m);
     }
+    
+    public static def make(m:Long, segsz:Rail[Long]):DistVector(m) = make (m, segsz, Place.places());
 
-    public def alloc(m:Long):DistVector(m) = make(m);
-    public def alloc() = alloc(M);
+    public def alloc(m:Long, pg:PlaceGroup):DistVector(m) = make(m, pg);
+    public def alloc(pg:PlaceGroup) = alloc(M, pg);
+    
+    public def alloc(m:Long):DistVector(m) = make(m, Place.places());
+    public def alloc() = alloc(M, Place.places());
+    
     
     public def clone():DistVector(M) {
-        val dv = PlaceLocalHandle.make[Vector](Place.places(), 
+        val dv = PlaceLocalHandle.make[Vector](places, 
                 ()=>distV().clone());    
-        return new DistVector(M, dv, segSize) as DistVector(M);
+        return new DistVector(M, dv, segSize, places) as DistVector(M);
     }
     
     public def reset() {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().reset();
         }
     }
 
     public def init(dv:Double) : DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().init(dv);
         }
         return this;
     }
     
     public def initRandom() : DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().initRandom();
         }
         return this;
     }
     
     public def initRandom(lo:Int, up:Int) : DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().initRandom(lo, up);
         }
         return this;
     }
     
     public def init(f:(Long)=>Double) : DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().init(f);
         }
         return this;
     }
     
     public def copyTo(dst:DistVector(M)):void {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().copyTo(dst.distV());
         }
     }
 
     public def copyTo(vec:Vector(M)):void {
-        ArrayGather.gather(distData, vec.d, segSize);
+        ArrayGather.gather(distData, vec.d, segSize, places);
     }
 
     public def copyFrom(vec:Vector(M)): void {
-        ArrayScatter.scatter(vec.d, distData, segSize);
+        ArrayScatter.scatter(vec.d, distData, segSize, places);
     }
 
     /**
@@ -128,22 +146,26 @@ public class DistVector(M:Long) {
         return nv;
     }
 
-    protected def find(var pos:Long):Pair[Long, Long] {
-        Debug.assure(pos<M, "Vector data access out of bound");
-        for (var i:Long=0; i<segSize.size; i++) {
-            if (pos < segSize(i))
+    private def find(var pos:Long, segments:Rail[Long]):Pair[Long, Long] {        
+        for (var i:Long=0; i<segments.size; i++) {
+            if (pos < segments(i))
                 return new Pair[Long,Long](i, pos);
-            pos -= segSize(i);
+            pos -= segments(i);
         }
         Debug.exit("Error in searching index in vector");
         return new Pair[Long,Long](-1, -1);
+    }
+    
+    protected def find(var pos:Long):Pair[Long, Long] {
+        Debug.assure(pos<M, "Vector data access out of bound");
+        return find(pos, segSize);
     }
     
     public  operator this(x:Long):Double {
         val loc = find(x);
         val seg = loc.first as Int;
         val off = loc.second;
-        val dat = at(Place(seg)) distV()(off);
+        val dat = at(places(seg)) distV()(off);
         return dat;
     }
 
@@ -151,7 +173,7 @@ public class DistVector(M:Long) {
         val loc = find(x);
         val seg = loc.first as Int;
         val off = loc.second;
-        at(Place(seg)) distV()(off)=dv;
+        at(places(seg)) distV()(off)=dv;
         return dv;
     }
 
@@ -159,7 +181,7 @@ public class DistVector(M:Long) {
      * Scaling method. All copies are updated concurrently
      */
     public def scale(a:Double) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().scale(a);
         }
         return this;
@@ -170,7 +192,7 @@ public class DistVector(M:Long) {
      */
     public def cellAdd(that:DistVector(M))  {
         //Debug.assure(this.M==A.M&&this.N==A.N);
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             val dst = distV();
             val src = that.distV() as Vector(dst.M);
             dst.cellAdd(src);
@@ -179,12 +201,11 @@ public class DistVector(M:Long) {
     }
 
     public def cellAdd(dv:Double)  {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().cellAdd(dv);
         }
         return this;
     }
-
 
     // Cellwise subtraction
 
@@ -193,7 +214,7 @@ public class DistVector(M:Long) {
      * Concurrently perform cellwise subtraction on all copies
      */
     public def cellSub(A:DistVector(M)) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             val dst = distV();
             val src = A.distV() as Vector(dst.M);
             dst.cellSub(src);
@@ -206,7 +227,7 @@ public class DistVector(M:Long) {
      * Perform cell-wise subtraction  this = this - dv.
      */
     public def cellSub(dv:Double):DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().cellSub(dv);
         }
         return this;
@@ -216,7 +237,7 @@ public class DistVector(M:Long) {
      * this = dv - this
      */
     protected def cellSubFrom(dv:Double):DistVector(this) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             distV().cellSubFrom(dv);
         }
         return this;
@@ -231,7 +252,7 @@ public class DistVector(M:Long) {
      * the corresponding vector copies.
      */
     public def cellMult(A:DistVector(M)) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             val dst = this.distV();
             val src = A.distV() as Vector(dst.M);
             dst.cellMult(src);
@@ -247,7 +268,7 @@ public class DistVector(M:Long) {
      * the corresponding vector copies.
      */    
     public def cellDiv(A:DistVector(M)) {
-        finish ateach(Dist.makeUnique()) {
+        finish ateach(Dist.makeUnique(places)) {
             val dst = this.distV();
             val src = A.distV() as Vector(dst.M);
             dst.cellDiv(src);
@@ -285,11 +306,12 @@ public class DistVector(M:Long) {
     public def mult(mA:DistBlockMatrix(M), vB:DupVector(mA.N))      = DistDupVectorMult.comp(mA, vB, this, false);
     public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
 
-
+    //FIXME: review the correctness of using places here
     public operator this % (that:DistBlockMatrix(this.M)) = 
-         DistDupVectorMult.comp(this, that, DupVector.make(that.N), false);
+         DistDupVectorMult.comp(this, that, DupVector.make(that.N, places), false);
+    //FIXME: review the correctness of using places here
     public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
-        DistDupVectorMult.comp(that, this, DupVector.make(that.M), false);
+        DistDupVectorMult.comp(that, this, DupVector.make(that.M, places), false);
     
     public def likeMe(that:DistVector): Boolean  {
         if (this.M!=that.M) return false;
@@ -300,14 +322,18 @@ public class DistVector(M:Long) {
         
     public def equals(dv:DistVector(this.M)):Boolean {
         var ret:Boolean = true;
-        for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
-            val pid = p;
-            ret &= at(Place(pid)) {
-                val srcv = distV();
-                val tgtv = dv.distV() as Vector(srcv.M);
-                srcv.equals(tgtv)
-            };
+        if (dv.getPlaces().equals(places)){
+            for (var p:Long=0; p<places.size() &&ret; p++) {
+                val pindx = p;
+                ret &= at(places(pindx)) {
+                    val srcv = distV();
+                    val tgtv = dv.distV() as Vector(srcv.M);
+                    srcv.equals(tgtv)
+                };
+            }
         }
+        else
+            ret = false;
         return ret;
     }
     public def equals(that:Vector(this.M)):Boolean {
@@ -322,15 +348,16 @@ public class DistVector(M:Long) {
     
     public def equals(dval:Double):Boolean {
         var ret:Boolean = true;
-        for (var p:Long=0; p<Place.numPlaces() &&ret; p++) {
-            val pid = p;
-            ret &= at(Place(pid)) distV().equals(dval);
+        for (var p:Long=0; p<places.size() &&ret; p++) {
+            val pindx = p;
+            ret &= at(places(pindx)) distV().equals(dval);
         }
         return ret;
     }
 
     public def getCalcTime() = calcTime;
     public def getCommTime() = commTime;
+    public def getPlaces() = places;
     
     public def toString() :String {
         val output=new StringBuilder();
@@ -344,7 +371,7 @@ public class DistVector(M:Long) {
     public def printAllCopies() {
         val output = new StringBuilder();
         output.add( "-------- Distributed vector :["+M+"] ---------\n");
-        for (p in Place.places()) {
+        for (p in places) {
             output.add("Segment vector at place " + p.id() +"\n");
             output.add(at (p) { distV().toString()});
         }
@@ -352,5 +379,70 @@ public class DistVector(M:Long) {
         Console.OUT.print(output.toString());
         Console.OUT.flush();
     }
+    
+    /*
+     * Snapshot mechanism
+     */
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup
+     */
+    public def remake(segsz:Rail[Long], newPg:PlaceGroup){        
+        Debug.assure(segsz.size == newPg.size(), "number of vector segments must be equal to number of places");
+        PlaceLocalHandle.destroy(places, distV, (Place)=>true);
+        distV = PlaceLocalHandle.make[Vector](newPg, ()=>Vector.make(segsz(newPg.indexOf(here))));
+        segSize = segsz;        
+        PlaceLocalHandle.destroy(places, distData, (Place)=>true);
+        distData = PlaceLocalHandle.make[Rail[Double]](newPg, ()=>distV().d);
+        places = newPg;
+    }
+    
+    public def remake(newPg:PlaceGroup){
+        val m = M;
+        val segNum = newPg.size;
+        val slst = new Rail[Long](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int));
+        remake (slst, newPg);
+    }
+    
+    static class DistVectorSnapshotInfo (placeIndex:Long,v:Vector, segsz:Rail[Long]) {}
+    public def makeSnapshot():DistObjectSnapshot[Any,Any]{        
+        val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();              
+        val segments = segSize;
+        finish for (pl in places) {
+            at (pl) async {
+                val i = places.indexOf(here);
+                val data = distV();
+                //the segSize should only be saved only at place 0
+                val distVecInfo:DistVectorSnapshotInfo;
+                if (i == 0)
+                    distVecInfo = new DistVectorSnapshotInfo(i, data, segments);
+                else
+                    distVecInfo = new DistVectorSnapshotInfo(i, data, null);
+        
+                snapshot.save(i, distVecInfo);
+            }
+        }        
+        return snapshot;
+    }
+    
+    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {        
+        val savedP0Info = snapshot.load(0) as DistVectorSnapshotInfo; //loading the snapshot at place 0
+        val segmentSizes = savedP0Info.segsz;        
+        val cached = PlaceLocalHandle.make[Cell[DistVectorSnapshotInfo]](places, ()=>new Cell[DistVectorSnapshotInfo](null));    
+        val initFunc = (i:Long)=>{            
+            val loc = find(i, segmentSizes);    
+            val loadPlaceIndex = loc.first;
+            val offset = loc.second;           
+        
+            var cashedObj:DistVectorSnapshotInfo = cached()();            
+            if ( (cashedObj==null) || (cashedObj.placeIndex!=loadPlaceIndex))
+                cashedObj = snapshot.load(loadPlaceIndex) as DistVectorSnapshotInfo;
+        
+            val vec =cashedObj.v;
+        
+            return vec(offset);            
+        };  
+        
+        init(initFunc);
+        PlaceLocalHandle.destroy(places, cached, (Place)=>true);        
+    }
 }
-

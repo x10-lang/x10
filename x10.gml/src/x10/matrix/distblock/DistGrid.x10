@@ -34,19 +34,17 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
     public def this(matgrid:Grid, nRowPs:Long, nColPs:Long) {
         property(nRowPs, nColPs);
         dmap = new DistMap(matgrid.size, nRowPs*nColPs);
-
         Debug.assure(
                 nRowPs <= matgrid.numRowBlocks && nColPs <= matgrid.numColBlocks, 
                 "Cannot distribute ("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks"+
-                " over ("+nRowPs+" x "+nColPs+") places");
-        placeGrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, nRowPs, nColPs);
-        
+                " over ("+nRowPs+" x "+nColPs+") places");       
+        placeGrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, nRowPs, nColPs);                
         //This is not an efficient method, 
         for (var cb:Long=0; cb<matgrid.numColBlocks; cb++) { 
             for (var rb:Long=0; rb<matgrid.numRowBlocks; rb++) {
-                val pid = placeGrid.findBlock(rb, cb); 
+                val plcIndex = placeGrid.findBlock(rb, cb); 
                 val bid = matgrid.getBlockId(rb, cb);
-                dmap.blockmap(bid) = pid;
+                dmap.set(bid, plcIndex);                
             }
         }
     }
@@ -85,8 +83,10 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
      * @param  g     the partitioning blocks
      * @return       the map of block IDs to place IDs.
      */
-    public static def make(g:Grid) = makeMaxRow(g, Math.sqrt(Place.numPlaces()) as Long, Place.numPlaces());
-        
+    public static def make(g:Grid) = make(g, Place.numPlaces());
+
+    public static def make(g:Grid, numPlaces:Long) = makeMaxRow(g, Math.sqrt(numPlaces) as Long, numPlaces);
+    
     
     /**
      * Partitioning all blocks to clusters, while maximizing number of groups (cluster) in row.
@@ -114,18 +114,22 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
         return new DistGrid(matgrid, rowPs, colPs);
     }
     
-    public static def makeHorizontal(g:Grid) = makeMaxRow(g, 1, Place.numPlaces());
+    public static def makeHorizontal(g:Grid) = makeHorizontal(g, Place.numPlaces());
+
+    public static def makeHorizontal(g:Grid, numPlaces:Long) = makeMaxRow(g, 1, numPlaces);
+
+    public static def makeVertical(g:Grid) = makeVertical(g, Place.numPlaces());
     
-    public static def makeVertical(g:Grid) = makeMaxRow(g, Place.numPlaces(), Place.numPlaces());
+    public static def makeVertical(g:Grid, numPlaces:Long) = makeMaxRow(g, numPlaces, numPlaces);
 
     public static def isHorizontal(g:Grid, dmap:DistMap):Boolean {
         for (var c:Long=0; c<g.numColBlocks; c++) {
             val bid0 = g.getBlockId(0, c);
-            val pid0 = dmap.findPlace(bid0);
+            val pIndex0 = dmap.findPlaceIndex(bid0);
             for (var r:Long=1; r<g.numRowBlocks; r++) {
                 val bid = g.getBlockId(r,c);
-                val pid = dmap.findPlace(bid);
-                if (pid != pid0) return false;
+                val pIndex = dmap.findPlaceIndex(bid);
+                if (pIndex != pIndex0) return false;
             }
         }
         return true;
@@ -137,11 +141,11 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
     public static def isVertical(g:Grid, dmap:DistMap):Boolean {
         for (var r:Long=0; r<g.numRowBlocks; r++) {
             val bid0 = g.getBlockId(r, 0);
-            val pid0 = dmap.findPlace(bid0);
+            val pIndex0 = dmap.findPlaceIndex(bid0);
             for (var c:Long=1; c<g.numColBlocks; c++) {
                 val bid = g.getBlockId(r,c);
-                val pid = dmap.findPlace(bid);
-                if (pid != pid0) return false;
+                val pIndex = dmap.findPlaceIndex(bid);
+                if (pIndex != pIndex0) return false;
             }
         }
         return true;
@@ -151,19 +155,19 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
      * Aggregate all segments in the same place to one segment,
      * when computing the number of rows or columns within a place
      */
-    private def compLocalRows(matGrid:Grid, rowPid:Long):Long {
-        val sttRowBlk = placeGrid.startRow(rowPid);
+    private def compLocalRows(matGrid:Grid, rowPlaceIndex:Long):Long {
+        val sttRowBlk = placeGrid.startRow(rowPlaceIndex);
         var rowtt:Long = 0L;
-        for (var rowbid:Long=0; rowbid<placeGrid.rowBs(rowPid); rowbid++) {
+        for (var rowbid:Long=0; rowbid<placeGrid.rowBs(rowPlaceIndex); rowbid++) {
             rowtt += matGrid.rowBs(rowbid+sttRowBlk);
         }
         return rowtt;
     }
 
-    private def compLocalCols(matGrid:Grid, colPid:Long):Long {
-        val sttColBlk = placeGrid.startCol(colPid);
+    private def compLocalCols(matGrid:Grid, colPlaceIndex:Long):Long {
+        val sttColBlk = placeGrid.startCol(colPlaceIndex);
         var coltt:Long = 0L;
-        for (var colbid:Long=0; colbid<placeGrid.colBs(colPid); colbid++) {
+        for (var colbid:Long=0; colbid<placeGrid.colBs(colPlaceIndex); colbid++) {
             coltt += matGrid.colBs(colbid+sttColBlk);
         }
         return coltt;
