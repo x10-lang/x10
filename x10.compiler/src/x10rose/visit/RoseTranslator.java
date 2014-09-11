@@ -603,7 +603,7 @@ public class RoseTranslator extends Translator {
 		
 		private static int numSourceFile;
 		
-		private static HashMap<String, Node> positionMap = new HashMap<String, Node>();
+		private static HashMap<String, Node> astMap = new HashMap<String, Node>();
 				
 		public  void searchFileList(String packageName, String typeName) throws IOException {
 			for (Job job : jobList) {
@@ -622,11 +622,11 @@ public class RoseTranslator extends Translator {
 				ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
 				Parser p = job.extensionInfo().parser(reader, source, eq);
 				Node ast;
-				if (positionMap.containsKey(sourceName))
-					ast = positionMap.get(sourceName);
+				if (astMap.containsKey(sourceName))
+					ast = astMap.get(sourceName);
 				else {
 					ast = p.parse();
-					positionMap.put(sourceName, ast);
+					astMap.put(sourceName, ast);
 				}
 				
 				TypeVisitor tVisitor = new TypeVisitor(packageName, typeName, (SourceFile_c) job.ast(), job);
