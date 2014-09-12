@@ -350,8 +350,6 @@ public class DupVector(M:Long) implements Snapshottable {
 
     public def likeMe(that:DupVector): Boolean = (this.M==that.M);
         
-
-
     public def checkSync():Boolean {
         val rootvec  = dupV();
         var retval:Boolean = true;
@@ -429,16 +427,16 @@ public class DupVector(M:Long) implements Snapshottable {
      */
     private transient val DUMMY_KEY:Long = 8888L;   
 
-    public def makeSnapshot():DistObjectSnapshot[Any,Any]{        
+    public def makeSnapshot():DistObjectSnapshot[Any,Any] {        
         val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();        
         val data = dupV();
-        snapshot.save(DUMMY_KEY, data);        
+        snapshot.save(DUMMY_KEY, data);
         return snapshot;
     }
 
-    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {        
+    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
         val data:Vector = snapshot.load(DUMMY_KEY) as Vector;
         data.copyTo(dupV());
-        sync();                
+        sync();
     }   
 }

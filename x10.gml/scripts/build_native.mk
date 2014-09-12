@@ -35,11 +35,11 @@ GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gm
 ################################################### 
 
 $(target)_sock	: $(x10src) $(depend_src) $(gml_inc)
-		$(X10CXX) -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
-		-post ' \# $(POST_PATH) -Wall \# $(POST_LIBS)'
+		$(X10CXX) -g -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 $(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
-		$(X10CXX) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		$(X10CXX) -g -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###short-keys

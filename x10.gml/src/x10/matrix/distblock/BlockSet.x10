@@ -102,6 +102,14 @@ public class BlockSet  {
         return new BlockSet(gd, dp.dmap, places);
     }
 
+    public static def make(gd:Grid, rowPs:Long, colPs:Long, places:PlaceGroup) {
+        //val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs    
+        Debug.assure(rowPs*colPs == places.size(),
+            "number of distributions groups of blocks must equal to number of places");
+        val dp = new DistGrid(gd, rowPs, colPs);
+        return new BlockSet(gd, dp.dmap, places);
+    }
+    
     /**
      * Allocating dense blocks 
      */

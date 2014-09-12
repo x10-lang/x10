@@ -75,7 +75,7 @@ public class SeqLinearRegression{
 
 			// 14: r=r+alpha*q;
 			r.scaleAdd(alpha, q);
-			norm_r2 = r.norm(r);
+			norm_r2 = r.norm();
 			// 15: beta=norm r2/old norm r2;
 			beta = norm_r2/old_norm_r2;
 			// 16: p=-r+beta*p;
