@@ -15,14 +15,14 @@ package x10.lang;
 import x10.compiler.Pragma;
 import x10.io.Serializer;
 import x10.io.Deserializer;
+import x10.util.ArrayList;
 
 /**
  * <p> A PlaceGroup represents an ordered set of Places.
  * PlaceGroups are represented by a specialized set of classes (instead of using
  * arbitrary collection types) because it is necessary for performance/scalability
  * to have optimized representations of specific special cases.  The API is also 
- * designed specifically to efficiently support the operations needed by Team
- * and DistArray.<p>
+ * designed to efficiently support the operations needed by Team and DistArray.
  *
  * @see Place
  * @see x10.util.Team
@@ -88,7 +88,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
   public abstract operator this(i:Long):Place;
 
   /**
-   * Return the next Place in itertion order from
+   * Return the next Place in iteration order from
    * the argument Place, with a wrap around to the 
    * first Place in iteration order if the argument 
    * Place is the last Place in iteration order.
@@ -101,7 +101,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
   }
 
   /**
-   * Return the previous Place in itertion order from
+   * Return the previous Place in iteration order from
    * the argument Place, with a wrap around to the 
    * last Place in iteration order if the argument 
    * Place is the first Place in iteration order.
@@ -182,6 +182,20 @@ public abstract class PlaceGroup implements Iterable[Place] {
         }    
     }
   }
+
+    /** 
+     * Return a new PlaceGroup which contains all places from this group
+     * that are not dead places.
+     */
+    public def filterDeadPlaces():PlaceGroup {
+        val livePlaces = new ArrayList[Place]();
+
+        for (pl in this) {
+            if (!pl.isDead()) livePlaces.add(pl);
+        }
+
+        return new SparsePlaceGroup(livePlaces.toRail());
+    }
 
   public static class SimplePlaceGroup extends PlaceGroup {
     private val numPlaces:Long;
