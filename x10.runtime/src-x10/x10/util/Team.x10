@@ -691,7 +691,7 @@ public struct Team {
          * for specific collectives.
          */
         private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
-            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" (phase="+phase.get()+", root="+root);
+            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" phase="+phase.get()+", root="+root);
             val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
 
             /**
@@ -753,9 +753,10 @@ public struct Team {
                 if (local_child2Index > -1) {
                     local_temp_buff2 = Unsafe.allocRailUninitialized[T](count);
                 }
-            //} else if (myLinks.parentIndex != -1 && collType == COLL_SCATTER || collType == COLL_GATHER) {
+            } else if (myLinks.parentIndex != -1 && collType == COLL_SCATTER) {
                 // data size may differ between places
-            //    local_temp_buff = Unsafe.allocRailUninitialized[T](myLinks.dataToCarryForChildren);
+if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (myLinks.totalChildren+1)*count);
+                local_temp_buff = Unsafe.allocRailUninitialized[T]((myLinks.totalChildren+1)*count);
             } else if ((collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) && local_child1Index != -1) {
                 // pairs of values move around
                 local_temp_buff = Unsafe.allocRailUninitialized[T]((local_child2Index==-1)?1:2);
@@ -805,7 +806,7 @@ public struct Team {
                 if (collType == COLL_BROADCAST)
                     Rail.copy(src, src_off, dst, dst_off, count);
                 else if (collType == COLL_SCATTER)
-                    Rail.copy(src, src_off+(count*myIndex), dst, dst_off, count);
+                    local_temp_buff = src;
                 this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
             } else {
                 val waitForParentToReceive = () => @NoInline {
@@ -938,9 +939,35 @@ public struct Team {
                         }
                     }
                 } else if (collType == COLL_SCATTER) {
-                    // TODO: scatter is more difficult because we want places to carry data that is not intended for them, so we need temp buffers
+                    val notNullTmp = local_temp_buff as Rail[T]{self!=null};
+                    val grTmp = new GlobalRail[T](notNullTmp);
+                    // root scatters direct from src
+                    val sourceOffset = (myLinks.parentIndex == -1) ? 0: Team.state(teamidcopy).myIndex*count;
+                    val copyToChild = () => @NoInline {
+                        val myOffset = (Team.state(teamidcopy).myIndex*count)-sourceOffset;
+                        val count = Team.state(teamidcopy).local_count;
+                        val totalData = (Team.state(teamidcopy).local_grandchildren+1)*count;
+                        finish {
+                            if (DEBUGINTERNALS) Runtime.println(here+ " scattering " + totalData + " from parent offset " + myOffset);
+                            Rail.asyncCopy(grTmp, myOffset, Team.state(teamidcopy).local_temp_buff as Rail[T], 0, totalData);
+                        }
+                    };
+
+                    @Pragma(Pragma.FINISH_SPMD) finish {
+                        at (places(local_child1Index)) async copyToChild();
+                        if (local_child2Index != -1) {
+                            at (places(local_child2Index)) async copyToChild();
+                        }
+                    }
                 }
                 if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
+            }
+        
+            if (collType == COLL_SCATTER) {
+                // root scatters own data direct from src to dst
+                val temp_off_my_data = (myLinks.parentIndex == -1) ? (src_off + myIndex*count) : 0;
+                if (DEBUGINTERNALS) Runtime.println(here+ " scatter " +count + " from local_temp_buff " + temp_off_my_data + " to dst");
+                Rail.copy(local_temp_buff as Rail[T]{self!=null}, temp_off_my_data, dst, dst_off, count);
             }
 
             // our parent has updated us - update any children, and leave the collective
