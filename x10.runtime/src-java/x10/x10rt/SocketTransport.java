@@ -290,9 +290,9 @@ public class SocketTransport {
     }
     
     private void markPlaceDead(int place) {
-    	channels.remove(place);
     	synchronized (deadPlaces) {
     		deadPlaces.add(place);
+        	channels.remove(place);
     		if (place == lowestValidPlaceId) {
     			lowestValidPlaceId++;
     			while (isPlaceDead(lowestValidPlaceId)) 
@@ -356,7 +356,7 @@ public class SocketTransport {
 				sb.append(getLocalConnectionInfo());
 			else if (isPlaceDead(i))
 				sb.append(DEAD);
-			else
+			else if (channels.get(i) != null) // can be null if we haven't connected yet
 				sb.append(channels.get(i).portInfo);
 			sb.append(',');
 		}		
@@ -869,7 +869,7 @@ public class SocketTransport {
 					for (int i=0; i<placeStrings.length; i++) {
 						if (DEAD.equals(placeStrings[i]))
 							deadPlaces.add(i);
-						else if (remotePlace != i) {
+						else if (remotePlace != i && placeStrings[i].length() > 0) {
 							linkInitializer.execute(new BackgroundLinkInitializer(i, placeStrings[i]));
 						}
 					}
