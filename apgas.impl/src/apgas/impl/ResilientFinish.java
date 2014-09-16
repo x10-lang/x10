@@ -15,8 +15,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import apgas.NoSuchPlaceException;
 import apgas.util.GlobalID;
@@ -37,7 +35,7 @@ final class ResilientFinish implements Finish, Serializable {
   GlobalID id;
   List<Throwable> exceptions;
 
-  static class State implements Serializable {
+  static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
 
     List<Integer> deads; // places that have died during the finish
@@ -60,7 +58,7 @@ final class ResilientFinish implements Finish, Serializable {
   ResilientFinish(ResilientFinish parent, int p) {
     id = new GlobalID();
     final GlobalID pid = parent == null ? null : parent.id;
-    map.put(id, new State(pid, p, 100)); // TODO fix size
+    map.set(id, new State(pid, p, 100)); // TODO fix size
     final int here = GlobalRuntimeImpl.getRuntime().here;
     if (pid != null) {
       propagate(pid, new AbstractEntryProcessor<GlobalID, State>() {
@@ -283,48 +281,35 @@ final class ResilientFinish implements Finish, Serializable {
   static void propagate(GlobalID id,
       AbstractEntryProcessor<GlobalID, State> entryProcessor) {
     try {
-      final Future<GlobalID> future = map.submitToKey(id, entryProcessor);
-      while (true) {
-        try {
-          final GlobalID pid = future.get();
-          if (pid != null) {
-            propagate(pid, new AbstractEntryProcessor<GlobalID, State>() {
-              @Override
-              public GlobalID process(Map.Entry<GlobalID, State> entry) {
-                final State state = entry.getValue();
-                if (state == null) {
-                  // parent has been purged already
-                  // stop propagating termination
-                  return null;
-                }
-                if (state.cids != null && state.cids.contains(id)) {
-                  state.cids.remove(id);
-                } else {
-                  if (state.dids == null) {
-                    state.dids = new ArrayList<GlobalID>();
-                  }
-                  if (!state.dids.contains(id)) {
-                    state.dids.add(id);
-                  }
-                }
-                entry.setValue(filter(pid, state));
-                return next(state);
+      final GlobalID pid = (GlobalID) map.executeOnKey(id, entryProcessor);
+      if (pid != null) {
+        propagate(pid, new AbstractEntryProcessor<GlobalID, State>() {
+          @Override
+          public GlobalID process(Map.Entry<GlobalID, State> entry) {
+            final State state = entry.getValue();
+            if (state == null) {
+              // parent has been purged already
+              // stop propagating termination
+              return null;
+            }
+            if (state.cids != null && state.cids.contains(id)) {
+              state.cids.remove(id);
+            } else {
+              if (state.dids == null) {
+                state.dids = new ArrayList<GlobalID>();
               }
-            });
+              if (!state.dids.contains(id)) {
+                state.dids.add(id);
+              }
+            }
+            entry.setValue(filter(pid, state));
+            return next(state);
           }
-          return;
-        } catch (final InterruptedException e) {
-        }
+        });
       }
     } catch (final DeadPlaceError e) {
       // this place is dead for the world
       System.exit(42);
-    } catch (final ExecutionException e) {
-      final Throwable t = e.getCause();
-      if (t instanceof NoSuchPlaceException) {
-        throw (NoSuchPlaceException) t;
-      }
-      throw new RuntimeException(t);
     }
   }
 
@@ -338,14 +323,14 @@ final class ResilientFinish implements Finish, Serializable {
       return true;
     }
     exceptions = state.exceptions;
-    map.remove(id);
+    map.delete(id);
     return false;
   }
 
   // alternate waiting implementation
   public boolean _waiting() {
     try {
-      final Future<State> future = map.submitToKey(id,
+      final State state = (State) map.executeOnKey(id,
           new AbstractEntryProcessor<GlobalID, State>() {
             @Override
             public State process(Map.Entry<GlobalID, State> entry) {
@@ -359,25 +344,16 @@ final class ResilientFinish implements Finish, Serializable {
               }
             }
           });
-      while (true) {
-        try {
-          final State state = future.get();
-          if (state != null) {
-            exceptions = state.exceptions;
-            return false;
-          } else {
-            return true;
-          }
-        } catch (final InterruptedException e) {
-        }
+      if (state != null) {
+        exceptions = state.exceptions;
+        return false;
+      } else {
+        return true;
       }
     } catch (final DeadPlaceError e) {
       // this place is dead for the world
       System.exit(42);
       return false;
-    } catch (final ExecutionException e) {
-      final Throwable t = e.getCause();
-      throw new RuntimeException(t);
     }
   }
 
