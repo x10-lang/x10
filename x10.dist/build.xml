@@ -13,7 +13,7 @@
     <property name="lpg.jar.url" value="http://x10.sourceforge.net/dependencies/lpg.runtime.java_2.0.22.jar"/>
     <property name="ecj.jar" value="ecj-4.4.jar"/>
     <property name="ecj.jar.url" value="http://x10.sourceforge.net/dependencies/ecj-4.4.jar"/>
-    <property name="hazelcast.jar" value="hazelcast-3.2.5.jar"/>
+    <property name="hazelcast.jar" value="hazelcast-3.3.jar"/>
     <property name="hazelcast.jar.url" value="http://x10.sourceforge.net/dependencies/hazelcast-3.2.5.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="http://x10.sourceforge.net/dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
