@@ -274,6 +274,8 @@ class JNI implements Callable<Boolean> {
 	public static native void cactionFinishEnd(JavaToken jToken);
 	public static native void cactionAt(JavaToken jToken);
 	public static native void cactionAtEnd(JavaToken jToken);
+	public static native void cactionAtExpr(JavaToken jToken);
+	public static native void cactionAtExprEnd(JavaToken jToken);
 	public static native void cactionHere(JavaToken jToken);
 	
     //**********************************************************

@@ -236,7 +236,7 @@ public class RoseTranslator extends Translator {
 	}
 	
 	protected boolean translateSource(SourceFile sfn) {
-//System.out.println("RoseTranslator.translateSource()");
+//if (DEBUG) System.out.println("RoseTranslator.translateSource()");
 		TypeSystem ts = typeSystem();
 		NodeFactory nf = nodeFactory();
 		TargetFactory tf = this.tf;
@@ -244,16 +244,16 @@ public class RoseTranslator extends Translator {
 		Compiler compiler = job.compiler();
 		Options options = job.extensionInfo().getOptions();
 		
-//	System.out.println("job.ast="+job.ast());
+//	if (DEBUG) System.out.println("job.ast="+job.ast());
 		
 /*
 		try {
 //        JNI.cactionTest();
 //        JavaParser.cactionTest();l
 		} catch (Error er) {
-//			System.out.println("cactionTest1");
+//			if (DEBUG) System.out.println("cactionTest1");
 			er.printStackTrace();
-//			System.out.println("cactionTest2");
+//			if (DEBUG) System.out.println("cactionTest2");
 		}
 */
 
@@ -267,7 +267,7 @@ public class RoseTranslator extends Translator {
 			SourceFile sfile = (SourceFile)job.ast();
 			CodeWriter w = tf.outputCodeWriter(new File(out_file_name), 100);
 			sfile.prettyPrint(w, new PrettyPrinter());	
-//			System.out.println(sfile);
+//			if (DEBUG) System.out.println(sfile);
 			
 			new ToRoseVisitor(w, null).visitAppropriate(sfn);
 			
@@ -367,6 +367,8 @@ public class RoseTranslator extends Translator {
 
 	int counter = 0;
 
+	private static final boolean DEBUG = true;
+
 	String getDotNode(Node n) {
 		String id;
 		if (dotNode.containsKey(n)) {
@@ -463,6 +465,167 @@ public class RoseTranslator extends Translator {
 		return clazz;
 	}
 
+	private static boolean isX10Primitive(String package_name, String type_name) {
+		return (package_name.equals("x10.lang")
+				&& (	type_name.equals("Boolean")
+					||	type_name.equals("Byte")
+					||	type_name.equals("Char")
+					||	type_name.equals("Int")
+					||	type_name.equals("Short")
+					||	type_name.equals("Float")
+					||	type_name.equals("Long")
+					||	type_name.equals("Double")
+					||	type_name.equals("UByte")
+					||	type_name.equals("UInt")
+					||	type_name.equals("UShort")
+					||	type_name.equals("ULong")
+					// TODO: confirm when the primitive type starting with lower case can be used
+					// for ambtype?
+					||	type_name.equals("byte")
+					||	type_name.equals("char")
+					||	type_name.equals("int")
+					||	type_name.equals("short")
+					||	type_name.equals("float")
+					||	type_name.equals("long")
+					||	type_name.equals("double")
+					||	type_name.equals("ubyte")
+					||	type_name.equals("uint")
+					||	type_name.equals("ushort")
+					||	type_name.equals("ulong")));
+	}
+	
+	private static boolean isX10Primitive(String class_name) {
+		return 		
+				// TODO: confirm when void type is used
+					class_name.equals("void")
+				||	class_name.equals("x10.lang.Boolean")
+				||	class_name.equals("x10.lang.Byte")
+				||	class_name.equals("x10.lang.Char")
+				||	class_name.equals("x10.lang.Int")
+				||	class_name.equals("x10.lang.Short")
+				||	class_name.equals("x10.lang.Float")
+				||	class_name.equals("x10.lang.Long")
+				||	class_name.equals("x10.lang.Double")
+				||	class_name.equals("x10.lang.UByte")
+				||	class_name.equals("x10.lang.UInt")
+				||	class_name.equals("x10.lang.UShort")
+				||	class_name.equals("x10.lang.ULong")
+				// TODO: confirm when the primitive type starting with lower case can be used
+				// for ambtype?
+				||	class_name.equals("Boolean")
+				||	class_name.equals("Byte")
+				||	class_name.equals("Char")
+				||	class_name.equals("Int")
+				||	class_name.equals("Short")
+				||	class_name.equals("Float")
+				||	class_name.equals("Long")
+				||	class_name.equals("Double")
+				||	class_name.equals("UByte")
+				||	class_name.equals("UInt")
+				||	class_name.equals("UShort")
+				||	class_name.equals("ULong")
+				||	class_name.equals("boolean")
+				||	class_name.equals("byte")
+				||	class_name.equals("char")
+				||	class_name.equals("int")
+				||	class_name.equals("short")
+				||	class_name.equals("float")
+				||	class_name.equals("long")
+				||	class_name.equals("double")
+				||	class_name.equals("ubyte")
+				||	class_name.equals("uint")
+				||	class_name.equals("ushort")
+				||	class_name.equals("ulong");
+	}
+	
+	private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
+	private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
+
+	/**     
+	 * 
+	 * operator code values are directly derived from ECJ.
+	 *
+     *  enum ops // NO_STRINGIFY
+	 *	{
+     *		ERROR_OPERATOR = 0, // This is not a ECJ value 
+     *		NOT            = 11,
+     *		TWIDDLE        = 12,
+     *		MINUS          = 13,
+     * 		PLUS           = 14,
+     *		LAST_OPERATOR
+	 * 	};
+	  *
+	  *@see ParserActionROSE.C:cactionUaryExpressionEnd()
+	 * @param op
+	 * @return
+	 */
+	private static int getOperatorKind(Unary.Operator op) {
+		if (unaryOpTable.isEmpty()) {
+			unaryOpTable.put(Unary.Operator.NOT, 11);
+			unaryOpTable.put(Unary.Operator.BIT_NOT, 12);
+			unaryOpTable.put(Unary.Operator.PRE_DEC, 13);
+			unaryOpTable.put(Unary.Operator.POST_DEC, 13);
+			unaryOpTable.put(Unary.Operator.PRE_INC, 14);
+			unaryOpTable.put(Unary.Operator.POST_INC, 14);
+		}
+		return unaryOpTable.get(op);
+	}
+	
+	/**     
+	 * 
+	 * operator code values are directly derived from ECJ.
+	 * 
+     * enum ops {
+     *    ERROR_OPERATOR       = 0, // This is not a ECJ value 
+     *   AND                  = 2,
+     *   DIVIDE               = 9,
+     *   GREATER              = 6,
+     *   GREATER_EQUAL        = 7,
+     *   LEFT_SHIFT           = 10,
+     *   LESS                 = 4,
+     *   LESS_EQUAL           = 5,
+     *   MINUS                = 13,
+     *   MULTIPLY             = 15,
+     *   OR                   = 3,
+     *   PLUS                 = 14,
+     *   REMAINDER            = 16,
+     *   RIGHT_SHIFT          = 17,
+     *   UNSIGNED_RIGHT_SHIFT = 19,
+     *   XOR                  = 8,
+     *   OR_OR                = 100, // Handled by separate function 
+     *   AND_AND              = 101, // Handled by separate function 
+     *   LAST_OPERATOR
+      *};
+	  *
+	  *@see JavaParserActionROSE.C:Java_JavaParser_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java_operator_kind, jobject jToken)
+	 * @param op
+	 * @return
+	 */
+	private static int getOperatorKind(Binary.Operator op) {			
+		if (binaryOpTable.isEmpty()) {
+			binaryOpTable.put(Binary.Operator.BIT_AND, 2); // or COND_AND?
+			binaryOpTable.put(Binary.Operator.BIT_OR, 3);  // or COND_OR?
+			binaryOpTable.put(Binary.Operator.LT, 4);
+			binaryOpTable.put(Binary.Operator.LE, 5);
+			binaryOpTable.put(Binary.Operator.GT, 6);
+			binaryOpTable.put(Binary.Operator.GE, 7);
+			binaryOpTable.put(Binary.Operator.BIT_XOR, 8);
+			binaryOpTable.put(Binary.Operator.DIV, 9);
+			binaryOpTable.put(Binary.Operator.SHL, 10);
+			binaryOpTable.put(Binary.Operator.SUB, 13);
+			binaryOpTable.put(Binary.Operator.ADD, 14);
+			binaryOpTable.put(Binary.Operator.MUL, 15);
+			binaryOpTable.put(Binary.Operator.MOD, 16);
+			binaryOpTable.put(Binary.Operator.SHR, 17);
+			binaryOpTable.put(Binary.Operator.USHR, 19);
+			binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
+			binaryOpTable.put(Binary.Operator.EQ, 21);
+			binaryOpTable.put(Binary.Operator.COND_OR, 100);
+			binaryOpTable.put(Binary.Operator.COND_AND, 101);
+		}
+		return binaryOpTable.get(op);
+	}
+	
 	public static class ToRoseVisitor extends X10DelegatingVisitor {
 		Node parent;
 		CodeWriter w;
@@ -471,94 +634,7 @@ public class RoseTranslator extends Translator {
 
 		public static boolean isGatheringFile = true;
 		private static String currentPackageName = "";	
-		private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
-		private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
-		
-		
-		/**     
-		 * 
-		 * operator code values are directly derived from ECJ.
-		 *
-	     *  enum ops // NO_STRINGIFY
-    	 *	{
-         *		ERROR_OPERATOR = 0, // This is not a ECJ value 
-         *		NOT            = 11,
-         *		TWIDDLE        = 12,
-         *		MINUS          = 13,
-         * 		PLUS           = 14,
-         *		LAST_OPERATOR
-    	 * 	};
-		  *
-		  *@see ParserActionROSE.C:cactionUaryExpressionEnd()
-		 * @param op
-		 * @return
-		 */
-		private int getOperatorKind(Unary.Operator op) {
-			if (unaryOpTable.isEmpty()) {
-				unaryOpTable.put(Unary.Operator.NOT, 11);
-				unaryOpTable.put(Unary.Operator.BIT_NOT, 12);
-				unaryOpTable.put(Unary.Operator.PRE_DEC, 13);
-				unaryOpTable.put(Unary.Operator.POST_DEC, 13);
-				unaryOpTable.put(Unary.Operator.PRE_INC, 14);
-				unaryOpTable.put(Unary.Operator.POST_INC, 14);
-			}
-			return unaryOpTable.get(op);
-		}
-		
-		/**     
-		 * 
-		 * operator code values are directly derived from ECJ.
-		 * 
-	     * enum ops {
-	     *    ERROR_OPERATOR       = 0, // This is not a ECJ value 
-	     *   AND                  = 2,
-	     *   DIVIDE               = 9,
-	     *   GREATER              = 6,
-	     *   GREATER_EQUAL        = 7,
-	     *   LEFT_SHIFT           = 10,
-	     *   LESS                 = 4,
-	     *   LESS_EQUAL           = 5,
-	     *   MINUS                = 13,
-	     *   MULTIPLY             = 15,
-	     *   OR                   = 3,
-	     *   PLUS                 = 14,
-	     *   REMAINDER            = 16,
-	     *   RIGHT_SHIFT          = 17,
-	     *   UNSIGNED_RIGHT_SHIFT = 19,
-	     *   XOR                  = 8,
-	     *   OR_OR                = 100, // Handled by separate function 
-	     *   AND_AND              = 101, // Handled by separate function 
-	     *   LAST_OPERATOR
-	      *};
-		  *
-		  *@see JavaParserActionROSE.C:Java_JavaParser_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java_operator_kind, jobject jToken)
-		 * @param op
-		 * @return
-		 */
-		private int getOperatorKind(Binary.Operator op) {			
-			if (binaryOpTable.isEmpty()) {
-				binaryOpTable.put(Binary.Operator.BIT_AND, 2); // or COND_AND?
-				binaryOpTable.put(Binary.Operator.BIT_OR, 3);  // or COND_OR?
-				binaryOpTable.put(Binary.Operator.LT, 4);
-				binaryOpTable.put(Binary.Operator.LE, 5);
-				binaryOpTable.put(Binary.Operator.GT, 6);
-				binaryOpTable.put(Binary.Operator.GE, 7);
-				binaryOpTable.put(Binary.Operator.BIT_XOR, 8);
-				binaryOpTable.put(Binary.Operator.DIV, 9);
-				binaryOpTable.put(Binary.Operator.SHL, 10);
-				binaryOpTable.put(Binary.Operator.SUB, 13);
-				binaryOpTable.put(Binary.Operator.ADD, 14);
-				binaryOpTable.put(Binary.Operator.MUL, 15);
-				binaryOpTable.put(Binary.Operator.MOD, 16);
-				binaryOpTable.put(Binary.Operator.SHR, 17);
-				binaryOpTable.put(Binary.Operator.USHR, 19);
-				binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
-				binaryOpTable.put(Binary.Operator.EQ, 21);
-				binaryOpTable.put(Binary.Operator.COND_OR, 100);
-				binaryOpTable.put(Binary.Operator.COND_AND, 101);
-			}
-			return binaryOpTable.get(op);
-		}
+
 		
 		public ToRoseVisitor(CodeWriter w, Node parent) {
 			this.parent = parent;
@@ -568,13 +644,14 @@ public class RoseTranslator extends Translator {
 		}
 		
 		void toRose(Node n, String name, String... extra) {
+			if (DEBUG) System.out.print("PRINT ");
 			if (name != null)
-				System.out.print(name);
+				if (DEBUG) System.out.print(name);
 			if (extra != null)
 				for (String s : extra) {
-					System.out.print(s + " ");
+					if (DEBUG) System.out.print(s + " ");
 				}
-			System.out.println();
+			if (DEBUG) System.out.println();
 			/*
 */
 		}		
@@ -699,17 +776,17 @@ public class RoseTranslator extends Translator {
 					classMemberMap.put(type_name, memberMap);
 					previsit(fieldDecl, type_name);
 				} else if (m instanceof TypeNode_c) {
-					System.out.println("TypeNode_c : " + m);
+					if (DEBUG) System.out.println("TypeNode_c : " + m);
 				} else if (m instanceof TypeDecl_c) {
-					System.out.println("TypeDecl_c : " + m);
+					if (DEBUG) System.out.println("TypeDecl_c : " + m);
 				// nested class 
 				} else if (m instanceof X10ClassDecl_c) {
-					System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
+					if (DEBUG) System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
 					visitDeclarations((X10ClassDecl_c) m);
 				} else if (m instanceof ClassDecl_c) {
-					System.out.println("ClassDecl_c : " + m);
+					if (DEBUG) System.out.println("ClassDecl_c : " + m);
 				} else {
-					System.out.println("Unhandled node : " + m);
+					if (DEBUG) System.out.println("Unhandled node : " + m);
 				}
 			}
 		}
@@ -766,13 +843,13 @@ public class RoseTranslator extends Translator {
 //			SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
 //			List<Import> imports = srcfile.imports();
 //			for (Import import_ : imports) {
-//				System.out.println("Import=" + import_.name() + ", kind=" + import_.kind());
+//				if (DEBUG) System.out.println("Import=" + import_.name() + ", kind=" + import_.kind());
 //			if (import_.kind() == Import.CLASS) {
 //				String importedClass = import_.name().toString();
 //				int lastDot = importedClass.lastIndexOf('.');
 //				String package_= importedClass.substring(0, lastDot);
 //				String type_ = importedClass.substring(lastDot+1);
-//				System.out.println("class=" + type_ + ", pacakge=" + package_);
+//				if (DEBUG) System.out.println("class=" + type_ + ", pacakge=" + package_);
 //				if (import_.name().toString().equals(type_)) {
 //				}
 //			}
@@ -1036,17 +1113,8 @@ public class RoseTranslator extends Translator {
 	    		if ((token_constraint = type_name.indexOf('{')) > 0) { 
 	    			type_name = type_name.substring(0, token_constraint);
 	    		}
-				if (package_name.equals("x10.lang") &&
-					(  type_name.equals("Boolean")
-					|| type_name.equals("Byte")
-					|| type_name.equals("Char")
-					|| type_name.equals("Int")
-					|| type_name.equals("Short")
-					|| type_name.equals("Float")
-					|| type_name.equals("Long")
-					|| type_name.equals("Double"))) {
+				if (isX10Primitive(package_name, type_name))
 					JNI.cactionTypeReference("", type_name, this, createJavaToken());
-				}
 				else if (package_name.length() != 0) {
 					JNI.cactionPushPackage(package_name, createJavaToken(fieldDecl, type_name));
 					JNI.cactionPopPackage();
@@ -1131,19 +1199,10 @@ public class RoseTranslator extends Translator {
 					if (lastDot > 0)
 						arg_package_name = full.substring(0, lastDot);
 				}				
-				System.out.println(i + ":" + t.fullName() + ", " + args.get(i) + ", pacakge=" + arg_package_name + ", type=" + arg_type_name);
+				if (DEBUG) System.out.println(i + ":" + t.fullName() + ", " + args.get(i) + ", pacakge=" + arg_package_name + ", type=" + arg_type_name);
 				
-				if (arg_package_name.equals("x10.lang")
-						&& (	arg_type_name.equals("Boolean")
-							||	arg_type_name.equals("Byte")
-							||	arg_type_name.equals("Char")
-							||	arg_type_name.equals("Int")
-							||	arg_type_name.equals("Short")
-							||	arg_type_name.equals("Float")
-							||	arg_type_name.equals("Long")
-							||	arg_type_name.equals("Double"))) {
+				if (isX10Primitive(arg_package_name, arg_type_name))
 					JNI.cactionTypeReference("", arg_type_name, this, createJavaToken());
-				}
 				else if (	full.equals("x10.lang.Rail")
 						 || full.equals("x10.util.GrowableRail")) {
 					String railString = t.toString();
@@ -1152,17 +1211,8 @@ public class RoseTranslator extends Translator {
 					arg_package_name = type.substring(0, lastDot);
 					arg_type_name = type.substring(lastDot+1);
 
-					if (arg_package_name.equals("x10.lang")
-							&& (	arg_type_name.equals("Boolean")
-								||	arg_type_name.equals("Byte")
-								||	arg_type_name.equals("Char")
-								||	arg_type_name.equals("Int")
-								||	arg_type_name.equals("Short")
-								||	arg_type_name.equals("Float")
-								||	arg_type_name.equals("Long")
-								||	arg_type_name.equals("Double")))	{
+					if (isX10Primitive(arg_package_name, arg_type_name))
 						arg_package_name = "";
-					}
 					
 					if (arg_package_name.length() != 0) {
 						JNI.cactionPushPackage(arg_package_name, createJavaToken());
@@ -1179,25 +1229,37 @@ public class RoseTranslator extends Translator {
 					JNI.cactionTypeReference(arg_package_name, arg_type_name, this, createJavaToken());
 				}
 			}
+		}			
+		
+		// MH-20140917
+		public void visit(X10Loop_c n) {
+			toRose(n, "X10Loop: ", n.toString());
+			
 		}
-
+		
 		public void visit(X10Call_c n) {
 			toRose(n, "x10call: ", n.name().id().toString());
-			System.out.println("n=" + n.name().id() + ", type=" + n.target().type() + ", package=" + n.target().type().toPackage());
+			if (DEBUG) System.out.println("n=" + n.name().id() + ", type=" + n.target().type() + ", package=" + n.target().type().toPackage());
 			String func_name = n.name().id().toString();
 			String class_name = n.target().type().toString();
+			polyglot.types.Package package_ = n.target().type().toPackage();
+			String full = n.target().type().fullName().toString();
+			String target_type_name = n.target().type().name().toString();						
+
 			if (func_name.equals("operator()")) {
 				if (n.target().type().isRail()) {
 					visitChild(n, n.target());
 					List<Expr> args = n.arguments();
 					visitChildren(n, args);
 					JNI.cactionArrayReferenceEnd(createJavaToken(n, n.toString()));
+					return;
 				} 
 				else {
-					System.out.println("So far, return in case of \"operator()\"");
+					if (DEBUG) System.out.println("Currently eliminate \"operator()\"");
 //					visitChild(n, n.target());
+					func_name = n.target().toString();
+					full = full.replaceAll("operator()", "");
 				}
-				return;
 			}
 			else if (func_name.equals("implicit_operator_as")
 					|| func_name.equals("operator_as")) {
@@ -1219,7 +1281,7 @@ public class RoseTranslator extends Translator {
 				String methodName = "Long_" + func_name;
 				String argType = "x10.lang.String";
 				String argName = n.arguments().get(0).toString();
-				System.out.println("ARG_Class=" + n.arguments().get(0).getClass());
+				if (DEBUG) System.out.println("ARG_Class=" + n.arguments().get(0).getClass());
 				
 				// MH-20140812 TODO: remove when operator is available
 				argName = argName.replaceAll(".operator\\(\\)", "");
@@ -1282,12 +1344,10 @@ public class RoseTranslator extends Translator {
 				return;
 			}
 			
-			polyglot.types.Package package_ = n.target().type().toPackage();
 			String package_name = "";
 			if (package_ != null)
 				package_name = package_.toString();
 			else {
-				String full = n.target().type().fullName().toString();
 				int lastDot = full.lastIndexOf('.');
 				if (lastDot > 0)
 					package_name = full.substring(0, lastDot);
@@ -1297,7 +1357,7 @@ public class RoseTranslator extends Translator {
 				JNI.cactionPopPackage();
 			}
 			
-			JNI.cactionMessageSend(package_name, n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
+			JNI.cactionMessageSend(package_name, target_type_name, func_name, createJavaToken(n, n.name().id().toString()));
 			visitChild(n, n.target());
 			
 			List<Expr> args = n.arguments();
@@ -1323,7 +1383,7 @@ public class RoseTranslator extends Translator {
 //					if (lastDot > 0)
 //						arg_package_name = full.substring(0, lastDot);
 //				}				
-//				System.out.println(i + ":" + t.fullName() + ", " + args.get(i) + ", pacakge=" + arg_package_name + ", type=" + arg_type_name);
+//				if (DEBUG) System.out.println(i + ":" + t.fullName() + ", " + args.get(i) + ", pacakge=" + arg_package_name + ", type=" + arg_type_name);
 //				
 //				if (arg_package_name.equals("x10.lang")
 //						&& (	arg_type_name.equals("Boolean")
@@ -1367,26 +1427,16 @@ public class RoseTranslator extends Translator {
 //					JNI.cactionTypeReference(arg_package_name, arg_type_name, this, createJavaToken());
 //			}
 			
-			String target_type_name = n.target().type().name().toString();						
-			if (package_name.equals("x10.lang")
-				&& (	target_type_name.equals("Boolean")
-					||	target_type_name.equals("Byte")
-					||	target_type_name.equals("Char")
-					||	target_type_name.equals("Int")
-					||	target_type_name.equals("Short")
-					||	target_type_name.equals("Float")
-					||	target_type_name.equals("Long")
-					||	target_type_name.equals("Double"))) {
+			if (isX10Primitive(package_name, target_type_name))
 				JNI.cactionTypeReference("", target_type_name, this, createJavaToken());
-			}
 			else
 				JNI.cactionTypeReference(package_name, target_type_name, this, createJavaToken());
-//			JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, createJavaToken());
+//			JNI.cactionTypeReference(package_name, target_type_name, this, createJavaToken());
 			
 			int num_parameters = n.arguments().size();
 			int numTypeArguments = n.typeArguments().size();
 			int numArguments = n.arguments().size();
-			JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, n.name().toString(), num_parameters, numTypeArguments, numArguments, createJavaToken(n, n.name().id().toString()));
+			JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, func_name/*n.name().toString()*/, num_parameters, numTypeArguments, numArguments, createJavaToken(n, n.name().id().toString()));
 		}
 
 		public void visit(X10ConstructorDecl_c n) {
@@ -1455,7 +1505,7 @@ public class RoseTranslator extends Translator {
 
 		public void visit(Block_c n) {
 			toRose(n, "Block: ", n.toString());
-//			System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
+//			if (DEBUG) System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
 		   JNI.cactionBlock(createJavaToken(n, n.toString()));
 			visitChildren(n, n.statements());
 			JNI.cactionBlockEnd(n.statements().size(), createJavaToken(n, n.toString()));
@@ -1492,15 +1542,7 @@ public class RoseTranslator extends Translator {
 		public void visit(X10CanonicalTypeNode_c n) {
 			toRose(n, "X10CanonicalTypeNode:", n.nameString(), n.type()+"", n.type() + "", n.type().fullName() + "");
 			String class_name = n.type().fullName().toString();
-			if (	class_name.equals("void")
-				||	class_name.equals("x10.lang.Boolean")
-				||	class_name.equals("x10.lang.Byte")
-				||	class_name.equals("x10.lang.Char")
-				||	class_name.equals("x10.lang.Int")
-				||	class_name.equals("x10.lang.Short")
-				||	class_name.equals("x10.lang.Float")
-				||	class_name.equals("x10.lang.Long")
-				||	class_name.equals("x10.lang.Double")) {
+			if (isX10Primitive(class_name)) {
 				String canonicalTypeName = n.nameString();
 				JNI.cactionTypeReference("", canonicalTypeName, this, createJavaToken());
 			}
@@ -1512,16 +1554,8 @@ public class RoseTranslator extends Translator {
 				String package_name = "";
 				if (lastDot > 0) 
 					package_name = class_name.substring(0, lastDot);
-				if (	class_name.equals("x10.lang.Boolean")
-					||	class_name.equals("x10.lang.Byte")
-					||	class_name.equals("x10.lang.Char")
-					||	class_name.equals("x10.lang.Int")
-					||	class_name.equals("x10.lang.Short")
-					||	class_name.equals("x10.lang.Float")
-					||	class_name.equals("x10.lang.Long")
-					||	class_name.equals("x10.lang.Double"))	{
-					package_name = "";
-				}
+				if (isX10Primitive(class_name))
+					package_name = "";				
 				if (package_name.length() != 0) {
 					JNI.cactionPushPackage(package_name, createJavaToken(n, package_name));
 					JNI.cactionPopPackage();
@@ -1550,7 +1584,7 @@ public class RoseTranslator extends Translator {
 				else {
 					type = className;
 				}
-				System.out.println("PACKAGE=" + pkg + ", TYPE=" + className);
+				if (DEBUG) System.out.println("PACKAGE=" + pkg + ", TYPE=" + className);
 				if (pkg.length() != 0) {
 					JNI.cactionPushPackage(pkg, createJavaToken(n, currentPackageName));
 					JNI.cactionPopPackage();
@@ -1576,7 +1610,7 @@ public class RoseTranslator extends Translator {
 					type = className;
 				}
 				
-				System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
+				if (DEBUG) System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
 				if (pkg.length() != 0) {
 					JNI.cactionPushPackage(pkg, createJavaToken(n, pkg));
 					JNI.cactionPopPackage();
@@ -1591,7 +1625,7 @@ public class RoseTranslator extends Translator {
 							try {
 								list = ts.systemResolver().find(QName.make(package_ + "." + type));
 							} catch (polyglot.types.NoClassException e) {
-								System.out.println(package_ + "." + type + " not found: " + e);
+								if (DEBUG) System.out.println(package_ + "." + type + " not found: " + e);
 							}
 							if (list.size() != 0) {
 								Type t = list.get(0);
@@ -1624,7 +1658,7 @@ public class RoseTranslator extends Translator {
 								try {
 									list = ts.systemResolver().find(QName.make(package_ + "." + type));
 								} catch (polyglot.types.NoClassException e) {
-									System.out.println(package_ + "." + type + " not found: " + e);
+									if (DEBUG) System.out.println(package_ + "." + type + " not found: " + e);
 								}
 //								List<Type> list = ts.systemResolver().find(QName.make(package_ + "." + type));
 								if (list.size() != 0) {
@@ -1663,7 +1697,7 @@ public class RoseTranslator extends Translator {
 		}
 
 		public void visit(Return_c n) {
-			toRose(n, "Return:", (String)null);
+			toRose(n, "Return:", n.toString());
 			JNI.cactionReturnStatement(createJavaToken(n, n.toString()));
 			visitChild(n, n.expr());
 			JNI.cactionReturnStatementEnd((n.expr() != null), createJavaToken(n, n.toString()));
@@ -1705,7 +1739,7 @@ public class RoseTranslator extends Translator {
 			} else if (kind.equals(Special.Kind.SUPER.toString())) {
 				JNI.cactionSuperReference(createJavaToken(n, n.kind().toString()));
 			} else if (kind.equals(Special.Kind.SELF.toString())) {
-				System.out.println("X10Special : Unhandled token " + kind);				
+				if (DEBUG) System.out.println("X10Special : Unhandled token " + kind);				
 			}
 		}
 
@@ -1718,7 +1752,7 @@ public class RoseTranslator extends Translator {
 			toRose(n, "X10Local :", n.name().id().toString());
 //            JavaParser.cactionSingleNameReference(package_name, type_name, varRefName, javaParserSupport.createJavaToken(node));
 			JNI.cactionSingleNameReference("", "", n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
-			System.out.println("Leaving X10Local=====");
+			if (DEBUG) System.out.println("Leaving X10Local=====");
 		}
 
 		public void visit(Eval_c n) {
@@ -1738,10 +1772,38 @@ public class RoseTranslator extends Translator {
 
 		public void visit(ForLoop_c n) {
 			toRose(n, "ForLoop:");
-			visitChild(n, n.formal());
-			visitChild(n, n.cond());
-			visitChild(n, n.domain());
+			JNI.cactionForeachStatement(createJavaToken(n, n.toString()));
+			visitChild(n, n.formal().type());
+			JNI.cactionLocalDeclaration(0, n.formal().name().toString(), false, createJavaToken(n, n.formal().name().id().toString()));
+			JNI.cactionLocalDeclarationEnd(n.formal().name().toString(), false, createJavaToken(n, n.formal().name().id().toString()));
+			
+			if (n.domain() instanceof X10Call_c) {
+				X10Call_c call = (X10Call_c) n.domain();
+				String class_name = call.target().toString();
+				int lastDot = class_name.lastIndexOf('.');
+				String pkg = "";
+				String type = "";
+				if (lastDot > 0) {
+					pkg = class_name.substring(0, lastDot);
+					type = class_name.substring(lastDot+1);
+				}
+				else 
+					type = class_name;
+				
+				String func_name = call.name().toString();
+				JNI.cactionMessageSend(pkg, type, func_name, createJavaToken(n, class_name));
+				JNI.cactionTypeReference(pkg, type, this, createJavaToken(n, class_name));
+				visitChild(call, call.target());				
+				visitChildren(n, call.arguments());
+				handleArgumentTypes(call.arguments());
+				JNI.cactionMessageSendEnd(false, true, func_name, call.arguments().size(), 0, call.arguments().size(), createJavaToken(n, class_name));
+			} else {
+				if (DEBUG) System.out.println("No support for " + n.domain().getClass() + " in ForLoop");
+				return;
+			}
+
 			visitChild(n, n.body());
+			JNI.cactionForeachStatementEnd(createJavaToken(n, n.toString()));
 		}
 
 		public void visit(Branch_c n) {
@@ -1779,7 +1841,7 @@ public class RoseTranslator extends Translator {
 		
 		public void visit(FieldAssign_c n) {
 			toRose(n, "FieldAssign:", n.name().id().toString());
-//			System.out.println("target=" + n.target() + ", right=" + n.right());
+//			if (DEBUG) System.out.println("target=" + n.target() + ", right=" + n.right());
 			String fieldName = n.name().id().toString();
 			String className = n.target().type().fullName().toString();
 			int lastDot = className.lastIndexOf('.');
@@ -1802,7 +1864,7 @@ public class RoseTranslator extends Translator {
 
 		public void visit(X10Field_c n) {
 			toRose(n, "X10Field:", n.name().id().toString());
-			System.out.println("n=" + n
+			if (DEBUG) System.out.println("n=" + n
 									+ ", target=" + n.target() 
 									+ ", target type=" + n.target().type().name() 
 									+ ", target type's package=" + n.target().type().fullName()
@@ -1887,7 +1949,7 @@ public class RoseTranslator extends Translator {
 					
 					JNI.cactionMessageSend("", helperName, methodName, createJavaToken(n, helperName));
 					JNI.cactionTypeReference("", helperName, this, createJavaToken(n, helperName));
-System.out.println("abc1");
+
 					visitChild(n, n.target());
 					List<Expr> arglist = new ArrayList<Expr>();
 					arglist.add((Expr)n.target());
@@ -1904,15 +1966,7 @@ System.out.println("abc1");
 			}
 			visitChild(n, n.target());
 			
-			if (pkg.equals("x10.lang") &&
-					( type.equals("Boolean")
-					|| type.equals("Byte")
-					|| type.equals("Char")
-					|| type.equals("Int")
-					|| type.equals("Short")
-					|| type.equals("Float")
-					|| type.equals("Long")
-					|| type.equals("Double"))
+			if (isX10Primitive(pkg, type)
 				|| pkg.length() == 0) {
 				JNI.cactionTypeReference("", type, this, createJavaToken());
 			}
@@ -2121,9 +2175,9 @@ System.out.println("abc1");
 				JNI.cactionLongLiteral(n.value(), n.toString(), createJavaToken(n, n.value() + ""));
 				
 			} else {
-				System.out.println("Unhandled literal : " + n.toString());
+				if (DEBUG) System.out.println("Unhandled literal : " + n.toString());
 			}
-			System.out.println("End of IntLit");
+			if (DEBUG) System.out.println("End of IntLit");
 		}
 
 		public void visit(X10StringLit_c n) {
@@ -2141,7 +2195,6 @@ System.out.println("abc1");
 
 		public void visit(AtStmt_c n) {
 			toRose(n, "AtStmt:", n.place().toString(), n.body().toString());
-			System.out.println("place=" + n.place());
 			JNI.cactionAt(createJavaToken(n, n.toString()));
 			visitChild(n, n.place());
 			visitChild(n, n.body());
@@ -2155,9 +2208,11 @@ System.out.println("abc1");
 		}
 
 		public void visit(AtExpr_c n) {
-			toRose(n, "AtExpr:");
+			toRose(n, "AtExpr:", n.place().toString(), n.body().toString());
+			JNI.cactionAtExpr(createJavaToken(n, n.toString()));
 			visitChild(n, n.place());
 			visitChild(n, n.body());
+			JNI.cactionAtExprEnd(createJavaToken(n, n.toString()));
 		}
 
 		public void visit(AtHomeExpr_c n) {
@@ -2202,8 +2257,8 @@ System.out.println("abc1");
 				visitChildren(n, n.typeArguments());
 				List<Expr> args = n.arguments();
 //				for (int i = 0; i < args.size(); ++i)
-//					System.out.println(i + " : " + args.get(i));	
-//				System.out.println("ArrayOf=" + n.objectType().type().arrayOf());
+//					if (DEBUG) System.out.println(i + " : " + args.get(i));	
+//				if (DEBUG) System.out.println("ArrayOf=" + n.objectType().type().arrayOf());
 //				visitChild(n, n.objectType());
 				visitChildren(n, n.arguments());
 				JNI.cactionArrayAllocationExpressionEnd(1, false, createJavaToken(n, n.toString()));
@@ -2234,7 +2289,7 @@ System.out.println("abc1");
 			visitChild(n, n.local());
 			visitChild(n, n.right());
 			JNI.cactionAssignmentEnd(createJavaToken(n, n.toString()));
-			System.out.println("LocalAssign end");
+			if (DEBUG) System.out.println("LocalAssign end");
 		}
 		
 		public void visit(X10LocalAssign_c n) {
@@ -2342,7 +2397,7 @@ System.out.println("abc1");
 
 		
 		public TypeVisitor(String pack, String clazz, SourceFile_c src, Job job) {
-			System.out.println("package=" + pack + ", class=" + clazz + ", source=" + src);
+			if (DEBUG) System.out.println("package=" + pack + ", class=" + clazz + ", source=" + src);
 			package_name = pack;
 			class_name = trimTypeParameterClause(clazz); // Rail is not supposed to be here 
 //			source = src;
@@ -2359,64 +2414,6 @@ System.out.println("abc1");
 		public boolean  addFileIndex() { return false; }		
 		public void subFileIndex() {}
 		
-		/**     
-		 * 
-		 * operator code values are directly derived from ECJ.
-		 * 
-	     * enum ops {
-	     *    ERROR_OPERATOR       = 0, // This is not a ECJ value 
-	     *   AND                  = 2,
-	     *   DIVIDE               = 9,
-	     *   GREATER              = 6,
-	     *   GREATER_EQUAL        = 7,
-	     *   LEFT_SHIFT           = 10,
-	     *   LESS                 = 4,
-	     *   LESS_EQUAL           = 5,
-	     *   MINUS                = 13,
-	     *   MULTIPLY             = 15,
-	     *   OR                   = 3,
-	     *   PLUS                 = 14,
-	     *   REMAINDER            = 16,
-	     *   RIGHT_SHIFT          = 17,
-	     *   UNSIGNED_RIGHT_SHIFT = 19,
-	     *   XOR                  = 8,
-	     *   OR_OR                = 100, // Handled by separate function 
-	     *   AND_AND              = 101, // Handled by separate function 
-	     *   LAST_OPERATOR
-	      *};
-		  *
-		  *@see JavaParserActionROSE.C:Java_JavaParser_cactionBinaryExpressionEnd(JNIEnv *env, jclass, jint java_operator_kind, jobject jToken)
-		 * @param op
-		 * @return
-		 */
-		private int getOperatorKind(Operator op) {
-			if (opTable.isEmpty()) {
-				opTable.put(Operator.ADD, 14);
-				opTable.put(Operator.SUB, 13);
-				opTable.put(Operator.MUL, 15);
-				opTable.put(Operator.DIV, 9);
-				opTable.put(Operator.MOD, 16);
-				opTable.put(Operator.GT, 6);
-				opTable.put(Operator.GE, 7);
-				opTable.put(Operator.LT, 4);
-				opTable.put(Operator.LE, 5);
-				opTable.put(Operator.SHL, 10);
-				opTable.put(Operator.SHR, 17);
-				opTable.put(Operator.USHR, 19);
-				opTable.put(Operator.BIT_AND, 2); // or COND_AND?
-				opTable.put(Operator.BIT_OR, 3);  // or COND_OR?
-				opTable.put(Operator.BIT_XOR, 8);
-				opTable.put(Operator.COND_OR, 100);
-				opTable.put(Operator.COND_AND, 101);
-			}
-			return opTable.get(op);
-		}
-		
-//		public NodeVisitor begin() {
-//			System.out.println("Beginning of traversal of " + class_name);
-//			return this;
-//		}		
-		
 		private void handleAmbType(AmbTypeNode_c amb) {
 			handleAmbType(amb, null, -1);
 		}
@@ -2425,16 +2422,9 @@ System.out.println("abc1");
 			String type_ = amb.name().toString();
 		    String ambTypeName = amb.toString().replaceAll("\\{amb\\}", "");
 			ambTypeName = trimTypeParameterClause(ambTypeName);
-			System.out.println("handleAmbType: " + amb + ", ambTypeName: " + ambTypeName);
+			if (DEBUG) System.out.println("handleAmbType: " + amb + ", ambTypeName: " + ambTypeName);
 			
-			if (	ambTypeName.equals("Boolean")
-				||	ambTypeName.equals("Byte")
-				|| 	ambTypeName.equals("Char")
-				|| 	ambTypeName.equals("Int")
-				|| 	ambTypeName.equals("Short")
-				|| 	ambTypeName.equals("Float")
-				|| 	ambTypeName.equals("Long")
-				|| 	ambTypeName.equals("Double")) {
+			if (isX10Primitive(ambTypeName)) {
 				JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
 				return;
 			}
@@ -2446,14 +2436,7 @@ System.out.println("abc1");
 				int lastDot = class_name.lastIndexOf(".");
 				String package_ = lastDot > 0 ? class_name.substring(0, lastDot) : "";
 				String type = lastDot > 0 ? class_name.substring(lastDot+1) : class_name;
-				if (	type.equals("Boolean")
-					||	type.equals("Byte")
-					|| 	type.equals("Char")
-					|| 	type.equals("Int")
-					|| 	type.equals("Short")
-					|| 	type.equals("Float")
-					|| 	type.equals("Long")
-					|| 	type.equals("Double")) {
+				if (isX10Primitive(type)) {
 					JNI.cactionTypeReference("", type, this, createJavaToken());
 					JNI.cactionArrayTypeReference(1, createJavaToken());
 					return;
@@ -2481,14 +2464,14 @@ System.out.println("abc1");
 			try {
 				TypeSystem ts = currentJob.extensionInfo().typeSystem();
 				boolean isFoundInPackageRef = false;
-				System.out.println("package_ref_size=" + package_ref.size());
+				if (DEBUG) System.out.println("package_ref_size=" + package_ref.size());
 				for (String package_ : package_ref) {
-					System.out.println("package_ref=" + package_);
+					if (DEBUG) System.out.println("package_ref=" + package_);
 					List<Type> list = new ArrayList<Type>();
 					try {
 						list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 					} catch (polyglot.types.NoClassException e) {
-						System.out.println(package_ + "." + type_ + " not found: " + e);
+						if (DEBUG) System.out.println(package_ + "." + type_ + " not found: " + e);
 					}
 					if (list.size() != 0) {
 						Type t = list.get(0);
@@ -2506,16 +2489,16 @@ System.out.println("abc1");
 				}
 				if (isFoundInPackageRef)
 					return;
-
-				System.out.println("import_size="+ imports.size());
+				
+				if (DEBUG) System.out.println("import_size="+ imports.size());
 				for (Import import_ : imports) {
 					if (import_.kind() == Import.CLASS) {
 						String importedClass = import_.name().toString();
-						System.out.println("Imported=" + importedClass);
+						if (DEBUG) System.out.println("Imported=" + importedClass);
 						int lastDot = importedClass.lastIndexOf('.');
 						String package_ = importedClass.substring(0, lastDot);
 						String type2_ = importedClass.substring(lastDot + 1);
-						System.out.println("importName=" + import_.name() + ", type2=" + type2_);
+						if (DEBUG) System.out.println("importName=" + import_.name() + ", type2=" + type2_);
 						if (type_.equals(type2_)) {
 				    		JNI.cactionPushPackage(package_, createJavaToken(amb, amb.toString()));
 				    		JNI.cactionPopPackage();
@@ -2533,7 +2516,7 @@ System.out.println("abc1");
 						try {
 							list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 						} catch (polyglot.types.NoClassException e) {
-							System.out.println(package_ + "." + type_ + " not found: " + e);
+							if (DEBUG) System.out.println(package_ + "." + type_ + " not found: " + e);
 						}
 						if (list.size() != 0) {
 							Type t = list.get(0);
@@ -2569,7 +2552,7 @@ System.out.println("abc1");
 				else
 					JNI.cactionTypeReference("", amb.name().toString(), this, createJavaToken(amb, amb.toString()));
 			}
-			System.out.println("handleAmbType end");
+			if (DEBUG) System.out.println("handleAmbType end");
 		}
 		
 		private void handleAmbType(AmbDepTypeNode_c amb) {
@@ -2580,46 +2563,25 @@ System.out.println("abc1");
 		    String ambTypeName = amb.toString().replaceAll("\\{amb\\}", "");
 			ambTypeName = trimTypeParameterClause(ambTypeName);
 			String type_ =ambTypeName;
-			System.out.println("handleAmbDepType: " + amb + ", ambTypeName: " + ambTypeName);
+			if (DEBUG) System.out.println("handleAmbDepType: " + amb + ", ambTypeName: " + ambTypeName);
 			
-			if (	ambTypeName.equals("Boolean")
-				||	ambTypeName.equals("Byte")
-				|| 	ambTypeName.equals("Char")
-				|| 	ambTypeName.equals("Int")
-				|| 	ambTypeName.equals("Short")
-				|| 	ambTypeName.equals("Float")
-				|| 	ambTypeName.equals("Long")
-				|| 	ambTypeName.equals("Double")) {
+			if (isX10Primitive(ambTypeName)) {
 				JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
 				return;
 			}
 			
 			boolean isRailType = false;
-			if (	ambTypeName.equals("Boolean")
-					||	ambTypeName.equals("Byte")
-					|| 	ambTypeName.equals("Char")
-					|| 	ambTypeName.equals("Int")
-					|| 	ambTypeName.equals("Short")
-					|| 	ambTypeName.equals("Float")
-					|| 	ambTypeName.equals("Long")
-					|| 	ambTypeName.equals("Double")) {
+			if (isX10Primitive(ambTypeName)) {
 					JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
 					return;
-				}
+			}
 			else if (	ambTypeName.indexOf("Rail[") >= 0
 				|| 	ambTypeName.indexOf("GrowableRail[") >= 0) {
 				String class_name = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'));
 				int lastDot = class_name.lastIndexOf(".");
 				String package_ = lastDot > 0 ? class_name.substring(0, lastDot) : "";
 				String type = lastDot > 0 ? class_name.substring(lastDot+1) : class_name;
-				if (	type.equals("Boolean")
-					||	type.equals("Byte")
-					|| 	type.equals("Char")
-					|| 	type.equals("Int")
-					|| 	type.equals("Short")
-					|| 	type.equals("Float")
-					|| 	type.equals("Long")
-					|| 	type.equals("Double")) {
+				if (isX10Primitive(type)) {
 					JNI.cactionTypeReference("", type, this, createJavaToken());
 					JNI.cactionArrayTypeReference(1, createJavaToken());
 					return;
@@ -2648,20 +2610,20 @@ System.out.println("abc1");
 			try {
 				TypeSystem ts = currentJob.extensionInfo().typeSystem();
 				boolean isFoundInPackageRef = false;
-				System.out.println("AMBDEPTYPE package size=" + package_ref.size() + " for type=" + ambTypeName);
+				if (DEBUG) System.out.println("AMBDEPTYPE package size=" + package_ref.size() + " for type=" + ambTypeName);
 				for (String package_ : package_ref) {
-					System.out.println("AMBDEPTYPE class=" + package_ + "." + type_);
+					if (DEBUG) System.out.println("AMBDEPTYPE class=" + package_ + "." + type_);
 					List<Type> list = new ArrayList<Type>();
 					try {
 						list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 					} catch (polyglot.types.NoClassException e) {
-						System.out.println(package_ + "." + type_ + " not found: " + e);
+						if (DEBUG) System.out.println(package_ + "." + type_ + " not found: " + e);
 						continue;
 					}
-					System.out.println("AMBDEPTYPE list size=" + list.size());
+					if (DEBUG) System.out.println("AMBDEPTYPE list size=" + list.size());
 					if (list.size() != 0) {
 						Type t = list.get(0);
-						System.out.println("found type=" + t);
+						if (DEBUG) System.out.println("found type=" + t);
 //						String type_ = amb.name().toString(); 		
 						JNI.cactionPushPackage(package_, createJavaToken(amb, amb.toString()));
 			    		JNI.cactionPopPackage();
@@ -2700,7 +2662,7 @@ System.out.println("abc1");
 						try {
 							list = ts.systemResolver().find(QName.make(package_ + "." + type_));
 						} catch (polyglot.types.NoClassException e) {
-							System.out.println(package_ + "." + type_ + " not found: " + e);
+							if (DEBUG) System.out.println(package_ + "." + type_ + " not found: " + e);
 							continue;
 						}
 						if (list.size() != 0) {
@@ -2770,16 +2732,16 @@ System.out.println("abc1");
 					classMemberMap.put(type_name, memberMap);
 					previsit(fieldDecl, type_name);
 				} else if (m instanceof TypeNode_c) {
-					System.out.println("TypeNode_c : " + m);
+					if (DEBUG) System.out.println("TypeNode_c : " + m);
 				} else if (m instanceof TypeDecl_c) {
-					System.out.println("TypeDecl_c : " + m);
+					if (DEBUG) System.out.println("TypeDecl_c : " + m);
 				} else if (m instanceof X10ClassDecl_c) {
-					System.out.println("X10ClassDecl_c : " + m);
+					if (DEBUG) System.out.println("X10ClassDecl_c : " + m);
 					visitDeclarations((X10ClassDecl_c) m, (package_name == "")? type_name : package_name+"."+type_name);
 				} else if (m instanceof ClassDecl_c) {
-					System.out.println("ClassDecl_c : " + m);
+					if (DEBUG) System.out.println("ClassDecl_c : " + m);
 				} else {
-					System.out.println("Unhandled node : " + m);
+					if (DEBUG) System.out.println("Unhandled node : " + m);
 				}
 			}
 		}
@@ -2801,7 +2763,7 @@ System.out.println("abc1");
 			List<TypeParamNode> typeParamList = decl.typeParameters();
         	TypeNode superClass = decl.superClass();
 	        List<TypeNode> interfaces = decl.interfaces();
-	        System.out.println("PACKAGE_NAME=" + package_name);
+	        if (DEBUG) System.out.println("PACKAGE_NAME=" + package_name);
 			SourceFile_c file = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
 				     
 	        classMemberMap.put(class_name, memberMap);
@@ -2848,7 +2810,7 @@ System.out.println("abc1");
 	        	else if (superClass instanceof AmbDepTypeNode_c) {
 	        		handleAmbType((AmbDepTypeNode_c) superClass);
 	        		superClassName = ((AmbDepTypeNode_c) superClass).toString();
-	        		System.out.println("SUEPRCLASSNAME=" + superClassName);
+	        		if (DEBUG) System.out.println("SUEPRCLASSNAME=" + superClassName);
 	        	}
 	        	else if (superClass instanceof FunctionTypeNode_c) {
 	        		superClass = null;
@@ -2860,7 +2822,7 @@ System.out.println("abc1");
 	        String[] interfaceNames = new String[interfaces.size()];
        		for (int i = 0; i < interfaces.size(); ++i) {
        			TypeNode intface = interfaces.get(i);
-	        	System.out.println("Interface=" + intface);
+	        	if (DEBUG) System.out.println("Interface=" + intface);
        			if (intface instanceof AmbTypeNode_c) 
        				handleAmbType((AmbTypeNode_c) intface, interfaceNames, i);
        			// currently, not handle the function type
@@ -2872,7 +2834,7 @@ System.out.println("abc1");
        			}
        			else {
        				interfaceNames[i] = trimTypeParameterClause(intface.toString());
-       				System.out.println("name=" + interfaceNames[i] + ", " + intface.getClass());
+       				if (DEBUG) System.out.println("name=" + interfaceNames[i] + ", " + intface.getClass());
 //       				visit(intface);
        				visit(intface);
        			}
@@ -2960,15 +2922,15 @@ System.out.println("abc1");
 //                    classMemberMap.put(class_name, memberMap);
 //                    previsit(fieldDecl);
 //                }
-//	 			else if (m instanceof TypeNode_c) { System.out.println("TypeNode_c : " + m);  }
-//	 			else if (m instanceof TypeDecl_c) { System.out.println("TypeDecl_c : " + m);  }		
-//	 			else if (m instanceof X10ClassDecl_c) {  System.out.println("X10ClassDecl_c : " + m);  }
-//	 			else if (m instanceof ClassDecl_c) { System.out.println("ClassDecl_c : " + m);  }
+//	 			else if (m instanceof TypeNode_c) { if (DEBUG) System.out.println("TypeNode_c : " + m);  }
+//	 			else if (m instanceof TypeDecl_c) { if (DEBUG) System.out.println("TypeDecl_c : " + m);  }		
+//	 			else if (m instanceof X10ClassDecl_c) {  if (DEBUG) System.out.println("X10ClassDecl_c : " + m);  }
+//	 			else if (m instanceof ClassDecl_c) { if (DEBUG) System.out.println("ClassDecl_c : " + m);  }
 //				else {
-//					System.out.println("Unhandled node : " + m);
+//					if (DEBUG) System.out.println("Unhandled node : " + m);
 //				}
 //	         }
-//			System.out.println("TypeVisitor : createTypeReference for " + n);
+//			if (DEBUG) System.out.println("TypeVisitor : createTypeReference for " + n);
 //		}
 		
 		public void createTypeReferenceEnd() {
@@ -2977,12 +2939,12 @@ System.out.println("abc1");
 		
 		void toRose(Node n, String name, String... extra) {
 			if (name != null)
-				System.out.print(name);
+				if (DEBUG) System.out.print(name);
 			if (extra != null)
 				for (String s : extra) {
-					System.out.print(s + " ");
+					if (DEBUG) System.out.print(s + " ");
 				}
-			System.out.println();
+			if (DEBUG) System.out.println();
 			/*
 			 */
 		}
@@ -3019,7 +2981,7 @@ System.out.println("abc1");
 			List<TypeParamNode> typeParamList = n.typeParameters();			
 			for (int i = 0; i < typeParamList.size(); ++i) {
 				String typeParam = typeParamList.get(i).name().toString();
-				System.out.println("TypeParam=" + typeParam + ", package=" + package_name +", type=" + class_name);				
+				if (DEBUG) System.out.println("TypeParam=" + typeParam + ", package=" + package_name +", type=" + class_name);				
 				JNI.cactionPushTypeParameterScope(package_name, class_name, createJavaToken(n, typeParam));
 				JNI.cactionInsertTypeParameter(typeParam, createJavaToken(n, typeParam));
 				JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, createJavaToken(n, typeParam));		
@@ -3073,19 +3035,19 @@ System.out.println("abc1");
         	  visitChild(n, n.returnType());
 //          String raw = n.returnType().node().toString();
 //          String ret = raw.substring(0, raw.indexOf("{amb}"));
-//          System.out.println("returnType=" + n.returnType() + " returnType2 = " + ret + ", formals.size=" + n.formals().size());
+//          if (DEBUG) System.out.println("returnType=" + n.returnType() + " returnType2 = " + ret + ", formals.size=" + n.formals().size());
 //			JNI.cactionTypeReference("", ret, this, createJavaToken(n, ret));
 			visitChildren(n, n.formals());
 			
 //			for (int i = 0; i < formals.size(); ++i) {
 //				Formal f = formals.get(i);
 //				String type = f.type().toString();
-//				System.out.println("f.type().getClass()=>" + f.type().getClass().toString());
+//				if (DEBUG) System.out.println("f.type().getClass()=>" + f.type().getClass().toString());
 //				if (f.type() instanceof AmbTypeNode_c) {
-//					System.out.println(f.type().toString() + " => AmbTypeNode_c");
+//					if (DEBUG) System.out.println(f.type().toString() + " => AmbTypeNode_c");
 //				}
 //				type = type.substring(0, type.indexOf("{"));
-//				System.out.println(i + " : " + type);
+//				if (DEBUG) System.out.println(i + " : " + type);
 //				JNI.cactionTypeReference("", type, this, createJavaToken(n, type));
 ////				visit(f);
 //				JNI.cactionBuildArgumentSupport(f.name().toString(), false, false, createJavaToken(n, f.name().toString()));
@@ -3168,7 +3130,7 @@ System.out.println("abc1");
 	     boolean isClassFound = false;
 	     
 	     public NodeVisitor enter(Node n) {
-//	    	System.out.println("ENTER:" + n);
+//	    	if (DEBUG) System.out.println("ENTER:" + n);
 			if (isClassFound)
 				return this;
 			
@@ -3176,7 +3138,7 @@ System.out.println("abc1");
 				if (n instanceof SourceFile_c) {
 					String file_name = ((SourceFile_c) n).node().toString();
 					List<TopLevelDecl> decls = ((SourceFile_c) n).decls();
-//					System.out.println("SRC2=" + file_name + ", decls2=" + decls.size() + ", node=" + n.hashCode());
+//					if (DEBUG) System.out.println("SRC2=" + file_name + ", decls2=" + decls.size() + ", node=" + n.hashCode());
 //					if (file_name.indexOf(package_name.replaceAll("\\.", "/")) < 0) {
 //					}
 				}
@@ -3184,7 +3146,7 @@ System.out.println("abc1");
 				if (n instanceof X10ClassDecl_c) {
 					String type = ((X10ClassDecl_c) n).name().toString();
 					if (type.equals(class_name) || type.toLowerCase().equals(class_name)) {
-						System.out.println("TYPE=" + type + ", class_name=" + class_name + ", package_name=" + package_name);
+						if (DEBUG) System.out.println("TYPE=" + type + ", class_name=" + class_name + ", package_name=" + package_name);
 						isClassMatched = true;
 						if (isPackageMatched) {
 							visitDeclarations((X10ClassDecl_c)n);
@@ -3369,7 +3331,7 @@ System.out.println("abc1");
 			public void visit(SourceCollection_c n) { visit((Node_c)n); }
 //			public void visit(SourceFile_c n) { visit((Node_c)n); }
 			public void visit(SourceFile_c n) { 
-				System.out.println("source visited");
+				if (DEBUG) System.out.println("source visited");
 				visit((Node_c)n); 
 			}
 			public void visit(Term_c n) { visit((Node_c)n); }
@@ -3428,7 +3390,7 @@ System.out.println("abc1");
 
 				
 				public  void searchFileList(String packageName, String typeName) throws IOException {
-					System.out.println("TypeVisitor.searchFileList()");
+					if (DEBUG) System.out.println("TypeVisitor.searchFileList()");
 					return;
 					// MH-20140901 comment out for skipping to lookup library classes from library classess
 //					for (Job job : jobList) {
@@ -3454,7 +3416,7 @@ System.out.println("abc1");
 //						if (tVisitor.isFound()) {
 //							//////
 ////							for (int i = 0; i < 5; i++) {
-////								System.out.println("loop test for parser " + i);
+////								if (DEBUG) System.out.println("loop test for parser " + i);
 ////								reader = source.open();
 ////								eq = job.extensionInfo().compiler().errorQueue();
 ////								p = job.extensionInfo().parser(reader, source, eq);
@@ -3474,26 +3436,18 @@ System.out.println("abc1");
 					String ambTypeName = raw.replaceAll("\\{amb\\}", "");
 					ambTypeName = trimTypeParameterClause(ambTypeName);
 										
-					if (   ambTypeName.equals("void") 
-							|| ambTypeName.equals("boolean")|| ambTypeName.equals("Boolean")
-							|| ambTypeName.equals("byte") 	|| ambTypeName.equals("Byte")
-							|| ambTypeName.equals("char")	|| ambTypeName.equals("Char")
-							|| ambTypeName.equals("int")	|| ambTypeName.equals("Int")
-							|| ambTypeName.equals("short")	|| ambTypeName.equals("Short")
-							|| ambTypeName.equals("float")	|| ambTypeName.equals("Float")
-							|| ambTypeName.equals("long")	|| ambTypeName.equals("Long")
-							|| ambTypeName.equals("double")	|| ambTypeName.equals("Double")) {
+					if (isX10Primitive(ambTypeName)) 
 							JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
-						}
+						
 						// TODO: convert Rail and GrowableRail as object types, not a normal array in ROSE
 						// This will cause collision of the same overloaded method. To disable the check for collision,
 						// commented out a line in x10_support.C in X10_ROSE_Connection/x10_support.C in ROSE side:
 						//   ROSE_ASSERT(name.getString().compare(inputName.getString()) == 0); 
 						// 
-						else if (	ambTypeName.indexOf("Rail[") >= 0
-								 || ambTypeName.indexOf("GrowableRail[") >= 0
-								  ) {
-							handleAmbType(n);
+					else if (	ambTypeName.indexOf("Rail[") >= 0
+							 || ambTypeName.indexOf("GrowableRail[") >= 0
+							  ) {
+						handleAmbType(n);
 							// n.type() and n.nameString() return null, so manipulate string
 //							String type = ambTypeName.substring(ambTypeName.indexOf('[')+1, ambTypeName.indexOf(']'));
 //							int lastDot = type.lastIndexOf(".");
@@ -3502,32 +3456,24 @@ System.out.println("abc1");
 //							
 //							JNI.cactionTypeReference(package_name, type, this, createJavaToken());
 //							JNI.cactionArrayTypeReference(1, createJavaToken());
-						}
-						else if (ambTypeName.indexOf("self==this") >= 0) { 
-							JNI.cactionTypeReference("", n.nameString(), this, createJavaToken());
-						}
-						else {
-							handleAmbType(n);
-						}
+					}
+					else if (ambTypeName.indexOf("self==this") >= 0) { 
+						JNI.cactionTypeReference("", n.nameString(), this, createJavaToken());
+					}
+					else {
+						handleAmbType(n);
+					}
 				}
 				
 				public void visit(AmbTypeNode_c n) {
 					String raw = n.toString(); // n.nameString() throws NullPointerException, so use toString() instead
 			       String ambTypeName = raw.replaceAll("\\{amb\\}", "");
 					ambTypeName = trimTypeParameterClause(ambTypeName);
-					System.out.println("AmbTypeNode_c : " + ambTypeName +", type=" + n.type());
+					if (DEBUG) System.out.println("AmbTypeNode_c : " + ambTypeName +", type=" + n.type());
 					
-					if (   ambTypeName.equals("void") 
-						|| ambTypeName.equals("boolean")|| ambTypeName.equals("Boolean")
-						|| ambTypeName.equals("byte") 	|| ambTypeName.equals("Byte")
-						|| ambTypeName.equals("char")	|| ambTypeName.equals("Char")
-						|| ambTypeName.equals("int")	|| ambTypeName.equals("Int")
-						|| ambTypeName.equals("short")	|| ambTypeName.equals("Short")
-						|| ambTypeName.equals("float")	|| ambTypeName.equals("Float")
-						|| ambTypeName.equals("long")	|| ambTypeName.equals("Long")
-						|| ambTypeName.equals("double")	|| ambTypeName.equals("Double")) {
+					if (isX10Primitive(ambTypeName)) 
 						JNI.cactionTypeReference("", ambTypeName, this, createJavaToken());
-					}
+					
 					// TODO: convert Rail and GrowableRail as object types, not a normal array in ROSE
 					// This will cause collision of the same overloaded method. To disable the check for collision,
 					// commented out a line in x10_support.C in X10_ROSE_Connection/x10_support.C in ROSE side:
@@ -3577,11 +3523,11 @@ System.out.println("abc1");
 				public void visit(X10Call_c n) {
 					toRose(n, "x10call: ", n.name().id().toString());
 					if (n.name().id().toString().equals("operator()")) {
-						System.out.println("So far, return in case of \"operator()\"");
+						if (DEBUG) System.out.println("So far, return in case of \"operator()\"");
 						visitChild(n, n.target());
 						return;
 					}
-					System.out.println("package=" + package_name + ", " + n.target());
+					if (DEBUG) System.out.println("package=" + package_name + ", " + n.target());
 					JNI.cactionMessageSend(package_name, n.target().type().name().toString(), n.name().id().toString(), createJavaToken(n, n.name().id().toString()));
 					visitChild(n, n.target());
 					
@@ -3595,7 +3541,7 @@ System.out.println("abc1");
 					
 					for (int i = 0; i < args.size(); ++i) {
 						Type t = args.get(i).type();
-//						System.out.println(i + ":" + t + ", " + args.get(i));
+//						if (DEBUG) System.out.println(i + ":" + t + ", " + args.get(i));
 						Node n2 = args.get(i);
 						JNI.cactionTypeReference(package_name, t.name().toString(), this, createJavaToken());
 					}
@@ -3669,17 +3615,6 @@ System.out.println("abc1");
 
 				public void visit(Block_c n) {
 					toRose(n, "Block:");
-					
-//					   if (javaParserSupport.verboseLevel > 0)
-//				            System.out.println("Inside of enter (Block,BlockScope)");
-		//
-		//
-//				        if (javaParserSupport.verboseLevel > 0)
-//				            System.out.println("Leaving enter (Block,BlockScope)");
-		//
-//				        return true; // do nothing by node, keep traversing
-		//
-//					System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
 				   JNI.cactionBlock(createJavaToken(n, n.toString()));
 					visitChildren(n, n.statements());
 					JNI.cactionBlockEnd(n.statements().size(), createJavaToken(n, n.toString()));
@@ -3716,14 +3651,7 @@ System.out.println("abc1");
 				public void visit(X10CanonicalTypeNode_c n) {
 					toRose(n, "X10CanonicalTypeNode in TypeVisitor:", n.nameString());
 					String class_name = n.type().fullName().toString();
-					if (	class_name.equals("x10.lang.Boolean")
-						||	class_name.equals("x10.lang.Byte")
-						||	class_name.equals("x10.lang.Char")
-						||	class_name.equals("x10.lang.Int")
-						||	class_name.equals("x10.lang.Short")
-						||	class_name.equals("x10.lang.Float")
-						||	class_name.equals("x10.lang.Long")
-						||	class_name.equals("x10.lang.Double")) {
+					if (isX10Primitive(class_name)) {
 						String canonicalTypeName = n.nameString();
 						JNI.cactionTypeReference("", canonicalTypeName, this, createJavaToken());
 					}
@@ -3736,17 +3664,8 @@ System.out.println("abc1");
 						
 						String package_name = type.substring(0, lastDot);
 						type = type.substring(lastDot+1);
-						if (package_name.equals("x10.lang")
-								&& (   type.equals("boolean")	|| type.equals("Boolean")
-									|| type.equals("byte") 		|| type.equals("Byte")
-									|| type.equals("char")		|| type.equals("Char")
-									|| type.equals("int")		|| type.equals("Int")
-									|| type.equals("short")		|| type.equals("Short")
-									|| type.equals("float")		|| type.equals("Float")
-									|| type.equals("long")		|| type.equals("Long")
-									|| type.equals("double")	|| type.equals("Double")))	{
+						if (isX10Primitive(package_name, type))	
 							package_name = "";
-						}
 						
 						if (package_name.length() != 0) {
 							JNI.cactionPushPackage(package_name, createJavaToken(n, package_name));
@@ -3760,11 +3679,11 @@ System.out.println("abc1");
 						JNI.cactionTypeReference("", n.nameString(), this, createJavaToken());
 					}
 //					else if (n.node().toString().indexOf("{amb}") >= 0) {
-//						System.out.println("n.node()=" + n.node());
+//						if (DEBUG) System.out.println("n.node()=" + n.node());
 //						JNI.cactionTypeReference("", n.node().toString(), this, createJavaToken());
 //					}
 					else {
-//						System.out.println(">>>> " + n.node() + ", " + n.nameString() + ", " + n.type().arrayOf());
+//						if (DEBUG) System.out.println(">>>> " + n.node() + ", " + n.nameString() + ", " + n.type().arrayOf());
 						int index = n.node().toString().indexOf("[");
 						String className = n.node().toString();
 						if (index >= 0)
@@ -3781,7 +3700,7 @@ System.out.println("abc1");
 							type = className;
 						}
 						
-//						System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
+//						if (DEBUG) System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
 						// So far, I use a representation without package name such as "Rail". 
 						// If I use a representation such as "x10.lang.Rail", lookupTypeByName() function tries
 						// to look for a type name whether the type name is already registered or not. (and, there is
@@ -3826,7 +3745,7 @@ System.out.println("abc1");
 					} else if (kind.equals(Special.Kind.SUPER.toString())) {
 						JNI.cactionSuperReference(createJavaToken(n, n.kind().toString()));
 					} else if (kind.equals(Special.Kind.SELF.toString())) {
-						System.out.println("X10Special : Unhandled token " + kind);				
+						if (DEBUG) System.out.println("X10Special : Unhandled token " + kind);				
 					}
 				}
 
@@ -3894,7 +3813,7 @@ System.out.println("abc1");
 				
 				public void visit(FieldAssign_c n) {
 					toRose(n, "FieldAssign:", n.name().id().toString());
-//					System.out.println("target=" + n.target() + ", right=" + n.right());
+//					if (DEBUG) System.out.println("target=" + n.target() + ", right=" + n.right());
 					String fieldName = n.name().id().toString();
 					visitChild(n, n.target());
 					JNI.cactionTypeReference("", n.target().type().name().toString(), this, createJavaToken());
@@ -3905,7 +3824,7 @@ System.out.println("abc1");
 
 				public void visit(X10Field_c n) {
 					toRose(n, "X10Field:", n.name().id().toString());
-//					System.out.println("target=" + n.target() 
+//					if (DEBUG) System.out.println("target=" + n.target() 
 //											+ ", target type=" + n.target().type().name() 
 //											+ ", name=" + n.name().id() 
 //											+ ", instnace=" + n.fieldInstance());
@@ -3923,7 +3842,7 @@ System.out.println("abc1");
 
 				public void visit(X10LocalDecl_c n) {
 					toRose(n, "X10LocalDecl:", n.name().id().toString());		
-//					System.out.println("init=" + n.init());
+//					if (DEBUG) System.out.println("init=" + n.init());
 					visitChild(n, n.type());		
 					JNI.cactionLocalDeclaration(0, n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
 					JNI.cactionLocalDeclarationEnd(n.name().id().toString(), false, createJavaToken(n, n.name().id().toString()));
@@ -4023,7 +3942,7 @@ System.out.println("abc1");
 						JNI.cactionLongLiteral(n.value(), n.toString(), createJavaToken(n, n.value() + ""));
 						
 					} else {
-						System.out.println("Unhandled literal : " + n.toString());
+						if (DEBUG) System.out.println("Unhandled literal : " + n.toString());
 					}
 				}
 
