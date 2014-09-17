@@ -456,6 +456,8 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     public final GlobalRef<T> x10$lang$GlobalRef$$init$S(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.$init(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
         this.T = T;
+        x10.lang.Activity activity = x10.lang.Runtime.activity();
+        this.epoch = activity == null ? x10.lang.Runtime.epoch$O() : activity.epoch;
         this.home = x10.lang.Runtime.home();
         this.obj = obj;
         return this;
@@ -464,6 +466,8 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     public GlobalRef(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.<init>(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
         this.T = T;
+        x10.lang.Activity activity = x10.lang.Runtime.activity();
+        this.epoch = activity == null ? x10.lang.Runtime.epoch$O() : activity.epoch;
         this.home = x10.lang.Runtime.home();
         this.obj = obj;
     }
