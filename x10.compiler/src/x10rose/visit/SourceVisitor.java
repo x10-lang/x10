@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
 package x10rose.visit;
 
 import java.io.IOException;
@@ -310,7 +321,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             }
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, n.source().path()));
             JNI.cactionPopPackage();
-
+            
             JNI.cactionCompilationUnitDeclaration(n.source().path(), package_name, n.source().path(), RoseTranslator.createJavaToken(n, n.source().path()));
         }
 
@@ -327,23 +338,17 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visitDeclarations(X10ClassDecl_c n) {
         toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id().toString());
-        // SourceFile_c srcfile =
-        // x10rose.ExtensionInfo.X10Scheduler.sourceList.get(fileIndex);
-        // List<Import> imports = srcfile.imports();
-        // for (Import import_ : imports) {
-        // if (RoseTranslator.DEBUG) System.out.println("Import=" + import_.name() +
-        // ", kind=" + import_.kind());
-        // if (import_.kind() == Import.CLASS) {
-        // String importedClass = import_.name().toString();
-        // int lastDot = importedClass.lastIndexOf('.');
-        // String package_= importedClass.substring(0, lastDot);
-        // String type_ = importedClass.substring(lastDot+1);
-        // if (RoseTranslator.DEBUG) System.out.println("class=" + type_ + ", pacakge=" +
-        // package_);
-        // if (import_.name().toString().equals(type_)) {
-        // }
-        // }
-        // }
+        SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);  
+        List<Import> imports = srcfile.imports();
+        for (Import import_ : imports) {
+            if (RoseTranslator.DEBUG) System.out.println("Import=" + import_.name() + ", kind=" + import_.kind());
+            if (import_.kind() == Import.CLASS) {
+                JNI.cactionImportReference(false, import_.name().toString(), false, RoseTranslator.createJavaToken());
+            }
+            else if (import_.kind() == Import.PACKAGE) {
+                JNI.cactionImportReference(false, import_.name().toString(), true, RoseTranslator.createJavaToken());
+            }
+        }
         Ref ref = n.classDef().package_();
         String package_name = (ref == null) ? "" : ref.toString();
 
