@@ -48,6 +48,22 @@ public class System {
     @Native("c++", "::x10::lang::RuntimeNatives::exit(1)")
     public static native def killHere(): void;
 
+
+    /**
+     * Asynchronously kills the victim place, as if due 
+     * to a hardware or low level software failure.  
+     * The victim should not be Place.FIRST_PLACE.
+     * The program ahould be executing in one of the resilient modes 
+     * for correct operation.
+     *
+     * @see Configuration#resilient_mode
+     */
+    public static def killThere(victim:Place) {
+        val cl = ()=> @x10.compiler.RemoteInvocation("killThere") { killHere(); };
+        Runtime.x10rtSendMessage(victim.id, cl, null);
+    }
+
+
     /**
      * Sets the exit code with which the X10 program will exit.
      * However, calling this method has no effect on the timing
