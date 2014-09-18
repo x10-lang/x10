@@ -73,7 +73,7 @@ import x10.visit.IfdefVisitor;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 import x10rose.visit.RoseTranslator;
-import x10rose.visit.RoseTranslator.ToRoseVisitor;
+import x10rose.visit.SourceVisitor;
 
 /**
  * Extension information for x10 extension.
@@ -201,8 +201,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
 			    @Override
 				protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq)  {
-			    	ToRoseVisitor.isGatheringFile = false;
-		    		ToRoseVisitor roseVisitor = new ToRoseVisitor(null, null);
+			    	SourceVisitor.isGatheringFile = false;
+		    		SourceVisitor roseVisitor = new SourceVisitor(null, null);
 		    		
 			    	for (int i = 0; i < sourceList.size(); ++i) {
 			    		SourceFile_c file = sourceList.get(i);
