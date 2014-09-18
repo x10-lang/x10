@@ -537,7 +537,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		}
 	}
     #ifdef DEBUG
-        fprintf(stdout, "Launcher %d: coming out of main loop\n", _myproc);
+        fprintf(stderr, "Launcher %d: coming out of main loop\n", _myproc);
     #endif
 
 	/* --------------------------------------------- */
@@ -878,14 +878,14 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			{
 				_exitcode = 128 + WSTOPSIG(status);
 				#ifdef DEBUG
-					fprintf(stdout, "Launcher %d: Local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
+					fprintf(stderr, "Launcher %d: Local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
 				#endif
 			}
 			#ifdef DEBUG
 			else if (WIFCONTINUED(status))
-				fprintf(stdout, "Launcher %d: Local runtime continue signal detected\n", _myproc);
+				fprintf(stderr, "Launcher %d: Local runtime continue signal detected\n", _myproc);
 			else
-				fprintf(stdout, "Launcher %d: Local runtime exit status unknown\n", _myproc);
+				fprintf(stderr, "Launcher %d: Local runtime exit status unknown\n", _myproc);
 			#endif
 		}
 		else if (WIFEXITED(status) && WEXITSTATUS(status) > 0)
@@ -894,10 +894,10 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			// forward the signal and exit immediately
 			_exitcode = WEXITSTATUS(status);
 			#ifdef DEBUG
-				fprintf(stdout, "Launcher %d: child runtime gave return code %i.  Forwarding.\n", _myproc, _exitcode);
+				fprintf(stderr, "Launcher %d: child launcher gave return code %i.  Forwarding.\n", _myproc, _exitcode);
 			#endif
 			//Launcher::cb_sighandler_term(SIGTERM);
-			return false;
+			//return false;
 		}
 	}
 	#ifdef DEBUG
@@ -911,9 +911,16 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 	// check to see if *all* child links are down
 	for (uint32_t i=0; i<=_numchildren; i++)
 	{
-		if (_pidlst[i] != -1)
+		if (_pidlst[i] != -1) {
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %d: at least one child is still alive\n", _myproc);
+			#endif
 			return true;
+		}
 	}
+	#ifdef DEBUG
+		fprintf(stderr, "Launcher %d: all children appear to be dead\n", _myproc);
+	#endif
 	return false;
 }
 
@@ -1145,7 +1152,8 @@ void Launcher::cb_sighandler_cld(int signo)
         // Note that "X10_RESILIENT_MODE" is also checked in Configuration.x10
         char* resilient_mode = getenv(X10_RESILIENT_MODE);
         bool resilient_x10 = (resilient_mode!=NULL && strtol(resilient_mode, NULL, 10) != 0);
-        if ((_singleton->_myproc == 0 && signo!=SIGCHLD) || !resilient_x10) {
+
+        if (!resilient_x10) {
             _singleton->_dieAt = SHUTDOWN_GRACE_PERIOD+time(NULL); // SHUTDOWN_GRACE_PERIOD seconds into the future
             #ifdef DEBUG
                 fprintf(stderr, "Launcher %d: started the doomsday device\n", _singleton->_myproc);
