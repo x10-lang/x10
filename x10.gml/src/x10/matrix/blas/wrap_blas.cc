@@ -1082,8 +1082,8 @@ extern "C"  {
 /*----------------------------------------------------------------*/
 
 void error_missing_blas() {
-  printf("BLAS is not added in GML build.\n");
-  printf("Uncomment the line: add_blas = yes in system_setting.mk, and make sure blas lib and path names are correct\n");
+  printf("GML was built without BLAS library.\n");
+  printf("Check build settings in system_setting.mk, including definition of BLASLIB variable\n");
   fflush(stdout);
   exit(1);
 }
@@ -1271,7 +1271,7 @@ void tri_vector_mult(double* A, blas_long ul, double* bx, blas_long lda, int tra
 #endif
 	//dtrmv_(char* uplo, char* trans, char* diag, int N, double* A, int lda, double* X, int incx);
 #else
-  error_missing_blas();Z
+  error_missing_blas();
 #endif
 }
 

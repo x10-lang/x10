@@ -19,6 +19,13 @@
 extern "C"  {
 #endif
 
+void error_missing_lapack() {
+  printf("GML was built without LAPACK library.\n");
+  printf("Check build settings in system_setting.mk, including definition of BLASLIB variable\n");
+  fflush(stdout);
+  exit(1);
+}
+
 /*********************************************************************
 SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
 *
@@ -205,10 +212,7 @@ int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 #endif
 
 #else
-	printf("LAPACK is not added in GML build.\n");
-	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
-	fflush(stdout);
-	exit(1);
+    error_missing_lapack();
 #endif
 	return INFO;
 }
@@ -234,10 +238,7 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 #endif
 
 #else
-	printf("LAPACK is not added in GML build.\n");
-	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
-	fflush(stdout);
-	exit(1);
+    error_missing_lapack();
 #endif
 
 	return INFO;
@@ -264,10 +265,7 @@ int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
 	dsyev_(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
 #endif
 #else
-	printf("LAPACK is not added in GML build.\n");
-	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
-	fflush(stdout);
-	exit(1);
+    error_missing_lapack();
 #endif
 	return INFO;
 }
