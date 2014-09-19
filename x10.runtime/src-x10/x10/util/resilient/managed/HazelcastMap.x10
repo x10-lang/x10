@@ -56,7 +56,7 @@ CustomSerialization {
     protected def this(mapName: String) {
         this.keyValueMap = getResilientMap(mapName);
         if (keyValueMap == null) 
-	    throw new Exception("HazelcastMap.this(mapName: String): HazelcastMap is not supported in this configuration");
+	    throw new Exception("HazelcastMap.this("+mapName+"): HazelcastMap is not supported in this configuration");
         this.mapName = mapName;
 	this.entrySet = null;
 	this.iterator = null;
