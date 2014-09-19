@@ -591,13 +591,18 @@ public class SourceVisitor extends X10DelegatingVisitor {
         String fieldName = fieldDecl.name().id().toString();
         toRose(fieldDecl, "Previsit field decl: ", fieldName);
         String package_name = fieldDecl.type().type().fullName().qualifier().toString();
-        String type_name = fieldDecl.type().nameString();
-
+        String type_name = fieldDecl.type().toString();
+        
         int token_constraint;
         // TODO: remove this when type constraint is supported
         if ((token_constraint = type_name.indexOf('{')) > 0) {
             type_name = type_name.substring(0, token_constraint);
         }
+        int typeParam = type_name.indexOf("[");
+        int lastDot = type_name.lastIndexOf(".", typeParam > 0 ? typeParam : type_name.length()-1);
+        if (lastDot > 0)
+            type_name = type_name.substring(lastDot+1);
+        
         if (RoseTranslator.isX10Primitive(package_name, type_name))
             JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken());
         else if (package_name.length() != 0) {
@@ -1090,8 +1095,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 type = className;
             }
 
-            if (RoseTranslator.DEBUG)
-                System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
+            if (RoseTranslator.DEBUG) System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
             if (pkg.length() != 0) {
                 JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, pkg));
                 JNI.cactionPopPackage();
@@ -1100,7 +1104,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     TypeSystem ts = RoseTranslator.jobList.get(RoseTranslator.jobList.size() - 1).extensionInfo().typeSystem();
                     boolean isFoundInPackageRef = false;
                     for (String package_ : package_ref) {
-
                         List<Type> list = new ArrayList<Type>();
                         try {
                             list = ts.systemResolver().find(QName.make(package_ + "." + type));
@@ -1762,7 +1765,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
             for (int i = 0; typeArg != null && i < typeArg.size(); ++i) {
                 // visitChildren(n, n.typeArguments());
                 String typeParam = typeArg.get(i).nameString();
-
             }
             visitChild(n, n.objectType());
             visitChildren(n, n.arguments());
