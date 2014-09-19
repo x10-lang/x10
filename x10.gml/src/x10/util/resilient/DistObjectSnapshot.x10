@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
-package x10.matrix.util.resilient;
+package x10.util.resilient;
 
 public abstract class DistObjectSnapshot[K,V] {V haszero} {
     static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");

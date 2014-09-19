@@ -39,9 +39,11 @@ base_src=\
 	x10/matrix/util/RandTool.x10 \
 	x10/matrix/util/VerifyTool.x10 \
 	x10/matrix/util/PlaceGroupBuilder.x10 \
-	x10/matrix/util/resilient/ResilientStoreForApp.x10 \
-	x10/matrix/util/resilient/DistObjectSnapshot.x10 \
-	x10/matrix/util/resilient/Snapshottable.x10
+	x10/util/resilient/DistObjectSnapshot.x10 \
+	x10/util/resilient/ResilientExecutor.x10 \
+	x10/util/resilient/ResilientIterativeApp.x10 \
+	x10/util/resilient/ResilientStoreForApp.x10 \
+	x10/util/resilient/Snapshottable.x10
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \

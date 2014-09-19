@@ -24,8 +24,8 @@ import x10.matrix.block.BlockMatrix;
 import x10.matrix.comm.DataArrayPLH;
 import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
-import x10.matrix.util.resilient.DistObjectSnapshot;
-import x10.matrix.util.resilient.Snapshottable;
+import x10.util.resilient.DistObjectSnapshot;
+import x10.util.resilient.Snapshottable;
 
 public type DistVector(m:Long)=DistVector{self.M==m};
 public type DistVector(v:DistVector)=DistVector{self==v};

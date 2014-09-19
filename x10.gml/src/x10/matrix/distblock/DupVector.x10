@@ -22,8 +22,8 @@ import x10.matrix.Vector;
 import x10.matrix.comm.ArrayBcast;
 import x10.matrix.comm.ArrayReduce;
 
-import x10.matrix.util.resilient.DistObjectSnapshot;
-import x10.matrix.util.resilient.Snapshottable;
+import x10.util.resilient.DistObjectSnapshot;
+import x10.util.resilient.Snapshottable;
 
 public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};

@@ -8,7 +8,7 @@
  *
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
-package x10.matrix.util.resilient;
+package x10.util.resilient;
 
 public interface Snapshottable {
     public def makeSnapshot():DistObjectSnapshot[Any,Any];

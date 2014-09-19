@@ -27,8 +27,8 @@ import x10.matrix.comm.BlockScatter;
 import x10.matrix.comm.BlockSetBcast;
 import x10.matrix.block.SparseBlock;
 
-import x10.matrix.util.resilient.DistObjectSnapshot;
-import x10.matrix.util.resilient.Snapshottable;
+import x10.util.resilient.DistObjectSnapshot;
+import x10.util.resilient.Snapshottable;
 
 public type DistBlockMatrix(M:Long, N:Long)=DistBlockMatrix{self.M==M, self.N==N};   
 public type DistBlockMatrix(M:Long)=DistBlockMatrix{self.M==M}; 

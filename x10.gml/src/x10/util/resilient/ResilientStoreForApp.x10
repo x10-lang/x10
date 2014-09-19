@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2014.
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
-package x10.matrix.util.resilient;
+package x10.util.resilient;
 
 import x10.util.HashMap;
 import x10.matrix.util.Debug;

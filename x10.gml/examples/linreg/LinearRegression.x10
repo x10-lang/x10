@@ -27,16 +27,18 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
 
-import x10.matrix.util.resilient.ResilientStoreForApp;
-import x10.matrix.util.resilient.Snapshottable;
-import x10.matrix.util.resilient.DistObjectSnapshot;
 import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.DistObjectSnapshot;
+import x10.util.resilient.ResilientIterativeApp;
+import x10.util.resilient.ResilientExecutor;
+import x10.util.resilient.ResilientStoreForApp;
+import x10.util.resilient.Snapshottable;
 
 /**
  * Parallel linear regression based on GML distributed
  * dense/sparse matrix
  */
-public class LinearRegression{
+public class LinearRegression implements ResilientIterativeApp {
 
     //Input matrix
     public val V:DistBlockMatrix;
@@ -53,27 +55,27 @@ public class LinearRegression{
     val r:Vector(V.N);
     val d_q:DupVector(V.N);
 
+    private val chkpntIterations:Long;
+
+    var norm_r2:Double;
+    var iter:Long;
+
     //----Profiling-----
     public var parCompT:Long=0;
     public var seqCompT:Long=0;
     public var commT:Long;
 
-    private var places:PlaceGroup;
-    private val chkpntIterations:Long;
     private var isResilient:Boolean = false;
     private var appSnapshotInfo:LinearRegressionSnapshotInfo;
     private val npz:Double;
-    private val killIteration:Long = 5;
-    private val resilientStore:ResilientStoreForApp;
+
     //the matrix snapshot should be taken only once
     private var V_snapshot:DistObjectSnapshot[Any,Any];
 
-    public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long, chkpntIter:Long, sparseDensity:Double,pg:PlaceGroup) {
+    public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
         iteration = it;
         V =v;
         b =b_ as Vector(V.N);
-
-        places = pg;
 
         Vp = DistVector.make(V.M, V.getAggRowBs(), places);
 
@@ -84,14 +86,11 @@ public class LinearRegression{
 
         w  = Vector.make(V.N);
 
-        chkpntIterations = chkpntIter;
         if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
             isResilient = true;
             appSnapshotInfo = new LinearRegressionSnapshotInfo();
-            resilientStore = new ResilientStoreForApp();
-        } else {
-            resilientStore = null;
         }
+        this.chkpntIterations = chkpntIter;
 
         npz = sparseDensity;
     }
@@ -111,163 +110,139 @@ public class LinearRegression{
         return new LinearRegression(V, b, it, chkpntIter, nzd, places);
     }
 
-    public def run():Vector {
-        var ct:Long;
-        var alpha:Double=0.0;
-        var beta:Double =0.0;
+    public def isFinished() {
+        return iter >= iteration;
+    }
 
+    public def run() {
         b.copyTo(r);
         b.copyTo(d_p.local());
         r.scale(-1.0);
 
-        var norm_r2:Double = r.norm();
+        norm_r2 = r.norm();
 
-        var simulatePlaceDeathDone:Boolean = false;
-        var restoreRequired:Boolean = false;
-
-        val matrixDesc = V.toString();
-        Console.OUT.println("Load Balance Before:");
-        V.printSparseLoadStatistics();
-
-        if (isResilient)
+        if (isResilient) {
+            Console.OUT.println("Load Balance Before:");
+            V.printSparseLoadStatistics();
             V_snapshot = V.makeSnapshot();
-
-        for (var i:Long=1; i<=iteration; i++) {
-            if (restoreRequired) {
-                val newPG = places.filterDeadPlaces();
-
-                Console.OUT.println("The place group after filtering the dead ...");
-                for (p in newPG)
-                    Console.OUT.println(p);
-
-                restore(newPG.size(), 1, newPG);
-                //Console.OUT.println("Restored Matrix:");
-                //Console.OUT.println(V.toString());
-                //Console.OUT.println("Matrix restored correctly? : " + V.toString().equals(matrixDesc));
-
-                Console.OUT.println("Load Balance After:");
-                V.printSparseLoadStatistics();
-
-                //adjust the iteration number and the norm value
-                i = appSnapshotInfo.iteration + 1;
-                norm_r2 = appSnapshotInfo.norm;
-                Console.OUT.println("Restore succeeded, Restart from iteration["+i+"] norm["+norm_r2+"]");
-                restoreRequired = false;
-            }
-
-            try{
-                d_p.sync();
-
-                // Parallel computing
-
-                ct = Timer.milliTime();
-                // 10: q=((t(V) %*% (V %*% p)) )
-
-                d_q.mult(Vp.mult(V, d_p), V);
-
-                parCompT += Timer.milliTime() - ct;
-
-                if (isResilient && !simulatePlaceDeathDone && i == killIteration && places.size() > 1) {
-                    simulatePlaceDeathDone = true;
-                    at (places(1)) //kill the second place
-                        System.killHere();
-                }
-
-                // Sequential computing
-
-                ct = Timer.milliTime();
-                //q = q + lambda*p
-                val p = d_p.local();
-                val q = d_q.local();
-                q.scaleAdd(lambda, p);
-
-                // 11: alpha= norm_r2/(t(p)%*%q);
-                alpha = norm_r2 / p.dotProd(q);
-
-                // 12: w=w+alpha*p;
-                w.scaleAdd(alpha, p);
-
-                // 13: old norm r2=norm r2;
-                val old_norm_r2 = norm_r2;
-
-                // 14: r=r+alpha*q;
-                r.scaleAdd(alpha, q);
-                norm_r2 = r.norm();
-
-                // 15: beta=norm r2/old norm r2;
-                beta = norm_r2/old_norm_r2;
-
-                // 16: p=-r+beta*p;
-                p.scale(beta).cellSub(r);
-
-                seqCompT += Timer.milliTime() - ct;
-                // 17: i=i+1;
-
-                if (isResilient && i%chkpntIterations == 0) {
-                    Console.OUT.println("Going to take a snapshot at iteration["+i+"] norm="+norm_r2+" ...");
-                    appSnapshotInfo.iteration = i;
-                    appSnapshotInfo.norm = norm_r2;
-                    snapshot();
-                }
-            }
-            catch(deadExp:DeadPlaceException) {
-                deadExp.printStackTrace();
-                if (!isResilient)
-                    throw deadExp;
-                else
-                    restoreRequired = true;
-            }
-            catch(mulExp:MultipleExceptions) {
-                mulExp.printStackTrace();
-                val deadPlaceExceptions = (mulExp as MultipleExceptions).getExceptionsOfType[DeadPlaceException]();
-                if (isResilient & deadPlaceExceptions.size > 0)
-                    restoreRequired = true;
-                else
-                    throw mulExp;
-            }
         }
-        commT = d_q.getCommTime() + d_p.getCommTime();
-        //w.print("Parallel result");
+
+        new ResilientExecutor(chkpntIterations).run(this);
+
         return w;
     }
 
-    static class LinearRegressionSnapshotInfo implements Snapshottable{
+    public def step() {
+        d_p.sync();
+
+        // Parallel computing
+
+        var ct:Long = Timer.milliTime();
+        // 10: q=((t(V) %*% (V %*% p)) )
+
+        d_q.mult(Vp.mult(V, d_p), V);
+
+        parCompT += Timer.milliTime() - ct;
+
+        // Sequential computing
+
+        ct = Timer.milliTime();
+        //q = q + lambda*p
+        val p = d_p.local();
+        val q = d_q.local();
+        q.scaleAdd(lambda, p);
+
+        // 11: alpha= norm_r2/(t(p)%*%q);
+        val alpha = norm_r2 / p.dotProd(q);
+
+        // 12: w=w+alpha*p;
+        w.scaleAdd(alpha, p);
+
+        // 13: old norm r2=norm r2;
+        val old_norm_r2 = norm_r2;
+
+        // 14: r=r+alpha*q;
+        r.scaleAdd(alpha, q);
+        norm_r2 = r.norm();
+
+        // 15: beta=norm r2/old norm r2;
+        val beta = norm_r2/old_norm_r2;
+
+        // 16: p=-r+beta*p;
+        p.scale(beta).cellSub(r);
+
+        seqCompT += Timer.milliTime() - ct;
+        // 17: i=i+1;
+
+        commT = d_q.getCommTime() + d_p.getCommTime();
+        //w.print("Parallel result");
+
+        iter++;
+    }
+
+    static class LinearRegressionSnapshotInfo implements Snapshottable {
+        public var r:Vector;
+        public var w:Vector;
         public var iteration:Long;
         public var norm:Double;
 
         public def makeSnapshot():DistObjectSnapshot[Any,Any]{
             val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
+            snapshot.save("r",r.clone());
+            snapshot.save("w",w.clone());
             snapshot.save("iteration",iteration);
             snapshot.save("norm",norm);
             return snapshot;
         }
 
         public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
+            r = snapshot.load("r") as Vector;
+            w = snapshot.load("w") as Vector;
             iteration = snapshot.load("iteration") as Long;
             norm = snapshot.load("norm") as Double;
         }
     }
 
-    public def snapshot() {
+    public def checkpoint(resilientStore:ResilientStoreForApp) {
         resilientStore.startNewSnapshot();
         resilientStore.save(V, V_snapshot, true);
-        //resilientStore.save(V); the matrix snapshot should be taken once
         resilientStore.save(d_p);
+        resilientStore.save(d_q);
+
+        appSnapshotInfo.r = r;
+        appSnapshotInfo.w = w;
+        appSnapshotInfo.iteration = iter;
+        appSnapshotInfo.norm = norm_r2;
         resilientStore.save(appSnapshotInfo);
+
         resilientStore.commit();
     }
 
     /**
      * Restore from the snapshot with new PlaceGroup
      */
-    public def restore(newRowPs:Long, newColPs:Long, newPg:PlaceGroup) {
-        Console.OUT.println("Going to restore LinearReg App, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
+    public def restore(newPg:PlaceGroup, store:ResilientStoreForApp) {
+        val newRowPs = newPg.size();
+        val newColPs = 1;
+        Console.OUT.println("Going to restore LinearReg app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         //remake all the distributed data structures
         V.remakeSparse(newRowPs, newColPs, npz, newPg);
         d_p.remake(newPg);
+
         Vp.remake(V.getAggRowBs(), newPg);
         d_q.remake(newPg);
 
-        resilientStore.restore();
+        store.restore();
+
+        Console.OUT.println("Load Balance After:");
+        V.printSparseLoadStatistics();
+
+        //adjust the iteration number and the norm value
+        iter = appSnapshotInfo.iteration;
+        norm_r2 = appSnapshotInfo.norm;
+        appSnapshotInfo.r.copyTo(r);
+        appSnapshotInfo.w.copyTo(w);
+
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"]");
     }
 }
