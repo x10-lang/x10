@@ -64,11 +64,8 @@ using namespace x10::io;
 
 
 void RuntimeNatives::exit(x10_int code) {
-    // Cannot do ::exit here, as we'll need to clean up.
-    // We need not worry about user code catching the int
-    // because such a catch block can only be generated
-    // by us.
-    throw (int)code;
+	// exit now, using this exit code
+	::exit(code);
 }
 
 x10_long RuntimeNatives::currentTimeMillis() {
