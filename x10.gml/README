@@ -38,11 +38,15 @@ Instructions
    * BLAS (basic linear algebra subprograms). 
      An optimized BLAS implementation is usually available on high-performance
      computing systems.
+     If GML is built without BLAS enabled, an exception will be thrown if the
+     corresponding linear algebra method is called.
+     The environment variable DISABLE_BLAS controls this build option.
 
    * LAPACK - Linear Algebra PACKage (optional)
      LAPACK is used to find eigenvalues/vectors and solve linear equations.
      It is not required to build GML.  If GML is built without LAPACK enabled,
      an exception will be thrown if the corresponding solver method is called.
+     The environment variable DISABLE_LAPACK controls this build option.
     
      In system_setting.mk, uncomment "add_lapack=yes" line to build GML with 
      LAPACK library.  
