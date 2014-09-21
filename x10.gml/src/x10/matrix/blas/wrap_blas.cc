@@ -1233,9 +1233,6 @@ void sym_vector_mult(double alpha, double* A, double* x, double beta, double* y,
   blas_long incx = 1;
   blas_long incy = 1;
 
-  //printf("dim: %i %i\n", m, n);
-  //printf("%f %f %f  \n", A[2], A[5], A[7]);
-  //printf("%f %f %f %f \n", x[0], x[1], x[2], x[3]);
 #if defined(__essl__)
   dsymv(&uplo, &n,
  		 &alpha, A, &m,
@@ -1247,8 +1244,6 @@ void sym_vector_mult(double alpha, double* A, double* x, double beta, double* y,
  		         x, &incx,
  		 &beta,  y, &incy);
 #endif
-  //printf("%f %f %f %f \n", y[0], y[1], y[2], y[3]);
-  //fflush(stdout);
 #else
   error_missing_blas();
 #endif
@@ -1269,7 +1264,6 @@ void tri_vector_mult(double* A, blas_long ul, double* bx, blas_long lda, int tra
 #else
 	dtrmv_(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
 #endif
-	//dtrmv_(char* uplo, char* trans, char* diag, int N, double* A, int lda, double* X, int incx);
 #else
   error_missing_blas();
 #endif
@@ -1278,6 +1272,7 @@ void tri_vector_mult(double* A, blas_long ul, double* bx, blas_long lda, int tra
 // A = alpha*x*y**T + A
 void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long* offset, blas_long* inc, blas_long lda, double alpha)
 {
+#ifdef ENABLE_BLAS
   blas_long m    = dim[0];
   blas_long n    = dim[1];
   blas_long offx = offset[0];
@@ -1296,6 +1291,9 @@ void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long*
 		 &alpha, xStart, &incx,
 		         yStart, &incy,
 		         A, &lda);
+#endif
+#else
+  error_missing_blas();
 #endif
 }
 
@@ -1346,6 +1344,7 @@ void matrix_matrix_mult(double alpha, double* A, double* B, double beta, double*
 void matrix_matrix_mult(double alpha, double* A, double* B, double beta, double* C, blas_long* dim, 
 						  blas_long* ld, int* trans)
 {
+#ifdef ENABLE_BLAS
   char transA = (trans[0])?'T':'N';
   char transB = (trans[1])?'T':'N';
   blas_long  m = dim[0];
@@ -1367,6 +1366,9 @@ void matrix_matrix_mult(double alpha, double* A, double* B, double beta, double*
 		 &alpha, A, &lda,
 		         B, &ldb, 
 		 &beta,  C, &ldc);
+#endif
+#else
+  error_missing_blas();
 #endif
 }
 
