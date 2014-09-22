@@ -86,6 +86,14 @@ function parseCmdLine {
 	elif [[ "$1" == "-opt" ]]; then
 	    tccompiler_options="$tccompile_options -O"
 	    shift
+	elif [[ "$1" == "-x10lib" ]]; then
+	    if (( $# >= 2 )); then
+		tccompiler_options="$tccompile_options -x10lib $2"
+		shift 2
+	    else
+		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
+		printUsage 1 0
+	    fi
 	elif [[ "$1" == "-resilient" ]]; then
 	    tcresilient_modes="$tc_all_resilient_modes"
 	    shift
