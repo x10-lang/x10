@@ -43,26 +43,23 @@ class RunBlockMatrix {
 	}
 
     public def run (): void {
-		Console.OUT.println("Starting block matrix tests");
+		Console.OUT.println("Block matrix tests");
 		Console.OUT.printf("Matrix M:%d N:%d Row block:%d Column block:%d, nzd:%f\n", 
 						   M, N, R, C, nzd);
 
 		var ret:Boolean = true;
- 		// Set the matrix function
  		ret &= (testClone());
 		ret &= (testScale());
 		ret &= (testAddSub());
 		ret &= (buildBlockMap());
 		
-		if (ret)
-			Console.OUT.println("Block matrix test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("----------------Block matrix test failed!----------------");
 	}
 
 	public def testClone():Boolean{
 		var ret:Boolean = true;
-		Console.OUT.println("Starting block matrix clone test");
+		Console.OUT.println("Block matrix clone test");
 		val sbm = BlockMatrix.makeDense(grid);
 		sbm.initRandom();
 
@@ -73,20 +70,14 @@ class RunBlockMatrix {
 		val dm = DenseMatrix.make(grid.M, grid.N);
 		sbm.copyTo(dm);
 		ret &= sbm.equals(dm as Matrix(M,N));
-		if (!ret) Console.OUT.println("--------------Block matrix dense conversion test failed------------");
 
-		if (ret)
-			Console.OUT.println("Block matrix Clone and dense conversion test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Block matrix clone and dense conversion test failed!--------");
 	
 		//must be nonzero positions
 		sbm(0, 1) = sbm(M/2,N/3) = 10.0;
 
-		if ((sbm(0,1)==sbm(M/2,N/3)) && (sbm(0,1)==10.0)) {
-			ret &= true;
-			Console.OUT.println("Block Matrix chained assignment test passed!");
-		} else {
+		if (! ((sbm(0,1)==sbm(M/2,N/3)) && (sbm(0,1)==10.0))) {
 			ret &= false;
 			Console.OUT.println("---------- Block Matrix chained assignment test failed!-------");
 		}
@@ -95,7 +86,7 @@ class RunBlockMatrix {
 	}
 
 	public def testScale():Boolean{
-		Console.OUT.println("Starting block matrix scaling test, nzd:"+nzd);
+		Console.OUT.println("Block matrix scaling test, nzd:"+nzd);
 		val dm = BlockMatrix.makeSparse(grid, nzd);
 		dm.initRandom();
 		val dm1  = dm * 2.5;
@@ -103,15 +94,13 @@ class RunBlockMatrix {
 		
 		m.scale(2.5);
 		val ret = m.equals(dm1 as Matrix(M,N));
-		if (ret)
-			Console.OUT.println("Block matrix scaling test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Block matrix Scaling test failed!--------");	
 		return ret;
 	}
 
 	public def testAddSub():Boolean {
-		Console.OUT.println("Starting block matrix add test");
+		Console.OUT.println("Block matrix add test");
 		val dm = BlockMatrix.makeDense(grid).initRandom();
 		val sm = BlockMatrix.makeSparse(grid, nzd).initRandom();
 
@@ -123,16 +112,13 @@ class RunBlockMatrix {
 		sm.copyTo(dm);
 		val dm00 = dm - sm;
 		
-		if (ret)
-			Console.OUT.println("Block matrix dense block Add: dm + dm*-1 test passed");
-		else
+		if (!ret)
 			Console.OUT.println("--------Block matrix dense block Add: dm + dm*-1 test failed--------");
 		
 		return ret;
 	}
 
 	public def buildBlockMap():Boolean {
-		Console.OUT.println("Start building block 2D map");
 		val dbm = BlockMatrix.makeDense(grid);
 		dbm.init((r:Long,c:Long)=>1.0*(r+c));
 		dbm.buildBlockMap();
