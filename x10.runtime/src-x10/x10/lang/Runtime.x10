@@ -871,7 +871,7 @@ public final class Runtime {
          * May be called multiple times by a unique thread.
          */
         public def await():void {
-            if(Runtime.worker().promoted) {
+            if(! Thread.isX10WorkerThread()) {
                 super.await();
             } else {
                 Runtime.increaseParallelism();
@@ -888,7 +888,7 @@ public final class Runtime {
          * May be called multiple times by a unique thread.
          */
         public def await(timeout:Long):void {
-            if(Runtime.worker().promoted) {
+            if(! Thread.isX10WorkerThread()) {
                 super.await(timeout);
             } else {
                 Runtime.increaseParallelism();

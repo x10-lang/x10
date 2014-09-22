@@ -29,6 +29,10 @@ public class Thread implements Any, Unserializable {
 
     private java.lang.Thread jthread;
 
+    public static boolean isX10WorkerThread$O() {
+	return java.lang.Thread.currentThread() instanceof X10WorkerThread;
+    }
+
     static final ThreadLocal<Thread> context = new ThreadLocal<Thread>() {
         protected Thread initialValue() {
             return x10.lang.Runtime.wrapNativeThread();
@@ -44,18 +48,23 @@ public class Thread implements Any, Unserializable {
     // constructor just for allocation
     public Thread(java.lang.System[] $dummy) {}
 
-    public final Thread x10$lang$Thread$$init$S(String name) {
-        jthread = new java.lang.Thread(name) {
+    class X10WorkerThread extends java.lang.Thread {
+	public X10WorkerThread (String name) {
+	    super(name);
+	}
             public void run() {
-                context.set(Thread.this);
-                if (null != body) {
-                    body.$apply();
-                } else {
-                    $apply();
-                }
-            }
-        };
-        return this;
+	       context.set(Thread.this);
+	       if (null != body) {
+		   body.$apply();
+	       } else {
+		   $apply();
+	       }
+	   }
+        }
+
+    public final Thread x10$lang$Thread$$init$S(String name) {
+        jthread = new X10WorkerThread(name);
+	return this;
     }
     
     public void removeWorkerContext() {
