@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -18,14 +20,7 @@ import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.MatrixBlock;
 
-public class TestBlockMatrix {
-    public static def main(args:Rail[String]) {
-		val testcase = new RunBlockMatrix(args);
-		testcase.run();
-	}
-}
-
-class RunBlockMatrix {
+public class TestBlockMatrix extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
@@ -42,7 +37,7 @@ class RunBlockMatrix {
 		grid = new Grid(M, N, R, C);
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Block matrix tests");
 		Console.OUT.printf("Matrix M:%d N:%d Row block:%d Column block:%d, nzd:%f\n", 
 						   M, N, R, C, nzd);
@@ -53,8 +48,7 @@ class RunBlockMatrix {
 		ret &= (testAddSub());
 		ret &= (buildBlockMap());
 		
-		if (!ret)
-			Console.OUT.println("----------------Block matrix test failed!----------------");
+		return ret;
 	}
 
 	public def testClone():Boolean{
@@ -119,6 +113,7 @@ class RunBlockMatrix {
 	}
 
 	public def buildBlockMap():Boolean {
+        Console.OUT.println("Build block map");
 		val dbm = BlockMatrix.makeDense(grid);
 		dbm.init((r:Long,c:Long)=>1.0*(r+c));
 		dbm.buildBlockMap();
@@ -129,5 +124,9 @@ class RunBlockMatrix {
 				retval &= (dbm.findBlock(r,c) == dbm.blockMap(r,c)); 
 			}
 		return retval;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestBlockMatrix(args).execute();
 	}
 } 

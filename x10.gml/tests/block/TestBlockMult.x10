@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
@@ -16,14 +18,7 @@ import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.BlockBlockMult;
 
-public class TestBlockMult {
-    public static def main(args:Rail[String]) {
-		val testcase = new RunBlockMult(args);
-		testcase.run();
-	}
-}
-
-class RunBlockMult {
+public class TestBlockMult extends x10Test {
 	public val M:Long;
 	public val K:Long;
 	public val N:Long;
@@ -50,20 +45,18 @@ class RunBlockMult {
 		gTransB = new Grid(N, K, bN, bK);
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Block-block matrix multiply tests");
 		Console.OUT.printf("Matrix (%d,%d) mult (%d,%d) ", M, K, K, N);
 		Console.OUT.printf(" partitioned in (%dx%d) and (%dx%d) blocks, nzd:%f\n", 
 						    bM, bK, bK, bN, nzd);
 
 		var ret:Boolean = true;
- 		// Set the matrix function
  		ret &= (testMult());
  		ret &= (ret && testTransMult());
  		ret &= (ret && testMultTrans());
 
-		if (!ret)
-			Console.OUT.println("----------------Block matrix multiply test failed!----------------");
+		return ret;
 	}
 
 	public def testMult():Boolean{
@@ -137,5 +130,9 @@ class RunBlockMult {
 		if (!ret)
 			Console.OUT.println("--------Block matrix multiply-transpose test failed!--------");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestBlockMult(args).execute();
 	}
 } 

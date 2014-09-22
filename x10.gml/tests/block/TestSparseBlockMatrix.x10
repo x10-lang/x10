@@ -9,20 +9,15 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
 import x10.matrix.block.SparseBlockMatrix;
 
-public class TestSparseBlockMatrix {
-    public static def main(args:Rail[String]) {
-		val testcase = new TestSBMatrix(args);
-		testcase.run();
-	}
-}
-
-class TestSBMatrix {
+public class TestSparseBlockMatrix extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
@@ -39,7 +34,7 @@ class TestSBMatrix {
 		grid = new Grid(M, N, R, C);
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Sparse block matrix tests");
 		Console.OUT.printf("Matrix M:%d N:%d Row block:%d Column block:%d, nzd:%f\n", 
 						   M, N, R, C, nzd);
@@ -50,8 +45,7 @@ class TestSBMatrix {
  		ret &= (testCopyFrom());
 		ret &= (testScale());
 
-		if (!ret)
-			Console.OUT.println("----------------Sparse block matrix test failed!----------------");
+		return ret;
 	}
 
 	public def testClone():Boolean{
@@ -125,5 +119,9 @@ class TestSBMatrix {
 		if (!ret)
 			Console.OUT.println("--------Sparse block matrix Scaling test failed!--------");	
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestSparseBlockMatrix(args).execute();
 	}
 } 

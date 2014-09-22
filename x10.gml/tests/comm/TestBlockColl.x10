@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 import x10.util.Timer;
@@ -21,19 +23,7 @@ import x10.matrix.comm.BlockReduce;
 /**
  * This class contains test cases for collective communication for block matrices.
  */
-public class TestBlockColl{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):2;
-		val n = args.size > 1 ? Long.parse(args(1)):3;
-		val bm= args.size > 2 ? Long.parse(args(2)):2;
-		val bn= args.size > 3 ? Long.parse(args(3)):2;
-		val d = args.size > 4 ? Double.parse(args(4)):0.9;
-		val testcase = new BlockCollTest(m, n, bm, bn, d);
-		testcase.run();
-	}
-}
-
-class BlockCollTest {
+public class TestBlockColl extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val nzdensity:Double;
@@ -69,10 +59,9 @@ class BlockCollTest {
 		numplace = Place.numPlaces();
 	}
 	
-	public def run(): void {
+    public def run():Boolean {
 		var retval:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
-
 		Console.OUT.println("****************************************************************");
 		Console.OUT.println("Test dense blocks collective commu in distributed block matrix");
 		Console.OUT.println("****************************************************************");
@@ -88,11 +77,8 @@ class BlockCollTest {
 		retval &= testGather(sbmat, sblks);
 		retval &= testScatter(sblks, sbmat);
 
-		if (retval) 
-			Console.OUT.println("Block communication test collective commu passed!");
-		else
-			Console.OUT.println("------------Block communication test collective commu failed!-----------");
     }
+        return retval;
 	}
 
 	public def testBcast(bmat:DistBlockMatrix):Boolean {
@@ -150,5 +136,14 @@ class BlockCollTest {
 		if (!ret)
 			Console.OUT.println("-----Test scatter for dist block matrix failed!-----");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):2;
+		val n = args.size > 1 ? Long.parse(args(1)):3;
+		val bm= args.size > 2 ? Long.parse(args(2)):2;
+		val bn= args.size > 3 ? Long.parse(args(3)):2;
+		val d = args.size > 4 ? Double.parse(args(4)):0.9;
+		new TestBlockColl(m, n, bm, bn, d).execute();
 	}
 }

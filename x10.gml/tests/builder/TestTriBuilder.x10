@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.matrix.TriDense;
 import x10.matrix.util.MathTool;
@@ -10,16 +12,7 @@ import x10.matrix.builder.SparseCSCBuilder;
 import x10.matrix.builder.TriDenseBuilder;
 import x10.matrix.builder.TriSparseBuilder;
 
-public class TestTriBuilder{
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):4;
-		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
-		val testcase = new TestBuilder(m, d);
-		testcase.run();
-	}
-}
-
-class TestBuilder {
+public class TestTriBuilder extends x10Test {
 	public val M:Long;
 	public val nzd:Double;
 
@@ -27,22 +20,19 @@ class TestBuilder {
 		M = m; nzd = d;
 	}
 
-    public def run (): void {
-		Console.OUT.println("Starting triangular dense/sparse builder  on "+
+    public def run():Boolean {
+		Console.OUT.println("Triangular dense/sparse builder  on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= testDense();
 		ret &= testSparse();
-		if (ret)
-			Console.OUT.println("Test passed!");
-		else
-			Console.OUT.println("----------------Test failed!----------------");
+
+        return ret;
 	}
     
     public def testDense():Boolean {
     	var ret:Boolean = true;
-    	Console.OUT.println("Starting initial test of triangular dense builder");
+    	Console.OUT.println("Initial test of triangular dense builder");
 
     	val tribld = TriDenseBuilder.make(true, M);
     	val tri = tribld.toTriDense();
@@ -55,16 +45,14 @@ class TestBuilder {
     	lobld.initRandom(nzd);
     	ret &= lobld.isUpperZero();
     	
-    	if (ret)
-    		Console.OUT.println("Triangular dense matrix random initialization test passed!");
-    	else
+    	if (!ret)
     		Console.OUT.println("--------Triangular dense matrix random initialization test failed!--------");    
     	return ret;
     }
     
     public def testSparse():Boolean {
     	var ret:Boolean = true;
-    	Console.OUT.println("Starting initial test of triangular sparse builder");
+    	Console.OUT.println("Initial test of triangular sparse builder");
 
     	val tribld = TriSparseBuilder.make(true, M).initRandom(nzd);
     	val tri = tribld.toSparseCSC();
@@ -79,10 +67,14 @@ class TestBuilder {
     		for (var r:Long=c; r<M&&ret; r++)
     			ret &= (spa(r,c)==ntr(r,c));
 
-    	if (ret)
-    		Console.OUT.println("Triangular sparse matrix builder test passed!");
-    	else
+    	if (!ret)
     		Console.OUT.println("--------Triangular sparse matrix builder test failed!--------");    
     	return ret;
     }
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):4;
+		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
+		new TestTriBuilder(m, d).execute();
+	}
 }

@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.builder.distblock.DistMatrixBuilder;
@@ -11,18 +13,7 @@ import x10.matrix.util.PlaceGroupBuilder;
 /**
  * This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
-public class TestDistBuilder {
-
-    public static def main(args:Rail[String]) {
-        val m = (args.size > 0) ? Long.parse(args(0)):8;
-        val n = (args.size > 1) ? Long.parse(args(1)):9;
-        val z = (args.size > 2) ? Double.parse(args(2)):0.5;
-        val testcase = new BuilderTest(m, n, z);
-        testcase.run();
-    }
-}
-
-class BuilderTest {
+public class TestDistBuilder extends x10Test {
     public val M:Long;
     public val N:Long;
     public val nzd:Double;
@@ -33,18 +24,16 @@ class BuilderTest {
         nzd = z;
     }
 
-    public def run (): void {
-        Console.OUT.println("Starting distributed block matrix builder tests on "+
+    public def run():Boolean {
+        Console.OUT.println("Distributed block matrix builder tests on "+
                             M+"x"+ N + " matrices");
         var ret:Boolean = true;
         ret &= (testInit());
         val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.makeTestPlaceGroup(1) : Place.places();
         
         ret &= (testInit(places));
-        if (ret)
-            Console.OUT.println("Test passed!");
-        else
-            Console.OUT.println("----------------Test failed!----------------");
+        
+        return ret;
     }
 
     public def testInit():Boolean{
@@ -54,9 +43,7 @@ class BuilderTest {
         val dbld = new DistMatrixBuilder(dmat);
         dbld.allocAllDenseBlocks().initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c);
          
-        if (ret)
-            Console.OUT.println("Dist dense matrix builder using Place.places() test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------Dist dense matrix builder using Place.places() test failed!--------");
     
         return ret;
@@ -69,12 +56,16 @@ class BuilderTest {
         val dbld = new DistMatrixBuilder(dmat);      
         val dbld_2 = dbld.allocAllDenseBlocks();
         dbld_2.initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c);
-        if (ret)
-            Console.OUT.println("Dist dense matrix builder using an arbitrary place group test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------Dist dense matrix builder using an arbitrary place group test failed!--------");
 
         return ret;
     }
 
+    public static def main(args:Rail[String]) {
+        val m = (args.size > 0) ? Long.parse(args(0)):8;
+        val n = (args.size > 1) ? Long.parse(args(1)):9;
+        val z = (args.size > 2) ? Double.parse(args(2)):0.5;
+        new TestDistBuilder(m, n, z).execute();
+    }
 }

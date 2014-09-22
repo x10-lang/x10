@@ -4,6 +4,8 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
+import harness.x10Test;
+
 import x10.util.Timer;
 import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
@@ -19,18 +21,7 @@ import x10.matrix.comm.MatrixRemoteCopy;
 /**
    This class contains test cases P2P communication for matrix over different places.
  */
-public class TestP2P{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):50;
-		val n = args.size > 1 ? Long.parse(args(1)):50;
-		val d = args.size > 2 ? Double.parse(args(2)):0.5;
-		val i = args.size > 3 ? Long.parse(args(3)):1;
-		val testcase = new TestMatrixCopy(m, n, d, i);
-		testcase.run();
-	}
-}
-
-class TestMatrixCopy {
+public class TestP2P extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val iter:Long;
@@ -55,18 +46,15 @@ class TestMatrixCopy {
 		numplace  = Place.numPlaces();
 	}
 	
-	public def run(): void {
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
- 		// Set the matrix function
+    public def run():Boolean {
 		var retval:Boolean = true;
+	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		retval &= testCopyTo();
 		retval &= testCopyFrom();
 		retval &= testSparseCopyTo();
 		retval &= testSparseCopyFrom();
-
-		if (!retval) 
-			Console.OUT.println("------------Matrix communication test P2P failed!-----------");
     }
+        return retval;
 	}
 
 
@@ -201,4 +189,11 @@ class TestMatrixCopy {
 		return ret;
 	}
 
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):50;
+		val n = args.size > 1 ? Long.parse(args(1)):50;
+		val d = args.size > 2 ? Double.parse(args(2)):0.5;
+		val i = args.size > 3 ? Long.parse(args(3)):1;
+		new TestP2P(m, n, d, i).execute();
+	}
 }

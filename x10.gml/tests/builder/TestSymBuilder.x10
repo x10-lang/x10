@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -12,16 +14,7 @@ import x10.matrix.builder.SparseCSCBuilder;
 import x10.matrix.builder.SymDenseBuilder;
 import x10.matrix.builder.SymSparseBuilder;
 
-public class TestSymBuilder{
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):4;
-		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
-		val testcase = new TestBuilder(m, d);
-		testcase.run();
-	}
-}
-
-class TestBuilder {
+public class TestSymBuilder extends x10Test {
 	public val M:Long;
 	public val nzd:Double;
 
@@ -29,15 +22,14 @@ class TestBuilder {
 		M = m; nzd = d;
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Symmetric dense-sparse builder  on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= testDense();
 		ret &= testSparse();
-		if (!ret)
-			Console.OUT.println("----------------Test failed!----------------");
+
+		return ret;
 	}
     
     public def testDense():Boolean {
@@ -78,4 +70,10 @@ class TestBuilder {
     		Console.OUT.println("--------Symmetric sparse matrix mirror test failed!--------"); 
     	return ret;
     }
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):4;
+		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
+		new TestSymBuilder(m, d).execute();
+	}
 }

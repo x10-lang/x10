@@ -9,18 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
 
-public class TestDenseBlockMatrix {
-    public static def main(args:Rail[String]) {
-		val testcase = new TestDBMatrix(args);
-		testcase.run();
-	}
-}
-
-class TestDBMatrix {
+public class TestDenseBlockMatrix extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
@@ -35,7 +30,7 @@ class TestDBMatrix {
 		grid = new Grid(M, N, R, C);
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Dense block matrix clone/add/sub/scaling tests");
 		Console.OUT.printf("Matrix M:%d N:%d Row block:%d Column block:%d\n", M, N, R, C);
 
@@ -50,8 +45,7 @@ class TestDBMatrix {
  		ret &= (testCellMult());
  		ret &= (testCellDiv());
 
-		if (!ret)
-			Console.OUT.println("----------------Dense block matrix test failed!----------------");
+		return ret;
 	}
 
 	public def testClone():Boolean{
@@ -213,4 +207,7 @@ class TestDBMatrix {
 		return ret;
 	}
 
+    public static def main(args:Rail[String]) {
+		new TestDenseBlockMatrix(args).execute();
+	}
 } 

@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
@@ -13,17 +15,7 @@ import x10.matrix.lapack.DenseMatrixLAPACK;
 /**
  * This class contains test cases for LAPACK wrapper routines.
  */
-public class TestLapack {
-
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):4;
-		val n = (args.size > 1) ? Long.parse(args(1)):1;
-		val testcase = new LapackTest(m, n);
-		testcase.run();
-	}
-}
-
-class LapackTest {
+public class TestLapack extends x10Test {
 	public val M:Long;
 	public val N:Long;
 
@@ -31,16 +23,14 @@ class LapackTest {
     	M = m; N=n;
 	}
 
-    public def run(): void {
+    public def run():Boolean {
 		var ret:Boolean = true;
 
- 		// BLAS implementation
 		ret &= (testLinearEquation());
 		ret &= (testEigenValue());
 		ret &= (testEigenVector());
 
-		if (!ret)
-			Console.OUT.println("----Dense matrix LAPACK Test failed!----");
+		return ret;
 	}
 	
 	public def testLinearEquation():Boolean {
@@ -89,5 +79,11 @@ class LapackTest {
 		if (!ret)
 			Console.OUT.println("------- LAPACK compute eigen vector test failed! -------");
 		return ret;		
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):4;
+		val n = (args.size > 1) ? Long.parse(args(1)):1;
+		new TestLapack(m, n).execute();
 	}
 }

@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 
@@ -23,18 +25,7 @@ import x10.matrix.dist.DupSparseMatrix;
 /**
  * This class contains test cases for dense and sparse matrix broadcast and other collective functions.
  */
-public class TestSparseColl{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):4;
-		val n = args.size > 1 ? Long.parse(args(1)):m+1;
-		val d = args.size > 2 ?Double.parse(args(2)):0.9;
-
-		val testcase = new RunSparseCollTest(m, n, d);
-		testcase.run();
-	}
-}
-
-class RunSparseCollTest {
+public class TestSparseColl extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val nzdensity:Double;
@@ -57,10 +48,9 @@ class RunSparseCollTest {
 		gpartRow =  new Grid(M, N*numplace, 1, numplace); //Single row block partition
 	}
 	
-	public def run(): void {
+    public def run():Boolean {
 		var ret:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
- 		// Set the matrix function
   		ret &= (testSparseBcast());
  		ret &= (testSparseRingCast());
 		ret &= (testSparseGather());
@@ -70,10 +60,8 @@ class RunSparseCollTest {
 // 		ret &= (testAllgather());
 // 		ret &= (testReduce());
 // 		ret &= (testAllReduce());
-
-		if (!ret)
-			Console.OUT.println("--------Test of sparse matrix collective communication failed!--------");
     }
+        return ret;
 	}
 
 	public def testSparseBcast():Boolean {
@@ -284,4 +272,12 @@ class RunSparseCollTest {
 // 			Console.OUT.println("-----Test ring cast for dup matrix failed!-----");
 // 		return ret;
 // 	}
+
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):4;
+		val n = args.size > 1 ? Long.parse(args(1)):m+1;
+		val d = args.size > 2 ?Double.parse(args(2)):0.9;
+
+		new TestSparseColl(m, n, d).execute();
+	}
 }

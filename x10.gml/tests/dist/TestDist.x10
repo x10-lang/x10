@@ -9,17 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistMatrix;
 
-public class TestDist {
-    public static def main(args:Rail[String]) {
-		val testcase = new TestGridDist(args);
-		testcase.run();
-	}
-}
-
-class TestGridDist {
+public class TestDist extends x10Test {
 	public val nzp:Double;
 	public val M:Long;
 	public val N:Long;
@@ -46,7 +41,10 @@ class TestGridDist {
 // 		val m6 = (m4 + m5) - (m5 + m4);
 // 		status &= m6.equals(0.0);
 		
-		Console.OUT.println("Test result:"+status);
 		return status;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestDist(args).execute();
 	}
 } 

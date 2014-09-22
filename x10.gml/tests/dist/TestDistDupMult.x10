@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
@@ -23,16 +25,9 @@ import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistMultDupToDist;
 
 /**
-   This class contains test cases for dense matrix multiplication.
+ * This class contains test cases for dist duplicated matrix multiplication.
  */
-public class TestDistDupMult{
-    public static def main(args:Rail[String]) {
-		val testcase = new DDMult(args);
-		testcase.run();
-	}
-}
-
-class DDMult {
+public class TestDistDupMult extends x10Test {
 	public val nnz:Double;
 	public val M:Long;
 	public val N:Long;
@@ -45,20 +40,18 @@ class DDMult {
 		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;	
 	}
 	
-	public def run(): void {
+    public def run():Boolean {
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testDistS_DupD());
 
-		if (!ret)
-			Console.OUT.println("--------Dist-Dup multiplication Test failed!--------");
+		return ret;
 	}
 
 
 	public def testDistS_DupD():Boolean {
         var ret:Boolean = true;
     @Ifndef("MPI_COMMU") { // TODO DupDenseMatrix.init deadlocks!
-		val numP = Place.numPlaces();//Place.numPlaces();
+		val numP = Place.numPlaces();
 		Console.OUT.printf("Test Dist sparse mult Dup dense over %d places\n", numP);
 		val gpartA = new Grid(M, K, numP, 1);
 		val da = DistSparseMatrix.make(gpartA, nnz);
@@ -82,5 +75,9 @@ class DDMult {
 			Console.OUT.println("-----DistCSC-DupDense multplication test failed!-----");
     }
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestDistDupMult(args).execute();
 	}
 }

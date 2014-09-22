@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.builder.distblock.DistMatrixBuilder;
@@ -11,16 +13,7 @@ import x10.matrix.builder.distblock.DistSymMatrixBuilder;
 /**
  * This class contains test cases for dense matrix addition, scaling, and negation operations.
  */
-public class TestDistSymBuilder {
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):8;
-		val z = (args.size > 1) ? Double.parse(args(1)):0.5;
-		val testcase = new SymTest(m, z);
-		testcase.run();
-	}
-}
-
-class SymTest {
+public class TestDistSymBuilder extends x10Test {
 	public val M:Long;
 	public val nzd:Double;
 
@@ -29,15 +22,14 @@ class SymTest {
 		nzd = z;
 	}
 
-    public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Distributed symmetric builder tests on "+
 							M+"x"+ M + " matrices");
 		var ret:Boolean = true;
 		ret &= (testDense());
 		ret &= (testSparse());
 
-		if (!ret)
-			Console.OUT.println("----------------Test failed!----------------");
+		return ret;
 	}
 
 	public def testDense():Boolean{
@@ -66,5 +58,11 @@ class SymTest {
 			Console.OUT.println("--------Dist symmetric sparse matrix initialization test failed!--------");
 		
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):8;
+		val z = (args.size > 1) ? Double.parse(args(1)):0.5;
+		new TestDistSymBuilder(m, z).execute();
 	}
 }

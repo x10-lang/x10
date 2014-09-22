@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 import x10.regionarray.Dist;
@@ -15,19 +17,7 @@ import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.summa.AllGridReduce;
 
-public class TestGridReduce{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):4;
-		val n = args.size > 1 ? Long.parse(args(1)):5;
-		val bm= args.size > 2 ? Long.parse(args(2)):4;
-		val bn= args.size > 3 ? Long.parse(args(3)):5;
-		val d = args.size > 4 ? Double.parse(args(4)):0.9;
-		val testcase = new GridReduceTest(m, n, bm, bn, d);
-		testcase.run();
-	}
-}
-
-class GridReduceTest {
+public class TestGridReduce extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val nzdensity:Double;
@@ -62,7 +52,7 @@ class GridReduceTest {
 		numplace = Place.numPlaces();
 	}
 	
-	public def run(): void {
+    public def run():Boolean {
 		var retval:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		Console.OUT.println("Matrix dims:"+M+","+N);
@@ -70,9 +60,8 @@ class GridReduceTest {
 		Console.OUT.println("Distribution grid:"+pM+"x"+pN);
 		retval &= testRowReduceSum(dbmat);
  		retval &= testColReduceSum(dbmat);
-		if (!retval)
-			Console.OUT.println("------------Block communication test collective grid-reduce failed!-----------");
     }
+        return retval;
 	}
 	
 	public def testRowReduceSum(distmat:DistBlockMatrix):Boolean {
@@ -124,5 +113,14 @@ class GridReduceTest {
 				blk.init(dv);
 			}
 		}		
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):4;
+		val n = args.size > 1 ? Long.parse(args(1)):5;
+		val bm= args.size > 2 ? Long.parse(args(2)):4;
+		val bn= args.size > 3 ? Long.parse(args(3)):5;
+		val d = args.size > 4 ? Double.parse(args(4)):0.9;
+		new TestGridReduce(m, n, bm, bn, d).execute();
 	}
 }

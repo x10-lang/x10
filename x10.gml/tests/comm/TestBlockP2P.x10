@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 import x10.util.Timer;
@@ -21,19 +23,7 @@ import x10.matrix.comm.BlockRemoteCopy;
 /**
    This class contains test cases P2P communication for matrix over different places.
  */
-public class TestBlockP2P{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):60;
-		val n = args.size > 1 ? Long.parse(args(1)):60;
-		val bm= args.size > 2 ? Long.parse(args(2)):2;
-		val bn= args.size > 3 ? Long.parse(args(3)):6;
-		val d = args.size > 4 ? Double.parse(args(4)):0.80;
-		val testcase = new BlockP2PTest(m, n, bm, bn, d);
-		testcase.run();
-	}
-}
-
-class BlockP2PTest {
+public class TestBlockP2P extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val nzdensity:Double;
@@ -71,8 +61,7 @@ class BlockP2PTest {
 		numplace  = Place.numPlaces();
 	}
 	
-	public def run(): void {
- 		// Set the matrix function
+    public def run():Boolean {
 		var retval:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		Console.OUT.println("Test dense blocks in distributed block matrix");
@@ -84,12 +73,8 @@ class BlockP2PTest {
 	
 		retval &= testCopyTo(srcspa as Matrix, sbmat);
 		retval &= testCopyFrom(sbmat, dstspa as Matrix, srcspa as Matrix);
-
-		if (retval) 
-			Console.OUT.println("Block communication test P2P passed!");
-		else
-			Console.OUT.println("------------Block communication test P2P failed!-----------");
     }
+        return retval;
 	}
 
 
@@ -143,5 +128,14 @@ class BlockP2PTest {
 			Console.OUT.println("--------P2P CopyFrom dist block matrix test failed!--------");
 		
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):60;
+		val n = args.size > 1 ? Long.parse(args(1)):60;
+		val bm= args.size > 2 ? Long.parse(args(2)):2;
+		val bn= args.size > 3 ? Long.parse(args(3)):6;
+		val d = args.size > 4 ? Double.parse(args(4)):0.80;
+		new TestBlockP2P(m, n, bm, bn, d).execute();
 	}
 }

@@ -13,6 +13,8 @@
 #$(numplaces)   ## Number of places used in testing
 #$(runtime_list)## backend and runtime transport
 
+X10_FLAG += -sourcepath $(X10_HOME)/x10.tests/tests/x10lib
+
 ###################################################
 ## execution settings
 ###################################################

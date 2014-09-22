@@ -1,9 +1,11 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  *  (C) Copyright Australian National University 2013.
  */
+
+import harness.x10Test;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -16,15 +18,7 @@ import x10.matrix.DenseMultXTen;
 /**
  * This class contains test cases for dense matrix multiplication.
  */
-public class TestTrans {
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):50;
-		val testcase = new TransMultTest(args);
-		testcase.run();
-	}
-}
-
-class TransMultTest {
+public class TestTrans extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val K:Long;
@@ -35,7 +29,7 @@ class TransMultTest {
 		K = args.size > 2 ?Long.parse(args(2)):(M as Int)+2;
 	}
 
-    public def run(): void {
+    public def run():Boolean {
 		var ret:Boolean = true;
 
  		// BLAS implementation
@@ -48,8 +42,7 @@ class TransMultTest {
 		ret &= (testMMTransB());
 		ret &= (testMMTransAB());
 
-		if (!ret)
-			Console.OUT.println("----Dense matrix multiply transpose Test failed!----");
+		return ret;
 	}
 	
 	public def testMultTransA():Boolean {
@@ -67,7 +60,6 @@ class TransMultTest {
 		DenseMultXTen.compTransMult(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose A test failed!----");
 		return ret;
@@ -116,7 +108,6 @@ class TransMultTest {
 		DenseMultXTen.compMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose B test failed!----");
 		return ret;
@@ -137,7 +128,6 @@ class TransMultTest {
 		MatrixMultXTen.compTransMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 dense driver - transpose AB test failed!----");
 		return ret;
@@ -162,7 +152,6 @@ class TransMultTest {
 		MatrixMultXTen.compTransMult(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose A test failed!----");
 		return ret;
@@ -186,7 +175,6 @@ class TransMultTest {
 		MatrixMultXTen.compMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose B test failed!----");
 		return ret;
@@ -208,9 +196,13 @@ class TransMultTest {
 		MatrixMultXTen.compTransMultTrans(a, b, c, false);
 
 		val ret = c.equals(cm as Matrix(c.M, c.N));
-		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		if (!ret)
 			Console.OUT.println("----X10 matrix driver - transpose AB test failed!----");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):50;
+		new TestTrans(args).execute();
 	}
 }

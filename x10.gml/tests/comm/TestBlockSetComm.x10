@@ -1,8 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 import x10.util.Timer;
@@ -22,19 +24,7 @@ import x10.matrix.comm.BlockSetReduce;
 /**
    This class contains test cases P2P communication for matrix over different places.
  */
-public class TestBlockSetComm{
-    public static def main(args:Rail[String]) {
-		val m = args.size > 0 ? Long.parse(args(0)):40;
-		val n = args.size > 1 ? Long.parse(args(1)):40;
-		val bm= args.size > 2 ? Long.parse(args(2)):3;
-		val bn= args.size > 3 ? Long.parse(args(3)):7;
-		val d = args.size > 4 ? Double.parse(args(4)):0.99;
-		val testcase = new BlockSetCommTest(m, n, bm, bn, d);
-		testcase.run();
-	}
-}
-
-class BlockSetCommTest {
+public class TestBlockSetComm extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val nzdensity:Double;
@@ -67,8 +57,7 @@ class BlockSetCommTest {
 		numplace = Place.numPlaces();
 	}
 	
-	public def run(): void {
- 		// Set the matrix function
+    public def run():Boolean {
 		var retval:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 
@@ -87,11 +76,8 @@ class BlockSetCommTest {
  		retval &= testCopyTo(dupspa);
  		retval &= testCopyFrom(dupspa);
  		retval &= testBcast(dupspa);
-		if (retval) 
-			Console.OUT.println("BlockSet P2P and collective commu test passed!");
-		else
-			Console.OUT.println("------------BlockSet P2P and collective commu test failed!-----------");
     }
+        return retval;
 	}
 
 	
@@ -202,5 +188,14 @@ class BlockSetCommTest {
 		if (!ret)
 			Console.OUT.println("-----Test reduceSum for dist block set matrix failed!-----");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = args.size > 0 ? Long.parse(args(0)):40;
+		val n = args.size > 1 ? Long.parse(args(1)):40;
+		val bm= args.size > 2 ? Long.parse(args(2)):3;
+		val bn= args.size > 3 ? Long.parse(args(3)):7;
+		val d = args.size > 4 ? Double.parse(args(4)):0.99;
+		new TestBlockSetComm(m, n, bm, bn, d).execute();
 	}
 }
