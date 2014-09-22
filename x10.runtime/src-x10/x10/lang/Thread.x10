@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.NativeRep;
+import x10.compiler.Native;
 import x10.io.Unserializable;
 
 /**
@@ -24,6 +25,9 @@ class Thread implements Unserializable {
     public native def this(String);
 
     public native def this();
+
+    @Native("c++", "true")
+    public static native def isX10WorkerThread():Boolean;
 
     public static native def currentThread():Thread;
 
