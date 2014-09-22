@@ -222,9 +222,13 @@ import x10rose.ExtensionInfo.FileStatus;
 
 public class RoseTranslator extends Translator {
 
+    public static Set<String> package_traversed = new HashSet<String>();
+    
     public RoseTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
         super(job, ts, nf, tf);
         jobList.add(job);
+        package_traversed.add("x10.lang");
+        package_traversed.add("x10.io");
     }
 
     protected boolean translateSource(SourceFile sfn) {
@@ -391,7 +395,8 @@ public class RoseTranslator extends Translator {
      * @return
      */
     static String trimTypeParameterClause(String clazz) {
-        if (clazz.indexOf("Rail[") >= 0 || clazz.indexOf("GrowableRail[") >= 0)
+        if (   clazz.indexOf("Rail[") >= 0 
+            || clazz.indexOf("GrowableRail[") >= 0)
             return clazz;
 
         int token_typeParam;

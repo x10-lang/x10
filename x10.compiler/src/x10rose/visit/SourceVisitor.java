@@ -252,6 +252,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void handleClassMembers(List<ClassMember> members, String package_name, String type_name) {
+        System.out.println("handleClassMembers:" + package_name + ", " + type_name);
         for (int i = 0; i < members.size(); ++i) {
             JL m = members.get(i);
             if (m instanceof X10MethodDecl_c) {
@@ -284,7 +285,26 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 // nested class
             } else if (m instanceof X10ClassDecl_c) {
                 if (RoseTranslator.DEBUG) System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
-                visitDeclarations((X10ClassDecl_c) m);
+                X10ClassDecl_c _inner_class = (X10ClassDecl_c) m;
+                visitDeclarations(_inner_class);                
+                Ref ref = _inner_class.classDef().package_();
+                String package_name2 = (ref == null) ? "" : ref.toString();
+                String class_name2 = _inner_class.name().id().toString();
+                
+                if (_inner_class.classDef().isInnerClass()) {
+                    String outer = _inner_class.classDef().outer().toString(); // outer() includes a package name
+                    int pkg = outer.indexOf(package_name);
+                    if (package_name.length() != 0 && pkg == 0)
+                        outer = outer.substring(pkg + package_name.length() + 1);
+                    else if (pkg > 0) {
+                        throw new RuntimeException("X10ClassDecl in visitDeclarations: " +
+                                        "Unexpected combination of the outer name and package name" +
+                                        outer + ", and " + package_name);
+                    }
+                    class_name2 = outer + "." + class_name2;
+                }
+                System.out.println("ABB5=" + package_name2 + ", " + class_name2);
+                JNI.cactionBuildInnerTypeSupport(package_name2, class_name2, RoseTranslator.createJavaToken(_inner_class, _inner_class.toString()));
             } else if (m instanceof ClassDecl_c) {
                 if (RoseTranslator.DEBUG) System.out.println("ClassDecl_c : " + m);
             } else {
@@ -351,10 +371,25 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
         Ref ref = n.classDef().package_();
         String package_name = (ref == null) ? "" : ref.toString();
-
+        if (package_name.length() != 0)
+            RoseTranslator.package_traversed.add(package_name);
+        
         String class_name = n.name().id().toString();
         // if (parent != null)
         // class_name = parent + "." + class_name;
+        
+        if (n.classDef().isInnerClass()) {
+            String outer = n.classDef().outer().toString(); // outer() includes a package name
+            int pkg = outer.indexOf(package_name);
+            if (package_name.length() != 0 && pkg == 0)
+                outer = outer.substring(pkg + package_name.length() + 1);
+            else if (pkg > 0) {
+                throw new RuntimeException("X10ClassDecl in visitDeclarations: " +
+                		"Unexpected combination of the outer name and package name" +
+                                outer + ", and " + package_name);
+            }
+            class_name = outer + "." + class_name;
+        }
 
         RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
         JNI.cactionSetCurrentClassName(package_name + "." + class_name);
@@ -389,9 +424,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         if (typeParamList.size() > 0)
             JNI.cactionSetCurrentClassName(package_name + "." + class_name);
 
-        JNI.cactionBuildClassSupportStart(/* "::" + package_name+"::"+ */class_name, "", true, // a
-                                                                                               // user-defined
-                                                                                               // class?
+        JNI.cactionBuildClassSupportStart(/* "::" + package_name+"::"+ */class_name, "", true, 
                 false, false, false, false, RoseTranslator.createJavaToken(n, class_name));
 
         // handling of a super class and interfaces
@@ -411,13 +444,18 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
 
         JNI.cactionBuildClassExtendsAndImplementsSupport(typeParamList.size(), typeParamNames, superClass != null, superClassName, interfaces == null ? 0 : interfaces.size(), interfaceNames, RoseTranslator.createJavaToken(n, class_name));
-
+        System.out.println("invoking handleClassMembers:" + package_name + ", " + class_name);
         handleClassMembers(members, package_name, class_name);
 
         JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
 
-        if (package_name.length() != 0)
-            JNI.cactionPopPackage();
+        System.out.println("==>");
+        if (!n.classDef().isInnerClass()) {
+//            JNI.cactioni
+            if (package_name.length() != 0)
+                JNI.cactionPopPackage();
+        }
+        System.out.println("<==");
 
         Flags flags = n.flags().flags();
         JNI.cactionTypeDeclaration(package_name, class_name, /* num_annotations */0, n.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
@@ -752,7 +790,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
             return;
         }
-        if (class_name.equals("x10.lang.Long") && (func_name.equals("parse") || func_name.equals("parseLong"))) {
+        if (class_name.equals("x10.lang.Long") 
+                && (   func_name.equals("parse") 
+                    || func_name.equals("parseLong"))) {
 
             String callerClass = JNI.cactionGetCurrentClassName();
 
@@ -1028,6 +1068,33 @@ public class SourceVisitor extends X10DelegatingVisitor {
     public void visit(ArrayAccess_c n) {
         toRose(n, "ArrayAccess:", n.toString());
     }
+    
+    private String[] getPackageAndTypeName(String class_name) {
+        String package_name = "";
+        String type_name = "";
+        for (String package_ : RoseTranslator.package_traversed) {
+            int index_package = class_name.indexOf(package_);
+            if (index_package == 0) {
+                package_name = package_;
+                type_name = class_name.substring(package_name.length() + 1);
+            }
+            else
+                type_name = class_name;
+        }
+        if (package_name.length() == 0 && type_name.length() == 0) {
+            int lastDot = class_name.lastIndexOf('.');
+            if (lastDot >= 0) {
+                package_name = class_name.substring(0, lastDot);
+                type_name = class_name.substring(lastDot + 1);
+            } else {
+                type_name = class_name;
+            }
+        }
+        String[] ret = {"", ""};
+        ret[0] = package_name;
+        ret[1] = type_name;
+        return ret;
+    }
 
     public void visit(X10CanonicalTypeNode_c n) {
         toRose(n, "X10CanonicalTypeNode:", n.nameString(), n.type() + "", n.type() + "", n.type().fullName() + "");
@@ -1035,69 +1102,49 @@ public class SourceVisitor extends X10DelegatingVisitor {
         if (RoseTranslator.isX10Primitive(class_name)) {
             String canonicalTypeName = n.nameString();
             JNI.cactionTypeReference("", canonicalTypeName, this, RoseTranslator.createJavaToken());
-        } else if (n.type().toString().indexOf("x10.lang.Rail[") == 0 || n.type().toString().indexOf("x10.util.GrowableRail[") == 0) {
+        } else if (    n.type().toString().indexOf("x10.lang.Rail[") == 0 
+                    || n.type().toString().indexOf("x10.util.GrowableRail[") == 0) {
             String railString = n.type().toString();
             class_name = railString.substring(railString.indexOf('[') + 1, railString.indexOf(']'));
-            int lastDot = class_name.lastIndexOf(".");
-            String package_name = "";
-            if (lastDot > 0)
-                package_name = class_name.substring(0, lastDot);
+            String[] names = getPackageAndTypeName(class_name);
+            String package_name = names[0];
+            String type_name = names[1];
+
             if (RoseTranslator.isX10Primitive(class_name))
                 package_name = "";
             if (package_name.length() != 0) {
                 JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, package_name));
                 JNI.cactionPopPackage();
             }
-            String type = class_name.substring(lastDot + 1);
-            JNI.cactionTypeReference(package_name, type, this, RoseTranslator.createJavaToken());
+            JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
             JNI.cactionArrayTypeReference(1, RoseTranslator.createJavaToken());
         } else if (n.node().toString().indexOf("{self") >= 0) {
-            String className = n.node().toString();
-            int index = className.indexOf("[");
+            class_name = n.node().toString();
+            int index = class_name.indexOf("[");
             if (index >= 0)
-                className = className.substring(0, index);
+                class_name = class_name.substring(0, index);
 
-            index = className.indexOf("{");
+            index = class_name.indexOf("{");
             if (index >= 0)
-                className = className.substring(0, index);
-
-            int lastDot = className.lastIndexOf('.');
-            String pkg = "";
-            String type = "";
-            if (lastDot >= 0) {
-                pkg = className.substring(0, lastDot);
-                type = className.substring(lastDot + 1);
-            } else {
-                type = className;
-            }
-            if (RoseTranslator.DEBUG)
-                System.out.println("PACKAGE=" + pkg + ", TYPE=" + className);
-            if (pkg.length() != 0) {
-                JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, currentPackageName));
-                JNI.cactionPopPackage();
-            }
-            JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken());
+                class_name = class_name.substring(0, index);
+            
+            String[] names = getPackageAndTypeName(class_name);
+            String package_name = names[0];
+            String type_name = names[1];
+            JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
         } else {
-            String className = n.node().toString();
-            int index = className.indexOf("[");
+            class_name = n.node().toString();
+            int index = class_name.indexOf("[");
             if (index < 0)
-                index = className.length();
-            // if (index >= 0)
-            // className = className.substring(0, index);
-            int lastDot = className.lastIndexOf('.', index);
+                index = class_name.length();
 
-            String pkg = "";
-            String type = "";
-            if (lastDot > 0) {
-                pkg = className.substring(0, lastDot);
-                type = className.substring(lastDot + 1);
-            } else {
-                type = className;
-            }
-
-            if (RoseTranslator.DEBUG) System.out.println("className=" + className + ", pkg=" + pkg + ", type=" + type);
-            if (pkg.length() != 0) {
-                JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, pkg));
+            String[] names = getPackageAndTypeName(class_name);
+            String package_name = names[0];
+            String type_name = names[1];
+            
+            if (RoseTranslator.DEBUG) System.out.println("className=" + class_name + ", pkg=" + package_name + ", type=" + type_name);
+            if (package_name.length() != 0) {
+                JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, package_name));
                 JNI.cactionPopPackage();
             } else {
                 try {
@@ -1106,16 +1153,16 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     for (String package_ : package_ref) {
                         List<Type> list = new ArrayList<Type>();
                         try {
-                            list = ts.systemResolver().find(QName.make(package_ + "." + type));
+                            list = ts.systemResolver().find(QName.make(package_ + "." + type_name));
                         } catch (polyglot.types.NoClassException e) {
                             if (RoseTranslator.DEBUG)
-                                System.out.println(package_ + "." + type + " not found: " + e);
+                                System.out.println(package_ + "." + type_name + " not found: " + e);
                         }
                         if (list.size() != 0) {
                             Type t = list.get(0);
                             JNI.cactionPushPackage(package_, RoseTranslator.createJavaToken(n, n.toString()));
                             JNI.cactionPopPackage();
-                            JNI.cactionTypeReference(package_, type, this, RoseTranslator.createJavaToken(n, n.toString()));
+                            JNI.cactionTypeReference(package_, type_name, this, RoseTranslator.createJavaToken(n, n.toString()));
                             isFoundInPackageRef = true;
                             break;
                         }
@@ -1126,7 +1173,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     for (Import import_ : imports) {
                         if (import_.kind() == Import.CLASS) {
                             String importedClass = import_.name().toString();
-                            lastDot = importedClass.lastIndexOf('.');
+                            int lastDot = importedClass.lastIndexOf('.');
                             String package_ = importedClass.substring(0, lastDot);
                             String type2_ = importedClass.substring(lastDot + 1);
                             if (import_.name().toString().equals(type2_)) {
@@ -1140,10 +1187,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
                             String package_ = import_.name().toString();
                             List<Type> list = new ArrayList<Type>();
                             try {
-                                list = ts.systemResolver().find(QName.make(package_ + "." + type));
+                                list = ts.systemResolver().find(QName.make(package_ + "." + type_name));
                             } catch (polyglot.types.NoClassException e) {
                                 if (RoseTranslator.DEBUG)
-                                    System.out.println(package_ + "." + type + " not found: " + e);
+                                    System.out.println(package_ + "." + type_name + " not found: " + e);
                             }
                             // List<Type> list =
                             // ts.systemResolver().find(QName.make(package_
@@ -1153,7 +1200,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                                 // String type_ = amb.name().toString();
                                 JNI.cactionPushPackage(package_, RoseTranslator.createJavaToken(n, n.toString()));
                                 JNI.cactionPopPackage();
-                                JNI.cactionTypeReference(package_, type, this, RoseTranslator.createJavaToken(n, n.toString()));
+                                JNI.cactionTypeReference(package_, type_name, this, RoseTranslator.createJavaToken(n, n.toString()));
                                 isFoundInPackageRef = true;
                                 break;
                             }
@@ -1162,16 +1209,16 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
                     if (!isFoundInPackageRef)
                         // treat as a generic type
-                        JNI.cactionTypeReference("", type, this, RoseTranslator.createJavaToken(n, n.toString()));
+                        JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken(n, n.toString()));
 
                 } catch (SemanticException e) {
                     // treat as a generic type
-                    JNI.cactionTypeReference("", type, this, RoseTranslator.createJavaToken(n, n.toString()));
+                    JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken(n, n.toString()));
                 }
                 return;
             }
 
-            JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken(n, n.toString()));
+            JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken(n, n.toString()));
 
             // JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, pkg));
             // JNI.cactionPushTypeScope(pkg, type, RoseTranslator.createJavaToken(n,
