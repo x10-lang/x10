@@ -269,6 +269,10 @@ libjlapack.so: wrap_lapack.o jni_lapack.o
 jlapack		: libjlapack.so
 			cp $< $(lib_path)/.
 
+###------------------------------------------------
+X10_VERSION ?= HEAD
+srctar		: $(lib_src)
+			tar -cjvf x10-gml-$(X10_VERSION)-src.tar --exclude=*.svn* --exclude=*~ src tests examples Makefile scripts doc/Makefile 
 
 ###------------------------------------------------
 chk_dir:
