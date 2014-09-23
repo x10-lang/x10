@@ -29,10 +29,12 @@ using namespace std;
 using namespace x10::lang;
 using namespace x10aux;
 
+#ifndef NO_BOUNDS_CHECKS
 static void throwStringIndexOutOfBoundsException(x10_int index, x10_int length) {
     char *msg = alloc_printf("index = %ld; length = %ld", (long)index, ((long)length));
     throwException(x10::lang::StringIndexOutOfBoundsException::_make(String::Lit(msg)));
 }
+#endif
 
 static inline void checkStringBounds(x10_int index, x10_int length) {
 #ifndef NO_BOUNDS_CHECKS
