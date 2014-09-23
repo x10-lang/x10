@@ -51,7 +51,7 @@ echo
 echo "getting PERCS benchmarks "
 for i in FT KMEANS LU RA SSCA1 SSCA2 STREAM UTS
 do
-    svn $svn_command https://svn.code.sourceforge.net/p/x10/code/benchmarks/tags/$X10_TAG/PERCS/$i
+    svn $svn_command svn://svn.code.sourceforge.net/p/x10/code/benchmarks/tags/$X10_TAG/PERCS/$i
 done
 )
 

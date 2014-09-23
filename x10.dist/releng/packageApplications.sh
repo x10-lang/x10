@@ -51,7 +51,7 @@ echo
 echo "getting applications from svn"
 for i in CoMD lulesh2 MCCK 
 do
-    svn $svn_command https://svn.code.sourceforge.net/p/x10/code/applications/tags/$X10_TAG/$i
+    svn $svn_command svn://svn.code.sourceforge.net/p/x10/code/applications/tags/$X10_TAG/$i
 done
 )
 
