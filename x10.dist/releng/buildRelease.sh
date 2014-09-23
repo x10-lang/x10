@@ -42,6 +42,10 @@ while [ $# != 0 ]; do
 	  BUILD_RPM=1
     ;;
 
+    -gml)
+	  BUILD_GML=1
+    ;;
+
    esac
    shift
 done
@@ -123,6 +127,7 @@ for i in \
 	x10.constraints \
 	x10.dist \
 	x10.doc \
+	x10.gml \
 	x10.runtime \
 	x10.tests \
 	x10.wala
@@ -144,9 +149,13 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     fi 
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
-    echo "Platform specific distribuiton tarball created"
+    echo "Platform specific distribution tarball created"
     if [[ "$BUILD_RPM" == 1 ]]; then
 	$distdir/x10.dist/releng/packageRPM.sh -version $X10_VERSION -platform $X10_PLATFORM
-	echo "Platform specific distribuiton rpm created"
+	echo "Platform specific distribution rpm created"
+    fi
+    if [[ "$BUILD_GML" == 1 ]]; then
+	cd $distdir/x10.gml && make srctar
+	echo "GML source tarball created"
     fi
 fi
