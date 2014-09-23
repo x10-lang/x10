@@ -9,19 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.util.Debug;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress1D;
 import x10.matrix.sparse.Compress2D;
 
-public class TestCompress{
-    public static def main(args:Rail[String]) {
-		val testcase = new CompArrayTest(args);
-		testcase.run();
-	}
-}
-
-class CompArrayTest {
+public class TestCompress extends x10Test {
 	public val M:Long;
 	public val nzp:Double;
 
@@ -30,18 +25,15 @@ class CompArrayTest {
 		nzp = args.size > 1 ? Double.parse(args(1)):0.5;
 	}
 
-	public def run(): void {
+    public def run():Boolean {
 		var ret:Boolean = true;
- 		// Set the matrix function
 		ret &= (testCompressArray());
  		ret &= (testCompress1D());
  		ret &= (testCompress2D());
  		ret &= (testCopySection());
  		ret &= (testDataExtraction());
  		ret &= (testSeqAdjustIndex());
-
-		if (!ret)
-			Console.OUT.println("----------Compress Data Test failed!----------\n");
+        return ret;
 	}
 
 	public def testCompressArray():Boolean {
@@ -59,7 +51,7 @@ class CompArrayTest {
 		ret &= ca1.equals(ca);
 		if (!ret)
 			Console.OUT.println("----------Compress array test failed!----------");
-		return ret;	
+		return ret;
 	}
 
 	public def testCompress1D():Boolean{
@@ -71,7 +63,7 @@ class CompArrayTest {
 		var ret:Boolean=true;
 		Console.OUT.println("Test compress 1D size of "+M);
 		Console.OUT.println("non-zero : "+ c1d.size());
-		
+
 		ret &= c1d.testIn(alist);
 		if (!ret)
 			Console.OUT.println("----------Compress 1D test failed!----------");
@@ -85,19 +77,13 @@ class CompArrayTest {
 
 		Console.OUT.println("Test compress 2D, lines: "+M+", nzcount:"
 							+ c2d.countNonZero());
-		
+
 		val nzc = c2d.countNonZero();
 		val ia = new Rail[Long](M+1);
 		val ja = new Rail[Long](nzc);
 		val av = new Rail[Double](nzc);
 		c2d.toCompressSparse(ia, ja, av);
-		//Console.OUT.println("Convert to Compress Sparse");
-		//Global.debug.println(ia);
-		//Global.debug.println(ja);
-		//Global.debug.println(av);
-		//Global.debug.flush();
 		val ntd = Compress2D.make(ia, ja, av);
-		//ntd.print2D("Convert back\n");
 		ret=ntd.equals(c2d);
 
 		val c2d_ = c2d.clone();
@@ -121,7 +107,7 @@ class CompArrayTest {
 		Compress2D.copy(c1, c2);
 
 		ret &= c1.equals(c2);
-		if (!ret) 
+		if (!ret)
 			Console.OUT.println("----------Test full copy failed!------------");
 
 		// Test partial copy
@@ -138,7 +124,7 @@ class CompArrayTest {
 
 		if (!ret)
 			Console.OUT.println("----------Compress 2D line section copy test failed!----------");
-		return ret;		
+		return ret;
 	}
 
 	public def testDataExtraction():Boolean{
@@ -152,17 +138,16 @@ class CompArrayTest {
 
 		val s1 = new Rail[Double](idxsz);
 		c1.extract(ss, num, 0, s1); //Get data between [ss, sd]
-		//Global.debug.println(s1); Global.debug.flush();
 
 		var ret:Boolean = true;
 		var i:Long;
 		for (i=ss; (i<ss+num)&&ret; i++) ret &= (c1(i)==s1(i));
-		if (! ret) Console.OUT.printf("Extracted data mismatch at index %d : %f <> %f\n", 
+		if (! ret) Console.OUT.printf("Extracted data mismatch at index %d : %f <> %f\n",
 									  i-1, c1(i-1), s1(i-1));
-		
+
 		if (!ret)
 			Console.OUT.println("----------Compress line data extraction test failed!----------");
-		return ret;		
+		return ret;
 	}
 
 	public def testSeqAdjustIndex():Boolean{
@@ -181,6 +166,10 @@ class CompArrayTest {
 
 		if (!ret)
 			Console.OUT.println("----------Sequentialize index test failed!----------");
-		return ret;		
+		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestCompress(args).execute();
 	}
 }

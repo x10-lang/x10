@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.sparse.SparseCSC;
@@ -17,14 +19,7 @@ import x10.matrix.sparse.SparseMultSparseToDense;
 import x10.matrix.sparse.SparseMultDenseToDense;
 import x10.matrix.sparse.DenseMultSparseToDense;
 
-public class TestSparseTrans{
-    public static def main(args:Rail[String]) {
-		val testcase = new SparseTrans(args);
-		testcase.run();
-	}
-}
-
-class SparseTrans {
+public class TestSparseTrans extends x10Test {
 	public val density:Double;
 	public val M:Long;
 	public val N:Long;
@@ -34,13 +29,12 @@ class SparseTrans {
 		M = args.size > 0 ? Long.parse(args(0)):50;
 		density = args.size > 1 ? Double.parse(args(1)):0.5;
 		N = args.size > 2 ? Long.parse(args(2)):(M as Int)+1;
-		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;	
+		K = args.size > 3 ? Long.parse(args(3)):(M as Int)+2;
 	}
-	
-	public def run(): void {
+
+    public def run():Boolean {
 		var ret:Boolean = true;
 
- 		// Set the matrix function
 		ret &= (testMultCtC());
 		ret &= (testMultCtR());
 		ret &= (testMultCtD());
@@ -54,12 +48,9 @@ class SparseTrans {
 		ret &= (testToDenseCDt());
 		ret &= (testToDenseDtC());
 
-		if (!ret)
-			Console.OUT.println("------------------Sparse matrix multiply-transpose test failed!------------------\n");
+        return ret;
 	}
 
-
-	// Test transpose, CSC <-
 	public def testMultCtC():Boolean {
 		Console.OUT.println("Test CSC^T * CSC -> Dense");
 		val a = SparseCSC.make(K, M, density);
@@ -121,7 +112,6 @@ class SparseTrans {
 		return ret;
 	}
 
-	// CSR <-
 	public def testMultRtC():Boolean {
 		Console.OUT.println("Test CSR^T * CSC -> Dense");
 		val a = SparseCSR.makeRand(K, M, density);
@@ -207,5 +197,9 @@ class SparseTrans {
 		if (!ret)
 			Console.OUT.println("--------Dense^T * CSC -> Dense test failed!--------\n");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestSparseTrans(args).execute();
 	}
 }

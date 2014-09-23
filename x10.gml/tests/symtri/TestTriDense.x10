@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
+import harness.x10Test;
+
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
@@ -16,15 +18,7 @@ import x10.matrix.TriDense;
 /**
    This class contains test cases for triangular dense matrix addition, scaling, and negation operations.
  */
-public class TestTriDense{
-    public static def main(args:Rail[String]) {
-		val m = (args.size > 0) ? Long.parse(args(0)):5;
-		val testcase = new TriMatTest(m);
-		testcase.run();
-	}
-}
-
-class TriMatTest {
+public class TestTriDense extends x10Test {
 	public val M:Long;
     /** Each test must be run for both lower- and upper-triangular matrices */
     public var upper:Boolean = false;
@@ -33,7 +27,7 @@ class TriMatTest {
 		M = m;
 	}
 
-    public def run() {
+    public def run():Boolean {
 		Console.OUT.println("Triangular matrix clone/add/sub/scaling tests on "+
 							M+"x"+ M + " matrices");
 		
@@ -56,10 +50,7 @@ class TriMatTest {
         upper = false; val passedLower = runAllTests();
         upper = true;  val passedUpper = runAllTests();
 
-		if (passedLower && passedUpper)
-			Console.OUT.println("Test passed!");
-		else
-			Console.OUT.println("----------------Test failed!----------------");
+		return (passedLower && passedUpper);
 	}
 
     
@@ -248,5 +239,10 @@ class TriMatTest {
 		if (!ret)
 			Console.OUT.println("--------Matrix-Triangular solver test failed!--------");
 		return ret;		
+	}
+
+    public static def main(args:Rail[String]) {
+		val m = (args.size > 0) ? Long.parse(args(0)):5;
+		new TestTriDense(m).execute();
 	}
 }
