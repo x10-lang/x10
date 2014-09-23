@@ -55,9 +55,6 @@ public class TestGridReduce extends x10Test {
     public def run():Boolean {
 		var retval:Boolean = true;
 	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
-		Console.OUT.println("Matrix dims:"+M+","+N);
-		Console.OUT.println("Partitioning grid:"+bM+"x"+bN);
-		Console.OUT.println("Distribution grid:"+pM+"x"+pN);
 		retval &= testRowReduceSum(dbmat);
  		retval &= testColReduceSum(dbmat);
     }

@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
@@ -21,14 +23,7 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.distblock.DistDupMult;
 
-public class TestDistDupMult {
-    public static def main(args:Rail[String]) {
-		val testcase = new RunDistDupMult(args);
-		testcase.run();
-	}
-}
-
-class RunDistDupMult {
+public class TestDistDupMult extends x10Test {
 	public val M:Long;
 	public val K:Long;
 	public val N:Long;
@@ -40,7 +35,6 @@ class RunDistDupMult {
 	val gA:Grid, gTransA:Grid;
 	val gB:Grid, gTransB:Grid;
 	val gC:Grid;
-	//val A:BlockMatrix(M,K), B:BlockMatrix(K,N), C:BlockMatrix(M,N);
 	val dA:DistMap, dTransA:DistMap;
 	val dC:DistMap, dTransC:DistMap;
 	
@@ -67,7 +61,7 @@ class RunDistDupMult {
 		dTransC = DistGrid.makeHorizontal(gC).dmap;
 	}
 
-    public def run(): void {
+    public def run():Boolean {
 		Console.OUT.println("Starting Dist-Dup block matrix multiply tests");
 		Console.OUT.printf("Matrix (%d,%d) mult (%d,%d) ", M, K, K, N);
 		Console.OUT.printf(" partitioned in (%dx%d) and (%dx%d) blocks, nzd:%f\n", 
@@ -79,10 +73,7 @@ class RunDistDupMult {
  		ret &= (ret && testTransMult());
  		ret &= (ret && testMultTrans());
     }
-		if (ret)
-			Console.OUT.println("Dist-Dup matrix multiply test passed!");
-		else
-			Console.OUT.println("----------------Dist-Dup block matrix multiply test failed!----------------");
+		return ret;
 	}
 
 	public def testMult():Boolean{
@@ -109,9 +100,7 @@ class RunDistDupMult {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist-Dup Block matrix multiply test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist-Dup Block matrix multiply test failed!--------");
 		return ret;
 	}
@@ -135,9 +124,7 @@ class RunDistDupMult {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist-Dup Block matrix trans-multiply test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist-Dup Block matrix trans-multiply test failed!--------");
 		return ret;
 	}
@@ -161,10 +148,12 @@ class RunDistDupMult {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist-Dup block matrix multiply-transpose test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist-Dup block matrix multiply-transpose test failed!--------");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestDistDupMult(args).execute();
 	}
 } 

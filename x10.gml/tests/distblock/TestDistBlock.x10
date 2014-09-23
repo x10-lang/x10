@@ -1,8 +1,15 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 
@@ -15,14 +22,7 @@ import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.util.PlaceGroupBuilder;
 
-public class TestDistBlock {
-    public static def main(args:Rail[String]) {
-        val testcase = new TestDB(args);
-        testcase.run();
-    }
-}
-
-class TestDB {
+public class TestDistBlock extends x10Test {
     public val nzp:Double;
     public val M:Long;
     public val N:Long;
@@ -42,13 +42,14 @@ class TestDB {
         bM= args.size > 4 ? Long.parse(args(4)):4;
         bN= args.size > 5 ? Long.parse(args(5)):5;
         
+Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
         grid = new Grid(M, N, bM, bN);
         val numPlaces = Place.numPlaces()-skipPlaces;
         dmap = DistGrid.make(grid, numPlaces).dmap; 
         Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
     }
 
-    public def run (): void {
+    public def run():Boolean {
         Console.OUT.println("DistBlockMatrix clone/add/sub/scaling tests");
 
         var ret:Boolean = true;
@@ -66,13 +67,10 @@ class TestDB {
         ret &= (testCellDiv(places));
         ret &= (testSnapshotRestore(places));
     }
-        if (ret)
-            Console.OUT.println("DistBlockMatrix test passed!");
-        else
-            Console.OUT.println("----------------DistBlockMatrix test failed!----------------");
-
+        return ret;
     }
-    public def testClone(places:PlaceGroup):Boolean{
+
+    public def testClone(places:PlaceGroup):Boolean {
         var ret:Boolean = true;
         Console.OUT.println("DistBlockMatrix clone test on dense blocks");
         val ddm = DistBlockMatrix.makeDense(grid, dmap, places).init((r:Long, c:Long)=>(1.0+r+c));
@@ -255,4 +253,7 @@ class TestDB {
         return ret;
     }
 
-} 
+    public static def main(args:Rail[String]) {
+        new TestDistBlock(args).execute();
+    }
+}

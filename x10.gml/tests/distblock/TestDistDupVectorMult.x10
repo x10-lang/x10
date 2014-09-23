@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.compiler.Ifndef;
 
 import x10.matrix.util.Debug;
@@ -21,14 +23,7 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistDupVectorMult;
 
-public class TestDistDupVectorMult {
-    public static def main(args:Rail[String]) {
-		val testcase = new RunDDVectorMult(args);
-		testcase.run();
-	}
-}
-
-class RunDDVectorMult {
+public class TestDistDupVectorMult extends x10Test {
 	public val M:Long;
 	public val N:Long;
 	public val bM:Long;
@@ -43,7 +38,7 @@ class RunDDVectorMult {
 		nzd =  args.size > 6 ?Double.parse(args(6)):0.99;
 	}
 
-	public def run (): void {
+    public def run():Boolean {
 		Console.OUT.println("Dist-Dup block matrix vector multiply tests");
 
 		var ret:Boolean = true;
@@ -55,8 +50,7 @@ class RunDDVectorMult {
 		ret &= (testDistDupDupMult());
 		ret &= (testDupDistDupMult());
     }
-		if (!ret)
-			Console.OUT.println("----------------Dist block matrix - vector multiply test failed!----------------");
+		return ret;
 	}
 	
 	public def testDistMatDistVecMult():Boolean{
@@ -195,5 +189,9 @@ class RunDDVectorMult {
 		if (!ret)
 			Console.OUT.println("--------DupVector * DistBlockMatrix = DupVector multiply test failed!--------");
 		return ret;
+	}
+
+    public static def main(args:Rail[String]) {
+		new TestDistDupVectorMult(args).execute();
 	}
 }

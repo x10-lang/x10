@@ -1,9 +1,16 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  *  (C) Copyright Australian National University 2011.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 
@@ -13,28 +20,18 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.util.RandTool;
 import x10.matrix.util.PlaceGroupBuilder;
 
-public class TestDistVector{
-
-    public static def main(args:Rail[String]) {
-        val n = (args.size > 0) ? Long.parse(args(0)):4;
-        val testcase = new DistVectorTest(n);
-        testcase.run();
-    }
-}
-
-class DistVectorTest {
+public class TestDistVector extends x10Test {
     public val M:Long;
 
     public def this(m:Long) {
         M = m;
     }
 
-    public def run (): void {
+    public def run():Boolean {
         Console.OUT.println("Starting distributed vector clone/add/sub/scaling tests on "+
                             M + "-vectors");
         var ret:Boolean = true;
         val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.makeTestPlaceGroup(1) : Place.places();        
-        
     @Ifndef("MPI_COMMU") { // TODO Deadlocks!
         ret &= (testClone(places));
         ret &= (testScale(places));
@@ -47,16 +44,10 @@ class DistVectorTest {
         ret &= (testScatterGather(places));
         ret &= (testSnapshotRestore(places));
     }
-        if (ret)
-            Console.OUT.println("DistVector test passed!");
-        else
-            Console.OUT.println("----------------DistVector test failed!----------------");
+        return ret;
     }
-
-
     
     public def testClone(places:PlaceGroup):Boolean{
-
         Console.OUT.println("Starting vector clone test");
         val dm = DistVector.make(M, places);
         dm.initRandom(); // same as  val dm = Vector.make(N).initRandom(); 
@@ -64,16 +55,13 @@ class DistVectorTest {
         val dm1 = dm.clone();
         var ret:Boolean = dm.equals(dm1);
                 
-        if (ret)
-            Console.OUT.println("DistVector Clone test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector Clone test failed!--------");
         
         dm(1) = dm(2) = 10.0;
         
         if ((dm(1)==dm(2)) && (dm(1)==10.0)) {
             ret &= true;
-            Console.OUT.println("DistVector chain assignment test passed!");
         } else {
             ret &= false;
             Console.OUT.println("---------- DistVector chain assignment test failed!-------");
@@ -88,9 +76,7 @@ class DistVectorTest {
         val dm1  = dm * 2.5;
         dm1.scale(1.0/2.5);
         val ret = dm.equals(dm1 as DistVector(dm.M));
-        if (ret)
-            Console.OUT.println("DistVector scaling test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector Scaling test failed!--------");    
         return ret;
     }
@@ -101,9 +87,7 @@ class DistVectorTest {
         val dm1:DistVector(M) = -1 * dm;
         val dm0 = dm + dm1;
         val ret = dm0.equals(0.0);
-        if (ret)
-            Console.OUT.println("DistVector Add: dm + dm*-1 test passed");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector Add: dm + dm*-1 test failed--------");
         return ret;
     }
@@ -116,9 +100,7 @@ class DistVectorTest {
         //
         val dm_c  = dm2 - dm1;
         val ret   = dm.equals(dm_c);
-        if (ret)
-            Console.OUT.println("DistVector Add-sub test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector Add-sub test failed!--------");
         return ret;
     }
@@ -132,9 +114,7 @@ class DistVectorTest {
         val c1 = a + b + c;
         val c2 = a + (b + c);
         val ret = c1.equals(c2);
-        if (ret)
-            Console.OUT.println("DistVector Add associative test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector Add associative test failed!--------");
         return ret;
     }
@@ -148,9 +128,7 @@ class DistVectorTest {
         val a2:DistVector(a.M)= a * 0.8;
         val a3= a1 + a2;
         val ret = a.equals(a3 as DistVector(a.M));
-        if (ret)
-            Console.OUT.println("DistVector scaling-add test passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector scaling-add test failed!--------");
         return ret;
     }
@@ -163,9 +141,7 @@ class DistVectorTest {
         val c = (a + b) * a;
         val d = a * a + b * a;
         val ret = c.equals(d);
-        if (ret)
-            Console.OUT.println("DistVector cellwise mult passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector cellwise mult test failed!--------");
         return ret;
     }
@@ -178,9 +154,7 @@ class DistVectorTest {
         val c = (a + b) * a;
         val d =  c / (a + b);
         val ret = d.equals(a);
-        if (ret)
-            Console.OUT.println("DistVector cellwise mult-div passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector cellwise mult-div test failed!--------");
         return ret;
     }
@@ -195,9 +169,7 @@ class DistVectorTest {
         a.copyTo(c);
         val ret = b.equals(c);
         
-        if (ret)
-            Console.OUT.println("DistVector scatter-gather passed!");
-        else
+        if (!ret)
             Console.OUT.println("--------DistVector scatter-gather test failed!--------");
         return ret;
     }
@@ -220,5 +192,10 @@ class DistVectorTest {
             Console.OUT.println("--------DistVector snapshot/restore test failed!--------");
 
         return ret;
+    }
+
+    public static def main(args:Rail[String]) {
+        val n = (args.size > 0) ? Long.parse(args(0)):4;
+        new TestDistVector(n).execute();
     }
 }

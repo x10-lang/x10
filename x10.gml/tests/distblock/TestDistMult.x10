@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import harness.x10Test;
+
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
@@ -20,14 +22,7 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.distblock.DistDistMult;
 
-public class TestDistMult {
-    public static def main(args:Rail[String]) {
-		val testcase = new RunDistBlockMatrix(args);
-		testcase.run();
-	}
-}
-
-class RunDistBlockMatrix {
+public class TestDistMult extends x10Test {
 	public val M:Long;
 	public val K:Long;
 	public val N:Long;
@@ -66,8 +61,8 @@ class RunDistBlockMatrix {
 		dTransB = (new DistGrid(gTransB, 1, Place.numPlaces())).dmap;
 	}
 
-    public def run (): void {
-		Console.OUT.println("Starting Dist-Dist block matrix multiply tests");
+    public def run():Boolean {
+		Console.OUT.println("Dist-Dist block matrix multiply tests");
 		Console.OUT.printf("Matrix (%d,%d) mult (%d,%d) ", M, K, K, N);
 		Console.OUT.printf(" partitioned in (%dx%d) and (%dx%d) blocks, nzd:%f\n", 
 						    bM, bK, bK, bN, nzd);
@@ -78,17 +73,13 @@ class RunDistBlockMatrix {
  		ret &= (ret && testTransMult());
  		ret &= (ret && testMultTrans());
     }
-		if (ret)
-			Console.OUT.println("Dist block matrix multiply test passed!");
-		else
-			Console.OUT.println("----------------Dist block matrix multiply test failed!----------------");
+        return ret;
 	}
 
 	public def testMult():Boolean{
 		var ret:Boolean = true;
-		Console.OUT.println("Starting Dist block matrix multiply test");
+		Console.OUT.println("Dist block matrix multiply test");
 		val A = DistBlockMatrix.makeDense(gA, dA) as DistBlockMatrix(M,K);
-		//val B = DistBlockMatrix.makeSparse(gB, dB, nzd) as DistBlockMatrix(K,N);
 		val B = DistBlockMatrix.makeDense(gB, dB) as DistBlockMatrix(K,N);
 		val C = DupBlockMatrix.makeDense(gC) as DupBlockMatrix(M,N);
 		
@@ -104,9 +95,7 @@ class RunDistBlockMatrix {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist Block matrix multiply test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist Block matrix multiply test failed!--------");
 		return ret;
 	}
@@ -129,16 +118,14 @@ class RunDistBlockMatrix {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist Block matrix trans-multiply test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist Block matrix trans-multiply test failed!--------");
 		return ret;
 	}
 	
 	public def testMultTrans():Boolean{
 		var ret:Boolean = true;
-		Console.OUT.println("Starting Dist block matrix multiply-transpose test (transpose on 2nd operand)");
+		Console.OUT.println("Dist block matrix multiply-transpose test (transpose on 2nd operand)");
 		val A = DistBlockMatrix.makeDense(gA, dA) as DistBlockMatrix(M,K);
 		val B = DistBlockMatrix.makeDense(gTransB, dTransB) as DistBlockMatrix(N,K);
 		val C = DupBlockMatrix.makeDense(gC) as DupBlockMatrix(M,N);
@@ -155,10 +142,12 @@ class RunDistBlockMatrix {
 		
 		ret &= dC.equals(C as Matrix(dC.M,dC.N));
 
-		if (ret)
-			Console.OUT.println("Dist block matrix multiply-transpose test passed!");
-		else
+		if (!ret)
 			Console.OUT.println("--------Dist block matrix multiply-transpose test failed!--------");
 		return ret;
 	}
-} 
+
+    public static def main(args:Rail[String]) {
+		new TestDistMult(args).execute();
+	}
+}

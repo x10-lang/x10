@@ -1,9 +1,16 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  *  (C) Copyright Australian National University 2011.
  */
+
+import harness.x10Test;
 
 import x10.compiler.Ifndef;
 
@@ -12,22 +19,14 @@ import x10.matrix.Vector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.util.PlaceGroupBuilder;
 
-public class TestDupVector{
-    public static def main(args:Rail[String]) {
-        val n = (args.size > 0) ? Long.parse(args(0)):4;
-        val testcase = new TestRunDV(n);
-        testcase.run();
-    }
-}
-
-class TestRunDV {
+public class TestDupVector extends x10Test {
     public val M:Long;
 
     public def this(m:Long) {
         M = m;
     }
 
-    public def run (): void {
+    public def run():Boolean {
         Console.OUT.println("DupVector clone/add/sub/scaling tests on "+
                             M + "-vectors");
         var ret:Boolean = true;
@@ -45,10 +44,7 @@ class TestRunDV {
         ret &= (testReduce(places));
         ret &= (testSnapshotRestore(places));
     }
-        if (ret)
-            Console.OUT.println("DupVector test passed!");
-        else
-            Console.OUT.println("----------------DupVector test failed!----------------");
+        return ret;
     }
 
     public def testClone(places:PlaceGroup):Boolean{
@@ -200,5 +196,10 @@ class TestRunDV {
             Console.OUT.println("--------DupVector snapshot/restore test failed!--------");
         
         return ret;
+    }
+
+    public static def main(args:Rail[String]) {
+        val n = (args.size > 0) ? Long.parse(args(0)):4;
+        new TestDupVector(n).execute();
     }
 }
