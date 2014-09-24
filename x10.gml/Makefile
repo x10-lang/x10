@@ -272,7 +272,7 @@ jlapack		: libjlapack.so
 ###------------------------------------------------
 X10_VERSION ?= HEAD
 srctar		: $(lib_src)
-			tar -cjvf x10-gml-$(X10_VERSION)-src.tar --exclude=*.svn* --exclude=*~ src tests examples Makefile scripts doc/Makefile 
+			tar -cjvf x10-gml-$(X10_VERSION)-src.tar.bz2 --exclude=*.svn* --exclude=*~ src tests examples Makefile scripts doc/Makefile 
 
 ###------------------------------------------------
 chk_dir:
