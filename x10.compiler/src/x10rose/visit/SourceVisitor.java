@@ -285,14 +285,14 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 // nested class
             } else if (m instanceof X10ClassDecl_c) {
                 if (RoseTranslator.DEBUG) System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
-                X10ClassDecl_c _inner_class = (X10ClassDecl_c) m;
-                visitDeclarations(_inner_class);                
-                Ref ref = _inner_class.classDef().package_();
+                X10ClassDecl_c inner_class = (X10ClassDecl_c) m;
+                visitDeclarations(inner_class);                
+                Ref ref = inner_class.classDef().package_();
                 String package_name2 = (ref == null) ? "" : ref.toString();
-                String class_name2 = _inner_class.name().id().toString();
+                String class_name2 = inner_class.name().id().toString();
                 
-                if (_inner_class.classDef().isInnerClass()) {
-                    String outer = _inner_class.classDef().outer().toString(); // outer() includes a package name
+                if (inner_class.classDef().isInnerClass()) {
+                    String outer = inner_class.classDef().outer().toString(); // outer() includes a package name
                     int pkg = outer.indexOf(package_name);
                     if (package_name.length() != 0 && pkg == 0)
                         outer = outer.substring(pkg + package_name.length() + 1);
@@ -303,8 +303,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     }
                     class_name2 = outer + "." + class_name2;
                 }
-                System.out.println("ABB5=" + package_name2 + ", " + class_name2);
-                JNI.cactionBuildInnerTypeSupport(package_name2, class_name2, RoseTranslator.createJavaToken(_inner_class, _inner_class.toString()));
+                if (package_name2.length() != 0) {
+                    JNI.cactionPushPackage(package_name2, RoseTranslator.createJavaToken(inner_class, inner_class.toString()));
+                    JNI.cactionPopPackage();
+                }
+                JNI.cactionBuildInnerTypeSupport(package_name2, class_name2, RoseTranslator.createJavaToken(inner_class, inner_class.toString()));
             } else if (m instanceof ClassDecl_c) {
                 if (RoseTranslator.DEBUG) System.out.println("ClassDecl_c : " + m);
             } else {
@@ -449,13 +452,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
         JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
 
-        System.out.println("==>");
-        if (!n.classDef().isInnerClass()) {
-//            JNI.cactioni
+//        if (!n.classDef().isInnerClass()) {
             if (package_name.length() != 0)
                 JNI.cactionPopPackage();
-        }
-        System.out.println("<==");
+//        }
 
         Flags flags = n.flags().flags();
         JNI.cactionTypeDeclaration(package_name, class_name, /* num_annotations */0, n.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
@@ -499,9 +499,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10ClassBody_c n) {
-        toRose(n, "classBody: ");
-        // don't know what kind of caction* should be invoked here!
-        // (2014/01/30 horie)
+        toRose(n, "classBody: ", n.toString());
         visitChildren(n, n.members());
     }
 
@@ -1073,16 +1071,17 @@ public class SourceVisitor extends X10DelegatingVisitor {
         String package_name = "";
         String type_name = "";
         for (String package_ : RoseTranslator.package_traversed) {
-            int index_package = class_name.indexOf(package_);
-            if (index_package == 0) {
+            if (class_name.indexOf(package_) == 0) {
                 package_name = package_;
                 type_name = class_name.substring(package_name.length() + 1);
+                break;
             }
-            else
-                type_name = class_name;
         }
         if (package_name.length() == 0 && type_name.length() == 0) {
-            int lastDot = class_name.lastIndexOf('.');
+            int index = class_name.indexOf("[");
+            if (index < 0)
+                index = class_name.length();
+            int lastDot = class_name.lastIndexOf('.', index);
             if (lastDot >= 0) {
                 package_name = class_name.substring(0, lastDot);
                 type_name = class_name.substring(lastDot + 1);
@@ -1090,10 +1089,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 type_name = class_name;
             }
         }
-        String[] ret = {"", ""};
-        ret[0] = package_name;
-        ret[1] = type_name;
-        return ret;
+        return new String[]{package_name, type_name};
     }
 
     public void visit(X10CanonicalTypeNode_c n) {
@@ -1134,10 +1130,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
             JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
         } else {
             class_name = n.node().toString();
-            int index = class_name.indexOf("[");
-            if (index < 0)
-                index = class_name.length();
-
             String[] names = getPackageAndTypeName(class_name);
             String package_name = names[0];
             String type_name = names[1];
