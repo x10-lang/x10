@@ -22,6 +22,10 @@ public abstract class IterationSpace(rank:Long,rect:Boolean) implements Iterable
         property(rank, rect);
     }
 
+    public static operator (r:IntRange):IterationSpace{self.rank==1,self.rect} = new DenseIterationSpace_1(r.min, r.max);
+
+    public static operator (r:LongRange):IterationSpace{self.rank==1,self.rect} = new DenseIterationSpace_1(r.min, r.max);
+
     public abstract def iterator():Iterator[Point(this.rank)]; 
 
     public abstract def min(i:Long):Long;

@@ -11,7 +11,6 @@
 
 import x10.io.Console;
 import x10.util.Random;
-import x10.regionarray.*;
 
 /**
  * A KMeans object o can compute K means of a given set of 
@@ -24,16 +23,16 @@ import x10.regionarray.*;
  */
 public class KMeans(myDim:Long) {
 
-    static val DIM=2L;
-    static val K=4L;
+    static val DIM=2;
+    static val K=4;
     static val POINTS=2000;
     static val ITERATIONS=50;
     static val EPS=0.01F;
     
-    static type ValVector(k:Long) = Array[Float]{self.rank==1,self.size==k,self.rect,self.zeroBased};
+    static type ValVector(k:Long) = Rail[Float]{self.size==k};
     static type ValVector = ValVector(DIM);
     
-    static type Vector(k:Long) = Array[Float]{self.rank==1,self.size==k,self.rect,self.zeroBased};
+    static type Vector(k:Long) = Rail[Float]{self.size==k};
     static type Vector = Vector(DIM);
     
     static type SumVector(d:Long) = V{self.dim==d};
@@ -47,7 +46,7 @@ public class KMeans(myDim:Long) {
         var count:Int;
         def this(dim:Long, init:(Long)=>Float): SumVector(dim) {
            property(dim);
-           vec = new Array[Float](this.dim, init);
+           vec = new Rail[Float](this.dim, init);
            count = 0n;
         }
         public operator this(i:Long) = vec(i);
@@ -95,16 +94,16 @@ public class KMeans(myDim:Long) {
     def this(myDim:Long):KMeans{self.myDim==myDim} {
         property(myDim);
     }
-    static type KMeansData(myK:Long, myDim:Long)= Array[SumVector(myDim)]{self.rank==1,self.size==myK,self.rect,self.zeroBased};
+    static type KMeansData(myK:Long, myDim:Long)= Rail[SumVector(myDim)]{self.size==myK};
 
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
-    def computeMeans(myK:Long, points: Array[ValVector(myDim)](1)): KMeansData(myK, myDim) {
+    def computeMeans(myK:Long, points:Rail[ValVector(myDim)]):KMeansData(myK, myDim) {
         var redCluster : KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, (i:long)=> new V(myDim, (j:long)=>points(i)(j)));
+            new Rail[SumVector(myDim)](myK, (i:long)=> new V(myDim, (j:long)=>points(i)(j)));
         var blackCluster: KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, (i:long)=> new V(myDim, (j:long)=>0.0F));
+            new Rail[SumVector(myDim)](myK, (i:long)=> new V(myDim, (j:long)=>0.0F));
         for (i in 1..ITERATIONS) {
             val tmp = redCluster;
             redCluster = blackCluster;
@@ -142,8 +141,8 @@ public class KMeans(myDim:Long) {
   
     public static def main (Rail[String]) {
         val rnd = new Random(0);
-        val points = new Array[ValVector](POINTS, 
-                        (long)=>new Array[Float](DIM, (long)=>rnd.nextFloat()) as ValVector);
+        val points = new Rail[ValVector](POINTS, 
+                        (long)=>new Rail[Float](DIM, (long)=>rnd.nextFloat()));
         val result = new KMeans(DIM).computeMeans(K, points);
         for (k in 0..(K-1)) result(k).print();
     }

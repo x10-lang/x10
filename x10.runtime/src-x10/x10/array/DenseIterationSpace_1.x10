@@ -28,6 +28,8 @@ public final class DenseIterationSpace_1 extends IterationSpace(1){rect} {
         this.max = max;
     }
 
+    public static operator (r:LongRange) = new DenseIterationSpace_1(r.min, r.max);
+
     public def min(i:Long):Long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");
        return min;

@@ -20,6 +20,24 @@ package x10.array;
  */
 public class BlockingUtils {
 
+    /**
+     * A Block distribution takes a rank-1 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * @param is the iteration space to partition
+     * @param n is the total number of partitions desired
+     * @return the IterationSpace representing the ith partition
+     */
+    public static def partitionBlock(is:IterationSpace(1), n:Long):Rail[DenseIterationSpace_1{self!=null}]{self.size==n,self!=null} {
+        return new Rail[DenseIterationSpace_1{self!=null}](n, (i:Long)=>partitionBlock(is, n, i));
+    }
+
 
     /**
      * A Block distribution takes a rank-1 iteration space

@@ -42,6 +42,22 @@ public struct LongRange(
      */
     public static operator (x:IntRange):LongRange = LongRange(x.min, x.max);
 
+    /**
+     * Split the LongRange into N LongRanges that
+     * collectively represent the same set of Longs as this.
+     * @see x10.array.BlockUtils.partitionBlock
+     */
+    public def split(n:Long):Rail[LongRange]{self.size==n,self!=null} {
+        val numElems = max - min + 1;
+        val blockSize = numElems/n;
+        val leftOver = numElems - n*blockSize;
+        return new Rail[LongRange](n, (i:Long)=>{
+            val low = min + blockSize*i + (i < leftOver ? i : leftOver);
+            val hi = low + blockSize + (i < leftOver ? 0 : -1);
+            LongRange(low,hi)
+        });
+    }
+
     public def toString():String = min+".."+max;
     
     public def equals(that:Any):Boolean {

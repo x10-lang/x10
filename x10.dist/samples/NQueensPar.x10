@@ -86,14 +86,10 @@ public class NQueensPar {
          * using a block distribution of the current free rank.
          */
         def parSearch()  {
-            val count = N/P;
-            val extra = N%P;
-            for (thread in 0n..(P-1n)) async {
+            for (work in R.split(P)) async {
                 val board = new Board(this);
-                val start = thread<=extra ? (thread*(count+1n)) : (thread * count + extra);
-                val end = start + (thread<extra ? (count+1n) : count) - 1n;
-                for (k in start..end) {
-                    board.searchOne(k);
+                for (w in work) {
+                    board.searchOne(w);
                 }
             }
         }

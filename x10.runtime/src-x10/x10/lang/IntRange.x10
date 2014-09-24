@@ -42,6 +42,23 @@ public struct IntRange(
      */
     public static operator (x:LongRange) as IntRange = IntRange(x.min as Int, x.max as Int);
 
+    /**
+     * Split the IntRange into N IntRanges that
+     * collectively represent the same set of Ints as this.
+     * @see x10.array.BlockUtils.partitionBlock
+     */
+    public def split(n:Int):Rail[IntRange]{/*self.size==n,*/self!=null} {
+        val numElems = max - min + 1n;
+        val blockSize = numElems/n;
+        val leftOver = numElems - n*blockSize;
+        return new Rail[IntRange](n, (iLong:Long)=>{
+            val i = iLong as Int;   
+            val low = min + blockSize*i + (i < leftOver ? i : leftOver);
+            val hi = low + blockSize + (i < leftOver ? 0n : -1n);
+            IntRange(low,hi)
+        });
+    }
+
     public def toString():String = min+".."+max;
     
     public def equals(that:Any):Boolean {
