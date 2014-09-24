@@ -1073,18 +1073,25 @@ public class SourceVisitor extends X10DelegatingVisitor {
         for (String package_ : RoseTranslator.package_traversed) {
             if (class_name.indexOf(package_) == 0) {
                 package_name = package_;
-                type_name = class_name.substring(package_name.length() + 1);
+                type_name = class_name.substring(package_name.length());
                 break;
             }
         }
         if (package_name.length() == 0 && type_name.length() == 0) {
             int index = class_name.indexOf("[");
+            if (index == 0)
+                throw new RuntimeException("Unexpected token: brace was found in the first character");
+            
             if (index < 0)
                 index = class_name.length();
             int lastDot = class_name.lastIndexOf('.', index);
-            if (lastDot >= 0) {
+            
+            if (lastDot == 0)
+                throw new RuntimeException("Unexpected token: dot was found in the first character");
+            
+            if (lastDot > 0) {
                 package_name = class_name.substring(0, lastDot);
-                type_name = class_name.substring(lastDot + 1);
+                type_name = class_name.substring(lastDot);
             } else {
                 type_name = class_name;
             }
