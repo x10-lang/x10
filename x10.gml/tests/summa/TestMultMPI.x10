@@ -16,6 +16,9 @@ import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.summa.mpi.SummaMPI; 
 import x10.matrix.dist.summa.SummaDense;
 
+// SKIP_NATIVE_X10: GML with MPI not included in Jenkins build
+// SKIP_MANAGED_X10: GML with MPI not included in Jenkins build
+
 /**
    This class contains test cases for dense matrix multiplication.
  */
