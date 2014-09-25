@@ -158,7 +158,7 @@ abstract class FinishResilient extends FinishState {
         
         // [DC] do not use at (place) async since the finish state is handled internally
         // [DC] go to the lower level...
-        val cl = () => @RemoteInvocation("fiish_resilient_run_at") {
+        val cl = () => @RemoteInvocation("finish_resilient_run_at") {
             if (verbose>=2) debug("FinishResilient.runAt closure received");
             val exec_body = () => {
                 if (verbose>=2) debug("FinishResilient.runAt exec_body started");
