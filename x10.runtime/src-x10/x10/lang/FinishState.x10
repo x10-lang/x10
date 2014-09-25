@@ -140,19 +140,16 @@ abstract class FinishState {
             if (count.decrementAndGet() == 0n) {
                 val t = MultipleExceptions.make(exceptions);
                 val ref = this.ref();
-                val closure:()=>void;
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
+                    at (ref.home) @Immediate("notifyActivityTermination_1") async {
                         deref[FinishState](ref).pushException(t);
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 } else {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
+                    at (ref.home) @Immediate("notifyActivityTermination_2") async {
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 }
-                Runtime.x10rtSendMessage(ref.home.id, closure, null);
-                Unsafe.dealloc(closure);
             }
         }
         public def pushException(t:CheckedThrowable) {
@@ -212,19 +209,16 @@ abstract class FinishState {
         public def notifyActivityTermination():void {
             val t = MultipleExceptions.make(exception);
             val ref = this.ref();
-            val closure:()=>void;
             if (null != t) {
-                closure = ()=>@RemoteInvocation("notifyActivityTermination_1") {
+                at (ref.home) @Immediate("notifyActivityTermination_1") async {
                     deref[FinishState](ref).pushException(t);
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             } else {
-                closure = ()=>@RemoteInvocation("notifyActivityTermination_2") {
+                at (ref.home) @Immediate("notifyActivityTermination_2") async {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
-            Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Unsafe.dealloc(closure);
         }
     }
 

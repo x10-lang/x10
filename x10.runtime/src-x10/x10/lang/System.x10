@@ -59,8 +59,7 @@ public class System {
      * @see Configuration#resilient_mode
      */
     public static def killThere(victim:Place) {
-        val cl = ()=> @x10.compiler.RemoteInvocation("killThere") { killHere(); };
-        Runtime.x10rtSendMessage(victim.id, cl, null);
+        at (victim) @x10.compiler.Immediate("killThere") async killHere();
     }
 
 

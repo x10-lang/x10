@@ -16,6 +16,7 @@ import x10.compiler.Inline;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 import x10.compiler.NativeCPPInclude;
+import x10.compiler.Immediate;
 
 import x10.io.Serializer;
 import x10.io.Deserializer;
@@ -1305,26 +1306,25 @@ public final class Runtime {
                     // We use manual deserialization to get correct handling of exceptions
                     @StackAllocate val deser = @StackAllocate new x10.io.Deserializer(bytes);
                     val bodyPrime = deser.readAny() as ()=>void;
+
+		    // Actually evaluate body at remote place.
                     bodyPrime();
-                    val closure = ()=> @x10.compiler.RemoteInvocation("runAt_1") { 
+                    
+                    at (box.home) @Immediate("runAt_1") async {
                         val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                         me2.clockPhases = clockPhases;
                         me2.release();
-                    };
-                    x10rtSendMessage(box.home.id, closure, null);
-                    Unsafe.dealloc(closure);
+                    }
                 } catch (e:AtCheckedWrapper) {
                     throw e.getCheckedCause();
                 }
             } catch (e:CheckedThrowable) {
-                val closure = ()=> @x10.compiler.RemoteInvocation("runAt_2") { 
+                at (box.home) @Immediate("runAt_2") async {
                     val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure, null);
-                Unsafe.dealloc(closure);
             }
             activity().clockPhases = null;
         }
@@ -1438,7 +1438,8 @@ public final class Runtime {
                     @StackAllocate val ser2 = @StackAllocate new x10.io.Serializer();
                     ser2.writeAny(result);
                     val bytes2 = ser2.toRail();
-                    val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_1") { 
+
+                    at (box.home) @Immediate("evalAt_1") async {
                         val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
                         // me2 has type Box[T{box.home==here}]... weird
                         me2.clockPhases = clockPhases;
@@ -1451,20 +1452,16 @@ public final class Runtime {
                         }
                         me2.release();
                     };
-                    x10rtSendMessage(box.home.id, closure, null);
-                    Unsafe.dealloc(closure);
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
                 }
             } catch (e:CheckedThrowable) {
-                val closure = ()=> @x10.compiler.RemoteInvocation("evalAt_2") { 
+                at (box.home) @Immediate("evalAt_2") async {
                     val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure, null);
-                Unsafe.dealloc(closure);
             }
             activity().clockPhases = null;
         }
