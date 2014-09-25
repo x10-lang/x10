@@ -22,5 +22,6 @@ package x10.compiler;
  * worker thread that can execute Immediate asyncs as they are
  * dequeued from the network.
  */
-public interface Immediate extends Uncounted {
+public interface Immediate(suffix:String) extends Uncounted, 
+                                                  RemoteInvocation {
 }

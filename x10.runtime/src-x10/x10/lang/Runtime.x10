@@ -1195,25 +1195,24 @@ public final class Runtime {
 
     /**
      * Run @Immediate asyncat
+     *
+     * This method is only intended to be targeted by the compiler.
+     * Therefore it is private.
+     *
+     * For correct operation, it requires that the body closure be 
+     * annotated with @Immediate so that it is given a network id;
+     * the compiler respects this invariant.
      */
-    public static def runImmediateAsync(place:Place, body:()=>void, prof:Profile):void {
-        // Do this before anything else
-        val a = activity();
-        a.ensureNotInAtomic();
-
-        // TODO: epoch semantics (uncounted, so ignore epoch?)
+    private static def runImmediateAsync(place:Place, body:()=>void, prof:Profile):void {
         try {
             if (place.id == hereLong()) {
                 // copy body (at semantics) and then invoke immediately on current thread
                 val copiedBody = Runtime.deepCopy(body, prof);
                 copiedBody();
             } else {
-                // TODO: Dave G.  I think the extra closure should be easily eliminated
-                //                by having Immediate also implement RemoteInvocation.
-                //                Deferring that optimization while prototyping to minimize changes.
-                val closure = ()=> @x10.compiler.RemoteInvocation("runImmediateAsync") { body(); };
-                x10rtSendMessage(place.id, closure, prof);
-                Unsafe.dealloc(closure);
+		// TODO: Confirm that bypassing epoch checking by calling 
+                //       x10rtSendMessageInternal is the desired semantics.
+		x10rtSendMessageInternal(place.id, body, prof, null);
             }
             Unsafe.dealloc(body);
         } catch (e:CheckedThrowable) {

@@ -185,13 +185,10 @@ public class Lowerer extends ContextVisitor {
     private static final Name LOCAL_INDICES = Name.make("localIndices");
     private static final Name PLACE_GROUP = Name.make("placeGroup");
     
-    private static final Name XOR = Name.make("xor");
-    private static final Name FENCE = Name.make("fence");
     private static final QName PRAGMA = QName.make("x10.compiler.Pragma");
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
-    private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
     private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
     
     private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
@@ -649,7 +646,8 @@ public class Lowerer extends ContextVisitor {
         }
         if (isUncountedAsync(ts, a)) {
         	if (old instanceof Async) {
-            	 return uncountedAsync(pos, a.body(), env, isImmediateAsync(ts, a));
+            	 return uncountedAsync(pos, a.body(), env, isImmediateAsync(ts, a), 
+            	                       AnnotationUtils.annotationsMatching(a, ts.RemoteInvocation()));
         	}
         }
         if (old instanceof Async)
@@ -668,7 +666,8 @@ public class Lowerer extends ContextVisitor {
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, env, prof, isImmediateAsync(ts, a));
+            return uncountedAsync(pos, body, place, env, prof, isImmediateAsync(ts, a), 
+                                  AnnotationUtils.annotationsMatching(a, ts.RemoteInvocation()));
         }
 
         return async(pos, body, clocks, place, refs, env, prof);
@@ -782,23 +781,24 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body, Expr place,
-            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate,
+            List<X10ClassType> annotations) throws SemanticException {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
         t.add(ts.Place());
-        return makeUncountedAsyncBody(pos, l, t, body, env, prof, isImmediate);
+        return makeUncountedAsyncBody(pos, l, t, body, env, prof, isImmediate, annotations);
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body,
-            List<VarInstance<? extends VarDef>> env, boolean isImmediate) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, boolean isImmediate, List<X10ClassType> annotations) throws SemanticException {
         return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
-                new LinkedList<Type>(), body, env, null, isImmediate);
+                new LinkedList<Type>(), body, env, null, isImmediate, annotations);
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
-            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate) throws SemanticException {
-        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate, List<X10ClassType> annotations) throws SemanticException {
+        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
