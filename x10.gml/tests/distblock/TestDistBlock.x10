@@ -32,7 +32,7 @@ public class TestDistBlock extends x10Test {
 
     public val grid:Grid;
     public val dmap:DistMap;
-    public val skipPlaces:Long = 2;
+    public val skipPlaces:Long;
     
     public def this(args:Rail[String]) {
         M = args.size > 0 ? Long.parse(args(0)):30;
@@ -42,11 +42,15 @@ public class TestDistBlock extends x10Test {
         bM= args.size > 4 ? Long.parse(args(4)):4;
         bN= args.size > 5 ? Long.parse(args(5)):5;
         
-Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
         grid = new Grid(M, N, bM, bN);
+        if (Runtime.RESILIENT_MODE > 0 && Place.numPlaces() > 2) {
+            skipPlaces = 2;
+        } else {
+            skipPlaces = 0;
+        }
         val numPlaces = Place.numPlaces()-skipPlaces;
-        dmap = DistGrid.make(grid, numPlaces).dmap; 
-        Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
+        dmap = DistGrid.make(grid, numPlaces).dmap;
+        //Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.numPlaces());
     }
 
     public def run():Boolean {
