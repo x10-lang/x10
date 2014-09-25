@@ -1005,10 +1005,15 @@ public class SocketTransport {
 			System.err.println("Unknown message callback type: "+callbackId);
     }
 
-    static void runClosureAtReceive(InputStream input) throws IOException {
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
-    	VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
-    	actObj.$apply();
+    static void runClosureAtReceive(InputStream input) {
+        try {
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
+            actObj.$apply();
+        } catch (Throwable e) {
+            System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+            e.printStackTrace();
+        }
     }
     
     static void runSimpleAsyncAtReceive(InputStream input) throws IOException {

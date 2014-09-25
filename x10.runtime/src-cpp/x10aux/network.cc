@@ -320,13 +320,18 @@ static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"async nid: "<<nid<<" of kind: "<<ck<<ANSI_RESET);
     switch (ck) {
         case x10aux::CLOSURE_KIND_REMOTE_INVOCATION: {
-            Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
-            assert(buf.consumed() <= p->len);
-            _X_("The deserialised remote invocation was: "<<x10aux::safe_to_string(body));
-            deserialized_bytes += buf.consumed()  ; asyncs_received++;
-            if (NULL == body) return;
-            VoidFun_0_0::__apply(reinterpret_cast<VoidFun_0_0*>(body));
-            x10aux::dealloc(body);
+            try {
+                Reference* body(x10aux::NetworkDispatcher::create(buf, nid));
+                assert(buf.consumed() <= p->len);
+                _X_("The deserialised remote invocation was: "<<x10aux::safe_to_string(body));
+                deserialized_bytes += buf.consumed()  ; asyncs_received++;
+                if (NULL == body) return;
+                VoidFun_0_0::__apply(reinterpret_cast<VoidFun_0_0*>(body));
+                x10aux::dealloc(body);
+            } catch (x10::lang::CheckedThrowable* e) {
+                printf("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e->printStackTrace();
+            }
         } break;
         case x10aux::CLOSURE_KIND_ASYNC_CLOSURE: {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();

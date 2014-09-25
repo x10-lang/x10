@@ -86,9 +86,9 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is done !");
-    	} catch(Exception ex){
-    		System.out.println("runClosureAtReceive error !!!");
-    		ex.printStackTrace();
+    	} catch(Throwable ex){
+            System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+            ex.printStackTrace();
     	}
     }
 
