@@ -1192,6 +1192,35 @@ public final class Runtime {
         Unsafe.dealloc(body);
     }
 
+
+    /**
+     * Run @Immediate asyncat
+     */
+    public static def runImmediateAsync(place:Place, body:()=>void, prof:Profile):void {
+        // Do this before anything else
+        val a = activity();
+        a.ensureNotInAtomic();
+
+	// TODO: Specify exception behavior:
+        //    (1) during serialization (synchronous? dropped?)
+        //    (2) during execution (dropped locallly, to match remote behavior?)
+        // TODO: epoch semantics (uncounted, so ignore epoch?)
+        if (place.id == hereLong()) {
+            // copy body (at semantics) and then invoke immediately on current thread
+            val copiedBody = Runtime.deepCopy(body, prof);
+            copiedBody();
+        } else {
+            // TODO: Dave G.  I think the extra closure should be easily eliminated
+            //                by having Immediate also implement RemoteInvocation.
+            //                Deferring that optimization while prototyping to minimize changes.
+            val closure = ()=> @x10.compiler.RemoteInvocation("runImmediateAsync") { body(); };
+            x10rtSendMessage(place.id, closure, prof);
+            Unsafe.dealloc(closure);
+        }
+        Unsafe.dealloc(body);
+    }
+
+
     /**
      * Run @Uncounted async
      */

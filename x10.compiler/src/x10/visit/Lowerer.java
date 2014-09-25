@@ -161,6 +161,7 @@ public class Lowerer extends ContextVisitor {
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
+    private static final Name RUN_IMMEDIATE_ASYNC = Name.make("runImmediateAsync");
     private static final Name HOME = Name.make("home");
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("advanceAll");
@@ -186,10 +187,10 @@ public class Lowerer extends ContextVisitor {
     
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
-    private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
     private static final QName PRAGMA = QName.make("x10.compiler.Pragma");
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
+    private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
     private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
     
@@ -647,14 +648,13 @@ public class Lowerer extends ContextVisitor {
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-        	if (old instanceof Async)
-            	 return uncountedAsync(pos, a.body(), env);
+        	if (old instanceof Async) {
+            	 return uncountedAsync(pos, a.body(), env, isImmediateAsync(ts, a));
+        	}
         }
         if (old instanceof Async)
             return async(pos, a.body(), clocks, refs, env);
-        Stmt specializedAsync = specializeAsync(a, null, a.body());
-        if (specializedAsync != null)
-            return specializedAsync;
+
         return async(pos, a.body(), clocks, refs, env);
     }
     // Begin asyncs
@@ -668,114 +668,18 @@ public class Lowerer extends ContextVisitor {
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, env, prof);
+            return uncountedAsync(pos, body, place, env, prof, isImmediateAsync(ts, a));
         }
-        Stmt specializedAsync = specializeAsync(a, place, body);
-        if (specializedAsync != null)
-            return specializedAsync;
-        return async(pos, body, clocks, place, refs, env, prof);
-    }
 
-    // TODO: add more rules from SPMDcppCodeGenerator
-    private boolean isGloballyAvailable(Expr e) {
-        if (e instanceof Local)
-            return true;
-        return false;
+        return async(pos, body, clocks, place, refs, env, prof);
     }
 
     public static boolean isUncountedAsync(TypeSystem ts, Async a) {
         return AnnotationUtils.hasAnnotation(ts, a, UNCOUNTED);
     }
-
-    /**
-     * Recognize the following pattern:
-     * <pre>
-     * @Immediate async at(p) {
-     *     r(i) ^= v;
-     * }
-     * </pre>
-     * where <tt>p: Place</tt>, <tt>r: Rail[T]!p</tt>, <tt>i:Int</tt>, and <tt>v:T</tt>,
-     * and compile it into an optimized remote operation.
-     * @param a the async statement
-     * @return an invocation of the remote operation, or null if no match
-     * @throws SemanticException
-     * TODO: move into a separate pass!
-     */
-    private Stmt specializeAsync(Async a, Expr p, Stmt body) throws SemanticException {
-        if (!AnnotationUtils.hasAnnotation(ts, a, IMMEDIATE))
-            return null;
-        if (a.clocks().size() != 0)
-            return null;
-        
-        if (body instanceof Block) {
-            List<Stmt> stmts = ((Block) body).statements();
-            if (stmts.size() != 1)
-                return null;
-            body = stmts.get(0);
-        }
-        if (!(body instanceof Eval))
-            return null;
-        Expr e = ((Eval) body).expr();
-        if (!(e instanceof SettableAssign))
-            return null;
-        SettableAssign sa = (SettableAssign) e;
-        if (sa.operator() != Assign.BIT_XOR_ASSIGN)
-            return null;
-        List<Expr> is = sa.index();
-        if (is.size() != 1)
-            return null;
-        Expr i = is.get(0);
-        if (p instanceof X10New) {
-            // TODO: make sure we calling the place constructor
-            // TODO: decide between rail and place-local handle
-            X10New n = (X10New) p;
-            Expr q =  n.arguments().get(0);
-            Expr r = sa.array();
-            Expr v = sa.right();
-            if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
-                return null;
-    /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
-            if (!v.type().isLong() || !ts.isRailOf(r.type(), ts.Long()))
-                return null;
-            if (!PlaceChecker.isAtPlace(r, p, xContext()))
-                return null;
-    */
-            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
-            Position pos = a.position();
-            List<Expr> args = new ArrayList<Expr>();
-            Expr p1 = (Expr) leaveCall(null, q, this);
-            args.add(p1);
-            args.add((Expr) leaveCall(null, r, this));
-            args.add((Expr) leaveCall(null, i, this));
-            args.add((Expr) leaveCall(null, v, this));
-            Stmt alt = nf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, ts.Void(), context()));
-            Expr cond = nf.Binary(pos, q, X10Binary_c.EQ, call(pos, HERE_INT, ts.Int())).type(ts.Boolean());
-            Stmt cns = a.body();
-            return nf.If(pos, cond, cns, alt);
-        } else {
-            Expr r = sa.array();
-            Expr v = sa.right();
-            if (/*!isGloballyAvailable(r) || */!isGloballyAvailable(i) || !isGloballyAvailable(v))
-                return null;
-    /*        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
-            if (!v.type().isLong() || !ts.isRailOf(r.type(), ts.Long()))
-                return null;
-            if (!PlaceChecker.isAtPlace(r, p, xContext()))
-                return null;
-    */
-            ClassType RemoteOperation = (ClassType) ts.forName(REMOTE_OPERATION);
-            Position pos = a.position();
-            List<Expr> args = new ArrayList<Expr>();
-            Expr p1 = (Expr) leaveCall(null, p, this);
-            args.add(p1);
-            args.add((Expr) leaveCall(null, r, this));
-            args.add((Expr) leaveCall(null, i, this));
-            args.add((Expr) leaveCall(null, v, this));
-            Stmt alt = nf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, ts.Void(), context()));
-            Expr cond = nf.Binary(pos, p, X10Binary_c.EQ, call(pos, HOME, ts.Place())).type(ts.Boolean());
-            Stmt cns = a.body();
-            return nf.If(pos, cond, cns, alt);
-        }
+    
+    public static boolean isImmediateAsync(TypeSystem ts, Async a) {
+        return AnnotationUtils.hasAnnotation(ts, a, IMMEDIATE);
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place, List<X10ClassType> annotations,
@@ -878,22 +782,22 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body, Expr place,
-            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate) throws SemanticException {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
         t.add(ts.Place());
-        return makeUncountedAsyncBody(pos, l, t, body, env, prof);
+        return makeUncountedAsyncBody(pos, l, t, body, env, prof, isImmediate);
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body,
-            List<VarInstance<? extends VarDef>> env) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, boolean isImmediate) throws SemanticException {
         return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
-                new LinkedList<Type>(), body, env, null);
+                new LinkedList<Type>(), body, env, null, isImmediate);
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
-            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, Expr prof, boolean isImmediate) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
@@ -905,8 +809,9 @@ public class Lowerer extends ContextVisitor {
             types.add(prof.type());
         }	
         Stmt result = nf.Eval(pos,
-                synth.makeStaticCall(pos, ts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
-                        ts.Void(), types, context()));
+                              synth.makeStaticCall(pos, ts.Runtime(), 
+                                                   isImmediate ? RUN_IMMEDIATE_ASYNC : RUN_UNCOUNTED_ASYNC, 
+                                                   exprs, ts.Void(), types, context()));
         return result;
     }
     // end Async
@@ -981,27 +886,6 @@ public class Lowerer extends ContextVisitor {
 
     protected Expr call(Position pos, Name name, Expr arg, Type returnType) throws SemanticException {
         return synth.makeStaticCall(pos, ts.Runtime(), name, Collections.singletonList(arg), returnType, context());
-    }
-
-    /**
-     * Recognize the following pattern:
-     * <pre>
-     * @Immediate finish S;
-     * </pre>
-     * where <tt>S</tt> is any statement,
-     * and compile it into S followed by an optimized remote fence operation.
-     * @param f the finish statement
-     * @return a block consisting of S followed by the invocation of a remote fence operation, or null if no match
-     * @throws SemanticException
-     * TODO: move into a separate pass!
-     */
-    private Stmt specializeFinish(Finish f) throws SemanticException {
-        if (!AnnotationUtils.hasAnnotation(ts, f, IMMEDIATE))
-            return null;
-        Position pos = f.position();
-        ClassType target = (ClassType) ts.forName(REMOTE_OPERATION);
-        List<Expr> args = new ArrayList<Expr>();
-        return nf.Block(pos, f.body(), nf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, ts.Void(), context())));
     }
     
     private int getPatternFromAnnotation(AnnotationNode a){
@@ -1092,11 +976,7 @@ public class Lowerer extends ContextVisitor {
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = Name.makeFresh("ct");
-
-        Stmt specializedFinish = specializeFinish(f);
-        if (specializedFinish != null)
-            return specializedFinish;
-
+        
         // TODO: merge with the call() function
         Type catchType = ts.CheckedThrowable();
         MethodInstance mi = ts.findMethod(ts.Runtime(),
