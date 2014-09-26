@@ -101,6 +101,7 @@ Below is a summary of JIRA issues addressed for the X10 2.5.0
     * [XTENLANG-3425] - Inconsistencies between Managed and Native implementations of zero-size Rail.asyncCopy, Rail.uncountedCopy 
     * [XTENLANG-3426] - Update online help contents for X10DT 2.5
     * [XTENLANG-3431] - Killing second place results in program termination
+    * [XTENLANG-3432] - Fix to experimental Java MPI launcher
 
 ** Tasks
     * [XTENLANG-3201] - Need official release of GML
