@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <jni.h>
 
 int main(int ac, char* av[]) {
@@ -31,6 +32,10 @@ int main(int ac, char* av[]) {
     char** vmOptions = av + 1;
     int vmNOptions = clsIndex - 1;
     char* clsName = av[clsIndex];
+    char* clsNameFQ = strdup(clsName);
+    for (int i = 0; i < strlen(clsNameFQ); ++i) {
+        if (clsNameFQ[i] == '.') clsNameFQ[i] = '/';
+    }
     char** clsOptions = av + clsIndex + 1;
     int clsNOptions = ac - (clsIndex + 1);
 
@@ -53,7 +58,8 @@ int main(int ac, char* av[]) {
     delete options;
 
     /* invoke the static main method of the Java class (clsName) using the JNI */
-    jclass cls = env->FindClass(clsName);
+    jclass cls = env->FindClass(clsNameFQ);
+    //free(clsNameFQ);
     if (cls == NULL) {
         fprintf(stderr, "Cannot find %s class. Exiting.\n", clsName);
         exit(1);
