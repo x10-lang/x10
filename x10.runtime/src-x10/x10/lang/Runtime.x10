@@ -1211,9 +1211,7 @@ public final class Runtime {
                 val copiedBody = Runtime.deepCopy(body, prof);
                 copiedBody();
             } else {
-		// TODO: Confirm that bypassing epoch checking by calling 
-                //       x10rtSendMessageInternal is the desired semantics.
-		x10rtSendMessageInternal(place.id, body, prof, null);
+                x10rtSendMessage(place.id, body, prof, null);
             }
             Unsafe.dealloc(body);
         } catch (e:CheckedThrowable) {
