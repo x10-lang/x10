@@ -63,10 +63,50 @@ SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
 Below is a summary of JIRA issues addressed for the X10 2.5.0
 
-TODO:
+** New Features and Improvements
+    * [XTENLANG-573] - x10.util.HashMap & Boxing
+    * [XTENLANG-1955] - Calling external MPI Library(PWSMP) on multiple nodes has performance issue
+    * [XTENLANG-2493] - static val members with constant values should be const in generated C++
+    * [XTENLANG-2866] - Modernize x10.util.Map (and others) to provide operators as shorthands
+    * [XTENLANG-3181] - Ensure graceful failure of X10 runtime in presence of failures
+    * [XTENLANG-3302] - Faster put, remove for MapSet
+    * [XTENLANG-3394] - Upgrade to bdwgc 7.4.x
+    * [XTENLANG-3399] - Rail.uncountedCopy for Managed X10
+    * [XTENLANG-3401] - X10 implementation of Team reduce, allreduce
+    * [XTENLANG-3411] - Native X10: codegen for string literals
+    * [XTENLANG-3414] - GML arbitrary place group distribution
+    * [XTENLANG-3416] - Need Watcher.await with timeout
+    * [XTENLANG-3419] - X10 implementation of Team alltoall
+    * [XTENLANG-3423] - Change MultipleExceptions.exceptions to Rail[CheckedThrowable]
+    * [XTENLANG-3429] - Change default value of X10_NTHREADS from 1 to availableProcessors
+    * [XTENLANG-3430] - X10 implementation of Team scatter
+
+** Bugs
+    * [XTENLANG-3051] - Cannot pass "INIT_THREADS" flag to Java runtime
+    * [XTENLANG-3312] - Rail.asyncCopy sometime fails on large input
+    * [XTENLANG-3313] - x10c should detect recursive jar creation
+    * [XTENLANG-3371] - Race condition in Runtime.Workers.multiplace
+    * [XTENLANG-3372] - Intermittent stack overflow in polyglot
+    * [XTENLANG-3390] - Allow X10 values to be serialized via Java serialization
+    * [XTENLANG-3392] - Initial activity does not drop its clocks upon terminating.
+    * [XTENLANG-3395] - Spurious wake-up in x10.util.concurrent.SPMDBarrier causes deadlock
+    * [XTENLANG-3396] - Fail to compile a static method in Native X10
+    * [XTENLANG-3398] - Evaluation of Team.WORLD hangs on multi places with JavaSockets
+    * [XTENLANG-3400] - PlaceLocalHandles: remove dependency on Place 0 for id assignment
+    * [XTENLANG-3408] - Performance of JavaSockets transport
+    * [XTENLANG-3413] - Native X10: closures in generic methods that do not capture type params should go in .cc not .h
+    * [XTENLANG-3417] - Support generation of a jar file which includes no X10/Java source files
+    * [XTENLANG-3418] - Reader#{mark(Int),available():Int} should use Long rather than Int
+    * [XTENLANG-3421] - C++ post compilation error (missing inclusion of x10/lang/Float.h) 
+    * [XTENLANG-3425] - Inconsistencies between Managed and Native implementations of zero-size Rail.asyncCopy, Rail.uncountedCopy 
+    * [XTENLANG-3426] - Update online help contents for X10DT 2.5
+    * [XTENLANG-3431] - Killing second place results in program termination
+
+** Tasks
+    * [XTENLANG-3201] - Need official release of GML
 
 For the details of JIRA issues fixed in this release, see
-URL HERE:
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=19141
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
