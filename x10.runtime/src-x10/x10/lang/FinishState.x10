@@ -445,12 +445,10 @@ abstract class FinishState {
             // if there were remote activities spawned, clean up the RemoteFinish objects which tracked them
             if (remoteActivities != null && remoteActivities.size() != 0) {
                 val root = ref();
-                val closure = ()=>@RemoteInvocation("remoteFinishCleanup") { Runtime.finishStates.remove(root); };
                 remoteActivities.remove(here.id);
                 for (placeId in remoteActivities.keySet()) {
-                    Runtime.x10rtSendMessage(placeId, closure, null);
+                    at(Place(placeId)) @Immediate("remoteFinishCleanup") async Runtime.finishStates.remove(root);
                 }
-                Unsafe.dealloc(closure);
             }
             // throw exceptions here if any were collected via the execution of child activities
             val t = MultipleExceptions.make(exceptions);
@@ -571,33 +569,32 @@ abstract class FinishState {
                 return;
             }
             val t = MultipleExceptions.make(exceptions);
+            exceptions = null;
             val ref = this.ref();
-            val closure:()=>void;
             if (remoteActivities != null && remoteActivities.size() != 0) {
                 remoteActivities.put(here.id, count); // put our own count into the table
                 // pre-serialize the hashmap here
                 val serializer = new x10.io.Serializer();
                 serializer.writeAny(remoteActivities);
                 val serializedTable:Rail[Byte] = serializer.toRail();
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(serializedTable, t); };
-                } else {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(serializedTable); };
-                }
                 remoteActivities.clear();
+                count = 0n;
+                lock.unlock();
+                if (null != t) {
+                    at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootFinish](ref).notify(serializedTable, t);
+                } else {
+                    at(ref.home) @Immediate("notifyActivityTermination_2") async deref[RootFinish](ref).notify(serializedTable);
+                }
             } else {
                 val message = new Pair[Long, Int](here.id, count);
+                count = 0n;
+                lock.unlock();
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
+                    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootFinish](ref).notify(message, t);
                 } else {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
+                    at(ref.home) @Immediate("notifyActivityTermination_4") async deref[RootFinish](ref).notify(message);
                 }
             }
-            count = 0n;
-            exceptions = null;
-            lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Unsafe.dealloc(closure);
         }
     }
 
@@ -668,6 +665,7 @@ abstract class FinishState {
                 return;
             }
             val t = MultipleExceptions.make(exceptions);
+            exceptions = null;
             val ref = this.ref();
             val closure:()=>void;
             if (remoteActivities != null && remoteActivities.size() != 0) {
@@ -676,30 +674,31 @@ abstract class FinishState {
                 val serializer = new x10.io.Serializer();
                 serializer.writeAny(remoteActivities);
                 val serializedTable:Rail[Byte] = serializer.toRail();
-                if (null != t) {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootFinish](ref).notify(serializedTable, t); };
-                } else {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootFinish](ref).notify(serializedTable); };
-                }
                 remoteActivities.clear();
+                count = 0n;
+                lock.unlock();
+                if (null != t) {
+                    closure = ()=>{ deref[RootFinish](ref).notify(serializedTable, t); };
+                } else {
+                    closure = ()=>{ deref[RootFinish](ref).notify(serializedTable); };
+                }
             } else {
                 val message = new Pair[Long, Int](here.id, count);
+                count = 0n;
+                lock.unlock();
                 if (null != t) {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootFinish](ref).notify(message, t); };
+                    closure = ()=>{ deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootFinish](ref).notify(message); };
+                    closure = ()=>{ deref[RootFinish](ref).notify(message); };
                 }
             }
-            count = 0n;
-            exceptions = null;
-            lock.unlock();
             val h = Runtime.hereInt();
             if ((Place.numPlaces() < 1024) || (h%32n == 0n) || (h-h%32n == (ref.home.id as Int))) {
-                Runtime.x10rtSendMessage(ref.home.id, closure, null);
+                at(ref.home) @Immediate("notifyActivityTermination_1") async closure();
             } else {
-                val clx = ()=>@RemoteInvocation("notifyActivityTermination_5") { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
-                Runtime.x10rtSendMessage(h-h%32, clx, null);
-                Unsafe.dealloc(clx);
+                at(Place(h-h%32)) @Immediate("notifyActivityTermination_3") async {
+                    at(ref.home) @Immediate("notifyActivityTermination_2") async closure();
+                }
             }
             Unsafe.dealloc(closure);
         }
@@ -819,8 +818,8 @@ abstract class FinishState {
                 return;
             }
             val t = MultipleExceptions.make(exceptions);
+            exceptions = null;
             val ref = this.ref();
-            val closure:()=>void;
             sr.placeMerge();
             val result = sr.result();
             sr.reset();
@@ -830,25 +829,24 @@ abstract class FinishState {
                 val serializer = new x10.io.Serializer();
                 serializer.writeAny(remoteActivities);
                 val serializedTable:Rail[Byte] = serializer.toRail();
+                remoteActivities.clear();
+                count = 0n;
+                lock.unlock();
             	if (null != t) {
-            		closure = ()=>@RemoteInvocation("notifyActivityTermination_1") { deref[RootCollectingFinish[T]](ref).notify(serializedTable, t); };
+            		at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootCollectingFinish[T]](ref).notify(serializedTable, t);
             	} else {
-            		closure = ()=>@RemoteInvocation("notifyActivityTermination_2") { deref[RootCollectingFinish[T]](ref).notifyValue(serializedTable, result); };
+            		at(ref.home) @Immediate("notifyActivityTermination_2") async deref[RootCollectingFinish[T]](ref).notifyValue(serializedTable, result);
             	}
-            	remoteActivities.clear();
             } else {
             	val message = new Pair[Long, Int](here.id, count);
+            	count = 0n;
+            	lock.unlock();
             	if (null != t) {
-            		closure = ()=>@RemoteInvocation("notifyActivityTermination_3") { deref[RootCollectingFinish[T]](ref).notify(message, t); };
+            	    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootCollectingFinish[T]](ref).notify(message, t);
             	} else {
-            		closure = ()=>@RemoteInvocation("notifyActivityTermination_4") { deref[RootCollectingFinish[T]](ref).notifyValue(message, result); };
+            	    at(ref.home) @Immediate("notifyActivityTermination_4") async deref[RootCollectingFinish[T]](ref).notifyValue(message, result);
             	}
             }
-            count = 0n;
-            exceptions = null;
-            lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure, null);
-            Unsafe.dealloc(closure);
         }
     }
 }
