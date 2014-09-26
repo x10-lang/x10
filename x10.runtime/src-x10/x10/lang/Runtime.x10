@@ -1205,19 +1205,19 @@ public final class Runtime {
      * the compiler respects this invariant.
      */
     private static def runImmediateAsync(place:Place, body:()=>void, prof:Profile):void {
-        try {
-            if (place.id == hereLong()) {
-                // copy body (at semantics) and then invoke immediately on current thread
-                val copiedBody = Runtime.deepCopy(body, prof);
+        if (place.id == hereLong()) {
+            // copy body (at semantics) and then invoke immediately on current thread
+            val copiedBody = Runtime.deepCopy(body, prof);
+            try {
                 copiedBody();
-            } else {
-                x10rtSendMessage(place.id, body, prof, null);
+            } catch (e:CheckedThrowable) {
+                println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e.printStackTrace();
             }
-            Unsafe.dealloc(body);
-        } catch (e:CheckedThrowable) {
-            println("WARNING: Ignoring uncaught exception in @Immediate async.");
-            e.printStackTrace();
+        } else {
+            x10rtSendMessage(place.id, body, prof, null);
         }
+        Unsafe.dealloc(body);
     }
 
 
