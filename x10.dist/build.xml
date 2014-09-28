@@ -582,6 +582,7 @@
 	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
 # DO NOT EDIT - This file was automatically generated.
 UNAME=`uname -smp | sed -e 's/ /,/g'`
+UNAMES=(${UNAME//,/ })
 unset IS_CYGWIN; if [[ "$UNAME" = CYGWIN* ]]; then IS_CYGWIN=1; fi
 FILE_SEP='/'; if [ -n "$IS_CYGWIN" ]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [ -n "$IS_CYGWIN" ]; then PATH_SEP=';'; fi

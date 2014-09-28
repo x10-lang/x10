@@ -129,8 +129,7 @@ CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
 STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
-if [ "${PRINT_DIR}XX" != XX ] 
-then
+if [ "${PRINT_DIR}XX" != XX ]; then
     case ${PRINT_DIR} in
 	bin) echo ${TOP}${FILE_SEP}bin ;;
 	etc) echo ${CONFIG_DIR} ;;
@@ -155,9 +154,7 @@ if [ -z "$dev" ]; then
   fi
 fi
 
-if [ -n "$extra_cp" ]; then
-   classpath="$extra_cp${PATH_SEP}$classpath"
-fi
+[ -n "$extra_cp" ] && classpath="$extra_cp${PATH_SEP}$classpath"
 
 externpath="${LIB_DIR}"
 if [ -n "$LD_LIBRARY_PATH" ] ; then
@@ -168,9 +165,7 @@ if [ -n "$LD_LIBRARY_PATH" ] ; then
     done
     IFS="$OLD_IFS"
 fi
-if [ -n "$extra_lib" ]; then
-    externpath="$extra_lib${PATH_SEP}$externpath"
-fi
+[ -n "$extra_lib" ] && externpath="$extra_lib${PATH_SEP}$externpath"
 
 if [ "${x10rt_impl}" = "local" ]; then
     unset launcher
@@ -205,6 +200,22 @@ else
             [ -n "$X10_HOSTFILE" ] && launcher_args=("-machinefile" "$X10_HOSTFILE" "${launcher_args[@]}")
         fi
         JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
+        # add LD_LIBRARY_PATH for loading libjvm.so
+        jarch=${UNAMES[2]} # $(uname -p)
+        [ "${jarch}" = "unknown" ] && jarch=${UNAMES[1]} # $(uname -m)
+        [ "${jarch}" = "x86_64" ] && jarch=amd64
+        if [ -d "$JAVA_HOME${FILE_SEP}jre" ]; then
+           JRE_DIR="$JAVA_HOME${FILE_SEP}jre"
+        else
+           JRE_DIR="$JAVA_HOME"
+        fi
+        JRE_LIB="$JRE_DIR${FILE_SEP}lib${FILE_SEP}${jarch}"
+        JVM_LIB="$JRE_LIB${FILE_SEP}j9vm${PATH_SEP}$JRE_LIB${FILE_SEP}server${PATH_SEP}$JRE_LIB${FILE_SEP}client"
+        if [ -n "$LD_LIBRARY_PATH" ]; then
+            export LD_LIBRARY_PATH="$LD_LIBRARY_PATH${PATH_SEP}$JVM_LIB"
+        else
+            export LD_LIBRARY_PATH="$JVM_LIB"
+        fi
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
         noclassloadtest="true"
     elif [ "${x10rt_impl}" = "pami" ]; then
@@ -222,9 +233,7 @@ else
     fi
 fi
 
-if [ -z "$logconf" ]; then
-  logconf="${LIB_DIR}${FILE_SEP}${LOGGING_PROPERTIES}"
-fi
+[ -z "$logconf" ] && logconf="${LIB_DIR}${FILE_SEP}${LOGGING_PROPERTIES}"
 java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 
 # TODO: executable jar
@@ -232,19 +241,11 @@ java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
 #java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
-if [ -z "$noassert" ]; then
-   java_args=("-ea" "${java_args[@]}")
-fi
+[ -z "$noassert" ] && java_args=("-ea" "${java_args[@]}")
 
-if [ -n "$ss" ]; then
-   java_args=("-Xss$ss" "${java_args[@]}")
-fi
-if [ -n "$mx" ]; then
-   java_args=("-Xmx$mx" "${java_args[@]}")
-fi
-if [ -n "$ms" ]; then
-   java_args=("-Xms$ms" "${java_args[@]}")
-fi
+[ -n "$ss" ] && java_args=("-Xss$ss" "${java_args[@]}")
+[ -n "$mx" ] && java_args=("-Xmx$mx" "${java_args[@]}")
+[ -n "$ms" ] && java_args=("-Xms$ms" "${java_args[@]}")
 
 java_args=("${java_args[@]}" ${defs})
 
