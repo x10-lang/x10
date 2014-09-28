@@ -201,8 +201,8 @@ else
         else
             launcher="mpirun"
             [ -n "$X10_NPLACES" ] && launcher_args=("-np" "$X10_NPLACES" "${launcher_args[@]}")
-            [ -n "$X10_HOSTLIST" ] && launcher_args=("--host" "$X10_HOSTLIST" "${launcher_args[@]}")
-            [ -n "$X10_HOSTFILE" ] && launcher_args=("--hostfile" "$X10_HOSTFILE" "${launcher_args[@]}")
+            [ -n "$X10_HOSTLIST" ] && launcher_args=("-host" "$X10_HOSTLIST" "${launcher_args[@]}")
+            [ -n "$X10_HOSTFILE" ] && launcher_args=("-machinefile" "$X10_HOSTFILE" "${launcher_args[@]}")
         fi
         JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
