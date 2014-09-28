@@ -43,25 +43,22 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG("save: key=" + key);
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().put(key,value); // value is deep-copied by "at"
+            at (hm) atomic { hm().put(key,value); } // value is deep-copied by "at"
         }
         public def load(key:K) {
             if (verbose>=1) DEBUG("load: key=" + key);
-            var value:V;
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            value = at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+            val value = at (hm) {
+              var v:V; atomic { v = hm().getOrThrow(key); } v
+            }; // value is deep-copied by "at"
             return value;
         }
         public def delete(key:K) {
             if (verbose>=1) DEBUG("delete: key=" + key);
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().remove(key);
+            at (hm) atomic { hm().remove(key); }
         }
         public def deleteAll() {
             if (verbose>=1) DEBUG("deleteAll");
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().clear();
+            at (hm) atomic { hm().clear(); }
         }
     }
     
@@ -79,8 +76,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (here) hm().put(key, value); // value is deep-copied by "at"
+            at (here) atomic { hm().put(key, value); } // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
             var backupPlace:Long = key.hashCode() % Place.numPlaces();
@@ -93,8 +89,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
-               finish //TODO: remove this workaround (see XTENLANG-3260)
-                at (Place(backupPlace)) hm().put(key, value);
+                at (Place(backupPlace)) atomic { hm().put(key, value); }
                 if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
             if (verbose>=1) DEBUG(key, "save returning");
@@ -103,9 +98,9 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
             if (verbose>=1) DEBUG(key, "load called");
             /* First, try to load locally */
             try {
-                var value:V;
-               finish //TODO: remove this workaround (see XTENLANG-3260)
-                value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
+                val value = at (here) {
+                  var v:V; atomic { v = hm().getOrThrow(key); } v
+                }; // value is deep-copied by "at"
                 if (verbose>=1) DEBUG(key, "restored locally");
                 if (verbose>=1) DEBUG(key, "load returning");
                 return value;
@@ -120,9 +115,9 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
-                        var value:V;
-                       finish //TODO: remove this workaround (see XTENLANG-3260)
-                        value = at (Place(backupPlace)) hm().getOrThrow(key);
+                        val value = at (Place(backupPlace)) {
+                          var v:V; atomic { v = hm().getOrThrow(key); } v
+                        };
                         if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
                         if (verbose>=1) DEBUG(key, "load returning");
                         return value;
@@ -140,13 +135,13 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         public def delete(key:K) {
             finish for (pl in Place.places()) {
                 if (pl.isDead()) continue;
-                at (pl) async hm().remove(key);
+                at (pl) async atomic { hm().remove(key); }
             }
         }
         public def deleteAll() {
             finish for (pl in Place.places()) {
                 if (pl.isDead()) continue;
-                at (pl) async hm().clear();
+                at (pl) async atomic { hm().clear(); }
             }
         }
     }
