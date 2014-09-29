@@ -262,17 +262,19 @@ public struct Team {
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
-        }
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+        } else /*if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) */ {
             if (DEBUG) Runtime.println(here + " entering pre-alltoall barrier of team "+id);
             barrier();
             if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
         }
+// XTENLANG-3434 X10 alltoall is broken
+/*
         else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 alltoall of team "+id);
             state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, 0n);
         }
+*/
         if (DEBUG) Runtime.println(here + " leaving alltoall of team "+id);
     }
     
@@ -834,6 +836,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
                         val totalData = count*(myLinks.totalChildren+1);
                         @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
                             waitForParentToReceive();
+if (DEBUGINTERNALS) Runtime.println(here+ " alltoall gathering from offset "+(dst_off+(count*sourceIndex))+" to local_dst_off "+(Team.state(teamidcopy).local_dst_off+(count*sourceIndex))+" size " + totalData);
                             // copy my data, plus all the data filled in by my children, to my parent
                             Rail.uncountedCopy(gr, dst_off+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), totalData, incrementParentPhase);
                         }
@@ -910,8 +913,10 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
                         val teamSize = Team.state(teamidcopy).places.size();
                         val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
                         finish {
+if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering first chunk from dst_off "+dst_off+" to local_dst_off "+Team.state(teamidcopy).local_dst_off+" size " + count*Team.state(teamidcopy).myIndex);
                             // position 0 up to the child id
                             Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, count*Team.state(teamidcopy).myIndex);
+if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk from offset "+(dst_off+(count*lastChild))+" to local_dst offset "+(Team.state(teamidcopy).local_dst_off+(count*lastChild))+" size " + count*(teamSize-lastChild));
                             // position of last child range, to the end
                             Rail.asyncCopy(gr, dst_off+(count*lastChild), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*lastChild), count*(teamSize-lastChild));
                         }
