@@ -704,6 +704,8 @@ public class SocketTransport {
     	controlData.flip();
     	if (DEBUG) System.err.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
     	CommunicationLink cl = channels.get(place);
+    	if (cl.placeid != place)
+    		System.err.println("SEVERE ERROR: place "+place+" does not match "+cl.placeid);
     	try {
 	    	cl.writeLock.lock();
 	    	try {
@@ -868,12 +870,12 @@ public class SocketTransport {
 					linkInitializer.allowCoreThreadTimeOut(true);
 					for (int i=0; i<placeStrings.length; i++) {
 						if (DEAD.equals(placeStrings[i]))
-							deadPlaces.add(i);
+							markPlaceDead(i);
 						else if (remotePlace != i && placeStrings[i].length() > 0) {
 							linkInitializer.execute(new BackgroundLinkInitializer(i, placeStrings[i]));
 						}
 					}
-					if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links to "+(placeStrings.length-deadPlaces.size())+" additional places");
+					if (DEBUG) System.err.println("Place "+myPlaceId+" establishing links to "+(placeStrings.length-numDead())+" additional places");
 				}
 				else {
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
@@ -938,7 +940,7 @@ public class SocketTransport {
     private void flushBufferedBytes(CommunicationLink link) {
     	if (DEBUG) System.err.println("Flushing data");
     	
-    	if (!shuttingDown && !deadPlaces.contains(link.placeid) && link.writeLock.tryLock()) {
+    	if (!shuttingDown && !isPlaceDead(link.placeid) && link.writeLock.tryLock()) {
     		try {
     			if (link.pendingWrites == null) return;
     	    	
@@ -1050,7 +1052,7 @@ public class SocketTransport {
 				initLink(placeId, connectionInfo);
 			} catch (IOException e) {
 				// this place appears to be dead.  Mark it as so.
-				deadPlaces.add(placeId);
+				markPlaceDead(placeId);
 				if (DEBUG) System.err.println(e.toString());
 			}
 		}
