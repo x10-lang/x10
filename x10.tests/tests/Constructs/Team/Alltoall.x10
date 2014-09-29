@@ -18,16 +18,15 @@ import x10.util.Team;
 public class Alltoall extends x10Test {
 
     def allToAllTest(team:Team, res:GlobalRef[Cell[Boolean]]) {
-        val count = 113L;
-        val sz = count*team.size();
-        val src = new Rail[Double](count, (i:long)=>((here.id*count+i) as Double));
+        val sz = team.size();
+        val src = new Rail[Double](sz, (i:long)=>(i as Double));
         val dst = new Rail[Double](sz, (i:long)=>-(i as Double));
         var success: boolean = true;
         {
-            team.alltoall(src, 0L, dst, 0L, count);
+            team.alltoall(src, 0L, dst, 0L, 1);
 
-            for (i in 0..(count-1)) {
-                val oracle = i as Double;
+            for (i in 0..(sz-1)) {
+                val oracle = (here.id) as Double;
                 if (dst(i) != oracle) {
                     Console.OUT.printf("Team %d place %d received invalid value %f at %d instead of %f\n",
                                        team.id(), here.id, dst(i), i, oracle);
