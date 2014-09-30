@@ -594,9 +594,9 @@ public class SocketTransport {
 									controlMsg.put(allPlaceLinksBytes);
 									controlMsg.flip();
 									writeNBytes(newPlace.sc, controlMsg);
-									channels.put(remote, new CommunicationLink(sc, remote, newPlace.portInfo));
-									setSocketOptions(sc);
-									sc.register(selector, SelectionKey.OP_READ);
+									channels.put(remote, new CommunicationLink(newPlace.sc, remote, newPlace.portInfo));
+									setSocketOptions(newPlace.sc);
+									newPlace.sc.register(selector, SelectionKey.OP_READ);
 									if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 									
 									// update nplaces here, because we won't get a connection from the new place, as it already exists
@@ -704,8 +704,6 @@ public class SocketTransport {
     	controlData.flip();
     	if (DEBUG) System.err.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
     	CommunicationLink cl = channels.get(place);
-    	if (cl.placeid != place)
-    		System.err.println("SEVERE ERROR: place "+place+" does not match "+cl.placeid);
     	try {
 	    	cl.writeLock.lock();
 	    	try {
