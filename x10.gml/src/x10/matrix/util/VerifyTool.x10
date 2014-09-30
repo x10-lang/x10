@@ -12,9 +12,10 @@
 package x10.matrix.util;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 
 /**
- * This class is used to verify matrix multiplication result. 
+ * This class is used to verify matrix and vector properties and operations. 
  */
 public class VerifyTool {
     /**
@@ -143,7 +144,6 @@ public class VerifyTool {
 	 * @return if elements in two matrices are all same
 	 */
 	public static def testSame(m1:Matrix, m2:Matrix(m1.M, m1.N)):Boolean {
-		
 		for (var c:Long=0; c< m1.N; c++)
 			for (var r:Long=0; r< m1.M; r++) {
 				val v1=	m1(r,c);
@@ -209,6 +209,22 @@ public class VerifyTool {
 					Console.OUT.flush();
 					return false;
 				}
+			}
+		return true;
+	}
+
+	/**
+	 * Test for (near) equality of two vectors.
+	 * @param v1 first vector
+	 * @param v2 second vector
+	 * @return true if each element in v1 is equal to the corresponding element in v2, within tolerance
+	 */
+	public static def testSame(v1:Vector, v2:Vector(v1.M)):Boolean {
+		for (m in 0..(v1.M-1))
+			if (MathTool.equals(v1(m), v2(m)) == false) {
+                Console.OUT.println("element " + m + " " + v1(m) + " != " + v2(m));
+				Console.OUT.flush();
+				return false;
 			}
 		return true;
 	}

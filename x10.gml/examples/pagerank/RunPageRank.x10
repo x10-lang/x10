@@ -13,6 +13,8 @@ import x10.matrix.Vector;
 
 import pagerank.PageRank;
 import pagerank.SeqPageRank;
+import x10.matrix.util.PlaceGroupBuilder;
+import x10.matrix.util.VerifyTool;
 
 /**
  * Page Rank demo
@@ -27,7 +29,7 @@ import pagerank.SeqPageRank;
  * <p> (7) Print output flag: Default false. 
  */
 public class RunPageRank {
-	public static def main(args:Rail[String]): void {
+    public static def main(args:Rail[String]): void {
         val mG = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of G
         val iT = args.size > 1 ? Long.parse(args(1)):20; // Iterations
         val vf = args.size > 2 ? Int.parse(args(2)):0n; // Verify result or not
@@ -35,36 +37,39 @@ public class RunPageRank {
         val cG = args.size > 4 ? Long.parse(args(4)):1;
         val nZ = args.size > 5 ? Double.parse(args(5)):0.9001; //G's nonzero density
         val pP = args.size > 6 ? Int.parse(args(6)):0n; //Print out input and output matrices
+        val sP = args.size > 7 ? Int.parse(args(7)):0n; // skip places count (at least 1 place should remain)
+        val cI = args.size > 8 ? Int.parse(args(8)):-1n; // checkpoint iteration frequency
+        
+        Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iterations:"+iT);
+        if (mG<=0 || iT<1 || nZ<0.0 || sP < 0 || sP >= Place.numPlaces())
+            Console.OUT.println("Error in settings");
+        else {
+            val places:PlaceGroup = (sP==0n? Place.places() :PlaceGroupBuilder.makeTestPlaceGroup(sP));
+            val paraPR = PageRank.make(mG, nZ, iT, rG, cG, cI, places);
+            paraPR.init();
 
-		Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iterations:"+iT);
-		if (mG<=0 || iT<1 || nZ<0.0)
-			Console.OUT.println("Error in settings");
-		else {
-			val paraPR = PageRank.make(mG, nZ, iT, rG, cG);
-			paraPR.init();
+            paraPR.printInfo();
 
-			paraPR.printInfo();
+            val orgP = paraPR.P.local().clone(); //for verification purpose
 
-			val orgP = paraPR.P.local().clone(); //for verification purpose
-
-			val paraP = paraPR.run();
-			
-			if (pP > 0) {
-				Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
-				Console.OUT.println("Output vector P\n" + paraP);
-			}
-			
-			if (vf > 0){
-				val g = paraPR.G;
-				val seqPR = new SeqPageRank(g.toDense(), orgP, 
-						paraPR.E, paraPR.U, iT);
-				val seqP = seqPR.run();
-				if (paraP.equals(seqP as Vector(paraP.M))) 
-					Console.OUT.println("Result verified");
-				else
-					Console.OUT.println("Verification failed!!!!");
-			}
-		}
-	}
+            val paraP = paraPR.run();
+            
+            if (pP > 0) {
+                Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
+                Console.OUT.println("Output vector P\n" + paraP);
+            }
+            
+            if (vf > 0){
+                val g = paraPR.G;
+                val seqPR = new SeqPageRank(g.toDense(), orgP, 
+                        paraPR.E, paraPR.U, iT);
+                val seqP = seqPR.run();
+                if (VerifyTool.testSame(paraP, seqP as Vector(paraP.M))) 
+                    Console.OUT.println("Result verified");
+                else
+                    Console.OUT.println("Verification failed!!!!");
+            }
+        }
+    }
 }
 
