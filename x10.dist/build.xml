@@ -11,8 +11,8 @@
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/lpg.runtime.java_2.0.22.jar"/>
-    <property name="ecj.jar" value="ecj-4.4.jar"/>
-    <property name="ecj.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/ecj-4.4.jar"/>
+    <property name="ecj.jar" value="ecj-4.4.1.jar"/>
+    <property name="ecj.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/ecj-4.4.1.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.jar"/>
     <property name="hazelcast.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-3.3.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
