@@ -2,33 +2,36 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.dist" default="dist" basedir=".">
     &buildfile;
+    <property name="sf.files.baseurl" value="http://sourceforge.net/projects/x10/files"/>
+    <property name="sf.web.baseurl" value="http://x10.sourceforge.net"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="builddir" value="classes"/>
     <property name="bin" location="${basedir}/bin"/>
     <property name="etc" location="${basedir}/etc"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
+    <property name="build" location="${basedir}/build"/>
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="lpg.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/lpg.runtime.java_2.0.22.jar"/>
+    <property name="lpg.jar.url" value="dependencies/lpg.runtime.java_2.0.22.jar"/>
     <property name="ecj.jar" value="ecj-4.4.1.jar"/>
-    <property name="ecj.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/ecj-4.4.1.jar"/>
+    <property name="ecj.jar.url" value="dependencies/ecj-4.4.1.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
-    <property name="hazelcast.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-3.3.1.jar"/>
+    <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.3.1.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
-    <property name="wala.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
+    <property name="wala.jar.url" value="dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
-    <property name="wala2.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/com.ibm.wala.cast_1.0.0.201101071300.jar"/>
+    <property name="wala2.jar.url" value="dependencies/com.ibm.wala.cast_1.0.0.201101071300.jar"/>
     <property name="wala3.jar" value="com.ibm.wala.core_1.1.3.201101071300.jar"/>
-    <property name="wala3.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/com.ibm.wala.core_1.1.3.201101071300.jar"/>
+    <property name="wala3.jar.url" value="dependencies/com.ibm.wala.core_1.1.3.201101071300.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
-    <property name="shrike.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+    <property name="shrike.jar.url" value="dependencies/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
-    <property name="equinox.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="equinox.jar.url" value="dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="math.jar" value="commons-math3-3.3.jar"/>
-    <property name="math.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/commons-math3-3.3.jar"/>
+    <property name="math.jar.url" value="dependencies/commons-math3-3.3.jar"/>
     <property name="log.jar" value="commons-logging-1.2.jar"/>
-    <property name="log.jar.url" value="http://sourceforge.net/projects/x10/files/dependencies/commons-logging-1.2.jar"/>
+    <property name="log.jar.url" value="dependencies/commons-logging-1.2.jar"/>
     <property name="logging.properties" value="logging.properties"/>
     <property name="x10.bridge.location" location="${x10.home}/x10.wala"/>
     <property name="bridge.jar" value="x10wala.jar" />
@@ -55,6 +58,19 @@
     <!-- get the environment variables -->
     <property environment="env"/>
 
+    <macrodef name="get-sf-resource">
+      <attribute name="src" />
+      <attribute name="dest" />
+      <sequential>
+	<retry>
+	  <doOne>
+            <get usetimestamp="true" src="${sf.files.baseurl}/@{src}" dest="@{dest}"/>
+            <get usetimestamp="true" src="${sf.web.baseurl}/@{src}" dest="@{dest}"/>
+	  </doOne>
+	</retry>
+      </sequential>
+    </macrodef>
+
     <target name="x10-version" unless="x10.version">
       <loadproperties srcFile="META-INF/MANIFEST.MF">
 	<filterchain>
@@ -74,6 +90,7 @@
         <mkdir dir="${etc}" />
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
+        <mkdir dir="${build}" />
         <mkdir dir="${stdlib}" />
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
@@ -105,6 +122,18 @@
         <condition property="local.log.jar" value="${env.LOCAL_LOG_JAR}">
             <isset property="env.LOCAL_LOG_JAR"/>
         </condition>
+
+	<!-- build custom ant tasks -->
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="true" debug="on" nowarn="on">
+            <src path="${x10.common.location}/contrib/ant"/>
+            <include name="IfTask.java"/>
+            <include name="DoOne.java"/>
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+        <taskdef name="if" classname ="IfTask" classpath="${build}" />
+        <taskdef name="doOne" classname ="DoOne" classpath="${build}" />
     </target>
 
     <target name="clean">
@@ -251,9 +280,7 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
-	</retry>
+	<get-sf-resource src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
         <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar} from ${lpg.jar.url}" unless="lpg.jar.present"/>
@@ -267,9 +294,7 @@
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
-	</retry>
+	<get-sf-resource src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <fail message="Unable to get ${ecj.jar} from ${ecj.jar.url}" unless="ecj.jar.present"/>
     </target>
@@ -282,9 +307,7 @@
 
     <target name="hazelcast-jar" depends="init,hazelcast-local-jar" unless="local.hazelcast.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${hazelcast.jar.url}" dest="${lib}/${hazelcast.jar}"/>
-	</retry>
+	<get-sf-resource src="${hazelcast.jar.url}" dest="${lib}/${hazelcast.jar}"/>
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <fail message="Unable to get ${hazelcast.jar} from ${hazelcast.jar.url}" unless="hazelcast.jar.present"/>
     </target>
@@ -297,9 +320,7 @@
 
     <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
-	</retry>
+	<get-sf-resource src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
     </target>
@@ -312,9 +333,7 @@
 
     <target name="wala2-jar" depends="init,wala2-local-jar" unless="local.wala2.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${wala2.jar.url}" dest="${lib}/${wala2.jar}"/>
-	</retry>
+	<get-sf-resource src="${wala2.jar.url}" dest="${lib}/${wala2.jar}"/>
         <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
         <fail message="Unable to get ${wala2.jar} from ${wala2.jar.url}" unless="wala2.jar.present"/>
     </target>
@@ -327,9 +346,7 @@
 
     <target name="wala3-jar" depends="init,wala3-local-jar" unless="local.wala3.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${wala3.jar.url}" dest="${lib}/${wala3.jar}"/>
-	</retry>
+	<get-sf-resource src="${wala3.jar.url}" dest="${lib}/${wala3.jar}"/>
         <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
         <fail message="Unable to get ${wala3.jar} from ${wala3.jar.url}" unless="wala3.jar.present"/>
     </target>
@@ -342,9 +359,7 @@
 
     <target name="shrike-jar" depends="init,shrike-local-jar" unless="local.shrike.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${shrike.jar.url}" dest="${lib}/${shrike.jar}"/>
-	</retry>
+	<get-sf-resource src="${shrike.jar.url}" dest="${lib}/${shrike.jar}"/>
         <available property="shrike.jar.present" file="${lib}/${shrike.jar}"/>
         <fail message="Unable to get ${shrike.jar} from ${shrike.jar.url}" unless="shrike.jar.present"/>
     </target>
@@ -357,9 +372,7 @@
 
     <target name="equinox-jar" depends="init,equinox-local-jar" unless="local.equinox.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
-	</retry>
+	<get-sf-resource src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
         <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
         <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
     </target>
@@ -372,9 +385,7 @@
 
     <target name="math-jar" depends="init,math-local-jar" unless="local.math.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${math.jar.url}" dest="${lib}/${math.jar}"/>
-	</retry>
+	<get-sf-resource src="${math.jar.url}" dest="${lib}/${math.jar}"/>
         <available property="math.jar.present" file="${lib}/${math.jar}"/>
         <fail message="Unable to get ${math.jar} from ${math.jar.url}" unless="math.jar.present"/>
     </target>
@@ -387,9 +398,7 @@
 
     <target name="log-jar" depends="init,log-local-jar" unless="local.log.jar">
         <mkdir dir="${lib}"/>
-	<retry>
-          <get usetimestamp="true" src="${log.jar.url}" dest="${lib}/${log.jar}"/>
-	</retry>
+	<get-sf-resource src="${log.jar.url}" dest="${lib}/${log.jar}"/>
         <available property="log.jar.present" file="${lib}/${log.jar}"/>
         <fail message="Unable to get ${log.jar} from ${log.jar.url}" unless="log.jar.present"/>
     </target>

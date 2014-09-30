@@ -2,6 +2,8 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
+    <property name="sf.files.baseurl" value="http://sourceforge.net/projects/x10/files"/>
+    <property name="sf.web.baseurl" value="http://x10.sourceforge.net"/>
     <property name="bdwgc.version" value="7.4.2"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
@@ -21,7 +23,7 @@
     <property name="shrike.jar" value="${lib}/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc-${bdwgc.version}"/>
     <property name="bdwgc.tar" value="bdwgc-${bdwgc.version}.tar.gz"/>
-    <property name="bdwgc.url" value="http://sourceforge.net/projects/x10/files/dependencies/${bdwgc.tar}"/>
+    <property name="bdwgc.url" value="dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="tar.exe" value="tar"/>
@@ -66,7 +68,6 @@
         <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="true" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
-            <include name="IfTask.java"/>
             <classpath>
               <path refid="project.classpath"/>
             </classpath>
@@ -80,9 +81,6 @@
         </taskdef>
         <!-- use ECJ instead of javac (needs ecj.jar on the classpath) -->
         <!--<property name="build.compiler" value="${ejc.compiler}"/>-->
-
-        <!-- allow simpler specification of conditional tasks -->
-        <taskdef name="if" classname ="IfTask" classpath="${build}" />
     </target>
 
     <!-- Determine whether or not we should be building with GC enabled -->
@@ -694,9 +692,7 @@
 	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
 		<sequential>
 		  <mkdir dir="${bdwgc.dir}/src" />
-		  <retry>
-		    <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
-		  </retry>
+		  <get-sf-resource src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
 		</sequential>
 	</target>
 			
