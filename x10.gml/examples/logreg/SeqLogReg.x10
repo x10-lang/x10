@@ -61,7 +61,7 @@ public class SeqLogReg {
 		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
 		//logistic.print("Sequential logistic:");
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
-		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 
+		val obj = 0.5 * w.norm() + C*logistic.sum(); //NormChange: w.norm(w) to w.norm() 
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
 		val grad:Vector(X.N) = Vector.make(X.N, 1);
@@ -72,9 +72,8 @@ public class SeqLogReg {
 		logisticD.cellSubFrom(1.0).cellMult(logistic);
 
 		//delta = sqrt(sum(grad*grad))
-		val sq = grad.norm(grad);
-		var delta:Double = Math.sqrt(grad.norm(grad));
-		//Debug.flushln("Dist "+ sq+ " Delta is "+delta);
+		//val sq = grad.norm(grad);
+		var delta:Double = Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
 		
 		//# number of iterations
 		//iter = 0
@@ -87,9 +86,9 @@ public class SeqLogReg {
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxiter);
 		//norm_r2 = sum(grad*grad)
-		var norm_r2:Double = grad.norm(grad);
+		var norm_r2:Double = grad.norm(); //NormChange: grad.norm(grad) to grad.norm()
 		//alpha = t(w) %*% w
-		var alpha:Double = w.norm(w);
+		var alpha:Double = w.norm();  //NormChange: w.norm(w) to w.norm()
 		// Add temp memory space
 		val s:Vector(X.N) = Vector.make(X.N);
 		val r:Vector(X.N)= Vector.make(X.N);
@@ -102,7 +101,7 @@ public class SeqLogReg {
 		while(!converge) {
 			
 // 			norm_grad = sqrt(sum(grad*grad))
-			var norm_grad:Double=Math.sqrt(grad.norm(grad));
+			var norm_grad:Double=Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
 // 			# SOLVE TRUST REGION SUB-PROBLEM
 // 			s = zeros_D
 			s.reset();
@@ -119,7 +118,7 @@ public class SeqLogReg {
  			while (!innerconverge) {
 //  
 // 				norm_r2 = sum(r*r)
- 				norm_r2 = r.norm(r);
+ 				norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
 // 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
  				compute_Hd(Hd, logisticD, d);
 
@@ -130,7 +129,7 @@ public class SeqLogReg {
 // 				s = s + castAsScalar(alpha) * d
  				s.cellAdd(alpha * d);
 // 				sts = t(s) %*% s
- 				val sts:Double = s.norm(s);
+ 				val sts:Double = s.norm();  //NormChange: s.norm(s) to s.norm()
 // 				delta2 = delta*delta 
  				val delta2 = delta*delta;
 // 				stsScalar = castAsScalar(sts)
@@ -138,11 +137,10 @@ public class SeqLogReg {
 // 				shouldBreak = false;
  				var shouldBreak:Boolean = false;
  				if (stsScalar > delta2) {
-// 
 // 					std = t(s) %*% d
  					val std = s.norm(d);
 // 					dtd = t(d) %*% d
- 					val dtd = d.norm(d);
+ 					val dtd = d.norm(); //NormChange: d.norm(d) to d.norm()
 // 					rad = sqrt(std*std + dtd*(delta2 - sts))
  					val rad = Math.sqrt(std*std+dtd*(delta2-sts));
 // 					stdScalar = castAsScalar(std)
@@ -168,13 +166,12 @@ public class SeqLogReg {
  				} 
 // 				
  				if (!shouldBreak) {
-// 
 // 					r = r - castAsScalar(alpha) * Hd
  					r.cellSub(alpha * Hd);
 // 					old_norm_r2 = norm_r2 
  					val old_norm_r2 = norm_r2;
 // 					norm_r2 = sum(r*r)
- 					norm_r2 = r.norm(r);
+ 					norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
 // 					beta = norm_r2/old_norm_r2
  					val beta = norm_r2/old_norm_r2;
 // 					d = r + beta*d
@@ -183,7 +180,6 @@ public class SeqLogReg {
  					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
  				}				
  			}  
-// 			Debug.flushln("Dend trust region sub-problem");
 // 			# END TRUST REGION SUB-PROBLEM
 // 			# compute rho, update w, obtain delta
 // 			qk = -0.5*(t(s) %*% (grad - r))
@@ -195,26 +191,24 @@ public class SeqLogReg {
 // 			onew = X %*% wnew
  			compute_XmultB(onew, wnew);
 // 			logisticnew = 1.0/(1.0 + exp(-y * o ))
- 			logisticnew.scale(-1).cellMult(o).cellAdd(1.0).cellDivBy(1.0);
+ 			logisticnew.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
 			
 // 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
- 			val objnew = 0.5 * wnew.norm(wnew) + C * logisticnew.sum();
+ 			val objnew = 0.5 * wnew.norm() + C * logisticnew.sum(); //NormChange: wnew.norm(wnew) to wnew.norm()
 // 			
 // 			rho = (objnew - obj) / qk
  			val rho = (objnew - obj)/qk;
 // 			rhoScalar = castAsScalar(rho);
  			val rhoScalar = rho;
 // 			snorm = sqrt(sum( s * s ))
- 			val snorm = Math.sqrt(s.norm(s));
+ 			val snorm = Math.sqrt(s.norm()); //NormChange: s.norm(s) to s.norm()
  			if (rhoScalar > eta0) {
-// 				
 // 				w = wnew
  				wnew.copyTo(w);
 // 				o = onew
  				onew.copyTo(o);
 // 				grad = w + C*t(X) %*% ((logisticnew - 1) * y )
  				compute_grad(grad, logisticnew);
-// 				
  			} 
 // 			
  			iter = iter + 1;
@@ -235,7 +229,6 @@ public class SeqLogReg {
  					}
  				}
  			}
- 			Debug.flushln("End of converging iteration");
 		}
 		Debug.flushln("End");
 	}
@@ -244,46 +237,31 @@ public class SeqLogReg {
 	
 	protected def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
 		//o = X %*% w
-		Debug.flushln("Start sequential X * nw ");
 		result.mult(X, opB);
-		Debug.flushln("Done X * nw");	
-		//result.print("Sequental X % B result:");
-
 	}
 	
 	protected def compute_tXmultB(result:Vector(X.N), 
 								  opB:Vector(X.M)):void {
-		Debug.flushln("Start sequential X^t * b ");
 		result.transMult(X, opB);
-		Debug.flushln("Done");
-		//result.print("Sequental X^t % B result:");
 	}
 	
 	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		//Debug.flushln("Start sequential computing grad");
 		logistic.copyTo(tmp_y);
 		tmp_y.cellSub(1.0).cellMult(y);
 		compute_tXmultB(grad, tmp_y);
 		grad.scale(C);
 		grad.cellAdd(w);
-		//Debug.flushln("Done");
-		//grad.print("Sequential grad:");
 	}
 	
 	protected def compute_Hd(Hd:Vector(X.N), 
 							logistricD:Vector(X.M), 
 							d:Vector(X.N)):void {
 		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
-		//Debug.flushln("Start sequential computing Hd");
 		compute_XmultB(tmp_y, d);
-		//Debug.flushln("Done Xd <- X * d");
 		tmp_y.cellMult(logistricD);
-		//Debug.flushln("Done logD cellmult");
 		compute_tXmultB(Hd, tmp_y);
 		Hd.scale(C).cellAdd(d);
-		//Debug.flushln("Done compute Hd");
-		//Hd.print("Sequential Hd:");
 	}
 	
 }

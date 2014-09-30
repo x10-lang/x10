@@ -16,6 +16,7 @@ import x10.matrix.util.VerifyTool;
 
 import logreg.SeqLogReg;
 import logreg.LogisticRegression;
+import x10.matrix.util.PlaceGroupBuilder;
 
 public class RunLogReg {
 
@@ -29,25 +30,27 @@ public class RunLogReg {
 		val it = args.size > 5 ? Long.parse(args(5)):3;
 		val tV = args.size > 6 ? Long.parse(args(6)):0;
 
+        val sP = args.size > 7 ? Int.parse(args(7)):0n; // skip places count (at least 1 place should remain)
+        val cI = args.size > 8 ? Int.parse(args(8)):-1n; // checkpoint iteration frequency
+
 		Console.OUT.println("Set X row:"+mX+ " col:"+nX);
-		if ((mX<=0) ||(nX<=0) ||(tV<0))
+		if ((mX<=0) ||(nX<=0) ||(tV<0) || sP < 0 || sP >= Place.numPlaces())
 			Console.OUT.println("Error in settings");
 		else {
-			val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, mB, nB, Place.numPlaces(), 1, nzd);
-			val y:Vector(X.M) = Vector.make(X.M);
-			val w:Vector(X.N) = Vector.make(X.N);
-			
-			X.initRandom(1, 10);
-			y.initRandom(1, 10);
-			w.initRandom();
+            val places:PlaceGroup = (sP==0n? Place.places() :PlaceGroupBuilder.makeTestPlaceGroup(sP));
+            val prun = LogisticRegression.make(mX, nX, mB, nB, nzd, it, it, cI, places);
+            val X = prun.X;
+            val y = prun.y;
+            val w = prun.w;
 			val yt = y.clone();
 			val wt = w.clone();
-			
-			val prun = new LogisticRegression(X, y, w, it, it);
 		
 			val stt = Timer.milliTime();
 			prun.run();
 			val totalTime = Timer.milliTime() - stt;
+
+			Console.OUT.printf("Logistic regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
+					totalTime, prun.paraRunTime, prun.commUseTime); 
 			
 			if (tV > 0) { /* Sequential run */
 				val denX = X.toDense();
@@ -60,10 +63,6 @@ public class RunLogReg {
 					Console.OUT.println("-------------- Verification failed!!!!---------------");
 				}
 			}
-			
-			Console.OUT.printf("Logistic regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
-					totalTime, prun.paraRunTime, prun.commUseTime); 
-			
 		}
 	}
 }

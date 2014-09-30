@@ -11,7 +11,7 @@
  */
 package x10.util.resilient;
 
-public abstract class DistObjectSnapshot[K,V] {V haszero} {
+public abstract class DistObjectSnapshot[K,V]{V haszero} {
     static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     static def getEnvInt(name:String) {
@@ -35,30 +35,27 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
     /**
      * Place0 implementation of ResilientStore
      */
-    static class DistObjectSnapshotPlace0[K,V] {V haszero} extends DistObjectSnapshot[K,V] {
+    static class DistObjectSnapshotPlace0[K,V]{V haszero} extends DistObjectSnapshot[K,V] {
         val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG("save: key=" + key);
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().put(key,value); // value is deep-copied by "at"
+            at (hm) atomic { hm().put(key,value); } // value is deep-copied by "at"
         }
         public def load(key:K) {
             if (verbose>=1) DEBUG("load: key=" + key);
-            var value:V;
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            value = at (hm) hm().getOrThrow(key); // value is deep-copied by "at"
+            val value = at (hm) {
+              var v:V; atomic { v = hm().getOrThrow(key); } v
+            }; // value is deep-copied by "at"
             return value;
         }
         public def delete(key:K) {
             if (verbose>=1) DEBUG("delete: key=" + key);
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().remove(key);
+            at (hm) atomic { hm().remove(key); }
         }
         public def deleteAll() {
             if (verbose>=1) DEBUG("deleteAll");
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (hm) hm().clear();
+            at (hm) atomic { hm().clear(); }
         }
     }
     
@@ -70,17 +67,16 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
      *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
-    static class DistObjectSnapshotDistributed[K,V] {V haszero} extends DistObjectSnapshot[K,V] {
+    static class DistObjectSnapshotDistributed[K,V]{V haszero} extends DistObjectSnapshot[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](Place.places(), ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
-           finish //TODO: remove this workaround (see XTENLANG-3260)
-            at (here) hm().put(key, value); // value is deep-copied by "at"
+            at (here) atomic { hm().put(key, value); } // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
-            var backupPlace:Long = key.hashCode() % Place.numPlaces();
+            var backupPlace:Long = Math.abs(key.hashCode()) % Place.numPlaces();            
             var trial:Long;
             for (trial = 0L; trial < Place.numPlaces(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) break; // found appropriate place
@@ -90,8 +86,7 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
-               finish //TODO: remove this workaround (see XTENLANG-3260)
-                at (Place(backupPlace)) hm().put(key, value);
+                at (Place(backupPlace)) atomic { hm().put(key, value); }
                 if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
             if (verbose>=1) DEBUG(key, "save returning");
@@ -100,9 +95,9 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
             if (verbose>=1) DEBUG(key, "load called");
             /* First, try to load locally */
             try {
-                var value:V;
-               finish //TODO: remove this workaround (see XTENLANG-3260)
-                value = at (here) hm().getOrThrow(key); // value is deep-copied by "at"
+                val value = at (here) {
+                  var v:V; atomic { v = hm().getOrThrow(key); } v
+                }; // value is deep-copied by "at"
                 if (verbose>=1) DEBUG(key, "restored locally");
                 if (verbose>=1) DEBUG(key, "load returning");
                 return value;
@@ -111,15 +106,15 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
                 /* falls through, check other places */
             }
             /* Try to load from another place */
-            var backupPlace:Long = key.hashCode() % Place.numPlaces();
+            var backupPlace:Long = Math.abs(key.hashCode()) % Place.numPlaces();            
             var trial:Long;
             for (trial = 0L; trial < Place.numPlaces(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
-                        var value:V;
-                       finish //TODO: remove this workaround (see XTENLANG-3260)
-                        value = at (Place(backupPlace)) hm().getOrThrow(key);
+                        val value = at (Place(backupPlace)) {
+                          var v:V; atomic { v = hm().getOrThrow(key); } v
+                        };
                         if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
                         if (verbose>=1) DEBUG(key, "load returning");
                         return value;
@@ -137,13 +132,13 @@ public abstract class DistObjectSnapshot[K,V] {V haszero} {
         public def delete(key:K) {
             finish for (pl in Place.places()) {
                 if (pl.isDead()) continue;
-                at (pl) async hm().remove(key);
+                at (pl) async atomic { hm().remove(key); }
             }
         }
         public def deleteAll() {
             finish for (pl in Place.places()) {
                 if (pl.isDead()) continue;
-                at (pl) async hm().clear();
+                at (pl) async atomic { hm().clear(); }
             }
         }
     }
