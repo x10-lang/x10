@@ -105,10 +105,10 @@ public class WrapMPI {
 	 */
 	public static def getProcInfo():String {
 		val mlen = 128;//mpi_name_maxlen();
-		val rk   = new Rail[Int](1, 0n);
-		val np   = new Rail[Int](1, 0n);
-		val hlen = new Rail[Int](1, 0n);
-		val hstr = new Rail[Int](mlen, 0n);
+		val rk   = new Rail[Int](1);
+		val np   = new Rail[Int](1);
+		val hlen = new Rail[Int](1);
+		val hstr = new Rail[Int](mlen);
 		world.get_proc_info(rk, np, hlen, hstr);
 		val sc = new Rail[Char](hlen(0), (i:Long)=>(hstr(i) as Char));
 		return new String(sc, 0, hlen(0));
@@ -118,7 +118,7 @@ public class WrapMPI {
 	 * Return MPI process rank ID at here.
 	 */
 	public static def getCommProcID():Int {
-		val rk = new Rail[Int](1, 0n);
+		val rk = new Rail[Int](1);
 		world.get_comm_pid(rk);
 		return rk(0);
 	}
@@ -458,7 +458,7 @@ public class WrapMPI {
         var intRecvcnts:Rail[Int];
 		var displs:Rail[Int];
 		if (root == here.id()) {
-			displs = new Rail[Int](Place.numPlaces(), 0n);
+			displs = new Rail[Int](Place.numPlaces());
             intRecvcnts = new Rail[Int](Place.numPlaces());
             intRecvcnts(0) = recvcnts(0) as Int;
 			for (var i:Long=1; i<displs.size; i++) {

@@ -92,7 +92,7 @@ public class DenseMatrix extends Matrix {
      * @return        the instance
      */
     public static def make(m:Long, n:Long, v:Double):DenseMatrix(m,n) {
-        val d = new Rail[Double](m*n, (i:Long)=> v);
+        val d = new Rail[Double](m*n, v);
         return new DenseMatrix(m, n, d);
     }
 
@@ -224,7 +224,6 @@ public class DenseMatrix extends Matrix {
      * The size of clone result will be the same as its source.
       */
     public  def clone():DenseMatrix(M,N){
-        //val na = new Rail[Double](M*N, (i:Long)=> this.d(i));
         val nd = new Rail[Double](this.d) as Rail[Double];
         return new DenseMatrix(M, N, nd);
     }
