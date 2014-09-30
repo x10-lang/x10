@@ -15,9 +15,13 @@ package x10;
  * Version information for x10 extension
  */
 public class Version extends polyglot.main.Version {
-    public String name() { return "x10"; }
+    @Override
+    public String name() { return "x10c"; }
 
+    @Override
     public int major() { return 2; }
+    @Override
     public int minor() { return 5; }
+    @Override
     public int patch_level() { return 0; }
 }

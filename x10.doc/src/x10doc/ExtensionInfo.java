@@ -18,6 +18,7 @@ import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import x10.Version;
 import x10doc.doc.X10ClassDoc;
 import x10doc.doc.X10RootDoc;
 import x10doc.goals.ASTTraversalGoal;
@@ -35,10 +36,25 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         this.root = root;
     }
 
+    @Override
+    public polyglot.main.Version version() {
+        return new Version() {
+            @Override
+            public String name() { return "x10doc"; }
+        };
+    }
+
+    @Override
+    public String compilerName() {
+        return "x10doc";
+    }
+
+    @Override
     protected X10DocOptions createOptions() {
         return new X10DocOptions(this);
     }
 
+    @Override
     public X10DocOptions getOptions() {
         return (X10DocOptions) super.getOptions();
     }
