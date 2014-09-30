@@ -2,8 +2,8 @@
 <project default="hazelcast">
     <target name="hazelcast">
         <mkdir dir="lib"/>
-        <get src="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-3.3.jar" dest="lib/hazelcast-3.3.jar"/>
-        <get src="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-src-3.3.zip" dest="lib/hazelcast-3.3.zip"/>
+        <get src="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-3.3.1.jar" dest="lib/hazelcast-3.3.1.jar"/>
+        <get src="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-src-3.3.1.zip" dest="lib/hazelcast-3.3.1.zip"/>
     </target>
 </project>
 
