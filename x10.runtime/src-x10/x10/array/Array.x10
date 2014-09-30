@@ -84,8 +84,6 @@ public abstract class Array[T] (
 
     /**
      * Change the Rail[T] that is providing the backing storage for the array.
-     * This method can be used to support a "red/black" design pattern where
-     * the backing storage for the array is swapped at phase boundaries.
      *
      * @param r the new backing storage for the array.
      */
@@ -94,6 +92,20 @@ public abstract class Array[T] (
         raw = r as Rail[T]{self!=null,self.size==this.size};
     }
 
+    /**
+     * Swap the backing storage of two arrays.
+     * The two arrays must be of equal size, but do not necessarily need
+     * to be the same rank or have the same dimensions.
+     * This method can be used to support a "red/black" design pattern where
+     * the backing Rails for the arrays are swapped at phase boundaries.
+     * @param a1 the first array
+     * @param a2 the second array, same size as the first
+     */
+    public static def swap[T](a1:Array[T]{self!=null},a2:Array[T]{self!=null}) {
+        val tmp = a1.raw();
+        a1.modifyRaw(a2.raw());
+        a2.modifyRaw(tmp);
+    }
 
     /**
      * Return an iterator over the values of this array.
