@@ -71,6 +71,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
      *       Racing between multiple places are not also considered.
      */
     static class ResilientStoreForAppDistributed[K,V]{V haszero} extends ResilientStoreForApp[K,V] {
+        private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](Place.places(), ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {
@@ -79,13 +80,14 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
             at (here) atomic { hm().put(key, value); } // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
-            var backupPlace:Long = key.hashCode() % Place.numPlaces();
+            var backupPlace:Long = key.hashCode() % MAX_PLACES;
+            if (backupPlace < 0) backupPlace += MAX_PLACES;
             var trial:Long;
-            for (trial = 0L; trial < Place.numPlaces(); trial++) {
+            for (trial = 0L; trial < MAX_PLACES; trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) break; // found appropriate place
-                backupPlace = (backupPlace+1) % Place.numPlaces();
+                backupPlace = (backupPlace+1) % MAX_PLACES;
             }
-            if (trial == Place.numPlaces()) {
+            if (trial == MAX_PLACES) {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
@@ -109,9 +111,10 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 /* falls through, check other places */
             }
             /* Try to load from another place */
-            var backupPlace:Long = key.hashCode() % Place.numPlaces();
+            var backupPlace:Long = key.hashCode() % MAX_PLACES;
+            if (backupPlace < 0) backupPlace += MAX_PLACES;
             var trial:Long;
-            for (trial = 0L; trial < Place.numPlaces(); trial++) {
+            for (trial = 0L; trial < MAX_PLACES; trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
@@ -126,7 +129,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                         /* falls through, try next place */
                     }
                 }
-                backupPlace = (backupPlace+1) % Place.numPlaces();
+                backupPlace = (backupPlace+1) % MAX_PLACES;
             }
             if (verbose>=1) DEBUG(key, "no backup found, ERROR");
             if (verbose>=1) DEBUG(key, "load throwing exception");
