@@ -14,6 +14,7 @@
 
 package polyglot.types;
 
+import polyglot.frontend.Source;
 import polyglot.util.Position;
 
 /**
@@ -42,6 +43,13 @@ public class NoClassException extends SemanticException {
         this.className = className;
     }
     
+    public NoClassException(String className, Source source) {
+        super("Class \"" + className + "\" not found"
+                + (source != null ? (" in " + source.toString())
+                                  : "."));
+        this.className = className;
+    }
+  
     public String getClassName() {
         return className;
     }

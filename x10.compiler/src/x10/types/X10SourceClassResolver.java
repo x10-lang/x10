@@ -370,6 +370,6 @@ public class X10SourceClassResolver implements TopLevelResolver {
         
         // The source has already been compiled, but the type was not created
         // there.
-        throw new NoClassException("Could not find \"" + name + "\" in " + source + ".");
+        throw new NoClassException(name.toString(), source);
     }
 }
