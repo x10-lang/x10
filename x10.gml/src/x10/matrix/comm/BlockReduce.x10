@@ -16,7 +16,6 @@ import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -80,7 +79,6 @@ public class BlockReduce extends BlockRemoteCopy {
 		val rootpid:Long = dmap.findPlace(rootbid);
 		var leftpcnt:Long = Place.numPlaces();
 		
-		//Debug.assure(here.id() == 0);
 		if (here.id() != rootpid) {
 			at(Place(rootpid)) {
 				x10Reduce(distBS, tmpBS, rootbid, opFunc);
@@ -230,7 +228,6 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param ddtmp     temp matrix storing the inter-place communication data.
 	 */
 	protected static def mpiAllReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH): void {
-		//Debug.flushln("Start all reduce");
 		@Ifdef("MPI_COMMU") {
 			finish ateach([p] in Dist.makeUnique()) {
 			

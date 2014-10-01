@@ -34,17 +34,6 @@ public class Debug {
 		}
 	}
 
-	// Alternative for exit
-	public static def exit(msg:String)  {
-		console.flush();
-		throw new UnsupportedOperationException(msg);
-	}
-
-	public static def exit()  {
- 		console.flush();  //Flush to stdout
-		throw new UnsupportedOperationException();
-	}
-
 	// Append input string at the tail of the last line
     public static def print(s:String)        { console.print(s);}
     public static def print(d:Rail[Int])     { console.print(d);}

@@ -15,7 +15,6 @@ import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -42,8 +41,8 @@ public class ArrayScatter extends ArrayRemoteCopy {
             src:Rail[Rail[Double]], 
             dst:DataArrayPLH) : void {
         val nb = Place.numPlaces();
-        Debug.assure(nb==src.size, 
-        "Number blocks in dist and local array mismatch");
+        assert (nb==src.size) :
+            "Number blocks in dist and local array mismatch";
         
         finish for (var bid:Long=0; bid<nb; bid++) {
             val srcbuf = src(bid);
@@ -71,7 +70,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
             src:Rail[Double], 
             dst:DataArrayPLH, 
             gp:Rail[Long]): void {
-        Debug.assure(gp.size == Place.numPlaces());
+        assert gp.size == Place.numPlaces();
 
         @Ifdef("MPI_COMMU") {
             mpiScatter(src, dst, gp);
@@ -90,10 +89,10 @@ public class ArrayScatter extends ArrayRemoteCopy {
             dst:DataArrayPLH, 
             gp:Rail[Long],
             places:PlaceGroup): void {
-        Debug.assure(gp.size == places.size());
+        assert gp.size == places.size();
         
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
             x10Scatter(src, dst, gp, places);
@@ -130,7 +129,6 @@ public class ArrayScatter extends ArrayRemoteCopy {
                         /*******************************************/
                         val tmpbuf = new Rail[Double](0); //fake
                         val tmplst = new Rail[Long](0);   //fake
-                        //Debug.flushln("P"+p+" starting non root scatter :"+datcnt);
                         WrapMPI.world.scatterv(tmpbuf, tmplst, dstbuf, datcnt, root);
                     }
                 } 
@@ -140,7 +138,6 @@ public class ArrayScatter extends ArrayRemoteCopy {
                 // DO NOT move this block into for loop block
                 // MPI process will hang, Cause is not clear
                 /**********************************************/    
-                //Debug.flushln("P"+root+" starting root scatter:"+szlist.toString());
                 val dstbuf = dst();
                 WrapMPI.world.scatterv(src, szlist, dstbuf, szlist(root), root);
             }            
@@ -165,7 +162,6 @@ public class ArrayScatter extends ArrayRemoteCopy {
         for (var cb:Long=0; cb<szlist.size; cb++) {
             val datcnt = szlist(cb);
             if (cb != root) {
-                //Debug.flushln("Copy "+off+" to "+cb+" data:"+src(off));
                 x10Copy(src, off, dst, cb, 0, datcnt);
             } else {
                 //Make local copying
@@ -197,7 +193,6 @@ public class ArrayScatter extends ArrayRemoteCopy {
             val pid = places(cb).id;
             
             if (pid != root) {
-                //Debug.flushln("Copy "+off+" to "+cb+" data:"+src(off));
                 x10Copy(src, off, dst, pid, 0, datcnt);
             } else {
                 //Make local copying

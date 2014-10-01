@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -66,8 +65,8 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			val grid = distBS().getGrid();
 			val plst =  CastPlaceMap.buildPlaceList(grid, dmap, rootbid, select); 
 			//Root is the first in the list
-			Debug.assure(plst(0)==rootpid, "RingCast place list must starts with root place id");
-			//Debug.flushln("Ring cast to "+plst.toString());
+			assert (plst(0)==rootpid) :
+                "RingCast place list must starts with root place id";
 			if (plst.size >= 1) {
 				val rootblk = distBS().findBlock(rootbid);
 				reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, plst);
@@ -84,7 +83,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
         //val leftRoot = here.id();
         val pcnt = plst.size;
         if (pcnt > 1) {
-            Debug.assure(here.id()==plst(0));
+            assert here.id() == plst(0);
             val leftPCnt  = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
             val rightPCnt  = pcnt - leftPCnt;
             val rightplst = new Rail[Long](rightPCnt, (i:Long)=>plst(leftPCnt+i));

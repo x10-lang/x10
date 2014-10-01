@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -44,8 +43,8 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 			dst:Rail[Rail[Double]]) : void {
 		
 		val nb = src.region.size();
-		Debug.assure(nb==dst.size, 
-					 "Number blocks in dist and local array not match");
+        assert (nb==dst.size) :
+            "Number of blocks in dist and local array do not match";
 		
 		finish for (var bid:Long=0; bid<nb; bid++) {
 			val dstbuf = dst(bid);
@@ -117,7 +116,6 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 							/*******************************************/
 							val tmpbuf = new Array[Double](0); //fake
 							val tmplst = new Array[Int](0);   //fake
-							//Debug.flushln("P"+p+" starting non root gather :"+datcnt);
 							WrapMPI.world.gatherv(srcbuf, 0, datcnt, tmpbuf, 0, tmplst, root);
 						}
 					} 
@@ -129,8 +127,6 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 					// MPI process will hang, Cause is not clear
 					/**********************************************/	
 					val srcbuf = src(root);
-					//Debug.flushln("P"+root+" starting root gather:"+szlist.toString());
-				
 					WrapMPI.world.gatherv(srcbuf, 0, szlist(root), dst, 0, szlist, root);
 				}
 			

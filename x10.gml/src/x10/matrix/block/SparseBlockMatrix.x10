@@ -11,7 +11,6 @@
 
 package x10.matrix.block;
 
-import x10.matrix.util.Debug;
 import x10.matrix.util.VerifyTool;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -189,10 +188,6 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
-
-	// Data copy and reset
-
-
 	/**
 	 * Reset all nonzero entries, and the number of nonzeros to 0.
 	 *
@@ -210,7 +205,6 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 */
 	public def copyTo(dm:DenseMatrix(M,N)) {
 
-		//Debug.assure(this.M==dm.M&&this.N==dm.N);
 		var dstcolidx:Long=0;
 		
 		for (var cb:Long=0; cb < grid.numColBlocks; cb++) {
@@ -361,21 +355,18 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 * @param   x  the source matrix to be added with
      */
     public def cellAdd(x:Matrix(M,N)):SparseBlockMatrix(this)  {
-		Debug.exit("Matrix add does not support using sparse matrix to store result");
-	    return this;
+		throw new UnsupportedOperationException("Matrix add does not support using sparse matrix to store result");
 	}
 
     public def cellAdd(d:Double):SparseBlockMatrix(this)  {
-    	Debug.exit("Matrix add does not support using sparse matrix to store result");
-    	return this;
+    	throw new UnsupportedOperationException("Matrix add does not support using sparse matrix to store result");
     }
     
 	/**
 	 * dst = this + dst
 	 */
-	public def cellAddTo(dst:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return dst;
+	public def cellAddTo(dst:DenseMatrix(M,N)):DenseMatrix(dst)  {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 
@@ -384,59 +375,49 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 * @param  x  the subtracting matrix
      */
-    public def cellSub(x:Matrix(M,N))  {
-		Debug.exit("Matrix substract does not support using sparse matrix as target");
-		return this;
+    public def cellSub(x:Matrix(M,N)):SparseBlockMatrix(this) {
+		throw new UnsupportedOperationException("Matrix substract does not support using sparse matrix as target");
 	}
+
 	/**
 	 * x = x - this
 	 */
-	protected def cellSubFrom(x:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return x;
+	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 	
 	public def cellSubFrom(dv:Double) : SparseBlockMatrix(this) {
-		Debug.exit("Not implemented");
-		return this;
+		throw new UnsupportedOperationException("Not implemented");
 	}
-
 
     /**
      * Cell-wise multiplication, return this = this &#42 x
 	 *
 	 * @param  x  the multiplying matrix
      */
-    public def cellMult(x:Matrix(M,N))  {
-		Debug.exit("Matrix cell mult does not support using sparse as target matrix");
-	    return this;
+    public def cellMult(x:Matrix(M,N)):SparseBlockMatrix(this) {
+		throw new UnsupportedOperationException("Matrix cell mult does not support using sparse as target matrix");
 	}
 
 	/**
 	 * Compute x = this &#42 x 
 	 */
 	protected def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		Debug.assure(false, "Not implement");
-		return x;
+		throw new UnsupportedOperationException("Not implemented");
 	}
-
-
 
     /**
      * Cell-wise division, return this /= x
      */
-	public  def cellDiv(x:Matrix(M,N)) {
-		Debug.exit("Matrix div does not support using sparse matrix as target");
-	
-	    return this;
+	public  def cellDiv(x:Matrix(M,N)):SparseBlockMatrix(this) {
+		throw new UnsupportedOperationException("Matrix div does not support using sparse matrix as target");
 	}
 
 	/**
 	 * x = this / x
 	 */
     protected def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		Debug.assure(false, "Not implement");
-		return x;		
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
     /**
@@ -446,8 +427,7 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix(this.M), 
 			B:Matrix(A.N,this.N), 
 			plus:Boolean):SparseBlockMatrix(this) {
-		Debug.exit("Matrix mult does not support using sparse matrix as target");
-		return this;	
+		throw new UnsupportedOperationException("Matrix mult does not support using sparse matrix as target");
 	}		
 
 	/** 
@@ -457,8 +437,7 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix{self.N==this.M}, 
 			B:Matrix(A.M,this.N),
 			plus:Boolean):SparseBlockMatrix(this) {
-		Debug.exit("Matrix mult does not support using sparse matrix as target");
-		return this;		
+		throw new UnsupportedOperationException("Matrix mult does not support using sparse matrix as target");
     }
 
 	/** 
@@ -468,20 +447,16 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix(this.M), 
 			B:Matrix(this.N,A.N), 
 			plus:Boolean):SparseBlockMatrix(this)	{
-		Debug.exit("Matrix mult does not support using sparse matrix as target");
-		return this;		
+		throw new UnsupportedOperationException("Matrix mult does not support using sparse matrix as target");
     }
-
 
 	public operator - this = this.clone().scale(-1.0) as SparseBlockMatrix(M,N);
 	
-	
-
 	/**
 	 * Transpose matrix.
 	 */
 	public def T(dbm:SparseBlockMatrix(N,M)): void {
-		Debug.exit("Not implemented");
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 

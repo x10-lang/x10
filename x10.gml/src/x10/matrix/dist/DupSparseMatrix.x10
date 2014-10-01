@@ -19,7 +19,6 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.MatrixBcast;
 import x10.matrix.sparse.SparseCSC;
-import x10.matrix.util.Debug;
 
 public  type DupSparseMatrix(M:Long)=DupSparseMatrix{self.M==M};
 public  type DupSparseMatrix(M:Long, N:Long)=DupSparseMatrix{self.M==M, self.N==N};
@@ -254,13 +253,9 @@ public class DupSparseMatrix extends Matrix {
 		else if (that instanceof DupDenseMatrix)
 			copyTo(that as DupDenseMatrix);
 		else
-			Debug.exit("CopyTo: target matrix type is not supportede");
+			throw new UnsupportedOperationException("copyTo: target matrix type is not supported");
 	}
 	
-
-	// Data access
-
-	//public def apply(x:Long, y:Long) = this.dupMs(here.id()).apply(x, y);
 	/**
 	 * Access data at(x, y)
 	 */
@@ -377,17 +372,15 @@ public class DupSparseMatrix extends Matrix {
 	/**
 	 * Not support. Cellwise subtraction.
 	 */
-	public def cellSub(A:Matrix(M,N)) {
-		Debug.exit("Not support use sparse matrix to store result");
-		return this;
+	public def cellSub(A:Matrix(M,N)):DupSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support use sparse matrix to store result");
 	}
 
 	/**
 	 * this = v - this
 	 */
 	public def cellSubFrom(v:Double):DupSparseMatrix(this) {
-		Debug.exit("Not support using sparse matrix to store result");
-		return this;
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 	
 	/**

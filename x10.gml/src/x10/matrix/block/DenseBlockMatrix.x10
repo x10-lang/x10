@@ -13,7 +13,6 @@ package x10.matrix.block;
 
 import x10.util.StringBuilder;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.util.VerifyTool;
@@ -195,7 +194,8 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	}
 
 	public def copyTo(that:DenseBlockMatrix(M,N)):void {
-		Debug.assure(this.grid.equals(that.grid), "Data partitioning is not compatible");
+		assert (this.grid.equals(that.grid)) :
+            "Data partitioning is not compatible";
 		
 		for (p in 0..(listBs.size-1)) {
 			this.listBs(p).copyTo(that.listBs(p));
@@ -208,7 +208,7 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		} else if (that instanceof DenseMatrix) {
 			copyTo(that as DenseMatrix(M,N));
 		} else {
-			Debug.exit("CopyTo: target matrix is not compatible");
+			throw new UnsupportedOperationException("copyTo: target matrix is not compatible");
 		}		
 	}
 	
@@ -346,10 +346,9 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 */
 	public def cellAdd(x:DenseBlockMatrix(M,N)) {
-		if (! likeMe(x)) 
-			Debug.exit("Dense block matrix add fails - matrix type not match");
+		assert (likeMe(x)) :
+			"Dense block matrix add fails - matrix type not match";
 		
-		//Debug.flushln("Here ");
 		for (p in 0..(listBs.size-1)) {
 			val dst = listBs(p).dense;
 			val src = x.listBs(p).getMatrix() as DenseMatrix(dst.M, dst.N);
@@ -421,8 +420,8 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 */
 	public def cellSub(that:DenseBlockMatrix(M,N)) {
-		if (! likeMe(that)) 
-			Debug.exit("Dense block matrix substract fails - matrices not match");
+		assert (likeMe(that)) :
+			"Dense block matrix substract fails - matrices not match";
 		
 		for (p in 0..(listBs.size-1)) {
 			val dst = listBs(p).dense;
@@ -495,8 +494,8 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 */
 	public def cellMult(x:DenseBlockMatrix(M,N)) {
-		if (! likeMe(x)) 
-			Debug.exit("Dense block matrix cell mult fails - matrices not match");
+		assert (likeMe(x)) :
+			"Dense block matrix cell mult fails - matrices not match";
 		
 		for (p in 0..(listBs.size-1)) {
 			val dst = listBs(p).dense;
@@ -557,8 +556,8 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 */
 	public def cellDiv(x:DenseBlockMatrix(M,N)) {
-		if (! likeMe(x)) 
-			Debug.exit("Dense block matrix cell divide fails - matrices not match");
+		assert (likeMe(x)) :
+			"Dense block matrix cell divide fails - matrices not match";
 		
 		for (p in 0..(listBs.size-1)) {
 			val dst = listBs(p).dense;
@@ -569,44 +568,35 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
-
-	// Matrix multiplication 
-
-
     /**
-     * Block matrix multiplication has not been implementated yet. 
+     * Block matrix multiplication has not been implemented yet. 
      */
 	public def mult(
 			A:Matrix(this.M), 
 			B:Matrix(A.N,this.N), 
 			plus:Boolean):DenseBlockMatrix(this){
-		
-		Debug.exit("Not implemented yet");
-		return this;	
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	/** 
-	 * Not implementated yet.
+	 * Not implemented yet.
 	 */
 	public def transMult(
 			A:Matrix{self.N==this.M}, 
 			B:Matrix(A.M,this.N),
 			plus:Boolean):DenseBlockMatrix(this) {
-		
-		Debug.exit("Not implemented yet");
-		return this;		
+		throw new UnsupportedOperationException("Not implemented yet");
     }
 	
 	/** 
-	 * Not implementated yet. 
+	 * Not implemented yet. 
 	 */
 	public def multTrans(
 			A:Matrix(this.M), 
 			B:Matrix(this.N, A.N), 
 			plus:Boolean):DenseBlockMatrix(this)	{
 		
-		Debug.exit("Not implemented yet");
-		return this;		
+		throw new UnsupportedOperationException("Not implemented yet");
     }
 
 	// Operator overload
@@ -629,15 +619,11 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	public operator this * (that:DenseBlockMatrix(M,N)) = this.clone().cellMult(that) as DenseBlockMatrix(M,N);
 	public operator this / (that:DenseBlockMatrix(M,N)) = this.clone().cellDiv(that) as DenseBlockMatrix(M,N);
 
-
-	// Utils
-
 	/**
 	 * Transpose matrix
 	 */
 	public def T(dbm:DenseBlockMatrix(N,M)): void {
-
-		Debug.assure(grid.numRowBlocks==dbm.grid.numColBlocks &&
+		assert (grid.numRowBlocks==dbm.grid.numColBlocks &&
 					 grid.numColBlocks==dbm.grid.numRowBlocks);
 		
 		for (var c:Long=0; c<grid.numColBlocks; c++) {

@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -45,10 +44,9 @@ public class ArrayReduce extends ArrayRemoteCopy {
     public static def reduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, 
             opFunc:(Rail[Double],Rail[Double],Long)=>Int):void {
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
-            //Debug.flushln("start bcast to "+numPlaces);
             x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), opFunc);
         }
     } 
@@ -67,7 +65,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
     public static def reduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup,
                 opFunc:(Rail[Double],Rail[Double],Long)=>Int):void {                    
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
             x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id, places, opFunc);
@@ -87,7 +85,6 @@ public class ArrayReduce extends ArrayRemoteCopy {
             mpiReduceSum(dat, tmp, datCnt);
         }
         @Ifndef("MPI_COMMU") {
-            //Debug.flushln("start bcast to "+numPlaces);
             x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), 
                     (src:Rail[Double], dst:Rail[Double], c:Long)=>arraySum(src,dst,c));
         }
@@ -104,7 +101,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
      */
     public static def reduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup):void {        
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
             x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id,places, 
@@ -194,10 +191,9 @@ public class ArrayReduce extends ArrayRemoteCopy {
             opFunc:(Rail[Double],Rail[Double],Long)=>Int) {
         
         @Ifdef("MPI_COMMU")    {
-            Debug.exit("No implementation yet");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
-            //Debug.flushln("start bcast to "+numPlaces);
             x10AllReduce(dat, tmp, datCnt, opFunc); 
         }
     } 
@@ -216,7 +212,6 @@ public class ArrayReduce extends ArrayRemoteCopy {
             mpiAllReduceSum(dat, tmp, datCnt);
         }
         @Ifndef("MPI_COMMU") {
-            //Debug.flushln("start bcast to "+numPlaces);
             x10AllReduce(dat, tmp, datCnt, 
                     (src:Rail[Double], dst:Rail[Double], c:Long)=>arraySum(src,dst,c));
         }
@@ -236,7 +231,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
      */
     public static def allReduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup) {
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
                x10AllReduce(dat, tmp, datCnt, places,

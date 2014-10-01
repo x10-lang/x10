@@ -14,7 +14,6 @@ package x10.matrix.distblock.summa;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
@@ -43,8 +42,6 @@ protected class BinaryTreeCast  {
 		val lfplist = new Rail[Long](lfcnt, (i:Long)=>plist(i));
 		val rtplist = new Rail[Long](rtcnt, (i:Long)=>plist(lfcnt+i+1));
 
-		//Debug.flushln("left branch list:"+lfplist.toString());
-		//Debug.flushln("Right branch root:"+rtroot+" list:"+rtplist.toString());		
 		finish {
 			async {
 				copyBlockToRightBranch(distBS, rootbid, rtroot, datCnt, select, rtplist);
@@ -76,7 +73,7 @@ protected class BinaryTreeCast  {
 				x10CopySparseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
 			}			
 		} else {
-			Debug.exit("Error in block type");
+			throw new UnsupportedOperationException("Error in block type");
 		}
 	}
 
@@ -124,10 +121,6 @@ protected class BinaryTreeCast  {
 			if (plist.size > 0) {
 				castToPlaces(distBS, rootbid, datCnt, select, plist);
 			}
-			// if (rootbid==0 && here.id()==2) {
-			// 	Debug.flushln("Value:"+blk.getData().toString());
-			// 	Debug.flushln("Index:"+blk.getIndex().toString());
-			// }		
 			dstspa.finalizeRemoteCopyAtDest();
 		}	
 	}	
@@ -151,17 +144,12 @@ protected class BinaryTreeCast  {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstden = blk.getMatrix() as DenseMatrix;
-					Debug.flushln("BinaryTree cast:Start recv data from "+srcpid);
 					WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
-					Debug.flushln("BinaryTree cast:Done recv data from "+srcpid);
 					if (plist.size > 0)  {
 						castToPlaces(distBS, rootbid, datCnt, select, plist);
 					}
 				}
-
-                Debug.flushln("BinaryTree cast: start sending data to "+rmtpid);
                 WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
-                Debug.flushln("BinaryTree cast: Done sending data to "+rmtpid+ " done");
 			}
 		}
 	}
@@ -187,7 +175,6 @@ protected class BinaryTreeCast  {
 					WrapMPI.world.recv(dstspa.getValue(), 0L, datCnt, srcpid, tag+1000000);
 
 					// Perform binary bcast on the right branch
-					//Debug.flushln("Recv "+here.id()+" get from "+srcpid);
                     if (plist.size > 0) {
 						castToPlaces(distBS, rootbid, datCnt, select, plist);
 					}

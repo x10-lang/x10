@@ -11,8 +11,6 @@
 
 package x10.matrix.sparse;
 
-//
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
@@ -49,8 +47,7 @@ public class SparseMultSparseToDense {
 		//	return;
 		//}
 		//
-		//Debug.flushln("Using X10 driver: CSC * CSC -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
 		val dst = m3.d;//new Compress2D(m2.N);
 		var col_st:Long = 0;
@@ -139,8 +136,7 @@ public class SparseMultSparseToDense {
 		//	return;
 		//}
 		//
-		//Debug.flushln("Using X10 driver: CSC * CSR -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
 		//val m3     = new SparseCSC(m1.M, m2.N);
 		val dst = m3.d;//new Compress2D(m2.N);
@@ -211,8 +207,8 @@ public class SparseMultSparseToDense {
 	 */
 	public static def comp(m1:SparseCSR, m2:SparseCSC{self.M==m1.N}, m3:DenseMatrix{self.M==m1.M, self.N==m2.N}, 
 			plus:Boolean):DenseMatrix(m3) {
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+
 		for (var r:Long=0; r<m1.M; r++) {
 			val m1rowEpd = m1.extractRow(r); // Additional mem is used;
 
@@ -246,10 +242,9 @@ public class SparseMultSparseToDense {
 		//if (m1.isTransposed()) {SparseMultToDense.comp(m1.TtoCSC(), m2, m3, plus);return;}
 		//if (m2.isTransposed()) {SparseMultToDense.comp(m1, m2.TtoCSR(), m3, plus);return;}
 		//
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
-		// Conver m1 to CSC first
-		//Debug.flushln("Converting CSR to CSC for CSR * CSC -> Dense");
+		// Convert m1 to CSC first
 		return comp(m1.toCSC(), m2, m3, plus);
 	}
 
@@ -262,9 +257,8 @@ public class SparseMultSparseToDense {
 	public static def comp2(m1:SparseCSR,m2:SparseCSC{self.M==m1.N},
 		m3:DenseMatrix{self.M==m1.M, self.N==m2.N}, 
 		plus:Boolean ): DenseMatrix(m3) {
-		//Debug.flushln("Using X10 driver: CSR * Dense -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+
 		var m1strow:Long = 0;
 		var m2stcol:Long = 0;
 		for (var c:Long=0; c<m2.N; c++) {
@@ -353,9 +347,8 @@ public class SparseMultSparseToDense {
 		plus:Boolean):DenseMatrix(m3) {
 		//if (m1.isTransposed()) {SparseMultToDense.comp(m1.TtoCSC(), m2, m3, plus);return;}
 		//if (m2.isTransposed()) {SparseMultToDense.comp(m1, m2.TtoCSC(), m3, plus);return;}
-		//    
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//Debug.flushln("Using X10 driver: CSR * CSR -> Dense");
+
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		val dst = m3.d;//new Compress2D(m2.N);
 		for (var r:Long=0; r<m1.M; r++) {
 			if (!plus) { //reset the column if no plus is required

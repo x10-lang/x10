@@ -13,7 +13,6 @@ package x10.matrix.comm;
 
 import x10.util.ArrayList;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.MatrixBlock;
@@ -34,11 +33,10 @@ public class BlockScatter extends BlockRemoteCopy {
 	public static def scatter(src:ArrayList[MatrixBlock], dst:BlocksPLH) : void {
 		val dstgrid = dst().getGrid();
 		val nb = dstgrid.size;
-		Debug.assure(src.size()<=nb, 
-			"Number blocks in dist and local array mismatch");
+		assert (src.size()<=nb) :
+			"Number blocks in dist and local array mismatch";
 		
 		finish for (var bid:Long=0; bid<nb; bid++) {
-			//Debug.flushln("Scatter: copy to block:"+bid);
 			copy(src(bid).getMatrix(), dst, bid);
 		}
 	}
@@ -54,7 +52,8 @@ public class BlockScatter extends BlockRemoteCopy {
 	public static def scatterRowBs(src:Matrix, dst:BlocksPLH): void {
 		var coloff:Long=0;
 		val gp = dst().getGrid();
-		Debug.assure(gp.numRowBlocks==1L, "Cannot perform non-single row blocks scatter");
+		assert (gp.numRowBlocks==1L) :
+            "Cannot perform non-single row blocks scatter";
 		for (var cb:Long=0; cb<gp.numColBlocks; cb++) {
 			val colcnt = gp.colBs(cb);	
 			copy(src, coloff, dst, dst().findPlace(cb), cb, 0, colcnt); 

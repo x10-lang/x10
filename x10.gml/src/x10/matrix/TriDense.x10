@@ -14,7 +14,6 @@ package x10.matrix;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
-import x10.matrix.util.Debug;
 import x10.matrix.util.RandTool;
 
 public type TriDense(m:Long, n:Long)=TriDense{m==n, self.M==m, m==n};
@@ -79,7 +78,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	}
 	
 	public  def alloc(m:Long, n:Long):TriDense(m,n) {
-		Debug.assure(m==n);
+		assert m==n;
 		val x = new Rail[Double](m*n);
 		val nm = new TriDense(m, x);
 		return nm as TriDense(m,n);
@@ -110,7 +109,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		else if (mat instanceof TriDense)
 			copyTo(mat as TriDense(N));
 		else
-			Debug.exit("CopyTo: matrix type does not compatible");
+			throw new UnsupportedOperationException("CopyTo: matrix type does not compatible");
 	}
 	
     /**
@@ -382,17 +381,17 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	}
 	
 	//public def cellDivBy(v:Double):TriDense(this) {
-	//	Debug.exit("Divide by 0 error");
+	//	throw new UnsupportedOperationException("Divide by 0 error");
 	//	return this;
 	//}	
 	
 	//public def cellDiv(x:TriDense(M)):TriDense(this) {
-	//	Debug.exit("Divide by 0 error");
+	//	throw new UnsupportedOperationException("Divide by 0 error");
 	//	return this;
 	//}	
 	
 	//public def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
-	//	Debug.exit("Divide by 0 error");
+	//	throw new UnsupportedOperationException("Divide by 0 error");
 	//	return x;
 	//}
 	
@@ -444,7 +443,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public operator this - (that:TriDense(M)) = this.toDense().cellSub(that)  as DenseMatrix(M,N);
 	public operator this * (that:TriDense(M)) = this.toDense().cellMult(that) as DenseMatrix(M,N);
 	public operator this / (that:TriDense(M)) {
-		Debug.exit("Divide 0 error");
+		throw new UnsupportedOperationException("Divide 0 error");
 	}
 
 	/**
@@ -459,7 +458,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	// public operator (that:DenseMatrix(M,N)) - this = this.cellSubFrom(that.clone());
 	// public operator (that:DenseMatrix(M,N)) * this = this * that;
 	public operator (that:DenseMatrix(M,N)) / this { 
-		Debug.exit("Divide by 0 error");
+		throw new UnsupportedOperationException("Divide by 0 error");
 	}
 	
 	/**

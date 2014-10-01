@@ -14,7 +14,6 @@ package x10.matrix.block;
 import x10.regionarray.Array;
 import x10.util.ArrayList;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 
 /**
@@ -28,12 +27,12 @@ public class BlockBlockMult  {
             B:BlockMatrix(A.N),
             C:BlockMatrix(A.M,B.N),
             plus:Boolean):BlockMatrix(C) {
-        Debug.assure(Grid.match(A.grid.rowBs, C.grid.rowBs), 
-            "Row partiton of first operand and result matrix mismatch in matrix multiply");
-        Debug.assure(Grid.match(B.grid.colBs, C.grid.colBs),
-            "Column partition of second operand and result matrix mismatch in matrix multiply");
-        Debug.assure(Grid.match(A.grid.colBs, B.grid.rowBs),
-            "Column partition of first and row partition of second operand mismatch in matrix multiply");
+        assert (Grid.match(A.grid.rowBs, C.grid.rowBs)) :
+            "Row partiton of first operand and result matrix mismatch in matrix multiply";
+        assert (Grid.match(B.grid.colBs, C.grid.colBs)) :
+            "Column partition of second operand and result matrix mismatch in matrix multiply";
+        assert (Grid.match(A.grid.colBs, B.grid.rowBs)) :
+            "Column partition of first and row partition of second operand mismatch in matrix multiply";
 
         if (A.blockMap==null) A.buildBlockMap();
         if (B.blockMap==null) B.buildBlockMap();
@@ -47,12 +46,12 @@ public class BlockBlockMult  {
             B:BlockMatrix(A.M),
             C:BlockMatrix(A.N,B.N),
             plus:Boolean):BlockMatrix(C) {
-        Debug.assure(Grid.match(A.grid.colBs, C.grid.rowBs), 
-            "Column partiton of first operand and row partition of result matrix mismatch in trans-multply");
-        Debug.assure(Grid.match(B.grid.colBs, C.grid.colBs), 
-            "Column partition of second operand and result matrix mismatch in trans-multiply");
-        Debug.assure(Grid.match(A.grid.rowBs, B.grid.rowBs), 
-            "Row partition of first and second operand mismatch in trans-multiply");
+        assert (Grid.match(A.grid.colBs, C.grid.rowBs)) : 
+            "Column partiton of first operand and row partition of result matrix mismatch in trans-multiply";
+        assert (Grid.match(B.grid.colBs, C.grid.colBs)) :
+            "Column partition of second operand and result matrix mismatch in trans-multiply";
+        assert (Grid.match(A.grid.rowBs, B.grid.rowBs)) :
+            "Row partition of first and second operand mismatch in trans-multiply";
 
         if (A.blockMap==null) A.buildBlockMap();
         if (B.blockMap==null) B.buildBlockMap();
@@ -68,12 +67,12 @@ public class BlockBlockMult  {
             B:BlockMatrix{self.N==A.N},
             C:BlockMatrix(A.M,B.M),
             plus:Boolean):BlockMatrix(C) {
-        Debug.assure(Grid.match(A.grid.rowBs, C.grid.rowBs), 
-            "Row partiton of first operand and result matrix mismatch in multiply-trans");
-        Debug.assure(Grid.match(B.grid.rowBs, C.grid.colBs), 
-            "Row partition of second operand and result matrix mismatch in multiply-trans");
-        Debug.assure(Grid.match(A.grid.colBs, B.grid.colBs),
-            "Column partition of first and second operand mismatch in multiply-trans");
+        assert (Grid.match(A.grid.rowBs, C.grid.rowBs)) :
+            "Row partiton of first operand and result matrix mismatch in multiply-trans";
+        assert (Grid.match(B.grid.rowBs, C.grid.colBs)) :
+            "Row partition of second operand and result matrix mismatch in multiply-trans";
+        assert (Grid.match(A.grid.colBs, B.grid.colBs)) :
+            "Column partition of first and second operand mismatch in multiply-trans";
         
         if (A.blockMap==null) A.buildBlockMap();
         if (B.blockMap==null) B.buildBlockMap();
@@ -97,15 +96,15 @@ public class BlockBlockMult  {
                 val alist = findRowBlockList(A, rb);
                 val ait = alist.iterator();
                 val bit = blist.iterator();
-                Debug.assure(alist.size()==blist.size(), 
-                        "Partition mismatch! Number of partition not same.");
+                assert (alist.size() == blist.size()) :
+                    "Partition mismatch! Number of partition not same.";
                 val cblk = C.findBlock(rb, cb);
 
                 while (ait.hasNext()) {
                     val ablk = ait.next();
                     val bblk = bit.next();
-                    Debug.assure(ablk.myColId==bblk.myRowId, 
-                            "Block partition misaligned in block matrix multiply");
+                    assert (ablk.myColId == bblk.myRowId) :
+                        "Block partition misaligned in block matrix multiply";
                     cblk.mult(ablk, bblk, true);                    
                 }
             }
@@ -128,15 +127,15 @@ public class BlockBlockMult  {
                 val alist = findColBlockList(A, rb);
                 val ait = alist.iterator();
                 val bit = blist.iterator();
-                Debug.assure(alist.size()==blist.size(), 
-                        "Partition mismatch! Numbers of partition blocks not same");
+                assert (alist.size() == blist.size()) :
+                    "Partition mismatch! Numbers of partition blocks not same";
                 val cblk = C.findBlock(rb, cb);
 
                 while (ait.hasNext()) {
                     val ablk = ait.next();
                     val bblk = bit.next();
-                    Debug.assure(ablk.myRowId==bblk.myRowId,
-                            "Block partition misaligned in block trans-multiply");
+                    assert (ablk.myRowId == bblk.myRowId) :
+                        "Block partition misaligned in block trans-multiply";
                     cblk.transMult(ablk, bblk, true);
                 }
             }
@@ -158,8 +157,8 @@ public class BlockBlockMult  {
                 val alist = findRowBlockList(A, rb);
                 val ait = alist.iterator();
                 val bit = blist.iterator();
-                Debug.assure(alist.size()==blist.size(), 
-                        "Partition mismatch! Number of partitions not same");
+                assert (alist.size() == blist.size()) :
+                    "Partition mismatch! Number of partitions not same";
 
                 val cblk = C.findBlock(rb, cb);
                 //if (!plus) cblk.reset();
@@ -167,8 +166,8 @@ public class BlockBlockMult  {
                 while (ait.hasNext()) {
                     val ablk = ait.next();
                     val bblk = bit.next();
-                    Debug.assure(ablk.myColId==bblk.myColId,
-                            "Block partition misaligned in block multiply-trans");
+                    assert (ablk.myColId == bblk.myColId) :
+                        "Block partition misaligned in block multiply-trans";
                     cblk.multTrans(ablk, bblk, true);
                 }
             }
@@ -205,8 +204,8 @@ public class BlockBlockMult  {
     
     public static def findBlock(blklist:ArrayList[MatrixBlock], rowId:Long, colId:Long):MatrixBlock {
         val idx = search(blklist, rowId, colId);
-        if (idx < 0 ) {
-            Debug.exit("Cannot find block ("+rowId+","+colId+") at place "+here.id());
+        if (idx < 0) {
+            throw new UnsupportedOperationException("Cannot find block ("+rowId+","+colId+") at place "+here.id());
         }
         return blklist.get(idx);
     }
@@ -238,10 +237,8 @@ public class BlockBlockMult  {
         //     while (itr1.hasNext()) {
         //         val b=itr1.next();
         //         val cmpid = select(b.myColId, b.myRowId);
-        //         Debug.flushln("Block ("+b.myRowId+","+b.myColId+") cmp value"+cmpid);
         //     }
         // }
-        // Debug.flushln("Done select+sort");
         return retlst;
     }
     
@@ -265,12 +262,12 @@ public class BlockBlockMult  {
             for (k in A.region.min(1)..A.region.max(1)) {
                 val ablk = A(r,k);
                 val bblk = B(k,c);
-                Debug.assure(ablk.myRowId==cblk.myRowId, 
-                        "First operand block row Id "+ablk.myRowId+" not match to result row block id "+cblk.myRowId);
-                Debug.assure(bblk.myColId==cblk.myColId,
-                        "Second operand block column block id "+bblk.myColId+" not match to result column block id "+cblk.myColId);
-                Debug.assure(ablk.myColId==bblk.myRowId, 
-                        "First operand block column block Id "+ablk.myColId+" not match to second row block id "+bblk.myRowId);
+                assert (ablk.myRowId == cblk.myRowId) :
+                        "First operand block row Id "+ablk.myRowId+" not match to result row block id "+cblk.myRowId;
+                assert (bblk.myColId == cblk.myColId) :
+                        "Second operand block column block id "+bblk.myColId+" not match to result column block id "+cblk.myColId;
+                assert (ablk.myColId == bblk.myRowId) :
+                        "First operand block column block Id "+ablk.myColId+" not match to second row block id "+bblk.myRowId;
                 val amat = ablk.getMatrix() as Matrix(cmat.M);
                 val bmat = bblk.getMatrix() as Matrix(amat.N, cmat.N);
                 
@@ -294,9 +291,12 @@ public class BlockBlockMult  {
                 val ablk = A(k,r);
                 val bblk = B(k,c);
                 
-                Debug.assure(ablk.myColId==cblk.myRowId, "First operand and output matrix block dismatch");
-                Debug.assure(bblk.myColId==cblk.myColId, "Second operand and output matrix block dismatch" );
-                Debug.assure(ablk.myRowId==bblk.myRowId, "First and second operand matrix block dismatch");
+                assert (ablk.myColId == cblk.myRowId) :
+                    "First operand and output matrix block dismatch";
+                assert (bblk.myColId == cblk.myColId) :
+                    "Second operand and output matrix block dismatch";
+                assert (ablk.myRowId == bblk.myRowId) :
+                    "First and second operand matrix block dismatch";
                 val amat = ablk.getMatrix() as Matrix{self.N==cmat.M};
                 val bmat = bblk.getMatrix() as Matrix(amat.M, cmat.N);
                 
@@ -320,9 +320,12 @@ public class BlockBlockMult  {
                 val ablk = A(r,k);
                 val bblk = B(c,k);
                 
-                Debug.assure(ablk.myRowId==cblk.myRowId, "First operand and output matrix block dismatch");
-                Debug.assure(bblk.myRowId==cblk.myColId, "Second operand and output matrix block dismatch");
-                Debug.assure(ablk.myColId==bblk.myColId, "First and second operand matrix block dismatch");
+                assert (ablk.myRowId == cblk.myRowId) :
+                    "First operand and output matrix block dismatch";
+                assert (bblk.myRowId == cblk.myColId) :
+                    "Second operand and output matrix block dismatch";
+                assert (ablk.myColId == bblk.myColId) :
+                    "First and second operand matrix block dismatch";
                 val amat = A(r,k).getMatrix() as Matrix(cmat.M);
                 val bmat = B(c,k).getMatrix() as Matrix(cmat.N, amat.N);
                 

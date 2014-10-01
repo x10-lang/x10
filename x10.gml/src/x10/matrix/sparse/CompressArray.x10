@@ -11,8 +11,6 @@
 
 package x10.matrix.sparse;
 
-
-import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.matrix.util.RandTool;
 
@@ -29,7 +27,6 @@ import x10.util.StringBuilder;
  * are stored contiguously in an array called the <em>underlying array</em>.
  * Indices into the underlying array are called <em>underlying indices</em>.
  */
-
 public class CompressArray {
     //TODO: Use Rail[Pair[Long,Double]] as backing storage.
 	//Comments: the underlying storage won't be compatible to conventional
@@ -42,10 +39,6 @@ public class CompressArray {
 	public var value:Rail[Double];//{self.size==index.size}; // the values v1,..., vn
 
 	public var count:Long=0; // n
-	public def count()=count;
-
-
-	// Constructor
 
 	public def this(idxlst:Rail[Long], 
 					vallst:Rail[Double]{self.size==idxlst.size},
@@ -53,20 +46,17 @@ public class CompressArray {
 		this.index = idxlst;
 		this.value = vallst;
 		count = cnt;
-		//for (var i:Long=0; i<index.size&&index(i)>=0; i++) count++;
 	}
 
 	/**
 	 * Create an empty compressed array with space for s entries.
 	 */
 	public def this(s:Long) { 
-		Debug.assure(s>=0);
+		assert s >= 0;
 		index = new Rail[Long](s, -1) as Rail[Long];
 		value = new Rail[Double](s) as Rail[Double];
 		count = 0;
 	}
-
-	// Constructor with memory allocation
 
 	/**
 	 * Make a compressed array.
@@ -74,7 +64,6 @@ public class CompressArray {
 	 * @param sz     Number of entries or underlying indices.
 	 */
 	public static def make(sz:Long) = new CompressArray(sz); 
-
 
 	/**
 	 * Compress array data initialization. Starting from offset in the 
@@ -284,7 +273,6 @@ public class CompressArray {
 		val idxlist = new Rail[Long](this.index) as Rail[Long];
 		val vallist = new Rail[Double](this.value) as Rail[Double]{self.size==idxlist.size};
 		val ca = new CompressArray(idxlist, vallist, this.count);
-		//ca.count = this.count;
 		return ca;
 	}
 
@@ -299,9 +287,8 @@ public class CompressArray {
 	 * Increase storage size by reallocating memory space
 	 */
 	protected def incStorage(incsz:Long): void {
-		
 		val nsts:Long = storageSize() + incsz;
-		if (nsts > Long.MAX_VALUE) Debug.exit("Memory overflow");
+        assert nsts < Long.MAX_VALUE;
 
 		// Allocate new storage
 		val newidx = new Rail[Long](nsts);// (i:Long)=>(i<sts)?i<index(i):-1);
@@ -326,8 +313,6 @@ public class CompressArray {
 		val cursz = storageSize();
 		val chksz = off + cnt;
 		if (chksz > cursz) {
-			//Debug.flushln("Test storage size fail! Compress data offset:"+off+" add cnt:"+cnt+
-			//				" storage size:"+cursz+" Re-allocation increase to "+chksz);
 			retval = true;
 			incStorage(chksz - cursz);
 		}	
@@ -340,20 +325,19 @@ public class CompressArray {
 	 * @param cnt     number of elements will be added to storage
 	 * @return     return true if storage is re-allocated
 	 */
-	public def testIncStorage(cnt:Long) = testIncStorage(this.count(), cnt);
+	public def testIncStorage(cnt:Long) = testIncStorage(this.count, cnt);
 
 	/**
 	 * Update the compressed array. It is the caller's responsibility
-	 * to ensure that the v.first >=0, and after this update the 
-	 * compressed array satisfies its invariants.
+	 * to ensure that after this update the compressed array satisfies its 
+     * invariants.
 	 * @param pos: The index of the entry in the underlying array to be updated.
 	 * @param v: The (surface index, value) pair to update the entry, 
 	 */
 	public operator this(pos:Long)=(v:Pair[Long,Double]):void {
-		Debug.assure(pos < this.storageSize(), 
-					 "CompressArray prealloc "+
-					 this.storageSize()+" memory overflow ");
-		//if (index(pos) < 0) count++;
+        assert v.first >= 0;
+		assert (pos < this.storageSize()) : "CompressArray prealloc "+
+					 this.storageSize()+" memory overflow ";
 		index(pos) = v.first;
 		value(pos) = v.second;
 	}	
@@ -362,11 +346,11 @@ public class CompressArray {
 	 * Return the surface index associated with the index i in the 
 	 * underlying Rail. 
 	 */
-	public def getIndex(i:Long) = index(i);
+	public final def getIndex(i:Long) = index(i);
 	/**
 	 * Return the value associated with index i in the underlying Rail.
 	 */
-	public def getValue(i:Long) = value(i);
+	public final def getValue(i:Long) = value(i);
 
 	/**
 	 * Return the value at surface index i.
@@ -387,7 +371,6 @@ public class CompressArray {
 	 * the range that is no smaller than idx.
 	 */
 	public def find(idx:Long, start:Long, end:Long):Long { 
-
 		if (this.count==0L) return 0;
 
 		var min:Long = start; 
@@ -416,7 +399,7 @@ public class CompressArray {
 	public def find(idx:Long): Double {
 		val fidx = find(idx, 0, this.count-1);
 		if (index(fidx) == idx) return value(fidx);
-		return 0.0D;
+		return 0.0;
 	}
 
 	/** obsolete
@@ -439,12 +422,10 @@ public class CompressArray {
 		dest.count +=length;
 	}
 
-	// Copy data between compress array
-
 	/**
 	 * Copy specified range of compressed array from source to target.  The target compress
 	 * array allows to specify the modification for its index values, allowing target compress array
-s	 * has different original size (uncompress data array size) from the source.
+	 * has different original size (uncompress data array size) from the source.
 	 * 
 	 * @param src        The source compress array
 	 * @param srcoff     The starting position of source compress array
@@ -493,9 +474,6 @@ s	 * has different original size (uncompress data array size) from the source.
 		dst.count += len;	
 	}
 
-
-
-
 	/**
 	 *  Return the number of nonzero (nz) entries in the given array. 
 	 * An entry v is nz if Math.testZero(v) succeeds.
@@ -526,6 +504,7 @@ s	 * has different original size (uncompress data array size) from the source.
 		out.count = pos;
 		return out;
 	}
+
 	/**
 	 * Transfer as many nz entries from d into this 
 	 * the as can fit into this. The entries are transferred
@@ -552,7 +531,6 @@ s	 * has different original size (uncompress data array size) from the source.
 		return c;
 	}
 
-
 	/**
 	 * Extract data from this compressed array and transfer into dest.
 	 * Start from the srcOffset index in the underlying array, and 
@@ -567,8 +545,8 @@ s	 * has different original size (uncompress data array size) from the source.
 	public def extract(srcOffset:Long, count:Long, 
 					   dstOffset:Long, dest:Rail[Double]):void {
 		if (count <=0L || this.count ==0L) return;
-		Debug.assure(srcOffset+count-1  < this.count, 
-					 "extract compress array out of range");
+		assert (srcOffset+count-1  < this.count) :
+		    "extract compress array out of range";
 		val destSize = dest.size;
 		var preidx:Long = dstOffset;
 		var dstidx:Long = 0;
@@ -595,17 +573,13 @@ s	 * has different original size (uncompress data array size) from the source.
 
 	/**
 	 * Allocate ls entries from current array and return a new Rail
-	 * containing these netries. 
+	 * containing these entries. 
 	 */
 	public def extract(ls:Long):Rail[Double] {
 		val dst = new Rail[Double](ls);
 		extract(dst);
 		return dst;
 	} 
-
-
-
-	// Util methods
 
 	public def toString():String {
 		val outstr = new StringBuilder();

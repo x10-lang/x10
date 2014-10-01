@@ -15,7 +15,6 @@ import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -56,7 +55,7 @@ public class BlockBcast extends BlockRemoteCopy {
 			} else if (mat0.isSparse()) {
 				dsz= mpiBcastSparse(distBS, rootbid, coloff, colcnt);
 			} else {
-				Debug.exit("Block type is not supported");
+				throw new UnsupportedOperationException("Block type is not supported");
 			}
 		}
 		
@@ -231,7 +230,7 @@ public class BlockBcast extends BlockRemoteCopy {
 				distBS().sync(dstblk, colOff, colCnt);
 			}
 		} else {
-			Debug.exit("Matrix block type is not supported");
+			throw new UnsupportedOperationException("Matrix block type is not supported");
 		}
 	}	
 

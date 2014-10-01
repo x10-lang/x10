@@ -11,7 +11,6 @@
 
 package x10.matrix.block;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.util.RandTool;
 import x10.matrix.DenseMatrix;
@@ -253,7 +252,7 @@ public class SparseBlock extends MatrixBlock {
 	 * @param dstmat     target matrix, must be SparseCSC type
 	 */
 	public def copyCols(srcoff:Long, colcnt:Long, dstmat:Matrix):Long {
-		Debug.assure(dstmat instanceof SparseCSC);
+		assert dstmat instanceof SparseCSC;
 		return copyCols(srcoff, colcnt, dstmat as SparseCSC);
 	}
 	
@@ -278,7 +277,7 @@ public class SparseBlock extends MatrixBlock {
 	 * @param dstmat     target matrix
 	 */
 	public def copyRows(srcoff:Long, rowcnt:Long, dstmat:Matrix):Long {
-		Debug.assure(dstmat instanceof SparseCSC);
+		assert dstmat instanceof SparseCSC;
 		return copyRows(srcoff, rowcnt, dstmat as SparseCSC);
 	}
 	
@@ -290,10 +289,7 @@ public class SparseBlock extends MatrixBlock {
 	 * @param dstspa     target sparse matrix 
 	 */
 	public def copyRows(srcoff:Long, rowcnt:Long, dstspa:SparseCSC):Long {
-		//Debug.flushln("Copy rows:"+srcoff+" cnt:"+rowcnt+
-		//			" to dst size:"+dstspa.getStorage().storageSize());
 		return SparseCSC.copyRows(sparse, srcoff, dstspa, 0, rowcnt);
-		//Debug.flushln("Copy nzd count:"+cnt);
 	}
 
 
@@ -341,7 +337,7 @@ public class SparseBlock extends MatrixBlock {
 // 		if ((a instanceof SparseCSC) && (b instanceof SparseCSC))
 // 			SparseMultToCSCol.comp(a as SparseCSC, b as SparseCSC, sparse, plus);
 // 		else 
-// 			Debug.exit("Error in input block matrix types");
+// 			throw new UnsupportedOperationException("Error in input block matrix types");
 // 	}
 
 	// Transpose
@@ -363,7 +359,7 @@ public class SparseBlock extends MatrixBlock {
 			bdr.initTransposeFrom(src);
 			bdr.toSparseCSC();
 		} else {
-			Debug.exit("Matrix types are not supported in transpose method");
+			throw new UnsupportedOperationException("Matrix types are not supported in transpose method");
 		}
 	}
 

@@ -15,7 +15,6 @@ import x10.regionarray.Dist;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -77,7 +76,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		val dmap = distBS().getDistMap();
 		var leftpcnt:Long = Place.numPlaces();
 		
-		//Debug.assure(here.id() == 0);
 		if (here.id() != rootpid) {
 			at(Place(rootpid)) {
 				x10Reduce(distBS, tmpBS, rootpid, opFunc);

@@ -15,7 +15,6 @@ import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.MatrixBcast;
@@ -241,7 +240,7 @@ public class DupDenseMatrix extends Matrix {
 		else if (that instanceof DenseMatrix)
 			copyTo(that as DenseMatrix);
 		else
-			Debug.exit("CopyTo: target matrix type is not supportede");
+			throw new UnsupportedOperationException("CopyTo: target matrix type is not supportede");
 	}
 
 	// Data access
@@ -329,9 +328,8 @@ public class DupDenseMatrix extends Matrix {
 	public def allReduceSum(): void {
 		allocTemp();
 		/* Timing */ val st:Long = Timer.milliTime();
-		   //Debug.flush("Perform MPI all reduce sum operation");
-		   MatrixReduce.allReduceSum(this.dupMs, tmpMs);
-		   /* Timing */ commTime += Timer.milliTime() - st;
+        MatrixReduce.allReduceSum(this.dupMs, tmpMs);
+        /* Timing */ commTime += Timer.milliTime() - st;
 	}
 
 	/**
@@ -341,7 +339,7 @@ public class DupDenseMatrix extends Matrix {
 		finish ateach(val [p]:Point in this.dupMs) {
 			val tm = ddm.local();
 			val m  = local();
-			Debug.assure(m.M==tm.N&&m.N==tm.M);
+			assert (m.M==tm.N && m.N==tm.M);
 			local().T(tm);
 		}
 	}
@@ -389,7 +387,7 @@ public class DupDenseMatrix extends Matrix {
 	 * Concurrently perform cellwise addition on all copies.
 	 */
 	public def cellAdd(A:DupDenseMatrix(M,N))  {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
+		//assert (this.M==A.M && this.N==A.N);
 	    finish ateach([p]  in this.dupMs) {
 			val sm = A.local();
 	        val dm = local();
@@ -399,7 +397,7 @@ public class DupDenseMatrix extends Matrix {
 	}
 
 	public def cellAdd(d:Double)  {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
+		//assert (this.M==A.M && this.N==A.N);
 	    finish ateach([p]  in this.dupMs) {
 	        val dm = local();
 	        dm.cellAdd(d);
@@ -472,7 +470,7 @@ public class DupDenseMatrix extends Matrix {
 	 * Perform cell-wise subtraction  x = x - this.
 	 */
 	public def cellSubFrom(x:DupDenseMatrix(M,N)) {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
+		//assert (this.M==A.M && this.N==A.N);
 		/* Timing */ val st= Timer.milliTime();
 		finish ateach([p] in this.dupMs) {
 			val sm = x.local();
@@ -507,7 +505,7 @@ public class DupDenseMatrix extends Matrix {
 	 * the corresponding dense matrix copies.
 	 */
 	public def cellMult(A:DupDenseMatrix(M,N))  {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
+		//assert (this.M==A.M && this.N==A.N);
 		/* Timing */ val st= Timer.milliTime();
 		finish ateach(val [p]:Point in this.dupMs) {
 			val sm = A.local();
@@ -550,7 +548,7 @@ public class DupDenseMatrix extends Matrix {
 	 * the corresponding dense matrix copies.
 	 */	
 	public def cellDiv(A:DupDenseMatrix(M,N)) {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
+		//assert (this.M==A.M && this.N==A.N);
 		/* Timing */ val st= Timer.milliTime();
 		finish ateach(val [p]:Point in this.dupMs) {
 			val sm = A.local();
@@ -617,8 +615,7 @@ public class DupDenseMatrix extends Matrix {
 		else if (A instanceof DupDenseMatrix(A) && B instanceof DupDenseMatrix(B))
 			return mult(A as DupDenseMatrix(A), B as DupDenseMatrix(B), plus);
 
-		Debug.flushln("Not support using Matrix instances as parameters");
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("Not support using Matrix instances as parameters");
 	}
 
 	/**
@@ -670,8 +667,7 @@ public class DupDenseMatrix extends Matrix {
 		else if (A instanceof DistDenseMatrix(A) && B instanceof DistSparseMatrix(B))
 			return transMult(A as DistDenseMatrix(A), B as DistSparseMatrix(B), plus);
 		
-		Debug.flushln("Not support using Matrix instances as parameters");
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("Not support using Matrix instances as parameters");
 	}
 
 	/**
@@ -784,8 +780,7 @@ public class DupDenseMatrix extends Matrix {
 		else if (A instanceof DupDenseMatrix(A) && B instanceof DupDenseMatrix(B))
 			return multTrans(A as DupDenseMatrix(A), B as DupDenseMatrix(B), plus);
 		
-		Debug.flushln("Not support using Matrix instances as parameters");
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("Not support using Matrix instances as parameters");
 	}
 
 	public def multTrans(
@@ -841,11 +836,10 @@ public class DupDenseMatrix extends Matrix {
 		return dm;
 	}
 
-	// Util
 	public def getCommTime():Long = this.commTime;
 	public def getCalcTime():Long = this.calcTime;
 
-	// Check integrity 
+	/** Check integrity */
 	public def syncCheck():Boolean {
 		val m = local();
 		for (var p:Long=0; p<Place.numPlaces(); p++) {

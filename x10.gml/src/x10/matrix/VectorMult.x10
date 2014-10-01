@@ -14,13 +14,11 @@ package x10.matrix;
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseCSC;
-import x10.matrix.util.Debug;
 
 /**
  * Performs matrix-vector multiplication.
  */
 public class VectorMult {
-	
 	/**
 	 * Matrix-vector multiply, C = A * B, where A is matrix, B and C are vectors.
 	 */
@@ -90,9 +88,10 @@ public class VectorMult {
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
 	public static def comp(A:DenseMatrix, B:Vector, var offsetB:Long, C:Vector, offsetC:Long, plus:Boolean):Vector(C) {
-		
-		Debug.assure(offsetB+A.N<=B.M, "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" > B.M:"+B.M);
-		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow, offset:"+offsetC+" A.M:"+A.M+" C.M:"+C.M);
+		assert (offsetB+A.N <= B.M) :
+            "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" > B.M:"+B.M;
+		assert (offsetC+A.M <= C.M) :
+            "Output vector overflow, offset:"+offsetC+" A.M:"+A.M+" C.M:"+C.M;
 		if (!plus) {
 			for (var i:Long=offsetC; i< offsetC+A.M; i++) C.d(i) =0;
 		}
@@ -114,9 +113,10 @@ public class VectorMult {
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
 	public static def comp(A:SparseCSC, B:Vector, var offsetB:Long, C:Vector, offsetC:Long, plus:Boolean):Vector(C) {
-		
-		Debug.assure(offsetB+A.N<=B.M, "Input vector overflow, offsetB:"+offsetB+" len:"+A.N+" B size:"+B.M);
-		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow, offset:"+offsetC+" len:"+A.M+" output size:"+C.M);
+		assert (offsetB+A.N <= B.M) :
+            "Input vector overflow, offsetB:"+offsetB+" len:"+A.N+" B size:"+B.M;
+		assert (offsetC+A.M <= C.M) :
+            "Output vector overflow, offset:"+offsetC+" len:"+A.M+" output size:"+C.M;
 		if (!plus) {
 			for (var i:Long=offsetC; i< offsetC+A.M; i++) C.d(i) =0;		
 		}
@@ -140,8 +140,10 @@ public class VectorMult {
 		comp(B, 0, A, C, 0, plus);
 
 	public static def comp(B:Vector, var offsetB:Long, A:DenseMatrix, C:Vector, var offsetC:Long, plus:Boolean):Vector(C) {
-		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M);
-		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M);
+		assert (offsetB+A.M <= B.M) :
+            "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M;
+		assert (offsetC+A.N <= C.M) :
+            "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M;
 		if (!plus) {
 			for (var i:Long=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
 		}
@@ -158,8 +160,10 @@ public class VectorMult {
 	}
 
 	public static def comp(B:Vector, var offsetB:Long, A:SparseCSC, C:Vector, var offsetC:Long, plus:Boolean):Vector(C) {
-		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M);
-		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M);
+		assert (offsetB+A.M <= B.M) :
+            "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M;
+		assert (offsetC+A.N <= C.M) :
+            "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M;
 		if (!plus) {
 			for (var i:Long=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
 		}

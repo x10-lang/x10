@@ -11,7 +11,6 @@
 
 package x10.matrix.sparse;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 

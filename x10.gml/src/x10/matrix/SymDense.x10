@@ -14,7 +14,6 @@ package x10.matrix;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
-import x10.matrix.util.Debug;
 import x10.matrix.util.RandTool;
 
 public type SymDense(m:Long, n:Long)=SymDense{m==n, self.M==m, self.N==n};
@@ -49,7 +48,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	}
 	
 	public  def alloc(m:Long, n:Long):SymDense(m,n) {
-		Debug.assure(m==n);
+		assert m==n;
 		val x = new Rail[Double](m*m);
 		val nm = new SymDense(m, x);
 		return nm as SymDense(m,n);
@@ -81,7 +80,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		} else if (likeMe(mat)) {
 			copyTo(mat as SymDense(N));
 		} else {
-			Debug.exit("CopyTo: Target matrix type is not compatible");
+			throw new UnsupportedOperationException("CopyTo: Target matrix type is not compatible");
 		}
 	}
 

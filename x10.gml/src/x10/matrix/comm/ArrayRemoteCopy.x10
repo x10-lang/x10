@@ -16,7 +16,6 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.CompressArray;
-import x10.matrix.util.Debug;
 
 /**
  * This class supports inter-place communication for data arrays which are defined
@@ -59,9 +58,10 @@ public class ArrayRemoteCopy {
 			Rail.copy(src, srcOff, dstplh(), dstOff, dataCnt);
 			return;
 		}
-		Debug.assure(srcOff+dataCnt <= src.size,
-				"At source place, illegal data offset:"+srcOff+
-				                                       " or data count:"+dataCnt);
+
+        assert (srcOff+dataCnt <= src.size) :
+            "At source place, illegal data offset:"+srcOff+
+            " or data count:"+dataCnt;
 		
 		@Ifdef("MPI_COMMU") {
 			{
@@ -147,7 +147,9 @@ public class ArrayRemoteCopy {
 			Rail.copy(src, srcOff, dst, dstOff, dataCnt);
 			return;
 		}
-		Debug.assure(dstOff+dataCnt <= dst.size, "Receiving array overflow");
+
+		assert (dstOff+dataCnt <= dst.size):
+            "Receiving array overflow";
 		
 		@Ifdef("MPI_COMMU") {
 			{
@@ -218,7 +220,8 @@ public class ArrayRemoteCopy {
 			return;
 		}
 
-		Debug.assure(srcOff+dataCnt <= src.storageSize(), "Sending side storage overlfow");
+		assert (srcOff+dataCnt <= src.storageSize()) :
+            "Sending side storage overflow";
 		
 		@Ifdef("MPI_COMMU") {
 			{
@@ -253,7 +256,8 @@ public class ArrayRemoteCopy {
 				// Need: dstlist, srcpid, dstOff, dataCnt;
 				val dst = dstplh();
 				val tag = srcpid * baseTagCopyIdxTo + here.id();
-				Debug.assure(dstOff+dataCnt<=dst.storageSize(), "Receiving side arrays overflow");
+				assert (dstOff+dataCnt <= dst.storageSize()) :
+                    "Receiving side arrays overflow";
 				WrapMPI.world.recv(dst.index, dstOff, dataCnt, srcpid, tag);
 				WrapMPI.world.recv(dst.value, dstOff, dataCnt, srcpid, tag+100001);
 			}
@@ -275,7 +279,8 @@ public class ArrayRemoteCopy {
 		at(Place(dstpid)) {
 			//Implicit copy:dstlist, dataCnt, rmtidx, rmtval, srcOff dstOff
 			val dst = dstplh();
-			Debug.assure(dstOff+dataCnt<=dst.storageSize(), "Receiving side arrays overflow");
+			assert (dstOff+dataCnt <= dst.storageSize()) :
+                "Receiving side arrays overflow";
 			finish Rail.asyncCopy[Long  ](rmtidx, srcOff, dst.index, dstOff, dataCnt);
 			finish Rail.asyncCopy[Double](rmtval, srcOff, dst.value, dstOff, dataCnt);
 		}

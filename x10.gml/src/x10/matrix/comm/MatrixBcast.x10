@@ -15,8 +15,6 @@ import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
@@ -60,7 +58,6 @@ public class MatrixBcast {
 			datasz = mpiBcast(dupmat, coloff, colcnt);
 		}
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			datasz = x10Bcast(dupmat, coloff, colcnt);
 		}
 		return datasz;
@@ -170,7 +167,6 @@ public class MatrixBcast {
 			datasz = mpiBcast(smlist, colOff, colCnt);
 		}
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			datasz = x10Bcast(smlist, colOff, colCnt);
 		}
 		return datasz;

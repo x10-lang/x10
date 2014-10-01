@@ -15,7 +15,6 @@ import x10.compiler.Inline;
 import x10.util.Pair;
 import x10.util.StringBuilder;
 
-import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 
 /**
@@ -35,7 +34,7 @@ public class Compress1D {
 	 * @param ca     The storage for the compressed data
 	 */
 	public def this(offset:Long, count:Long, ca:CompressArray) {
-		Debug.assure(offset+count <= ca.count);
+		assert offset+count <= ca.count;
 		this.cArray = ca;
 		this.offset = offset;
 		this.length = count;
@@ -406,12 +405,9 @@ public class Compress1D {
 	 */
 	public static def copySection(src:Compress1D, idxStart:Long, 
 								  dst:Compress1D, idxCount:Long): void {
-
 		val rng = src.findIndexRange(idxStart, idxStart+idxCount-1);
 		val off = rng.first; 
 		val cnt = rng.second;
-		//Debug.flushln("At source copy range from offset:"+off+" len:" + cnt+
-		//				" to dst off:"+dst.offset);
 		if (cnt > 0L) 
 			CompressArray.copy(src.cArray, off, 
 							   dst.cArray, dst.offset, cnt, idxStart);
@@ -459,7 +455,6 @@ public class Compress1D {
 	}
 
 	public def extract(dst:Rail[Double]) :void {
-		//Debug.flushln("Extract "+offset+" "+length+" ");
 		if (length > 0L)
 			cArray.extract(offset, length, 0L, dst);
 	}
@@ -546,7 +541,7 @@ public class Compress1D {
 		var dv:Double=0;
 		for (var i:Long=0; i<this.length-1; i++) {
 			df = this.getIndex(i+1) - this.getIndex(i);
-			Debug.assure(df > 0);
+			assert df > 0;
 			dv += (df-avg)*(df-avg);
 		} 
 		return dv;

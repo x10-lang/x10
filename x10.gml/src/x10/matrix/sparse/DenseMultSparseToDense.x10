@@ -11,7 +11,6 @@
 
 package x10.matrix.sparse;
 
-import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -43,9 +42,8 @@ public class DenseMultSparseToDense {
 		//	mult(m1, m2.TtoCSR(), m3, plus);
 		//	return;
 		//}
-		//Debug.flushln("Using X10 driver: Dense * CSC -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+
 		var startcol:Long = 0;
 		var v1idx:Long = 0;
 		for (var c:Long=0; c<m2.N; c++, startcol +=m3.M) {			
@@ -81,9 +79,8 @@ public class DenseMultSparseToDense {
 	 */
 	public static def compTransMult(m1:DenseMatrix, m2:SparseCSC{self.M==m1.M}, 
 		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
-		//Debug.flushln("Using X10 driver: Dense * CSC -> Dense");
-		Debug.assure(m3.M>=m1.N&&m1.M == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.N&&m1.M == m2.M&&m2.N<=m3.N);
+
 		var startcol:Long = 0;
 		var v1idx:Long = 0;
 		for (var c:Long=0; c<m2.N; c++, startcol +=m3.M) {			
@@ -114,9 +111,6 @@ public class DenseMultSparseToDense {
 	public static def compTransMult_ByDef(m1:DenseMatrix,  m2:SparseCSC{self.M==m1.M}, 
 		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
 		
-		//Debug.flushln("Using X10 driver: Dense.T * CSC -> Dense");
-		//Debug.assure(m3.M>=m1.N&&m1.M == m2.M&&m2.N<=m3.N);
-		//
 		var m1stcol:Long;
 		for (var c:Long=0; c<m2.N; c++) {
 			m1stcol = 0;
@@ -195,9 +189,7 @@ public class DenseMultSparseToDense {
 
 
 		// Similar to TransposeA case
-		//Debug.flushln("Using X10 driver: Dense.T * CSR -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//Debug.assure(false, "Need verifcation for Dense*CSR->Dense driver");
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 
 		val tmprow = m2.getTempRow(); //alloc tmp space if not allocated before
 		var startcol:Long=0;
@@ -241,9 +233,8 @@ public class DenseMultSparseToDense {
 	 */
 	public static def compTransMult(m1:DenseMatrix, m2:SparseCSR{self.M==m1.M}, 
 		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
-		//Debug.flushln("Using X10 driver: Dense.T * CSR -> Dense");
-		//Debug.assure(m3.M>=m1.N&&m1.M == m2.M&&m2.N<=m3.N);
-		//
+		//assert(m3.M>=m1.N&&m1.M == m2.M&&m2.N<=m3.N);
+
 		val tmprow = m2.getTempRow();
 		var startcol:Long=0;
 		for (var r:Long=0; r<m1.N; r++, startcol+=m1.M) { // Outer-most iterates on row 

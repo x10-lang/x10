@@ -15,7 +15,6 @@ import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
@@ -110,14 +109,13 @@ public class MatrixRemoteCopy {
 			dmlist:DistArray[DenseMatrix](1), dstpid:Long,
 			dstColOff:Long, colCnt:Long):Long  {
 		
-		Debug.assure(srcColOff+colCnt <= srcden.N,
+		assert (srcColOff+colCnt <= srcden.N) :
 					 "At source place, illegal column offset:"+srcColOff+
-					 " or column count:"+colCnt);
+					 " or column count:"+colCnt;
 
 		val srcpid = here.id();         //Implicitly carried to dst place
 		val datasz = srcden.M * colCnt; //Implicitly carried to dst place
 		@Ifdef("MPI_COMMU") { 
-			//Debug.flushln("Starting mpi send+recv dense matrix");
 			finish {
 				// At the destination place, receiving the data 
 				at(dmlist.dist(dstpid)) async {
@@ -125,20 +123,14 @@ public class MatrixRemoteCopy {
 					val dstden = dmlist(here.id());
 					val dstoff = dstden.M * dstColOff;
 					val tag    = srcpid * 10000 + here.id();
-					//Debug.flushln("Starting mpi recv dense matrix"+datasz);
 					WrapMPI.world.recv(dstden.d, dstoff, datasz, srcpid, tag);
-					//Debug.flushln("Done mpi recv dense matrix");				
 				}
-				//Debug.flushln("Recv process started at remote place");
 
                 // At the source place, sending out the data
                 val srcoff = srcden.M * srcColOff;
                 val tag = srcpid * 10000 + dstpid;
-                //Debug.flushln("Starting mpi sending dense matrix"+datasz);
                 WrapMPI.world.send(srcden.d, srcoff, datasz, dstpid, tag);
-                //Debug.flushln("Done mpi sending dense matrix");
 			} 
-			//Debug.flushln("Done mpi send+recv dense matrix");
 		}
 		return datasz;
 	}
@@ -161,20 +153,20 @@ public class MatrixRemoteCopy {
 			dmlist:DistArray[DenseMatrix](1), dstpid:Long,
 			dstColOff:Long, colCnt:Long):Long {
 		
-		Debug.assure(srcColOff + colCnt <= srcden.N,
-		"at source place, illegal column offset and count");
+		assert (srcColOff + colCnt <= srcden.N) :
+		    "at source place, illegal column offset and count";
 		val buf = srcden.d as Rail[Double]{self!=null};
 		val srcbuf = new GlobalRail[Double](buf);
 		val datcnt = srcden.M * colCnt;
 		val srcoff = srcden.M * srcColOff;
 
-		Debug.assure(srcColOff+colCnt <= srcden.N);
+		assert srcColOff+colCnt <= srcden.N;
 		at(dmlist.dist(dstpid)) {
 			//Implicit copy: dst, srcbuf, srcoff, datcnt
 			val dstden = dmlist(here.id());
 			val dstoff = dstColOff * dstden.M;
 
-			Debug.assure(dstColOff*dstden.M+datcnt <= dstden.M*dstden.N);
+			assert dstColOff*dstden.M+datcnt <= dstden.M*dstden.N;
 			finish Rail.asyncCopy[Double](srcbuf, srcoff, dstden.d, dstoff, datcnt);		
 		}
 
@@ -237,13 +229,13 @@ public class MatrixRemoteCopy {
 			val mat = dmlist(here.id());
 			val off = srcColOff * mat.M;
 			val cnt = colCnt    * mat.M;
-			Debug.assure(off + cnt <= mat.M * mat.N, 
-						 "Matrix remote copy fails! Illegal size at source matrix");
+			assert (off + cnt <= mat.M * mat.N) :
+						 "Matrix remote copy fails! Illegal size at source matrix";
 			DenseRemoteSourceInfo(mat.d, off, cnt)
 		};
 
-		Debug.assure(dstoff+rmt.length <= dstden.M*dstden.N,
-					 "Matrix remote copy fails! Illegal size at target matrix");
+		assert (dstoff+rmt.length <= dstden.M*dstden.N) :
+					 "Matrix remote copy fails! Illegal size at target matrix";
 		
 		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dstden.d, dstoff, rmt.length);
 		
@@ -268,8 +260,8 @@ public class MatrixRemoteCopy {
 			dstden:DenseMatrix, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(dstColOff+colCnt <= dstden.N,
-					 "At destination place, illegal column offset or count");
+		assert (dstColOff+colCnt <= dstden.N) :
+					 "At destination place, illegal column offset or count";
 
 		val dstpid = here.id();
 		val datasz = dstden.M * colCnt;
@@ -336,8 +328,6 @@ public class MatrixRemoteCopy {
 		val datasz = srcden.M * colCnt; //Implicitly carried to dst place
 		@Ifdef("MPI_COMMU") {
 			finish {
-				//Debug.flushln("Starting mpi send+recv dense block");
-
 				at(dmlist.dist(dstbid)) async {
 					//Need: srcbid, dst, dstColOff, datasz
 					val dstden = dmlist(here.id()).dense;
@@ -347,20 +337,14 @@ public class MatrixRemoteCopy {
 					// Do NOT capture srcden.M, the srcden object are copied to here
 					//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					val off = dstden.M * dstColOff;
-					//Debug.flushln("Start recv dense block");
 					WrapMPI.world.recv(dstden.d, off, datasz, srcbid, tag);
-					//Debug.flushln("Done faking recv dense block "+datasz);
 				}
-				//Debug.flushln("Recv process started at remote place");
 
                 val sttoff = srcden.M*srcColOff;
                 val tag = here.id() * 60000 + dstbid;
                 // src and dst must have the same leading dimension
-                //Debug.flushln("Start sending dense block data "+datasz);
                 WrapMPI.world.send(srcden.d, sttoff, datasz, dstbid, tag);
-                //Debug.flushln("Done faking sending dense block data");
 			}
-			//Debug.flushln("Done mpi send+recv dense block");
 		}
 		return datasz;
 	}
@@ -376,13 +360,13 @@ public class MatrixRemoteCopy {
 		val datcnt = srcden.M * colCnt;
 		val srcoff = srcden.M * srcColOff;
 	
-		Debug.assure(srcColOff+colCnt <= srcden.N);
+		assert srcColOff+colCnt <= srcden.N;
 		at(dst.dist(dstbid)) {
 			//Implicit copy: dst, srcbuf, srcoff, datcnt
 			val dstden = dst(here.id()).getMatrix();
 			val dstoff = dstColOff * dstden.M;
 
-			Debug.assure(dstColOff*dstden.M+datcnt <= dstden.M*dstden.N);
+			assert dstColOff*dstden.M+datcnt <= dstden.M*dstden.N;
 			finish Rail.asyncCopy[Double](srcbuf, srcoff, dstden.d, dstoff, datcnt);		
 		}
 		return datcnt;
@@ -463,14 +447,14 @@ public class MatrixRemoteCopy {
 		    val mat = src(here.id()).getMatrix();
 			val off = srcColOff * mat.M;
 			var cnt:Long = mat.M * colCnt;
-			Debug.assure(cnt <= mat.M * mat.N,
-						 "Matrix remote copy fails! Illegal size at source matrix");
+			assert (cnt <= mat.M * mat.N) :
+						 "Matrix remote copy fails! Illegal size at source matrix";
 			DenseRemoteSourceInfo(mat.d, off, cnt)
 		};
 
 		val sttoff = dstColOff * dstden.M;
-		Debug.assure(sttoff+rmt.length <= dstden.M*dstden.N, 
-					 "Matrix remote copy fails! Illegal size at target matrix");
+		assert (sttoff+rmt.length <= dstden.M*dstden.N) :
+					 "Matrix remote copy fails! Illegal size at target matrix";
 		
 		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dstden.d, sttoff, rmt.length);
 		return rmt.length;
@@ -546,8 +530,8 @@ public class MatrixRemoteCopy {
 			smlist:DistArray[SparseCSC](1), dstpid:Long, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(srcColOff+colCnt <= srcspa.N,
-					 "At source place, illegal column offset and count");
+		assert (srcColOff+colCnt <= srcspa.N) :
+					 "At source place, illegal column offset and count";
 
 		val srcpid = here.id();        
 		val datasz = srcspa.countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
@@ -601,8 +585,8 @@ public class MatrixRemoteCopy {
 			dst:DistArray[SparseCSC](1), dstpid:Long, dstColOff:Long,
 			colCnt:Long):Long {
 
-		Debug.assure(srcColOff+colCnt <= srcspa.N,
-					 "At source place illegal column offset and count:");
+		assert (srcColOff+colCnt <= srcspa.N) :
+					 "At source place illegal column offset and count";
 
 		val idxbuf = srcspa.getIndex() as Rail[Long]{self!=null};
 		val valbuf = srcspa.getValue() as Rail[Double]{self!=null};
@@ -615,8 +599,6 @@ public class MatrixRemoteCopy {
 			//Implicit copy:dst, datcnt, rmtidx, rmtval, datoff
 			val dstspa = dst(here.id());
 
-			//Debug.flushln("Recv data dst:"+dstpid+" off:"+datoff+
-			//			  " cnt:"+datcnt+" storage size"+dstspa.getStorage().storageSize());
 			//++++++++++++++++++++++++++++++++++++++++++++
 			//Do not call getIndex()/getValue() before init at destination place
 			//+++++++++++++++++++++++++++++++++++++++++++++
@@ -673,8 +655,8 @@ public class MatrixRemoteCopy {
 			dstspa:SparseCSC, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(dstColOff+colCnt <= dstspa.N,
-					 "At destination place, illegal column offset and count");
+		assert (dstColOff+colCnt <= dstspa.N) :
+					 "At destination place, illegal column offset and count";
 
 		val dstpid = here.id();//Implicitly carried to dst place
 		val dsz = at(smlist.dist(srcpid)) 
@@ -728,8 +710,8 @@ public class MatrixRemoteCopy {
 			dstspa:SparseCSC, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(dstColOff+colCnt <= dstspa.N,
-					 "At destination place, illegal column offset and count");
+		assert (dstColOff+colCnt <= dstspa.N) :
+					 "At destination place, illegal column offset and count";
 
 		val dstpid = here.id();
 
@@ -807,8 +789,8 @@ public class MatrixRemoteCopy {
 			smlist:DistArray[SparseBlock](1), dstpid:Long, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(srcColOff+colCnt <= srcspa.N,
-					 "At source place, illegal column offset and count");
+		assert (srcColOff+colCnt <= srcspa.N) :
+					 "At source place, illegal column offset and count";
 
 		val srcpid = here.id();        
 		val datasz = srcspa.countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
@@ -848,8 +830,8 @@ public class MatrixRemoteCopy {
 			dst:DistArray[SparseBlock](1), dstbid:Long, dstColOff:Long, 
 			colCnt:Long):Long {
 
-		Debug.assure(srcColOff+colCnt <= srcspa.N,
-					 "At source place illegal column offset and count:");
+		assert (srcColOff+colCnt <= srcspa.N) :
+					 "At source place illegal column offset and count";
 
 		val idxbuf = srcspa.getIndex() as Rail[Long]{self!=null};
 		val valbuf = srcspa.getValue() as Rail[Double]{self!=null};
@@ -862,8 +844,6 @@ public class MatrixRemoteCopy {
 			//Implicit copy:dst, datcnt, rmtidx, rmtval, datoff
 			val dstspa = dst(here.id()).getMatrix();
 
-			//Debug.flushln("Recv data dst:"+dstbid+" off:"+datoff+
-			//			  " cnt:"+datcnt+" storage size"+dstspa.getStorage().storageSize());
 			//++++++++++++++++++++++++++++++++++++++++++++
 			//Do not call getIndex()/getValue() before init at destination place
 			//+++++++++++++++++++++++++++++++++++++++++++++
@@ -972,7 +952,6 @@ public class MatrixRemoteCopy {
 
 		val datoff = dstspa.getNonZeroOffset(dstColOff);
 
-		//Debug.flushln("Recv data src:"+srcbid+" off:"+datoff+" cnt:"+rmt.length);
 		//++++++++++++++++++++++++++++++++++++++++++++
 		//Do NOT call getIndex()/getValue() before init
 		//+++++++++++++++++++++++++++++++++++++++++++++
@@ -1036,9 +1015,8 @@ public class MatrixRemoteCopy {
 			dmlist:DistArray[DenseMatrix](1), dstpid:Long, dstColOff:Long, 
 			dataCnt:Long):void  {
 		
-		Debug.assure(srcOff+dataCnt <= src.size,
-				"At source place, illegal data offset:"+srcOff+
-				                                       " or data count:"+dataCnt);
+        assert (srcOff+dataCnt <= src.size) :
+            "At source place, illegal data offset:"+srcOff+" or data count:"+dataCnt;
 		val srcpid = here.id();         //Implicitly carried to dst place
 		@Ifdef("MPI_COMMU") {
 			finish {
@@ -1065,8 +1043,8 @@ public class MatrixRemoteCopy {
 			dmlist:DistArray[DenseMatrix](1), dstpid:Long, dstColOff:Long, 
 			dataCnt:Long):void {
 
-		Debug.assure(srcOff + dataCnt <= src.size,
-		"at source place, illegal column offset and count");
+		assert (srcOff + dataCnt <= src.size) :
+		    "at source place, illegal column offset and count";
 		val buf = src as Rail[Double]{self!=null};
 		val srcbuf = new GlobalRail[Double](buf);
 
@@ -1075,7 +1053,7 @@ public class MatrixRemoteCopy {
 			val dstden = dmlist(here.id());
 			val dstoff = dstColOff * dstden.M;
 
-			Debug.assure(dstColOff*dstden.M+dataCnt <= dstden.M*dstden.N);
+			assert dstColOff*dstden.M+dataCnt <= dstden.M*dstden.N;
 			finish Rail.asyncCopy[Double](srcbuf, srcOff, dstden.d, dstoff, dataCnt);		
 		}
 	}
@@ -1120,8 +1098,8 @@ public class MatrixRemoteCopy {
 			dst:Rail[Double], dstOff:Long, 
 			dataCnt:Long):void {
 		
-		Debug.assure(dstOff+dataCnt <= dst.size,
-		"At destination place, illegal column offset or count");
+		assert (dstOff+dataCnt <= dst.size) :
+		    "At destination place, illegal column offset or count";
 
 		val dstpid = here.id();
 		@Ifdef("MPI_COMMU") {
@@ -1152,13 +1130,13 @@ public class MatrixRemoteCopy {
 			//Need: dmlist, srcColOff, dataCnt
 			val mat = dmlist(here.id());
 			val off = srcColOff * mat.M;
-			Debug.assure(off + dataCnt <= mat.M * mat.N, 
-			"Matrix remote copy fails! Illegal size at source matrix");
+			assert (off + dataCnt <= mat.M * mat.N) :
+			    "Matrix remote copy fails! Illegal size at source matrix";
 			DenseRemoteSourceInfo(mat.d, off, dataCnt)
 		};
 
-		Debug.assure(dstOff+rmt.length <= dst.size,
-		"Matrix remote copy fails! Illegal size at target matrix");
+        assert (dstOff+rmt.length <= dst.size) :
+            "Matrix remote copy fails! Illegal size at target matrix";
 		
 		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dst, dstOff, dataCnt);
 	}
@@ -1230,13 +1208,13 @@ public class MatrixRemoteCopy {
 		val buf = src as Rail[Double]{self!=null};
 		val srcbuf = new GlobalRail[Double](buf);
 		
-		Debug.assure(srcOff+dataCnt <= src.size);
+		assert srcOff+dataCnt <= src.size;
 		at(dst.dist(dstbid)) {
 			//Implicit copy: dst, srcbuf, srcOff, dataCnt
 			val dstden = dst(here.id()).getMatrix();
 			val dstoff = dstColOff * dstden.M;
 
-			Debug.assure(dstColOff*dstden.M+dataCnt <= dstden.M*dstden.N);
+			assert dstColOff*dstden.M+dataCnt <= dstden.M*dstden.N;
 			finish Rail.asyncCopy[Double](srcbuf, srcOff, dstden.d, dstoff, dataCnt);		
 		}
 	}
@@ -1310,13 +1288,13 @@ public class MatrixRemoteCopy {
 			
 			val mat = src(here.id()).getMatrix();
 			val off = srcColOff * mat.M;
-			Debug.assure(off+dataCnt <= mat.M * mat.N,
-			"Matrix remote copy fails! Illegal size at source matrix");
+            assert (off+dataCnt <= mat.M * mat.N) :
+                "Matrix remote copy fails! Illegal size at source matrix";
 			DenseRemoteSourceInfo(mat.d, off, dataCnt)
 		};
 
-		Debug.assure(dstOff+dataCnt <= dst.size, 
-		"Matrix remote copy fails! Illegal size at target matrix");
+        assert (dstOff+dataCnt <= dst.size) :
+            "Matrix remote copy fails! Illegal size at target matrix";
 		
 		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dst, dstOff, dataCnt);
 	}

@@ -15,7 +15,6 @@ import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -58,12 +57,11 @@ public class MatrixScatter {
 			dst:DistArray[DenseBlock](1)) : void {
 		
 		val nb = dst.region.size();
-		Debug.assure(nb==src.size, 
-			"Number blocks in dist and local array mismatch");
+		assert(nb==src.size) :
+			"Number blocks in dist and local array mismatch";
 		
 		finish for (var bid:Long=0; bid<nb; bid++) {
 			val srcden = src(bid).getMatrix();
-			//Debug.flushln("Scatter: copy to block:"+bid);
 			MatrixRemoteCopy.copy(srcden, 0, dst, bid, 0, srcden.N);
 		}
 	}
@@ -85,8 +83,8 @@ public class MatrixScatter {
 			src:DenseMatrix, 
 			dst:DistArray[DenseBlock](1)) : void {
 
-        Debug.assure(gp.numRowBlocks==1L ||gp.N==1L, 
-			"Number of row block in partition must be 1 or matrix is a vector");
+        assert (gp.numRowBlocks==1L ||gp.N==1L) :
+			"Number of row block in partition must be 1 or matrix is a vector";
 
 		@Ifdef("MPI_COMMU") {
 			if (gp.N==1L) 
@@ -133,7 +131,6 @@ public class MatrixScatter {
 							/*******************************************/
 							val tmpbuf = new Rail[Double](0); //fake
 							val tmplst = new Rail[Long](0);   //fake
-							//Debug.flushln("P"+p+" starting non root scatter :"+datcnt);
 							WrapMPI.world.scatterv(tmpbuf, tmplst, dstden.d, datcnt, root);
 						}
 					} 
@@ -144,7 +141,6 @@ public class MatrixScatter {
 					// DO NOT move this block into for loop block
 					// MPI process will hang, Cause is not clear
 					/**********************************************/	
-					//Debug.flushln("P"+root+" starting root scatter:"+szlist.toString());
 					val dstden = dst(root).getMatrix();
 					WrapMPI.world.scatterv(srcden.d, szlist, dstden.d, szlist(root), root);
 				}
@@ -182,7 +178,6 @@ public class MatrixScatter {
 							/*******************************************/
 							val tmpbuf = new Rail[Double](0); //fake
 							val tmplst = new Rail[Long](0);   //fake
-							//Debug.flushln("P"+p+" starting non root scatter :"+datcnt);
 							WrapMPI.world.scatterv(tmpbuf, tmplst, dstden.d, datcnt, root);
 						}
 					} 
@@ -193,7 +188,6 @@ public class MatrixScatter {
 					// DO NOT move this block into for loop block
 					// MPI process will hang, Cause is not clear
 					/**********************************************/	
-					//Debug.flushln("P"+root+" starting root scatter:"+szlist.toString());
 					val dstden = dst(root).getMatrix();
 					WrapMPI.world.scatterv(src, szlist, dstden.d, szlist(root), root);
 				}
@@ -270,8 +264,8 @@ public class MatrixScatter {
 		
 		val nb = dst.region.size();
 
-		Debug.assure(nb==src.size, 
-			"Number blocks in dist and local array mismatch");
+		assert (nb==src.size) :
+			"Number blocks in dist and local array mismatch";
 
 		finish for (var bid:Long=0; bid<nb; bid++) {
 			val srcspa = src(bid).getMatrix();
@@ -288,8 +282,8 @@ public class MatrixScatter {
 			src:SparseCSC, 
 			dst:DistArray[SparseBlock](1)) : void {
 
-		Debug.assure(gp.numRowBlocks==1L || gp.N==1L, 
-					 "Number of row block in partition must be 1, or matrix is a vector");
+		assert (gp.numRowBlocks==1L || gp.N==1L) :
+					 "Number of row block in partition must be 1, or matrix is a vector";
 		// Test sparse block storage 
 		@Ifdef("MPI_COMMU") {
 			mpiScatterRowBs(gp, src, dst);

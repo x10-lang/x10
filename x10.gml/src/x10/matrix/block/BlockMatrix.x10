@@ -16,10 +16,10 @@ import x10.regionarray.Region;
 import x10.util.ArrayList;
 import x10.util.StringBuilder;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
+import x10.matrix.util.Debug;
 
 public type BlockMatrix(M:Long)=BlockMatrix{self.M==M};
 public type BlockMatrix(M:Long, N:Long)=BlockMatrix{self.M==M, self.N==N};
@@ -110,7 +110,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
      * No supported, since no partitioning information.
      */
     public def alloc(m:Long, n:Long):BlockMatrix(m,n) {
-        Debug.assure(m==M&&n==N);
+        assert (m==M && n==N);
         val nm = new BlockMatrix(this.grid) as BlockMatrix(m,n);
         for(var p:Long=0; p<nm.grid.size; p++) {
             val rid = this.grid.getRowBlockId(p);
@@ -123,7 +123,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
             else if (mat instanceof SparseCSC)
                 nm.listBs(p) = new SparseBlock(rid, cid, roff, coff, mat as SparseCSC);
             else
-                Debug.exit("Matrix type is not supported in creating matrix block");
+                throw new UnsupportedOperationException("Matrix type is not supported in creating matrix block");
         }
         return nm;
     }
@@ -293,7 +293,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
                 } else if (src instanceof SparseCSC) {
                     SparseCSC.copyTo(src as SparseCSC, dm, rowoff, coloff); 
                 } else {
-                    Debug.exit("CopyTo: target matrix type not supported");
+                    throw new UnsupportedOperationException("CopyTo: target matrix type not supported");
                 }
                     
             }
@@ -301,7 +301,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     }
     
     public def copyTo(that:BlockMatrix(M,N)): void {
-        Debug.assure(this.grid.equals(that.grid), "Data partitioning is not compatible");
+        assert (this.grid.equals(that.grid)) :
+            "Data partitioning is not compatible";
         
         for (var p:Long=0; p<grid.size; p++) {
             this.listBs(p).copyTo(that.listBs(p));
@@ -348,7 +349,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
         } else if (that instanceof DenseMatrix) {
             copyTo(that as DenseMatrix(M,N));
         } else {
-            Debug.exit("CopyTo: target matrix is not compatible");
+            throw new UnsupportedOperationException("CopyTo: target matrix is not compatible");
         }
     }
 
@@ -416,7 +417,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
      * this = this + x;
      */
     public def cellAdd(that:BlockMatrix(M,N)) {
-        Debug.assure(likeMe(that), "Block matrix add fails - matrix partitioning incompatible");
+        assert (likeMe(that)) :
+            "Block matrix add fails - matrix partitioning incompatible";
         
         for (var p:Long=0; p<grid.size; p++) {
             val dst = this.listBs(p).getMatrix();
@@ -469,8 +471,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
      * this = this - that;
      */
     public def cellSub(that:BlockMatrix(M,N)) {
-        Debug.assure(likeMe(that), 
-                "Block matrix substract fails - matrix partition not compatible");
+        assert (likeMe(that)) :
+            "Block matrix substract fails - matrix partition not compatible";
         
         for (var p:Long=0; p<grid.size; p++) {
             val dst = this.listBs(p).getMatrix();
@@ -513,16 +515,15 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
      * x = x * this 
      */
     public def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-        Debug.exit("Not implemented");
-        return x;
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
      * this *= x;
      */
     public def cellMult(that:BlockMatrix(M,N)):BlockMatrix(this) {
-        Debug.assure(likeMe(that), 
-                "Block matrix cell mult fails - matrices partition not match");
+        assert (likeMe(that)) :
+            "Block matrix cell mult fails - matrices partition not match";
         
         for (var p:Long=0; p<grid.size; p++) {
             val dst = this.listBs(p).getMatrix();
@@ -552,21 +553,19 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
      * x = this / x 
      */
     public def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
-        Debug.exit("Not implemented");
-        return x;        
+        throw new UnsupportedOperationException("Not implemented");
     }
     
     public def cellDivBy(v:Double):BlockMatrix(this) {
-        Debug.exit("No implementation");
-        return this;
+        throw new UnsupportedOperationException("No implementation");
     }
     
     /**
      * this /= x;
      */
     public def cellDiv(that:BlockMatrix(M,N)): BlockMatrix(this) {
-        Debug.assure(likeMe(that), 
-                "Block matrix cell divide fails - matrices partition not match");
+        assert (likeMe(that)) :
+            "Block matrix cell divide fails - matrices partition not match";
         for (var p:Long=0; p<grid.size; p++) {
             val dst = this.listBs(p).getMatrix();
             val src = that.listBs(p).getMatrix();
@@ -596,8 +595,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),    plus:Boolean):Matrix(this) {
         if (A instanceof BlockMatrix && B instanceof BlockMatrix )
             return mult(A as BlockMatrix, B as BlockMatrix, plus);
-        Debug.exit("Not implemented yet");
-        return this;    
+        throw new UnsupportedOperationException("Not implemented yet");
     }
                     
 
@@ -610,8 +608,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     public def transMult(A:Matrix{self.N==this.M}, B:Matrix(A.M,this.N), plus:Boolean):BlockMatrix(this) {
         if (A instanceof BlockMatrix && B instanceof BlockMatrix )
             return transMult(A as BlockMatrix, B as BlockMatrix, plus);
-        Debug.exit("Not implemented yet");
-        return this;        
+        throw new UnsupportedOperationException("Not implemented yet");
     }
     /** 
      * Not implemented. 
@@ -620,8 +617,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
         if (A instanceof BlockMatrix && B instanceof BlockMatrix )
             return multTrans(A as BlockMatrix, B as BlockMatrix, plus);
 
-        Debug.exit("Not implemented yet");
-        return this;        
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N)) = mult(A, B, false);

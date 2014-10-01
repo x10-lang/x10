@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -84,7 +83,6 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 		}
 
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10Rcast(dmlist, datCnt, plist);
 		}
 	}
@@ -174,7 +172,6 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 		}
 
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10Rcast(smlist, datCnt, plist);
 		}
 	}
@@ -278,7 +275,6 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 
 		//Copy data from source place
 		if (mypid != root) {
-			//Debug.flushln("Copy data to here at Place "+mypid);
 			finish Rail.asyncCopy[Double](srcbuf, 0, rcvden, 0, datCnt);
 		}
 		

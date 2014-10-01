@@ -15,7 +15,6 @@ import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -72,7 +71,6 @@ public class MatrixRingCast {
 		}
 
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10RingCast(dmlist, datCnt, plist);
 		}
 	}
@@ -99,7 +97,6 @@ public class MatrixRingCast {
 
 			val root   = here.id();  //Implicitly copied to all places
 			finish {
-				//Debug.flushln("Start MPI ring cast from "+root+" to "+plist.toString());
 				val pltail = plist.size-1;
 				for (var p:Long=0; p < plist.size; p++) {
 					val nxtpid = (p==pltail)?plist(0):plist(p+1); //Implicitly carry to next place
@@ -112,12 +109,10 @@ public class MatrixRingCast {
 						val matden = dmlist(mypid);
 
 						if (mypid != root) {
-							//Debug.flushln("P "+mypid+" recv from "+prepid);
 							val dtag = prepid * 5000 + mypid;
 							WrapMPI.world.recv(matden.d, 0, datCnt, prepid, dtag);
 						}
 						if (nxtpid != root) {
-							//Debug.flushln("P "+mypid+" send to"+nxtpid);
 							val dtag = mypid * 5000 + nxtpid;
 							WrapMPI.world.send(matden.d, 0, datCnt, nxtpid, dtag);
 						}
@@ -166,7 +161,6 @@ public class MatrixRingCast {
 		}
 
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10RingCast(smlist, datCnt, plist);
 		}
 	}
@@ -267,7 +261,6 @@ public class MatrixRingCast {
 		val rcvden = dmlist(mypid);
 		//Copy data from source place
 		if (mypid != root && datCnt > 0) {
-			//Debug.flushln("Copy data to here at Place "+mypid);
 			finish Rail.asyncCopy[Double](srcbuf, 0L, rcvden.d, 0L, datCnt);
 		}
 		

@@ -12,7 +12,6 @@
 package x10.matrix.sparse;
 
 import x10.matrix.util.MathTool;
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
@@ -35,8 +34,8 @@ public class SparseMultDenseToDense {
 	 */
 	public static def comp(m1:SparseCSC, m2:DenseMatrix{self.M==m1.N}, 
 		m3:DenseMatrix{self.M==m1.M,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+
 		var startcol:Long = 0;
 		var v1idx:Long = 0;
 		var v2idx:Long = 0;
@@ -75,9 +74,8 @@ public class SparseMultDenseToDense {
 	 */
 	public static def compMultTrans(m1:SparseCSC, m2:DenseMatrix{self.N==m1.N}, 
 		m3:DenseMatrix{self.M==m1.M, self.N==m2.M}, plus:Boolean): DenseMatrix(m3) {
-		//Debug.flushln("Using X10 driver: CSC * Dense.T -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
+
 		var startcol:Long = 0;
 		var v1idx:Long = 0;
 		var v2idx:Long = 0;
@@ -145,9 +143,8 @@ public class SparseMultDenseToDense {
 	// iterate on r and c, for all k
 	public static def comp_byDef(m1:SparseCSR, m2:DenseMatrix{self.M==m1.N}, 
 		m3:DenseMatrix{self.M==m1.M, self.N==m2.N}, plus:Boolean ): DenseMatrix(m3) {
-		//Debug.flushln("Using X10 driver: CSR * Dense -> Dense");
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
-		//
+		assert (m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
+
 		var m2stcol:Long = 0;
 		for (var r:Long=0; r<m1.M; r++) {
 			val m1row = m1.getRow(r);
@@ -179,7 +176,7 @@ public class SparseMultDenseToDense {
 	public static def compMultTrans(m1:SparseCSR, m2:DenseMatrix{self.N==m1.N}, 
 		m3:DenseMatrix{self.M==m1.M,self.N==m2.M}, plus:Boolean):DenseMatrix(m3) {
 
-		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
+		assert (m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
 
 		var v2idx:Long = 0;
 		var dstidx:Long=0;

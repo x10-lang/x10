@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -43,8 +42,8 @@ public class ArrayGather extends ArrayRemoteCopy {
             dst:Rail[Rail[Double]]) : void {
         
         val nb = Place.numPlaces();
-        Debug.assure(nb==dst.size, 
-        "Number blocks in dist and local array not match");
+        assert (nb==dst.size) :
+            "Number of blocks in dist and local array do not match";
         
         finish for (var bid:Long=0; bid<nb; bid++) {
             val dstbuf = dst(bid);
@@ -103,7 +102,7 @@ public class ArrayGather extends ArrayRemoteCopy {
             places:PlaceGroup) : void {
         
         @Ifdef("MPI_COMMU") {
-            Debug.exit("No MPI implementation");
+            throw new UnsupportedOperationException("No MPI implementation");
         }
         @Ifndef("MPI_COMMU") {
             x10Gather(src, dst, gp, places);
@@ -138,7 +137,6 @@ public class ArrayGather extends ArrayRemoteCopy {
                             /*******************************************/
                             val tmpbuf = new Rail[Double](0); //fake
                             val tmplst = new Rail[Long](0);   //fake
-                            //Debug.flushln("P"+p+" starting non root gather :"+datcnt);
                             WrapMPI.world.gatherv(srcbuf, 0, datcnt, tmpbuf, 0, tmplst, root);
                         }
                     } 
@@ -150,7 +148,6 @@ public class ArrayGather extends ArrayRemoteCopy {
                     // MPI process will hang, Cause is not clear
                     /**********************************************/    
                     val srcbuf = src();
-                    //Debug.flushln("P"+root+" starting root gather:"+szlist.toString());
                 
                     WrapMPI.world.gatherv(srcbuf, 0, szlist(root), dst, 0, szlist, root);
                 }
@@ -188,8 +185,8 @@ public class ArrayGather extends ArrayRemoteCopy {
             gp:Rail[Long],
             places:PlaceGroup): void {
 
-        Debug.assure(gp.size == places.size(), 
-            "Number of segments "+gp.size+" not equal to number of places "+places.size());
+        assert (gp.size == places.size()) :
+            "Number of segments "+gp.size+" not equal to number of places "+places.size();
         val root = here.id();
         var off:Long=0;
         for (var cb:Long=0; cb<places.size(); cb++) {
@@ -207,8 +204,6 @@ public class ArrayGather extends ArrayRemoteCopy {
         }
     }
 
-
-    //util
     public static def verify(
             src:DataArrayPLH, buf:Rail[Double], 
             szlist:Rail[Long]):Boolean =

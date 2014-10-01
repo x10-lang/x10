@@ -14,7 +14,6 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
-import x10.matrix.util.Debug;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -45,7 +44,6 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			mpiReduceSum(ddmat, ddtmp, datCnt);
 		}
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10ReduceSum(ddmat, ddtmp, datCnt);
 		}
 	} 
@@ -73,10 +71,8 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 				val src = ddtmp(pid);
 				val dst = ddmat(pid);
 				Rail.copy(dst, 0, src, 0, datCnt);
-				//Debug.flushln("Start reducing");
 				// Counting the all reduce-sum time in communication
 				WrapMPI.world.reduceSum(src, 0, dst, 0, datCnt, root);
-				//Debug.flushln("Done reducing");
 			}
 		}
 	}
@@ -156,7 +152,6 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			mpiAllReduceSum(ddmat, ddtmp, datCnt);
 		}
 		@Ifndef("MPI_COMMU") {
-			//Debug.flushln("start bcast to "+numPlaces);
 			x10AllReduceSum(ddmat, ddtmp, datCnt); 
 		}
 	} 
@@ -216,7 +211,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			datCnt:Long,
 			plist:Rail[Long]):void{
 		
-		Debug.assure(tmp.size >= datCnt, "Temp data buffer overflow");
+		assert (tmp.size >= datCnt) : "Temp data buffer overflow";
 		val root = here.id();
 		val dstbuf = ddmat(here.id());
 		val srcbuf = tmp;

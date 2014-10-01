@@ -14,7 +14,6 @@ package x10.matrix.dist;
 import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 
-import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
@@ -251,7 +250,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 
     // Copy
     public def copyTo(that:DistMatrix(M,N)):void {
-        Debug.assure(this.grid.equals(that.grid));        
+        assert this.grid.equals(that.grid);        
         finish ateach([p] in this.dist) {
             val mypid = here.id();
             val smat  = this.getMatrix(mypid);
@@ -280,17 +279,16 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  denmat   the target dense matrix.
      */
     public def copyTo(denmat:DenseMatrix(M,N)):void {
-        Debug.exit("Not implemented. Gather communication is not available for MatrixBlock");
+        throw new UnsupportedOperationException("Not implemented. Gather communication is not available for MatrixBlock");
     }
 
     public def copyTo(that:Matrix(M,N)): void {
-        
         if (that instanceof DistMatrix)
             copyTo(that as DistMatrix);
         else if (that instanceof DenseMatrix)
             copyTo(that as DenseMatrix);
         else
-            Debug.exit("CopyTo: target matrix is not supported");
+            throw new UnsupportedOperationException("CopyTo: target matrix is not supported");
     }
 
     /**
@@ -382,8 +380,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * this += A 
      */    
     public def cellAdd(A:DistMatrix(M,N)) {
-        if (! this.grid.equals(A.grid))
-            Debug.exit("Partitioning grid not compatible");
+        assert (this.grid.equals(A.grid)) :
+            "Partitioning grid not compatible";
 
         finish ateach([p] in this.dist) {
             val m = local();
@@ -400,9 +398,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         return this;
     }     
 
-    protected def cellAddTo(dst:DenseMatrix(M,N)) {
-        Debug.exit("Not implemented");
-        return dst;
+    protected def cellAddTo(dst:DenseMatrix(M,N)):DenseMatrix(dst) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
@@ -429,8 +426,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * this -= A
      */    
     public def cellSub(A:DistMatrix(M,N)):DistMatrix(this) {
-        if (! this.grid.equals(A.grid))
-            Debug.exit("Partitioning grid not compatible");
+        assert (this.grid.equals(A.grid)) :
+            "Partitioning grid not compatible";
             finish ateach([p] in this.dist) {
             val m = this.local();
             m.cellSub(A.getMatrix(p) as Matrix(m.M,m.N));
@@ -441,15 +438,14 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
     /**
      * dst = dst - this
      */
-    protected def cellSubFrom(dst:DenseMatrix(M,N)) {
-        Debug.exit("Not implemented");
-        return dst;
+    protected def cellSubFrom(dst:DenseMatrix(M,N)):DenseMatrix(dst) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
      * dst = dst - this
      */
-    public def cellSubFrom(dst:DistMatrix(M,N)) {
+    public def cellSubFrom(dst:DistMatrix(M,N)):DistMatrix(dst) {
         finish ateach([p] in this.dist) {
             val m = local();
             m.cellSubFrom(dst.local() as DenseMatrix(m.M,m.N));
@@ -481,8 +477,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * Cellwise multiply
      */    
     public def cellMult(A:DistMatrix(M,N)) {
-        if (! this.grid.equals(A.grid)) 
-            Debug.exit("Partitioning grid not compatible");
+        assert (this.grid.equals(A.grid)) :
+            "Partitioning grid not compatible";
 
         finish ateach([p] in this.dist) {
             val m = local();
@@ -491,9 +487,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         return this;
     }
 
-    protected def cellMultTo(dst:DenseMatrix(M,N)) {
-        Debug.exit("Not implemented");
-        return dst;
+    protected def cellMultTo(dst:DenseMatrix(M,N)):DenseMatrix(dst) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
@@ -520,8 +515,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * Cellwise division this /= A.
      */    
     public def cellDiv(A:DistMatrix(M,N)) {
-        if (! this.grid.equals(A.grid)) 
-            Debug.exit("Partitioning grid not compatible");
+        assert (this.grid.equals(A.grid)) :
+            "Partitioning grid not compatible";
             finish ateach([p] in this.dist) {
             val m = getMatrix(p);
             m.cellDiv(A.getMatrix(p) as Matrix(m.M,m.N));
@@ -529,9 +524,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         return this;
     }
      
-    protected def cellDivBy(dst:DenseMatrix(M,N)) {
-        Debug.exit("Not implemented");
-        return dst;
+    protected def cellDivBy(dst:DenseMatrix(M,N)):DenseMatrix(dst) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
@@ -552,8 +546,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * this  = A &#42 B
      */
     public def mult(A:Matrix(M), B:Matrix(A.N,N), plus:Boolean):Matrix(this){
-        if ((! likeMe(A)) || (! likeMe(B)))
-            Debug.exit("Not available. Implementation depends on SUMMA");
+        assert (likeMe(A) && likeMe(B)) :
+            "Not available. Implementation depends on SUMMA";
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -565,8 +559,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
             B:Matrix(A.M,this.N),
             plus:Boolean): DistMatrix(this) {
         
-        if ((! likeMe(A)) || (! likeMe(B)))
-            Debug.exit("Not available. Implementation depends on SUMMA");
+        assert (likeMe(A) && likeMe(B)) :
+            "Not available. Implementation depends on SUMMA";
         throw new UnsupportedOperationException("Not supported");
     }
     
@@ -576,8 +570,8 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
     public def multTrans(A:Matrix(M), 
             B:Matrix{A.N==self.N,self.M==this.N}, 
             plus:Boolean):DistMatrix(this){ 
-        if ((! likeMe(A)) || (! likeMe(B)))
-            Debug.exit("Not available. Implementation depends on SUMMA");
+        assert (likeMe(A) && likeMe(B)) :
+            "Not available. Implementation depends on SUMMA";
         throw new UnsupportedOperationException("Not supported");
     }     
 
