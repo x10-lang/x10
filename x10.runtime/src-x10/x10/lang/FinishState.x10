@@ -270,14 +270,14 @@ abstract class FinishState {
         // find or make the local finish for the finish ref
         public operator this(root:GlobalRef[FinishState], factory:()=>FinishState):FinishState{
             lock.lock();
-            clear(root.epoch);
+            if (Runtime.CANCELLABLE) clear(root.epoch);
             var f:FinishState = map.getOrElse(root, null);
             if (null != f) {
                 lock.unlock();
                 return f;
             }
             f = factory();
-            if(root.epoch >= epoch) map.put(root, f);
+            if(!Runtime.CANCELLABLE || root.epoch >= epoch) map.put(root, f);
             lock.unlock();
             return f;
         }
