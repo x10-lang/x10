@@ -69,7 +69,7 @@ do
 	echo "Packaging benchmarks"
 	./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
 	echo "transfering benchmarks tar to orquesta"
-	scp "/tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+	scp "/tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2" "x10dt@orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
 
 	export pushed_source="done"
     fi
