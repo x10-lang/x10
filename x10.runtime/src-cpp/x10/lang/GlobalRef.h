@@ -37,8 +37,8 @@ namespace x10 {
             x10_long epoch;
             ::x10aux::place location;	
 
-            GlobalRef(T obj = NULL) : value((size_t)(obj)), epoch(0), location(::x10aux::here) { }
-            GlobalRef(::x10aux::place p, x10_ulong obj = 0) : value(obj), epoch(0), location(p) { }
+            GlobalRef(T obj = NULL) : value((size_t)(obj)), epoch(globalref_getInitialEpoch()), location(::x10aux::here) { }
+            GlobalRef(::x10aux::place p, x10_ulong obj = 0) : value(obj), epoch(globalref_getInitialEpoch()), location(p) { }
 	
             static inline GlobalRef<T> _make(T obj) { return GlobalRef<T>(obj); }
 
@@ -46,7 +46,6 @@ namespace x10 {
 
             void _constructor (T t) {
                 value = (size_t)t;
-                epoch = globalref_getInitialEpoch();
             }
             
             // we are assuming T is always a pointer type, becasue of the isRef constraint on GlobalRef
