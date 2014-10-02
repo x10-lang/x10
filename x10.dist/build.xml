@@ -746,6 +746,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/x10c++" filemode="755"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/x10doc" filemode="755"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/*.in"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="lib/logging.properties"/>
             <tarfileset prefix="x10.doc" dir="${x10.doc.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
