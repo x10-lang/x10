@@ -75,8 +75,11 @@ case "$PLATFORM" in
 esac    
 	
 bindir="${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM}/opt/ibm/x10/${X10_VERSION}/"
-mkdir -p ${HOME}/rpmbuild/BUILD ${HOME}/rpmbuild/BUILDROOT ${HOME}/rpmbuild/RPMS ${HOME}/rpmbuild/SOURCES ${HOME}/rpmbuild/SPECS ${HOME}/rpmbuild/SRPMS "$bindir"
-eval tar -xzf "$cdir/$tarfile" -C ${bindir} 
+mkdir -p ${HOME}/rpmbuild/BUILD ${HOME}/rpmbuild/BUILDROOT ${HOME}/rpmbuild/RPMS ${HOME}/rpmbuild/SOURCES ${HOME}/rpmbuild/SPECS ${HOME}/rpmbuild/SRPMS/x10
+
+# put an empty tgz into the sources folder
+eval tar -C ${HOME}/rpmbuild/SRPMS -czf ${HOME}/rpmbuild/SOURCES/$tarfile x10
+rmdir ${HOME}/rpmbuild/SRPMS/x10
 
 spec="${HOME}/rpmbuild/SPECS/x10.spec"
 echo "Name: x10" >> ${spec}
@@ -104,10 +107,12 @@ echo "" >> ${spec}
 echo "%build" >> ${spec}
 echo "" >> ${spec}
 echo "%install" >> ${spec}
+echo "mkdir -p ${bindir}" >> ${spec}
+echo "tar -xzf "$cdir/$tarfile" -C ${bindir}" >> ${spec}
 echo "" >> ${spec}
 echo "%files" >> ${spec}
 sedarg="s/^/\/opt\/ibm\/x10\/${X10_VERSION}\//"
-eval tar -tzf "$cdir/$tarfile" | sed ${sedarg} >> ${spec}
+eval tar -tzf "$cdir/$tarfile" | sed -e '/\/$/ d' -e ${sedarg} >> ${spec}
 
 eval rpmbuild --buildroot ${HOME}/rpmbuild/BUILDROOT/x10-${X10_VERSION}-1.${PLATFORM} -bb --target ${RPM_PLATFORM} ${spec}
 cp ${HOME}/rpmbuild/RPMS/${RPM_PLATFORM}/x10-${X10_VERSION}-1.${RPM_PLATFORM}.rpm ${cdir}/x10-${X10_VERSION}-1.${PLATFORM}.rpm
