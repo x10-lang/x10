@@ -76,7 +76,6 @@ Below is a summary of JIRA issues addressed for the X10 2.5.0
     * [XTENLANG-3411] - Native X10: codegen for string literals
     * [XTENLANG-3414] - GML arbitrary place group distribution
     * [XTENLANG-3416] - Need Watcher.await with timeout
-    * [XTENLANG-3419] - X10 implementation of Team alltoall
     * [XTENLANG-3423] - Change MultipleExceptions.exceptions to Rail[CheckedThrowable]
     * [XTENLANG-3429] - Change default value of X10_NTHREADS from 1 to availableProcessors
     * [XTENLANG-3430] - X10 implementation of Team scatter
