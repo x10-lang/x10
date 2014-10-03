@@ -29,8 +29,7 @@ public class DenseMultXTen {
             B:Vector(A.N), 
             C:Vector(A.M), plus:Boolean) :void {
 		var aidx:Long=0;
-		if (!plus) for (var i:Long=0; i<A.M; i++) C.d(i) = 0.0;
-
+        if (!plus) C.d.clear(0, A.M);
 		for (var c:Long=0; c<A.N; c++) {
 			for (var r:Long=0; r<A.M; r++, aidx++) {
 				C.d(r) += A.d(aidx) * B.d(c);
@@ -47,8 +46,7 @@ public class DenseMultXTen {
             B:Vector(A.M), 
             C:Vector(A.N), plus:Boolean) :void {
 		var aidx:Long=0;
-		if (!plus) for (var i:Long=0; i<A.N; i++) C.d(i) = 0.0;
-
+        if (!plus) C.d.clear(0, A.N);
 		for (var c:Long=0; c<A.N; c++) {
 			for (var r:Long=0; r<A.M; r++, aidx++) {
 				C.d(c) += A.d(aidx) * B.d(r);
@@ -80,10 +78,7 @@ public class DenseMultXTen {
 		
 		v2idx = 0;
 		for (var c:Long=0; c<B.N; c++) {
-			
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
-			}
+            if (!plus) C.d.clear(startcol, C.M);
 			v1idx = 0;
 			for (var k:Long=0; k<A.N; k++) {
 				//val v2    = B(k, c);
@@ -126,10 +121,7 @@ public class DenseMultXTen {
 						
 		v2idx = 0;
 		for (var c:Long=0; c<B.N; c++) {
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
-			}
-			
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.M; k++) {
 				//val v2    = B(k, c);
 				val v2 = B.d(v2idx++);
@@ -172,10 +164,7 @@ public class DenseMultXTen {
 			v1idx = 0; 
 			v2idx = c;
 			
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0;
-			}
-			
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.N; k++) {
 				//val v2 = B(c, k);
 				val v2 = B.d(v2idx); v2idx += B.M;
@@ -218,9 +207,7 @@ public class DenseMultXTen {
 		//Debug.assure(C.M>=A.N&&A.M==B.N&&B.M<=C.N, 
 		//		   "Dimension mismatch in Dense.T()*Dense.T()");
 		
-		if (!plus) {
-			for (var i:Long=0; i<C.M*C.N; i++) C.d(i) = 0.0D;
-		}
+        if (!plus) C.d.clear();
 		v1idx = 0;
 		for (var r:Long=0; r<A.N; r++) {
 			v2idx = 0;

@@ -40,11 +40,7 @@ public class MatrixMultXTen {
 			plus:Boolean):Matrix(C){
 		var startcol:Long = 0;
 		for (var c:Long=0; c<B.N; c++) {
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++)
-					C.d(i) = 0.0D;
-			}
-
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.N; k++) {
 				val v2    = B(k, c); //m2(k, c)
 				if (MathTool.isZero(v2)) continue;
@@ -74,10 +70,7 @@ public class MatrixMultXTen {
 			plus:Boolean):DenseMatrix(C) {
 		var startcol:Long = 0;
 		for (var c:Long=0; c<B.N; c++) {
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
-			}
-
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.M; k++) {
 				val v2    = B(k, c);
 				if (MathTool.isZero(v2)) continue;
@@ -107,10 +100,7 @@ public class MatrixMultXTen {
 			plus:Boolean):DenseMatrix(C) {
 		var startcol:Long = 0;
 		for (var c:Long=0; c<B.M; c++) {
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
-			}
-
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.N; k++) {
 				val v2 = B(c, k);
 				if (MathTool.isZero(v2)) continue;
@@ -141,9 +131,7 @@ public class MatrixMultXTen {
 		var startcol:Long = 0;
 
 		for (var c:Long=0; c<B.M; c++) {
-			if (!plus) {
-				for (var i:Long=startcol; i<startcol+C.M; i++) C.d(i) = 0.0D;
-			}
+            if (!plus) C.d.clear(startcol, C.M);
 			for (var k:Long=0; k<A.M; k++) {
 				val v2    = B(c, k);
 				if (MathTool.isZero(v2)) continue;

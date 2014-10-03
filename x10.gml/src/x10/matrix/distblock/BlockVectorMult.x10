@@ -19,7 +19,7 @@ import x10.matrix.VectorMult;
 import x10.matrix.block.Grid;
 
 /**
- * This class defines list of matrix blocks which live in the same place
+ * This class performs matrix-vector multiplication for block-partitioned matrices.
  */
 public class BlockVectorMult  { 
 

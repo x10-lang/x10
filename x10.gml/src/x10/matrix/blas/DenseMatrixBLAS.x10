@@ -26,8 +26,7 @@ import x10.matrix.TriDense;
  * 
  * <p> The general case of matrix multiplication requires two input
  * matrices, A and B, and one output matrix C.
- * <p> The leading dimension of a matrix must be same as its number of rows.
- * All matrices uses column-major storage.
+ * <p> All matrices uses column-major storage.
  * <p> Two versions are provided of each multiplication method:
  * a simple interface which operates on entire matrices/vectors,
  * and a full-featured interface which operates on an offset patch within

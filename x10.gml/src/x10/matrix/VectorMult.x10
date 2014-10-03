@@ -11,6 +11,8 @@
 
 package x10.matrix;
 
+import x10.array.BlockingUtils;
+
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseCSC;
@@ -92,9 +94,8 @@ public class VectorMult {
             "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" > B.M:"+B.M;
 		assert (offsetC+A.M <= C.M) :
             "Output vector overflow, offset:"+offsetC+" A.M:"+A.M+" C.M:"+C.M;
-		if (!plus) {
-			for (var i:Long=offsetC; i< offsetC+A.M; i++) C.d(i) =0;
-		}
+
+        if (!plus) C.d.clear(offsetC, A.M);
 		var idxA:Long=0;
 		for (var c:Long=0; c<A.N; c++, offsetB++) {
 			val  v2  = B.d(offsetB);
@@ -112,18 +113,17 @@ public class VectorMult {
 	/**
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
-	public static def comp(A:SparseCSC, B:Vector, var offsetB:Long, C:Vector, offsetC:Long, plus:Boolean):Vector(C) {
+	public static def comp(A:SparseCSC, B:Vector, offsetB:Long, C:Vector, offsetC:Long, plus:Boolean):Vector(C) {
 		assert (offsetB+A.N <= B.M) :
             "Input vector overflow, offsetB:"+offsetB+" len:"+A.N+" B size:"+B.M;
 		assert (offsetC+A.M <= C.M) :
             "Output vector overflow, offset:"+offsetC+" len:"+A.M+" output size:"+C.M;
-		if (!plus) {
-			for (var i:Long=offsetC; i< offsetC+A.M; i++) C.d(i) =0;		
-		}
-		for (var c:Long=0; c<A.N; c++, offsetB++) {
-			val colA = A.getCol(c);
-			val  v2  = B.d(offsetB);
-			for (var ridx:Long=0; ridx < colA.size(); ridx++) {
+
+		if (!plus) C.d.clear(offsetC, A.M);
+		for (col in 0..(A.N-1)) {
+			val colA = A.getCol(col);
+			val v2 = B.d(offsetB+col);
+			for (ridx in 0..(colA.size()-1)) {
 				val r = colA.getIndex(ridx);
 				val v1 = colA.getValue(ridx);
 				C.d(r+offsetC) += v1 * v2;
@@ -132,6 +132,28 @@ public class VectorMult {
 		
 		return C;
 	}
+
+    private static struct RecursiveBisection1D(start:Long, end:Long, grainSize:Long) {
+        public def this(start:Long, end:Long) {
+            val grainSize = (end-start) / (Runtime.NTHREADS*8);
+            property(start, end, grainSize);
+        }
+
+        public def this(start:Long, end:Long, grainSize:Long) {
+            property(start, end, grainSize);
+        }
+
+        public def execute(body:(min_i:Long, max_i:Long)=> void) {
+            if ((end-start) > grainSize) {
+                val secondHalf=RecursiveBisection1D((start+end)/2L, end, grainSize);
+                async secondHalf.execute(body);
+                val firstHalf=RecursiveBisection1D(start, (start+end)/2L, grainSize);
+                firstHalf.execute(body);
+            } else {
+                body(start, end-1);
+            }
+        }
+    }
 	
 	public static def x10Mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean) =
 		comp(B, 0, A, C, 0, plus);
@@ -144,9 +166,8 @@ public class VectorMult {
             "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M;
 		assert (offsetC+A.N <= C.M) :
             "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M;
-		if (!plus) {
-			for (var i:Long=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
-		}
+
+        if (!plus) C.d.clear(offsetC, A.N);
 		var idxA:Long = 0;
 		for (var c:Long=0; c<A.N; c++, offsetC++) {
 			var v:Double = 0;
@@ -164,9 +185,8 @@ public class VectorMult {
             "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M;
 		assert (offsetC+A.N <= C.M) :
             "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M;
-		if (!plus) {
-			for (var i:Long=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
-		}
+
+        if (!plus) C.d.clear(offsetC, A.N);
 		for (var c:Long=0; c<A.N; c++, offsetC++) {
 			val colA = A.getCol(c);
 			var v:Double = 0;

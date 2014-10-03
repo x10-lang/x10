@@ -14,9 +14,9 @@ package x10.matrix.blas;
 import x10.compiler.NoInline;
 
 /**
- * The class provides direct calls to BLAS routines. Matrix data inputs are stored in Rail[Double], whose
- * memory layout complies with BLAS specification of column-mayor storage.  The leading dimension
- * of matrix (size of memory in double to store one column data) MUST be same as the matrix rows.
+ * The class provides direct calls to BLAS routines. Matrix data inputs are
+ * stored as Rail[Double] in column-major format.  The leading dimension
+ * of matrix MUST be equal to the number of rows.
  * 
  * <p> NoInline is enforced to avoid WrapBLAS methods inlined in other packages in managed backend 
  */
