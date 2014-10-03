@@ -44,7 +44,7 @@ public class LinearRegression implements ResilientIterativeApp {
     public val V:DistBlockMatrix;
     public val b:Vector(V.N);
     //Parameters
-    public val iteration:Long;
+    public val iterations:Long;
     static val lambda:Double = 0.000001;
 
     public val w:Vector(V.N);
@@ -65,7 +65,6 @@ public class LinearRegression implements ResilientIterativeApp {
     public var seqCompT:Long=0;
     public var commT:Long;
 
-    private var isResilient:Boolean = false;
     private var appSnapshotInfo:LinearRegressionSnapshotInfo;
     private val npz:Double;
 
@@ -73,7 +72,7 @@ public class LinearRegression implements ResilientIterativeApp {
     private var V_snapshot:DistObjectSnapshot[Any,Any];
 
     public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
-        iteration = it;
+        iterations = it;
         V =v;
         b =b_ as Vector(V.N);
 
@@ -87,7 +86,6 @@ public class LinearRegression implements ResilientIterativeApp {
         w  = Vector.make(V.N);
 
         if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
-            isResilient = true;
             appSnapshotInfo = new LinearRegressionSnapshotInfo();
         }
         this.chkpntIterations = chkpntIter;
@@ -111,7 +109,7 @@ public class LinearRegression implements ResilientIterativeApp {
     }
 
     public def isFinished() {
-        return iter >= iteration;
+        return iter >= iterations;
     }
 
     public def run() {
@@ -120,12 +118,6 @@ public class LinearRegression implements ResilientIterativeApp {
         r.scale(-1.0);
 
         norm_r2 = r.norm();
-
-        if (isResilient) {
-            Console.OUT.println("Load Balance Before:");
-            V.printSparseLoadStatistics();
-            V_snapshot = V.makeSnapshot();
-        }
 
         new ResilientExecutor(chkpntIterations).run(this);
 
@@ -181,68 +173,55 @@ public class LinearRegression implements ResilientIterativeApp {
     }
 
     static class LinearRegressionSnapshotInfo implements Snapshottable {
-        public var r:Vector;
-        public var w:Vector;
-        public var iteration:Long;
         public var norm:Double;
 
         public def makeSnapshot():DistObjectSnapshot[Any,Any]{
             val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
-            snapshot.save("r",r.clone());
-            snapshot.save("w",w.clone());
-            snapshot.save("iteration",iteration);
             snapshot.save("norm",norm);
             return snapshot;
         }
 
         public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
-            r = snapshot.load("r") as Vector;
-            w = snapshot.load("w") as Vector;
-            iteration = snapshot.load("iteration") as Long;
             norm = snapshot.load("norm") as Double;
         }
     }
 
     public def checkpoint(resilientStore:ResilientStoreForApp) {
         resilientStore.startNewSnapshot();
+        if (V_snapshot == null)
+            V_snapshot = V.makeSnapshot();
         resilientStore.save(V, V_snapshot, true);
         resilientStore.save(d_p);
         resilientStore.save(d_q);
-
-        appSnapshotInfo.r = r;
-        appSnapshotInfo.w = w;
-        appSnapshotInfo.iteration = iter;
+        resilientStore.save(r);
+        resilientStore.save(w);
         appSnapshotInfo.norm = norm_r2;
         resilientStore.save(appSnapshotInfo);
-
         resilientStore.commit();
     }
 
     /**
      * Restore from the snapshot with new PlaceGroup
      */
-    public def restore(newPg:PlaceGroup, store:ResilientStoreForApp) {
+    public def restore(newPg:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long) {
         val newRowPs = newPg.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore LinearReg app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         //remake all the distributed data structures
         V.remakeSparse(newRowPs, newColPs, npz, newPg);
         d_p.remake(newPg);
-
         Vp.remake(V.getAggRowBs(), newPg);
         d_q.remake(newPg);
 
         store.restore();
 
-        Console.OUT.println("Load Balance After:");
-        V.printSparseLoadStatistics();
-
         //adjust the iteration number and the norm value
-        iter = appSnapshotInfo.iteration;
+        iter = lastCheckpointIter;
         norm_r2 = appSnapshotInfo.norm;
-        appSnapshotInfo.r.copyTo(r);
-        appSnapshotInfo.w.copyTo(w);
-
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"]");
+    }
+    
+    public def getMaxIterations():Long{
+        return iterations;
     }
 }

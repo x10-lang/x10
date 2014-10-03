@@ -71,7 +71,6 @@ public class LogisticRegression implements ResilientIterativeApp {
     public var paraRunTime:Long=0;
     public var commUseTime:Long=0;
     
-    private var isResilient:Boolean = false;
     private val chkpntIterations:Long;
     private var appSnapshotInfo:LogRegressionSnapshotInfo;
     private val nzd:Double;
@@ -100,7 +99,6 @@ public class LogisticRegression implements ResilientIterativeApp {
         maxinneriter =nit;
         
         if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
-            isResilient = true;
             appSnapshotInfo = new LogRegressionSnapshotInfo();
         }
         chkpntIterations = chkpntIter;
@@ -341,19 +339,16 @@ public class LogisticRegression implements ResilientIterativeApp {
     }
 
     static class LogRegressionSnapshotInfo implements Snapshottable{
-        public var iteration:Long;
         public var delta:Double;
 
         public def makeSnapshot():DistObjectSnapshot[Any,Any]{
             val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
-            snapshot.save("iteration",iteration);
             snapshot.save("delta", delta);
             return snapshot;
         }
 
         public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]){
-            iteration = snapshot.load("iteration") as Long;
-            delta = snapshot.load("delta") as Double;            
+            delta = snapshot.load("delta") as Double;
         }
     }
     
@@ -369,20 +364,25 @@ public class LogisticRegression implements ResilientIterativeApp {
         store.save(grad);
         store.save(o);
         store.save(w);
-        appSnapshotInfo.iteration = iter;
         appSnapshotInfo.delta = delta;    
         store.save(appSnapshotInfo);        
         store.commit();
     }
 
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp):void{        
+    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void{        
         val newRowPs = newPlaces.size();
         val newColPs = 1;
+        Console.OUT.println("Going to restore LogisticRegression app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         X.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
         dup_w.remake(newPlaces);
         dst_y.remake(X.getAggRowBs(), newPlaces);
         store.restore();
-        iter = appSnapshotInfo.iteration;
+        iter = lastCheckpointIter;
         delta = appSnapshotInfo.delta;
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] delta["+delta+"] ...");
+    }
+    
+    public def getMaxIterations():Long{
+        return maxiter;
     }
 }

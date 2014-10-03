@@ -31,6 +31,12 @@ public interface ResilientIterativeApp {
      * consistent checkpoint from the resilient store.
      * @param newPlaces the set of places over which to restore
      * @param store a resilient store containing an application checkpoint
+     * @param lastCheckpointIter the iteration number of the saved checkpoint
      */
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp):void;
+    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void;
+    
+    /**
+     * @return the maximum iterations number
+     */
+    public def getMaxIterations():Long;
 }

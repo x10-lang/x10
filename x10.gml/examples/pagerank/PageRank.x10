@@ -28,7 +28,6 @@ import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
-import x10.util.resilient.Snapshottable;
 
 /**
  * Parallel Page Rank algorithm based on GML distributed block matrix.
@@ -74,8 +73,6 @@ public class PageRank implements ResilientIterativeApp {
     var iter:Long;
     
     private val chkpntIterations:Long;
-    private var isResilient:Boolean = false;    
-    private var appSnapshotInfo:PageRankSnapshotInfo;    
     private val nzd:Double;    
     
     private var G_snapshot:DistObjectSnapshot[Any,Any];
@@ -101,11 +98,7 @@ public class PageRank implements ResilientIterativeApp {
         vGP      = Vector.make(G.N);
 
         vP = P.local();
-
-        if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
-            isResilient = true;
-            appSnapshotInfo = new PageRankSnapshotInfo();
-        }
+        
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
     }
@@ -177,18 +170,6 @@ public class PageRank implements ResilientIterativeApp {
 
         Console.OUT.flush();
     }
-
-    static class PageRankSnapshotInfo implements Snapshottable{
-        public var iteration:Long;
-        public def makeSnapshot():DistObjectSnapshot[Any,Any]{            
-            val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
-            snapshot.save("iteration",iteration);            
-            return snapshot;
-        }
-        public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]){            
-            iteration = snapshot.load("iteration") as Long;            
-        }
-    }
     
     public def isFinished():Boolean{
         return iter >= iterations;
@@ -215,7 +196,7 @@ public class PageRank implements ResilientIterativeApp {
         iter++;
     }
 
-    public def checkpoint(store:ResilientStoreForApp):void{        
+    public def checkpoint(store:ResilientStoreForApp):void{
         store.startNewSnapshot();
         if (G_snapshot == null)
             G_snapshot = G.makeSnapshot();
@@ -223,15 +204,14 @@ public class PageRank implements ResilientIterativeApp {
         store.save(P);
         store.save(E);
         store.save(U);
-        appSnapshotInfo.iteration = iter;
-        store.save(appSnapshotInfo);
         store.commit();
     }
 
 
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp):void{
+    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void{
         val newRowPs = newPlaces.size();
         val newColPs = 1;
+        Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         G.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
         P.remake(newPlaces);
         vP = P.local();
@@ -240,6 +220,11 @@ public class PageRank implements ResilientIterativeApp {
     
         store.restore();
         
-        iter = appSnapshotInfo.iteration;        
+        iter = lastCheckpointIter;
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] ...");
+    }
+    
+    public def getMaxIterations():Long{
+        return iterations;
     }
 }
