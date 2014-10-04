@@ -17,103 +17,101 @@ import x10.compiler.NonEscaping;
 import x10.compiler.TransientInitExpr;
 
 /**
- * Implementation of a 2-D DistArray that distributes its data elements
- * over the places in its PlaceGroup in a 2-D blocked fashion.
+ * Implementation of a 3-D DistArray that distributes its data elements
+ * over the places in its PlaceGroup by distributing the first dimension 
+ * in a 1-D blocked fashion.
  */
-public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} implements (Long,Long)=>T {
+public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implements (Long,Long,Long)=>T {
     
-    public property rank() = 2;
+    public property rank() = 3;
 
-    protected val globalIndices:DenseIterationSpace_2{self!=null};
+    protected val globalIndices:DenseIterationSpace_3{self!=null};
 
     protected val numElems_1:Long;
 
     protected val numElems_2:Long;
 
+    protected val numElems_3:Long;
+
     @TransientInitExpr(reloadLocalIndices())
-    protected transient val localIndices:DenseIterationSpace_2{self!=null};
+    protected transient val localIndices:DenseIterationSpace_3{self!=null};
     @NonEscaping
-    protected final def reloadLocalIndices():DenseIterationSpace_2{self!=null} {
-        val ls = localHandle() as LocalState_BB2[T];
-        return ls != null ? ls.localIndices : new DenseIterationSpace_2(0, 0, -1, -1);
+    protected final def reloadLocalIndices():DenseIterationSpace_3{self!=null} {
+        val ls = localHandle() as LocalState_B3[T];
+        return ls != null ? ls.localIndices : new DenseIterationSpace_3(0, 0, 0, -1, -1, -1);
     }
     
     @TransientInitExpr(reloadMinIndex_1())
     protected transient val minIndex_1:Long;
     @NonEscaping protected final def reloadMinIndex_1() = localIndices.min(0);
  
-    @TransientInitExpr(reloadMinIndex_2())
-    protected transient val minIndex_2:Long;
-    @NonEscaping protected final def reloadMinIndex_2() = localIndices.min(1);
-
     @TransientInitExpr(reloadNumElemsLocal_1())
     protected transient val numElemsLocal_1:Long;
     @NonEscaping protected final def reloadNumElemsLocal_1() = localIndices.max(0) - minIndex_1 + 1;
 
-    @TransientInitExpr(reloadNumElemsLocal_2())
-    protected transient val numElemsLocal_2:Long;
-    @NonEscaping protected final def reloadNumElemsLocal_2() = localIndices.max(1) - minIndex_2 + 1;
-
     /**
-     * Construct a m by n block-block distributed DistArray
+     * Construct a m by n by p block distributed DistArray
      * whose data is distrbuted over pg and initialized using
      * the init function.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
+     * @param p number of elements in the third dimension
      * @param pg the PlaceGroup to use to distibute the elements.
      * @param init the element initialization function
      */
-    public def this(m:Long, n:Long, pg:PlaceGroup{self!=null}, init:(Long,Long)=>T) {
-        super(pg, () => LocalState_BB2.make[T](pg, m, n, init), validateSize(m,n));
-        globalIndices = new DenseIterationSpace_2(0, 0, m-1, n-1);
+    public def this(m:Long, n:Long, p:Long, pg:PlaceGroup{self!=null}, init:(Long,Long,Long)=>T) {
+        super(pg, () => LocalState_B3.make[T](pg, m, n, p, init), validateSize(m,n,p));
+        globalIndices = new DenseIterationSpace_3(0, 0, 0, m-1, n-1, p-1);
         numElems_1 = m;
         numElems_2 = n;
+        numElems_3 = p;
         localIndices = reloadLocalIndices();
         minIndex_1 = reloadMinIndex_1();
-        minIndex_2 = reloadMinIndex_2();
         numElemsLocal_1 = reloadNumElemsLocal_1();
-        numElemsLocal_2 = reloadNumElemsLocal_2();
     }
 
 
     /**
-     * Construct a m by n block-block distributed DistArray
+     * Construct a m by n by p block distributed DistArray
      * whose data is distrbuted over Place.places() and 
      * initialized using the provided init closure.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
+     * @param p number of elements in the third dimension
      * @param init the element initialization function
      */
-    public def this(m:Long, n:Long, init:(Long,Long)=>T) {
-        this(m, n, Place.places(), init);
+    public def this(m:Long, n:Long, p:Long, init:(Long,Long,Long)=>T) {
+        this(m, n, p, Place.places(), init);
     }
 
 
     /**
-     * Construct a m by n block-block distributed DistArray
+     * Construct a m by n by p block distributed DistArray
      * whose data is distrbuted over pg and zero-initialized.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
+     * @param p number of elements in the third dimension
      * @param pg the PlaceGroup to use to distibute the elements.
      */
-    public def this(m:Long, n:Long, pg:PlaceGroup{self!=null}){T haszero} {
-        this(m, n, pg, (Long,Long)=>Zero.get[T]());
+    public def this(m:Long, n:Long, p:Long, pg:PlaceGroup{self!=null}){T haszero} {
+        this(m, n, p, pg, (Long,Long,Long)=>Zero.get[T]());
     }
 
 
     /**
-     * Construct a m by n block-block distributed DistArray
+     * Construct a m by n by p block distributed DistArray
      * whose data is distrbuted over Place.places() and 
      * zero-initialized.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
+     * @param p number of elements in the second dimension
      */
-    public def this(m:Long, n:Long){T haszero} {
-        this(m, n, Place.places(), (Long,Long)=>Zero.get[T]());
+    public def this(m:Long, n:Long, p:Long){T haszero} {
+        this(m, n, p, Place.places(), (Long,Long,Long)=>Zero.get[T]());
     }
 
 
@@ -122,7 +120,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * the global iteration space (valid indices) of the DistArray.
      * @return an IterationSpace for the DistArray
      */
-    public @Inline final def globalIndices():DenseIterationSpace_2{self!=null} = globalIndices;
+    public @Inline final def globalIndices():DenseIterationSpace_3{self!=null} = globalIndices;
 
 
     /**
@@ -130,7 +128,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * the local iteration space (valid indices) of the DistArray at the current Place.
      * @return an IterationSpace for the local portion of the DistArray
      */
-    public @Inline final def localIndices():DenseIterationSpace_2{self!=null} = localIndices;
+    public @Inline final def localIndices():DenseIterationSpace_3{self!=null} = localIndices;
 
 
     /**
@@ -140,11 +138,13 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      *
      * @param i the index in the first dimension
      * @param j the index in the second dimension
-     * @return the Place where (i,j) is a valid index in the DistArray; 
-     *          will return Place.INVALID_PLACE if (i,j) is not contained in globalIndices
+     * @param k the index in the third dimension
+     * @return the Place where (i,j,k) is a valid index in the DistArray; 
+     *          will return Place.INVALID_PLACE if (i,j,k) is not contained in globalIndices
      */
-    public final def place(i:Long, j:Long):Place {
-        val tmp = BlockingUtils.mapIndexToBlockBlockPartition(globalIndices, placeGroup.size(), i, j);
+    public final def place(i:Long, j:Long, k:Long):Place {
+        if (j < 0 || j >= numElems_2 || k < 0 || k >= numElems_3) return Place.INVALID_PLACE;
+        val tmp = BlockingUtils.mapIndexToBlockPartition(0, numElems_1-1, placeGroup.size(), i);
 	return tmp == -1 ? Place.INVALID_PLACE : placeGroup(tmp);
     }
 
@@ -158,7 +158,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the Place where p is a valid index in the DistArray; 
      *          will return Place.INVALID_PLACE if p is not contained in globalIndices
      */
-    public final def place(p:Point(2)):Place = place(p(0), p(1));
+    public final def place(p:Point(3)):Place = place(p(0), p(1), p(2));
 
 
     /**
@@ -166,12 +166,13 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * 
      * @param i the given index in the first dimension
      * @param j the given index in the second dimension
+     * @param k the given index in the third dimension
      * @return the element of this array corresponding to the given index.
-     * @see #set(T, Long, Long)
+     * @see #set(T, Long, Long, Long)
      */
-    public final @Inline operator this(i:Long, j:Long):T {
-        if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i, j);
-        return Unsafe.uncheckedRailApply(raw, offset(i, j));
+    public final @Inline operator this(i:Long, j:Long, k:Long):T {
+        if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i, j, k);
+        return Unsafe.uncheckedRailApply(raw, offset(i, j, k));
     }
 
 
@@ -182,7 +183,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the element of this array corresponding to the given Point.
      * @see #set(T, Point)
      */
-    public final @Inline operator this(p:Point(2)):T  = this(p(0), p(1));
+    public final @Inline operator this(p:Point(3)):T  = this(p(0), p(1), p(2));
 
     
     /**
@@ -192,12 +193,13 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @param v the given value
      * @param i the given index in the first dimension
      * @param j the given index in the second dimension
+     * @param k the given index in the third dimension
      * @return the new value of the element of this array corresponding to the given index.
-     * @see #operator(Long, Long)
+     * @see #operator(Long, Long, Long)
      */
-    public final @Inline operator this(i:Long,j:Long)=(v:T):T{self==v} {
-        if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i,j);
-        Unsafe.uncheckedRailSet(raw, offset(i, j), v);
+    public final @Inline operator this(i:Long,j:Long,k:Long)=(v:T):T{self==v} {
+        if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i,j,k);
+        Unsafe.uncheckedRailSet(raw, offset(i, j, k), v);
         return v;
     }
 
@@ -211,7 +213,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * @return the new value of the element of this array corresponding to the given Point.
      * @see #operator(Point)
      */
-    public final @Inline operator this(p:Point(2))=(v:T):T{self==v} = this(p(0),p(1)) = v;
+    public final @Inline operator this(p:Point(3))=(v:T):T{self==v} = this(p(0),p(1),p(2)) = v;
 
 
     /*
@@ -219,44 +221,47 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      * on valid access, while still preferring to raise a bounds error rather than
      * a place error when an index is not even contained in the globalIndices of the array.
      */
-    protected final def validateIndex(i:Long, j:Long) {
+    protected final def validateIndex(i:Long, j:Long, k:Long) {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) {
-            if (i < minIndex_1 || i >= (minIndex_1 + numElemsLocal_1) || 
-                j < minIndex_2 || j >= (minIndex_2 + numElemsLocal_2)) {
-                if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1 || j < 0 || j >= numElems_2)) {
-                    raiseBoundsError(i, j);
+            if (CompilerFlags.checkBounds() && (j < 0 || j >= numElems_2 || k < 0 || k >= numElems_3)) {
+                raiseBoundsError(i, j, k);
+            }
+            if (i < minIndex_1 || i >= (minIndex_1 + numElemsLocal_1)) {
+                if (CompilerFlags.checkBounds() && (i < 0 || i >= numElems_1)) {
+                    raiseBoundsError(i, j, k);
                 }
-                if (CompilerFlags.checkPlace()) raisePlaceError(i,j);
+                if (CompilerFlags.checkPlace()) raisePlaceError(i,j, k);
             }
         }
     }
 
-    protected final @Inline def offset(i:Long, j:Long) {
-         return (j - minIndex_2) + ((i - minIndex_1) * numElemsLocal_2);
+    protected final @Inline def offset(i:Long, j:Long, k:Long) {
+        return k + numElems_3 * (j + ((i - minIndex_1) * numElems_2));
     }
 
-    private @Inline static def validateSize(m:Long, n:Long):Long {
-        if (m < 0 || n < 0) raiseNegativeArraySizeException();
-        return m*n;
+    private @Inline static def validateSize(m:Long, n:Long, p:Long):Long {
+        if (m < 0 || n < 0 || p < 0) raiseNegativeArraySizeException();
+        return m*n*p;
     }
 }
 
 // TODO:  Would prefer this to be a protected static nested class, but 
 //        when written that way we non-deterministically fail compilation.
-class LocalState_BB2[S] extends LocalState[S] {
-    val globalIndices:DenseIterationSpace_2{self!=null};
-    val localIndices:DenseIterationSpace_2{self!=null};
+class LocalState_B3[S] extends LocalState[S] {
+    val globalIndices:DenseIterationSpace_3{self!=null};
+    val localIndices:DenseIterationSpace_3{self!=null};
 
     def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:Long, 
-             gs:DenseIterationSpace_2{self!=null}, ls:DenseIterationSpace_2{self!=null}) {
+             gs:DenseIterationSpace_3{self!=null}, ls:DenseIterationSpace_3{self!=null}) {
         super(pg, data, size);
         globalIndices = gs;
         localIndices = ls;
     }
 
-    static def make[S](pg:PlaceGroup{self!=null}, m:Long, n:Long, init:(Long,Long)=>S):LocalState_BB2[S] {
-        val globalSpace = new DenseIterationSpace_2(0, 0, m-1, n-1);
-        val localSpace = BlockingUtils.partitionBlockBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
+    static def make[S](pg:PlaceGroup{self!=null}, m:Long, n:Long, p:Long, init:(Long,Long,Long)=>S):LocalState_B3[S] {
+        val globalSpace = new DenseIterationSpace_3(0, 0, 0, m-1, n-1, p-1);
+	val local_m = BlockingUtils.partitionBlock(0, m-1, pg.numPlaces(), pg.indexOf(here));
+        val localSpace = new DenseIterationSpace_3(local_m.min(0), 0, 0, local_m.max(0), n-1, p-1);
 	val data:Rail[S]{self!=null};
 	if (localSpace.isEmpty()) { 
             data = new Rail[S]();
@@ -265,18 +270,23 @@ class LocalState_BB2[S] extends LocalState[S] {
             val hi1 = localSpace.max(0);
             val low2 = localSpace.min(1);
             val hi2 = localSpace.max(1);
+            val low3 = localSpace.min(2);
+            val hi3 = localSpace.max(2);
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
-            val dataSize = localSize1 * localSize2;
+            val localSize3 = hi3 - low3 + 1;
+            val dataSize = localSize1 * localSize2 * localSize3;
             data = Unsafe.allocRailUninitialized[S](dataSize);
             for (i in low1..hi1) {
                 for (j in low2..hi2) {
-                    val offset = j - low2 + ((i - low1) * localSize2);
-                    data(offset) = init(i,j);
+                    for (k in low3..hi3) {
+                        val offset = k - low3 + (localSize3 * (j - low2 + ((i - low1) * localSize2)));
+                        data(offset) = init(i,j,k);
+                    }
                 }
             }
         }
-        return new LocalState_BB2[S](pg, data, m*n, globalSpace, localSpace);
+        return new LocalState_B3[S](pg, data, m*n*p, globalSpace, localSpace);
     }
 }
 
