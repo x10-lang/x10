@@ -656,7 +656,7 @@ public class LibraryVisitor extends NodeVisitor {
 
         handleClassMembers(members, package_name, class_name);
 
-        JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
+        JNI.cactionBuildClassSupportEnd(class_name, members.size(), RoseTranslator.createJavaToken(n, class_name));
         if (package_name.length() != 0) {
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
             JNI.cactionPopPackage();
@@ -780,9 +780,6 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void previsit(X10MethodDecl_c n, String class_name) {
         toRose(n, "TypeVisitor.Previsit method decl: ", n.name().id().toString());
-        // TODO: currently, skip operator
-        if (n.name().id().toString().indexOf("operator") >= 0)
-            return;
         List<Formal> formals = n.formals();
 
         String method_name = n.name().id().toString();
@@ -796,8 +793,7 @@ public class LibraryVisitor extends NodeVisitor {
         List<TypeParamNode> typeParamList = n.typeParameters();
         for (int i = 0; i < typeParamList.size(); ++i) {
             String typeParam = typeParamList.get(i).name().toString();
-            if (RoseTranslator.DEBUG)
-                System.out.println("TypeParam=" + typeParam + ", package=" + package_name + ", type=" + class_name);
+            if (RoseTranslator.DEBUG) System.out.println("TypeParam=" + typeParam + ", package=" + package_name + ", type=" + class_name);
             JNI.cactionPushTypeParameterScope(package_name, class_name, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionInsertTypeParameter(typeParam, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
