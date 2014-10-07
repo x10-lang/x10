@@ -11,7 +11,7 @@
 package x10.lang;
 import x10.util.resilient.ResilientMap; // ResilientMap using Hazelcast
 
-class ResilientStoreHC[K,V] {V haszero} extends ResilientStore[K,V] {V haszero} {
+public class ResilientStoreHC[K,V] {V haszero} extends ResilientStore[K,V] {V haszero} {
     private static val verbose = ResilientStore.verbose;
 
     private transient val map:ResilientMap[K,V];

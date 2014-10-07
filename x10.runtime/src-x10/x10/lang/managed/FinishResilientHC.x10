@@ -8,16 +8,21 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-package x10.lang;
+package x10.lang.managed;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.*;
+
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
+import com.hazelcast.map.AbstractEntryProcessor;
 
 /*
  * Resilient Finish optimized for Hazelcast
  */
-class FinishResilientHC extends FinishResilient {
-    private static val verbose = FinishResilient.verbose;
-    
+public
+class FinishResilientHC extends FinishResilientBridge {
     private static val RS
     = ResilientStoreHC.make2[FinishID,State]("FinishResilientHC", FinishID.NULL);
     
@@ -59,7 +64,8 @@ class FinishResilientHC extends FinishResilient {
     public def toString():String = System.identityToString(this) + "(id="+id+")";
     
     private def this(id:FinishID, latch:SimpleLatch) { this.id = id; this.latch = latch; }
-    static def make(parent:FinishState, latch:SimpleLatch):FinishResilientHC {
+    public
+    static def make(parent:Any, latch:SimpleLatch):FinishResilientHC { // FinishState is inaccessible from another package ...
         if (verbose>=1) debug(">>>> FinishResilientHC.make called, parent="+parent + " latch="+latch);
         val parentId = (parent instanceof FinishResilientHC) ? (parent as FinishResilientHC).id : FinishID.NULL; // ok to ignore other cases?
         
@@ -89,6 +95,7 @@ class FinishResilientHC extends FinishResilient {
         return fs;
     }
     
+    public
     static def notifyPlaceDeath():void {
         if (verbose>=1) debug(">>>> notifyPlaceDeath called");
         if (verbose>=2) debug("notifyPlaceDeath acquiring locks");
@@ -128,6 +135,7 @@ class FinishResilientHC extends FinishResilient {
         return currentId;
     }
     
+    public
     def notifySubActivitySpawn(place:Place):void {
         val srcId = here.id, dstId = place.id;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
@@ -147,6 +155,7 @@ class FinishResilientHC extends FinishResilient {
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
     
+    public
     def notifyActivityCreation(srcPlace:Place):Boolean {
         val srcId = srcPlace.id, dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
@@ -173,6 +182,7 @@ class FinishResilientHC extends FinishResilient {
         return true;
     }
     
+    public
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
@@ -193,6 +203,7 @@ class FinishResilientHC extends FinishResilient {
         if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
     }
     
+    public
     def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
        RS.lock();
@@ -203,6 +214,7 @@ class FinishResilientHC extends FinishResilient {
         if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
     }
     
+    public
     def waitForFinish():void { // can be called only for the original local FinishState returned by make
         assert id.placeId==here.id;
         assert latch!=null; // original local FinishState

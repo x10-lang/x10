@@ -74,16 +74,20 @@ abstract class FinishResilient extends FinishState {
         {
             val p = (parent!=null) ? parent : getCurrentFS();
             val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientHC.make(p, l);
+            val o = p as Any;
+            var r:FinishState = null;
+            @Native("java", "r = x10.lang.managed.FinishResilientHC.make(o, l);")
+            { if (true) throw new UnsupportedOperationException("Java-only RESILIENT_MODE " + Runtime.RESILIENT_MODE); }
+            fs = r;
             break;
         }
-        // case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-        // {
-        //     val p = (parent!=null) ? parent : getCurrentFS();
-        //     val l = (latch!=null) ? latch : new SimpleLatch();
-        //     fs = FinishResilientPlace0opt.make(p, l);
-        //     break;
-        // }
+        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
+        {
+            val p = (parent!=null) ? parent : getCurrentFS();
+            val l = (latch!=null) ? latch : new SimpleLatch();
+            fs = FinishResilientPlace0opt.make(p, l);
+            break;
+        }
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
         {
@@ -107,11 +111,12 @@ abstract class FinishResilient extends FinishState {
             FinishResilientPlace0.notifyPlaceDeath();
             break;
         case Configuration.RESILIENT_MODE_HC:
-            FinishResilientHC.notifyPlaceDeath();
+            @Native("java", "x10.lang.managed.FinishResilientHC.notifyPlaceDeath();")
+            { if (true) throw new UnsupportedOperationException("Java-only RESILIENT_MODE " + Runtime.RESILIENT_MODE); }
             break;
-        // case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-        //     FinishResilientPlace0opt.notifyPlaceDeath();
-        //     break;
+        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
+            FinishResilientPlace0opt.notifyPlaceDeath();
+            break;
         case Configuration.RESILIENT_MODE_SAMPLE:
         case Configuration.RESILIENT_MODE_SAMPLE_HC:
             FinishResilientSample.notifyPlaceDeath();
