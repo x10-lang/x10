@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import polyglot.ast.Field;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.Special.Kind;
 import polyglot.types.Context;
 import polyglot.types.LocalInstance;
 import polyglot.types.VarInstance;
@@ -52,12 +53,8 @@ public class ClosureCaptureVisitor extends NodeVisitor {
                 cd.addCapturedVariable(f.fieldInstance());
             }
         } else if (n instanceof X10Special) {
-            X10MemberDef code = (X10MemberDef) context.currentCode();
-            ThisDef thisDef = code.thisDef();
-            if (null == thisDef) {
-                throw new InternalCompilerError(n.position(), "ClosureCaptureVisitor.leave: thisDef is null for containing code " +code);
-            }
-            assert (thisDef != null);
+            X10Special s = (X10Special)n;
+            ThisDef thisDef = s.type().toClass().def().thisDef();
             cd.addCapturedVariable(thisDef.asInstance());
         }
         return n;
