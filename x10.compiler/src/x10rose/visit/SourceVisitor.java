@@ -1748,7 +1748,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         toRose(n, "Finish:");
         JNI.cactionFinish(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
-        JNI.cactionFinishEnd(RoseTranslator.createJavaToken(n, n.toString()));
+        JNI.cactionFinishEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(AtStmt_c n) {

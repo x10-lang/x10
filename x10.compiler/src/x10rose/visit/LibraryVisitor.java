@@ -2353,7 +2353,7 @@ public class LibraryVisitor extends NodeVisitor {
         toRose(n, "Finish in TypeVisitor:");
         JNI.cactionFinish(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
-        JNI.cactionFinishEnd(RoseTranslator.createJavaToken(n, n.toString()));
+        JNI.cactionFinishEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(AtStmt_c n) {
