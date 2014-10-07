@@ -82,6 +82,7 @@ import x10.ast.Atomic_c;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr_c;
+import x10.ast.FinishExpr_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
 import x10.ast.HasZeroTest_c;
@@ -1790,7 +1791,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         toRose(n, "Async:");
         JNI.cactionAsync(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
-        JNI.cactionAsyncEnd(RoseTranslator.createJavaToken(n, n.toString()));
+        JNI.cactionAsyncEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Atomic_c n) {
