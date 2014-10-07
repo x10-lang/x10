@@ -283,6 +283,8 @@ class JNI implements Callable<Boolean> {
 	public static native void cactionAsyncEnd(boolean isClocked, JavaToken jToken);
 	public static native void cactionFinish(JavaToken jToken);
 	public static native void cactionFinishEnd(boolean isClocked, JavaToken jToken);
+        public static native void cactionFinishExpr(JavaToken jToken);
+        public static native void cactionFinishExprEnd(JavaToken jToken);
 	public static native void cactionAt(JavaToken jToken);
 	public static native void cactionAtEnd(JavaToken jToken);
 	public static native void cactionAtExpr(JavaToken jToken);

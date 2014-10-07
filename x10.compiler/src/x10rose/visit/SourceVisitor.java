@@ -173,9 +173,21 @@ public class SourceVisitor extends X10DelegatingVisitor {
             visitChild(p, n);
     }
 
+    /**
+     * Checks the node type and invoke an appropriate visitor method
+     * for <tt>n</tt>. 
+     * 
+     * Note that this method will be invoked when <tt>n</tt> does not 
+     * match any X10 type handled in the <tt>visitAppropriate(JL)</tt>.
+     * 
+     * @see X10DelegatingVisit.visitAppropriate(JL)
+     * 
+     */
     public void visit(Node_c n) {
         toRose(n, null);
-        System.err.println("UNRECOGNISED NODE in ToRoseVisitor: " + n.getClass());
+        if (n instanceof FinishExpr_c) { visit((FinishExpr_c)n); }
+        else
+            System.err.println("UNRECOGNISED NODE in ToRoseVisitor: " + n.getClass());
     }
 
     private static boolean isDecl = true;
@@ -287,6 +299,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 if (RoseTranslator.DEBUG) System.out.println("Previsit ClassDecl_c : " + m + ", package=" + package_name + ", type=" + type_name);
                 X10ClassDecl_c inner_class = (X10ClassDecl_c) m;
                 visitDeclarations(inner_class);
+System.out.println("INNER end");
 
                 Ref ref = inner_class.classDef().package_();
                 String package_name2 = (ref == null) ? "" : ref.toString();
@@ -1018,8 +1031,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10ConstructorCall_c n) {
-        toRose(n, "X10ConstructorCall:");
+        toRose(n, "X10ConstructorCall:", n.toString());
         visitChild(n, n.target());
+        JNI.cactionSuperReference(RoseTranslator.createJavaToken(n, n.toString()));
         visitChildren(n, n.typeArguments());
         visitChildren(n, n.arguments());
     }
@@ -1589,7 +1603,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
         toRose(n, "X10LocalDecl:", n.name().id().toString());
         Expr init = n.init();
 //        visitChild(n, n.type());
-        String package_name = n.type().type().fullName().qualifier().toString();
+        // MH-20141007
+        String package_name = "";
+        if (n.type().type().fullName() != null)
+            package_name = n.type().type().fullName().qualifier().toString();
         String type_name = n.type().toString();
         int token_constraint;
         // TODO: remove this when type constraint is supported
@@ -1750,6 +1767,14 @@ public class SourceVisitor extends X10DelegatingVisitor {
         JNI.cactionFinish(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
         JNI.cactionFinishEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
+    }
+    
+    public void visit(FinishExpr_c n) {
+        toRose(n, "FinishExpr:", n.toString());
+        JNI.cactionFinishExpr(RoseTranslator.createJavaToken(n, n.toString()));
+        visitChild(n, n.reducer());
+        visitChild(n, n.body());
+        JNI.cactionFinishExprEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(AtStmt_c n) {

@@ -123,6 +123,7 @@ import x10.ast.Atomic_c;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr_c;
+import x10.ast.FinishExpr_c;
 import x10.ast.Finish_c;
 import x10.ast.ForLoop_c;
 import x10.ast.FunctionTypeNode_c;
@@ -1133,7 +1134,11 @@ public class LibraryVisitor extends NodeVisitor {
         if (n instanceof Finish_c) {
             visit((Finish_c) n);
             return;
-        }
+        }          
+        if (n instanceof FinishExpr_c) {
+            visit((FinishExpr_c) n);
+            return;
+        }          
         if (n instanceof Eval_c) {
             visit((Eval_c) n);
             return;
@@ -1537,6 +1542,7 @@ public class LibraryVisitor extends NodeVisitor {
     public void visit(Node n) {
     }
 
+    
     public void visit(Node_c n) {
         visit((Node) n);
     }
@@ -2354,6 +2360,14 @@ public class LibraryVisitor extends NodeVisitor {
         JNI.cactionFinish(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
         JNI.cactionFinishEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
+    }
+
+    public void visit(FinishExpr_c n) {
+        toRose(n, "FinishExpr:", n.toString());
+        JNI.cactionFinishExpr(RoseTranslator.createJavaToken(n, n.toString()));
+        visitChild(n, n.reducer());
+        visitChild(n, n.body());
+        JNI.cactionFinishExprEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(AtStmt_c n) {
