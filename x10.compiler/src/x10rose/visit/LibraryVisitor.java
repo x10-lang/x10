@@ -793,13 +793,14 @@ public class LibraryVisitor extends NodeVisitor {
         List<TypeParamNode> typeParamList = n.typeParameters();
         for (int i = 0; i < typeParamList.size(); ++i) {
             String typeParam = typeParamList.get(i).name().toString();
+            // Mangled name. This should be fine for processing only library classes.
+            typeParam = typeParam + "_" + method_index + "_" + package_name + "_" + class_name;
             if (RoseTranslator.DEBUG) System.out.println("TypeParam=" + typeParam + ", package=" + package_name + ", type=" + class_name);
             JNI.cactionPushTypeParameterScope(package_name, class_name, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionInsertTypeParameter(typeParam, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionPopTypeParameterScope(RoseTranslator.createJavaToken(n, typeParam));
         }
-
         JNI.cactionBuildMethodSupportStart(method_name, method_index, RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
 
         // in case the return type is unknown. Such a case will occur by
@@ -812,12 +813,8 @@ public class LibraryVisitor extends NodeVisitor {
 
         visitChildren(n, n.formals());
 
-        JNI.cactionBuildMethodSupportEnd(method_name, method_index, // method
-                                                                    // index
-                false, false, false, 0, formals.size(), true, /*
-                                                               * user-defined
-                                                               * -method
-                                                               */
+        JNI.cactionBuildMethodSupportEnd(method_name, method_index, 
+                false, false, false, 0, formals.size(), true, 
                 RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
     }
 
@@ -835,6 +832,7 @@ public class LibraryVisitor extends NodeVisitor {
         List<TypeParamNode> typeParamList = n.typeParameters();
         for (int i = 0; i < typeParamList.size(); ++i) {
             String typeParam = typeParamList.get(i).name().toString();
+            typeParam = typeParam + "_" + method_index + "_" + package_name + "_" + class_name;
             JNI.cactionPushTypeParameterScope(package_name, type_name, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionInsertTypeParameter(typeParam, RoseTranslator.createJavaToken(n, typeParam));
             JNI.cactionBuildTypeParameterSupport(package_name, type_name, method_index, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
