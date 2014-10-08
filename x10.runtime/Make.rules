@@ -149,6 +149,8 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
   export CROSS_COMPILE_ANY=true
   export BGQ_FLOOR ?= /bgsys/driver/ppcfloor
   export X10_STATIC_LIB=1
+  export DISABLE_JAVA_RUNTIME=1
+  
   ifdef USE_GCC
     export X10RT_PLATFORM=bgq_gcc
     override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/gcc/mpicxx
@@ -387,17 +389,22 @@ ifdef ENABLE_CROSS_COMPILE_FX10
   export X10RT_PLATFORM=fx10
   export CROSS_COMPILE_FX10=true
   export CROSS_COMPILE_ANY=true
-  export X10_STATIC_LIB=1
+  ifndef TARGET_JAVA_HOME
+    export X10_STATIC_LIB=1
+    export DISABLE_JAVA_RUNTIME=1
+    LIBSUFFIX := .a
+  endif
 
   override CXX = FCCpx
   override CC = fccpx
   override CFLAGS = -Xg -w
   override CXXFLAGS = -Xg -w -Wp,--special_module_id 
+  override LD = fccpx
   override CXX_NO_WARNING=true
   override CXX_WARNING_FLAGS = 
   override MPICXX= mpiFCCpx -Xg
   ifndef X10_STATIC_LIB
-    override CXXFLAGS_SHARED += -shared -fPIC
+    override CXXFLAGS_SHARED = -shared -fPIC
     export X10RT_TEST_LDFLAGS = -dynamic -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
   endif
   ifdef OPTIMIZE
