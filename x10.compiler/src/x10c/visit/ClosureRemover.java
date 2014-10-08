@@ -346,7 +346,10 @@ public class ClosureRemover extends ContextVisitor {
                     
                     Block closureBody = (Block) cl.body();
                     
-                    List<X10ClassType> riAnnotations = AnnotationUtils.annotationsMatching(closureBody, xts.RemoteInvocation());
+                    List<X10ClassType> riAnnotations = AnnotationUtils.annotationsMatching(cl, xts.RemoteInvocation());
+                    if (riAnnotations == null || riAnnotations.isEmpty()) {
+                        riAnnotations = AnnotationUtils.annotationsMatching(closureBody, xts.RemoteInvocation());
+                    }
                     Id staticNestedClassName = null;
                     if (!riAnnotations.isEmpty()) {
                         assert riAnnotations.size() == 1;
