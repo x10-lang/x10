@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.runtime.impl.java.Runtime;
+import x10.runtime.impl.java.Runtime.OSGI_MODES;
 
 import static x10.serialization.SerializationUtils.getBundleMethod;
 import static x10.serialization.SerializationUtils.getBundleContextMethod;
@@ -25,6 +26,7 @@ import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
 import static x10.serialization.SerializationUtils.getVersionMethod;
 import static x10.serialization.SerializationUtils.loadClassMethod;
 import static x10.serialization.SerializationUtils.getBundlesMethod;
+import static x10.serialization.SerializationUtils.compareVersionMethod;
 
 abstract class DeserializationDictionary implements SerializationConstants {
     protected final Map<Short,Method> idsToMethod;
@@ -47,7 +49,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
             throw new RuntimeException(msg, e);
         }
         Class<?> clazz;
-        if (Runtime.OSGI) {
+        if (Runtime.OSGI != OSGI_MODES.DISABLED) {
             clazz = loadClass(className, jds);
         } else {
             clazz = loadClass(className);
@@ -57,7 +59,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
 
     // non OSGI environment
     private Class<?> loadClass(String name) throws ClassNotFoundException {
-    	assert !Runtime.OSGI;
+    	assert (Runtime.OSGI == OSGI_MODES.DISABLED);
         if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name);
         return Class.forName(name);
     }
@@ -82,7 +84,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
 
     // OSGI environment
     private Class<?> loadClass(String name, X10JavaDeserializer jds) throws ClassNotFoundException {
-    	assert Runtime.OSGI;
+    	assert (Runtime.OSGI != OSGI_MODES.DISABLED);
 
         String bundleName = null;
         String bundleVersion = null;
@@ -101,46 +103,94 @@ abstract class DeserializationDictionary implements SerializationConstants {
     		return Class.forName(name);
     	}
     	
-    	// Standard version
-//    	org.osgi.framework.Bundle _bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
-//    	assert _bundle != null;
-//    	org.osgi.framework.Bundle[] bundles = _bundle.getBundleContext().getBundles();
-//        
-//    	for (org.osgi.framework.Bundle bundle : bundles) {
-//    		if (bundleName.equals(bundle.getSymbolicName()) && bundleVersion.equals(bundle.getVersion().toString())) {
-//                if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
-//    			return bundle.loadClass(name);
-//    		}
-//    	}
-        // Reflection version
-        Object/*Bundle*/ bundle = null;
-        try {
-            Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
-            assert _bundle != null;
-            Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
-            Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
-            for (int i = 0; i < bundles.length; ++i) {
-                bundle = bundles[i];
-                String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
-                String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
-                if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
-                    if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
-                    return (Class<?>) loadClassMethod.invoke(bundle, name);
-                }
-            }
-        } catch (RuntimeException e) {
-            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
-            e.printStackTrace();
-            throw e;
-        } catch (Exception e) {
-            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
-            e.printStackTrace();
-            throw new ClassNotFoundException(e.getMessage(), e);
-        }
-        
-        String msg = "DeserializationDictionary.loadClass: cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
-        /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
-        throw new ClassNotFoundException(msg);
+    	// Standard version of exact match loading (bundle version must be identical)
+    	if (Runtime.OSGI == OSGI_MODES.EXACTVERSION) {
+	//    	org.osgi.framework.Bundle _bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
+	//    	assert _bundle != null;
+	//    	org.osgi.framework.Bundle[] bundles = _bundle.getBundleContext().getBundles();
+	//        
+	//    	for (org.osgi.framework.Bundle bundle : bundles) {
+	//    		if (bundleName.equals(bundle.getSymbolicName()) && bundleVersion.equals(bundle.getVersion().toString())) {
+	//                if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+	//    			return bundle.loadClass(name);
+	//    		}
+	//    	}
+	        // Reflection version of exact match loading (bundle version must be identical)
+	        Object/*Bundle*/ bundle = null;
+	        try {
+	            Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
+	            assert _bundle != null;
+	            Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
+	            Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
+	            for (int i = 0; i < bundles.length; ++i) {
+	                bundle = bundles[i];
+	                String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
+	                String bundleVersion_ = getVersionMethod.invoke(bundle).toString();
+	                if (bundleName.equals(bundleName_) && bundleVersion.equals(bundleVersion_)) {
+	                    if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+	                    return (Class<?>) loadClassMethod.invoke(bundle, name);
+	                }
+	            }
+	        } catch (RuntimeException e) {
+	            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+	            e.printStackTrace();
+	            throw e;
+	        } catch (Exception e) {
+	            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+	            e.printStackTrace();
+	            throw new ClassNotFoundException(e.getMessage(), e);
+	        }
+	        String msg = "DeserializationDictionary.loadClass: cannot find bundle "+bundleName+" "+bundleVersion+" for loading class "+name;
+	        /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+	        throw new ClassNotFoundException(msg);
+    	}
+    	else if (Runtime.OSGI == OSGI_MODES.LATESTVERSION) {
+	     // Reflection version of latest version loading (bundle version is ignored, and we use whichever bundle with the correct symbolic name has the highest version)
+	        Object/*Bundle*/ bundle = null;
+	        try {
+	            Object/*Bundle*/ _bundle = getBundleMethod.invoke(null, this.getClass());
+	            assert _bundle != null;
+	            Object/*BundleContext*/ bundleContext = getBundleContextMethod.invoke(_bundle);
+	            Object/*Bundle*/[] bundles = (Object[]) getBundlesMethod.invoke(bundleContext);
+	            Object/*Bundle*/ highestMatchingBundle = null;
+	            for (int i = 0; i < bundles.length; ++i) {
+	                bundle = bundles[i];
+	                String bundleName_ = (String) getSymbolicNameMethod.invoke(bundle);
+	                if (bundleName.equals(bundleName_)) {
+	                	if (highestMatchingBundle == null)
+	                		highestMatchingBundle = bundle;
+	                	else {
+	                		Object/*Version*/ existingBundleVersion_ = getVersionMethod.invoke(highestMatchingBundle);
+	    	                Object/*Version*/ testBundleVersion_ = getVersionMethod.invoke(bundle);
+	    	                int comparison = ((Integer) compareVersionMethod.invoke(existingBundleVersion_, testBundleVersion_)).intValue(); 
+	                		if (comparison > 0)
+	                		    highestMatchingBundle = bundle;
+	                	}
+	                }
+	            }
+	            if (highestMatchingBundle != null) {
+	            	if (Runtime.TRACE_SER) Runtime.printTraceMessage("DeserializationDictionary.loadClass: loading "+name+" with bundle "+bundle);
+	            	return (Class<?>) loadClassMethod.invoke(highestMatchingBundle, name);
+	            }
+	            else {
+	    	        String msg = "DeserializationDictionary.loadClass: cannot find any bundle "+bundleName+" for loading class "+name;
+	    	        /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage(msg);
+	    	        throw new ClassNotFoundException(msg);
+	            }
+	        } catch (RuntimeException e) {
+	            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+	            e.printStackTrace();
+	            throw e;
+	        } catch (Exception e) {
+	            /*if (Runtime.TRACE_SER)*/ Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+" with bundle "+bundle);
+	            e.printStackTrace();
+	            throw new ClassNotFoundException(e.getMessage(), e);
+	        }
+    	}
+    	else {
+    		Runtime.printTraceMessage("DeserializationDictionary.loadClass: error in loading "+name+": Unknown Runtime.OSGI type: "+Runtime.OSGI);
+    		throw new RuntimeException("Unknown Runtime.OSGI type: "+Runtime.OSGI);
+    	}        
     }
 
     void addEntry(short id, String name, X10JavaDeserializer jds) {
@@ -250,7 +300,7 @@ abstract class DeserializationDictionary implements SerializationConstants {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
             }
-            if (Runtime.OSGI) {
+            if (Runtime.OSGI != OSGI_MODES.DISABLED) {
                 addEntry(id, name, jds);
             } else {
                 addEntry(id, name);

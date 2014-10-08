@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
+import x10.runtime.impl.java.Runtime.OSGI_MODES;
 
 import static x10.serialization.SerializationUtils.getBundleMethod;
 import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
@@ -52,7 +53,7 @@ abstract class SerializationDictionary implements SerializationConstants {
         String name = clazz.getName();
         dos.writeInt(name.length());
         dos.write(name.getBytes());
-        if (Runtime.OSGI) {
+        if (Runtime.OSGI != OSGI_MODES.DISABLED) {
             // Standard version
 //          org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(es.getKey());
 //          String bundleName, bundleVersion;
