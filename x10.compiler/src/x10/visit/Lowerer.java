@@ -192,6 +192,7 @@ public class Lowerer extends ContextVisitor {
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
     private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
+    private static final QName NAMED_MESSAGE = QName.make("x10.compiler.NamedMessage");
     
     private static final Name START_COLLECTING_FINISH = Name.make("startCollectingFinish");
     private static final Name STOP_COLLECTING_FINISH = Name.make("stopCollectingFinish");
@@ -259,7 +260,7 @@ public class Lowerer extends ContextVisitor {
 			}
     	}
     	
-        // match at (p) async S and treat it as if it were async (p) S.
+    	// match at (p) async S and treat it as if it were async (p) S.
     	if (n instanceof AtStmt) {
     	    AtStmt atStm = (AtStmt) n;
     	    Stmt body = atStm.body();
@@ -267,30 +268,39 @@ public class Lowerer extends ContextVisitor {
     	    if (async==null)
     	        return null;
     	    Expr place = atStm.place();
-            if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
-                try {
-                    place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
-                } catch (SemanticException e) {
-                }
-            }
-            List<Expr> clocks = async.clocks();
-            place = (Expr) visitEdgeNoOverride(atStm, place);
-            body = (Stmt) visitEdgeNoOverride(async, async.body());
-            if (clocks != null && ! clocks.isEmpty()) {
-                List<Expr> nclocks = new ArrayList<Expr>();
-                for (Expr c : clocks) {
-                    nclocks.add((Expr) visitEdgeNoOverride(async, c));
-                }
-                clocks =nclocks;
-            }
-            try {
-                Expr prof = getProfile(atStm.atDef());
-                return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment(), prof);
-            } catch (SemanticException z) {
-                return null;
-            }
+    	    if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
+    	        try {
+    	            place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
+    	        } catch (SemanticException e) {
+    	        }
+    	    }
+    	    List<Expr> clocks = async.clocks();
+    	    place = (Expr) visitEdgeNoOverride(atStm, place);
+    	    body = (Stmt) visitEdgeNoOverride(async, async.body());
+    	    if (clocks != null && ! clocks.isEmpty()) {
+    	        List<Expr> nclocks = new ArrayList<Expr>();
+    	        for (Expr c : clocks) {
+    	            nclocks.add((Expr) visitEdgeNoOverride(async, c));
+    	        }
+    	        clocks =nclocks;
+    	    }
+    	    try {
+    	        Expr prof = getProfile(atStm.atDef());
+    	        List<X10ClassType> annotations = AnnotationUtils.getAnnotations(n);
+    	        if (annotations != null) {
+    	            List<X10ClassType> bodyAnnotations = AnnotationUtils.getAnnotations(async);
+    	            if (bodyAnnotations != null) {
+    	                annotations.addAll(bodyAnnotations);
+    	            }
+    	        } else {
+    	            annotations = AnnotationUtils.getAnnotations(async);;
+    	        }
+    	        return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment(), annotations, prof);
+    	    } catch (SemanticException z) {
+    	        return null;
+    	    }
     	}
-    	
+
     	// CUDA KLUDGE: match async at(p) @CUDA S and compile it as if it were async(p) @CUDA S.
     	// TODO: Think about whether we can instead use a pattern that matches current (X10 2.4.3)
     	//       idioms for remote activity spawning.
@@ -323,7 +333,16 @@ public class Lowerer extends ContextVisitor {
     		}
     		try {
                 Expr prof = getProfile(async.asyncDef());
-    			return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment(), prof);
+                List<X10ClassType> annotations = AnnotationUtils.getAnnotations(n);
+                if (annotations != null) {
+                    List<X10ClassType> bodyAnnotations = AnnotationUtils.getAnnotations(async);
+                    if (bodyAnnotations != null) {
+                        annotations.addAll(bodyAnnotations);
+                    }
+                } else {
+                    annotations = AnnotationUtils.getAnnotations(async);;
+                }
+    			return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment(), annotations, prof);
     		} catch (SemanticException z) {
     			return null;
     		}
@@ -461,6 +480,10 @@ public class Lowerer extends ContextVisitor {
 		
 		Block at_body = e.body();
 		at_body = atExceptionWrap(bPos, at_body, true, e.returnType().type());
+
+		if (AnnotationUtils.hasAnnotation(e, ts.RemoteInvocation())) {
+		    throw new UnsupportedOperationException("Usage error: RemoteInvocation annotations not supported on at expressions");
+		}
 		
 		Closure closure_ = nf.Closure(bPos,  e.formals(), e.guard(), e.returnType(), at_body);
 		Expr closure = closure_.closureDef(cDef).type(cDef.classDef().asType());
@@ -562,8 +585,9 @@ public class Lowerer extends ContextVisitor {
         place = getPlace(pos, place);
 		
 		Block closure_body = atExceptionWrap(pos, at_body, false, ts.Int());
-		
-		Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context());
+		List<X10ClassType> annotations = AnnotationUtils.getAnnotations(a);
+
+		Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context(), annotations);
 		closure.closureDef().setCapturedEnvironment(env);
 		CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
 		closure.closureDef().setMethodContainer(Types.ref(mi));
@@ -640,40 +664,39 @@ public class Lowerer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
-        List<X10ClassType> refs = AnnotationUtils.annotationsNamed(a, REF);
+        List<X10ClassType> annotations = AnnotationUtils.getAnnotations(a);
         List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-        	if (old instanceof Async)
-            	 return uncountedAsync(pos, a.body(), env);
+        	if (old instanceof Async) {
+            	 return uncountedAsync(pos, a.body(), env, annotations);
+        	}
         }
-        if (old instanceof Async)
-            return async(pos, a.body(), clocks, refs, env);
         Stmt specializedAsync = specializeAsync(a, null, a.body());
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), clocks, refs, env);
+        return async(pos, a.body(), clocks, annotations, env);
     }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
-    private Stmt visitAsyncPlace(Async a, Expr place, Stmt body, List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
+    private Stmt visitAsyncPlace(Async a, Expr place, Stmt body, List<VarInstance<? extends VarDef>> env, 
+                                 List<X10ClassType> annotations, Expr prof) throws SemanticException {
         List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
-        List<X10ClassType> refs = AnnotationUtils.annotationsNamed(a, REF);
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());
         }
         if (isUncountedAsync(ts, a)) {
-            return uncountedAsync(pos, body, place, env, prof);
+            return uncountedAsync(pos, body, place, env, annotations, prof);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, body, clocks, place, refs, env, prof);
+        return async(pos, body, clocks, place, annotations, env, prof);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -878,23 +901,23 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body, Expr place,
-            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, List<X10ClassType> annotations, Expr prof) throws SemanticException {
         List<Expr> l = new ArrayList<Expr>(1);
         l.add(place);
         List<Type> t = new ArrayList<Type>(1);
         t.add(ts.Place());
-        return makeUncountedAsyncBody(pos, l, t, body, env, prof);
+        return makeUncountedAsyncBody(pos, l, t, body, env, annotations, prof);
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body,
-            List<VarInstance<? extends VarDef>> env) throws SemanticException {
+            List<VarInstance<? extends VarDef>> env, List<X10ClassType> annotations) throws SemanticException {
         return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
-                new LinkedList<Type>(), body, env, null);
+                new LinkedList<Type>(), body, env, annotations, null);
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body,
-            List<VarInstance<? extends VarDef>> env, Expr prof) throws SemanticException {
-        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+            List<VarInstance<? extends VarDef>> env, List<X10ClassType> annotations, Expr prof) throws SemanticException {
+        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context(), annotations);
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
