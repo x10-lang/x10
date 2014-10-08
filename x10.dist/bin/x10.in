@@ -210,7 +210,8 @@ else
            JRE_DIR="$JAVA_HOME"
         fi
         JRE_LIB="$JRE_DIR${FILE_SEP}lib${FILE_SEP}${jarch}"
-        JVM_LIB="$JRE_LIB${FILE_SEP}j9vm${PATH_SEP}$JRE_LIB${FILE_SEP}server${PATH_SEP}$JRE_LIB${FILE_SEP}client"
+# -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
+        JVM_LIB="$JRE_LIB${FILE_SEP}j9vm${PATH_SEP}$JRE_LIB${FILE_SEP}server${PATH_SEP}$JRE_LIB${FILE_SEP}client${PATH_SEP}$JRE_LIB"
         if [ -n "$LD_LIBRARY_PATH" ]; then
             export LD_LIBRARY_PATH="$LD_LIBRARY_PATH${PATH_SEP}$JVM_LIB"
         else
