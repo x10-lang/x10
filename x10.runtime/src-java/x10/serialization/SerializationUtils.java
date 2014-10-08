@@ -14,6 +14,7 @@ package x10.serialization;
 import java.lang.reflect.Method;
 
 import x10.runtime.impl.java.Runtime;
+import x10.runtime.impl.java.Runtime.OSGI_MODES;
 
 class SerializationUtils {
 
@@ -27,8 +28,10 @@ class SerializationUtils {
     static Method loadClassMethod;
     static Class<?> BundleContextClass;
     static Method getBundlesMethod;
+    static Class<?> VersionClass;
+    static Method compareVersionMethod;
     static {
-        if (Runtime.OSGI) {
+        if (Runtime.OSGI != OSGI_MODES.DISABLED) {
             try {
                 FrameworkUtilClass = Class.forName("org.osgi.framework.FrameworkUtil");
                 getBundleMethod = FrameworkUtilClass.getDeclaredMethod("getBundle", Class.class);
@@ -45,6 +48,9 @@ class SerializationUtils {
                 BundleContextClass = Class.forName("org.osgi.framework.BundleContext");
                 getBundlesMethod = BundleContextClass.getDeclaredMethod("getBundles");
                 getBundlesMethod.setAccessible(true);
+                VersionClass = Class.forName("org.osgi.framework.Version");
+                compareVersionMethod = VersionClass.getDeclaredMethod("compareTo", VersionClass);
+                compareVersionMethod.setAccessible(true);
             } catch (Throwable e) {
                 String msg = "FATAL ERROR! Cannot load OSGi framework.";
                 System.out.println(msg);

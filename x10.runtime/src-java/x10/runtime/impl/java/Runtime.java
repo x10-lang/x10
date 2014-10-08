@@ -539,6 +539,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Enable OSGI framework support.
      */
-    public static final boolean OSGI = Boolean.getBoolean("X10_OSGI");
+    public static enum OSGI_MODES {DISABLED, EXACTVERSION, LATESTVERSION};
+    public static final OSGI_MODES OSGI = OSGI_MODES.valueOf(System.getProperty("X10_OSGI", "DISABLED"));
 
 }
