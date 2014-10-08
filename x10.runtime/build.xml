@@ -99,7 +99,12 @@
     <condition property="x10rt.jnibindings.disabled">
         <or>
             <istrue value="${CROSS_COMPILE_BGQ}" />
-            <istrue value="${CROSS_COMPILE_FX10}" />
+            <and>
+		       <istrue value="${CROSS_COMPILE_FX10}" />
+		       <not>
+		 		 <isset property="env.TARGET_JAVA_HOME"/>
+		       </not>
+		     </and>
         </or>
     </condition>
 
@@ -732,6 +737,8 @@
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/machdep.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 	      </then>
 	    </if>

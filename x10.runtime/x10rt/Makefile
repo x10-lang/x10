@@ -31,7 +31,7 @@ X10_HOME        = ${CURDIR}/../..
 COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o common/x10rt_emu.o common/x10rt_emu_coll.o
 
 # Include JNI bindings in x10rt if we can find a JDK unless cross-compiling
-ifndef CROSS_COMPILE_ANY
+ifndef DISABLE_JAVA_RUNTIME
 ifdef JNI_INCLUDES
   COMMON_OBJS += jni/jni_x10rt.o jni/jni_message.o jni/jni_team.o jni/jni_helpers.o
 endif
