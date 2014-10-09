@@ -2,8 +2,8 @@
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
-    <property name="sf.files.baseurl" value="http://sourceforge.net/projects/x10/files"/>
-    <property name="sf.web.baseurl" value="http://x10.sourceforge.net"/>
+    <property name="dep.baseurl" value="http://x10-lang.org"/>
+    <property name="dep.baseurl.alt" value="http://sourceforge.net/projects/x10/files"/>
     <property name="bdwgc.version" value="7.4.2"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
@@ -697,7 +697,7 @@
 	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
 		<sequential>
 		  <mkdir dir="${bdwgc.dir}/src" />
-		  <get-sf-resource src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+		  <get-x10-dependency src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
 		</sequential>
 	</target>
 			
