@@ -62,7 +62,7 @@
       <attribute name="src" />
       <attribute name="dest" />
       <sequential>
-	<retry>
+	<retry retrycount="3">
 	  <doOne>
             <get usetimestamp="true" src="${dep.baseurl}/@{src}" dest="@{dest}"/>
             <get usetimestamp="true" src="${dep.baseurl.alt}/@{src}" dest="@{dest}"/>
