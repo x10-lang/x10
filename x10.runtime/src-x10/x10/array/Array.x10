@@ -269,6 +269,9 @@ public abstract class Array[T] (
     protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long, k:Long) {
         throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+", "+k+") not contained in array");
     }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i:Long, j:Long, k:Long, l:Long) {
+        throw new ArrayIndexOutOfBoundsException("(" + i + ", "+j+", "+k+", "+l+") not contained in array");
+    }    
 
     protected static @NoInline @NoReturn def raiseNegativeArraySizeException() {
         throw new NegativeArraySizeException();
