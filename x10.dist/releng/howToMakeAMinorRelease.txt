@@ -20,7 +20,7 @@ For an X10 only release there are only three steps:
        that you are tagging a "good" svn version.
 
        To tag basing off a branch do:
-         makeTag.sh -rev 27400 -branch x10-2.4.2 -tag 2.4.2.1 -x10
+         makeTag.sh -rev 27400 -branch x10-2.4.2 -tag SF_RELEASE_2_4_2_1 -x10
 
        To tag basing off the trunk do
          makeTag.sh -rev 27400 -branch trunk -tag WB_20140212 -x10

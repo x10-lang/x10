@@ -65,8 +65,11 @@ III. When all necessary fixes have been propagated to the release branch,
       the version number, and other parameters then hit the 'Build' button.
       Note, depending on how loaded slave machines are this step may take
       several hours to complete.  Tarballs will be automatically published
-      on orquesta as they are available.  Also use masterBuildRelease.sh
-      to build BlueGene/Q release (not integrated with Jenkins build).
+      on orquesta at the end of the job.  They are staged on the jenkins master
+      node in the userContent directory until all sub-builds complete/fail.  
+      The BlueGene/Q build is not integrated with Jenkins; you will need to 
+      use masterBuildRelease.sh create it:
+          ./masterBuildRelease.sh -skip_source -version 2.5.0 -tag SF_RELEASE_2_5_0 -nodebug -hosts bgqfen1
 
    6. Once the X10 tarballs are available on orquesta, you can build X10DT.
       Using the RTC build server, edit the build defintions for the X10DT 
