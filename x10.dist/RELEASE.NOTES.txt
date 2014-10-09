@@ -1,4 +1,16 @@
-X10 Release 2.5.0
+X10 Release 2.5.0.1
+
+This is a minor release of X10 with the following changes from X10 2.5.0.
+  + XTENLANG-3437: Experimental Java MPI launcher causes SEGV with non-IBM Java VM 
+  + XTENLANG-3438: GC library and build system patch for K computer
+  + Addition of NamedMessage annotation for controlling name of generated
+    closure class in Managed X10
+  + Addition of a new mode to OSGi-serialization support in Managed X10.
+  + fixes to the packageRPM.sh script to work with latest version of rpmbuild.
+
+-------------------------------------------------------------------------
+
+X10 Release 2.5.0 Release Notes
 
 HIGHLIGHTS OF THIS RELEASE
 
