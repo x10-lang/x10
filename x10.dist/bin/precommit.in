@@ -42,7 +42,7 @@ echo "Compiling PreCommit.x10 with x10c++"
 cd "$ROOT/x10.tests/tests-inactive/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
- -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.dist/samples" \
  -sourcepath "$ROOT/x10.tests/tests/x10lib" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Async" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/At" \
@@ -80,7 +80,7 @@ mkdir -p "${TMP_DIR}.tmp"
 cd "$ROOT/x10.tests/tests-inactive/Misc"
 
 nice "$ROOT/x10.dist/bin/x10c" -O \
- -sourcepath "$ROOT/x10.dist/samples/tutorial" \
+ -sourcepath "$ROOT/x10.dist/samples" \
  -sourcepath "$ROOT/x10.tests/tests/x10lib" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Async" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/At" \
