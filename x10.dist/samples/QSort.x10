@@ -43,7 +43,7 @@ public class QSort {
       return i;
   }
 
-  static def qsort(data:Rail[int], left:long, right:long) {
+  public static def qsort(data:Rail[int], left:long, right:long) {
       index:long = partition(data, left, right);
       finish {
           if (left < index - 1)

@@ -15,18 +15,18 @@ import x10.util.Random;
 /**
  * This class represents a real-world problem in graphics engines --
  * determining which objects in a large sprawling world are close enough to the
- * camera to be considered for rendering.  The naive implementation (GCSpheres) 
- * produces a lot of objects and is thus a good benchmark for 
- * garbage collection in X10.
- * This version uses structs to significantly reduce heap allocation.
+ * camera to be considered for rendering.  
+ *
+ * It illustrates the usage of X10 structs to define new primitive types.
+ * In Native X10, structs are allocated within their containing object/stack frame
+ * and thus using structs instead of classes for Vector3 and WorldObject greatly
+ * improves the memory efficiency of the computation.
  *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
  */
 class StructSpheres {
-
     static type Real = Float;
-
 
     static struct Vector3(x:Real, y:Real, z:Real) {
         public def getX () = x; 
@@ -96,7 +96,7 @@ class StructSpheres {
 
             val pos = Vector3(x,y,z);
 
-            for (i in 0..(spheres.size-1)) {
+            for (i in spheres.range()) {
                 if (spheres(i).intersects(pos)) {
                     counter++;
                 }
@@ -107,8 +107,8 @@ class StructSpheres {
         val time_taken = System.nanoTime() - time_start;
         Console.OUT.println("Total time: "+time_taken/1E9);
 
-        val expected = 108996L;
-	val ok = counter == expected;
+        val expected = 108996;
+        val ok = counter == expected;
         if (!ok) {
             Console.ERR.println("number of intersections: "+counter
                                 +" (expected "+expected+")");

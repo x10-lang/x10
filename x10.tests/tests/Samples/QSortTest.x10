@@ -13,12 +13,22 @@ import harness.x10Test;
 
 // SOURCEPATH: x10.dist/samples
 
-public class GCSpheresTest extends x10Test {
+public class QSortTest extends x10Test {
     public def run():boolean {
-         return GCSpheres.compute();
+        val r = new x10.util.Random();
+        val N = 10000;
+        val data = new Rail[int](N, (long)=>r.nextInt(9999n));
+        QSort.qsort(data, 0, N-1);
+        for (i in 1..(N-1)) {
+            if (data(i-1) > data(i)) {
+                Console.OUT.println("Failed to sort: index "+i);
+                return false;
+            }
+        }
+        return true;
     }
 
     public static def main(args:Rail[String]) {
-	new GCSpheresTest().execute();
+	    new QSortTest().execute();
     }
 }
