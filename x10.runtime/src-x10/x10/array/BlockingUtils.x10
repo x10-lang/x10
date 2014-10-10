@@ -20,6 +20,12 @@ package x10.array;
  */
 public class BlockingUtils {
 
+    /*
+     *
+     * Methods for Block distribution
+     *
+     */
+
     /**
      * A Block distribution takes a rank-1 iteration space
      * and distributes all points contained in the bounding box of the 
@@ -150,6 +156,30 @@ public class BlockingUtils {
     }
 
 
+    /*
+     *
+     * Methods for BlockBlock distribution
+     *
+     */
+
+    /**
+     * A BlockBlock distribution takes a rank-2 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units in 2-d grid.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * @param is the iteration space to partition
+     * @param n is the total number of partitions desired
+     * @return the IterationSpace representing the ith partition
+     */
+    public static def partitionBlockBlock(is:IterationSpace(2), n:Long):Rail[DenseIterationSpace_2{self!=null}]{self.size==n,self!=null} {
+        return new Rail[DenseIterationSpace_2{self!=null}](n, (i:Long)=>partitionBlockBlock(is, n, i));
+    }
+
 
     /**
      * A BlockBlock distribution takes a rank-2 iteration space
@@ -173,6 +203,32 @@ public class BlockingUtils {
         val max0 = is.max(0);
         val min1 = is.min(1);
         val max1 = is.max(1);
+        return partitionBlockBlock(min0, min1, max0, max1, n, i);
+    }
+
+
+    /**
+     * A BlockBlock distribution takes a rank-2 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units in 2-d grid.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * This utility method computes and returns the ith element in such a distribution.
+     *
+     * param min0 is the min index of the first dimension
+     * param min1 is the min index of the second dimension
+     * param max0 is the max index of the first dimension
+     * param max1 is the max index of the second dimension
+     * @param n is the total number of partitions desired
+     * @param i is the index of the partition requested
+     * @return the IterationSpace representing the ith partition
+     */
+    public static def partitionBlockBlock(min0:Long, min1:Long, max0:Long, max1:Long, 
+                                          n:Long, i:Long):DenseIterationSpace_2{self!=null} {
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
 
@@ -233,6 +289,34 @@ public class BlockingUtils {
         val max0 = is.max(0);
         val min1 = is.min(1);
         val max1 = is.max(1);
+        return mapIndexToBlockBlockPartition(min0, min1, max0, max1, n, i, j);
+    }
+
+
+    /**
+     * A BlockBlock distribution takes a rank-2 iteration space
+     * and distributes all points contained in the bounding box of the 
+     * space roughly evenly into the requested number of units in 2-d grid.
+     * If the input iteration space is dense, then the returned iteration space will
+     * only contain points that were also contained in the input iteration space.
+     * If the input iteration space is not dense, then the returned iteration space
+     * may contain points that were NOT in the input iteration space (and thus depending
+     * on the application may require additional filtering before being used).
+     * 
+     * This utility method computes which partition an argument index would be placed.
+     *
+     * param min0 is the min index of the first dimension
+     * param min1 is the min index of the second dimension
+     * param max0 is the max index of the first dimension
+     * param max1 is the max index of the second dimension
+     * @param n is the total number of partitions desired
+     * @param i the given index in the first dimension
+     * @param j the given index in the second dimension
+     * @return the partition number into which (i,j) is mapped by the distribution
+     *         (or -1 if not contained in the bounding box of the argument iteration space)
+     */
+    public static def mapIndexToBlockBlockPartition(min0:Long, min1:Long, max0:Long, max1:Long,
+                                                    n:Long, i:Long, j:Long):Long {
         if (i<min0 || i>max0 || j<min1 || j>max1) return -1;
 
         val size0 = (max0 - min0 + 1);
