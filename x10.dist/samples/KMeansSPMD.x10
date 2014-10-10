@@ -20,7 +20,7 @@ import x10.util.Team;
 /**
  * An SPMD formulation of KMeans.
  *
- * For a scalable, high-performance version of this benchmark see
+ * For a highly optimized and scalable, version of this benchmark see
  * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 public class KMeansSPMD {
