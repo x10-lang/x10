@@ -811,12 +811,13 @@ public class LibraryVisitor extends NodeVisitor {
             JNI.cactionTypeReference("", "void", this, RoseTranslator.createJavaToken());
         else
             visitChild(n, n.returnType());
-
+        
         visitChildren(n, n.formals());
 
         JNI.cactionBuildMethodSupportEnd(method_name, method_index, 
                 false, false, false, 0, formals.size(), true, 
                 RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        if (RoseTranslator.DEBUG) System.out.println("Previsit method decl end");
     }
 
     public void previsit(X10ConstructorDecl_c n, String package_name, String type_name) {
@@ -1865,8 +1866,7 @@ public class LibraryVisitor extends NodeVisitor {
                                    // toString() instead
         String ambTypeName = raw.replaceAll("\\{amb\\}", "");
         ambTypeName = RoseTranslator.trimTypeParameterClause(ambTypeName);
-        if (RoseTranslator.DEBUG)
-            System.out.println("AmbTypeNode_c : " + ambTypeName + ", type=" + n.type());
+        if (RoseTranslator.DEBUG) System.out.println("AmbTypeNode_c : " + ambTypeName + ", type=" + n.type());
 
         if (RoseTranslator.isX10Primitive(ambTypeName))
             JNI.cactionTypeReference("", ambTypeName, this, RoseTranslator.createJavaToken());

@@ -411,7 +411,8 @@ System.out.println("INNER end");
         RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
         JNI.cactionSetCurrentClassName((package_name.length() == 0 ? "" : package_name + ".") + class_name);
         
-        if (package_name.length() != 0)
+        // MH-20141008
+//        if (package_name.length() != 0)
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
         JNI.cactionInsertClassStart(class_name, false, false, false, RoseTranslator.createJavaToken(n, class_name));
         
@@ -466,11 +467,6 @@ System.out.println("INNER end");
 //        JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
         JNI.cactionBuildClassSupportEnd(class_name, members.size(), RoseTranslator.createJavaToken(n, class_name));
 
-//        if (!n.classDef().isInnerClass()) {
-            if (package_name.length() != 0)
-                JNI.cactionPopPackage();
-//        }
-
         Flags flags = n.flags().flags();
         JNI.cactionTypeDeclaration(package_name, class_name, /* num_annotations */0, n.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
         /* is_enum */false, flags.isAbstract(), flags.isFinal(), flags.isPrivate(), flags.isPublic(), flags.isProtected(), flags.isStatic(), /* is_strictfp */false, RoseTranslator.createJavaToken(n, class_name));
@@ -483,10 +479,10 @@ System.out.println("INNER end");
         Ref ref = n.classDef().package_();
         String package_name = (ref == null) ? "" : ref.toString();
 
-        if (package_name.length() != 0) {
-            JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, n.toString()));
-            JNI.cactionInsertClassStart(class_name, false, false, false, RoseTranslator.createJavaToken(n, class_name));
-        }
+//        if (package_name.length() != 0) {
+//            JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, n.toString()));
+//            JNI.cactionInsertClassStart(class_name, false, false, false, RoseTranslator.createJavaToken(n, class_name));
+//        }
         // Are the following five lines necessary again?
         visitChildren(n, n.typeParameters());
         visitChildren(n, n.properties());
@@ -496,6 +492,7 @@ System.out.println("INNER end");
 
         visitChild(n, n.body());
         JNI.cactionTypeDeclarationEnd(true, RoseTranslator.createJavaToken(n, class_name));
+        JNI.cactionPopPackage();
     }
 
     public void visit(X10ClassDecl_c n) {
@@ -598,6 +595,7 @@ System.out.println("INNER end");
          * JavaSourcePositionInformation(n.position().line())));
          */
         JNI.cactionBuildMethodSupportEnd(method_name, method_index, false, false, false, 0, formals.size(), true, RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        if (RoseTranslator.DEBUG) System.out.println("Previsit method decl end");
     }
 
     public void previsit(X10ConstructorDecl_c n, String package_name, String class_name) {
@@ -1445,15 +1443,12 @@ System.out.println("INNER end");
                 methodIndex = 0;
 
                 JNI.cactionSetCurrentClassName(helperName);
+
+                JNI.cactionPushPackage("", RoseTranslator.createJavaToken(n, helperName));
                 JNI.cactionInsertClassStart(helperName, false, false, false, RoseTranslator.createJavaToken(n, helperName));
                 JNI.cactionInsertClassEnd(helperName, RoseTranslator.createJavaToken(n, helperName));
 
-                JNI.cactionBuildClassSupportStart(/*
-                                                   * "::" +
-                                                   * package_name+"::"+
-                                                   */helperName, "", true, // a
-                                                                           // user-defined
-                                                                           // class?
+                JNI.cactionBuildClassSupportStart(helperName, "", true,
                         false, false, false, false, RoseTranslator.createJavaToken(n, helperName));
 
                 String[] typeParamNames = new String[0];
@@ -1475,19 +1470,16 @@ System.out.println("INNER end");
                 // JNI.cactionBuildArgumentSupport(argName, false, false,
                 // createJavaToken(n, argName));
 
-                if (argClass_package.length() != 0) {
+//                if (argClass_package.length() != 0) {
                     JNI.cactionPushPackage(argClass_package, RoseTranslator.createJavaToken(n, argClass_package));
                     JNI.cactionPopPackage();
-                }
+//                }
                 JNI.cactionTypeReference(argClass_package, argClass_type, this, RoseTranslator.createJavaToken());
                 JNI.cactionArrayTypeReference(1, RoseTranslator.createJavaToken());
                 JNI.cactionBuildArgumentSupport(argName, false, false, RoseTranslator.createJavaToken(n, argName));
 
-                JNI.cactionBuildMethodSupportEnd(methodName, methodIndex, // method
-                                                                          // index
-                        false, false, false, 0, 1, true, /*
-                                                          * user-defined-method
-                                                          */
+                JNI.cactionBuildMethodSupportEnd(methodName, methodIndex,
+                        false, false, false, 0, 1, true,
                         RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
 
                 JNI.cactionBuildClassSupportEnd(helperName, 1, RoseTranslator.createJavaToken(n, helperName));
