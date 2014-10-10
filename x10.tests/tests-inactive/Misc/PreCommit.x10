@@ -67,7 +67,7 @@ public class PreCommit extends x10Test {
 
     public def runHeatTransfer():boolean {
         Console.OUT.println("starting HeatTransfer computation");
-        val s = new HeatTransfer_v4();
+        val s = new HeatTransfer_v1();
 	Console.OUT.print("Beginning computation...");
 	val start = System.nanoTime();
         s.run();
