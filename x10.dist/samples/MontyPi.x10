@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-import x10.regionarray.*;
+import x10.array.DistArray_Unique;
 import x10.io.Console;
 import x10.util.Random;
 
@@ -24,10 +24,10 @@ public class MontyPi {
             Console.OUT.println("Usage: MontyPi <number of points>");
             return;
         }
-        val N = int.parse(args(0));
-        val initializer = (i:Point) => {
+        val N = Long.parse(args(0));
+        val initializer = () => {
             val r = new Random();
-            var result:double=0.0D;
+            var result:Long = 0;
             for(c in 1..N) {
                 val x = r.nextDouble();
                 val y = r.nextDouble();
@@ -35,8 +35,8 @@ public class MontyPi {
             }
             result
         };
-        val result = DistArray.make[Double](Dist.makeUnique(), initializer);
-        val pi = 4*result.reduce((x:Double,y:Double) => x+y,0.0)/(N*Place.numPlaces());
+        val result = new DistArray_Unique[Long](Place.places(), initializer);
+        val pi = (4.0*result.reduce((x:Long,y:Long) => x+y, 0) as Double)/(N*Place.numPlaces());
         Console.OUT.println("The value of pi is " + pi);
     }
 }
