@@ -23,6 +23,10 @@ function printUsage {
 	printf "  Run tests with Native X10 (default)\n\n"
         printf -- "-managed\n"
 	printf "  Run tests with Managed X10\n\n"
+        printf -- "-managed-cp <path>\n"
+	printf "  Pass -cp <path> as an argument to the x10 script\n\n"
+        printf -- "-managed-lib <path>\n"
+	printf "  Pass -libpath <path> as an argument to the x10 script\n\n"
         printf -- "-nopt\n"
 	printf "  Compile the test cases without optimization\n\n"
         printf -- "-opt\n"
@@ -89,6 +93,22 @@ function parseCmdLine {
 	elif [[ "$1" == "-x10lib" ]]; then
 	    if (( $# >= 2 )); then
 		tccompiler_options="$tccompile_options -x10lib $2"
+		shift 2
+	    else
+		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
+		printUsage 1 0
+	    fi
+	elif [[ "$1" == "-managed-cp" ]]; then
+	    if (( $# >= 2 )); then
+		managed_x10_extra_args="$managed_x10_extra_args -cp $2"
+		shift 2
+	    else
+		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
+		printUsage 1 0
+	    fi
+	elif [[ "$1" == "-managed-lib" ]]; then
+	    if (( $# >= 2 )); then
+		managed_x10_extra_args="$managed_x10_extra_args -libpath $2"
 		shift 2
 	    else
 		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
@@ -758,7 +778,7 @@ function main {
 		if [[ "$jen_resiliency_mode" != "0" ]]; then
 		    managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets"
 		fi
-		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M ${managed_x10_extra_resiliency_args} -t -v -J-ea ${className}"
+		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M ${managed_x10_extra_resiliency_args} ${managed_x10_extra_args} -t -v -J-ea ${className}"
 	    fi
 	    printf "\n${run_cmd}\n" >> $tcoutdat
 
