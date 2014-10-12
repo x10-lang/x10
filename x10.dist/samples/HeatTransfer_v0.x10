@@ -32,7 +32,7 @@ public class HeatTransfer_v0 {
 
     public def this(size:Long) {
         N = size;
-	A = new Array_2[Double](N+2, N+2);  // zero-initialized N+2 * N+2 array of doubles
+        A = new Array_2[Double](N+2, N+2);  // zero-initialized N+2 * N+2 array of doubles
         for (j in 1..N) A(0, j) = 1;     // set one border row to 1 
         Tmp = new Array_2[Double](A);
     }
@@ -46,29 +46,21 @@ public class HeatTransfer_v0 {
         var delta:Double;
         do {
             // Compute new values, storing in tmp
-            Foreach.block(is, (i:Long, j:Long)=>{
-                Tmp(i,j) = stencil(i,j);
-            });
-
-            // Compute element-wise delta (A is now scratch storage)
-            Foreach.block(is, (i:Long, j:Long)=>{
-                A(i,j) = Math.abs(Tmp(i,j) - A(i,j));
-            });
-
-            // TODO: Once Foreach supports a reduction operation, this
-            // sequential reduction should be folded into the element-wise
-            // delta loop above.
-	    delta = 0;
-	    for ([i,j] in is) {
-                delta = Math.max(delta, A(i,j));
-            }
+            delta = Foreach.blockReduce(is,
+                (i:Long, j:Long)=>{
+                    Tmp(i,j) = stencil(i,j);
+                    // Reduce max element-wise delta (A now holds previous values)
+                    return Math.abs(Tmp(i,j) - A(i,j));
+                },
+                (a:Double, b:Double)=>Math.max(a,b), 0.0
+            );
 
             // swap backing data of A and Tmp
             Array.swap(A, Tmp);
         } while (delta > EPSILON);
     }
- 
-   def prettyPrintResult() {
+
+    def prettyPrintResult() {
        for (i in 1..N) {
            for (j in 1..N) {
                 Console.OUT.printf("%1.4f ",A(i,j));

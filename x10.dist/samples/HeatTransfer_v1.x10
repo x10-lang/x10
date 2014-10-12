@@ -15,11 +15,11 @@ import x10.util.Team;
 
 /**
  * This is a sample program illustrating how to use
- * X10's distribued array classes.  It also illustrates the use
- * of foreach to acheive intra-place parallelism and the mixture
+ * X10's distributed array classes.  It also illustrates the use
+ * of foreach to achieve intra-place parallelism and the mixture
  * of APGAS finish/async/at with Team collective operations.
  *
- * This verison of the program uses a vanilla DistArray without
+ * This version of the program uses a vanilla DistArray without
  * ghost regions.  As a result, the stencil function does
  * inefficient fine-grained neighbor communication to get individual values.
  * Compare this to HeatTransfer_v2 which utilizes ghost regions and
@@ -38,8 +38,8 @@ public class HeatTransfer_v1 {
 
     public def this(size:Long) {
         N = size;
-	val init = (i:Long, j:Long)=>i==0 ? 1.0 : 0.0;
-	A = new DistArray_BlockBlock_2[Double](N+2, N+2, init);
+        val init = (i:Long, j:Long)=>i==0 ? 1.0 : 0.0;
+        A = new DistArray_BlockBlock_2[Double](N+2, N+2, init);
         Tmp = new DistArray_BlockBlock_2[Double](N+2, N+2, init);
     }
 
@@ -55,7 +55,7 @@ public class HeatTransfer_v1 {
     def run() {
         val myTeam = new Team(A.placeGroup());
         finish for (p in A.placeGroup()) at (p) async {
-	    // Compute the subset of the local indices on which
+            // Compute the subset of the local indices on which
             // we want to apply the stencil (the interior points of the N+2 x N+2 grid)
             val li = A.localIndices();
             val interior = new DenseIterationSpace_2(li.min(0) == 0 ? 1 : li.min(0),
@@ -65,24 +65,16 @@ public class HeatTransfer_v1 {
             var delta:Double;
             do {
                 // Compute new values, storing in tmp
-                Foreach.block(interior, (i:Long, j:Long)=>{
-                    Tmp(i,j) = stencil(i,j);
-                });
+                val myDelta = Foreach.blockReduce(interior,
+                    (i:Long, j:Long)=>{
+                        Tmp(i,j) = stencil(i,j);
+                        // Reduce max element-wise delta (A now holds previous values)
+                        return Math.abs(Tmp(i,j) - A(i,j));
+                    },
+                    (a:Double, b:Double)=>Math.max(a,b), 0.0
+                );
 
                 myTeam.barrier();
-
-                // Compute element-wise delta (A is now scratch storage)
-                Foreach.block(interior, (i:Long, j:Long)=>{
-                    A(i,j) = Math.abs(Tmp(i,j) - A(i,j));
-                });
-
-                // TODO: Once Foreach supports a reduction operation, this
-                // sequential reduction should be folded into the element-wise
-                // delta loop above.
-                var myDelta:Double = 0.0;
-	        for ([i,j] in interior) {
-                    myDelta = Math.max(myDelta, A(i,j));
-                }
 
                 // Unlike Array, DistArray doesn't provide an optimized swap.
                 // So, until it does, we have to copy the data elements.
