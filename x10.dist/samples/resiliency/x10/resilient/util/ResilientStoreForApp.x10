@@ -43,21 +43,26 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG("save: key=" + key);
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) atomic { hm().put(key,value); } // value is deep-copied by "at"
         }
         public def load(key:K) {
             if (verbose>=1) DEBUG("load: key=" + key);
-            val value = at (hm) {
+            var value:V;
+           finish //TODO: remove this workaround (see XTENLANG-3260)
+            value = at (hm) {
               var v:V; atomic { v = hm().getOrThrow(key); } v
             }; // value is deep-copied by "at"
             return value;
         }
         public def delete(key:K) {
             if (verbose>=1) DEBUG("delete: key=" + key);
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) atomic { hm().remove(key); }
         }
         public def deleteAll() {
             if (verbose>=1) DEBUG("deleteAll");
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (hm) atomic { hm().clear(); }
         }
     }
@@ -77,6 +82,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
+           finish //TODO: remove this workaround (see XTENLANG-3260)
             at (here) atomic { hm().put(key, value); } // value is deep-copied by "at"
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
@@ -91,6 +97,7 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
+               finish //TODO: remove this workaround (see XTENLANG-3260)
                 at (Place(backupPlace)) atomic { hm().put(key, value); }
                 if (verbose>=1) DEBUG(key, "backed up to place " + backupPlace);
             }
@@ -100,7 +107,9 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
             if (verbose>=1) DEBUG(key, "load called");
             /* First, try to load locally */
             try {
-                val value = at (here) {
+                var value:V;
+               finish //TODO: remove this workaround (see XTENLANG-3260)
+                value = at (here) {
                   var v:V; atomic { v = hm().getOrThrow(key); } v
                 }; // value is deep-copied by "at"
                 if (verbose>=1) DEBUG(key, "restored locally");
@@ -118,7 +127,9 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
-                        val value = at (Place(backupPlace)) {
+                        var value:V;
+                       finish //TODO: remove this workaround (see XTENLANG-3260)
+                        value = at (Place(backupPlace)) {
                           var v:V; atomic { v = hm().getOrThrow(key); } v
                         };
                         if (verbose>=1) DEBUG(key, "restored from backup place " + backupPlace);
