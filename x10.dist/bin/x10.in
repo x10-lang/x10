@@ -246,7 +246,7 @@ java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
 if [ "${x10rt_impl}" = "yarn" ]; then
     #TODO: verify hadoop is in the path
-    classpath="/home/bherta/X10/x10.yarn/x10yarn.jar${PATH_SEP}$classpath${PATH_SEP}`hadoop classpath`"
+    classpath="$classpath${PATH_SEP}`hadoop classpath`"
     # the large set of hadoop jars provided by hadoop includes *'s, which need the -classpath form to work 
     java_args=(-classpath $classpath "-Djava.library.path=$externpath" "${java_args[@]}")
     args=("x10.x10rt.yarn.Client" "${args[@]}")
