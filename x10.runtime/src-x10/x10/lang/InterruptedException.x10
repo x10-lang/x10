@@ -23,6 +23,11 @@ import x10.compiler.NativeRep;
  * then we should move this class to x10.lang.
  */
 
+/*
+ * NOTE: cannot @NativeRep this class to java.lang.InterruptedException,
+ * since j.l.InterruptedException is a checked exception.
+ */
+
 /**
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
