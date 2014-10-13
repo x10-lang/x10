@@ -173,6 +173,7 @@ public class Client {
 		String cores = System.getenv(ApplicationMaster.X10_NTHREADS);
 		env.put(ApplicationMaster.X10_NTHREADS, (cores==null)?"1":cores);
 		env.put(ApplicationMaster.X10_HDFS_JARS, x10jars.toString());
+		env.put(ApplicationMaster.X10_MAX_MEMORY, Long.toString(Runtime.getRuntime().maxMemory()/1024/1024));
 
 		// At some point we should not be required to add
 		// the hadoop specific classpaths to the env.

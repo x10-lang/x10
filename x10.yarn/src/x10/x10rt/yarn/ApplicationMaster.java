@@ -74,6 +74,7 @@ public class ApplicationMaster {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_LAUNCHER_HOST = "X10_LAUNCHER_HOST";
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
+	public static final String X10_MAX_MEMORY = "X10_MAX_MEMORY";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
@@ -113,7 +114,7 @@ public class ApplicationMaster {
 	
 	private int initialNumPlaces;
 	private int coresPerPlace;
-	private int memoryPerPlace = 1024;
+	private int memoryPerPlace;
 	
 	// Counter for completed containers ( complete denotes successful or failed )
 	private AtomicInteger numCompletedContainers = new AtomicInteger();
@@ -156,6 +157,7 @@ public class ApplicationMaster {
 		
 		initialNumPlaces = Integer.parseInt(envs.get(X10_NPLACES));
 		coresPerPlace = Integer.parseInt(envs.get(X10_NTHREADS));
+		memoryPerPlace = Integer.parseInt(envs.get(X10_MAX_MEMORY));
 		links = new HashMap<Integer, ApplicationMaster.CommunicationLink>(initialNumPlaces);
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
 		selector = Selector.open();
@@ -209,6 +211,8 @@ public class ApplicationMaster {
 		 int maxVCores = response.getMaximumResourceCapability().getVirtualCores();
 		 LOG.info("Max vcores capabililty of resources in this cluster " + maxVCores);
 		 // A resource ask cannot exceed the max.
+		 
+		 // TODO: should we reject instead of modifying to fit?
 		 if (memoryPerPlace > maxMem) {
 			 LOG.info("Container memory specified above max threshold of cluster."
 					 + " Using max value." + ", specified=" + memoryPerPlace + ", max="
