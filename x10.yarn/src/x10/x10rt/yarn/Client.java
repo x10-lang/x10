@@ -171,7 +171,7 @@ public class Client {
 		String places = System.getenv(ApplicationMaster.X10_NPLACES);
 		env.put(ApplicationMaster.X10_NPLACES, (places==null)?"1":places);
 		String cores = System.getenv(ApplicationMaster.X10_NTHREADS);
-		env.put(ApplicationMaster.X10_NTHREADS, (cores==null)?"1":cores);
+		env.put(ApplicationMaster.X10_NTHREADS, (cores==null)?"0":cores);
 		env.put(ApplicationMaster.X10_HDFS_JARS, x10jars.toString());
 		env.put(ApplicationMaster.X10_MAX_MEMORY, Long.toString(Runtime.getRuntime().maxMemory()/1024/1024));
 

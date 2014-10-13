@@ -225,6 +225,12 @@ public class ApplicationMaster {
 					 + maxVCores);
 			 coresPerPlace = maxVCores;
 		 }
+		 else if (coresPerPlace == 0) {
+			 LOG.info("Container virtual cores specified as auto (X10_NTHREADS=0)."
+					 + " Using max value." + ", specified=" + coresPerPlace + ", max="
+					 + maxVCores);
+			 coresPerPlace = maxVCores;
+		 }
 		 List<Container> previousAMRunningContainers = response.getContainersFromPreviousAttempts();
 		 LOG.info(appAttemptID + " received " + previousAMRunningContainers.size()
 				 + " previous attempts' running containers on AM registration.");
@@ -519,8 +525,8 @@ public class ApplicationMaster {
 					// set environment variables
 					LOG.info("Set the environment for container for place "+placeId);
 					Map<String, String> env = new HashMap<String, String>();
-					env.put(ApplicationMaster.X10_NPLACES, System.getenv(ApplicationMaster.X10_NPLACES));
-					env.put(ApplicationMaster.X10_NTHREADS, System.getenv(ApplicationMaster.X10_NTHREADS));
+					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(initialNumPlaces));
+					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));
 					env.put(ApplicationMaster.X10_LAUNCHER_HOST, allocatedContainer.getNodeId().getHost());
 					env.put(ApplicationMaster.X10_LAUNCHER_PARENT, appMasterHostname+':'+appMasterPort);
