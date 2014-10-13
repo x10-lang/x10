@@ -37,6 +37,7 @@ import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
+import org.apache.hadoop.util.ExitUtil;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.ApplicationConstants.Environment;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -136,7 +137,9 @@ public class ApplicationMaster {
 			 appMaster.shutdown();
 		} catch (Exception e) {
 			LOG.warn("Error caught in main", e);
+			ExitUtil.terminate(1, e);
 		}
+		System.exit(0);
 	}
 	
 	public ApplicationMaster(String[] args) throws Exception {
@@ -439,8 +442,7 @@ public class ApplicationMaster {
 		} catch (IOException e1) {
 			// shutting down... ignore
 		}
-		for (int place : links.keySet())
-			links.remove(place);
+		links.clear();
 		
 		// When the application completes, it should stop all running containers
 		LOG.info("X10 program "+appName+" completed. Stopping running containers");
