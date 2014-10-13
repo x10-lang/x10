@@ -73,7 +73,7 @@ public abstract class DistObjectSnapshot[K,V]{V haszero} {
         public def save(key:K, value:V) {
             if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
-            at (here) atomic { hm().put(key, value); } // value is deep-copied by "at"
+            atomic hm().put(key, Runtime.deepCopy(value));
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
             var backupPlace:Long = Math.abs(key.hashCode()) % Place.numPlaces();            
@@ -95,12 +95,11 @@ public abstract class DistObjectSnapshot[K,V]{V haszero} {
             if (verbose>=1) DEBUG(key, "load called");
             /* First, try to load locally */
             try {
-                val value = at (here) {
-                  var v:V; atomic { v = hm().getOrThrow(key); } v
-                }; // value is deep-copied by "at"
+                var v:V;
+                atomic { v = hm().getOrThrow(key); }
                 if (verbose>=1) DEBUG(key, "restored locally");
                 if (verbose>=1) DEBUG(key, "load returning");
-                return value;
+                return Runtime.deepCopy(v);
             } catch (e:Exception) {
                 if (verbose>=1) DEBUG(key, "local restore failed with exception " + e);
                 /* falls through, check other places */
