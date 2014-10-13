@@ -85,7 +85,7 @@ while [ -n "$1" ]; do
         *) if [ -z "$main" ]; then
                main="$1"
            fi
-           if [ "${x10rt_impl}" = "local" ]; then
+           if [[ "${x10rt_impl}" = "local" || "${x10rt_impl}" = "yarn" ]]; then
              args=("${args[@]}" "$1")
            else
              args=("${args[@]}" "$1\$${MAIN_CLASS}")
@@ -226,6 +226,11 @@ else
         [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
         noclassloadtest="true"
+    elif [ "${x10rt_impl}" = "yarn" ]; then
+        unset launcher
+        unset X10_HOSTFILE
+        unset X10_HOSTLIST
+        export HAZELCAST_JAR=$HAZELCAST_JAR
     elif [ "${x10rt_impl}" = "disabled" ]; then
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
     else
@@ -239,8 +244,16 @@ java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
-#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
+if [ "${x10rt_impl}" = "yarn" ]; then
+    #TODO: verify hadoop is in the path
+    classpath="/home/bherta/X10/x10.yarn/x10yarn.jar${PATH_SEP}$classpath${PATH_SEP}`hadoop classpath`"
+    # the large set of hadoop jars provided by hadoop includes *'s, which need the -classpath form to work 
+    java_args=(-classpath $classpath "-Djava.library.path=$externpath" "${java_args[@]}")
+    args=("x10.x10rt.yarn.Client" "${args[@]}")
+else
+	java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
+	#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
+fi
 
 [ -z "$noassert" ] && java_args=("-ea" "${java_args[@]}")
 
