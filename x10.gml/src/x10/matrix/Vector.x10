@@ -563,7 +563,7 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     }
 
     public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
-        val data:Rail[Double]{self.size==M} = snapshot.load(DUMMY_KEY) as Rail[Double];
+        val data = snapshot.load(DUMMY_KEY) as Rail[Double]{self.size==M};
         new Vector(data).copyTo(this);
     }
 }
