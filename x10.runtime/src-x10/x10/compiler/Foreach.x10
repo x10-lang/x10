@@ -52,13 +52,20 @@ public final class Foreach {
     /**
      * Iterate over a range of indices in parallel using a basic async
      * transformation. A separate async is started for every index in min..max
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
-     * @param body a closure that executes over a contiguous range of indices
+     * @param min0 the minimum value of the first index dimension
+     * @param max0 the maximum value of the first index dimension
+     * @param min1 the minimum value of the second index dimension
+     * @param max1 the maximum value of the second index dimension
+     * @param body a closure that executes over a single value of the index [i,j]
      */
-    public static @Inline def basic(min:Long, max:Long,
-                                    body:(min:Long, max:Long)=>void) {
-        finish for (i in min..max) async body(i, i);
+    public static @Inline def basic(min0:Long, max0:Long,
+                                    min1:Long, max1:Long,
+                                    body:(i:Long, j:Long)=>void) {
+        finish for (i in min0..max0) {
+            for (j in min1..max1) {
+                async body(i, j);
+            }
+        }
     }
 
     /**
@@ -155,8 +162,10 @@ public final class Foreach {
      * <code>Runtime.NTHREADS</code> activities are created, one for each
      * worker thread.  Each activity executes sequentially over all indices in
      * a contiguous block, and the blocks are of approximately equal size.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param min0 the minimum value of the first index dimension
+     * @param max0 the maximum value of the first index dimension
+     * @param min1 the minimum value of the second index dimension
+     * @param max1 the maximum value of the second index dimension
      * @param body a closure that executes over a single index [i,j]
      */
     public static @Inline def block(min0:Long, max0:Long,
