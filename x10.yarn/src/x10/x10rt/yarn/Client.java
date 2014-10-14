@@ -78,7 +78,11 @@ public class Client {
 		this.yarnClient = YarnClient.createYarnClient();
 		this.yarnClient.init(this.conf);
 		this.args = args;
-		this.appName = args[0];
+		int lastslash = args[0].lastIndexOf('/');
+		if (lastslash == -1)
+			this.appName = args[0];
+		else
+			this.appName = args[0].substring(lastslash+1);
 	}
 	
 	public static void main(String[] args) {
@@ -160,10 +164,9 @@ public class Client {
 				x10jars.append(addToLocalResources(fs, jar, nopath, appId.toString(), localResources, null));
 				if (isNative) {
 					// add the user's program.
-					nopath = appName.substring(appName.lastIndexOf('/')+1);
-					LOG.info("Uploading "+nopath+" to "+fs.getUri());
+					LOG.info("Uploading "+appName+" to "+fs.getUri());
 					x10jars.append(':');
-					x10jars.append(addToLocalResources(fs, appName, nopath, appId.toString(), localResources, null));
+					x10jars.append(addToLocalResources(fs, args[0], appName, appId.toString(), localResources, null));
 					break; // no other jar files are needed beyond the one holding ApplicationMaster, which is the first one
 				} else if (jar.endsWith(hazelcastjar)) // last Managed X10 jar file.  The rest are hadoop jars 
 					break;
