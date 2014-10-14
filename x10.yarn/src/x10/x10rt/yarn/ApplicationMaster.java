@@ -75,6 +75,7 @@ public class ApplicationMaster {
 	public static final String X10_LAUNCHER_HOST = "X10_LAUNCHER_HOST";
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
 	public static final String X10_MAX_MEMORY = "X10_MAX_MEMORY";
+	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
@@ -530,30 +531,34 @@ public class ApplicationMaster {
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));
 					env.put(ApplicationMaster.X10_LAUNCHER_HOST, allocatedContainer.getNodeId().getHost());
 					env.put(ApplicationMaster.X10_LAUNCHER_PARENT, appMasterHostname+':'+appMasterPort);
-					
-					// Set up the class path, to include all local jar files addid via addToRuntimeResources above
-					StringBuilder classPathEnv = new StringBuilder(Environment.CLASSPATH.$$()).append(ApplicationConstants.CLASS_PATH_SEPARATOR).append("./*");
-/*					for (String c : conf.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH,
-							YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH)) {
-						classPathEnv.append(ApplicationConstants.CLASS_PATH_SEPARATOR);
-						classPathEnv.append(c.trim());
-					}
-					env.put("CLASSPATH", classPathEnv.toString());
-*/					
-					LOG.info("Completed setting up runtime environment " + env.toString());
-					
+
 					// Set the necessary command to execute the runtime
 					Vector<CharSequence> vargs = new Vector<CharSequence>(args.length + 30);
-					// Set java executable command
-					vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
-					// Set Xmx based on am memory size
-					vargs.add("-Xmx" + memoryPerPlace + "m");
-					// set classpath
-					vargs.add("-classpath");
-					vargs.add(classPathEnv.toString());
 
-					// use our own main class wrapper
-					vargs.add(X10MainRunner.class.getName());
+					boolean isNative = Boolean.getBoolean(X10_YARN_NATIVE);
+					if (!isNative) {
+						// Set up the class path, to include all local jar files addid via addToRuntimeResources above
+						StringBuilder classPathEnv = new StringBuilder(Environment.CLASSPATH.$$()).append(ApplicationConstants.CLASS_PATH_SEPARATOR).append("./*");
+	/*					for (String c : conf.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH,
+								YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH)) {
+							classPathEnv.append(ApplicationConstants.CLASS_PATH_SEPARATOR);
+							classPathEnv.append(c.trim());
+						}
+						env.put("CLASSPATH", classPathEnv.toString());
+	*/					
+						LOG.info("Completed setting up runtime environment " + env.toString());
+						
+						// Set java executable command
+						vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
+						// Set Xmx based on am memory size
+						vargs.add("-Xmx" + memoryPerPlace + "m");
+						// set classpath
+						vargs.add("-classpath");
+						vargs.add(classPathEnv.toString());
+	
+						// use our own main class wrapper
+						vargs.add(X10MainRunner.class.getName());
+					}
 					
 					// Set user's class name
 					for (int i=0; i<args.length; i++)

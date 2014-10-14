@@ -231,6 +231,11 @@ else
         unset X10_HOSTFILE
         unset X10_HOSTLIST
         export HAZELCAST_JAR=$HAZELCAST_JAR
+        if [ -f "$main" ]; then
+            # running native X10 program, not managed X10
+            noclassloadtest="true"
+            java_args=("-DX10_YARN_NATIVE=true" "${java_args[@]}")
+        fi
     elif [ "${x10rt_impl}" = "disabled" ]; then
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
     else

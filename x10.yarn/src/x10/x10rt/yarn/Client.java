@@ -136,7 +136,6 @@ public class Client {
 		int maxVCores = appResponse.getMaximumResourceCapability().getVirtualCores();
 		LOG.info("Max virtual cores capabililty of resources in this cluster " + maxVCores);
 		
-
 		// set the application name
 		ApplicationSubmissionContext appContext = app.getApplicationSubmissionContext();
 		final ApplicationId appId = appContext.getApplicationId();
@@ -150,16 +149,24 @@ public class Client {
 		FileSystem fs = FileSystem.get(conf);
 		StringBuilder x10jars = new StringBuilder();
 		
+		boolean isNative = Boolean.getBoolean(ApplicationMaster.X10_YARN_NATIVE);
+		String[] jarfiles = System.getProperty("java.class.path").split(":");
 		// upload jar files
 		String hazelcastjar = System.getenv("HAZELCAST_JAR");
-		String[] jarfiles = System.getProperty("java.class.path").split(":");
 		for (String jar: jarfiles) {
 			if (jar.endsWith(".jar")) {
 				String nopath = jar.substring(jar.lastIndexOf('/')+1);
 				LOG.info("Uploading "+nopath+" to "+fs.getUri());
 				x10jars.append(addToLocalResources(fs, jar, nopath, appId.toString(), localResources, null));
-				if (jar.endsWith(hazelcastjar))
-					break; // last X10 jar file.  The rest are hadoop jars
+				if (isNative) {
+					// add the user's program.
+					nopath = appName.substring(appName.lastIndexOf('/')+1);
+					LOG.info("Uploading "+nopath+" to "+fs.getUri());
+					x10jars.append(':');
+					x10jars.append(addToLocalResources(fs, appName, nopath, appId.toString(), localResources, null));
+					break; // no other jar files are needed beyond the one holding ApplicationMaster, which is the first one
+				} else if (jar.endsWith(hazelcastjar)) // last Managed X10 jar file.  The rest are hadoop jars 
+					break;
 				else
 					x10jars.append(':');
 			}
@@ -197,6 +204,8 @@ public class Client {
 		vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
 		// Set Xmx based on am memory size
 		vargs.add("-Xmx" + amMemory + "m");
+		// propigate the native flag
+		if (isNative) vargs.add("-DX10_YARN_NATIVE=true");
 		// Set class name
 		vargs.add(appMasterMainClass);
 		// add remaining command line arguments
