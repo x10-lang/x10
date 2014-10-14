@@ -20,7 +20,7 @@ For example, if running Managed X10:
 "X10_NPLACES=2 x10 -x10rt yarn -classpath HelloWholeWorld.jar:x10yarn.jar HelloWholeWorld arg1"
 
 Here's an example if running Native X10:
-"X10_NPLACES=2 x10 -x10rt yarn -classpath /home/bherta/X10/x10.yarn/x10yarn.jar ./HelloWholeWorld arg1"
+"X10_NPLACES=2 x10 -x10rt yarn -classpath x10yarn.jar ./HelloWholeWorld arg1"
 
 If you have not set up your hadoop configuration files to point to a real server, such as if you
 simply downloaded and extracted the hadoop binary distribution, you can add the needed configuration 
