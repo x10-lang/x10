@@ -252,7 +252,7 @@ public class CUDAPatternMatcher extends ContextVisitor {
 					SharedMem cmem = new SharedMem();
 					for (int i = 0; i < kernel_block.statements().size() - 1; ++i) {
 						Stmt ld_ = kernel_block.statements().get(i);
-						complainIfNot( ld_ instanceof LocalDecl, "val <something> = <autoBlocks/Threads or constant cache definition", ld_);
+						complainIfNot(ld_ instanceof LocalDecl, "val <something> = CUDAUtilities.autoBlocks/Threads() or CUDAConstantRail definition", ld_);
 						LocalDecl ld = (LocalDecl) ld_;
 						
 						Type decl_type = ld.type().type();
