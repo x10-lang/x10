@@ -547,7 +547,7 @@ public class ApplicationMaster {
 					// Set java executable command
 					vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
 					// Set Xmx based on am memory size
-					vargs.add("-Xmx" + 1024 + "m");
+					vargs.add("-Xmx" + memoryPerPlace + "m");
 					// set classpath
 					vargs.add("-classpath");
 					vargs.add(classPathEnv.toString());
