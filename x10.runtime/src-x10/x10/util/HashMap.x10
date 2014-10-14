@@ -57,6 +57,7 @@ public class HashMap[K,V] {V haszero} implements Map[K,V], CustomSerialization {
     }
     
     public def this(var sz:Long) {
+        if (sz > (1<<60)) throw new OutOfMemoryError("Cannot allocate backing Rail of size "+sz);
         var pow2:Long = MIN_SIZE;
         while (pow2 < sz)
             pow2 <<= 1n;
