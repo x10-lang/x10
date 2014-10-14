@@ -815,6 +815,8 @@ System.out.println("INNER end");
             int methodIndex = 1;
 
             JNI.cactionSetCurrentClassName(helperName);
+            
+            JNI.cactionPushPackage("", RoseTranslator.createJavaToken(n, helperName));
             JNI.cactionInsertClassStart(helperName, false, false, false, RoseTranslator.createJavaToken(n, helperName));
             JNI.cactionInsertClassEnd(helperName, RoseTranslator.createJavaToken(n, helperName));
 
@@ -1032,7 +1034,7 @@ System.out.println("INNER end");
         toRose(n, "X10ConstructorCall:", n.toString());
         visitChild(n, n.target());
         JNI.cactionSuperReference(RoseTranslator.createJavaToken(n, n.toString()));
-        visitChildren(n, n.typeArguments());
+        visitChildren(n, n.typeArguments());        
         visitChildren(n, n.arguments());
     }
 
