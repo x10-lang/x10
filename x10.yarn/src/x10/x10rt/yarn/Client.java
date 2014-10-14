@@ -233,7 +233,6 @@ public class Client {
 	        public void run()
 	        {
 	            System.out.println();
-	            System.out.println("Thanks for using the application");
 	            System.out.println("Exiting...");
 	            forceKillApplication(appId);
 	        }
@@ -259,6 +258,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	private boolean monitorApplication(ApplicationId appId) throws YarnException, IOException {
+		YarnApplicationState previousState = null;
 		while (true) {
 			// Check app status every 1 second.
 			try {
@@ -268,19 +268,22 @@ public class Client {
 			}
 			// Get application report for the appId we are interested in
 			ApplicationReport report = yarnClient.getApplicationReport(appId);
-			LOG.info("Got application report from ASM for"
-					+ ", appId=" + appId.getId()
-					+ ", clientToAMToken=" + report.getClientToAMToken()
-					+ ", appDiagnostics=" + report.getDiagnostics()
-					+ ", appMasterHost=" + report.getHost()
-					+ ", appQueue=" + report.getQueue()
-					+ ", appMasterRpcPort=" + report.getRpcPort()
-					+ ", appStartTime=" + report.getStartTime()
-					+ ", yarnAppState=" + report.getYarnApplicationState().toString()
-					+ ", distributedFinalState=" + report.getFinalApplicationStatus().toString()
-					+ ", appTrackingUrl=" + report.getTrackingUrl()
-					+ ", appUser=" + report.getUser());
 			YarnApplicationState state = report.getYarnApplicationState();
+			if (!state.equals(previousState)) {
+				previousState = state;
+				LOG.info("Got application report from ASM for"
+						+ ", appId=" + appId.getId()
+						+ ", clientToAMToken=" + report.getClientToAMToken()
+						+ ", appDiagnostics=" + report.getDiagnostics()
+						+ ", appMasterHost=" + report.getHost()
+						+ ", appQueue=" + report.getQueue()
+						+ ", appMasterRpcPort=" + report.getRpcPort()
+						+ ", appStartTime=" + report.getStartTime()
+						+ ", yarnAppState=" + report.getYarnApplicationState().toString()
+						+ ", distributedFinalState=" + report.getFinalApplicationStatus().toString()
+						+ ", appTrackingUrl=" + report.getTrackingUrl()
+						+ ", appUser=" + report.getUser());
+			}
 			FinalApplicationStatus dsStatus = report.getFinalApplicationStatus();
 			if (YarnApplicationState.FINISHED == state) {
 				if (FinalApplicationStatus.SUCCEEDED == dsStatus) {
