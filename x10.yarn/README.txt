@@ -4,7 +4,8 @@ there.  Output for each place is currently sent to logfiles in the yarn filesyst
 
 To compile, you must have Hadoop 2.5.0+ installed and configured. The classes under the 
 x10.yarn project must be compiled against your hadoop jars, into a new jar file locally, 
-such as "x10yarn.jar".
+such as "x10yarn.jar".  An example command to build this jar (executed in the x10.yarn directory) is:
+"mkdir bin; javac -cp `yarn classpath` -sourcepath src -d bin src/x10/x10rt/yarn/*.java; jar cvf x10yarn.jar -C bin ."
 
 If running Managed X10, your program must be compiled into a jar file 
 (e.g. "x10c -o HelloWholeWorld.jar HelloWholeWorld.x10").  If running Native X10, your 
