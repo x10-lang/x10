@@ -15,19 +15,15 @@ import x10.regionarray.*;
 /**
  * Test that a can be accessed through point p if p ranges over b.dist
  and a.rank has been declared to be b.rank.
-
- * @author vj 03/17/09 -- fails compilation.
-
+ * @author vj 03/17/09
  */
-
 public class ArrayAccessEqualRank extends x10Test {
 
     public def arrayEqual(A: DistArray[int], B: DistArray[int](A.rank)) {
-        finish
-            ateach (p in A.dist) {
+        finish ateach (p in A.dist) {
             val v = at (B.dist(p)) B(p);
             chk(A(p) == v);
-	}
+        }
     }
 
     public def run(): boolean = {
