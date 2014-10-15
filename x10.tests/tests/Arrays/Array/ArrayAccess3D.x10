@@ -10,29 +10,25 @@
  */
 
 import harness.x10Test;
-import x10.regionarray.*;
+import x10.regionarray.Array;
+import x10.regionarray.Region;
 
 /**
- * Testing 3D arrays.
+ * Test get and set of elements of 3D Array.
  */
-
-public class Array2v extends x10Test {
+public class ArrayAccess3D extends x10Test {
 
     public def run(): boolean = {
+        val r = Region.make(0..9, 0..9, 0..9);
 
-        val e = Region.make(0,9);
-        val r = e*e*e;
+        val ia = new Array[Long](r, (Point)=>0);
 
-        chk(r.equals(Region.make(0..9, 0..9, 0..9)));
-
-        val ia = new Array[long](r, (Point)=>0);
-
-        for (val [i,j,k]: Point in r) {
+        for ([i,j,k] in r) {
             chk(ia(i, j, k) == 0);
             ia(i, j, k) = 100*i + 10*j + k;
         }
 
-        for (val [i,j,k]: Point in r) {
+        for ([i,j,k] in r) {
             chk(ia(i, j, k) == 100*i + 10*j + k);
         }
 
@@ -40,6 +36,6 @@ public class Array2v extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new Array2v().execute();
+        new ArrayAccess3D().execute();
     }
 }

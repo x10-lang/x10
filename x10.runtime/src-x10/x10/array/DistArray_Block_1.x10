@@ -43,7 +43,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-element block distributed DistArray
-     * whose data is distrbuted over pg and initialized using
+     * whose data is distributed over pg and initialized using
      * the init function.
      *
      * @param n number of elements 
@@ -61,7 +61,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-element block distributed DistArray
-     * whose data is distrbuted over Place.places() and 
+     * whose data is distributed over Place.places() and 
      * initialized using the provided init closure.
      *
      * @param n number of elements
@@ -74,7 +74,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-elmenent block distributed DistArray
-     * whose data is distrbuted over pg and zero-initialized.
+     * whose data is distributed over pg and zero-initialized.
      *
      * @param n number of elements 
      * @param pg the PlaceGroup to use to distibute the elements.
@@ -86,7 +86,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 
     /**
      * Construct a n-element block distributed DistArray
-     * whose data is distrbuted over Place.places() and 
+     * whose data is distributed over Place.places() and 
      * zero-initialized.
      *
      * @param n number of elements
@@ -199,6 +199,28 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
      */
     public final @Inline operator this(p:Point(1))=(v:T):T{self==v} = this(p(0)) = v;
 
+    /**
+     * Returns the specified rectangular patch of this Array as a Rail.
+     * 
+     * @param space the DenseIterationSpace representing the portion of this array to copy
+     * @throws ArrayIndexOutOfBoundsException if the specified region is not
+     *        contained in this array
+     */
+    public def getPatch(space:IterationSpace(1){rect}):Rail[T] {
+        val r = space as DenseIterationSpace_1;
+        if (CompilerFlags.checkBounds() && 
+          !(localIndices.min <= r.min && r.max <= localIndices.max)) {
+            throw new ArrayIndexOutOfBoundsException("patch to copy: " + r + " not contained in local indices: " + localIndices);
+        }
+
+        val min = localIndices.min(0);
+        val patch = Unsafe.allocRailUninitialized[T](r.size());
+        var patchIndex:Long = 0;
+        for ([i] in r) {
+            patch(patchIndex++) = raw(i - min);
+        }
+        return patch;
+    }
 
     private @Inline static def validateSize(n:Long):Long {
         if (n < 0) raiseNegativeArraySizeException();

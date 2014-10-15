@@ -46,6 +46,8 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
 
     public def isEmpty() = max0 < min0 || max1 < min1;
 
+    public def size() = (max0 - min0 + 1) * (max1 - min1 + 1);
+
     public def iterator():Iterator[Point(2)] = new DIS2_It();
 
     private class DIS2_It implements Iterator[Point(2)] {
@@ -68,5 +70,12 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
            }
            return p;
         }
+    }
+
+    public def toString():String {
+        return "["
+            +min0+".."+max0+","
+            +min1+".."+max1
+            +"]";
     }
 }

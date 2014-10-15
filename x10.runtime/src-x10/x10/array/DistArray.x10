@@ -161,6 +161,15 @@ public abstract class DistArray[T] (
     public abstract operator this(p:Point(this.rank()))=(v:T):T{self==v};
 
     /**
+     * Returns the specified rectangular patch of this array as a Rail.
+     * 
+     * @param space the IterationSpace representing the portion of this array to copy
+     * @throws ArrayIndexOutOfBoundsException if the specified region is not
+     *        contained in this array
+     */
+    public abstract def getPatch(space:IterationSpace(this.rank){rect}):Rail[T];
+
+    /**
      * Reduce this array using the given function and the given initial value.
      * Each element of the array will be given as an argument to the reduction
      * function exactly once, but in an arbitrary order.  The reduction function

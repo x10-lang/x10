@@ -59,6 +59,8 @@ public final class DenseIterationSpace_4 extends IterationSpace(4){rect} {
 
     public def isEmpty() = max0 < min0 || max1 < min1 || max2 < min2 || max3 < min3;
 
+    public def size() = (max0 - min0 + 1) * (max1 - min1 + 1) * (max2 - min2 + 1) * (max3 - min3 + 1);
+
     public def iterator():Iterator[Point(4)] = new DIS4_It();
 
     private class DIS4_It implements Iterator[Point(4)] {
@@ -93,5 +95,14 @@ public final class DenseIterationSpace_4 extends IterationSpace(4){rect} {
            }
            return p;
         }
+    }
+
+    public def toString():String {
+        return "["
+            +min0+".."+max0+","
+            +min1+".."+max1+","
+            +min2+".."+max2+","
+            +min3+".."+max3
+            +"]";
     }
 }

@@ -145,6 +145,10 @@ public final class DistArray_Unique[T] extends DistArray[T]{this.rank()==1} impl
      */
     public @Inline operator this(p:Point(this.rank()))=(v:T):T{self==v} = this(p(0)) = v;
 
+    public def getPatch(space:IterationSpace(1){self.rect}):Rail[T] {
+        throw new UnsupportedOperationException("getPatch not supported for DistArray_Unique");
+    }
+
     /*
      * Order of tests is designed to minimize the dynamic number of comparisons
      * on valid access, while still preferring to raise a bounds error rather than

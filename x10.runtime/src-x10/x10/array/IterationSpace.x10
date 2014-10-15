@@ -34,6 +34,8 @@ public abstract class IterationSpace(rank:Long,rect:Boolean) implements Iterable
 
     public abstract def isEmpty():Boolean;
 
+    public abstract def size():Long;
+
     public def toString() {
         val sb = new x10.util.StringBuilder();
         val it = iterator();

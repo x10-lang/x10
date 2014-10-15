@@ -51,7 +51,7 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
 
     /**
      * Construct a m by n by p block distributed DistArray
-     * whose data is distrbuted over pg and initialized using
+     * whose data is distributed over pg and initialized using
      * the init function.
      *
      * @param m number of elements in the first dimension
@@ -74,7 +74,7 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
 
     /**
      * Construct a m by n by p block distributed DistArray
-     * whose data is distrbuted over Place.places() and 
+     * whose data is distributed over Place.places() and 
      * initialized using the provided init closure.
      *
      * @param m number of elements in the first dimension
@@ -89,7 +89,7 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
 
     /**
      * Construct a m by n by p block distributed DistArray
-     * whose data is distrbuted over pg and zero-initialized.
+     * whose data is distributed over pg and zero-initialized.
      *
      * @param m number of elements in the first dimension
      * @param n number of elements in the second dimension
@@ -103,7 +103,7 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
 
     /**
      * Construct a m by n by p block distributed DistArray
-     * whose data is distrbuted over Place.places() and 
+     * whose data is distributed over Place.places() and 
      * zero-initialized.
      *
      * @param m number of elements in the first dimension
@@ -237,6 +237,32 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
 
     protected final @Inline def offset(i:Long, j:Long, k:Long) {
         return k + numElems_3 * (j + ((i - minIndex_1) * numElems_2));
+    }
+
+    /**
+     * Returns the specified rectangular patch of this array as a Rail.
+     * 
+     * @param space the IterationSpace representing the portion of this array to copy
+     * @see offset
+     * @throws ArrayIndexOutOfBoundsException if the specified region is not
+     *        contained in this array
+     */
+    public def getPatch(space:IterationSpace(3){self.rect}):Rail[T] {
+        val r = space as DenseIterationSpace_3;
+
+        if (CompilerFlags.checkBounds() &&
+          !(localIndices.min0 <= r.min0 && r.max0 <= localIndices.max0
+         && localIndices.min1 <= r.min1 && r.max1 <= localIndices.max1
+         && localIndices.min2 <= r.min2 && r.max2 <= localIndices.max2)) {
+            throw new ArrayIndexOutOfBoundsException("patch to copy: " + r + " not contained in local indices: " + localIndices);
+        }
+
+        val patch = Unsafe.allocRailUninitialized[T](r.size());
+        var patchIndex:Long = 0;
+        for ([i0,i1,i2] in r) {
+            patch(patchIndex++) = raw(offset(i0,i1,i2));
+        }
+        return patch;
     }
 
     private @Inline static def validateSize(m:Long, n:Long, p:Long):Long {
