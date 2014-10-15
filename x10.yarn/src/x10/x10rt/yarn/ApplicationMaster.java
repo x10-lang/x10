@@ -558,11 +558,16 @@ public class ApplicationMaster {
 	
 						// use our own main class wrapper
 						vargs.add(X10MainRunner.class.getName());
+						// Set user's class name
+						vargs.add(appName);
 					}
-					
-					// Set user's class name
-					for (int i=0; i<args.length; i++)
+					else {
+						// set binary name
+						vargs.add("./"+appName);
+					}
+					for (int i=1; i<args.length; i++)
 						vargs.add(args[i]);
+
 					
 					vargs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + '/'+appName+"_Place"+placeId+".stdout");
 					vargs.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + '/'+appName+"_Place"+placeId+".stderr");
