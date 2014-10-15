@@ -683,8 +683,17 @@
     <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
       <sequential>
         <mkdir dir="${lib}"/>
+      	<if><conditions><istrue value="${env.X10_STATIC_LIB}"/></conditions><then>
+      		<!-- Skip shared libraries when using static linking -->
+            <copy todir="${lib}" preservelastmodified="true" flatten="true" >
+               <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.dylib"/>
+            </copy></then>
+        <else>
+        	<copy todir="${lib}" preservelastmodified="true" flatten="true" >
+               <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
+        	</copy></else>
+        </if>
         <copy todir="${lib}" preservelastmodified="true" flatten="true" >
-           <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
         <mkdir dir="${inc}"/>
