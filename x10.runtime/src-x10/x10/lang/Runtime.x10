@@ -259,6 +259,7 @@ public final class Runtime {
     public static NTHREADS = Configuration.nthreads();
     public static MAX_THREADS = Configuration.max_threads();
     public static STATIC_THREADS = Configuration.static_threads();
+    public static NUM_IMMEDIATE_THREADS = Configuration.num_immediate_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
     public static CANCELLABLE = Configuration.cancellable();
@@ -327,6 +328,8 @@ public final class Runtime {
         var epoch:Long = 42;
 
         val lock = new Lock(); // master lock for all thread pool adjustments
+
+        val inboundTasks = new Deque();
 
         // every x10 thread (including promoted native threads)
         private val workers = new Rail[Worker](MAX_THREADS);
@@ -438,19 +441,17 @@ public final class Runtime {
         def take(worker:Worker):Activity {
             if (multiplace && busyWaiting && (idleCount - spareNeeded >= NTHREADS - 1)) return null;
             lock.lock();
-//            if(pool.workers(0n).promoted) {
-                val task = pool.workers(0n).steal();
-                if(task != null) {
-                    lock.unlock();
-                    return task;
-                }
-//            }
+            val task = inboundTasks.steal() as Activity;
+            if(task != null) {
+                lock.unlock();
+                return task;
+            }
             convert();
             if (multiplace && busyWaiting && (idleCount >= NTHREADS - 1)) {
                 lock.unlock();
                 return null;
             }
-            if (multiplace && !busyWaiting && !probing) {
+            if (multiplace && !busyWaiting && !probing && NUM_IMMEDIATE_THREADS == 0n) {
                 probing = true;
                 lock.unlock();
                 x10rtBlockingProbe();
@@ -475,7 +476,7 @@ public final class Runtime {
             convert();
             if (idleCount <= 0n) {
                 val p = probing;
-                pool.workers(0n).push(activity);
+                inboundTasks.push(activity);
                 lock.unlock();
                 if (p && multiplace) x10rtUnblockProbe();
                 return;
@@ -510,9 +511,9 @@ public final class Runtime {
         }
 
         // account for terminated thread
-        def reclaim():void {
+        def reclaim(promoted:Boolean):void {
             lock.lock();
-            deadCount++;
+            if (!promoted) deadCount++; // deadCount for promoted thread incremented when thread created.
             while (idleCount > 0n) {
                 val i = spareCount + --idleCount;
                 val worker = parkedWorkers(i);
@@ -527,6 +528,7 @@ public final class Runtime {
             val p = probing;
             lock.unlock();
             if (p && multiplace) x10rtUnblockProbe();
+            if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
         }
 
         public operator this(i:Int) = workers(i);
@@ -539,11 +541,13 @@ public final class Runtime {
                 for (var i:Int=0n; i<count; i++) {
                     if (workers(i) != null) while (workers(i).steal() != null);
                 }
+		while (inboundTasks.steal() != null) {};
             }
             finishStates.clear(e);
             val p = probing;
             lock.unlock();
             if (p && multiplace) x10rtUnblockProbe();
+            if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
             for (var i:Int=0n; i<count; i++) {
                 if (workers(i) != null) workers(i).unpark();
             }
@@ -579,6 +583,17 @@ public final class Runtime {
             random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
         }
 
+        // Horrible hack for @Immediate dedicated Worker
+        // For managed X10, if we pass a String to the superclass constructor it means
+	// "create a new thread"  if we don't pass a String it means "make the current thread 
+        // be a worker".  
+        def this(workerId:Int, promoted:Boolean, name:String) {
+            super(name);
+            this.promoted = promoted;
+            this.workerId = workerId;
+            random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
+        }
+
         def this(workerId:Int, promoted:Boolean) {
             super();
             this.promoted = promoted;
@@ -610,12 +625,17 @@ public final class Runtime {
         // run pending activities
         public operator this():void {
             try {
-                while (loop());
+                if (promoted) {
+                    while (immediatePollLoop());
+                } else {
+                    while (loop());
+                }
             } catch (t:CheckedThrowable) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
             } finally {
-                pool.release();
+                pool.release(promoted);
+                if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
             }
         }
 
@@ -634,6 +654,23 @@ public final class Runtime {
                 Unsafe.dealloc(activity);
             }
             return true;
+        }
+
+        // inner loop to help j9 jit
+        private def immediatePollLoop() {
+            for (var i:Int = 0n; i < BOUND; i++) {
+                // FIXME: Shutdown race here.
+		// Value of latch could change between when we check it
+		// and when we call x10rtBlockingProbe
+                if (pool.latch()) return false;
+                x10rtBlockingProbe();
+                for (var task:Activity = poll(); task != null; task = poll()) {
+                    if (task.epoch >= epoch()) {
+                        pool.workers.submit(task);
+                    }
+                }
+            } 
+            return !pool.latch();
         }
 
         def probe():void {
@@ -699,7 +736,7 @@ public final class Runtime {
         val latch = new Latch();
         val watcher = new Watcher();
         var cancelWatcher:Watcher = null;
-        
+
         var wsEnd:Boolean = false;
 
         val workers = new Workers();
@@ -722,7 +759,13 @@ public final class Runtime {
             for (var i:Int = 1n; i<n; i++) {
                 workers(i) = new Worker(i);
             }
-            for (var i:Int = 1n; i<n; i++) {
+            // Create NUM_IMMEDIATE_THREADS dedicated to processing @Immediate asyncs
+	    for (j in 1..NUM_IMMEDIATE_THREADS) {
+                val id = workers.count++;
+                workers(id) = new Worker(id, true, "@ImmediateWorker-"+j);
+                workers.deadCount++; // ignore immediate threads in dynamic pool-size adjustment
+            }
+            for (var i:Int = 1n; i<workers.count; i++) {
                 workers(i).start();
             }
         }
@@ -755,13 +798,13 @@ public final class Runtime {
         def decrease(n:Int):void {
             workers.reduce(n);
         }
-
+ 
         // attempt to deal activity to idle worker
         def deal(activity:Activity):Boolean = workers.give(activity);
 
         // release permit (called by worker upon termination)
-        def release():void {
-            workers.reclaim();
+        def release(promoted:Boolean):void {
+            workers.reclaim(promoted);
             if (workers.count == workers.deadCount) pool.watcher.release();
         }
 
@@ -772,10 +815,18 @@ public final class Runtime {
             val init:Int = next;
             for (;;) {
                 if (null != activity || latch()) return activity;
+
                 // go to sleep if too many threads are running
                 activity = workers.yield(worker);
                 if (null != activity || latch()) return activity;
-                // try network
+
+                // look for an inbound task that is ready to execute
+                activity = workers.inboundTasks.steal() as Activity;
+                if (null != activity || latch()) {
+		    return activity;
+                }
+
+                // try the network ourselves
                 x10rtProbe();
                 if (Place.numDead() != numDead) {
                     atomic {
@@ -790,6 +841,7 @@ public final class Runtime {
                 }
                 activity = worker.poll();
                 if (null != activity || latch()) return activity;
+
                 do {
                     // try local worker
                     if (next < MAX_THREADS && null != workers(next)) { // avoid race with increase method
@@ -798,6 +850,11 @@ public final class Runtime {
                     if (null != activity || latch()) return activity;
                     if (++next == workers.count) next = 0n;
                 } while (next != init);
+                activity = workers.inboundTasks.steal() as Activity;
+                if (null != activity || latch()) {
+                    return activity;
+                }
+
                 // time to back off
                 activity = workers.take(worker);
             }
