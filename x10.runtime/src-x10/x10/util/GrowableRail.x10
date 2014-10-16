@@ -211,7 +211,15 @@ public final class GrowableRail[T] implements CustomSerialization {
        return ans;
     }
 
+    /** 
+     * Grow the capacity of this GrowableRail to at least 
+     * <code>newCapacity</code>, automatically reallocating storage.
+     * On return, capacity is max(newCapacity, oldCapacity*2, 8).
+     * The size (number of elements) is unchanged.
+     * @param newCapacity the minimum new capacity for this GrowableRail
+     */
     public def grow(var newCapacity:Long):void {
+        assert (newCapacity >= capacity());
         var oldCapacity:Long = capacity();
         if (newCapacity < oldCapacity*2) {
             newCapacity = oldCapacity*2;
@@ -223,20 +231,26 @@ public final class GrowableRail[T] implements CustomSerialization {
         val tmp = Unsafe.allocRailUninitialized[T](newCapacity);
         Rail.copy(data, 0, tmp, 0, size);
         Unsafe.clearRail(tmp, size, newCapacity-size);
-	Unsafe.dealloc(data);
+        Unsafe.dealloc(data);
         data = tmp;
     }
 
-    public def shrink(var newCapacity:Long):void {
-        if (newCapacity > capacity()/4 || newCapacity < 8)
-            return;
-        newCapacity = x10.lang.Math.max(newCapacity, size);
-        newCapacity = x10.lang.Math.max(newCapacity, 8);
-        val tmp = Unsafe.allocRailUninitialized[T](newCapacity);        
-        Rail.copy(data, 0, tmp, 0, size);
-        Unsafe.clearRail(tmp, size, newCapacity-size);
-        Unsafe.dealloc(data);
-        data = tmp;
+    /** 
+     * Shrink the capacity of this GrowableRail and remove all elements
+     * above <code>newCapacity</code>.
+     * On return, capacity == max(newCapacity, 8) and size == newCapacity.
+     * @param newCapacity the new capacity for this GrowableRail
+     */
+    public def shrink(newCapacity:Long):void {
+        assert (newCapacity <= capacity());
+        val cap = x10.lang.Math.max(newCapacity, 8);
+        if (cap < capacity()) {
+            val tmp = Unsafe.allocRailUninitialized[T](cap);        
+            Rail.copy(data, 0, tmp, 0, cap);
+            Unsafe.dealloc(data);
+            data = tmp;
+        }
+        size = newCapacity;
     }
 
     private static @NoInline @NoReturn def raiseIndexOutOfBounds(idx:Long, size:Long) {
