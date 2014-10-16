@@ -19,6 +19,8 @@ public class BenchmarkReduce extends x10Test {
     private static ITERS = 10;
     private static MAX_SIZE = 2<<19;
 
+    val root = Place(Place.numPlaces()-1);
+
 	public def run(): Boolean = {
         finish for (place in Place.places()) at (place) async {
             for (var s:Long= 1; s <= MAX_SIZE; s *= 2) {
@@ -26,17 +28,17 @@ public class BenchmarkReduce extends x10Test {
                 val dst = new Rail[Double](s);
                 val start = System.nanoTime();
                 for (iter in 1..ITERS) {
-                    Team.WORLD.reduce(Place(Place.numPlaces()-1), src, 0, dst, 0, s, Team.ADD);
+                    Team.WORLD.reduce(root, src, 0, dst, 0, s, Team.ADD);
                 }
                 val stop = System.nanoTime();
 
-                if (here == Place(Place.numPlaces()-1)) {
+                if (here == root) {
                     // check correctness
                     for (i in 0..(s-1)) {
                         chk(dst(i) == src(i)*Place.numPlaces(), "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.numPlaces());
                     }
                 }
-                if (here == Place.FIRST_PLACE) Console.OUT.printf("reduce %d: %g ms\n", s, ((stop-start) as Double) / 1e6 / ITERS);
+                if (here == root) Console.OUT.printf("reduce %d: %g ms\n", s, ((stop-start) as Double) / 1e6 / ITERS);
             }            
         }
 
