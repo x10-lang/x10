@@ -89,25 +89,45 @@ public abstract class Dist(
     public static def makeBlock(r:Region, axis:Long):Dist(r) = makeBlock(r, axis, Place.places());
 
     /**
-     * Creates a block, block distribution across all places.
+     * Creates a block, block distribution across the specified PlaceGroup pg.
      * The coordinates are split along axis0 into M divisions such that M is the minimum of:
      *   - 2^q where q is the next integer above log2(P) / 2
      *   - the length of axis0
-     * and split along axis1 into N divisions such that M*(N-1) <= P <= M*N.
+     * and split along axis1 into N divisions such that M*(N-1) <= pg.size() <= M*N.
      * Thus there are M*N blocks of size (axis0/M, axis1/N).
      * The blocks are not necessarily of integer size in either dimension.
-     * Places 0..(M*N-P) are each assigned two such blocks, contiguous in axis0.
+     * Places 0..(M*N-pg.size()) are each assigned two such blocks, contiguous in axis0.
      * The remaining places are assigned a single block.
      * Block min and max coordinates are rounded to create subregions for each place,
      * e.g. a block [1.0..1.5,2.25..2.75] is rounded to a subregion [1..2,2..2].
      * @param r the given region
      * @param axis0 the first dimension to block over
      * @param axis1 the second dimension to block over
-     * @return a "block,block" distribution over r.
+     * @param pg the set of places
+     * @return a "block,block" distribution of region r over the places in pg
      */
-    public static def makeBlockBlock(r:Region, axis0:Long, axis1:Long):Dist(r) {
+    public static def makeBlockBlock(r:Region, axis0:Long, axis1:Long, pg:PlaceGroup):Dist(r) {
         return new BlockBlockDist(r, axis0, axis1, Place.places());
     }
+
+    /**
+     * Creates a block, block distribution across all places.
+     * @param r the given region
+     * @param axis0 the first dimension to block over
+     * @param axis1 the second dimension to block over
+     * @see makeBlockBlock(Region, Long, Long, PlaceGroup)
+     */
+    public static def makeBlockBlock(r:Region, axis0:Long, axis1:Long):Dist(r)
+        = makeBlockBlock(r, axis0, axis1, Place.places());
+
+    /**
+     * Creates a block, block distribution across all places that varies in
+     * place along the 0-th and 1st axes.
+     * @param r the given region
+     * @see makeBlockBlock(Region, Long, Long, PlaceGroup)
+     */
+    public static def makeBlockBlock(r:Region):Dist(r)
+        = makeBlockBlock(r, 0, 1, Place.places());
 
     /**
      * Create a distribution of the specified region over all places that varies in

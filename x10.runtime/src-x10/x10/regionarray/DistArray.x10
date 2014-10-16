@@ -480,10 +480,41 @@ public final class DistArray[T] (
      */
     public operator this | (p: Place) = restriction(p);
 
-
     //
     // Bulk operations
     //
+
+    /**
+     * Returns the specified region of this array as a new Array object.
+     * 
+     * @param region the region of the array to copy to this array
+     * @see Region#indexOf
+     * @throws ArrayIndexOutOfBoundsException if the specified region is not
+     *        contained in this array
+     */
+    public def getPatch(r:Region(this.rank){self.rect}):Array[T](this.rank){self.region==r} {
+        val regionHere = dist.get(here);
+        if (!regionHere.rect()) {
+            throw new UnsupportedOperationException("DistArray.getPatch not supported for non-rectangular region: " + regionHere);
+        }
+        if (CompilerFlags.checkBounds() && !regionHere.contains(r)) {
+            throw new ArrayIndexOutOfBoundsException("region to copy: " + r + " not contained in local region: " + regionHere);
+        }
+
+        val min = regionHere.min();
+        val max = regionHere.max();
+        val delta = new Rail[Long](rank, (i:Long) => regionHere.max(i) - regionHere.min(i) + 1);
+        val patchRaw = Unsafe.allocRailUninitialized[T](r.size());
+        var patchIndex:Long = 0;
+        for (p in r) {
+            var offset:Long = p(0) - min(0);
+            for (var i:Long=1; i<rank; i++) {
+                offset = offset*delta(i) + p(i) - min(i);
+            }
+            patchRaw(patchIndex++) = this(p);
+        }
+        return new Array[T](r, patchRaw);
+    }
 
     /**
      * Fill all elements of the array to contain the argument value.
