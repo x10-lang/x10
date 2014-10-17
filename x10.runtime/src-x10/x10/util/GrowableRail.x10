@@ -168,9 +168,7 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def removeLast():T {
         val res = this(size-1);
-        Unsafe.clearRail(data, size-1, 1);
-        size = size-1;
-        shrink(size+1);
+        shrink(size-1);
         return res;
     }
 
@@ -193,12 +191,10 @@ public final class GrowableRail[T] implements CustomSerialization {
     public def moveSectionToRail(i:Long, j:Long):Rail[T] {
         val len = j - i + 1;
         if (len < 1) return Unsafe.allocRailUninitialized[T](0);
-	val tmp = Unsafe.allocRailUninitialized[T](len);
+        val tmp = Unsafe.allocRailUninitialized[T](len);
         Rail.copy(data, i, tmp, 0, len);
         Rail.copy(data, j+1, data, i, size-j-1);
-        Unsafe.clearRail(data, size-len, len);
-        size-=len;
-        shrink(size+1);
+        shrink(size-len);
         return tmp;
     }
 
@@ -243,14 +239,18 @@ public final class GrowableRail[T] implements CustomSerialization {
      */
     public def shrink(newCapacity:Long):void {
         assert (newCapacity <= capacity());
-        val cap = x10.lang.Math.max(newCapacity, 8);
-        if (cap < capacity()) {
+        val oldSize = size;
+        size = Math.min(size, newCapacity);
+
+        val cap = Math.max(newCapacity, 8);
+        if (cap <= capacity()/4) {
             val tmp = Unsafe.allocRailUninitialized[T](cap);        
             Rail.copy(data, 0, tmp, 0, cap);
             Unsafe.dealloc(data);
             data = tmp;
+        } else {
+            Unsafe.clearRail(data, size, oldSize-size);
         }
-        size = newCapacity;
     }
 
     private static @NoInline @NoReturn def raiseIndexOutOfBounds(idx:Long, size:Long) {
