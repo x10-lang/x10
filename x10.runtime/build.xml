@@ -749,6 +749,8 @@
                        dir="${bdwgc.dir}/src" strip="1" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/machdep.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/clang.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
 	      </then>
 	    </if>
 
