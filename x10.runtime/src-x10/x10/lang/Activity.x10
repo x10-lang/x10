@@ -91,7 +91,7 @@ public class Activity {
     val confirmed:Boolean;
 
     /**
-     * Depth of enclosong atomic blocks
+     * Depth of enclosing atomic blocks
      */
     private var atomicDepth:Int = 0n;
     
