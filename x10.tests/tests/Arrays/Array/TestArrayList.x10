@@ -19,6 +19,7 @@ public class TestArrayList extends x10Test {
 
 	public def run(): Boolean = {
         testAccess();
+        testRemove();
         testResize();
 
         return true;
@@ -36,6 +37,23 @@ public class TestArrayList extends x10Test {
         }
     }
 
+    public def testRemove() {
+        val N = 10;
+        val a = new ArrayList[Double](N);
+        for (i in 0..(N-1)) {
+            a.add(i as Double);
+        }
+
+        val pos = 5;
+        val x = a.removeAt(pos);
+        chk(x == pos as Double);
+
+        // check that higher elements have moved down one
+        for (i in pos..(N-2)) {
+            chk(a(i) == (i+1) as Double);
+        }
+    }
+
     public def testResize() {
         val N = 20;
         val a = new ArrayList[Double]();
@@ -47,9 +65,9 @@ public class TestArrayList extends x10Test {
             chk(a(i) == 0.0);
         }
 
-        a.resize(N+10, 1.0);
+        a.resize(N*5, 1.0);
         // new elements should be initialized to 1.0
-        chk(a.size() == N+10);
+        chk(a.size() == N*5);
         for (i in N..(a.size()-1)) {
             chk(a(i) == 1.0);
         }
