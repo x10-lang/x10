@@ -64,8 +64,6 @@ public class Activity {
         }
     }
 
-    //val parentActivity:Activity = Runtime.activity();
-
     /**
      * the finish state governing the execution of this activity (may be remote)
      */
@@ -86,9 +84,10 @@ public class Activity {
      */
     val shouldNotifyTermination:Boolean;
 
-    /** Set to true unless this activity was spawned by a place that then immediately died
+    /**
+     * Src place from which the activity was spawned
      */
-    val confirmed:Boolean;
+    val srcPlace:Place;
 
     /**
      * Depth of enclosing atomic blocks
@@ -108,13 +107,9 @@ public class Activity {
     }
     def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
         this.epoch = epoch;
+        this.srcPlace = srcPlace;
         this.finishState = finishState;
         this.shouldNotifyTermination = nt;
-        if (nac) {
-            this.confirmed = finishState.notifyActivityCreation(srcPlace);
-        } else {
-            this.confirmed = true;
-        }
         this.body = body;
     }
 
@@ -168,20 +163,18 @@ public class Activity {
      * Run activity.
      */
     def run():void {
-        if (confirmed) {
+        try {
+            body();
+        } catch (wt:WrappedThrowable) {
+            finishState.pushException(wt.getCheckedCause());
+        } catch (t:CheckedThrowable) {
+            finishState.pushException(t);
+        }
+        if (null != clockPhases) clockPhases.drop();
+        if (shouldNotifyTermination) {
             try {
-                body();
-            } catch (wt:WrappedThrowable) {
-                finishState.pushException(wt.getCheckedCause());
-            } catch (t:CheckedThrowable) {
-                finishState.pushException(t);
-            }
-            if (null != clockPhases) clockPhases.drop();
-            if (shouldNotifyTermination) {
-                try {
-                    finishState.notifyActivityTermination();
-                } catch (DeadPlaceException) {}
-            }
+                finishState.notifyActivityTermination();
+            } catch (DeadPlaceException) {}
         }
         if (DEALLOC_BODY) Unsafe.dealloc(body);
     }

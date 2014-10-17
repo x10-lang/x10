@@ -355,7 +355,7 @@ static void receive_async (const x10rt_msg_params *p) {
             _X_("The deserialised async closure was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
-            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
+            x10::lang::Runtime::submitRemoteActivity(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
         } break;
         default: abort();
     }

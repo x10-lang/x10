@@ -1031,7 +1031,7 @@ public class SocketTransport {
             finishState.notifyActivityTermination();
             return;
     	}
-    	x10.lang.Runtime.execute(epoch, actObj, src, finishState);
+    	x10.lang.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
     }
     
     private class BackgroundLinkInitializer implements Runnable {

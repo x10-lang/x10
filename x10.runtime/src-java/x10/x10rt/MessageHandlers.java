@@ -147,8 +147,8 @@ public class MessageHandlers {
             }
     		
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.lang.Runtime.execute(actObj, src, finishState);
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after apply");
+    		x10.lang.Runtime.submitRemoteActivity(actObj, src, finishState);
+    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after submitRemoteActivity");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");
     	} catch(Exception ex){

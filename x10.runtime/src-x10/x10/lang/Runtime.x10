@@ -970,7 +970,10 @@ public final class Runtime {
      * @param job Job being submitted
      */
     public static def submitUncounted(job:()=>void):void {
-        pool.workers.submit(new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH));
+        val activity = new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH);
+        if (FinishState.UNCOUNTED_FINISH.notifyActivityCreation(activity.srcPlace)) {
+            pool.workers.submit(activity);
+        }
     }
 
     /**
@@ -1139,10 +1142,13 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(epoch, asyncBody, here, state, clockPhases));
+            submitLocalActivity(new Activity(epoch, asyncBody, here, state, clockPhases));
         } else {
             val src = here;
-            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { pushActivity(new Activity(epoch, body, src, state, clockPhases)); };
+            val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { 
+                val activity = new Activity(epoch, body, src, state, clockPhases);
+                submitRemoteActivity(epoch, activity, src, state);
+            };
             val preSendAction = ()=> { state.notifySubActivitySpawn(place); };
             x10rtSendMessage(place.id, closure, prof, preSendAction);
             Unsafe.dealloc(closure);
@@ -1175,7 +1181,7 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(epoch, asyncBody, here, state));
+            submitLocalActivity(new Activity(epoch, asyncBody, here, state));
         } else {
             val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
             x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
@@ -1195,7 +1201,7 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(epoch, body, here, state, clockPhases));
+        submitLocalActivity(new Activity(epoch, body, here, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
@@ -1206,12 +1212,12 @@ public final class Runtime {
         val epoch = a.epoch;
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        executeLocal(new Activity(epoch, body, here, state));
+        submitLocalActivity(new Activity(epoch, body, here, state));
     }
 
-	public static def runFinish(body:()=>void):void {
-	    finish body();
-	}
+    public static def runFinish(body:()=>void):void {
+        finish body();
+    }
 
     /**
      * Run @Uncounted asyncat
@@ -1239,11 +1245,13 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            executeLocal(new Activity(epoch, asyncBody, here, FinishState.UNCOUNTED_FINISH));
+            submitLocalActivity(new Activity(epoch, asyncBody, here, FinishState.UNCOUNTED_FINISH));
         } else {
-            // [DC] passing FIRST_PLACE instead of the correct src, since UNCOUNTED_FINISH does not use this value
-            // and it saves sending some bytes over the network
-            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { pushActivity(new Activity(epoch, body, Place.FIRST_PLACE, FinishState.UNCOUNTED_FINISH)); };
+            val src = here;
+            val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { 
+                val activity = new Activity(epoch, body, src, FinishState.UNCOUNTED_FINISH);
+                submitRemoteActivity(epoch, activity, src, FinishState.UNCOUNTED_FINISH);
+            };
             x10rtSendMessage(place.id, closure, prof);
             Unsafe.dealloc(closure);
         }
@@ -1287,7 +1295,7 @@ public final class Runtime {
         a.ensureNotInAtomic();
 
         val epoch = a.epoch;
-        executeLocal(new Activity(epoch, body, here, new FinishState.UncountedFinish()));
+        submitLocalActivity(new Activity(epoch, body, here, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -1692,30 +1700,33 @@ public final class Runtime {
         return (state as FinishState.CollectingFinish[T]).waitForFinishExpr();
     }
 
-    // submit an activity to the pool
-    static def pushActivity(activity:Activity):void {
-        worker().push(activity);
-    }
-
-    static def executeLocal(activity:Activity):void {
+    static def submitLocalActivity(activity:Activity):void {
         if (activity().epoch < epoch()) throw new DeadPlaceException("Cancelled");
-        dealOrPush(activity);
+        if (activity.finishState().notifyActivityCreation(activity.srcPlace)) {
+            if (!pool.deal(activity)) { 
+                worker().push(activity);
+            }
+        }
     }
 
-    static def dealOrPush(activity:Activity):void {
-        if (!pool.deal(activity)) pushActivity(activity);
+    // TODO: remove this variant of submitRemoteActivity once all backends and x10rt impls support epochs
+    public static def submitRemoteActivity(body:()=>void, src:Place, finishState:FinishState):void {
+        submitRemoteActivity(42, body, src, finishState);
     }
 
-    // TODO: remove this once all backends and x10rt impls have epochs
-    public static def execute(body:()=>void, src:Place, finishState:FinishState):void {
-        pushActivity(new Activity(42, body, src, finishState));
+    public static def submitRemoteActivity(epoch:Long, body:()=>void, src:Place, finishState:FinishState):void {
+        submitRemoteActivity(epoch, new Activity(epoch, body, src, finishState), src, finishState);
     }
 
-    public static def execute(epoch:Long, body:()=>void, src:Place, finishState:FinishState):void {
+    public static def submitRemoteActivity(epoch:Long, activity:Activity, src:Place, finishState:FinishState):void {
         if (epoch > epoch()) {
             pool.flush(epoch);
         }
-        if (epoch == epoch()) pushActivity(new Activity(epoch, body, src, finishState));
+        if (epoch == epoch()) {
+            if (finishState.notifyActivityCreation(activity.srcPlace)) {
+                worker().push(activity);
+            }
+        }
     }
 
     public static def probe() {
