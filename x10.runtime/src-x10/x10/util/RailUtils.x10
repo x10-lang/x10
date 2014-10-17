@@ -16,7 +16,7 @@ import x10.compiler.Inline;
 
 /**
  * This class contains utility methods for performing common bulk
- * operations on Rails such as sorting, searching, mapping, and reducing.
+ * operations on Rails such as sort, search, map, reduce and scan.
  */
 public class RailUtils {
     /**
@@ -142,7 +142,7 @@ public class RailUtils {
      * storing the results in the dst Rail such that 
      * <code>for all i in src.range</code>, <code>dst(i) = op(src(i))</code>
      * 
-     * @param src the source rail for the results of the map operation
+     * @param src the source rail for the input to the map operation
      * @param dst the destination rail for the results of the map operation
      * @param op the function to apply to each element of the array
      * @return dst after updating its contents to contain the result of the map operation.
@@ -181,4 +181,42 @@ public class RailUtils {
         return dst;
     }
 
+    /**
+     * Return the scan of the given operation over elements of the src Rail
+     * storing the results in the dst Rail.
+     * On return, the Nth element of dst is the result of applying the
+     * the reduction operation to src elements [0..N-1].
+     * 
+     * @param src the source rail for the input to the scan operation
+     * @param dst the destination rail for the results of the scan operation.
+     *   The same array may be passed as both src and dst for an in-place scan.
+     * @param op the reduction function to use in the scan
+     * @param unit the given initial value for the reduction
+     * @return dst after updating its contents to contain the result of the scan
+     */
+    public static @Inline def scan[T](src:Rail[T], dst:Rail[T],
+                                      op:(T,T)=>T, unit:T):Rail[T]{self==dst} {
+        assert src.size <= dst.size;
+        var accum:T = unit;
+        for (i in 0..(src.size-1)) {
+            accum = op(accum, src(i));
+            dst(i) = accum;
+        }
+        return dst;
+    }
+
+    /**
+     * Return a new Rail containing the scan of the given operation over
+     * elements of the src Rail.
+     * 
+     * @param src the source rail for the input to the scan operation
+     * @param op the reduction function to use in the scan
+     * @param unit the given initial value for the reduction
+     * @return a new Rail containing the result of the scan
+     */
+    public static @Inline def scan[T](src:Rail[T],
+                                      op:(T,T)=>T, unit:T):Rail[T] {
+        val dst = Unsafe.allocRailUninitialized[T](src.size);
+        return scan(src, dst, op, unit);
+    }
 }
