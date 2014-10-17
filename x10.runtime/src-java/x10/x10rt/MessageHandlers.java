@@ -139,9 +139,7 @@ public class MessageHandlers {
                 }
             } catch (Throwable e) {
                 if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: handling exception during deserialization");
-                finishState.notifyActivityCreation$O(src);
-                finishState.pushException(new x10.io.SerializationException(e));
-                finishState.notifyActivityTermination();
+                finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
                 if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: exception pushed; bookkeeping complete");
                 return;
             }

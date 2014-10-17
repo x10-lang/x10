@@ -1026,9 +1026,7 @@ public class SocketTransport {
     	    actObj = (VoidFun_0_0) deserializer.readObject();
     	} catch (Throwable e) {
     	    // TODO: handle epoch?
-            finishState.notifyActivityCreation$O(src);
-            finishState.pushException(new x10.io.SerializationException(e));
-            finishState.notifyActivityTermination();
+            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
             return;
     	}
     	x10.lang.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);

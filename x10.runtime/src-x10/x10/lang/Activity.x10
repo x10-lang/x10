@@ -102,10 +102,10 @@ public class Activity {
     def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState) {
         this(epoch, body, srcPlace, finishState, true);
     }
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean) {
-        this(epoch, body, srcPlace, finishState, nac, true);
-    }
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nac:Boolean, nt:Boolean) {
+    // TODO: This constructor is only used by ResilientFinish.runAt.
+    //       Once that code is restructured to use @Immediate, it is likely we can
+    //       get rid of the shouldNotifyTermination flag.
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nt:Boolean) {
         this.epoch = epoch;
         this.srcPlace = srcPlace;
         this.finishState = finishState;

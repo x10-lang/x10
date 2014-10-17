@@ -35,7 +35,12 @@ abstract class FinishState {
     static VERBOSE = Configuration.envOrElse("X10_FINISH_VERBOSE", false);
 
     abstract def notifySubActivitySpawn(place:Place):void;
-    abstract def notifyActivityCreation(srcPlace:Place):Boolean;
+    abstract def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
+        notifyActivityCreation(srcPlace, null);
+        pushException(t);
+        notifyActivityTermination();
+    }
     abstract def notifyActivityTermination():void;
     abstract def pushException(t:CheckedThrowable):void;
     abstract def waitForFinish():void;
@@ -54,7 +59,7 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
-        public def notifyActivityCreation(srcPlace:Place) = true;
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
         }
@@ -135,7 +140,7 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
-        public def notifyActivityCreation(srcPlace:Place) = true;
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) {
                 val t = MultipleExceptions.make(exceptions);
@@ -201,7 +206,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation(srcPlace:Place) = true;
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
         public def notifySubActivitySpawn(place:Place):void {}
         public def pushException(t:CheckedThrowable):void {
             exception = t;
@@ -243,7 +248,7 @@ abstract class FinishState {
     // a pseudo finish used to implement @Uncounted async
     static class UncountedFinish extends FinishState {
         public def notifySubActivitySpawn(place:Place) {}
-        public def notifyActivityCreation(srcPlace:Place) = true; 
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true; 
         public def notifyActivityTermination() {}
         public def pushException(t:CheckedThrowable) {
             Runtime.println("Uncaught exception in uncounted activity");
@@ -303,7 +308,7 @@ abstract class FinishState {
     abstract static class RootFinishSkeleton extends FinishState implements Runtime.Mortal {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
-        public def notifyActivityCreation(srcPlace:Place) = true;
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
         public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
             Runtime.runAtNonResilient(place, body, prof);
         }
@@ -344,7 +349,9 @@ abstract class FinishState {
             s.writeAny(ref);
         }
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
-        public def notifyActivityCreation(srcPlace:Place) { return me.notifyActivityCreation(srcPlace); }
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity) { 
+            return me.notifyActivityCreation(srcPlace, activity); 
+        }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
         public def pushException(t:CheckedThrowable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
@@ -536,7 +543,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation(srcPlace:Place):Boolean {
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
             local.getAndIncrement();
             return true;
         }
@@ -631,7 +638,7 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
-        public def notifyActivityCreation(srcPlace:Place):Boolean {
+        public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
             local.getAndIncrement();
             return true;
         }

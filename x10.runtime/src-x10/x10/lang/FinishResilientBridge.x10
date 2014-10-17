@@ -23,7 +23,7 @@ class FinishResilientBridge extends FinishResilient {
     public static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean { return lowLevelFetch(dst, result, cl); }
     
     public def notifySubActivitySpawn(place:Place):void { throw new UnsupportedOperationException(); }
-    public def notifyActivityCreation(srcPlace:Place):Boolean { throw new UnsupportedOperationException(); }
+    public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean { throw new UnsupportedOperationException(); }
     public def notifyActivityTermination():void { throw new UnsupportedOperationException(); }
     public def pushException(t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     public def waitForFinish():void { throw new UnsupportedOperationException(); }

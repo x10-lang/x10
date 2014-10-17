@@ -103,7 +103,7 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
-    def notifyActivityCreation(srcPlace:Place):Boolean {
+    def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
         val srcId = srcPlace.id, dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
         if (srcPlace.isDead()) {

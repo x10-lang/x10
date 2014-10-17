@@ -48,7 +48,7 @@ namespace x10 {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             place src = buf.read<place>();
             // olivier says the incr should be just after the notifySubActivitySpawn (but on the remote side)
-            fs->notifyActivityCreation(Place::_make(src));
+            fs->notifyActivityCreation(Place::_make(src), NULL);
             fs->notifyActivityTermination();
         }
 

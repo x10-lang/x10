@@ -971,7 +971,7 @@ public final class Runtime {
      */
     public static def submitUncounted(job:()=>void):void {
         val activity = new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH);
-        if (FinishState.UNCOUNTED_FINISH.notifyActivityCreation(activity.srcPlace)) {
+        if (FinishState.UNCOUNTED_FINISH.notifyActivityCreation(activity.srcPlace, activity)) {
             pool.workers.submit(activity);
         }
     }
@@ -1701,8 +1701,11 @@ public final class Runtime {
     }
 
     static def submitLocalActivity(activity:Activity):void {
+        if (activity.srcPlace != here) {
+            throw new InternalError("submitLocalActivity at "+here+" called with activity from "+activity.srcPlace);
+        }
         if (activity().epoch < epoch()) throw new DeadPlaceException("Cancelled");
-        if (activity.finishState().notifyActivityCreation(activity.srcPlace)) {
+        if (activity.finishState().notifyActivityCreation(activity.srcPlace, activity)) {
             if (!pool.deal(activity)) { 
                 worker().push(activity);
             }
@@ -1723,7 +1726,7 @@ public final class Runtime {
             pool.flush(epoch);
         }
         if (epoch == epoch()) {
-            if (finishState.notifyActivityCreation(activity.srcPlace)) {
+            if (finishState.notifyActivityCreation(activity.srcPlace, activity)) {
                 worker().push(activity);
             }
         }

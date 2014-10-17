@@ -46,7 +46,7 @@ abstract class FinishResilient extends FinishState {
      * Other methods to be implemented in subclasses (declared in FinishState class)
      */
     // def notifySubActivitySpawn(place:Place):void;
-    // def notifyActivityCreation(srcPlace:Place):Boolean;
+    // def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
     // def notifyActivityTermination():void;
     // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
@@ -170,7 +170,7 @@ abstract class FinishResilient extends FinishState {
                 val remoteActivity = Runtime.activity();
                 remoteActivity.clockPhases = clockPhases; // XTENLANG-3357: set passed clockPhases
                 //real_finish.notifyActivityCreation(home);//@@@@
-                if (tmp_finish.notifyActivityCreation(home)) {
+                if (tmp_finish.notifyActivityCreation(home, null)) {  /// DG: Fixme.  Passing null here is bogus.
                     try {
                         try {
                             body();
@@ -197,7 +197,7 @@ abstract class FinishResilient extends FinishState {
                 if (verbose>=2) debug("FinishResilient.runAt exec_body finished");
             };
             if (verbose>=2) debug("FinishResilient.runAt create a new activity to execute");
-            Runtime.submitLocalActivity(new Activity(epoch, exec_body, home, real_finish, false, false));
+            Runtime.submitLocalActivity(new Activity(epoch, exec_body, home, real_finish, false));
             // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
         };
         if (verbose>=2) debug("FinishResilient.runAt sending closure");

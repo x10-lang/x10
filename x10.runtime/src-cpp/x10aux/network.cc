@@ -346,9 +346,7 @@ static void receive_async (const x10rt_msg_params *p) {
                     abort();
                 }
                 x10::io::SerializationException* se = x10::io::SerializationException::_make(e);
-                fs->notifyActivityCreation(src);
-                fs->pushException(se);
-                fs->notifyActivityTermination();
+                fs->notifyActivityCreationFailed(src, se);
                 return;
             }
             assert(buf.consumed() <= p->len);
@@ -368,7 +366,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
     x10::lang::Place sendingPlace = buf.read<x10::lang::Place>();
-    fs->notifyActivityCreation(sendingPlace);
+    fs->notifyActivityCreation(sendingPlace, NULL);
     serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
     _X_(ANSI_X10RT<<"mapped mid "<<p->type<<" to nid "<<nid<<ANSI_RESET);
     x10aux::CUDAPre pre = x10aux::NetworkDispatcher::getCUDAPre(nid);
@@ -511,7 +509,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 void *x10aux::coll_enter() {
     x10::lang::FinishState* fs = Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
-    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here));
+    fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here), NULL);
     return fs;
 }
 
