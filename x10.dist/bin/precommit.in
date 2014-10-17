@@ -49,8 +49,8 @@ nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Atomic" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Clock" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Place" \
- -sourcepath "$ROOT/x10.tests/tests/Arrays/Distribution" \
- -sourcepath "$ROOT/x10.tests/tests/Arrays/Region" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Distribution" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Region" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Call" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Cast" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Closures" \
@@ -87,8 +87,8 @@ nice "$ROOT/x10.dist/bin/x10c" -O \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Atomic" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Clock" \
  -sourcepath "$ROOT/x10.tests/tests/APGAS/Place" \
- -sourcepath "$ROOT/x10.tests/tests/Arrays/Distribution" \
- -sourcepath "$ROOT/x10.tests/tests/Arrays/Region" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Distribution" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Region" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Call" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Cast" \
  -sourcepath "$ROOT/x10.tests/tests/Constructs/Closures" \
