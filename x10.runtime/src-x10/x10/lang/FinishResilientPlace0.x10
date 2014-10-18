@@ -126,6 +126,13 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning true");
         return true;
     }
+
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
+        // TODO! A real implementation of this functionality.
+        debug("<<<< notifyActivityCreationFailed(id="+id+") unimplemented. Program execution is likely dead in the water");
+        t.printStackTrace();
+    }
+
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);

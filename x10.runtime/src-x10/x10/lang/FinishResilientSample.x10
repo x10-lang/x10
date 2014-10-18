@@ -216,6 +216,12 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning true");
         return true;
     }
+
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
+        // TODO! A real implementation of this functionality.
+        debug("<<<< notifyActivityCreationFailed unimplemented. Program execution is likely dead in the water");
+        t.printStackTrace();
+    }
     
     def notifyActivityTermination():void {
         val dstId = here.id;

@@ -20,6 +20,7 @@ class FinishResilientPlace0opt extends FinishResilient {
     static def notifyPlaceDeath():void { throw new UnsupportedOperationException(); }
     def notifySubActivitySpawn(place:Place):void { throw new UnsupportedOperationException(); }
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean { throw new UnsupportedOperationException(); }
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     def notifyActivityTermination():void { throw new UnsupportedOperationException(); }
     def pushException(t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     def waitForFinish():void { throw new UnsupportedOperationException(); }
