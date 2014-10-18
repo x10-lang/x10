@@ -45,8 +45,6 @@ abstract class FinishState {
     abstract def pushException(t:CheckedThrowable):void;
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
-    abstract def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void;
-    abstract def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any;
 
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
@@ -77,12 +75,6 @@ abstract class FinishState {
             if (null != t) throw t;
         }
         public def simpleLatch() = latch;
-        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
-        }
-        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
-        }
     }
 
     // a finish without nested remote asyncs in remote asyncs
@@ -256,12 +248,6 @@ abstract class FinishState {
         }
         public final def waitForFinish() { assert false; }
         public def simpleLatch():SimpleLatch = null;
-        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
-        }
-        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
-        }
     }
     
     static UNCOUNTED_FINISH = new UncountedFinish();
@@ -309,12 +295,6 @@ abstract class FinishState {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
-        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
-        }
-        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
-        }
     }
 
     // the top of the remote finish hierarchy
@@ -326,12 +306,6 @@ abstract class FinishState {
         def ref() = xxxx;
         public def waitForFinish() { assert false; }
         public def simpleLatch():SimpleLatch = null;
-        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
-        }
-        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
-        }
     }
 
     // the top of the finish hierarchy
@@ -356,12 +330,6 @@ abstract class FinishState {
         public def pushException(t:CheckedThrowable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
         public def simpleLatch() = me.simpleLatch();
-        public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-            Runtime.runAtNonResilient(place, body, prof);
-        }
-        public def evalAt(place:Place, body:()=>Any, prof:Runtime.Profile):Any {
-            return Runtime.evalAtNonResilient(place, body, prof);
-        }
     }
 
     // the default finish implementation

@@ -1341,8 +1341,17 @@ public final class Runtime {
     //public static def pretendToThrow[T] () { T<: CheckedThrowable } : void throws T { }
     // work-around for XTENLANG-3086 is in CheckedThrowable.x10
 
-    /** Run an at statement in non-resilient X10 by using a local latch. */
-    public static def runAtNonResilient(place:Place, body:()=>void, prof:Profile):void {
+    /** 
+     * Implement the exception/blocking semantics of at(p) S by 
+     * wrapping the fundamental remote async primitive at(p) async S
+     * to modify its exception semantics and using a local latch
+     * to achieve the desired blocking semantics.
+     *
+     * TODO: Resilient X10: Need to use a per-worker RemoteControl
+     *                      to enable notifyPlaceDeath to unblock
+     *                      stuck threads.
+     */
+    public static def runAt(place:Place, body:()=>void, prof:Profile):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereLong()) {
             try {
@@ -1400,17 +1409,12 @@ public final class Runtime {
         }
     }
 
-    /**
-     * Run at statement
-     */
-    public static def runAt(place:Place, body:()=>void, prof:Profile):void {
-        activity().finishState().runAt(place, body, prof);
-    }
-
     /*
      * [GlobalGC] Special version of runAt, which does not use activity, clock, exceptions
      *            Used in GlobalRef.java to implement changeRemoteCount
      * [DC] do not allow profiling of this call: seems it is not for application use?
+     *
+     * DG: TODO: Get rid of this method by using @Immediate asyncs and/or lowlevel at.
      */
     public static def runAtSimple(place:Place, body:()=>void, toWait:Boolean):void {
         //Console.ERR.println("Runtime.runAtSimple: place=" + place + " toWait=" + toWait);
@@ -1467,10 +1471,18 @@ public final class Runtime {
         public def reset() { bytes = 0; serializationNanos = 0; communicationNanos = 0; }
     }
 
-    /**
-     * Eval at expression
+    /** 
+     * Implement the exception/blocking/expression semantics of at(p) E by 
+     * wrapping the fundamental remote async primitive at(p) async S
+     * to modify its exception semantics and using a local latch
+     * to achieve the desired blocking semantics and communication 
+     * of return value.
+     *
+     * TODO: Resilient X10: Need to use a per-worker RemoteControl
+     *                      to enable notifyPlaceDeath to unblock
+     *                      stuck threads.
      */
-    public static def evalAtNonResilient(place:Place, eval:()=>Any, prof:Profile):Any {
+    private static def evalAtImpl(place:Place, eval:()=>Any, prof:Profile):Any {
         Runtime.ensureNotInAtomic();
         if (place.id == hereLong()) {
             try {
@@ -1537,13 +1549,20 @@ public final class Runtime {
         return me.t.value;
     }
 
-    /**
-     * Eval at expression
+    /** 
+     * Implement the exception/blocking/expression semantics of at(p) E by 
+     * wrapping the fundamental remote async primitive at(p) async S
+     * to modify its exception semantics and using a local latch
+     * to achieve the desired blocking semantics and communication 
+     * of return value.
      */
-    public static def evalAt[T](place:Place, body:()=>T, prof:Profile):T {
-        val body2 = ()=>(body() as Any);
-        val r = activity().finishState().evalAt(place, body, prof) as T;
-        Unsafe.dealloc(body2); // optimisation since we always run with gc, no need to put it in a finally
+    public static def evalAt[T](place:Place, eval:()=>T, prof:Profile):T {
+        // NOTE: We are wrapping a non-generic impl of the core functionality
+        //       to control codespace growth and limit the number of actual
+        //       remote closures (Native X10).
+        val eval2 = ()=>(eval() as Any);
+        val r:T = evalAtImpl(place, eval2, prof) as T;
+        Unsafe.dealloc(eval2); 
         return r;
     }
 
