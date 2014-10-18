@@ -1704,7 +1704,7 @@ public final class Runtime {
         if (activity.srcPlace != here) {
             throw new InternalError("submitLocalActivity at "+here+" called with activity from "+activity.srcPlace);
         }
-        if (activity().epoch < epoch()) throw new DeadPlaceException("Cancelled");
+        if (activity.epoch < epoch()) throw new DeadPlaceException("Cancelled");
         if (activity.finishState().notifyActivityCreation(activity.srcPlace, activity)) {
             if (!pool.deal(activity)) { 
                 worker().push(activity);
