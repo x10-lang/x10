@@ -12,6 +12,7 @@ package x10.lang;
 import x10.compiler.*;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.concurrent.AtomicBoolean;
+import x10.util.concurrent.Condition;
 
 /*
  * Common abstract class for Resilient Finish
@@ -154,132 +155,105 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=4) debug("----lowLevelSend returning true");
         return true;
     }
-    
+
     // returns true if cl is processed at dst
     protected static def lowLevelAt(dst:Place, cl:()=>void):Boolean {
-        if (verbose>=4) debug("----lowLevelAt called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
+        if (verbose>=4) debug("---- lowLevelAt called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
         if (here == dst) {
-            if (verbose>=4) debug("----lowLevelAt locally calling cl()");
+            if (verbose>=4) debug("---- lowLevelAt locally calling cl()");
             cl();
-            if (verbose>=4) debug("----lowLevelAt locally executed, returning true");
+            if (verbose>=4) debug("---- lowLevelAt locally executed, returning true");
             return true;
         }
         
         // remote call
+        val cond = new Condition();
+        val condGR = GlobalRef[Condition](cond); 
         val exc = GlobalRef(new Cell[CheckedThrowable](null));
-        val done = GlobalRef(new AtomicBoolean());
-        if (verbose>=4) debug("----lowLevelAt remote execution");
-        Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_at_out") {
-            // callee
+        if (verbose>=4) debug("---- lowLevelAt initiating remote execution");
+        at (dst) @Immediate("finish_resilient_low_level_at_out") async {
             try {
-                if (verbose>=4) debug("----lowLevelAt(remote) calling cl()");
+                if (verbose>=4) debug("---- lowLevelAt(remote) calling cl()");
                 cl();
-                if (verbose>=4) debug("----lowLevelAt(remote) returned from cl()");
-                Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back") {
-                    if (verbose>=4) debug("----lowLevelAt(home) setting done-flag");
-                    done.getLocalOrCopy().getAndSet(true);
-                }, null);
-            } catch (t:Exception) {
-                if (verbose>=4) debug("----lowLevelAt(remote) caught exception="+t);
-                Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_at_back_exc") {
-                    // [DC] assume that the write barrier on "done" is enough to see update on exc
-                    if (verbose>=4) debug("----lowLevelAt(home) setting exc and done-flag");
-                    exc.getLocalOrCopy()(t);
-                    done.getLocalOrCopy().getAndSet(true);
-                }, null);
-            }
-            if (verbose>=4) debug("----lowLevelAt(remote) finished");
-        }, null);
-        
-        // caller
-        if (verbose>=4) debug("----lowLevelAt waiting for done-flag");
-        if (!done().get()) { // Fix for XTENLANG-3303/3305
-            Runtime.increaseParallelism();
-            do {
-                if (verbose>=9) debug("----lowLevelAt calling x10rtProbe");
-                Runtime.x10rtProbe();
-                // Runtime.x10rtBlockingProbe(); // does not work because this may park myself
-                if (verbose>=9) debug("----lowLevelAt returned from x10rtProbe");
-                if (dst.isDead()) {
-                    Runtime.decreaseParallelism(1n);
-                    if (verbose>=4) debug("----lowLevelAt returning false");
-                    return false;
+                if (verbose>=4) debug("---- lowLevelAt(remote) returned from cl()");
+                at (condGR) @Immediate("finish_resilient_low_level_at_back") async {
+                    if (verbose>=4) debug("---- lowLevelAt(home) releasing cond");
+                    condGR().release();
                 }
-            } while (!done().get());
-            Runtime.decreaseParallelism(1n);
-        }
-        if (verbose>=4) debug("----lowLevelAt returned from waiting loop");
+            } catch (t:Exception) {
+                if (verbose>=4) debug("---- lowLevelAt(remote) caught exception="+t);
+                at (condGR) @Immediate("finish_resilient_low_level_at_back_exc") async {
+                    if (verbose>=4) debug("---- lowLevelAt(home) setting exc and releasing cond");
+                    exc()(t);
+                    condGR().release();
+                };
+            }
+            if (verbose>=4) debug("---- lowLevelAt(remote) finished");
+        };
+        
+        if (verbose>=4) debug("---- lowLevelAt waiting for cond");
+        cond.await();
+        if (verbose>=4) debug("---- lowLevelAt released from cond");
         val t = exc()();
+
+        // FIXME: destroy GlobalRefs here to avoid resource leak
+
         if (t != null) {
-            if (verbose>=4) debug("----lowLevelAt throwing exception " + t);
+            if (verbose>=4) debug("---- lowLevelAt throwing exception " + t);
             Runtime.throwCheckedWithoutThrows(t);
         }
-        if (verbose>=4) debug("----lowLevelAt returning true");
+        if (verbose>=4) debug("---- lowLevelAt returning true");
         return true; // success
     }
     
     // returns true if cl is processed at dst
     protected static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean {
-        if (verbose>=4) debug("----lowLevelFetch called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
+        if (verbose>=4) debug("---- lowLevelFetch called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
         if (here == dst) {
-            if (verbose>=4) debug("----lowLevelFetch locally calling cl()");
+            if (verbose>=4) debug("---- lowLevelFetch locally calling cl()");
             result(cl()); // set the result
-            if (verbose>=4) debug("----lowLevelFetch locally executed, returning true");
+            if (verbose>=4) debug("---- lowLevelFetch locally executed, returning true");
             return true;
         }
         
         // remote call
+        val cond = new Condition();
+        val condGR = GlobalRef[Condition](cond); 
         val exc = GlobalRef(new Cell[CheckedThrowable](null));
-        val done = GlobalRef(new AtomicBoolean(false));
         val gresult = GlobalRef(result);
-        if (verbose>=4) debug("----lowLevelFetch remote execution");
-        Runtime.x10rtSendMessage(dst.id, () => @RemoteInvocation("finish_resilient_low_level_fetch_out") {
-            // callee
+        if (verbose>=4) debug("---- lowLevelFetch remote execution");
+        at (dst) @Immediate("finish_resilient_low_level_fetch_out") async {
             try {
-                if (verbose>=4) debug("----lowLevelFetch(remote) calling cl()");
+                if (verbose>=4) debug("---- lowLevelFetch(remote) calling cl()");
                 val r = cl();
-                if (verbose>=4) debug("----lowLevelFetch(remote) returned from cl()");
-                Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("fiish_resilient_low_level_fetch_back") {
-                    if (verbose>=4) debug("----lowLevelFetch(home) setting the result and done-flag");
-                    gresult.getLocalOrCopy()(r); // set the result
-                    done.getLocalOrCopy().getAndSet(true);
-                }, null);
+                if (verbose>=4) debug("---- lowLevelFetch(remote) returned from cl()");
+                at (condGR) @Immediate("finish_resilient_low_level_fetch_back") async {
+                    if (verbose>=4) debug("---- lowLevelFetch(home) setting the result and done-flag");
+                    gresult()(r); // set the result
+                    condGR().release();
+                };
             } catch (t:Exception) {
-                Runtime.x10rtSendMessage(done.home.id, () => @RemoteInvocation("finish_resilient_low_level_fetch_back_exc") {
-                    // [DC] assume that the write barrier on "done" is enough to see update on exc
-                    if (verbose>=4) debug("----lowLevelFetch(home) setting exc and done-flag");
-                    exc.getLocalOrCopy()(t);
-                    done.getLocalOrCopy().getAndSet(true);
-                }, null);
+                at (condGR) @Immediate("finish_resilient_low_level_fetch_back_exc") async {
+                    if (verbose>=4) debug("---- lowLevelFetch(home) setting exc and relasing cond");
+                    exc()(t);
+                    condGR().release();
+                };
             }
-            if (verbose>=4) debug("----lowLevelFetch(remote) finished");
-        }, null);
+            if (verbose>=4) debug("---- lowLevelFetch(remote) finished");
+        };
         
-        // caller
-        if (verbose>=4) debug("----lowLevelFetch waiting for done-flag");
-        if (!done().get()) { // Fix for XTENLANG-3303/3305
-            Runtime.increaseParallelism();
-            do {
-                if (verbose>=9) debug("----lowLevelFetch calling x10rtProbe");
-                Runtime.x10rtProbe();
-                // Runtime.x10rtBlockingProbe(); // does not work because this may park myself
-                if (verbose>=9) debug("----lowLevelFetch returned from x10rtProbe");
-                if (dst.isDead()) {
-                    Runtime.decreaseParallelism(1n);
-                    if (verbose>=4) debug("----lowLevelFetch returning false");
-                    return false;
-                }
-            } while (!done().get());
-            Runtime.decreaseParallelism(1n);
-        }
-        if (verbose>=4) debug("----lowLevelFetch returned from waiting loop");
+        if (verbose>=4) debug("---- lowLevelFetch waiting for cond");
+        cond.await();
+        if (verbose>=4) debug("---- lowLevelFetch released from cond");
         val t = exc()();
+
+        // FIXME: destroy GlobalRefs here to avoid resource leak
+
         if (t != null) {
-            if (verbose>=4) debug("----lowLevelFetch throwing exception " + t);
+            if (verbose>=4) debug("---- lowLevelFetch throwing exception " + t);
             Runtime.throwCheckedWithoutThrows(t);
         }
-        if (verbose>=4) debug("----lowLevelFetch returning true");
+        if (verbose>=4) debug("---- lowLevelFetch returning true");
         return true; // success
     }
-
 }

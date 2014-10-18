@@ -87,6 +87,7 @@ class FinishResilientPlace0 extends FinishResilient {
         }
         if (verbose>=1) debug("<<<< notifyPlaceDeath returning");
     }
+
     def notifySubActivitySpawn(place:Place):void {
         val srcId = here.id, dstId = place.id;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
@@ -103,28 +104,52 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
+
+    /*
+     * This method can't block because it may run on an @Immediate worker.  
+     * Therefore it can't use lowLevelAt.
+     * Instead sequence @Immediate messages to do the nac to place0 and
+     * then come back and submit the pending activity.
+     * Because place0 can't fail, we know that if the first message gets
+     * to place0, the message back to push the activity will evantually
+     * be received (unless dstId's place fails, in which case it doesn't matter).
+     */
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
-        val srcId = srcPlace.id, dstId = here.id;
+        val srcId = srcPlace.id; 
+        val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
         if (srcPlace.isDead()) {
             if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
             return false;
         }
-        lowLevelAt(place0, ()=>{ atomic {
-            val state = states(id);
-            if (!state.isAdopted()) {
-                state.live(dstId)++;
-                state.transit(srcId*Place.numPlaces() + dstId)--;
-            } else {
-                val adopterId = getCurrentAdopterId(id);
-                val adopterState = states(adopterId);
-                adopterState.liveAdopted(dstId)++;
-                adopterState.transitAdopted(srcId*Place.numPlaces() + dstId)--;
+
+        val pendingActivity = GlobalRef(activity); 
+        at (place0) @Immediate("notifyActivityCreation_to_zero") async {
+            atomic {
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.live(dstId)++;
+                    state.transit(srcId*Place.numPlaces() + dstId)--;
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.liveAdopted(dstId)++;
+                    adopterState.transitAdopted(srcId*Place.numPlaces() + dstId)--;
+                }
+                if (verbose>=3) state.dump("DUMP id="+id);
+            };
+            at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
+                val pa = pendingActivity();
+                if (pa.epoch == Runtime.epoch()) {
+                    if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
+                    Runtime.worker().push(pa);
+                }
+                // FIXME: Right here is where we need to destroy the GlobalRef to avoid the Activity leaking!              
             }
-            if (verbose>=3) state.dump("DUMP id="+id);
-        }});
-        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning true");
-        return true;
+        };
+
+        // Return false because we want to defer pushing the activity.
+        return false;                
     }
 
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
