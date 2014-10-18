@@ -1736,6 +1736,14 @@ public final class Runtime {
         submitRemoteActivity(epoch, new Activity(epoch, body, src, finishState), src, finishState);
     }
 
+    /**
+     * Submit an activity origniating in a remote Place for execution
+     * by the local Runtime.
+     *
+     * IMPORTANT NOTE: This method can be invoked from an @Immediate worker thread,
+     *                 therefore execution of this method may not block or pause.
+     *                 (Same restrictions as the body of an @Immediate async).
+     */
     public static def submitRemoteActivity(epoch:Long, activity:Activity, src:Place, finishState:FinishState):void {
         if (epoch > epoch()) {
             pool.flush(epoch);

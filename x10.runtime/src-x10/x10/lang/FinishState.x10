@@ -34,15 +34,65 @@ abstract class FinishState {
     // Turn this on to debug deadlocks within the finish implementation
     static VERBOSE = Configuration.envOrElse("X10_FINISH_VERBOSE", false);
 
-    abstract def notifySubActivitySpawn(place:Place):void;
+    /**
+     * Called by an activity running at the current Place when it
+     * is initiating the spawn of an new async at dstPlace. 
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
+    abstract def notifySubActivitySpawn(dstPlace:Place):void;
+
+    /**
+     * Called at the Place at which the argument activity will execute.
+     * If this method returns true, the activity will be submitted to
+     * the XRX Pool for execution. If this method returns false, the activity
+     * will not be submitted. 
+     *
+     * Scheduling note: May be called on @Immediate worker.
+     *                  This method must not block or pause.
+     */
     abstract def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
+
+    /**
+     * Called at the Place where activity creation failed to indicate
+     * that an inbound activity could not be created due to an exceptional
+     * condition. 
+     *
+     * Scheduling note: May be called on @Immediate worker.
+     *                  This method must not block or pause.
+     */
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
         notifyActivityCreation(srcPlace, null);
         pushException(t);
         notifyActivityTermination();
     }
+
+    /**
+     * Called to indicate that the currently executing activity 
+     * has terminated successfully.
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
     abstract def notifyActivityTermination():void;
+
+    /**
+     * Called to record the CheckedThrowable which caused the currently executing 
+     * activity to terminate abnormally.
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
     abstract def pushException(t:CheckedThrowable):void;
+
+    /**
+     * Called when the currently running activity needs to wait for the Finish
+     * to terminate.
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
     abstract def waitForFinish():void;
 
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
