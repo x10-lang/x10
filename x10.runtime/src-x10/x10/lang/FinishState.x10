@@ -44,7 +44,6 @@ abstract class FinishState {
     abstract def notifyActivityTermination():void;
     abstract def pushException(t:CheckedThrowable):void;
     abstract def waitForFinish():void;
-    abstract def simpleLatch():SimpleLatch;
 
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
@@ -74,7 +73,6 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
-        public def simpleLatch() = latch;
     }
 
     // a finish without nested remote asyncs in remote asyncs
@@ -118,7 +116,6 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
-        public def simpleLatch() = latch;
     }
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
@@ -190,7 +187,6 @@ abstract class FinishState {
             val t = MultipleExceptions.make(exception);
             if (null != t) throw t;
         }
-        public def simpleLatch() = latch;
     }
 
     static class RemoteFinishAsync extends RemoteFinishSkeleton {
@@ -247,7 +243,6 @@ abstract class FinishState {
             t.printStackTrace();
         }
         public final def waitForFinish() { assert false; }
-        public def simpleLatch():SimpleLatch = null;
     }
     
     static UNCOUNTED_FINISH = new UncountedFinish();
@@ -305,7 +300,6 @@ abstract class FinishState {
         }
         def ref() = xxxx;
         public def waitForFinish() { assert false; }
-        public def simpleLatch():SimpleLatch = null;
     }
 
     // the top of the finish hierarchy
@@ -329,7 +323,6 @@ abstract class FinishState {
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
         public def pushException(t:CheckedThrowable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
-        public def simpleLatch() = me.simpleLatch();
     }
 
     // the default finish implementation
@@ -497,8 +490,6 @@ abstract class FinishState {
             process(remoteEntry);
             latch.unlock();
         }
-
-        public def simpleLatch() = latch;
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {

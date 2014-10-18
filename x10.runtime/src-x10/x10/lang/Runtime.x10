@@ -703,10 +703,6 @@ public final class Runtime {
                 if (activity == null) return false;
                 if (activity.epoch < epoch()) continue;
                 if (pool.deal(activity)) continue;
-//                if (activity.finishState().simpleLatch() != latch) {
-//                    push(activity);
-//                    return false;
-//                }
                 activity.run();
                 Unsafe.dealloc(activity);
             }

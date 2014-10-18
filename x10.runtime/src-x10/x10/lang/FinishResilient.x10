@@ -128,15 +128,9 @@ abstract class FinishResilient extends FinishState {
     }
     
     /*
-     * Methods implemented here
-     */
-    public def simpleLatch():SimpleLatch { // have been used only in Runtime.Worker.loop2()
-        throw new UnsupportedOperationException("Obsolete function");
-    }
-    
-    /*
      * Utility methods used in subclasses
      */
+
     // returns true if dst is not dead, does not wait for the completion
     protected static def lowLevelSend(dst:Place, cl:()=>void):Boolean {
         if (verbose>=4) debug("----lowLevelSend called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
