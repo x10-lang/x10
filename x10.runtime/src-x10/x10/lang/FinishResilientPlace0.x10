@@ -20,11 +20,14 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
     
+    // FIXME: Once we stabilize the implementation, switch to using Array_2
+    //        instead of Rail for the logically 2-D arrays.
     private static class State { // data stored at Place0
-        val transit = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
-        val transitAdopted = new Rail[Int](Place.numPlaces() * Place.numPlaces(), 0n);
-        val live = new Rail[Int](Place.numPlaces(), 0n);
-        val liveAdopted = new Rail[Int](Place.numPlaces(), 0n);
+        val NUM_PLACES = Place.numPlaces();
+        val transit = new Rail[Int](NUM_PLACES * NUM_PLACES, 0n);
+        val transitAdopted = new Rail[Int](NUM_PLACES * NUM_PLACES, 0n);
+        val live = new Rail[Int](NUM_PLACES, 0n);
+        val liveAdopted = new Rail[Int](NUM_PLACES, 0n);
         val excs = new x10.util.GrowableRail[CheckedThrowable](); // exceptions to report
         val children = new x10.util.GrowableRail[Long](); // children
         var adopterId:Long = -1; // adopter (if adopted)
@@ -94,11 +97,11 @@ class FinishResilientPlace0 extends FinishResilient {
         lowLevelAt(place0, ()=>{ atomic {
             val state = states(id);
             if (!state.isAdopted()) {
-                state.transit(srcId*Place.numPlaces() + dstId)++;
+                state.transit(srcId*state.NUM_PLACES + dstId)++;
             } else {
                 val adopterId = getCurrentAdopterId(id);
                 val adopterState = states(adopterId);
-                adopterState.transitAdopted(srcId*Place.numPlaces() + dstId)++;
+                adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)++;
             }
             if (verbose>=3) state.dump("DUMP id="+id);
         }});
@@ -129,12 +132,12 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.live(dstId)++;
-                    state.transit(srcId*Place.numPlaces() + dstId)--;
+                    state.transit(srcId*state.NUM_PLACES + dstId)--;
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
                     adopterState.liveAdopted(dstId)++;
-                    adopterState.transitAdopted(srcId*Place.numPlaces() + dstId)--;
+                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
             };
@@ -274,27 +277,27 @@ class FinishResilientPlace0 extends FinishResilient {
                 assert !childState.isAdopted();
                 childState.adopterId = id;
                 state.children.addAll(childState.children); // will be checked in the following iteration
-                for (i in 0..(Place.numPlaces()-1)) {
+                for (i in 0..(state.NUM_PLACES-1)) {
                     state.liveAdopted(i) += (childState.live(i) + childState.liveAdopted(i));
-                    for (j in 0..(Place.numPlaces()-1)) {
-                        val idx = i*Place.numPlaces() + j;
+                    for (j in 0..(state.NUM_PLACES-1)) {
+                        val idx = i*state.NUM_PLACES + j;
                         state.transitAdopted(idx) += (childState.transit(idx) + childState.transitAdopted(idx));
                     }
                 }
             } // for (chIndex)
         }
         // 2 delete dead entries
-        for (i in 0..(Place.numPlaces()-1)) {
+        for (i in 0..(state.NUM_PLACES-1)) {
             if (Place.isDead(i)) {
                 for (unused in 1..state.live(i)) {
                     if (verbose>=3) debug("adding DPE for live("+i+")");
                     addDeadPlaceException(state, i);
                 }
                 state.live(i) = 0n; state.liveAdopted(i) = 0n;
-                for (j in 0..(Place.numPlaces()-1)) {
-                    val idx = i*Place.numPlaces() + j;
+                for (j in 0..(state.NUM_PLACES-1)) {
+                    val idx = i*state.NUM_PLACES + j;
                     state.transit(idx) = 0n; state.transitAdopted(idx) = 0n;
-                    val idx2 = j*Place.numPlaces() + i;
+                    val idx2 = j*state.NUM_PLACES + i;
                     for (unused in 1..state.transit(idx2)) {
                         if (verbose>=3) debug("adding DPE for transit("+j+","+i+")");
                         addDeadPlaceException(state, i);
@@ -307,11 +310,11 @@ class FinishResilientPlace0 extends FinishResilient {
         // 3 quiescent check
         if (verbose>=3) state.dump("DUMP id="+id);
         var quiet:Boolean = true;
-        for (i in 0..(Place.numPlaces()-1)) {
+        for (i in 0..(state.NUM_PLACES-1)) {
             if (state.live(i) > 0) { quiet = false; break; }
             if (state.liveAdopted(i) > 0) { quiet = false; break; }
-            for (j in 0..(Place.numPlaces()-1)) {
-                val idx = i*Place.numPlaces() + j;
+            for (j in 0..(state.NUM_PLACES-1)) {
+                val idx = i*state.NUM_PLACES + j;
                 if (state.transit(idx) > 0) { quiet = false; break; }
                 if (state.transitAdopted(idx) > 0) { quiet = false; break; }
             }
