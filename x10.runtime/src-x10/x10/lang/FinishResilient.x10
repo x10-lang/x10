@@ -194,10 +194,11 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=4) debug("---- lowLevelAt waiting for cond");
         cond.await();
         if (verbose>=4) debug("---- lowLevelAt released from cond");
+	// Unglobalize objects
+	condGR.forget();
+        exc.forget();
+
         val t = exc()();
-
-        // FIXME: destroy GlobalRefs here to avoid resource leak
-
         if (t != null) {
             if (verbose>=4) debug("---- lowLevelAt throwing exception " + t);
             Runtime.throwCheckedWithoutThrows(t);
@@ -247,7 +248,10 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=4) debug("---- lowLevelFetch released from cond");
         val t = exc()();
 
-        // FIXME: destroy GlobalRefs here to avoid resource leak
+	// Unglobalize objects
+	condGR.forget();
+        exc.forget();
+	gresult.forget();
 
         if (t != null) {
             if (verbose>=4) debug("---- lowLevelFetch throwing exception " + t);

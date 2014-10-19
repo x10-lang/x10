@@ -486,6 +486,12 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.globalize: id=" + id + " used for obj=" + obj + ", T=" + T);
     }
 
+    public void forget() {
+        // TODO: Kiyo, can you implement this functionality for Managed X10?
+        //       Thanks, --dave.
+        if(GLOBALGC_DEBUG>=1)GlobalGCDebug("GlobalRef.forget: not implemented; doing nothing");
+    }
+    
     private boolean isGlobalized() {
         return id != 0L;
     }

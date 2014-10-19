@@ -35,6 +35,14 @@ namespace x10 {
             }
             #endif
         }
+
+        void forgetGlobalReference(x10::lang::Reference* obj) {
+            #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
+            if (!obj->_isMortal()) {
+                x10aux::ReferenceLogger::forget(obj);
+            }
+            #endif
+        }
     }
 }
 

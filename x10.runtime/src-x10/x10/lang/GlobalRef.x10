@@ -85,6 +85,18 @@ public struct GlobalRef[T](
     @Native("c++", "::x10::lang::GlobalRef__LocalEval::getLocalOrCopy< #T >(#this)")
     public native def getLocalOrCopy():T;
 
+    /** 
+     * Called when the object referred to by the GlobalRef is no 
+     * longer accesible from other places and therefore can
+     * be removed from the data sturctures that keep objects
+     * alive even when they are not live locally. 
+     * Can only be invoked at the place at which the value was
+     * created. 
+     */
+    @Native("java", "(#this).forget()")
+    @Native("c++", "(#this)->forget()")
+    public native def forget(){here == this.home}:void;
+
     /*
      * @Native methods from Any because the handwritten C++ code doesn't 100% match 
      * what the compiler would have generated.

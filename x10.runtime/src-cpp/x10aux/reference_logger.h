@@ -48,6 +48,11 @@ namespace x10aux {
         	if (NULL == it) it = initMe();
         	it->log_(x);
         }
+        void forget_(void *x);
+        static void forget(void *x) {
+        	if (NULL == it) return;
+        	it->forget_(x);
+        }
         template<class T> friend const char *::x10aux::typeName();
     };
 

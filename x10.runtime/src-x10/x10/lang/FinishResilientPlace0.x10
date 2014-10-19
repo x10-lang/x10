@@ -147,7 +147,7 @@ class FinishResilientPlace0 extends FinishResilient {
                     if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
                     Runtime.worker().push(pa);
                 }
-                // FIXME: Right here is where we need to destroy the GlobalRef to avoid the Activity leaking!              
+                pendingActivity.forget();
             }
         };
 

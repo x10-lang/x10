@@ -52,7 +52,9 @@ namespace x10 {
             inline T __apply() { return (T)(size_t)value; }
 
             GlobalRef<T>* operator->() { return this; }
-        
+
+            void forget();
+            
             static void _serialize(GlobalRef<T> this_, ::x10aux::serialization_buffer& buf);
     
             static GlobalRef<T> _deserialize(::x10aux::deserialization_buffer& buf) {
@@ -140,9 +142,13 @@ namespace x10 {
 namespace x10 {
     namespace lang {
         extern void logGlobalReference(::x10::lang::Reference* obj);
+        extern void forgetGlobalReference(::x10::lang::Reference* obj);
     }
 }
 
+template<class T> void x10::lang::GlobalRef<T>::forget() {
+    forgetGlobalReference((x10::lang::Reference*)value);
+}
 
 template<class T> void x10::lang::GlobalRef<T>::_serialize(::x10::lang::GlobalRef<T> this_,
                                                            ::x10aux::serialization_buffer& buf) {
