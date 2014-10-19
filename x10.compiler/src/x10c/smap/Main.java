@@ -84,21 +84,22 @@ public class Main {
 	    }
 	    
 	    int numModified = 0;
-	    for (String x10FileName : x10_srcs) {
-            int sepIndex = x10FileName.lastIndexOf(File.separator);
+	    for (String x10FileName : x10_srcs) { /*a/b/XYZ.x10*/
+            int sepIndex = x10FileName.lastIndexOf(File.separator); /*3*/
             boolean hasPackage = sepIndex > 0;
-            String relPathPrefix = sepIndex > 0 ? x10FileName.substring(0, sepIndex) : "";
-            final String className = x10FileName.substring(hasPackage ? relPathPrefix.length()+1 : 0, x10FileName.length()-4);
-	        String javaFileName = javadir+File.separator+(x10FileName.substring(0, x10FileName.length()-4))+".java";
+            String relPathPrefix = sepIndex > 0 ? x10FileName.substring(0, sepIndex) : ""; /*a/b*/
+            final String className = x10FileName.substring(hasPackage ? relPathPrefix.length()+1 : 0, x10FileName.length()-4/*.x10*/); /*XYZ*/
+	        String javaFileName = javadir+File.separator+(x10FileName.substring(0, x10FileName.length()-4/*.x10*/))+".java"; /*src-java/gen/a/b/XYZ.java*/
 	        File javaFile = new File(javaFileName);
 	        if (javaFile.exists() && javaFile.isFile()) {
-	            File classDir = new File(classdir+File.separator+relPathPrefix);
+	            File classDir = new File(classdir+File.separator+relPathPrefix); /*classes/a/b*/
 	            if (classDir.exists() && classDir.isDirectory()) {
 	                File[] classFiles = classDir.listFiles(new FilenameFilter(){
+	                    @Override
                         public boolean accept(File arg0, String arg1) {
                             if (!arg1.endsWith(".class")) return false;
-                            if (arg1.equals(className+".class")) return true;
-                            return arg1.startsWith(className+"$");
+                            if (arg1.equals(className+".class")) return true; /*XYZ.class*/
+                            return arg1.startsWith(className+"$"); /*XYZ$*class*/
                         }});
 	                if (classFiles != null && classFiles.length > 0) {
 	                    if (verbose) {
