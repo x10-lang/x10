@@ -527,6 +527,13 @@ public class ApplicationMaster {
 					// set environment variables
 					LOG.info("Set the environment for container for place "+placeId);
 					Map<String, String> env = new HashMap<String, String>();
+					//env.putAll(System.getenv()); // copy all environment variables from the client side to the application side
+					// copy over existing environment variables
+					for (String key : System.getenv().keySet()) {
+						//if (key.startsWith("X10_") || key.startsWith("X10RT_"))
+						if (!key.startsWith("BASH_FUNC_"))
+							env.put(key, System.getenv(key));
+					}
 					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(initialNumPlaces));
 					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));

@@ -193,7 +193,13 @@ public class Client {
 		
 		LOG.info("Set the environment for the application master");
 		Map<String, String> env = new HashMap<String, String>();
-		
+		//env.putAll(System.getenv()); // copy all environment variables from the client side to the application side
+		// copy over existing environment variables
+		for (String key : System.getenv().keySet()) {
+			//if (key.startsWith("X10_") || key.startsWith("X10RT_"))
+			if (!key.startsWith("BASH_FUNC_"))
+				env.put(key, System.getenv(key));
+		}
 		String places = System.getenv(ApplicationMaster.X10_NPLACES);
 		env.put(ApplicationMaster.X10_NPLACES, (places==null)?"1":places);
 		String cores = System.getenv(ApplicationMaster.X10_NTHREADS);
