@@ -74,7 +74,6 @@ public class ApplicationMaster {
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_LAUNCHER_HOST = "X10_LAUNCHER_HOST";
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
-	public static final String X10_MAX_MEMORY = "X10_MAX_MEMORY";
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
@@ -116,7 +115,7 @@ public class ApplicationMaster {
 	
 	private int initialNumPlaces;
 	private int coresPerPlace;
-	private int memoryPerPlace;
+	private int memoryPerPlaceInMb;
 	
 	// Counter for completed containers ( complete denotes successful or failed )
 	private AtomicInteger numCompletedContainers = new AtomicInteger();
@@ -159,12 +158,30 @@ public class ApplicationMaster {
 		
 		initialNumPlaces = Integer.parseInt(envs.get(X10_NPLACES));
 		coresPerPlace = Integer.parseInt(envs.get(X10_NTHREADS));
-		memoryPerPlace = Integer.parseInt(envs.get(X10_MAX_MEMORY));
 		links = new HashMap<Integer, ApplicationMaster.CommunicationLink>(initialNumPlaces);
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
 		selector = Selector.open();
 		this.args = args;
 		this.appName = System.getProperty(X10_YARN_MAIN);
+		
+		// look for max memory argument
+		this.memoryPerPlaceInMb = 1024; // default of 1Gb per place
+		for (int i=0; i<args.length; i++) {
+			try {
+				if (args[i].startsWith("-Xmx")) {
+					if (args[i].endsWith("m"))
+						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1));
+					else if (args[i].endsWith("k"))
+						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1))/1024;
+					else
+						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4))/1024/1024;
+					break;
+				}
+			} catch (NumberFormatException e) {
+				// ignore, use default value
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void setup() throws IOException, YarnException {
@@ -215,11 +232,11 @@ public class ApplicationMaster {
 		 // A resource ask cannot exceed the max.
 		 
 		 // TODO: should we reject instead of modifying to fit?
-		 if (memoryPerPlace > maxMem) {
+		 if (memoryPerPlaceInMb > maxMem) {
 			 LOG.info("Container memory specified above max threshold of cluster."
-					 + " Using max value." + ", specified=" + memoryPerPlace + ", max="
+					 + " Using max value." + ", specified=" + memoryPerPlaceInMb + ", max="
 					 + maxMem);
-			 memoryPerPlace = maxMem;
+			 memoryPerPlaceInMb = maxMem;
 		 }
 		 if (coresPerPlace > maxVCores) {
 			 LOG.info("Container virtual cores specified above max threshold of cluster."
@@ -249,7 +266,7 @@ public class ApplicationMaster {
 		 
 		 // Send request for containers to RM
 		 for (int i = 0; i < numTotalContainersToRequest; ++i) {
-			 Resource capability = Resource.newInstance(memoryPerPlace, coresPerPlace);
+			 Resource capability = Resource.newInstance(memoryPerPlaceInMb, coresPerPlace);
 			 ContainerRequest request = new ContainerRequest(capability, null, null, Priority.newInstance(0));
 			 LOG.info("Requested container ask: " + request.toString());
 			 resourceManager.addContainerRequest(request);
@@ -558,23 +575,19 @@ public class ApplicationMaster {
 						
 						// Set java executable command
 						vargs.add(Environment.JAVA_HOME.$$() + "/bin/java");
-						// Set Xmx based on am memory size
-						vargs.add("-Xmx" + memoryPerPlace + "m");
 						// set classpath
 						vargs.add("-classpath");
 						vargs.add(classPathEnv.toString());
-	
-						// use our own main class wrapper
-						vargs.add(X10MainRunner.class.getName());
-						// Set user's class name
-						vargs.add(appName);
+						// set remaining arguments
+						for (int i=0; i<args.length; i++)
+							vargs.add(args[i]);
 					}
 					else {
 						// set binary name
 						vargs.add("./"+appName);
+						for (int i=1; i<args.length; i++)
+							vargs.add(args[i]);
 					}
-					for (int i=1; i<args.length; i++)
-						vargs.add(args[i]);
 
 					
 					vargs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + '/'+appName+"_Place"+placeId+".stdout");

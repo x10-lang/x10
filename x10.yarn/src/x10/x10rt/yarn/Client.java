@@ -69,6 +69,7 @@ public class Client {
 	private final String[] args;
 	private final int mainClassArg;
 	private String classPath = null;
+	private int classPathArg = -1;
 
 	public Client(String[] args) {
 		this.conf = new YarnConfiguration();
@@ -86,6 +87,7 @@ public class Client {
 		for (int classPathArg = 0; classPathArg<args.length; classPathArg++) {
 			if (args[classPathArg].startsWith(prefix)) {
 				classPath = args[classPathArg].substring(prefix.length());
+				this.classPathArg = classPathArg;
 				break;
 			}
 		}
@@ -205,8 +207,7 @@ public class Client {
 		String cores = System.getenv(ApplicationMaster.X10_NTHREADS);
 		env.put(ApplicationMaster.X10_NTHREADS, (cores==null)?"0":cores);
 		env.put(ApplicationMaster.X10_HDFS_JARS, x10jars.toString());
-		env.put(ApplicationMaster.X10_MAX_MEMORY, Long.toString(Runtime.getRuntime().maxMemory()/1024/1024));
-
+		
 		// At some point we should not be required to add
 		// the hadoop specific classpaths to the env.
 		// It should be provided out of the box.
@@ -235,7 +236,15 @@ public class Client {
 		vargs.add("-D"+ApplicationMaster.X10_YARN_MAIN+"="+appName);
 		// Set class name
 		vargs.add(appMasterMainClass);
-		// add remaining command line arguments
+		
+		// add java arguments
+		for (int i=0; i<mainClassArg; i++) {
+			if (i != classPathArg) // skip the classpath, as it gets reworked
+				vargs.add(args[i]);
+		}
+		// add our own main class wrapper
+		if (!isNative) vargs.add(X10MainRunner.class.getName());
+		// add remaining application command line arguments
 		for (int i=mainClassArg; i<args.length; i++)
 			vargs.add(args[i]);
 		
