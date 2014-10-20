@@ -16,6 +16,7 @@ defs=""
 dev=""
 noassert=""
 noclassloadtest=""
+nativeyarn=""
 java_args=()
 args=()
 if [ "$X10RT_IMPL" = "local" ]; then
@@ -230,11 +231,11 @@ else
         unset launcher
         unset X10_HOSTFILE
         unset X10_HOSTLIST
-        export HAZELCAST_JAR=$HAZELCAST_JAR
+        #TODO: remove this test, and use runX10 instead for native X10
         if [ -f "$main" ]; then
             # running native X10 program, not managed X10
             noclassloadtest="true"
-            java_args=("-DX10_YARN_NATIVE=true" "${java_args[@]}")
+            nativeyarn="true"
         fi
     elif [ "${x10rt_impl}" = "disabled" ]; then
         java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
@@ -249,16 +250,8 @@ java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-if [ "${x10rt_impl}" = "yarn" ]; then
-    #TODO: verify yarn is in the path
-    classpath="$classpath${PATH_SEP}`yarn classpath`"
-    # the large set of hadoop jars provided by hadoop includes *'s, which need the -classpath form to work 
-    java_args=(-classpath $classpath "-Djava.library.path=$externpath" "${java_args[@]}")
-    args=("x10.x10rt.yarn.Client" "${args[@]}")
-else
-	java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
-	#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
-fi
+java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
+#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
 [ -z "$noassert" ] && java_args=("-ea" "${java_args[@]}")
 
@@ -282,6 +275,13 @@ fi
 
 
 [ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
+if [ "${x10rt_impl}" = "yarn" ]; then
+  if [ -z "$nativeyarn" ]; then
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "x10.x10rt.yarn.Client" "${java_args[@]}")
+  else
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
+  fi
+fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
 

@@ -76,6 +76,7 @@ public class ApplicationMaster {
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
 	public static final String X10_MAX_MEMORY = "X10_MAX_MEMORY";
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
+	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
@@ -163,7 +164,7 @@ public class ApplicationMaster {
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
 		selector = Selector.open();
 		this.args = args;
-		this.appName = args[0];
+		this.appName = System.getProperty(X10_YARN_MAIN);
 	}
 	
 	private void setup() throws IOException, YarnException {

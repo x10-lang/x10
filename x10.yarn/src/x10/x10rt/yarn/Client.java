@@ -67,6 +67,8 @@ public class Client {
 	private final int amVCores = 1;
 	private final String appMasterMainClass;
 	private final String[] args;
+	private final int mainClassArg;
+	private String classPath = null;
 
 	public Client(String[] args) {
 		this.conf = new YarnConfiguration();
@@ -78,11 +80,27 @@ public class Client {
 		this.yarnClient = YarnClient.createYarnClient();
 		this.yarnClient.init(this.conf);
 		this.args = args;
-		int lastslash = args[0].lastIndexOf('/');
+		
+		// find the original classpath argument from the x10 script
+		String prefix = "-Djava.class.path=";
+		for (int classPathArg = 0; classPathArg<args.length; classPathArg++) {
+			if (args[classPathArg].startsWith(prefix)) {
+				classPath = args[classPathArg].substring(prefix.length());
+				break;
+			}
+		}
+		// find the first non-jvm argument, which is the main class name
+		int mainClassArg = 0;
+		for (; mainClassArg<args.length; mainClassArg++) {
+			if (args[mainClassArg].charAt(0) != '-')
+				break;
+		}
+		this.mainClassArg = mainClassArg;
+		int lastslash = args[mainClassArg].lastIndexOf('/');
 		if (lastslash == -1)
-			this.appName = args[0];
+			this.appName = args[mainClassArg];
 		else
-			this.appName = args[0].substring(lastslash+1);
+			this.appName = args[mainClassArg].substring(lastslash+1);
 	}
 	
 	public static void main(String[] args) {
@@ -154,9 +172,8 @@ public class Client {
 		StringBuilder x10jars = new StringBuilder();
 		
 		boolean isNative = Boolean.getBoolean(ApplicationMaster.X10_YARN_NATIVE);
-		String[] jarfiles = System.getProperty("java.class.path").split(":");
+		String[] jarfiles = classPath.split(":");
 		// upload jar files
-		String hazelcastjar = System.getenv("HAZELCAST_JAR");
 		for (String jar: jarfiles) {
 			if (jar.endsWith(".jar")) {
 				String nopath = jar.substring(jar.lastIndexOf('/')+1);
@@ -164,12 +181,11 @@ public class Client {
 				x10jars.append(addToLocalResources(fs, jar, nopath, appId.toString(), localResources, null));
 				if (isNative) {
 					// add the user's program.
-					LOG.info("Uploading "+appName+" to "+fs.getUri());
+					LOG.info("Uploading application "+appName+" to "+fs.getUri());
 					x10jars.append(':');
-					x10jars.append(addToLocalResources(fs, args[0], appName, appId.toString(), localResources, null));
+					x10jars.append(addToLocalResources(fs, args[mainClassArg], appName, appId.toString(), localResources, null));
 					break; // no other jar files are needed beyond the one holding ApplicationMaster, which is the first one
-				} else if (jar.endsWith(hazelcastjar)) // last Managed X10 jar file.  The rest are hadoop jars 
-					break;
+				}
 				else
 					x10jars.append(':');
 			}
@@ -209,10 +225,12 @@ public class Client {
 		vargs.add("-Xmx" + amMemory + "m");
 		// propigate the native flag
 		if (isNative) vargs.add("-DX10_YARN_NATIVE=true");
+		
+		vargs.add("-D"+ApplicationMaster.X10_YARN_MAIN+"="+appName);
 		// Set class name
 		vargs.add(appMasterMainClass);
 		// add remaining command line arguments
-		for (int i=0; i<args.length; i++)
+		for (int i=mainClassArg; i<args.length; i++)
 			vargs.add(args[i]);
 		
 		vargs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/AppMaster.stdout");
