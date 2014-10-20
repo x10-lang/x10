@@ -698,17 +698,6 @@ public struct Team {
 
             /**
              * Block the current activity until condition is set to true by
-             * another activity, giving preference to activities incoming
-             * from the network (x10rt probe).
-             */
-            val probeUntil = (condition:() => Boolean) => @NoInline {
-                if (!condition()) {
-                    while (!condition()) Runtime.probe();
-                }
-            };
-
-            /**
-             * Block the current activity until condition is set to true by
              * another activity, giving preference to activities running
              * locally on another worker thread.
              */
@@ -782,7 +771,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
         
             // wait for phase updates from children
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children phase "+Team.state(teamidcopy).phase.get());
-            probeUntil(() => this.phase.get() == PHASE_SCATTER);
+            sleepUntil(() => this.phase.get() == PHASE_SCATTER);
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children phase "+Team.state(teamidcopy).phase.get());
 
             if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
@@ -896,7 +885,7 @@ if (DEBUGINTERNALS) Runtime.println(here+ " alltoall gathering from offset "+(ds
                 }
                 
                 if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+places(myLinks.parentIndex)+":team"+teamidcopy+" to release us from phase "+phase.get());
-                probeUntil(() => this.phase.get() == PHASE_DONE);
+                sleepUntil(() => this.phase.get() == PHASE_DONE);
                 if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
             }
 
