@@ -66,22 +66,22 @@ public final class Math {
     @Native("c++", "::ilogb(#a)")
     public static native def getExponent(a:Double):Int;
 
-    @Native("java", "java.lang.Math.scalb(#a, #b)")
+    @Native("java", "java.lang.Math.scalb(#a,#b)")
     @Native("c++", "::x10::lang::MathNatives::scalbn(#a,#b)")
     @Native("cuda", "scalbn(#a,#b)")
     public static native def scalb(a:Double, b:Int):Double;
 
-    @Native("java", "java.lang.Math.scalb(#a, #b)")
+    @Native("java", "java.lang.Math.scalb(#a,#b)")
     @Native("c++", "::x10::lang::MathNatives::scalbnf(#a,#b)")
     @Native("cuda", "scalbnf(#a,#b)")
     public static native def scalb(a:Float, b:Int):Float;
 
-    @Native("java", "java.lang.Math.pow(#a, #b)")
+    @Native("java", "java.lang.Math.pow(#a,#b)")
     @Native("c++", "::x10::lang::MathNatives::pow(#a,#b)")
     @Native("cuda", "pow(#a,#b)")
     public static native def pow(a:Double, b:Double):Double;
 
-    @Native("java", "(float)java.lang.Math.pow(#a, #b)")
+    @Native("java", "(float)java.lang.Math.pow(#a,#b)")
     @Native("c++", "::powf(#a,#b)")
     @Native("cuda", "powf(#a,#b)")
     public static native def pow(a:Float, b:Float):Float;
@@ -89,7 +89,7 @@ public final class Math {
     /**
      * @deprecated use {@link #pow(Float,Float)} instead
      */
-    @Native("java", "(float)java.lang.Math.pow(#a, #b)")
+    @Native("java", "(float)java.lang.Math.pow(#a,#b)")
     @Native("c++", "::powf(#a,#b)")
     @Native("cuda", "powf(#a,#b)")
     public static native def powf(a:Float, b:Float):Float;
@@ -101,7 +101,7 @@ public final class Math {
      * @return a raised to the power <code>b</code>
      * @see http://mathworld.wolfram.com/Power.html
      */
-    @Native("c++", "::x10::lang::MathNatives::pow(#a, #b)")
+    @Native("c++", "::x10::lang::MathNatives::pow(#a,#b)")
     public static def pow(a:Complex, b:Complex):Complex = Math.exp(Math.log(a) * b);
 
     @Native("java", "java.lang.Math.exp(#a)")
@@ -488,6 +488,16 @@ public final class Math {
     @Native("c++", "::x10::lang::MathNatives::copysignf(#a,#b)")
     @Native("cuda", "copysignf(#a,#b)")
     public static native def copySign(a:Float, b:Float):Float;
+
+    @Native("java", "java.lang.Math.nextAfter(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::nextafter(#a,#b)")
+    @Native("cuda", "nextafter(#a,#b)")
+    public static native def nextAfter(a:Double, b:Double):Double;
+
+    @Native("java", "java.lang.Math.nextAfter(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::nextafterf(#a,#b)")
+    @Native("cuda", "nextafterf(#a,#b)")
+    public static native def nextAfter(a:Float, b:Float):Float;
 
     public static def nextPowerOf2(p:Int):Int {
         if (p==0n) return 0n;

@@ -57,6 +57,8 @@ namespace x10 {
             static inline x10_float copysignf(x10_float x, x10_float y) { return ::copysignf(x, y); }
             static inline x10_double scalbn(x10_double x, x10_int y) { return ::scalbn(x,y); }
             static inline x10_float scalbnf(x10_float x, x10_int y) { return ::scalbnf(x,y); }
+            static inline x10_double nextafter(x10_double x, x10_double y) { return ::nextafter(x, y); }
+            static inline x10_float nextafterf(x10_float x, x10_float y) { return ::nextafterf(x, y); }
         };
     }
 }
