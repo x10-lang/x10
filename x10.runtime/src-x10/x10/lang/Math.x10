@@ -48,6 +48,11 @@ public final class Math {
     @Native("cuda", "floor(#a)")
     public static native def floor(a:Double):Double;
 
+    @Native("java", "java.lang.Math.rint(#a)")
+    @Native("c++", "::x10::lang::MathNatives::rint(#a)")
+    @Native("cuda", "rint(#a)")
+    public static native def rint(a:Double):Double;
+
     @Native("java", "(double)java.lang.Math.round(#a)")
     @Native("c++", "::x10::lang::MathNatives::round(#a)")
     @Native("cuda", "round(#a)")
