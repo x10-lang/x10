@@ -66,6 +66,16 @@ public final class Math {
     @Native("c++", "::ilogb(#a)")
     public static native def getExponent(a:Double):Int;
 
+    @Native("java", "java.lang.Math.scalb(#a, #b)")
+    @Native("c++", "::x10::lang::MathNatives::scalbn(#a,#b)")
+    @Native("cuda", "scalbn(#a,#b)")
+    public static native def scalb(a:Double, b:Int):Double;
+
+    @Native("java", "java.lang.Math.scalb(#a, #b)")
+    @Native("c++", "::x10::lang::MathNatives::scalbnf(#a,#b)")
+    @Native("cuda", "scalbnf(#a,#b)")
+    public static native def scalb(a:Float, b:Int):Float;
+
     @Native("java", "java.lang.Math.pow(#a, #b)")
     @Native("c++", "::x10::lang::MathNatives::pow(#a,#b)")
     @Native("cuda", "pow(#a,#b)")
