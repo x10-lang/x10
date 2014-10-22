@@ -193,6 +193,20 @@ public class Client {
 			}
 		}
 		
+		StringBuilder uploadedFiles = new StringBuilder();
+		
+		// upload any files specified via -copy argument
+		String upload = System.getProperty(ApplicationMaster.X10_YARNUPLOAD);
+		if (upload != null) {
+			String[] files = upload.split(",");
+			for (String file : files) {
+				String nopath = file.substring(file.lastIndexOf('/')+1);
+				LOG.info("Uploading file "+nopath+" to "+fs.getUri());
+				uploadedFiles.append(addToLocalResources(fs, file, nopath, appId.toString(), localResources, null));
+				uploadedFiles.append(',');
+			}
+		}
+		
 		LOG.info("Set the environment for the application master");
 		Map<String, String> env = new HashMap<String, String>();
 		//env.putAll(System.getenv()); // copy all environment variables from the client side to the application side
@@ -232,6 +246,7 @@ public class Client {
 		vargs.add("-Xmx" + amMemory + "m");
 		// propigate the native flag
 		if (isNative) vargs.add("-DX10_YARN_NATIVE=true");
+		if (upload != null) vargs.add("-D"+ApplicationMaster.X10_YARNUPLOAD+"="+uploadedFiles.toString());
 		
 		vargs.add("-D"+ApplicationMaster.X10_YARN_MAIN+"="+appName);
 		// Set class name

@@ -76,6 +76,7 @@ public class ApplicationMaster {
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
+	public static final String X10_YARNUPLOAD = "X10_YARNUPLOAD";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
@@ -533,11 +534,22 @@ public class ApplicationMaster {
 					FileSystem fs = FileSystem.get(conf);
 					String appId = appAttemptID.getApplicationId().toString();
 					Map<String, LocalResource> localResources = new HashMap<String, LocalResource>();
+					
 					String[] jarfiles = System.getenv(X10_HDFS_JARS).split(":");
 					for (String jar: jarfiles) {
 						if (jar.length() > 0) {
 							LOG.info("Added "+jar+" to local resources for "+appId);
 							addToRuntimeResources(fs, jar, appId, localResources);
+						}
+					}
+					
+					// upload any files specified via -copy argument
+					String upload = System.getProperty(ApplicationMaster.X10_YARNUPLOAD);
+					if (upload != null) {
+						String[] files = upload.split(",");
+						for (String file : files) {
+							LOG.info("Added file "+file+" to local resources for "+appId);
+							addToRuntimeResources(fs, file, appId, localResources);
 						}
 					}
 		

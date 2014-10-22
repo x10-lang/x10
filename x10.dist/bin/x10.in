@@ -24,6 +24,7 @@ x10rt_impl="$X10RT_IMPL"
 else
 x10rt_impl=""
 fi
+yarnupload=""
 launcher_args=()
 launcher_env=()
 
@@ -71,6 +72,7 @@ while [ -n "$1" ]; do
         -host|--host) shift; export X10_HOSTLIST="$1";;
         -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
         -x10rt) shift; x10rt_impl="$1";;
+        -upload) shift; yarnupload="-DX10_YARNUPLOAD=$1";;
         -config) shift; config="$1.cfg";;
         -logconf) shift; logconf="$1";;
         -noassert) noassert="true";;
@@ -114,6 +116,7 @@ where [options] includes:
    -host <host1,host2,...>        list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
    -hostfile <file>               provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
    -x10rt <impl>                  select X10RT implementation
+   -upload <file1,file2,...>      copy files from local filesystem to remote (only valid with "-x10rt yarn")
    -config <conf>                 (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
    -logconf <logging.properties>  specify configuration file for java.util.logging
    -noassert                      disable assertion check
@@ -277,9 +280,9 @@ fi
 [ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
 if [ "${x10rt_impl}" = "yarn" ]; then
   if [ -z "$nativeyarn" ]; then
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "x10.x10rt.yarn.Client" "${java_args[@]}")
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "$yarnupload" "x10.x10rt.yarn.Client" "${java_args[@]}")
   else
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "$yarnupload" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
   fi
 fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
