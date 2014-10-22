@@ -154,9 +154,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def resize(newSize:Long, value:T) {
         val oldSize = a.size();
         if (newSize > oldSize) {
-            a.grow(newSize);
+            if (newSize > a.capacity()) a.grow(newSize);
             for (i in oldSize..(newSize-1)) {
-                a(i) = value;
+                a.add(value);
             }
         } else {
             a.shrink(newSize);
