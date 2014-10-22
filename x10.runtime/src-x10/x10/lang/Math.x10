@@ -91,6 +91,13 @@ public final class Math {
     @Native("cuda", "powf(#a,#b)")
     public static native def pow(a:Float, b:Float):Float;
 
+    public static def pow(a:Int, b:Double) = pow(a as Double, b);
+    public static def pow(a:Double, b:Int) = pow(a, b as Double);
+    public static def pow(a:Int, b:Int) = pow(a as Double, b as Double);
+    public static def pow(a:Long, b:Double) = pow(a as Double, b);
+    public static def pow(a:Double, b:Long) = pow(a, b as Double);
+    public static def pow(a:Long, b:Long) = pow(a as Double, b as Double);
+
     /**
      * @deprecated use {@link #pow(Float,Float)} instead
      */
@@ -118,6 +125,9 @@ public final class Math {
     @Native("c++", "(x10_float)::x10::lang::MathNatives::exp(#a)")
     @Native("cuda", "expf(#a)")
     public static native def exp(a:Float):Float;
+
+    public static def exp(a:Int) = exp(a as Double);
+    public static def exp(a:Long) = exp(a as Double);
 
     /**
      * @deprecated use {@link #exp(Float)} instead
@@ -344,6 +354,9 @@ public final class Math {
     @Native("cuda", "sqrtf(#a)")
     public static native def sqrt(a:Float):Float;
 
+    public static def sqrt(a:Int) = sqrt(a as Double);
+    public static def sqrt(a:Long) = sqrt(a as Double);
+
     /**
      * @deprecated use {@link #sqrt(Float)} instead
      */
@@ -402,6 +415,9 @@ public final class Math {
     @Native("c++", "(x10_float)::x10::lang::MathNatives::log(#a)")
     @Native("cuda", "logf(#a)")
     public static native def log(a:Float):Float;
+
+    public static def log(a:Int) = log(a as Double);
+    public static def log(a:Long) = log(a as Double);
 
     /**
      * @deprecated use {@link #log(Float)} instead
