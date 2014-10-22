@@ -198,6 +198,38 @@ public class CUDAKernelTest {
         CUDAUtilities.deleteGlobalRail(remote);
     }
 
+    static def doTest5d (init:Rail[Double], recv:Rail[Double], p:Place, len:Long) {
+
+        val remote : GlobalRail[Double]{self.home() == p} = CUDAUtilities.makeGlobalRail[Double](p, len); // allocate 
+
+        finish async at (p) @CUDA {
+            finish for (block in 0n..7n) async {
+                clocked finish for (thread in 0n..63n) clocked async {
+                    val tid = block*64 + thread;
+                    val tids = 8*64;
+                    for (var i:Long=tid; i<len; i+=tids) {
+                        remote(i) = Math.cbrt(init(i));
+                    }
+                }
+            }
+        }
+
+        finish Rail.asyncCopy(remote, 0, recv, 0, len); // dma back
+
+        // validate
+        var success:Boolean = true;
+        for (i in recv.range) {
+            val oracle = i as Double;
+            if (Math.abs(1 - (recv(i)*recv(i)*recv(i))/oracle) > 1E-6f) {
+                Console.ERR.println("recv("+i+"): "+recv(i)+" * "+recv(i)+" * "+recv(i)+" = "+(recv(i)*recv(i)*recv(i)));
+                success = false;
+            }
+        }
+        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
+
+        CUDAUtilities.deleteGlobalRail(remote);
+    }
+
 
     public static def main(args:Rail[String]) {
         val len = args.size==1 ? Long.parse(args(0)) : 1000;
@@ -219,6 +251,7 @@ public class CUDAKernelTest {
                 doTest2(gpu);
                 doTest3(gpu);
                 doTest4(gpu);
+                doTest5d(init_d, recv_d, gpu, len);
                 done_work = true;
             }
 
@@ -230,6 +263,7 @@ public class CUDAKernelTest {
                 doTest2(here);
                 doTest3(here);
                 doTest4(here);
+                doTest5d(init_d, recv_d, here, len);
             }
         }
     }
