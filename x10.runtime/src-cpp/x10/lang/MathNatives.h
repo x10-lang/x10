@@ -52,7 +52,9 @@ namespace x10 {
             static inline x10_double ceil(x10_double x) { return ::ceil(x); }
             static inline x10_double floor(x10_double x) { return ::floor(x); }
             static inline x10_double round(x10_double x) { return ::round(x); }
+            static inline x10_float roundf(x10_float x) { return ::roundf(x); }
             static inline x10_double copysign(x10_double x, x10_double y) { return ::copysign(x, y); }
+            static inline x10_float copysignf(x10_float x, x10_float y) { return ::copysignf(x, y); }
         };
     }
 }
