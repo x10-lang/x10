@@ -358,16 +358,13 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * Initial DistBlockMatrix with a given function
      */
     public def init(f:(Long,Long)=>Double): DistBlockMatrix(this) {
-        //finish ateach(p in Dist.makeUnique(places)) {
-        for(p in places) {
-            at(p){
-                val blks   = handleBS();
-                val grid   = blks.grid;
-                val blkitr = blks.iterator();
-                while (blkitr.hasNext()) {
-                    val blk = blkitr.next();              
-                    blk.init(f);
-                }
+        finish ateach(p in Dist.makeUnique(places)) {
+            val blks   = handleBS();
+            val grid   = blks.grid;
+            val blkitr = blks.iterator();
+            while (blkitr.hasNext()) {
+                val blk = blkitr.next();              
+                blk.init(f);
             }
         }
         return this;
