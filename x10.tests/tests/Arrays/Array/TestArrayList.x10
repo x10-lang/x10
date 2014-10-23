@@ -58,6 +58,13 @@ public class TestArrayList extends x10Test {
         val N = 20;
         val a = new ArrayList[Double]();
 
+        a.resize(0);
+        chk(a.size() == 0);
+        a.resize(1);
+        chk(a.size() == 1);
+        a.resize(2);
+        chk(a.size() == 2);
+
         a.resize(N);
         // new elements should be zero-initialized
         chk(a.size() == N);
@@ -71,6 +78,10 @@ public class TestArrayList extends x10Test {
         for (i in N..(a.size()-1)) {
             chk(a(i) == 1.0);
         }
+
+        // can call resize with current size?
+        a.resize(N*5, 1.0);
+        chk(a.size() == N*5);
 
         a.resize(10);
         chk(a.size() == 10);

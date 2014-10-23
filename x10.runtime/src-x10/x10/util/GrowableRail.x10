@@ -248,7 +248,7 @@ public final class GrowableRail[T] implements CustomSerialization {
             Rail.copy(data, 0, tmp, 0, cap);
             Unsafe.dealloc(data);
             data = tmp;
-        } else {
+        } else if (size < oldSize) {
             Unsafe.clearRail(data, size, oldSize-size);
         }
     }
