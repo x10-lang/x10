@@ -48,6 +48,11 @@ abstract class FinishState {
      * If this method returns true, the activity will be submitted to
      * the XRX Pool for execution. If this method returns false, the activity
      * will not be submitted. 
+     * 
+     * Machinations: activity may actually be null when the XRX runtime
+     *               is calling this method to simulate the stages in the
+     *               Activity life-cycles from lowlevel code (eg implementation
+     *               of at or asyncCopy).
      *
      * Scheduling note: May be called on @Immediate worker.
      *                  This method must not block or pause.
