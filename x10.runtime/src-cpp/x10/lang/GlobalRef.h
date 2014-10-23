@@ -147,7 +147,9 @@ namespace x10 {
 }
 
 template<class T> void x10::lang::GlobalRef<T>::forget() {
-    forgetGlobalReference((x10::lang::Reference*)value);
+    if (NULL != __apply()) {
+        forgetGlobalReference(reinterpret_cast< ::x10::lang::Reference*>(__apply()));
+    }
 }
 
 template<class T> void x10::lang::GlobalRef<T>::_serialize(::x10::lang::GlobalRef<T> this_,
