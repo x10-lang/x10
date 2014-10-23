@@ -65,10 +65,12 @@ public final class Math {
 
     @Native("java", "java.lang.Math.getExponent(#a)")
     @Native("c++", "::ilogbf(#a)")
+    @Native("cuda", "ilogbf(#a)")
     public static native def getExponent(a:Float):Int;
 
     @Native("java", "java.lang.Math.getExponent(#a)")
     @Native("c++", "::ilogb(#a)")
+    @Native("cuda", "ilogb(#a)")
     public static native def getExponent(a:Double):Int;
 
     @Native("java", "java.lang.Math.scalb(#a,#b)")
