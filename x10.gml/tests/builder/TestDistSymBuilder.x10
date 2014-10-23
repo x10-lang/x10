@@ -52,7 +52,6 @@ public class TestDistSymBuilder extends x10Test {
 		val sbld = DistSymMatrixBuilder.make(M, nblk);
 		val dspa = sbld.allocAllSparseBlocks(nzd).initRandom(nzd, (r:Long,c:Long)=>1.0+r+2*c).toMatrix();
 
-Console.OUT.println(sbld.toMatrix());
 		var ret:Boolean = sbld.checkSymmetric();
 		
 		if (!ret)

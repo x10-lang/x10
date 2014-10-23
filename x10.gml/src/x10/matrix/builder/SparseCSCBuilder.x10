@@ -96,6 +96,7 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 				append(ca.index(offset), c, ca.value(offset));
 			}
 		}
+        this.toSparseCSC();
 		return this;
 	}
 
@@ -112,6 +113,7 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 				append(c, r, ca.value(offset));
 			}
 		}
+        this.toSparseCSC();
 		return this;
 	}
 
@@ -126,6 +128,8 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 				if (MathTool.isZero(v)) continue;
 				append(r, c, v);
 			}
+
+        this.toSparseCSC();
 		return this;
 	}
 	
@@ -149,6 +153,7 @@ public class SparseCSCBuilder(M:Long, N:Long) implements MatrixBuilder {
 				if (c>=N) break;
 			}
 		}
+        this.toSparseCSC();
 		return this;
 	}
 
