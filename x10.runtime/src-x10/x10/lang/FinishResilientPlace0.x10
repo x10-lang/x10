@@ -143,7 +143,7 @@ class FinishResilientPlace0 extends FinishResilient {
             };
             at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
                 val pa = pendingActivity();
-                if (pa.epoch == Runtime.epoch()) {
+                if (pa != null && pa.epoch == Runtime.epoch()) {
                     if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
                     Runtime.worker().push(pa);
                 }
