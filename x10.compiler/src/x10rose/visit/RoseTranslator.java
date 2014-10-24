@@ -223,12 +223,34 @@ import x10rose.ExtensionInfo.FileStatus;
 public class RoseTranslator extends Translator {
 
     public static Set<String> package_traversed = new HashSet<String>();
+
+    /** 
+     * Key represents full path for a class, and the value for a key represents
+     * the package name for the class
+     */
+    public static HashMap<String, String> nestedClasses = new HashMap<String, String>();
     
     public RoseTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
         super(job, ts, nf, tf);
         jobList.add(job);
         package_traversed.add("x10.lang");
         package_traversed.add("x10.io");
+    }
+    
+    public static void recordNestedClass(String package_name, String parentClass_name, String nestedClass_name) {
+        if (DEBUG) System.out.println("nested class=" + nestedClass_name + ", package=" + package_name + ", parent class=" + parentClass_name);
+        nestedClasses.put((package_name.length() == 0 ? "" : package_name + ".") + parentClass_name + "." + nestedClass_name,
+                            package_name);
+    }
+
+    public static boolean isNestedClass(String class_name, String[] package_name) {
+        for (String path : nestedClasses.keySet())
+            if (path.equals(class_name)) {
+                package_name[0] = nestedClasses.get(path);
+                return true;
+            }
+
+        return false;
     }
 
     protected boolean translateSource(SourceFile sfn) {

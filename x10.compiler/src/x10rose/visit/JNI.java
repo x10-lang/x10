@@ -242,7 +242,8 @@ class JNI implements Callable<Boolean> {
 //MH-20140414
 //    public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
     public static native void cactionBuildClassSupportStart(String className, String externalName, boolean user_defined_class, boolean has_conflicts, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
-
+    public static native void cactionPushNestedClass(String className, String parentName);
+    
     public static native void cactionUpdateClassSupportStart(String class_name, JavaToken jToken);
     public static native void cactionInsertTypeParameter(String name, JavaToken jToken);
     public static native void cactionBuildTypeParameterSupport(String package_name, String type_name, int method_index, String parameter_name, int num_bounds, JavaToken jToken);
@@ -275,21 +276,22 @@ class JNI implements Callable<Boolean> {
     public static native void cactionArgumentName(String name);
     public static native void cactionArgumentModifiers(int modifiers);
     
-	public static native void cactionSetCurrentClassName(String typename);
-	public static native String cactionGetCurrentClassName();
-	public static native void cactionSetCurrentFilePath(String filepath);
+    public static native void cactionSetCurrentClassName(String typename);
+    public static native void cactionSetCurrentClassNameWithCopyingStacks(String typename);
+    public static native String cactionGetCurrentClassName();
+    public static native void cactionSetCurrentFilePath(String filepath);
 
-	public static native void cactionAsync(JavaToken jToken);
-	public static native void cactionAsyncEnd(boolean isClocked, JavaToken jToken);
-	public static native void cactionFinish(JavaToken jToken);
-	public static native void cactionFinishEnd(boolean isClocked, JavaToken jToken);
-        public static native void cactionFinishExpr(JavaToken jToken);
-        public static native void cactionFinishExprEnd(JavaToken jToken);
-	public static native void cactionAt(JavaToken jToken);
-	public static native void cactionAtEnd(JavaToken jToken);
-	public static native void cactionAtExpr(JavaToken jToken);
-	public static native void cactionAtExprEnd(JavaToken jToken);
-	public static native void cactionHere(JavaToken jToken);
+    public static native void cactionAsync(JavaToken jToken);
+    public static native void cactionAsyncEnd(boolean isClocked, JavaToken jToken);
+    public static native void cactionFinish(JavaToken jToken);
+    public static native void cactionFinishEnd(boolean isClocked, JavaToken jToken);
+    public static native void cactionFinishExpr(JavaToken jToken);
+    public static native void cactionFinishExprEnd(JavaToken jToken);
+    public static native void cactionAt(JavaToken jToken);
+    public static native void cactionAtEnd(JavaToken jToken);
+    public static native void cactionAtExpr(JavaToken jToken);
+    public static native void cactionAtExprEnd(JavaToken jToken);
+    public static native void cactionHere(JavaToken jToken);
 	
     //**********************************************************
     //*                                                        *
