@@ -1339,16 +1339,17 @@ public final class Runtime {
 
     /** 
      * Implement the exception/blocking semantics of at(p) S by 
-     * wrapping the fundamental remote async primitive at(p) async S
-     * to modify its exception semantics and using a local latch
-     * to achieve the desired blocking semantics.
+     * combining the fundamental primitives of finish (for blocking)
+     * and at (p) async S (for remote task spawning). 
      *
-     * TODO: Resilient X10: Need to use a per-worker RemoteControl
-     *                      to enable notifyPlaceDeath to unblock
-     *                      stuck threads.
+     * We manipulate the finish state, clocks, and exception behavior of
+     * the remote async's body to obtain the X10 language semantics.
      */
     public static def runAt(place:Place, body:()=>void, prof:Profile):void {
         Runtime.ensureNotInAtomic();
+
+        // runAt to here is straightforward, execute a
+        // deep copy of the body closure synchronously.
         if (place.id == hereLong()) {
             try {
                 try {
@@ -1361,49 +1362,77 @@ public final class Runtime {
                 throwCheckedWithoutThrows(deepCopy(t, null));
             }
         }
-        @StackAllocate val me = @StackAllocate new RemoteControl();
-        val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
-        val clockPhases = activity().clockPhases;
-        @StackAllocate val ser = @StackAllocate new x10.io.Serializer();
+
+        // Carefully manipulate the finishState, etc. so that 
+        // asyncs spawned by body use the current finishState
+        // not the finishState of the finish we create intenally here to
+        // enable blocking on the completion of remote execution of body
+        val srcPlace = here;
+        val realActivity = activity();
+        val finishState = realActivity.finishState();
+        val clockPhases = realActivity.clockPhases;
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
+        val ser = new x10.io.Serializer();
         ser.writeAny(body);
         val bytes = ser.toRail();
-        @x10.compiler.Profile(prof) at(place) async {
-            activity().clockPhases = clockPhases;
-            try {
-                try {
-                    // We use manual deserialization to get correct handling of exceptions
-                    @StackAllocate val deser = @StackAllocate new x10.io.Deserializer(bytes);
-                    val bodyPrime = deser.readAny() as ()=>void;
 
-		    // Actually evaluate body at remote place.
-                    bodyPrime();
-                    
-                    at (box.home) @Immediate("runAt_1") async {
-                        val me2 = (box as GlobalRef[RemoteControl]{home==here})();
-                        me2.clockPhases = clockPhases;
-                        me2.release();
+        finishState.notifySubActivitySpawn(place);
+
+        try {
+	    finish @x10.compiler.Profile(prof) at(place) async {
+                if (finishState.notifyActivityCreation(srcPlace, null)) {
+                    activity().clockPhases = clockPhases;
+                    val syncFinishState = activity().swapFinish(finishState);
+                    var exc:CheckedThrowable = null;
+                    try {
+                        // Actually deserialize and evaluate user body
+                        val deser = new x10.io.Deserializer(bytes);
+                        val bodyPrime = deser.readAny() as ()=>void;
+                        bodyPrime();
+                    } catch (e:AtCheckedWrapper) {
+                        exc = e.getCheckedCause();
+                    } catch (e:WrappedThrowable) {
+                        exc = e.getCheckedCause();
+                    } catch (e:CheckedThrowable) {
+                        exc = e;
                     }
-                } catch (e:AtCheckedWrapper) {
-                    throw e.getCheckedCause();
+
+                    // Wind up internal activity created for synchronization
+                    try {
+                        activity().swapFinish(syncFinishState);
+
+                        // Transmit potentially modified clockPhases back to srcPlace.
+                        val finalClockPhases = activity().clockPhases;
+                        activity().clockPhases = null;
+                        if (finalClockPhases != null) {
+                            finish at (srcPlace) async {
+                                realActivityGR().clockPhases = finalClockPhases;
+                            }
+                        }
+                    } catch (e:CheckedThrowable) {
+                        // Suppress exceptions during windup of internal activity.
+                        // Should not be user-visible.
+                    } finally {
+                        finishState.notifyActivityTermination();
+                        if (exc != null) throw exc;
+                    }
                 }
-            } catch (e:CheckedThrowable) {
-                at (box.home) @Immediate("runAt_2") async {
-                    val me2 = (box as GlobalRef[RemoteControl]{home==here})();
-                    me2.e = e;
-                    me2.clockPhases = clockPhases;
-                    me2.release();
-                };
             }
-            activity().clockPhases = null;
-        }
-        me.await();
-        Unsafe.dealloc(body);
-        Unsafe.dealloc(bytes);
-        activity().clockPhases = me.clockPhases;
-        if (null != me.e) {
-            throwCheckedWithoutThrows(me.e);
+        } catch (e:MultipleExceptions) {
+            // Expected case: ME(ME(e))
+            if (e.exceptions != null && e.exceptions.size == 1 && e.exceptions(0) instanceof MultipleExceptions) {
+                val e2 = e.exceptions(0) as MultipleExceptions;
+                if (e2.exceptions != null && e2.exceptions.size == 1) {
+                    throwCheckedWithoutThrows(e2.exceptions(0));
+                }
+            }
+            // Unexpected.  Rethrow e to enable debugging.
+            throw e;
+        } finally {
+           realActivityGR.forget();
         }
     }
+
 
     /*
      * [GlobalGC] Special version of runAt, which does not use activity, clock, exceptions
