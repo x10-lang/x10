@@ -1379,7 +1379,7 @@ public final class Runtime {
         finishState.notifySubActivitySpawn(place);
 
         try {
-	    finish @x10.compiler.Profile(prof) at(place) async {
+	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
                 if (finishState.notifyActivityCreation(srcPlace, null)) {
                     activity().clockPhases = clockPhases;
                     val syncFinishState = activity().swapFinish(finishState);
@@ -1405,7 +1405,7 @@ public final class Runtime {
                         val finalClockPhases = activity().clockPhases;
                         activity().clockPhases = null;
                         if (finalClockPhases != null) {
-                            finish at (srcPlace) async {
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
                                 realActivityGR().clockPhases = finalClockPhases;
                             }
                         }
@@ -1684,20 +1684,26 @@ public final class Runtime {
 
     public static def startFinish(pragma:Int):FinishState {
         val f:FinishState;
-        switch (pragma) {
-        case Pragma.FINISH_ASYNC:
-            f = new FinishState.FinishAsync(); break;
-        case Pragma.FINISH_HERE:
-            f = new FinishState.FinishHere(); break;
-        case Pragma.FINISH_SPMD:
-            f = new FinishState.FinishSPMD(); break;
-        case Pragma.FINISH_LOCAL:
-            f = new FinishState.LocalFinish(); break;
-        case Pragma.FINISH_DENSE:
-            f = new FinishState.DenseFinish(); break;
-        default: 
-            f = makeDefaultFinish();
+        if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE ||
+            RESILIENT_MODE == Configuration.RESILIENT_MODE_X10RT_ONLY) {
+            switch (pragma) {
+            case Pragma.FINISH_ASYNC:
+                f = new FinishState.FinishAsync(); break;
+            case Pragma.FINISH_HERE:
+                f = new FinishState.FinishHere(); break;
+            case Pragma.FINISH_SPMD:
+                f = new FinishState.FinishSPMD(); break;
+            case Pragma.FINISH_LOCAL:
+                f = new FinishState.LocalFinish(); break;
+            case Pragma.FINISH_DENSE:
+                f = new FinishState.DenseFinish(); break;
+            default: 
+                f = new FinishState.Finish();
+            }
+        } else {
+            f = FinishResilient.make(null/*parent*/, null/*latch*/);
         }
+
         return activity().swapFinish(f);
     }
 
