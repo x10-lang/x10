@@ -221,11 +221,11 @@ public class SharedMem implements Cloneable {
         return false;
     }
 
-    public void generateCodeSharedMem(StreamWrapper out, Translator tr) {
+    public boolean generateCodeSharedMem(StreamWrapper out, Translator tr) {
+        if (decls.size()==0) return false;
+
         out.write("// shm");
         out.newline();
-
-        if (decls.size()==0) return;
 
         String raw = "__shm";
         for (SharedMem.Decl d : decls) {
@@ -235,10 +235,13 @@ public class SharedMem implements Cloneable {
             out.end(); out.newline();
             out.write("}"); out.newline();
         }
+        return true;
     }
 
     public void generateCodeConstantMemory(StreamWrapper out, Translator tr) {
-    	out.write("// cmem");
+        if (decls.size()==0) return;
+
+        out.write("// cmem");
         out.newline();
 
         String raw = "&__cmem[0]";
@@ -248,12 +251,12 @@ public class SharedMem implements Cloneable {
     }
 
     public void generateHostCodeConstantMemory(StreamWrapper out, Translator tr) {
+        if (decls.size()==0) return;
+
         out.write("// cmem");        
         out.newline();
 
-        if (decls.size()==0) return;
-
-		out.write("x10aux::CMemPopulator pop(__cmemv);");
+        out.write("x10aux::CMemPopulator pop(__cmemv);");
         out.newline();
 
         for (SharedMem.Decl d : decls) {

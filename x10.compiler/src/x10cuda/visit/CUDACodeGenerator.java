@@ -367,30 +367,32 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			sw.popCurrentStream();
 		}
 
+		boolean has_shm = false;
 		sw.pushCurrentStream(out);
 		try {
-			cuda_kernel.shm.generateCodeSharedMem(sw, tr);
+			has_shm |= cuda_kernel.shm.generateCodeSharedMem(sw, tr);
 		} finally {
 			sw.popCurrentStream();
 		}
-
-		out.write("__syncthreads(); // initialised shm"); out.newline();        
-        out.forceNewline();                
+		if (has_shm) {
+			out.write("__syncthreads(); // initialised shm"); out.newline();
+			out.forceNewline();
+		}
 
 		// body
 		sw.pushCurrentStream(out);
-        try {
-        	Context context = tr.context();
-        	cuda_kernel.blocksVar.addDecls(context);
-        	cuda_kernel.threadsVar.addDecls(context);
-        	if (cuda_kernel.autoBlocks != null)  cuda_kernel.autoBlocks.addDecls(context);
-        	if (cuda_kernel.autoThreads != null) cuda_kernel.autoThreads.addDecls(context);
-        	cuda_kernel.cmem.addDecls(context);
-        	cuda_kernel.shm.addDecls(context);
-        	super.visitAppropriate(b);
-        } finally {
-        	sw.popCurrentStream();
-        }
+		try {
+			Context context = tr.context();
+			cuda_kernel.blocksVar.addDecls(context);
+			cuda_kernel.threadsVar.addDecls(context);
+			if (cuda_kernel.autoBlocks != null)  cuda_kernel.autoBlocks.addDecls(context);
+			if (cuda_kernel.autoThreads != null) cuda_kernel.autoThreads.addDecls(context);
+			cuda_kernel.cmem.addDecls(context);
+			cuda_kernel.shm.addDecls(context);
+			super.visitAppropriate(b);
+		} finally {
+			sw.popCurrentStream();
+		}
 
 		// end
 		out.end();
