@@ -1380,7 +1380,7 @@ public final class Runtime {
 
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyActivityCreation(srcPlace, null)) {
+                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
                     activity().clockPhases = clockPhases;
                     val syncFinishState = activity().swapFinish(finishState);
                     var exc:CheckedThrowable = null;

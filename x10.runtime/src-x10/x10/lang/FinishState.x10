@@ -60,6 +60,23 @@ abstract class FinishState {
     abstract def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
 
     /**
+     * Called at the Place at which the argument activity will execute.
+     * If this method returns true, the activity should be submitted to
+     * the XRX Pool for execution. If this method returns false, the activity
+     * should not be submitted. 
+     * 
+     * Machinations: activity may actually be null when the XRX runtime
+     *               is calling this method to simulate the stages in the
+     *               Activity life-cycles from lowlevel code (eg implementation
+     *               of at or asyncCopy).
+     *
+     * Scheduling note: This variant may not be called on @Immediate worker.
+     *                  Therefore this variant is allowed to block/pause.
+     */
+    abstract def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
+
+
+    /**
      * Called at the Place where activity creation failed to indicate
      * that an inbound activity could not be created due to an exceptional
      * condition. 
@@ -108,6 +125,7 @@ abstract class FinishState {
             count.getAndIncrement();
         }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
             notifyActivityTermination();
@@ -189,6 +207,7 @@ abstract class FinishState {
             count.getAndIncrement();
         }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
             notifyActivityTermination();
@@ -262,6 +281,7 @@ abstract class FinishState {
             super(ref);
         }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             exception = t;
             notifyActivityTermination();
@@ -308,6 +328,7 @@ abstract class FinishState {
     static class UncountedFinish extends FinishState {
         public def notifySubActivitySpawn(place:Place) {}
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true; 
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
@@ -365,6 +386,7 @@ abstract class FinishState {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
     }
 
     // the top of the remote finish hierarchy
@@ -394,6 +416,9 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) { 
             return me.notifyActivityCreation(srcPlace, activity); 
+        }
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) { 
+            return me.notifyActivityCreationBlocking(srcPlace, activity); 
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             me.notifyActivityCreationFailed(srcPlace, t); 
@@ -588,6 +613,9 @@ abstract class FinishState {
             local.getAndIncrement();
             return true;
         }
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+            return notifyActivityCreation(srcPlace, activity);
+        }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             notifyActivityCreation(srcPlace, null);
             pushException(t);
@@ -687,6 +715,9 @@ abstract class FinishState {
         public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
             local.getAndIncrement();
             return true;
+        }
+        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+            return notifyActivityCreation(srcPlace, activity);
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             notifyActivityCreation(srcPlace, null);

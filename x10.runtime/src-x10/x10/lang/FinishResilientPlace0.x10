@@ -155,6 +155,34 @@ class FinishResilientPlace0 extends FinishResilient {
         return false;                
     }
 
+    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+        val srcId = srcPlace.id; 
+        val dstId = here.id;
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (srcPlace.isDead()) {
+            if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
+            return false;
+        }
+
+        lowLevelAt(place0, ()=> {
+            atomic {
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.live(dstId)++;
+                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.liveAdopted(dstId)++;
+                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                }
+                if (verbose>=3) state.dump("DUMP id="+id);
+            }
+        });
+
+        return true;
+    }
+
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
         // TODO! A real implementation of this functionality.
         debug("<<<< notifyActivityCreationFailed(id="+id+") unimplemented. Program execution is likely dead in the water");

@@ -224,6 +224,11 @@ class FinishResilientHC extends FinishResilientBridge {
     }
     
     public
+    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity);
+    }
+
+    public
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);

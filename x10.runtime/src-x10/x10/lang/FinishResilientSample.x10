@@ -220,6 +220,10 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
         return true;
     }
 
+    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity);
+    }
+
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
         // TODO! A real implementation of this functionality.
         debug("<<<< notifyActivityCreationFailed unimplemented. Program execution is likely dead in the water");
