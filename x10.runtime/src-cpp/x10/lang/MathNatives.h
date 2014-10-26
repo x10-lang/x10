@@ -60,6 +60,11 @@ namespace x10 {
             static inline x10_double nextafter(x10_double x, x10_double y) { return ::nextafter(x, y); }
             static inline x10_float nextafterf(x10_float x, x10_float y) { return ::nextafterf(x, y); }
             static inline x10_double rint(x10_double x) { return ::rint(x); }
+            static inline x10_double remainder(x10_double x, x10_double y) { return ::remainder(x, y); }
+            static inline x10_double fmax(x10_double x, x10_double y) { return ::fmax(x, y); }
+            static inline x10_float fmaxf(x10_float x, x10_float y) { return ::fmaxf(x, y); }
+            static inline x10_double fmin(x10_double x, x10_double y) { return ::fmin(x, y); }
+            static inline x10_float fminf(x10_float x, x10_float y) { return ::fminf(x, y); }
         };
     }
 }

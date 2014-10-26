@@ -31,12 +31,12 @@ public final class Math {
     @Native("java", "java.lang.Math.abs(#a)")
     @Native("c++", "::fabsf(#a)")
     @Native("cuda", "fabsf(#a)")
-    public static def abs(a:Float):Float = a<0.0f ? -a : a;
+    public static native def abs(a:Float):Float;
 
     @Native("java", "java.lang.Math.abs(#a)")
     @Native("c++", "::fabs(#a)")
     @Native("cuda", "fabs(#a)")
-    public static def abs(a:Double):Double = a<0.0 ? -a : a;
+    public static native def abs(a:Double):Double;
 
     @Native("java", "java.lang.Math.ceil(#a)")
     @Native("c++", "::x10::lang::MathNatives::ceil(#a)")
@@ -408,6 +408,11 @@ public final class Math {
     @Native("cuda", "hypot(#a,#b)")
     public static native def hypot(a:Double, b:Double):Double;
 
+    @Native("java", "java.lang.Math.IEEEremainder(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::remainder(#a,#b)")
+    @Native("cuda", "remainder(#a,#b)")
+    public static native def IEEEremainder(a:Double, b:Double):Double;
+
     @Native("java", "java.lang.Math.log(#a)")
     @Native("c++", "::x10::lang::MathNatives::log(#a)")
     @Native("cuda", "log(#a)")
@@ -454,38 +459,52 @@ public final class Math {
     public static native def log1p(a:Double):Double;
 
     @Native("java", "java.lang.Math.max(#a,#b)")
+    @Native("cuda", "max(#a,#b)")
     public static def max(a:Int, b:Int):Int = a<b?b:a;
 
     @Native("java", "java.lang.Math.min(#a,#b)")
+    @Native("cuda", "min(#a,#b)")
     public static def min(a:Int, b:Int):Int = a<b?a:b;
 
+    @Native("cuda", "umax(#a,#b)")
     public static def max(a:UInt, b:UInt):UInt = a<b?b:a;
+
+    @Native("cuda", "umin(#a,#b)")
     public static def min(a:UInt, b:UInt):UInt = a<b?a:b;
 
     @Native("java", "java.lang.Math.max(#a,#b)")
+    @Native("cuda", "llmax(#a,#b)")
     public static def max(a:Long, b:Long):Long = a<b?b:a;
 
     @Native("java", "java.lang.Math.min(#a,#b)")
+    @Native("cuda", "llmin(#a,#b)")
     public static def min(a:Long, b:Long):Long = a<b?a:b;
 
+    @Native("cuda", "ullmax(#a,#b)")
     public static def max(a:ULong, b:ULong):ULong = a<b?b:a;
+
+    @Native("cuda", "ullmin(#a,#b)")
     public static def min(a:ULong, b:ULong):ULong = a<b?a:b;
 
     @Native("java", "java.lang.Math.max(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::fmaxf(#a,#b)")
     @Native("cuda", "fmaxf(#a,#b)")
-    public static def max(a:Float, b:Float):Float = a<b?b:a;
+    public static native def max(a:Float, b:Float):Float;
 
     @Native("java", "java.lang.Math.min(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::fminf(#a,#b)")
     @Native("cuda", "fminf(#a,#b)")
-    public static def min(a:Float, b:Float):Float = a<b?a:b;
+    public static native def min(a:Float, b:Float):Float;
 
     @Native("java", "java.lang.Math.max(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::fmax(#a,#b)")
     @Native("cuda", "fmax(#a,#b)")
-    public static def max(a:Double, b:Double):Double = a<b?b:a;
+    public static native def max(a:Double, b:Double):Double;
 
     @Native("java", "java.lang.Math.min(#a,#b)")
+    @Native("c++", "::x10::lang::MathNatives::fmin(#a,#b)")
     @Native("cuda", "fmin(#a,#b)")
-    public static def min(a:Double, b:Double):Double = a<b?a:b;
+    public static native def min(a:Double, b:Double):Double;
 
     public static def signum(a:Int):Int = (a == 0n) ? 0n : ((a>0n) ? 1n : -1n);
     public static def signum(a:Long):Long = (a == 0) ? 0 : ((a>0) ? 1 : -1);
