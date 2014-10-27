@@ -19,6 +19,7 @@ import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.DeadPlaceException;
 import x10.lang.FinishState;
+import x10.lang.Place;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
@@ -346,7 +347,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             if (X10RT.javaSockets != null) {
             	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
             		System.err.println("Unable to send a message to "+place);
-            		throw new DeadPlaceException("Unable to send a message to "+place);
+            		throw new DeadPlaceException(new Place(place), "Unable to send a message to "+place);
             	}
             } else {
             	x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
