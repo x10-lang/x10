@@ -198,6 +198,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     private static HashMap<String, Node> astMap = new HashMap<String, Node>();
 
     public void searchFileList(String packageName, String typeName) throws IOException {
+        if (RoseTranslator.DEBUG) System.out.println("SourceVisitor.searchFileList() for package=" + packageName + ", type=" + typeName);
         for (Job job : RoseTranslator.jobList) {
             FileSource source = (FileSource) job.source();
             String sourceName = source.toString();
@@ -1218,6 +1219,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
         
         for (String package_ : RoseTranslator.package_traversed) {
+            if (package_.length() == 0)
+                break;
+            
             if (class_name.indexOf(package_) == 0) {
                 package_name = package_;
                 type_name = class_name.substring(package_name.length()+1);            

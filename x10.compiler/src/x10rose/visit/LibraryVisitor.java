@@ -1778,7 +1778,7 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void searchFileList(String packageName, String typeName) throws IOException {
         if (RoseTranslator.DEBUG)
-            System.out.println("TypeVisitor.searchFileList()");
+            System.out.println("LibraryVisitor.searchFileList()for package=" + packageName + ", type=" + typeName);
         return;
         // MH-20140901 comment out for skipping to lookup library classes
         // from library classess
