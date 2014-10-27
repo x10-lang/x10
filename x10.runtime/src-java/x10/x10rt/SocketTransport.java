@@ -785,8 +785,10 @@ public class SocketTransport {
 	    		try {
 					Thread.sleep(100);
 					delay-=100;
-					if (delay <= 0 || shuttingDown)
+					if (delay <= 0 || shuttingDown) {
+						markPlaceDead(remotePlace); // mark it as dead
 						throw new IOException("Place "+myPlaceId+" unable to connect to place "+remotePlace);
+					}
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
