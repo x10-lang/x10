@@ -1414,17 +1414,20 @@ public final class Runtime {
                         // Should not be user-visible.
                     } finally {
                         finishState.notifyActivityTermination();
-                        if (exc != null) throw exc;
+                        if (exc != null) syncFinishState.pushException(exc);
                     }
                 }
             }
         } catch (e:MultipleExceptions) {
-            // Expected case: ME(ME(e))
-            if (e.exceptions != null && e.exceptions.size == 1 && e.exceptions(0) instanceof MultipleExceptions) {
-                val e2 = e.exceptions(0) as MultipleExceptions;
-                if (e2.exceptions != null && e2.exceptions.size == 1) {
-                    throwCheckedWithoutThrows(e2.exceptions(0));
-                }
+            // Unwrap layers of ME injected by different finish implementations.
+            var curME:MultipleExceptions = e;
+            while (curME.exceptions != null && 
+                   curME.exceptions.size == 1 &&
+                   curME.exceptions(0) instanceof MultipleExceptions) {
+                curME = curME.exceptions(0) as MultipleExceptions;
+            }
+            if (curME.exceptions != null && curME.exceptions.size == 1) {
+                throwCheckedWithoutThrows(curME.exceptions(0));
             }
             // Unexpected.  Rethrow e to enable debugging.
             throw e;
