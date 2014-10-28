@@ -1,3 +1,11 @@
+X10 Release 2.5.0.2
+
+This is a minor release of X10 with the following changes from X10 2.5.0.
+  + Fix to catch exceptions thrown when deserializing and running closures 
+    at the JavaSockets layer, preventing a lockup of the worker thread.
+  
+-------------------------------------------------------------------------
+
 X10 Release 2.5.0.1
 
 This is a minor release of X10 with the following changes from X10 2.5.0.
