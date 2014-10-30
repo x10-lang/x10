@@ -1,3 +1,13 @@
+X10 Release 2.5.0.3
+
+This is a minor release of X10 with the following changes from X10 2.5.0.1
+  + Fix to prevent a possible deadlock in a newly joined place when it first
+    starts up.
+  + Added a zipfile of the generated .java files that come from .x10 files 
+    under stdlib, if needed for future reference.
+  
+-------------------------------------------------------------------------
+
 X10 Release 2.5.0.2
 
 This is a minor release of X10 with the following changes from X10 2.5.0.
