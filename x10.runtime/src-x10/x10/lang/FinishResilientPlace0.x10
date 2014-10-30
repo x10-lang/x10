@@ -184,9 +184,29 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
-        // TODO! A real implementation of this functionality.
-        debug("<<<< notifyActivityCreationFailed(id="+id+") unimplemented. Program execution is likely dead in the water");
-        t.printStackTrace();
+        val srcId = srcPlace.id; 
+        val dstId = here.id;
+        if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+
+        at (place0) @Immediate("notifyActivityCreationFailed_to_zero") async {
+            atomic {
+                if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") message running at place0");
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    state.excs.add(t);
+                    if (quiescent(id)) releaseLatch(id);
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    adopterState.excs.add(t);
+                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                }
+            };
+       };
+
+       if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
     }
 
     def notifyActivityCreatedAndTerminated(srcPlace:Place) {
