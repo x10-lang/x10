@@ -1419,15 +1419,9 @@ public final class Runtime {
                 }
             }
         } catch (e:MultipleExceptions) {
-            // Unwrap layers of ME injected by different finish implementations.
-            var curME:MultipleExceptions = e;
-            while (curME.exceptions != null && 
-                   curME.exceptions.size == 1 &&
-                   curME.exceptions(0) instanceof MultipleExceptions) {
-                curME = curME.exceptions(0) as MultipleExceptions;
-            }
-            if (curME.exceptions != null && curME.exceptions.size == 1) {
-                throwCheckedWithoutThrows(curME.exceptions(0));
+            // Peel off the layer of ME wrapping caused by the internal finish above.
+            if (e.exceptions != null && e.exceptions.size == 1) {
+                throwCheckedWithoutThrows(e.exceptions(0));
             }
             // Unexpected.  Rethrow e to enable debugging.
             throw e;

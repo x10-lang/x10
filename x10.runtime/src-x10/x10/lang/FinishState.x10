@@ -214,11 +214,13 @@ abstract class FinishState {
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) {
-                val t = MultipleExceptions.make(exceptions);
+                val excs = exceptions == null || exceptions.isEmpty() ? null : exceptions.toRail();
                 val ref = this.ref();
-                if (null != t) {
+                if (null != excs) {
                     at (ref.home) @Immediate("notifyActivityTermination_1") async {
-                        deref[FinishState](ref).pushException(t);
+                        for (e in excs) {
+                            deref[FinishState](ref).pushException(e);
+                        }
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 } else {
@@ -291,11 +293,11 @@ abstract class FinishState {
             exception = t;
         }
         public def notifyActivityTermination():void {
-            val t = MultipleExceptions.make(exception);
+            val exc = exception; // don't capture this in @Immediate body
             val ref = this.ref();
-            if (null != t) {
+            if (null != exc) {
                 at (ref.home) @Immediate("notifyActivityTermination_1") async {
-                    deref[FinishState](ref).pushException(t);
+                    deref[FinishState](ref).pushException(exc);
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             } else {
@@ -505,6 +507,11 @@ abstract class FinishState {
             if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
         }
+        public def process(excs:Rail[CheckedThrowable]):void {
+            for (e in excs) {
+                process(e);
+            }
+        }
         public def pushException(t:CheckedThrowable):void {
             latch.lock();
             process(t);
@@ -561,10 +568,10 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(remoteMapBytes:Rail[Byte], t:CheckedThrowable):void {
+        def notify(remoteMapBytes:Rail[Byte], excs:Rail[CheckedThrowable]):void {
             remoteMap:HashMap[Long, Int] = new x10.io.Deserializer(remoteMapBytes).readAny() as HashMap[Long, Int];
             latch.lock();
-            process(t);
+            process(excs);
             process(remoteMap);
             latch.unlock();
         }
@@ -591,9 +598,9 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(remoteEntry:Pair[Long, Int], t:CheckedThrowable):void {
+        def notify(remoteEntry:Pair[Long, Int], excs:Rail[CheckedThrowable]):void {
             latch.lock();
-            process(t);
+            process(excs);
             process(remoteEntry);
             latch.unlock();
         }
@@ -649,7 +656,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            val t = MultipleExceptions.make(exceptions);
+            val excs = exceptions == null || exceptions.isEmpty() ? null : exceptions.toRail();
             exceptions = null;
             val ref = this.ref();
             if (remoteActivities != null && remoteActivities.size() != 0) {
@@ -661,8 +668,8 @@ abstract class FinishState {
                 remoteActivities.clear();
                 count = 0n;
                 lock.unlock();
-                if (null != t) {
-                    at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootFinish](ref).notify(serializedTable, t);
+                if (null != excs) {
+                    at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootFinish](ref).notify(serializedTable, excs);
                 } else {
                     at(ref.home) @Immediate("notifyActivityTermination_2") async deref[RootFinish](ref).notify(serializedTable);
                 }
@@ -670,8 +677,8 @@ abstract class FinishState {
                 val message = new Pair[Long, Int](here.id, count);
                 count = 0n;
                 lock.unlock();
-                if (null != t) {
-                    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootFinish](ref).notify(message, t);
+                if (null != excs) {
+                    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootFinish](ref).notify(message, excs);
                 } else {
                     at(ref.home) @Immediate("notifyActivityTermination_4") async deref[RootFinish](ref).notify(message);
                 }
@@ -753,7 +760,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            val t = MultipleExceptions.make(exceptions);
+            val excs = exceptions == null || exceptions.isEmpty() ? null : exceptions.toRail();
             exceptions = null;
             val ref = this.ref();
             val closure:()=>void;
@@ -766,8 +773,8 @@ abstract class FinishState {
                 remoteActivities.clear();
                 count = 0n;
                 lock.unlock();
-                if (null != t) {
-                    closure = ()=>{ deref[RootFinish](ref).notify(serializedTable, t); };
+                if (null != excs) {
+                    closure = ()=>{ deref[RootFinish](ref).notify(serializedTable, excs); };
                 } else {
                     closure = ()=>{ deref[RootFinish](ref).notify(serializedTable); };
                 }
@@ -775,8 +782,8 @@ abstract class FinishState {
                 val message = new Pair[Long, Int](here.id, count);
                 count = 0n;
                 lock.unlock();
-                if (null != t) {
-                    closure = ()=>{ deref[RootFinish](ref).notify(message, t); };
+                if (null != excs) {
+                    closure = ()=>{ deref[RootFinish](ref).notify(message, excs); };
                 } else {
                     closure = ()=>{ deref[RootFinish](ref).notify(message); };
                 }
@@ -906,7 +913,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            val t = MultipleExceptions.make(exceptions);
+            val excs = exceptions == null || exceptions.isEmpty() ? null : exceptions.toRail();
             exceptions = null;
             val ref = this.ref();
             sr.placeMerge();
@@ -921,8 +928,8 @@ abstract class FinishState {
                 remoteActivities.clear();
                 count = 0n;
                 lock.unlock();
-            	if (null != t) {
-            		at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootCollectingFinish[T]](ref).notify(serializedTable, t);
+            	if (null != excs) {
+            		at(ref.home) @Immediate("notifyActivityTermination_1") async deref[RootCollectingFinish[T]](ref).notify(serializedTable, excs);
             	} else {
             		at(ref.home) @Immediate("notifyActivityTermination_2") async deref[RootCollectingFinish[T]](ref).notifyValue(serializedTable, result);
             	}
@@ -930,8 +937,8 @@ abstract class FinishState {
             	val message = new Pair[Long, Int](here.id, count);
             	count = 0n;
             	lock.unlock();
-            	if (null != t) {
-            	    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootCollectingFinish[T]](ref).notify(message, t);
+            	if (null != excs) {
+            	    at(ref.home) @Immediate("notifyActivityTermination_3") async deref[RootCollectingFinish[T]](ref).notify(message, excs);
             	} else {
             	    at(ref.home) @Immediate("notifyActivityTermination_4") async deref[RootCollectingFinish[T]](ref).notifyValue(message, result);
             	}
