@@ -55,7 +55,8 @@ public class SocketTransport {
 	public static final String X10_NPLACES = "X10_NPLACES";
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
-	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
+	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT"; // milliseconds, used to set socket.soTimeout()
+	public static final String X10_CONNECTION_TIMEOUT = "X10_CONNECTION_TIMEOUT"; // milliseconds, time allowed before we declare a place dead while attempting initial communication
 	static final String UTF8 = "UTF-8";
 	private static final String DEAD = "DEAD";
 	private static enum PROBE_TYPE {ACCEPT, ACCEPTORWRITE, ALL};
@@ -110,6 +111,7 @@ public class SocketTransport {
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
 	private int socketTimeout = -1;
+	private int connectionTimeout = 30000;
 	private volatile boolean shuttingDown = false;
 	private volatile boolean allowBlockingProbe = true;
 	
@@ -151,7 +153,11 @@ public class SocketTransport {
 		try {
 			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
 		}
-		catch (NumberFormatException e){} // not set.		
+		catch (NumberFormatException e){} // not set.
+		try {
+			connectionTimeout = Integer.parseInt(System.getProperty(X10_CONNECTION_TIMEOUT));
+		}
+		catch (NumberFormatException e){} // not set.
 		
 		if (DEBUG) System.err.println("Socket library initialized. myPlaceid="+this.myPlaceId+" nplaces="+this.nplaces);
 	}
@@ -745,10 +751,25 @@ public class SocketTransport {
     	
     	if (connectionInfo == null && !channels.containsKey(myPlaceId) && remotePlace > -1) { // link does not exist, and no link to launcher
     		String forcePortsFlag = System.getenv(X10_FORCEPORTS);
-    		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
-    		hostname = "localhost";		
-    		port = Integer.parseInt(forcePortsFlag)+remotePlace;
-    		connectionInfo = new String(hostname+":"+port);
+    		if (forcePortsFlag != null) {
+    			hostname = "localhost";
+	    		port = Integer.parseInt(forcePortsFlag)+remotePlace;
+	    		connectionInfo = new String(hostname+":"+port);
+    		}
+    		else {
+    			// it's possible the place is about to connect to us.  Give it a moment.
+    			int delay = connectionTimeout;
+    			do {
+	    		    try { Thread.sleep(100); }
+	    			catch (InterruptedException e1) {
+	    				delay = 0;
+	    			}
+    				delay-=100;
+    				if (shuttingDown || channels.containsKey(remotePlace)) return;
+    	    	} while (delay > 0);
+				markPlaceDead(remotePlace); // mark it as dead
+    			throw new IOException("Unknown location for place "+remotePlace);	    		
+    		}
     	}
     	else {
     		if (connectionInfo == null && remotePlace > -1) {
@@ -786,8 +807,8 @@ public class SocketTransport {
     	
     	InetSocketAddress addr = new InetSocketAddress(hostname, port);
     	SocketChannel sc = null;
-    	// wait up to 30 seconds for the remote place to become available.  It may be starting up still.
-    	int delay = 30000;
+    	// wait for the remote place to become available.  It may be starting up still.
+    	int delay = connectionTimeout;
     	do {
 	    	try { sc = SocketChannel.open(addr);
 	    	} catch (ConnectException e) {
