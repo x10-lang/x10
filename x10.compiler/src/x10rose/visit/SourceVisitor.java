@@ -31,6 +31,7 @@ import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassLit_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall.Kind;
+import polyglot.ast.Branch;
 import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
@@ -1506,6 +1507,17 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Branch_c n) {
         toRose(n, "Branch:", n.kind() + (n.labelNode() != null ? "\\n" + n.labelNode().id().toString() : ""));
+        Branch.Kind kind = n.kind();
+        String label = n.labelNode() != null ? n.labelNode().id().toString() : "";
+        if (kind == Branch.Kind.CONTINUE) {
+            JNI.cactionContinueStatement(label, RoseTranslator.createJavaToken(n, kind.toString()));
+        }
+        else if (kind ==Branch.Kind.BREAK) {
+            JNI.cactionBreakStatement(label, RoseTranslator.createJavaToken(n, kind.toString()));
+        }
+        else {
+            throw new RuntimeException("Unsupported branch");
+        }
     }
 
     public void visit(X10Do_c n) {

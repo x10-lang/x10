@@ -32,6 +32,7 @@ import polyglot.ast.Assign_c;
 import polyglot.ast.Binary_c;
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
+import polyglot.ast.Branch;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode_c;
@@ -2193,6 +2194,17 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(Branch_c n) {
         toRose(n, "Branch:", n.kind() + (n.labelNode() != null ? "\\n" + n.labelNode().id().toString() : ""));
+        Branch.Kind kind = n.kind();
+        String label = n.labelNode() != null ? n.labelNode().id().toString() : "";
+        if (kind == Branch.Kind.CONTINUE) {
+            JNI.cactionContinueStatement(label, RoseTranslator.createJavaToken(n, kind.toString()));
+        }
+        else if (kind ==Branch.Kind.BREAK) {
+            JNI.cactionBreakStatement(label, RoseTranslator.createJavaToken(n, kind.toString()));
+        }
+        else {
+            throw new RuntimeException("Unsupported branch");
+        }
     }
 
     public void visit(X10Do_c n) {
