@@ -825,8 +825,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
         // arg_location);
         // }
         visitChild(n, n.type());
-        // so far, all parameters's modifier are set as final.
-        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, false, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        System.out.println("MOD:" + n.flags().flags().isFinal());
+        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
+                                        n.flags().flags().isFinal(),
+                                        RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
 
     private void handleArgumentTypes(List<Expr> args) {
@@ -1148,8 +1150,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10ConstructorCall_c n) {
-        toRose(n, "X10ConstructorCall:", n.toString());
-
+        toRose(n, "X10ConstructorCall:", n.toString());        
         //n.constructorInstance().container()
         
 //        visitChild(n, n.target());
@@ -1158,8 +1159,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
 //        visitChildren(n, n.arguments());
         JNI.cactionExplicitConstructorCall(RoseTranslator.createJavaToken(n, n.toString()));
         
-       
         
+
 //        JNI.cactionExplicitConstructorCallEnd(is_implicit_super, n.kind()==Kind.SUPER,
 //                                              n.qualifier()!=null, package_name, type_name, 
 //                                              constructor_index, n.typeArguments().size(), 

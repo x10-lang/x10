@@ -1917,8 +1917,9 @@ public class LibraryVisitor extends NodeVisitor {
         // arg_location);
         // }
         visitChild(n, n.type());
-        // so far, all parameters's modifier are set as final
-        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, false, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
+                                        n.flags().flags().isFinal(),
+                                        RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
 
     public void visit(X10Call_c n) {
