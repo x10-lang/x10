@@ -50,6 +50,7 @@ abstract class FinishResilient extends FinishState {
     // def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
     // def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
     // def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void;
+    // def notifyActivityCreatedAndTerminated(srcPlace:Place):void;
     // def notifyActivityTermination():void;
     // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
@@ -159,6 +160,12 @@ abstract class FinishResilient extends FinishState {
 
     // returns true if cl is processed at dst
     protected static def lowLevelAt(dst:Place, cl:()=>void):Boolean {
+        if (verbose>=1) {
+            if (Runtime.worker().promoted) {
+                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                new Exception().printStackTrace();
+            }
+        }
         if (verbose>=4) debug("---- lowLevelAt called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
         if (here == dst) {
             if (verbose>=4) debug("---- lowLevelAt locally calling cl()");
@@ -210,6 +217,12 @@ abstract class FinishResilient extends FinishState {
     
     // returns true if cl is processed at dst
     protected static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean {
+        if (verbose>=1) {
+            if (Runtime.worker().promoted) {
+                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                new Exception().printStackTrace();
+            }
+        }
         if (verbose>=4) debug("---- lowLevelFetch called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
         if (here == dst) {
             if (verbose>=4) debug("---- lowLevelFetch locally calling cl()");

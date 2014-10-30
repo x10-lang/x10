@@ -87,6 +87,18 @@ abstract class FinishState {
     abstract def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void; 
 
     /**
+     * Called at the Place where a synthetic activity created for 
+     * asyncCopy has been created and executed. 
+     * This combines notifyActivityCreation(srcPlace) and
+     * notifyActivityTerminated into a single interaction with the FinishState.
+     *
+     * Scheduling note: May be called on @Immediate worker.
+     *                  This method must not block or pause.
+     */
+    abstract def notifyActivityCreatedAndTerminated(srcPlace:Place):void; 
+
+
+    /**
      * Called to indicate that the currently executing activity 
      * has terminated successfully.
      *
@@ -128,6 +140,9 @@ abstract class FinishState {
         public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
+            notifyActivityTermination();
+        }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
             notifyActivityTermination();
         }
         public def notifyActivityTermination() {
@@ -177,6 +192,9 @@ abstract class FinishState {
             pushException(t);
             notifyActivityTermination();
         }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityTermination();
+        }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
         }
@@ -210,6 +228,10 @@ abstract class FinishState {
         public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
+            notifyActivityTermination();
+        }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityCreation(srcPlace, null);
             notifyActivityTermination();
         }
         public def notifyActivityTermination() {
@@ -264,6 +286,9 @@ abstract class FinishState {
             pushException(t);
             notifyActivityTermination();
         }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityTermination();
+        }
         public def notifyActivityTermination():void {
             latch.release();
         }
@@ -286,6 +311,9 @@ abstract class FinishState {
         public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             exception = t;
+            notifyActivityTermination();
+        }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
             notifyActivityTermination();
         }
         public def notifySubActivitySpawn(place:Place):void {}
@@ -335,6 +363,7 @@ abstract class FinishState {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
         }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {}
         public def notifyActivityTermination() {}
         public def pushException(t:CheckedThrowable) {
             Runtime.println("Uncaught exception in uncounted activity");
@@ -389,6 +418,9 @@ abstract class FinishState {
         def ref() = xxxx;
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityTermination();
+        }
     }
 
     // the top of the remote finish hierarchy
@@ -424,6 +456,9 @@ abstract class FinishState {
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             me.notifyActivityCreationFailed(srcPlace, t); 
+        }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            me.notifyActivityCreatedAndTerminated(srcPlace);
         }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
         public def pushException(t:CheckedThrowable) { me.pushException(t); }
@@ -628,6 +663,10 @@ abstract class FinishState {
             pushException(t);
             notifyActivityTermination();
         }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityCreation(srcPlace, null);
+            notifyActivityTermination();
+        }
         public def notifySubActivitySpawn(place:Place):void {
             val id = Runtime.hereLong();
             lock.lock();
@@ -729,6 +768,10 @@ abstract class FinishState {
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             notifyActivityCreation(srcPlace, null);
             pushException(t);
+            notifyActivityTermination();
+        }
+        public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+            notifyActivityCreation(srcPlace, null);
             notifyActivityTermination();
         }
         public def notifySubActivitySpawn(place:Place):void {

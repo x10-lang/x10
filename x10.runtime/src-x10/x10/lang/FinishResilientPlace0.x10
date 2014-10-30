@@ -189,6 +189,30 @@ class FinishResilientPlace0 extends FinishResilient {
         t.printStackTrace();
     }
 
+    def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+        val srcId = srcPlace.id; 
+        val dstId = here.id;
+        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+
+        at (place0) @Immediate("notifyActivityCreatedAndTerminated_to_zero") async {
+            atomic {
+                if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    if (quiescent(id)) releaseLatch(id);
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                }
+            };
+       };
+
+       if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
+    }
+
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);

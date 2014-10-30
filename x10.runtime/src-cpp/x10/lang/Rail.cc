@@ -47,9 +47,10 @@ namespace x10 {
         void Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
             x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
             place src = buf.read<place>();
-            // olivier says the incr should be just after the notifySubActivitySpawn (but on the remote side)
-            fs->notifyActivityCreation(Place::_make(src), NULL);
-            fs->notifyActivityTermination();
+            // Perform the actions of both notifyActivityCreation and
+            // notifyActivityTermination in a single non-blocking action.
+            // This notifier is often running on an @Immediate worker thread.
+            fs->notifyActivityCreatedAndTerminated(Place::_make(src));
         }
 
         void Rail_serialize_finish_state(place dst, serialization_buffer &buf) {
