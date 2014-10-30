@@ -111,7 +111,7 @@ public class SocketTransport {
 	private Iterator<SelectionKey> events = null;
 	private int socketTimeout = -1;
 	private volatile boolean shuttingDown = false;
-    
+	private volatile boolean allowBlockingProbe = true;
 	
 	public SocketTransport() {
 		String nplacesFlag = System.getenv(X10_NPLACES);
@@ -346,6 +346,15 @@ public class SocketTransport {
     	selector.wakeup();
     }
     
+    private void registerOnSelector(SocketChannel sc, int ops, Object att) throws ClosedChannelException {
+    	// if anything is blocked on the selector, kick it out
+    	allowBlockingProbe = false;
+    	selector.wakeup();
+    	// register on the selector
+    	sc.register(selector, ops, att);
+    	// allow blocking operations on the selector again
+    	allowBlockingProbe = true;
+    }
     
     private String getAllPlaceLinks() {
     	// build up the place list.  The format is host:port,host:port,,host:port etc
@@ -374,7 +383,7 @@ public class SocketTransport {
     	int eventCount = 0;
     	try {
     		SelectionKey key;
-    		if (blocking) // blocking probe, wait for the selector to become available
+    		if (blocking && allowBlockingProbe) // blocking probe, wait for the selector to become available
     			selectorLock.lock();
     		else if (!selectorLock.tryLock()) // non-blocking probe, return immediately if selector is busy
     			return false;
@@ -385,7 +394,7 @@ public class SocketTransport {
 	    			events.remove();
     			}
 	    		else {
-	    			if (blocking)
+	    			if (blocking && allowBlockingProbe)
 	    				eventCount = selector.select();
 	    			else
 	    				eventCount = selector.selectNow();
@@ -440,7 +449,7 @@ public class SocketTransport {
 						writeNBytes(sc, controlMsg);
 						channels.put(remote, new CommunicationLink(sc, remote, linkString));
 						setSocketOptions(sc);
-						sc.register(selector, SelectionKey.OP_READ);
+						registerOnSelector(sc, SelectionKey.OP_READ, null);
 						if (DEBUG) System.err.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 						
 						if (remote >= nplaces)
@@ -474,7 +483,7 @@ public class SocketTransport {
 								writeNBytes(sc, controlMsg);
 								channels.put(remote, new CommunicationLink(sc, remote, linkString));
 								setSocketOptions(sc);
-								sc.register(selector, SelectionKey.OP_READ);
+								registerOnSelector(sc, SelectionKey.OP_READ, null);
 								if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 								
 								// tell the new place to connect to the hazelcast cluster
@@ -596,7 +605,7 @@ public class SocketTransport {
 									writeNBytes(newPlace.sc, controlMsg);
 									channels.put(remote, new CommunicationLink(newPlace.sc, remote, newPlace.portInfo));
 									setSocketOptions(newPlace.sc);
-									newPlace.sc.register(selector, SelectionKey.OP_READ);
+									registerOnSelector(newPlace.sc, SelectionKey.OP_READ, null);
 									if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 									
 									// update nplaces here, because we won't get a connection from the new place, as it already exists
@@ -815,7 +824,7 @@ public class SocketTransport {
 			writeNBytes(sc, controlMsg);
 			channels.put(myPlaceId, new CommunicationLink(sc, myPlaceId, getLocalConnectionInfo()));
 			sc.configureBlocking(false);
-			sc.register(selector, SelectionKey.OP_READ);
+			registerOnSelector(sc, SelectionKey.OP_READ, null);
 			if (DEBUG) System.err.println("Place "+myPlaceId+" established a link to local launcher, sent local port="+myPort);
 		}
 		else {
@@ -838,7 +847,7 @@ public class SocketTransport {
 					
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
 					setSocketOptions(sc);
-					sc.register(selector, SelectionKey.OP_READ);
+					registerOnSelector(sc, SelectionKey.OP_READ, null);
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 					int datalen = controlMsg.getInt() - 8;
 					
@@ -880,7 +889,7 @@ public class SocketTransport {
 				else {
 					channels.put(remotePlace, new CommunicationLink(sc, remotePlace, connectionInfo));
 					setSocketOptions(sc);
-					sc.register(selector, SelectionKey.OP_READ);
+					registerOnSelector(sc, SelectionKey.OP_READ, null);
 					if (DEBUG) System.err.println("Place "+this.myPlaceId+" established a link to place "+remotePlace+" of "+this.nplaces+" places at "+connectionInfo);
 				}
 			}
@@ -927,7 +936,7 @@ public class SocketTransport {
     				// nope.  Set the buffer aside and register with the selector to write when ready
     				link.pendingWrites = new LinkedList<ByteBuffer>();
     				link.pendingWrites.addLast(data);
-    				link.sc.register(selector, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), link.placeid);
+    				registerOnSelector(link.sc, (SelectionKey.OP_WRITE | SelectionKey.OP_READ), link.placeid);
     				if (DEBUG) System.err.println("Stashed "+data.remaining()+" bytes in the buffer for place "+link.placeid);
     				// poke the selector if there is a thread already waiting on it which does not include the new registration
     				selector.wakeup();
@@ -970,7 +979,7 @@ public class SocketTransport {
     			}
 				// at this point, all data has been written out.  Remove the OP_WRITE selector key
     			try {
-					link.sc.register(selector, SelectionKey.OP_READ);
+    				registerOnSelector(link.sc, SelectionKey.OP_READ, null);
 				} catch (ClosedChannelException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
