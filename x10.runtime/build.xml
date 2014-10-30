@@ -16,6 +16,7 @@
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
+	<property name="gen-java.zip" value="gen-java.zip"/>
     <property name="ecj.jar" value="${lib}/ecj-4.4.1.jar"/>
     <property name="math.jar" value="${lib}/commons-math3-3.3.jar"/>
     <property name="log.jar" value="${lib}/commons-logging-1.2.jar"/>
@@ -248,7 +249,7 @@
     <target name="dist-java" depends="jar,dist-stdlibprops">
         <mkdir dir="${stdlib}"/>
         <copy todir="${stdlib}">
-            <fileset dir="${gen}" includes="${jar}"/>
+            <fileset dir="${gen}" includes="${jar},${gen-java.zip}"/>
         </copy>
     </target>
     <target name="dist-java-x10rt" depends="dist-java,dist-x10rt"/>
@@ -320,16 +321,23 @@
             </fileset>
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
-	    <manifest>
-	      <attribute name="Built-By" value="X10 Project" />
-	      <attribute name="Specification-Title" value="X10 Language Runtime"/>
-	      <attribute name="Specification-Version" value="${x10.version}"/>
-	      <attribute name="Specification-Vendor" value="IBM"/>
-	      <attribute name="Implementation-Title" value="x10.runtime"/>
-	      <attribute name="Implementation-Version" value="${x10.version}.${DSTAMP}_${TSTAMP}"/> 
-	      <attribute name="Implementation-Vendor" value="IBM"/>
-	    </manifest>
+		    <manifest>
+		      <attribute name="Built-By" value="X10 Project" />
+		      <attribute name="Specification-Title" value="X10 Language Runtime"/>
+		      <attribute name="Specification-Version" value="${x10.version}"/>
+		      <attribute name="Specification-Vendor" value="IBM"/>
+		      <attribute name="Implementation-Title" value="x10.runtime"/>
+		      <attribute name="Implementation-Version" value="${x10.version}.${DSTAMP}_${TSTAMP}"/> 
+		      <attribute name="Implementation-Vendor" value="IBM"/>
+		    </manifest>
         </jar>
+    	<zip destfile="${gen}/${gen-java.zip}" 
+    	  comment="This archive contains the intermediate java files corresponding to the .x10 and .class files in x10.jar" >
+    		<fileset dir="${basedir}/src-java/gen">
+    			<exclude name="${jar}" />
+    		    <include name="x10/**/*.java" unless="${INCLUDE_JAVA_SOURCE}"/>
+    		</fileset>
+	    </zip>
         <copy todir="${build}"><!-- copy x10.jar into classes to let scripts find it there too -->
             <fileset dir="${gen}" includes="${jar}"/>
         </copy>
