@@ -1364,7 +1364,7 @@ public final class Runtime {
         }
 
         // Carefully manipulate the finishState, etc. so that 
-        // asyncs spawned by body use the current finishState
+        // any asyncs spawned by body are governed by the current finishState
         // not the finishState of the finish we create intenally here to
         // enable blocking on the completion of remote execution of body
         val srcPlace = here;
@@ -1376,46 +1376,40 @@ public final class Runtime {
         ser.writeAny(body);
         val bytes = ser.toRail();
 
-        finishState.notifySubActivitySpawn(place);
-
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    try {
-                        // Actually deserialize and evaluate user body
-                        val deser = new x10.io.Deserializer(bytes);
-                        val bodyPrime = deser.readAny() as ()=>void;
-                        bodyPrime();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
+                activity().clockPhases = clockPhases;
+                val syncFinishState = activity().swapFinish(finishState);
+                var exc:CheckedThrowable = null;
+                try {
+                    // Actually deserialize and evaluate user body
+                    val deser = new x10.io.Deserializer(bytes);
+                    val bodyPrime = deser.readAny() as ()=>void;
+                    bodyPrime();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
 
-                    // Wind up internal activity created for synchronization
-                    try {
-                        activity().swapFinish(syncFinishState);
+                // Wind up internal activity created for synchronization
+                try {
+                    activity().swapFinish(syncFinishState);
+                    if (exc != null) syncFinishState.pushException(exc);
 
-                        // Transmit potentially modified clockPhases back to srcPlace.
-                        val finalClockPhases = activity().clockPhases;
-                        activity().clockPhases = null;
-                        if (finalClockPhases != null) {
-                            @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
+                    // Transmit potentially modified clockPhases back to srcPlace.
+                    val finalClockPhases = activity().clockPhases;
+                    activity().clockPhases = null;
+                    if (finalClockPhases != null) {
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (e:CheckedThrowable) {
-                        // Suppress exceptions during windup of internal activity.
-                        // Should not be user-visible.
-                    } finally {
-                        finishState.notifyActivityTermination();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (e:CheckedThrowable) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
                 }
             }
         } catch (e:MultipleExceptions) {
@@ -1525,7 +1519,7 @@ public final class Runtime {
         }
 
         // Carefully manipulate the finishState, etc. so that 
-        // asyncs spawned by eval use the current finishState
+        // any asyncs spawned by eval are governed by the current finishState
         // not the finishState of the finish we create intenally here to
         // enable blocking on the completion of remote execution of eval
         val srcPlace = here;
@@ -1539,49 +1533,43 @@ public final class Runtime {
         val resultCell = new Cell[Any](null);
         val resultCellGR = GlobalRef[Cell[Any]](resultCell);
 
-        finishState.notifySubActivitySpawn(place);
-
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    var res:Any = null;
-                    try {
-                        // Actually deserialize and evaluate user eval closure
-                        val deser = new x10.io.Deserializer(bytes);
-                        val evalPrime = deser.readAny() as ()=>Any;
-                        res = evalPrime();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
+                activity().clockPhases = clockPhases;
+                val syncFinishState = activity().swapFinish(finishState);
+                var exc:CheckedThrowable = null;
+                var res:Any = null;
+                try {
+                    // Actually deserialize and evaluate user eval closure
+                    val deser = new x10.io.Deserializer(bytes);
+                    val evalPrime = deser.readAny() as ()=>Any;
+                    res = evalPrime();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
 
-                    // Wind up internal activity created for synchronization
-                    try {
-                        activity().swapFinish(syncFinishState);
+                // Wind up internal activity created for synchronization
+                try {
+                    activity().swapFinish(syncFinishState);
+                    if (exc != null) syncFinishState.pushException(exc);
 
-                        // Transmit result and potentially modified clockPhases back to srcPlace.
-                        val finalClockPhases = activity().clockPhases;
-                        activity().clockPhases = null;
-                        val resCopy = res;
-                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                            resultCellGR().set(resCopy);
-                            if (finalClockPhases != null) {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
+                    // Transmit result and potentially modified clockPhases back to srcPlace.
+                    val finalClockPhases = activity().clockPhases;
+                    activity().clockPhases = null;
+                    val resCopy = res;
+                    @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                        resultCellGR().set(resCopy);
+                        if (finalClockPhases != null) {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (e:CheckedThrowable) {
-                        // Suppress exceptions during windup of internal activity.
-                        // Should not be user-visible.
-                    } finally {
-                        finishState.notifyActivityTermination();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (e:CheckedThrowable) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
                 }
             }
         } catch (e:MultipleExceptions) {
