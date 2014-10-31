@@ -1766,8 +1766,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
 //        visitChild(n, n.type());
         // MH-20141007
         String package_name = "";
-        if (n.type().type().fullName() != null)
-            package_name = n.type().type().fullName().qualifier().toString();
+        QName qname;
+        if (    (qname = n.type().type().fullName()) != null
+             && qname.qualifier() != null)
+            package_name = qname.qualifier().toString();
         String type_name = n.type().toString();
         int token_constraint;
         // TODO: remove this when type constraint is supported
