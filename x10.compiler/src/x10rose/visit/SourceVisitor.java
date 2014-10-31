@@ -372,10 +372,18 @@ public class SourceVisitor extends X10DelegatingVisitor {
         visitChildren(n, n.decls());
     }
 
+    /*
+     * This is not invoked. Instead, import clauses are handled
+     * inside <tt>visitDeclarations(X10ClassDecl_c)</tt>.
+     */
     public void visit(Import_c n) {
         toRose(n, "Import:", n.kind() + " " + n.name().toString());
     }
 
+    /*
+     * This is not invoked. Instead, package clauses are handled
+     * inside <tt>visitDeclarations(X10ClassDecl_c)</tt>. 
+     */
     public void visit(PackageNode_c n) {
         toRose(n, "Package:", n.package_().get().toString());
     }
