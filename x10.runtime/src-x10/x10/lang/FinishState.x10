@@ -36,7 +36,7 @@ abstract class FinishState {
 
     /**
      * Called by an activity running at the current Place when it
-     * is initiating the spawn of an new async at dstPlace. 
+     * is initiating a remote activity at dstPlace. 
      *
      * Scheduling note: Will only be called on a full-fledged worker thread;
      *                  this method is allowed to block/pause.
@@ -503,6 +503,11 @@ abstract class FinishState {
         def this(latch:SimpleLatch) {
             this.latch = latch;
         }
+        def ensureRemoteActivities():void {
+            if (remoteActivities == null) {
+                remoteActivities = new HashMap[Long,Int]();
+            }
+        }
         public def notifySubActivitySpawn(place:Place):void {
             val p = place.parent(); // CUDA
             latch.lock();
@@ -511,9 +516,7 @@ abstract class FinishState {
                 latch.unlock();
                 return;
             }
-            if (remoteActivities == null) {
-                remoteActivities = new HashMap[Long,Int]();
-            }
+            ensureRemoteActivities();
             remoteActivities.put(p.id, remoteActivities.getOrElse(p.id, 0n)+1n);
             latch.unlock();
         }
@@ -575,6 +578,7 @@ abstract class FinishState {
         }
 
         protected def process(remoteMap:HashMap[Long, Int]):void {
+            ensureRemoteActivities();
             // add the remote set of records to the local set
             for (remoteEntry in remoteMap.entries()) {
                 remoteActivities.put(remoteEntry.getKey(), remoteActivities.getOrElse(remoteEntry.getKey(), 0n)+remoteEntry.getValue());
@@ -612,6 +616,7 @@ abstract class FinishState {
         }
         
         protected def process(remoteEntry:Pair[Long, Int]):void {
+            ensureRemoteActivities();
             // add the remote record to the local set
             remoteActivities.put(remoteEntry.first, remoteActivities.getOrElse(remoteEntry.first, 0n)+remoteEntry.second);
         
@@ -651,6 +656,11 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
+        def ensureRemoteActivities() {
+            if (remoteActivities == null) {
+                remoteActivities = new HashMap[Long,Int]();
+            }
+        }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
             local.getAndIncrement();
             return true;
@@ -675,9 +685,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (remoteActivities == null) {
-                remoteActivities = new HashMap[Long,Int]();
-            }
+            ensureRemoteActivities();
             val old = remoteActivities.getOrElse(place.id, 0n);
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
@@ -758,6 +766,11 @@ abstract class FinishState {
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
+        def ensureRemoteActivities():void {
+            if (remoteActivities == null) {
+                remoteActivities = new HashMap[Long,Int]();
+            }
+        }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
             local.getAndIncrement();
             return true;
@@ -782,10 +795,7 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-            if (remoteActivities == null) {
-                remoteActivities = new HashMap[Long,Int]();
-            }
-
+            ensureRemoteActivities();
             val old = remoteActivities.getOrElse(place.id, 0n);
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
