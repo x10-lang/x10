@@ -36,7 +36,7 @@ abstract class FinishState {
 
     /**
      * Called by an activity running at the current Place when it
-     * is initiating a remote activity at dstPlace. 
+     * is initiating the spawn of an new async at dstPlace.
      *
      * Scheduling note: Will only be called on a full-fledged worker thread;
      *                  this method is allowed to block/pause.
