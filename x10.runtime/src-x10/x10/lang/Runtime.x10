@@ -1371,11 +1371,11 @@ public final class Runtime {
         val realActivity = activity();
         val finishState = realActivity.finishState();
         val clockPhases = realActivity.clockPhases;
-        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         val ser = new x10.io.Serializer();
         ser.writeAny(body);
         val bytes = ser.toRail();
 
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
                 activity().clockPhases = clockPhases;
@@ -1414,9 +1414,22 @@ public final class Runtime {
             }
         } catch (e:MultipleExceptions) {
             // Peel off the layer of ME wrapping caused by the internal finish above.
-            if (e.exceptions != null && e.exceptions.size == 1) {
-                throwCheckedWithoutThrows(e.exceptions(0));
+            if (e.exceptions != null) {
+                if (e.exceptions.size == 1) {
+                    throwCheckedWithoutThrows(e.exceptions(0));
+                } else {
+                    // Prioritize DeadPlaceExceptions and rethrow exactly 1 of them 
+                    // to maintain the X10 semantics view that an at is a place shift
+                    // by the same single activity.
+                    for (e2 in e.exceptions) {
+                        if (e2 instanceof DeadPlaceException &&
+                            (e2 as DeadPlaceException).place == place) {
+                            throwCheckedWithoutThrows(e2);
+                        }
+                    }
+                }
             }
+
             // Unexpected.  Rethrow e to enable debugging.
             throw e;
         } finally {
@@ -1526,13 +1539,13 @@ public final class Runtime {
         val realActivity = activity();
         val finishState = realActivity.finishState();
         val clockPhases = realActivity.clockPhases;
-        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         val ser = new x10.io.Serializer();
         ser.writeAny(eval);
         val bytes = ser.toRail();
         val resultCell = new Cell[Any](null);
-        val resultCellGR = GlobalRef[Cell[Any]](resultCell);
 
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
+        val resultCellGR = GlobalRef[Cell[Any]](resultCell);
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
                 activity().clockPhases = clockPhases;
@@ -1574,9 +1587,22 @@ public final class Runtime {
             }
         } catch (e:MultipleExceptions) {
             // Peel off the layer of ME wrapping caused by the internal finish above.
-            if (e.exceptions != null && e.exceptions.size == 1) {
-                throwCheckedWithoutThrows(e.exceptions(0));
+            if (e.exceptions != null) {
+                if (e.exceptions.size == 1) {
+                    throwCheckedWithoutThrows(e.exceptions(0));
+                } else {
+                    // Prioritize DeadPlaceExceptions and rethrow exactly 1 of them 
+                    // to maintain the X10 semantics view that an at is a place shift
+                    // by the same single activity.
+                    for (e2 in e.exceptions) {
+                        if (e2 instanceof DeadPlaceException &&
+                            (e2 as DeadPlaceException).place == place) {
+                            throwCheckedWithoutThrows(e2);
+                        }
+                    }
+                }
             }
+
             // Unexpected.  Rethrow e to enable debugging.
             throw e;
         } finally {
