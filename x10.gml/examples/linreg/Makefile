@@ -31,19 +31,7 @@ X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 4
-test_args = 10 10 5 1 0.6 6 1 1 0 2
-#test_args = 10 10 5 1 0.9 2 1
-#mV = V rows
-#nV = V columns
-#mB = row blocks
-#nB = column blocks
-#nZ = V's nonzero density
-#iT = Iterations
-#vf = Verify result or not
-#pP = print V, d and w out
-#sP = skip places count (at least 1 place should remain)
-#cI = checkpoint iteration frequency
-
+test_args = -m 100 -n 100 --rowBlocks 5 --colBlocks 1 --density 0.6 --iterations 6 --verify --skip 2
 
 ###################################################
 # Build rules

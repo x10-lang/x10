@@ -211,7 +211,7 @@ sub RunTestSuite {
 	  my %dnp=();
 	  foreach my $nn (@NodeList) {
 		my $np        = $nn * $ProcPerNode;
-		my $exe_param = "$ms $MatrixV_cols $NZDensity $itnum";
+		my $exe_param = "-m $ms -n $MatrixV_cols --density $NZDensity --iterations $itnum";
                 my @retval = RunTest("$launch -N$nn -n$np $BatchModeOpt $wrap $testexe $exe_param");
 
 		$dnp{$nn} = [ @retval ];

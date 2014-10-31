@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
+import x10.util.Option;
+import x10.util.OptionsParser;
 import x10.util.Timer;
 
 import x10.matrix.util.Debug;
@@ -43,16 +45,42 @@ public class RunLinReg {
     }
 
     public static def main(args:Rail[String]): void {
-        val mV = args.size > 0 ? Long.parse(args(0)):10; // Rows and columns of V
-        val nV = args.size > 1 ? Long.parse(args(1)):10; //column of V
-        val mB = args.size > 2 ? Long.parse(args(2)):5;
-        val nB = args.size > 3 ? Long.parse(args(3)):5;
-        val nZ = args.size > 4 ? Double.parse(args(4)):0.9; //V's nonzero density
-        val iT = args.size > 5 ? Long.parse(args(5)):2; //Iterations
-        val vf = args.size > 6 ? Int.parse(args(6)):0n; //Verify result or not
-        val pP = args.size > 7 ? Int.parse(args(7)):0n; // print V, d and w out
-        val sP = args.size > 8 ? Int.parse(args(8)):0n; // skip places count (at least 1 place should remain)
-        val cI = args.size > 9 ? Int.parse(args(9)):-1n; // checkpoint iteration frequency
+        val opts = new OptionsParser(args, [
+            Option("h","help","this information"),
+            Option("v","verify","verify the parallel result against sequential computation"),
+            Option("p","print","print matrix V, vectors d and w on completion")
+        ], [
+            Option("m","rows","number of rows, default = 10"),
+            Option("n","cols","number of columns, default = 10"),
+            Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
+            Option("c","colBlocks","number of columnn blocks; default = 1"),
+            Option("d","density","nonzero density, default = 0.9"),
+            Option("i","iterations","number of iterations, default = 2"),
+            Option("s","skip","skip places count (at least one place should remain), default = 0"),
+            Option("f","checkpointFreq","checkpoint iteration frequency")
+        ]);
+
+        if (opts.filteredArgs().size!=0) {
+            Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
+            Console.ERR.println("Use -h or --help.");
+            System.setExitCode(1n);
+            return;
+        }
+        if (opts("h")) {
+            Console.OUT.println(opts.usage(""));
+            return;
+        }
+
+        val mV = opts("m", 10);
+        val nV = opts("n", 10);
+        val mB = opts("r", Place.numPlaces());
+        val nB = opts("c", 1);
+        val nZ = opts("d", 0.9);
+        val iT = opts("i", 2n);
+        val vf = opts("v");
+        val pP = opts("p");
+        val sP = opts("s", 0n);
+        val cI = opts("f", -1n);
 
         Console.OUT.println("Set row V:"+mV+" col V:"+nV+" density:"+nZ+" iteration:"+iT+" skipPlaces:"+sP);
 
@@ -73,13 +101,13 @@ public class RunLinReg {
                             "commuTime:"+parLR.commT+" ms " +
                             "paraComp:"+parLR.parCompT + " ms");
 
-            if (pP != 0n) {
+            if (pP) {
                 Console.OUT.println("Input sparse matrix V\n" + parLR.V);
                 Console.OUT.println("Input dense matrix b\n" + parLR.b);
                 Console.OUT.println("Output dense matrix w\n" + parLR.w);
             }
 
-            if (vf > 0) {
+            if (vf) {
                 // Create sequential version running on dense matrices
                 val bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nZ);
                 val V = DenseMatrix.make(mV, nV);
