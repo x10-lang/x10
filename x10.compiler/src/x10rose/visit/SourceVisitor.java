@@ -1530,9 +1530,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10Do_c n) {
-        toRose(n, "X10Do:");
-        visitChild(n, n.cond());
+        toRose(n, "X10Do:", n.cond().toString(), n.body().toString());
+        JNI.cactionDoStatement(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
+        visitChild(n, n.cond());
+        JNI.cactionDoStatementEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(X10While_c n) {
