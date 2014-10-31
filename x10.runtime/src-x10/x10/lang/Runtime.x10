@@ -1494,23 +1494,28 @@ public final class Runtime {
     }
 
     /** 
-     * Implement the exception/blocking/expression semantics of at(p) E by 
-     * wrapping the fundamental remote async primitive at(p) async S
-     * to modify its exception semantics and using a local latch
-     * to achieve the desired blocking semantics and communication 
-     * of return value.
+     * Implement the exception/blocking semantics of at(p) E by 
+     * combining the fundamental primitives of finish (for blocking)
+     * and at (p) async S (for remote task spawning). 
      *
-     * TODO: Resilient X10: Need to use a per-worker RemoteControl
-     *                      to enable notifyPlaceDeath to unblock
-     *                      stuck threads.
+     * We manipulate the finish state, clocks, and exception behavior of
+     * the remote async's body to obtain the X10 language semantics.
+     *
+     * NOTE: We push the bulk of the implementation to this non-generic
+     *       version to control codespace growth and limit the number 
+     *       of actual remote closures (Native X10).
      */
     private static def evalAtImpl(place:Place, eval:()=>Any, prof:Profile):Any {
         Runtime.ensureNotInAtomic();
+
+        // evalAt to here is straightforward, execute a
+        // deep copy of the body closure synchronously
+        // and return a deep copy of the result.
         if (place.id == hereLong()) {
             try {
                 try {
-                    val result = deepCopy(eval,prof)();
-                    return deepCopy(result,prof);
+                    val result = deepCopy(eval, prof)();
+                    return deepCopy(result, prof);
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
                 }
@@ -1518,65 +1523,89 @@ public final class Runtime {
                 throwCheckedWithoutThrows(deepCopy(t, null));
             }
         }
-        @StackAllocate val me = @StackAllocate new Remote[Any]();
-        val box = GlobalRef(me as Remote[Any]);
-        val clockPhases = activity().clockPhases;
-        @StackAllocate val ser = @StackAllocate new x10.io.Serializer();
+
+        // Carefully manipulate the finishState, etc. so that 
+        // asyncs spawned by eval use the current finishState
+        // not the finishState of the finish we create intenally here to
+        // enable blocking on the completion of remote execution of eval
+        val srcPlace = here;
+        val realActivity = activity();
+        val finishState = realActivity.finishState();
+        val clockPhases = realActivity.clockPhases;
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
+        val ser = new x10.io.Serializer();
         ser.writeAny(eval);
         val bytes = ser.toRail();
-        @x10.compiler.Profile(prof) at(place) async {
-            activity().clockPhases = clockPhases;
-            try {
-                try {
-                    // We use manual deserialization to get correct handling of exceptions
-                    @StackAllocate val deser = @StackAllocate new x10.io.Deserializer(bytes);
-                    val evalPrime = deser.readAny() as ()=>Any;
-                    val result = evalPrime();
-                    @StackAllocate val ser2 = @StackAllocate new x10.io.Serializer();
-                    ser2.writeAny(result);
-                    val bytes2 = ser2.toRail();
+        val resultCell = new Cell[Any](null);
+        val resultCellGR = GlobalRef[Cell[Any]](resultCell);
 
-                    at (box.home) @Immediate("evalAt_1") async {
-                        val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
-                        // me2 has type Box[T{box.home==here}]... weird
-                        me2.clockPhases = clockPhases;
-                        @StackAllocate val deser2 = @StackAllocate new x10.io.Deserializer(bytes2);
-                        try {
-                            val resultPrime = deser2.readAny();
-                            me2.t = new Box[Any](resultPrime as Any);
-                        } catch (e:CheckedThrowable) {
-                            me2.e = e;
+        finishState.notifySubActivitySpawn(place);
+
+        try {
+	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
+                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
+                    activity().clockPhases = clockPhases;
+                    val syncFinishState = activity().swapFinish(finishState);
+                    var exc:CheckedThrowable = null;
+                    var res:Any = null;
+                    try {
+                        // Actually deserialize and evaluate user eval closure
+                        val deser = new x10.io.Deserializer(bytes);
+                        val evalPrime = deser.readAny() as ()=>Any;
+                        res = evalPrime();
+                    } catch (e:AtCheckedWrapper) {
+                        exc = e.getCheckedCause();
+                    } catch (e:WrappedThrowable) {
+                        exc = e.getCheckedCause();
+                    } catch (e:CheckedThrowable) {
+                        exc = e;
+                    }
+
+                    // Wind up internal activity created for synchronization
+                    try {
+                        activity().swapFinish(syncFinishState);
+
+                        // Transmit result and potentially modified clockPhases back to srcPlace.
+                        val finalClockPhases = activity().clockPhases;
+                        activity().clockPhases = null;
+                        val resCopy = res;
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                            resultCellGR().set(resCopy);
+                            if (finalClockPhases != null) {
+                                realActivityGR().clockPhases = finalClockPhases;
+                            }
                         }
-                        me2.release();
-                    };
-                } catch (t:AtCheckedWrapper) {
-                    throw t.getCheckedCause();
+                    } catch (e:CheckedThrowable) {
+                        // Suppress exceptions during windup of internal activity.
+                        // Should not be user-visible.
+                    } finally {
+                        finishState.notifyActivityTermination();
+                        if (exc != null) syncFinishState.pushException(exc);
+                    }
                 }
-            } catch (e:CheckedThrowable) {
-                at (box.home) @Immediate("evalAt_2") async {
-                    val me2 = (box as GlobalRef[Remote[Any]]{home==here})();
-                    me2.e = e;
-                    me2.clockPhases = clockPhases;
-                    me2.release();
-                };
             }
-            activity().clockPhases = null;
+        } catch (e:MultipleExceptions) {
+            // Peel off the layer of ME wrapping caused by the internal finish above.
+            if (e.exceptions != null && e.exceptions.size == 1) {
+                throwCheckedWithoutThrows(e.exceptions(0));
+            }
+            // Unexpected.  Rethrow e to enable debugging.
+            throw e;
+        } finally {
+           realActivityGR.forget();
+           resultCellGR.forget();
         }
-        me.await();
-        Unsafe.dealloc(eval);
-        activity().clockPhases = me.clockPhases;
-        if (null != me.e) {
-            throwCheckedWithoutThrows(me.e);
-        }
-        return me.t.value;
+    
+        // If we get here, the remote evaluation finished normally and we can
+        // return the result of the evaluation from resultCell.
+        return resultCell();
     }
 
+
     /** 
-     * Implement the exception/blocking/expression semantics of at(p) E by 
-     * wrapping the fundamental remote async primitive at(p) async S
-     * to modify its exception semantics and using a local latch
-     * to achieve the desired blocking semantics and communication 
-     * of return value.
+     * Implement the exception/blocking semantics of at(p) E by 
+     * combining the fundamental primitives of finish (for blocking)
+     * and at (p) async S (for remote task spawning). 
      */
     public static def evalAt[T](place:Place, eval:()=>T, prof:Profile):T {
         // NOTE: We are wrapping a non-generic impl of the core functionality
