@@ -2051,8 +2051,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(X10Instanceof_c n) {
         toRose(n, "X10Instanceof:");
-        visitChild(n, n.compareType());
+        JNI.cactionInstanceOfExpression(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.expr());
+        visitChild(n, n.compareType());
+        JNI.cactionInstanceOfExpressionEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(SubtypeTest_c n) {
