@@ -10,15 +10,13 @@
  */
 package linreg;
 
-import x10.util.Timer;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 
 /**
-   Sequential implementation of linear regression
+ * Sequential implementation of linear regression
  */
-public class SeqLinearRegression{
+public class SeqLinearRegression {
 
 	public val iteration:Long;
 	public val w:Vector(V.N);

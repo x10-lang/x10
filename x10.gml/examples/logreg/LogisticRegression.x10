@@ -1,9 +1,13 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
-
 package logreg;
 
 import x10.util.Timer;
@@ -106,7 +110,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     }
 
     public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup){
-        val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd);
+        val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
         val y:Vector(X.M) = Vector.make(X.M);
         val w:Vector(X.N) = Vector.make(X.N);
 
@@ -118,7 +122,6 @@ public class LogisticRegression implements ResilientIterativeApp {
     }
 
     public def run() {
-        Debug.flushln("Starting logistic regression");
         //o = X %*% w        
         compute_XmultB(o, w);
         //logistic = 1.0/(1.0 + exp( -y * o))
@@ -130,7 +133,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         obj = 0.5 * w.norm() + C*logistic.sum(); //NormChange:w.norm(w) to w.norm()
 
         //grad = w + C*t(X) %*% ((logistic - 1)*y)        
-        compute_grad(grad, logistic);        
+        compute_grad(grad, logistic);
         
         //logisticD = logistic*(1-logistic)
         logisticD = logistic.clone();//Vector.make(logistic);
@@ -154,7 +157,6 @@ public class LogisticRegression implements ResilientIterativeApp {
 
         new ResilientExecutor(chkpntIterations).run(this);
         
-        Debug.flushln("End");
         commUseTime += dup_w.getCommTime()+dst_y.getCommTime();
     }
 
@@ -195,7 +197,6 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 shouldBreak = false;
             var shouldBreak:Boolean = false;
             if (stsScalar > delta2) {
-                // 
                 //                     std = t(s) %*% d
                 val std = s.norm(d);
                 //                     dtd = t(d) %*% d
@@ -210,22 +211,16 @@ public class LogisticRegression implements ResilientIterativeApp {
                 } else {
                     tau = (rad - std)/dtd;
                 }
-                //                     
                 //                     s = s + castAsScalar(tau) * d
                 s.cellAdd(tau*d);
                 //                     r = r - castAsScalar(tau) * Hd
                 r.cellSub(tau * Hd);
-                //                     
                 //                     #break
-                //                     shouldBreak = true;
                 shouldBreak = true;
-                //                     innerconverge = true;
                 innerconverge = true;
-                //                     
             } 
             //                 
             if (!shouldBreak) {
-                // 
                 //                     r = r - castAsScalar(alpha) * Hd
                 r.cellSub(alpha * Hd);
                 //                     old_norm_r2 = norm_r2 
@@ -239,14 +234,11 @@ public class LogisticRegression implements ResilientIterativeApp {
                 //                     innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
                 innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
             }
-            //                 
-            //                 
         }  
         //             # END TRUST REGION SUB-PROBLEM
         //             # compute rho, update w, obtain delta
         //             qk = -0.5*(t(s) %*% (grad - r))
         val qk = -0.5 * s.norm(grad-r);
-        //             
         //             wnew = w + s
         w.copyTo(wnew);
         wnew.cellAdd(s);
@@ -266,7 +258,6 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             snorm = sqrt(sum( s * s ))
         val snorm = Math.sqrt(s.norm()); //NormChange: s.norm(s) to s.norm()
         if (rhoScalar > eta0){            
-            //                 
             //                 w = wnew
             wnew.copyTo(w);
             //                 o = onew
@@ -274,10 +265,8 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 grad = w + C*t(X) %*% ((logisticnew - 1) * y )
             compute_grad(grad, logisticnew);
         } 
-        //             
         iter = iter + 1;
         converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
-        // 
         //             alphaScalar = castAsScalar(alpha)
         val alphaScalar = alpha;            
         if (rhoScalar < eta0){
@@ -300,8 +289,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         val stt:Long=Timer.milliTime();
         opB.copyTo(dup_w.local());
         dup_w.sync();
-        dst_y.mult(X,  dup_w, false);
-        //DistMultDupToDist.comp(X, dup_w, dst_y);
+        dst_y.mult(X, dup_w, false);
         
         val ctt:Long = Timer.milliTime();
         dst_y.copyTo(result); //gather single column matrix

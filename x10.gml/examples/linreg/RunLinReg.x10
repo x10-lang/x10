@@ -13,36 +13,20 @@ import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Timer;
 
-import x10.matrix.util.Debug;
-import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.block.BlockMatrix;
+import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
+import x10.matrix.util.PlaceGroupBuilder;
 
 import linreg.LinearRegression;
 import linreg.SeqLinearRegression;
-import x10.matrix.util.PlaceGroupBuilder;
-import x10.matrix.distblock.DistBlockMatrix;
 
 /**
- * Demo of linear regression test
+ * Test harness for Linear Regression using GML
  */
 public class RunLinReg {
-
-    /*
-     * Vector.equals(Vector) modified to allow NaN.
-     */
-    public static def equalsRespectNaN(w:Vector, v:Vector):Boolean {
-        val M = w.M;
-        if (M != v.M) return false;
-        for (var c:Long=0; c< M; c++)
-            if (MathTool.isZero(w.d(c) - v.d(c)) == false && !(w.d(c).isNaN() && v.d(c).isNaN())) {
-                Console.OUT.println("Diff found [" + c + "] : "+
-                                    w.d(c) + " <> "+ v.d(c));
-                return false;
-            }
-        return true;
-    }
 
     public static def main(args:Rail[String]): void {
         val opts = new OptionsParser(args, [
@@ -66,72 +50,89 @@ public class RunLinReg {
             System.setExitCode(1n);
             return;
         }
-        if (opts("h")) {
-            Console.OUT.println(opts.usage(""));
+        if (opts.wantsUsageOnly("Options:\n")) {
             return;
         }
 
         val mV = opts("m", 10);
         val nV = opts("n", 10);
-        val mB = opts("r", Place.numPlaces());
-        val nB = opts("c", 1);
-        val nZ = opts("d", 0.9);
-        val iT = opts("i", 2n);
-        val vf = opts("v");
-        val pP = opts("p");
-        val sP = opts("s", 0n);
-        val cI = opts("f", -1n);
+        val rowBlocks = opts("r", Place.numPlaces());
+        val colBlocks = opts("c", 1);
+        val nonzeroDensity = opts("d", 0.9);
+        val iterations = opts("i", 2n);
+        val verify = opts("v");
+        val print = opts("p");
+        val skipPlaces = opts("s", 0n);
+        val checkpointFrequency = opts("f", -1n);
 
-        Console.OUT.println("Set row V:"+mV+" col V:"+nV+" density:"+nZ+" iteration:"+iT+" skipPlaces:"+sP);
+        Console.OUT.println("V: rows:"+mV+" cols:"+nV
+                           +" density:"+nonzeroDensity+" iterations:"+iterations);
 
-        if (mV<=0 || nV<=0 || iT<1 || nZ<0.0 || sP < 0 || sP >= Place.numPlaces())
+        if (mV<=0 || nV<=0 || iterations<1 || nonzeroDensity<0.0
+         || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
             Console.OUT.println("Error in settings");
-        else {
-            val places:PlaceGroup = (sP==0n? Place.places() :PlaceGroupBuilder.makeTestPlaceGroup(sP));
+        } else {
+            if (skipPlaces > 0)
+                Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
+            val places = (skipPlaces==0n) ? Place.places() 
+                                          : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
 
             // Create parallel linear regression
-            val parLR = LinearRegression.make(mV, nV, mB, nB, nZ, iT, cI, places);
+            val parLR = LinearRegression.make(mV, nV, 
+                                              rowBlocks, colBlocks, 
+                                              nonzeroDensity, iterations,
+                                              checkpointFrequency, places);
 
             //Run the parallel linear regression
             Debug.flushln("Starting parallel linear regression");
-            val tt:Long = Timer.milliTime();
+            val startTime = Timer.milliTime();
             parLR.run();
-            val totaltime = Timer.milliTime() - tt;
-            Debug.flushln("Parallel linear regression --- total:"+totaltime+" ms "+
-                            "commuTime:"+parLR.commT+" ms " +
-                            "paraComp:"+parLR.parCompT + " ms");
+            val totalTime = Timer.milliTime() - startTime;
+			Console.OUT.printf("Parallel linear regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
+					totalTime, parLR.parCompT, parLR.commT);
 
-            if (pP) {
+            if (print) {
                 Console.OUT.println("Input sparse matrix V\n" + parLR.V);
                 Console.OUT.println("Input dense matrix b\n" + parLR.b);
                 Console.OUT.println("Output dense matrix w\n" + parLR.w);
             }
 
-            if (vf) {
+            if (verify) {
                 // Create sequential version running on dense matrices
-                val bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nZ);
+                val bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
                 val V = DenseMatrix.make(mV, nV);
                 val b = Vector.make(nV);
 
                 parLR.V.copyTo(bV as BlockMatrix(parLR.V.M, parLR.V.N));
                 bV.copyTo(V);
                 parLR.b.copyTo(b as Vector(parLR.b.M));
-                val seqLR = new SeqLinearRegression(V, b, iT);
+                val seqLR = new SeqLinearRegression(V, b, iterations);
 
-
-                // Result verification
                 Debug.flushln("Starting sequential linear regression");
                 seqLR.run();
-                // Verification of parallel against sequential
-                Debug.flushln("Start verifying results");
+                Debug.flushln("Verifying results against sequential version");
 
                 if (equalsRespectNaN(parLR.w, seqLR.w as Vector(parLR.w.M))) {
-                    Console.OUT.println("Verification passed! "+
-                                        "Parallel linear regression is same as sequential version");
+                    Console.OUT.println("Verification passed.");
                 } else {
                     Console.OUT.println("Verification failed!");
                 }
             }
         }
+    }
+
+    /*
+     * Vector.equals(Vector) modified to allow NaN.
+     */
+    public static def equalsRespectNaN(w:Vector, v:Vector):Boolean {
+        val M = w.M;
+        if (M != v.M) return false;
+        for (var c:Long=0; c< M; c++)
+            if (MathTool.isZero(w.d(c) - v.d(c)) == false && !(w.d(c).isNaN() && v.d(c).isNaN())) {
+                Console.OUT.println("Diff found [" + c + "] : "+
+                                    w.d(c) + " <> "+ v.d(c));
+                return false;
+            }
+        return true;
     }
 }

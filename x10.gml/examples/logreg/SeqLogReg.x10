@@ -1,17 +1,22 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
-
 package logreg;
-
-import x10.util.Timer;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
 
+/**
+ * Sequential implementation of logistic regression
+ */
 public class SeqLogReg {
 	val C = 2;
 	val tol = 0.000001;
@@ -52,7 +57,6 @@ public class SeqLogReg {
 	}
 	
 	public def run() {
-		Debug.flushln("Starting logistic regression");
 		//o = X %*% w
 		val o:Vector(X.M)=Vector.make(X.M, 1);
 		compute_XmultB(o, w);
@@ -230,10 +234,7 @@ public class SeqLogReg {
  				}
  			}
 		}
-		Debug.flushln("End");
 	}
-	
-
 	
 	protected def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
 		//o = X %*% w
