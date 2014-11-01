@@ -306,6 +306,12 @@ X10RT_C void x10rt_lgl_register_mem (void *ptr, size_t len);
 X10RT_C void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                                        int *blocks, int *threads, const int *cfg);
 
+/** \see #x10rt_device_sync
+ *
+ * \param d As in #x10rt_device_sync
+ */
+X10RT_C void x10rt_lgl_device_sync (x10rt_place d);
+
 /** Probe all the underlying backends. \see #x10rt_probe
  */
 X10RT_C x10rt_error x10rt_lgl_probe (void);

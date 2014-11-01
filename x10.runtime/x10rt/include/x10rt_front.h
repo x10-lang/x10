@@ -525,6 +525,12 @@ X10RT_C void x10rt_register_mem (void *ptr, size_t len);
 X10RT_C void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                                    int *blocks, int *threads, const int *cfg);
 
+/** Blocks until the accelerator has completed all preceding requested tasks.
+ *
+ * \param d The accelerator to synchronize.
+ */
+X10RT_C void x10rt_device_sync (x10rt_place d);
+
 /** Handle outstanding incoming messages.  A place should periodically call the following function
  * to handle outstanding messages that have arrived since the last call.
  *

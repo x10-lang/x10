@@ -783,6 +783,25 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
 #endif
 }
 
+
+void x10rt_cuda_device_sync (x10rt_cuda_ctx *ctx)
+{
+#ifdef ENABLE_CUDA
+    big_lock_of_doom.acquire();
+    CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+
+    CU_SAFE(cuCtxSynchronize());
+    //CU_SAFE(cuStreamSynchronize(ctx->kernel_q.stream));
+
+    CU_SAFE(cuCtxPopCurrent(NULL));
+    big_lock_of_doom.release();
+#else
+    (void)ctx;
+    abort();
+#endif
+}
+
+
 // returns true if something is active in the GPU, or false if the GPU is idle
 bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 {

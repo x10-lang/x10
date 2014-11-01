@@ -103,6 +103,7 @@ namespace x10aux {
     void blocks_threads (place p, msg_type t, int shm, x10_ulong &bs, x10_ulong &ts, const int *cfgs=cuda_cfgs);
     void blocks_threads (place p, msg_type t, int shm, x10_long &bs, x10_long &ts, const int *cfgs=cuda_cfgs);
 
+    void device_sync (place p);
 
     inline x10_ulong remote_alloc (place p, size_t sz) {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote alloc: "<<ANSI_RESET

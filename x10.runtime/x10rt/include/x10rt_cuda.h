@@ -135,6 +135,14 @@ X10RT_C void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p,
 X10RT_C void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dyn_shm,
                                         int *blocks, int *threads, const int *cfg);
 
+/** Blocks until the CUDA device has completed all preceding requested tasks.
+ *
+ * \see x10rt_device_sync
+ *
+ * \param ctx The CUDA device to synchronize.
+ */
+X10RT_C void x10rt_cuda_device_sync (x10rt_cuda_ctx *ctx);
+
 /** Allocate memory on the given CUDA device.  Note that the CUDA GPU will adopt the same alignment
  * and pointer width characteristics as the host, so a void* is adequate for holding these remote
  * pointers.

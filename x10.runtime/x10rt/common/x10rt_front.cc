@@ -150,9 +150,12 @@ void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                            int *blocks, int *threads, const int *cfg)
 { x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }
 
+void x10rt_device_sync (x10rt_place d)
+{ x10rt_lgl_device_sync (d); }
 
 x10rt_error x10rt_probe (void)
 { return x10rt_lgl_probe(); }
+
 
 bool x10rt_blocking_probe_support (void)
 { return x10rt_lgl_blocking_probe_support(); }

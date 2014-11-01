@@ -120,6 +120,8 @@ void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_ulong &bs, x1
 void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_long &bs, x10_long &ts, const int *cfgs)
 { x10_int a,b; x10rt_blocks_threads(p,t,shm,&a,&b,cfgs); bs=a,ts=b; }
 
+void x10aux::device_sync (place p)
+{ x10rt_device_sync(p); }
 
 
 void *kernel_put_finder (const x10rt_msg_params *p, x10rt_copy_sz)

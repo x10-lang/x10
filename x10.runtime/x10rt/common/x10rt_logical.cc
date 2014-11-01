@@ -742,12 +742,12 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
                 fatal("CUDA remote ops still unsupported.\n");
             } break;
             default: {
-                fatal("Place %lu has invalid type %d in remote_op_xor.\n",
+                fatal("Place %lu has invalid type %d in remote_op.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
             }
         }
     } else {
-        fatal("Routing of remote ops still unsupported.\n");
+        fatal("Routing of remote_op still unsupported.\n");
     }
 }
     
@@ -770,12 +770,12 @@ void x10rt_lgl_remote_ops (x10rt_remote_op_params *opv, size_t opc)
                             error("CUDA remote ops still unsupported.\n");
                         } break;
                         default: {
-                            error("Place %lu has invalid type %d in remote_op_xor.\n",
+                            error("Place %lu has invalid type %d in remote_ops.\n",
                                            (unsigned long)d, (int)x10rt_lgl_type(d));
                         }
                     }
                 } else {
-                    error("Routing of remote ops still unsupported.\n");
+                    error("Routing of remote_ops still unsupported.\n");
                 }
             }
         #endif
@@ -808,13 +808,38 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                 x10rt_cuda_blocks_threads(cctx, type, dyn_shm, blocks, threads, cfg);
             } break;
             default: {
-                fatal("Place %lu has invalid type %d in remote_op_xor.\n",
+                fatal("Place %lu has invalid type %d in blocks_threads.\n",
                                (unsigned long)d, (int)x10rt_lgl_type(d));
                 return;
             }
         }
     } else {
-        fatal("Routing of remote ops still unsupported.\n");
+        fatal("Routing of blocks_threads still unsupported.\n");
+        return;
+    }
+}
+
+void x10rt_lgl_device_sync (x10rt_place d)
+{
+    ESCAPE_IF_ERR;
+    assert(d < x10rt_lgl_nplaces());
+
+    if (d < x10rt_lgl_nhosts()) {
+    } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
+        // local accelerator
+        switch (x10rt_lgl_type(d)) {
+            case X10RT_LGL_CUDA: {
+                x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
+                x10rt_cuda_device_sync(cctx);
+            } break;
+            default: {
+                fatal("Place %lu has invalid type %d in device_sync.\n",
+                               (unsigned long)d, (int)x10rt_lgl_type(d));
+                return;
+            }
+        }
+    } else {
+        fatal("Routing of device_sync still unsupported.\n");
         return;
     }
 }
