@@ -150,12 +150,12 @@ public class SourceVisitor extends X10DelegatingVisitor {
         imports = new ArrayList<Import>();
     }
 
-    void toRose(Node n, String name, String... extra) {
+    void toRose(Node n, String name, Object... extra) {
         if (RoseTranslator.DEBUG) System.out.print("PRINT ");
         if (name != null)
             if (RoseTranslator.DEBUG) System.out.print(name);
         if (extra != null)
-            for (String s : extra) {
+            for (Object s : extra) {
                 if (RoseTranslator.DEBUG) System.out.print(s + " ");
             }
         if (RoseTranslator.DEBUG) System.out.println();
@@ -833,7 +833,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
         // arg_location);
         // }
         visitChild(n, n.type());
-        System.out.println("MOD:" + n.flags().flags().isFinal());
         JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
                                         n.flags().flags().isFinal(),
                                         RoseTranslator.createJavaToken(n, n.name().id().toString()));
@@ -1847,9 +1846,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(Assert_c n) {
-        toRose(n, "Assert:");
+        toRose(n, "Assert:", n, n.cond(), n.errorMessage());
+        JNI.cactionAssertStatement(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.cond());
         visitChild(n, n.errorMessage());
+        JNI.cactionAssertStatementEnd(n.errorMessage() != null, RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Throw_c n) {
