@@ -53,15 +53,20 @@ public class TestNestedFinishMiddleFail extends x10Test  {
 	    
             finish {
                 at (p1) async {
+                    val flag = new Cell[Boolean](false);
+                    val flagGR = GlobalRef(flag);
                     good_dec();
                     finish {
                         at (p2) async {
                             good_dec();
+                            at (flagGR) async { atomic { flagGR().set(true); } }
                             System.sleep(5000);
                             good_dec();
                         }
                         good_dec();
-                        System.killHere();
+                        when (flag()) {
+                           System.killHere();
+                        }
                     }
                 }
             }

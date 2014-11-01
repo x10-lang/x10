@@ -59,7 +59,7 @@ public class TestNestedFinishMiddleFailSync extends x10Test  {
                     finish {
                         at (p2) {
                             good_dec();
-                            System.sleep(5000);
+                            System.sleep(1000);
                             good_dec();
                         }
                         good_dec();
