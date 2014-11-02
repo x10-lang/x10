@@ -1558,12 +1558,15 @@ public final class Runtime {
                     activity().clockPhases = clockPhases;
                     val syncFinishState = activity().swapFinish(finishState);
                     var exc:CheckedThrowable = null;
-                    var res:Any = null;
+                    var resBytes:Rail[Byte] = null;
                     try {
                         // Actually deserialize and evaluate user eval closure
                         val deser = new x10.io.Deserializer(bytes);
                         val evalPrime = deser.readAny() as ()=>Any;
-                        res = evalPrime();
+                        val res = evalPrime();
+                        val ser2 = new x10.io.Serializer();
+                        ser2.writeAny(res);
+                        resBytes = ser2.toRail();
                     } catch (e:AtCheckedWrapper) {
                         exc = e.getCheckedCause();
                     } catch (e:WrappedThrowable) {
@@ -1573,23 +1576,28 @@ public final class Runtime {
                     }
 
                     // Wind up internal activity created for synchronization
-                    try {
-                        activity().swapFinish(syncFinishState);
-                        if (exc != null) syncFinishState.pushException(exc);
+                    activity().swapFinish(syncFinishState);
 
-                        // Transmit result and potentially modified clockPhases back to srcPlace.
-                        val finalClockPhases = activity().clockPhases;
-                        activity().clockPhases = null;
-                        val resCopy = res;
+                    // Transmit result and potentially modified clockPhases back to srcPlace.
+                    val finalClockPhases = activity().clockPhases;
+                    activity().clockPhases = null;
+                    val resBytes2 = resBytes;
+                    try {
                         @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                            resultCellGR().set(resCopy);
                             if (finalClockPhases != null) {
                                 realActivityGR().clockPhases = finalClockPhases;
                             }
+                            if (resBytes2 != null) {
+                                val deser2 = new x10.io.Deserializer(resBytes2);
+                                resultCellGR().set(deser2.readAny());
+                            }
                         }
-                    } catch (e:CheckedThrowable) {
-                        // Suppress exceptions during windup of internal activity.
-                        // Should not be user-visible.
+                    } catch (me:MultipleExceptions) {
+                        if (me.exceptions != null && me.exceptions.size == 1) {
+                            syncFinishState.pushException(me.exceptions(0));
+                        } else {
+                            syncFinishState.pushException(me);
+                        }
                     } finally {
                         finishState.notifyActivityTermination();
                         if (exc != null) syncFinishState.pushException(exc);
