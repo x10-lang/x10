@@ -2,7 +2,7 @@ diff -ur a/Makefile.in b/Makefile.in
 --- a/Makefile.in		 2014-06-04 05:09:25.000000000 +0900
 +++ b/Makefile.in		 2014-10-06 21:17:26.000000000 +0900
 @@ -2426,10 +2426,10 @@
- 		 uninstall-pkgincludeHEADERS
+	uninstall-pkgincludeHEADERS
  
  .s.lo:
 -		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
