@@ -1,0 +1,11 @@
+diff -ur a/pthread_support.c b/pthread_support.c
+--- a/pthread_support.c	2014-11-04 08:52:02.715921147 -0500
++++ b/pthread_support.c	2014-11-04 08:52:26.537979063 -0500
+@@ -1109,6 +1109,7 @@
+ #  ifdef PARALLEL_MARK
+      {
+        char * markers_string = GETENV("GC_MARKERS");
++       if (markers_string == NULL) markers_string = GETENV("X10_NTHREADS");
+        int markers_m1;
+ 
+        if (markers_string != NULL) {
