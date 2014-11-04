@@ -758,7 +758,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
     public void previsit(X10FieldDecl_c fieldDecl, String class_name) {
         String fieldName = fieldDecl.name().id().toString();
         toRose(fieldDecl, "Previsit field decl: ", fieldName);
-        String package_name = fieldDecl.type().type().fullName().qualifier().toString();
+        String package_name = "";
+        QName qname;
+        if (    (qname = fieldDecl.type().type().fullName()) != null
+             && qname.qualifier() != null)
+            package_name = qname.qualifier().toString();     
         String type_name = fieldDecl.type().toString();
         
         int token_constraint;
@@ -773,7 +777,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         
         if (RoseTranslator.isX10Primitive(package_name, type_name))
             JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken());
-        else if (package_name.length() != 0) {
+        else {
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(fieldDecl, type_name));
             JNI.cactionPopPackage();
             JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
@@ -818,8 +822,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10Formal_c n) {
-        toRose(n, "formal: ", n + "");
-
+        toRose(n, "formal: ", n);
+        
         // args_location = createJavaToken(args[0], args[args.length - 1]);
         //
         // for (int j = 0; j < args.length; j++) {
@@ -1157,7 +1161,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10ConstructorCall_c n) {
-        toRose(n, "X10ConstructorCall:", n.toString());        
+        toRose(n, "X10ConstructorCall:", n, n.target());
         //n.constructorInstance().container()
         
 //        visitChild(n, n.target());
@@ -1166,11 +1170,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
 //        visitChildren(n, n.arguments());
         JNI.cactionExplicitConstructorCall(RoseTranslator.createJavaToken(n, n.toString()));
         
-        
-
 //        JNI.cactionExplicitConstructorCallEnd(is_implicit_super, n.kind()==Kind.SUPER,
-//                                              n.qualifier()!=null, package_name, type_name, 
-//                                              constructor_index, n.typeArguments().size(), 
+//                                              n.qualifier()!=null, package_name, type_name,
+//                                              constructor_index, n.typeArguments().size(),
 //                                              n.arguments().size(),
 //                                              RoseTranslator.createJavaToken(n, n.toString()));
     }
