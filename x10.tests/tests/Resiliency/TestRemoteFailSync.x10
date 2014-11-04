@@ -41,7 +41,10 @@ public class TestRemoteFailSync extends x10Test {
     }
 
     public def run() {
-        if (Place.numPlaces() != 2) return false;
+        if (Place.numPlaces() < 2) {
+            Console.OUT.println("2 places are necessary for this test");
+            return false;
+        }
         val p1 = Place.places().next(here);
 
         try {

@@ -21,7 +21,10 @@ import harness.x10Test;
 public class XTENLANG_3305 extends x10Test {
 
     public def run() {
-        if (Place.numPlaces() != 2) return false;
+        if (Place.numPlaces() < 2) {
+            Console.OUT.println("2 places are necessary for this test");
+            return false;
+        }
         val place0 = here, place1 = Place.places().next(here);
         async {
             Console.OUT.println("Sleep 5 sec"); Console.OUT.flush();

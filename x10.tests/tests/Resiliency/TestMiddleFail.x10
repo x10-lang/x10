@@ -41,7 +41,10 @@ public class TestMiddleFail extends x10Test {
     }
 
     public def run() {
-        if (Place.numPlaces() != 3) return false;
+        if (Place.numPlaces() < 3) {
+            Console.OUT.println("3 places are necessary for this test");
+            return false;
+        }
         val p1 = Place.places().next(here);
         val p2 = Place.places().next(p1);
 
