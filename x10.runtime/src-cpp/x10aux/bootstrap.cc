@@ -74,7 +74,9 @@ static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
 static void* real_x10_main_inner(void* args);
 
 int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
-#if defined(__bg__)    
+    x10aux::network_init(ac, av);
+
+#if defined(__bg__)
     x10_main_args args;
     args.ac = ac;
     args.av = av;
@@ -112,8 +114,6 @@ static void* real_x10_main_inner(void* _main_args) {
     setlinebuf(stdout);
 
     x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
-
-    x10aux::network_init(main_args->ac, main_args->av);
 
 #ifdef X10_USE_BDWGC
     GC_INIT();
