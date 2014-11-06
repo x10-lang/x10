@@ -92,6 +92,7 @@ import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
 import x10.ast.ParExpr_c;
+import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
@@ -389,7 +390,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visitDeclarations(X10ClassDecl_c n) {
-        toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id().toString());
+        toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id());
         SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);  
         List<Import> imports = srcfile.imports();
         for (Import import_ : imports) {
@@ -425,6 +426,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             class_name = outer + "." + class_name;
         }
         RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
+  
         JNI.cactionSetCurrentClassName((package_name.length() == 0 ? "" : package_name + ".") + class_name);
         
         // MH-20141008
@@ -479,13 +481,22 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
         JNI.cactionBuildClassExtendsAndImplementsSupport(typeParamList.size(), typeParamNames, superClass != null, superClassName, interfaces == null ? 0 : interfaces.size(), interfaceNames, RoseTranslator.createJavaToken(n, class_name));
         handleClassMembers(members, package_name, class_name);
-
+        
 //        JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
         JNI.cactionBuildClassSupportEnd(class_name, members.size(), RoseTranslator.createJavaToken(n, class_name));
 
         Flags flags = n.flags().flags();
         JNI.cactionTypeDeclaration(package_name, class_name, /* num_annotations */0, n.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
         /* is_enum */false, flags.isAbstract(), flags.isFinal(), flags.isPrivate(), flags.isPublic(), flags.isProtected(), flags.isStatic(), /* is_strictfp */false, RoseTranslator.createJavaToken(n, class_name));
+        
+        List<PropertyDecl> propList = n.properties();
+        for (PropertyDecl prop : propList) {
+            visitChild(prop, prop.type());
+            JNI.cactionAppendProperty(prop.name().id().toString(), prop.type().type().isRail(), 
+                                        prop.flags().flags().isFinal(), RoseTranslator.createJavaToken());
+        }
+        if (propList.size() > 0)
+            JNI.cactionSetProperties(propList.size(), RoseTranslator.createJavaToken());
     }
 
     public void visitDefinitions(X10ClassDecl_c n) {
@@ -1143,8 +1154,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
         Flags flags = n.flags().flags();
         JNI.cactionMethodDeclarationHeader(method_name, flags.isAbstract(), flags.isNative(), flags.isStatic(), flags.isFinal(), /* java_is_synchronized */false, flags.isPublic(), flags.isProtected(), flags.isPrivate(), /* java_is_strictfp */false, n.typeParameters().size(), formals.size(), n.throwsTypes().size(), RoseTranslator.createJavaToken(n, method_name));
         visitChild(n, n.body());
-
         JNI.cactionMethodDeclarationEnd(n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+
         // String constructor_name = n.name().toString();
         //
         // JNI.cactionConstructorDeclarationHeader(constructor_name, false,
@@ -1192,7 +1203,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(AssignPropertyCall_c n) {
-        toRose(n, "AssignPropertyCall:");
+        toRose(n, "AssignPropertyCall:", n);
         // MH-20140313 go through at this moment
         // Tentatively process empty statement instead of propertycall
         JNI.cactionEmptyStatement(RoseTranslator.createJavaToken(n, n.toString()));
@@ -1822,7 +1833,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(PropertyDecl_c n) {
-        toRose(n, "PropertyDecl:", n.name().id().toString());
+        toRose(n, "PropertyDecl:", n.name().id());
         visitChild(n, n.type());
         visitChild(n, n.init());
     }

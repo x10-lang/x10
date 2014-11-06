@@ -292,6 +292,9 @@ class JNI implements Callable<Boolean> {
     public static native void cactionAtExpr(JavaToken jToken);
     public static native void cactionAtExprEnd(JavaToken jToken);
     public static native void cactionHere(JavaToken jToken);
+    
+    public static native void cactionAppendProperty(String name, boolean isRail, boolean isFinal, JavaToken jToken);
+    public static native void cactionSetProperties(int number_of_properties, JavaToken jToken);
 	
     //**********************************************************
     //*                                                        *
