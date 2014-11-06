@@ -112,7 +112,8 @@ void Launcher::initialize(int argc, char ** argv)
 	}
 
 	if (NULL==realpath(argv[0], _realpath)) {
-        perror("Resolving absolute path of executable");
+        // couldn't resolve realpath; assume executable is in $PATH
+        strncpy(_realpath, argv[0], PATH_MAX);
     }
 	if (!getenv(X10_NPLACES))
 	{
@@ -127,8 +128,8 @@ void Launcher::initialize(int argc, char ** argv)
 	{
 		_myproc = atoi(getenv(X10_LAUNCHER_PLACE));
 		char* host = getenv(X10_LAUNCHER_HOST);
-		if (host) strcpy(_runtimePort, host);
-		else strcpy(_runtimePort, "localhost");
+		if (host) strncpy(_runtimePort, host, PORT_MAX);
+		else strncpy(_runtimePort, "localhost", PORT_MAX);
 	}
 
 	/* -------------------------------------------- */

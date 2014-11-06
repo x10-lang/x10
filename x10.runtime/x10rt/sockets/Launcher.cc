@@ -232,7 +232,7 @@ void Launcher::startChildren()
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
-	char masterPort[1024];
+	char masterPort[PORT_MAX];
 	if (_myproc == 0xFFFFFFFF)	// the initial launcher is not in the hostlist.  Get the hostname from the socket
 	{
 		TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
@@ -240,7 +240,7 @@ void Launcher::startChildren()
 	}
 	else
 	{ // get hostname from the X10_LAUNCHER_HOST environment variable
-		strcpy(masterPort, getenv(X10_LAUNCHER_HOST));
+		strncpy(masterPort, getenv(X10_LAUNCHER_HOST), PORT_MAX);
 		sockaddr_in addr;
 		socklen_t len = sizeof(addr);
 		if (getsockname(_listenSocket, (sockaddr *) &addr, &len) < 0)

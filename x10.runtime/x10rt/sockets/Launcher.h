@@ -123,7 +123,8 @@ class Launcher
 
 		/* parent child structure */
 		char ** _hostlist; /* child host list */
-		char _runtimePort[1024]; /* the host:port number of the associated x10 runtime's listen port */
+        static const int PORT_MAX = 1024;
+		char _runtimePort[PORT_MAX]; /* the host:port number of the associated x10 runtime's listen port */
 		uint32_t _firstchildproc; /* the ID of the first child launcher */
 		uint32_t _numchildren; /* number of launcher children in this node */
 		int * _pidlst; /* list of all spawned pids */
