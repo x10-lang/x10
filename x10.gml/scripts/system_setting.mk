@@ -86,7 +86,7 @@ ifdef BGQ
 endif
 
 # choose BLAS implementation
-BLASLIB ?= 
+BLASLIB ?= NetLIB
 
 ifeq ($(BLASLIB),ESSL)
     # IBM ESSL
@@ -106,8 +106,19 @@ ifeq ($(BLASLIB),ESSL)
 else
 ifeq ($(BLASLIB),GotoBLAS2)
     # GotoBLAS2
+    GOTOBLAS2_LIB_PATH ?= $(HOME)/GotoBLAS2
     ifndef DISABLE_BLAS
-        X10CXX_POSTARGS += -cxx-postarg -L$(HOME)/GotoBLAS2 -cxx-postarg -lgoto2
+        X10CXX_POSTARGS += -cxx-postarg -L$(GOTOBLAS2_LIB_PATH) -cxx-postarg -lgoto2
+        ifndef DISABLE_LAPACK
+            X10CXX_POSTARGS += -cxx-postarg -llapack
+        endif
+    endif
+else
+ifeq ($(BLASLIB),ATLAS)
+    # ATLAS
+    ATLAS_LIB_PATH ?= /usr/lib64/atlas
+    ifndef DISABLE_BLAS
+        X10CXX_POSTARGS += -cxx-postarg -L$(ATLAS_LIB_PATH) -cxx-postarg -latlas -cxx-postarg -lf77blas
         ifndef DISABLE_LAPACK
             X10CXX_POSTARGS += -cxx-postarg -llapack
         endif
@@ -127,6 +138,7 @@ else
             X10CXX_POSTARGS += -cxx-postarg -llapack
         endif
     endif
+endif
 endif
 endif
 endif

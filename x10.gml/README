@@ -57,8 +57,13 @@ Instructions
      implementations, including:
       - NetLib reference implementation - http://netlib.org/blas
       - GotoBLAS2 - http://www.tacc.utexas.edu/tacc-projects/gotoblas2
+      - ATLAS - http://math-atlas.sourceforge.net/
       - IBM ESSL
       - Intel MKL
+
+     To select one of these BLAS implementations for build, set the BLASLIB
+     variable for Make i.e.
+     $ make native BLASLIB=[GotoBLAS|ATLAS|ESSL|MKL].  The default is NetLIB.
     
      If GML fails to compile against the BLAS implementation on your system,
      you can modify the values of POST_CXXFLAGS and POST_LDFLAGS accordingly.
