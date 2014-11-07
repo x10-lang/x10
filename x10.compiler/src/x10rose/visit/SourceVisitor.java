@@ -1202,13 +1202,19 @@ public class SourceVisitor extends X10DelegatingVisitor {
         visitChildren(n, n.statements());
     }
 
+    /**
+     * Currently, property calls are created at unparser phase in ROSE.
+     * Arguments of a property call are constructed by referring to
+     * the parameters of the property declaration.
+     * 
+     * For details, see edg4x-rose:
+     * Unparse_X10::unparseMFuncDeclStmt(SgStatement* stmt, SgUnparse_Info& info) in 
+     * src/backend/unparser/X10CodeGeneration/unparseX10_statement.C
+     */
     public void visit(AssignPropertyCall_c n) {
-        toRose(n, "AssignPropertyCall:", n);
-        // MH-20140313 go through at this moment
-        // Tentatively process empty statement instead of propertycall
+        toRose(n, "AssignPropertyCall:", n, n.arguments().size());
         JNI.cactionEmptyStatement(RoseTranslator.createJavaToken(n, n.toString()));
         JNI.cactionEmptyStatementEnd(RoseTranslator.createJavaToken(n, n.toString()));
-        // visitChildren(n, n.arguments());
     }
 
     public void visit(Empty_c n) {
