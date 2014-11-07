@@ -102,12 +102,11 @@ public class ArrayRemoteCopy {
 			dstplh:DataArrayPLH, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
 
-		val srcpid = here.id();
-		val dstbuf = at(Place(dstpid)) 
-			new GlobalRail[Double](dstplh() as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
-		}
+        val gr = GlobalRail[Double](src as Rail[Double]{self!=null});
+        finish at (Place(dstpid)) {
+            val dst = dstplh() as Rail[Double]{self!=null};
+            Rail.asyncCopy[Double](gr, srcOff, dst, dstOff, dataCnt);
+        }
 	}
 	
 	//TODO: Check this code. Introduced to support a method in DistArrayScatter.
@@ -118,12 +117,11 @@ public class ArrayRemoteCopy {
 			dst:DistDataArray, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
 
-		val srcpid = here.id();
-		val dstbuf = at(Place(dstpid)) 
-		new GlobalRail[Double](dst.getLocalPortion()(0) as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
-		}
+        val gr = GlobalRail[Double](src as Rail[Double]{self!=null});
+        finish at(Place(dstpid)) {
+            val dstLocal = dst.getLocalPortion()(0) as Rail[Double]{self!=null};
+            Rail.asyncCopy[Double](gr, srcOff, dstLocal, dstOff, dataCnt);
+        }
 	}
 
 	/**
@@ -187,12 +185,12 @@ public class ArrayRemoteCopy {
 			dst:Rail[Double], dstOff:Long, 
 			dataCnt:Long): void {
 		
-		val dstpid = here.id();
-		val srcbuf = at(Place(srcpid))
-			new GlobalRail[Double](srcplh() as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](srcbuf, srcOff, dst, dstOff, dataCnt);
-		}
+        // TODO should be able to use asyncCopy to remote dst
+        val gr = at(Place(srcpid))
+            GlobalRail[Double](srcplh() as Rail[Double]{self!=null});
+        finish {
+            Rail.asyncCopy[Double](gr, srcOff, dst, dstOff, dataCnt);
+        }
 	}
 	
 

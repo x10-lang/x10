@@ -29,9 +29,8 @@ public class DistDupVectorMult  {
         var offb:Long = 0;
         val rootpid = here.id();
         finish for (var p:Long=0; p<places.size(); offb+=vB.segSize(p), p++) {
-            val pid = p;
             val offsetB = offb;
-            at(places(pid)) async {
+            at(places(p)) async {
                 if (here.id() != rootpid || plus == false) vC.local().reset();
                 BlockVectorMult.comp(mA.handleBS(), vB.distV(), offsetB, vC.local(), 0, true);
             }
@@ -49,9 +48,8 @@ public class DistDupVectorMult  {
         val places = mA.getPlaces();        
         var offc:Long = 0;
         finish for (var p:Long=0; p<places.size(); offc+=vC.segSize(p), p++) {
-            val pid = p;
             val offsetC = offc;
-            at(places(pid)) async {
+            at(places(p)) async {
                 BlockVectorMult.comp(mA.handleBS(), vB.local(), 0, vC.distV(), offsetC, plus);
             }
         }
@@ -68,9 +66,8 @@ public class DistDupVectorMult  {
         var offb:Long=0;
         val rootpid = here.id();
         finish for (var p:Long=0; p<places.size(); offb+=vB.segSize(p), p++) {
-            val pid = p;
             val offsetB = offb;
-            at(places(pid)) async {
+            at(places(p)) async {
                 if (here.id() != rootpid || plus == false) vC.local().reset();
 
                 BlockVectorMult.comp(vB.distV(), offsetB, mA.handleBS(), vC.local(), 0, true);
@@ -88,9 +85,8 @@ public class DistDupVectorMult  {
         val places = mA.getPlaces();
         var offc:Long = 0;
         finish for (var p:Long=0; p<places.size(); offc+=vC.segSize(p), p++) {
-            val pid = p;
             val offsetC = offc;
-            at(places(pid)) async {
+            at(places(p)) async {
                 BlockVectorMult.comp(vB.local(), 0, mA.handleBS(), vC.distV(), offsetC, plus);
             }
         }

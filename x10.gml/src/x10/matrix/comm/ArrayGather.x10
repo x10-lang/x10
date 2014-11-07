@@ -189,16 +189,17 @@ public class ArrayGather extends ArrayRemoteCopy {
             "Number of segments "+gp.size+" not equal to number of places "+places.size();
         val root = here.id();
         var off:Long=0;
-        for (var cb:Long=0; cb<places.size(); cb++) {
+        finish for (cb in 0..(places.size()-1)) {
             val datcnt = gp(cb);
+            val dstoff = off;
             val pid = places(cb).id;
-    
+
             if (pid != root) {
-                x10Copy(src, pid, 0, dstbuf, off, datcnt);
+                async x10Copy(src, pid, 0, dstbuf, dstoff, datcnt);
             } else {
                 //Make local copying
                 val srcbuf = src();
-                Rail.copy(srcbuf, 0L, dstbuf, off, datcnt);
+                async Rail.copy(srcbuf, 0L, dstbuf, dstoff, datcnt);
             }
             off += datcnt;
         }

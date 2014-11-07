@@ -12,13 +12,10 @@ package logreg;
 
 import x10.util.Timer;
 
-import x10.matrix.Matrix;
 import x10.matrix.Vector;
-import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.util.Debug;
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
@@ -122,7 +119,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     }
 
     public def run() {
-        //o = X %*% w        
+        //o = X %*% w
         compute_XmultB(o, w);
         //logistic = 1.0/(1.0 + exp( -y * o))
         val logistic:Vector(X.M) = y.clone();
@@ -134,7 +131,7 @@ public class LogisticRegression implements ResilientIterativeApp {
 
         //grad = w + C*t(X) %*% ((logistic - 1)*y)        
         compute_grad(grad, logistic);
-        
+
         //logisticD = logistic*(1-logistic)
         logisticD = logistic.clone();//Vector.make(logistic);
         logisticD.cellSubFrom(1.0).cellMult(logistic);
@@ -142,7 +139,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         //delta = sqrt(sum(grad*grad))
         //val sq = grad.norm(grad);
         delta = Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
-        
+
         //# starting point for CG
         //zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
         //val zeros_D:Vector(X.N) = Vector.make(X.N);
@@ -189,7 +186,7 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 s = s + castAsScalar(alpha) * d
             s.cellAdd(alpha * d);
             //                 sts = t(s) %*% s
-            val sts:Double = s.norm();  //NormChange: s.norm(s) to s.norm()
+            val sts = s.norm();  //NormChange: s.norm(s) to s.norm()
             //                 delta2 = delta*delta 
             val delta2 = delta*delta;
             //                 stsScalar = castAsScalar(sts)
@@ -326,7 +323,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         Hd.scale(C).cellAdd(d);
     }
 
-    static class LogRegressionSnapshotInfo implements Snapshottable{
+    static class LogRegressionSnapshotInfo implements Snapshottable {
         public var delta:Double;
 
         public def makeSnapshot():DistObjectSnapshot[Any,Any]{

@@ -150,7 +150,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * 
      * @param src          source array
      * @param dst          target distributed array 
-     * @param szlist      size list
+     * @param szlist       list of sizes of blocks held at each place
      */
     public static def x10Scatter(
             src:Rail[Double], 
@@ -159,14 +159,15 @@ public class ArrayScatter extends ArrayRemoteCopy {
 
         val root = here.id();
         var off:Long=0;
-        for (var cb:Long=0; cb<szlist.size; cb++) {
+        finish for (cb in 0..(szlist.size-1)) {
             val datcnt = szlist(cb);
+            val srcoff = off;
             if (cb != root) {
-                x10Copy(src, off, dst, cb, 0, datcnt);
+                async x10Copy(src, srcoff, dst, cb, 0, datcnt);
             } else {
                 //Make local copying
                 val dstbuf = dst();
-                Rail.copy(src, off, dstbuf, 0L, datcnt);
+                async Rail.copy(src, srcoff, dstbuf, 0L, datcnt);
             }
             off += datcnt;
         }
@@ -177,8 +178,8 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * 
      * @param src          source array
      * @param dst          target distributed array 
-     * @param szlist      size list
-    * @param places     scatter place group 
+     * @param szlist       list of sizes of blocks held at each place
+     * @param places       scatter place group 
      */
     public static def x10Scatter(
             src:Rail[Double], 
@@ -188,16 +189,16 @@ public class ArrayScatter extends ArrayRemoteCopy {
 
         val root = here.id();
         var off:Long=0;
-        for (var cb:Long=0; cb<places.numPlaces(); cb++) {
+        finish for (cb in 0..(places.size()-1)) {
             val datcnt = szlist(cb);
             val pid = places(cb).id;
-            
+            val srcoff = off;
             if (pid != root) {
-                x10Copy(src, off, dst, pid, 0, datcnt);
+                async x10Copy(src, srcoff, dst, pid, 0, datcnt);
             } else {
                 //Make local copying
                 val dstbuf = dst();
-                Rail.copy(src, off, dstbuf, 0L, datcnt);
+                async Rail.copy(src, srcoff, dstbuf, 0L, datcnt);
             }
             off += datcnt;
         }
