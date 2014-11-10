@@ -231,17 +231,6 @@ public class DistVector(M:Long) implements Snapshottable {
         }
         return this;
     }
-    
-    /**
-     * this = dv - this
-     */
-    protected def cellSubFrom(dv:Double):DistVector(this) {
-        finish ateach(Dist.makeUnique(places)) {
-            distV().cellSubFrom(dv);
-        }
-        return this;
-    }
-
 
     // Cellwise multiplication
 
@@ -282,7 +271,6 @@ public class DistVector(M:Long) implements Snapshottable {
     public operator (v:Double) + this = clone().cellAdd(v)  as DistVector(M);
     public operator this + (v:Double) = clone().cellAdd(v)  as DistVector(M);
     public operator this - (v:Double) = clone().cellSub(v)  as DistVector(M);
-    public operator (v:Double) - this = clone().cellSubFrom(v) as DistVector(M);
     public operator this / (v:Double) = clone().scale(1.0/v)   as DistVector(M);
     
     public operator this * (alpha:Double) = clone().scale(alpha) as DistVector(M);

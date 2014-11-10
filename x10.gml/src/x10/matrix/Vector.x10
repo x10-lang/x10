@@ -11,6 +11,8 @@
 
 package x10.matrix;
 
+import x10.compiler.Inline;
+import x10.util.RailUtils;
 import x10.util.StringBuilder;
 
 import x10.matrix.blas.BLAS;
@@ -54,6 +56,19 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         this.d = new Rail[Double](src.d);
     }
 
+    /**
+     * Construct a Vector of size M initialized to the result of evaluating 
+     * init for each element
+     * @param M the size of the vector
+     * @param init the function to use to compute the initial value of each element
+     */
+    public def this(M:Long, f:(Long)=>Double) {
+        property(M);
+        val raw = Unsafe.allocRailUninitialized[Double](M);
+        for (i in 0..(M-1)) raw(i) = f(i);
+        this.d = raw;
+    }
+
     public static def make(n:Long, v:Double) {
         val d = new Rail[Double](n, v);
         return new Vector(d);
@@ -63,7 +78,7 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         val d = new Rail[Double](n);
         return new Vector(d);
     }
-    
+
     /**
      * Initialize all elements of the vector with a constant value.
      * @param  iv     the constant value
@@ -157,96 +172,73 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     // Cell-wise operations
     
     /**
+     * this *= alpha
      * Product of a vector and a scalar: Mx1 * 1
      */
-    public  def scale(a:Double) :Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) = a * this.d(i);
-        return this;
-    }
+    public def scale(alpha:Double):Vector(this)
+        = map((x:Double)=>{alpha * x});
 
     /**
-     * this = V * dv + this
+     * this = alpha * V
      */
-    public def scaleAdd(V:Vector(M), dv:Double): Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) += dv * V.d(i);    
-        return this;
-    }
+    public def scale(alpha:Double, V:Vector(M)):Vector(this)
+        = map(V, (v:Double)=> {alpha * v});
 
-    public def scaleAdd(dv:Double, V:Vector(M)) = scaleAdd(V, dv);
+    /**
+     * this += alpha * V
+     */
+    public def scaleAdd(alpha:Double, V:Vector(M)):Vector(this)
+        = map(V, (x:Double, v:Double)=> {x + alpha * v});
 
     /**
      * Cell-wise mulitply of two vectors
      */
-    public def cellMult(V:Vector(M)): Vector(this) {
-         for (i in 0..(M-1)) 
-            this.d(i) *= V.d(i);
-        return this;
-    }
+    public def cellMult(V:Vector(M)): Vector(this)
+        = map(V, (x:Double, v:Double)=> {x * v});
      
 
     /**
      * Addition of two vectors: Mx1 + Mx1
      */
-    public def cellAdd(V:Vector(M)):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) += V.d(i);
-        return this;
-    }
+    public def cellAdd(V:Vector(M)):Vector(this)
+        = map(V, (x:Double, v:Double)=> {x + v});
 
-    public def cellAdd(d:Double):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) += d;
-        return this;
-    }
+    public def cellAdd(d:Double):Vector(this)
+        = map((x:Double)=> {x + d});
 
+    /**
+     * this = A + B
+     * Cellwise addition of two vectors, storing the result in this vector.
+     */
+    public def cellAdd(A:Vector(M), B:Vector(M)):Vector(this)
+        = map(A, B, (a:Double, b:Double)=> {a + b});
 
     /** 
-     * Subtract vector B from this vector
+     * Subtract vector V from this vector
      */
-    public  def cellSub(B:Vector(M)):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) -= B.d(i);
-        return this;
-    }
+    public def cellSub(V:Vector(M)):Vector(this)
+        = map(V, (x:Double, v:Double)=> {x - v});
 
     /**
      * Subtract the scalar d from this vector
      */
-    public  def cellSub(d:Double):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) -= d;
-        return this;
-    }
-    
-    public def cellSubFrom(d:Double):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) = d - this.d(i);
-        return this;       
-    }
-    
+    public def cellSub(d:Double):Vector(this)
+        = map((x:Double)=> {x - d});
 
     /**
-     * cellwise division: this = dv / this;
+     * cellwise division: this = this / d;
      */
-    public  def cellDiv(dv:Double):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) /= dv;
-        return this;
-    }
+    public  def cellDiv(d:Double):Vector(this)
+        = map((x:Double)=> {x / d});
 
-    public def cellDiv(v:Vector(this.M)):Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) /= v.d(i);
-        return this;
-    }
-        
-    public def cellDivBy(dv:Double) : Vector(this) {
-         for (i in 0..(M-1))
-            this.d(i) = dv / this.d(i);
-        return this;        
-    }
+    public def cellDiv(V:Vector(this.M)):Vector(this)
+        = map(V, (x:Double, v:Double)=> {x / v});
+
+    /**
+     * cellwise division: this = d / this;
+     */
+    public def cellDivBy(d:Double) : Vector(this)
+        = map((x:Double)=> {d / x});
 
     /**
      * Product transition of a vector: Mx1 * (Mx1)^T
@@ -262,11 +254,6 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
             d += this.d(i) * v.d(i);
         return d;
     }
-    
-    public def mult(v:Vector(M), dv:Double):Vector(this) {
-        v.copyTo(this);
-        return scale(dv);
-    }
 
     // Using Blas routines: self = op(A)* b, self += op(A) * b,
 
@@ -277,7 +264,7 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         VectorMult.comp(B, A, this, plus);
     
     public def mult(A:Matrix(M), B:Vector(A.N)): Vector(this) = VectorMult.comp(A, B, this, false);
-    public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M)) =    VectorMult.comp(B, A, this, false);
+    public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M)) = VectorMult.comp(B, A, this, false);
 
 
     public def mult(B:Vector, A:Matrix(B.M,this.M), plus:Boolean)      = 
@@ -348,7 +335,6 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     // Operator sub
     public  operator this - (that:Vector(M)) = this.clone().cellSub(that)   as Vector(M);
     public  operator this - (dv:Double)      = this.clone().cellSub(dv)     as Vector(M);
-    public  operator (dv:Double) - this      = this.clone().cellSubFrom(dv) as Vector(M);
     
     // Operator cellwise multiply
     public  operator this * (dv:Double)      = this.clone().scale(dv)      as Vector(M);
@@ -530,15 +516,54 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         return false;        
     }
     
+    /**
+     * Apply the map function <code>op</code> to each element of this vector,
+     * overwriting the element of this vector with the result.
+     * @param op a unary map function to apply to each element of this vector
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(op:(x:Double)=>Double):Vector(this) {
+        RailUtils.map(this.d, this.d, op);
+        return this;
+    }
 
     /**
-     * Replace each element x_i in this vector with the exponential e^(x_i).
-     *
-     * @return result ("this" instance)
+     * Apply the map function <code>op</code> to each element of <code>a</code>,
+     * storing the result in the corresponding element of this vector.
+     * @param op a unary map function to apply to each element of vector <code>a</code>
+     * @return this vector, containing the result of the map
      */
-    public def exp():Vector(this) {
-         for (i in 0..(M-1))
-            d(i) = Math.exp(d(i));
+    public final @Inline def map(a:Vector(M), op:(x:Double)=>Double):Vector(this) {
+        RailUtils.map(a.d, this.d, op);
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to combine each element of this
+     * vector with the corresponding element of vector <code>a</code>,
+     * overwriting the element of this vector with the result.
+     * @param a a vector of the same size as this vector
+     * @param op a binary map function to apply to each element of this vector
+     *   and the corresponding element of <code>a</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:Vector(M), op:(x:Double,y:Double)=>Double):Vector(this) {
+        RailUtils.map(this.d, a.d, this.d, op);
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to combine each element of vector
+     * <code>a</code> with the corresponding element of vector <code>b</code>,
+     * overwriting the corresponding element of this vector with the result.
+     * @param a first vector of the same size as this vector
+     * @param b second vector of the same size as this vector
+     * @param op a binary map function to apply to each element of 
+     *   <code>a</code> and the corresponding element of <code>b</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:Vector(M), b:Vector(M), op:(x:Double,y:Double)=>Double):Vector(this) {
+        RailUtils.map(a.d, b.d, this.d, op);
         return this;
     }
 

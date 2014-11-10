@@ -66,7 +66,7 @@ public class SeqLinearRegression {
 			alpha = norm_r2 / p.dotProd(q);
 			
 			// 12: w=w+alpha*p;
-			w.scaleAdd(p, alpha);
+			w.scaleAdd(alpha, p);
 			
 			// 13: old norm r2=norm r2;
 			old_norm_r2 = norm_r2;

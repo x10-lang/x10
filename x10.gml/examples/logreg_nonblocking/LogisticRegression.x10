@@ -1,9 +1,13 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
-
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -72,14 +76,13 @@ public class LogisticRegression {
 	}
 	
 	public def run() {
-		Debug.flushln("Starting logistic regression");
 		//o = X %*% w
 		val o = DenseMatrix.make(X.M, 1);
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
 		val logistic:DenseMatrix(X.M, 1) = y.clone();
 		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
-		//logistic.print("Parallel logistic value:");
+        //logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
 		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 

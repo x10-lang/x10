@@ -122,34 +122,29 @@ public class LogisticRegression implements ResilientIterativeApp {
         //o = X %*% w
         compute_XmultB(o, w);
         //logistic = 1.0/(1.0 + exp( -y * o))
-        val logistic:Vector(X.M) = y.clone();
-        logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
-        //logistic.print("Parallel logistic value:");
+        val logistic = Vector.make(X.M);
+        logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 
         //obj = 0.5 * t(w) %*% w + C*sum(logistic)
-        obj = 0.5 * w.norm() + C*logistic.sum(); //NormChange:w.norm(w) to w.norm()
+        obj = 0.5 * w.norm() + C*logistic.sum();
 
         //grad = w + C*t(X) %*% ((logistic - 1)*y)        
         compute_grad(grad, logistic);
 
         //logisticD = logistic*(1-logistic)
-        logisticD = logistic.clone();//Vector.make(logistic);
-        logisticD.cellSubFrom(1.0).cellMult(logistic);
+        logisticD = new Vector(logistic.M, (i:Long)=> {logistic(i)*(1.0-logistic(i))});
 
         //delta = sqrt(sum(grad*grad))
-        //val sq = grad.norm(grad);
-        delta = Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
+        delta = Math.sqrt(grad.norm());
 
         //# starting point for CG
-        //zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-        //val zeros_D:Vector(X.N) = Vector.make(X.N);
         //# boolean for convergence check
         //converge = (delta < tol) | (iter > maxiter)
         converge = (delta < tol) | (iter > maxiter);
         //norm_r2 = sum(grad*grad)
-        norm_r2 = grad.norm(); //NormChange: grad.norm(grad) to grad.norm()
+        norm_r2 = grad.norm();
         //alpha = t(w) %*% w
-        alpha = w.norm(); //NormChange: w.norm(w) to w.norm()
+        alpha = w.norm();
         Debug.flushln("Done initialization. Starting converging iteration");
 
         new ResilientExecutor(chkpntIterations).run(this);
@@ -159,13 +154,13 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     public def step():void{
         //             norm_grad = sqrt(sum(grad*grad))
-        var norm_grad:Double=Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
+        val norm_grad = Math.sqrt(grad.norm());
         //             # SOLVE TRUST REGION SUB-PROBLEM
+        //zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
         //             s = zeros_D
         s.reset();
         //             r = -grad
-        grad.copyTo(r);
-        r.scale(-1);
+        r.scale(-1.0, grad);
         //             d = r
         r.copyTo(d);
         //             inneriter = 0
@@ -176,7 +171,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         while (!innerconverge) {
             //  
             //                 norm_r2 = sum(r*r)
-            norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
+            norm_r2 = r.norm();
             //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
             compute_Hd(Hd, logisticD, d);
             //                 alpha_deno = t(d) %*% Hd 
@@ -184,20 +179,20 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 alpha = norm_r2 / alpha_deno
             alpha = norm_r2 / alpha_deno;
             //                 s = s + castAsScalar(alpha) * d
-            s.cellAdd(alpha * d);
+            s.scaleAdd(alpha, d);
             //                 sts = t(s) %*% s
-            val sts = s.norm();  //NormChange: s.norm(s) to s.norm()
+            val sts = s.norm();
             //                 delta2 = delta*delta 
             val delta2 = delta*delta;
             //                 stsScalar = castAsScalar(sts)
-            var stsScalar:Double = sts;
+            val stsScalar = sts;
             //                 shouldBreak = false;
             var shouldBreak:Boolean = false;
             if (stsScalar > delta2) {
                 //                     std = t(s) %*% d
                 val std = s.norm(d);
                 //                     dtd = t(d) %*% d
-                val dtd = d.norm();   //NormChange: d.norm(d) to d.norm()
+                val dtd = d.norm();
                 //                     rad = sqrt(std*std + dtd*(delta2 - sts))
                 val rad = Math.sqrt(std*std+dtd*(delta2-sts));
                 //                     stdScalar = castAsScalar(std)
@@ -209,9 +204,9 @@ public class LogisticRegression implements ResilientIterativeApp {
                     tau = (rad - std)/dtd;
                 }
                 //                     s = s + castAsScalar(tau) * d
-                s.cellAdd(tau*d);
+                s.scaleAdd(tau, d);
                 //                     r = r - castAsScalar(tau) * Hd
-                r.cellSub(tau * Hd);
+                r.scaleAdd(-tau, Hd);
                 //                     #break
                 shouldBreak = true;
                 innerconverge = true;
@@ -219,11 +214,11 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 
             if (!shouldBreak) {
                 //                     r = r - castAsScalar(alpha) * Hd
-                r.cellSub(alpha * Hd);
+                r.scaleAdd(-alpha, Hd);
                 //                     old_norm_r2 = norm_r2 
                 val old_norm_r2 = norm_r2;
                 //                     norm_r2 = sum(r*r)
-                norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
+                norm_r2 = r.norm();
                 //                     beta = norm_r2/old_norm_r2
                 val beta = norm_r2/old_norm_r2;
                 //                     d = r + beta*d
@@ -237,23 +232,21 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             qk = -0.5*(t(s) %*% (grad - r))
         val qk = -0.5 * s.norm(grad-r);
         //             wnew = w + s
-        w.copyTo(wnew);
-        wnew.cellAdd(s);
+        wnew.cellAdd(w, s);
         //             onew = X %*% wnew
         compute_XmultB(onew, wnew); 
         //             logisticnew = 1.0/(1.0 + exp(-y * o ))
-        y.copyTo(logisticnew);
-        logisticnew.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
+        logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
         
         //             objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
-        val objnew = 0.5 * wnew.norm() + C * logisticnew.sum(); //NormChange: wnew.norm(wnew) to wnew.norm()
+        val objnew = 0.5 * wnew.norm() + C * logisticnew.sum();
         //             
         //             rho = (objnew - obj) / qk
         val rho = (objnew - obj)/qk;
         //             rhoScalar = castAsScalar(rho);
         val rhoScalar = rho;
         //             snorm = sqrt(sum( s * s ))
-        val snorm = Math.sqrt(s.norm()); //NormChange: s.norm(s) to s.norm()
+        val snorm = Math.sqrt(s.norm());
         if (rhoScalar > eta0){            
             //                 w = wnew
             wnew.copyTo(w);
@@ -297,12 +290,8 @@ public class LogisticRegression implements ResilientIterativeApp {
     private def compute_tXmultB(result:Vector(X.N), opB:Vector(X.M)):void {
         val stt = Timer.milliTime();
         dst_y.copyFrom(opB);//Scattering
-        //opB.print("Scatter data source:");
-        //dst_y.print("Scatterring data:");
-        //DistMultDistToDup.compTransMult(X, dst_y, dup_w, false);
         dup_w.mult(dst_y, X, false);
         dup_w.local().copyTo(result);
-        //result.print("Parallel X^t % B:");
         paraRunTime += Timer.milliTime() - stt;
     }
     
@@ -315,10 +304,10 @@ public class LogisticRegression implements ResilientIterativeApp {
         grad.cellAdd(w);
     }
     
-    private def compute_Hd(Hd:Vector(X.N), logistricD:Vector(X.M), d:Vector(X.N)):void {
+    private def compute_Hd(Hd:Vector(X.N), logisticD:Vector(X.M), d:Vector(X.N)):void {
         //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
         compute_XmultB(tmp_y, d);
-        tmp_y.cellMult(logistricD);
+        tmp_y.cellMult(logisticD);
         compute_tXmultB(Hd, tmp_y);
         Hd.scale(C).cellAdd(d);
     }

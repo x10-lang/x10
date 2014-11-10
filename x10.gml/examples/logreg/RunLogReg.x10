@@ -92,11 +92,11 @@ public class RunLogReg {
 				val denX = X.toDense();
 				val seq = new SeqLogReg(denX, yt, wt, iterations, iterations);
 
-		        Debug.flushln("Starting logistic regression");
+		        Debug.flushln("Starting sequential logistic regression");
 				seq.run();
                 Debug.flushln("Verifying results against sequential version");
 				
-				if (w.equals(wt as Vector(w.M))) {
+				if (w.equals(wt)) {
 					Console.OUT.println("Verification passed.");
 				} else {
                     Console.OUT.println("Verification failed!");

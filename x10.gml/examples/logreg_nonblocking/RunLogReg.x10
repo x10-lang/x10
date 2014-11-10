@@ -1,35 +1,62 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-
+import x10.util.Option;
+import x10.util.OptionsParser;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.block.Grid;
-import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.util.Debug;
-import x10.matrix.util.VerifyTool;
 
 public class RunLogReg {
 
 	public static def main(args:Rail[String]): void {
-		val mX = args.size > 0 ? Long.parse(args(0)):1000; //
-		val nX = args.size > 1 ? Long.parse(args(1)):1000; //
-		val nzd= args.size > 2 ? Double.parse(args(2)):0.5;
-		val it = args.size > 3 ? Long.parse(args(3)):3;
-		val tV = args.size > 4 ? Long.parse(args(4)):0;
+        val opts = new OptionsParser(args, [
+            Option("h","help","this information"),
+            Option("v","verify","verify the parallel result against sequential computation")
+        ], [
+            Option("m","rows","number of rows, default = 10"),
+            Option("n","cols","number of columns, default = 10"),
+            Option("d","density","nonzero density, default = 0.5"),
+            Option("i","iterations","number of iterations, default = 2")
+        ]);
 
-		Console.OUT.println("Set X row:"+mX+ " col:"+nX);
-		if ((mX<=0) ||(nX<=0) ||(tV<0))
+        if (opts.filteredArgs().size!=0) {
+            Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
+            Console.ERR.println("Use -h or --help.");
+            System.setExitCode(1n);
+            return;
+        }
+        if (opts("h")) {
+            Console.OUT.println(opts.usage(""));
+            return;
+        }
+
+        val mX = opts("m", 10);
+        val nX = opts("n", 10);
+        val colBlocks = opts("c", 1);
+        val nonzeroDensity = opts("d", 0.5);
+        val iterations = opts("i", 2n);
+        val verify = opts("v");
+
+        Console.OUT.println("X: rows:"+mX+" cols:"+nX
+                           +" density:"+nonzeroDensity+" iterations:"+iterations);
+		if ((mX<=0) ||(nX<=0))
 			Console.OUT.println("Error in settings");
 		else {
 			val prt:Grid = new Grid(mX, nX, Place.numPlaces(), 1);
-			val X = DistSparseMatrix.make(prt, nzd) as DistSparseMatrix(mX, nX);
+			val X = DistSparseMatrix.make(prt, nonzeroDensity) as DistSparseMatrix(mX, nX);
 			val y = DenseMatrix.make(X.M, 1);
 			val w = DenseMatrix.make(X.N, 1);
 			
@@ -42,30 +69,32 @@ public class RunLogReg {
 			w.initRandom();
 			val yt = y.clone();
 			val wt = w.clone();
-			//val t = new LogReg(X, y w);
 			
 			//y.print("Input y:");
-			val prun = new LogisticRegression(X, y, w, it, it);
+			val prun = new LogisticRegression(X, y, w, iterations, iterations);
 		
-			val stt = Timer.milliTime();
+            Debug.flushln("Starting logistic regression");
+			val startTime = Timer.milliTime();
 			prun.run();
-			val totalTime = Timer.milliTime() - stt;
-			
-			if (tV > 0) { /* Sequential run */
-				val denX = X.toDense();
-				val seq = new SeqLogReg(denX, yt, wt, it, it);
-				seq.run();
-				
-				if (w.equals(wt as Matrix(w.M, w.N))) {
-					Console.OUT.println("Verification passed!");
-				} else {
-					Console.OUT.println("-------------- Verification failed!!!!---------------");
-				}
-			}
-			
-			Console.OUT.printf("Logistic regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
+			val totalTime = Timer.milliTime() - startTime;
+
+			Console.OUT.printf("Parallel logistic regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
 					totalTime, prun.paraRunTime, prun.commUseTime); 
 			
+			if (verify) { /* Sequential run */
+				val denX = X.toDense();
+				val seq = new SeqLogReg(denX, yt, wt, iterations, iterations);
+
+		        Debug.flushln("Starting sequential logistic regression");
+				seq.run();
+                Debug.flushln("Verifying results against sequential version");
+				
+				if (w.equals(wt as Matrix(w.M, w.N))) {
+					Console.OUT.println("Verification passed.");
+				} else {
+                    Console.OUT.println("Verification failed!");
+				}
+			}
 		}
 	}
 }

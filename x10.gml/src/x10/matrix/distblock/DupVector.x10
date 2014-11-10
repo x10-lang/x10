@@ -212,17 +212,6 @@ public class DupVector(M:Long) implements Snapshottable {
         }
         return this;
     }
-    
-    /**
-     * this = dv - this
-     */
-    protected def cellSubFrom(dv:Double):DupVector(this) {
-        finish ateach(Dist.makeUnique(places)) {
-            local().cellSubFrom(dv);
-        }
-        return this;
-    }
-
 
     // Cellwise multiplication
 
@@ -279,7 +268,6 @@ public class DupVector(M:Long) implements Snapshottable {
     public operator (v:Double) + this = clone().cellAdd(v)  as DupVector(M);
     public operator this + (v:Double) = clone().cellAdd(v)  as DupVector(M);
     public operator this - (v:Double) = clone().cellSub(v)  as DupVector(M);
-    public operator (v:Double) - this = clone().cellSubFrom(v) as DupVector(M);
     public operator this / (v:Double) = clone().scale(1.0/v)   as DupVector(M);
     
     public operator this * (alpha:Double) = clone().scale(alpha) as DupVector(M);

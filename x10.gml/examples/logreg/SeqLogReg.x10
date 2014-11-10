@@ -58,26 +58,23 @@ public class SeqLogReg {
 	
 	public def run() {
 		//o = X %*% w
-		val o:Vector(X.M)=Vector.make(X.M, 1);
+		val o:Vector(X.M)=Vector.make(X.M);
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
-		val logistic:Vector(X.M) = y.clone();
-		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
-		//logistic.print("Sequential logistic:");
+		val logistic = Vector.make(X.M);
+		logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
-		val obj = 0.5 * w.norm() + C*logistic.sum(); //NormChange: w.norm(w) to w.norm() 
+		val obj = 0.5 * w.norm() + C*logistic.sum();
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		val grad:Vector(X.N) = Vector.make(X.N, 1);
+		val grad = Vector.make(X.N);
 		compute_grad(grad, logistic);
 				
 		//logisticD = logistic*(1-logistic)
-		val logisticD:Vector(X.M) = logistic.clone();//Vector.make(logistic);
-		logisticD.cellSubFrom(1.0).cellMult(logistic);
+        val logisticD = new Vector(logistic.M, (i:Long)=> {logistic(i)*(1.0-logistic(i))});
 
 		//delta = sqrt(sum(grad*grad))
-		//val sq = grad.norm(grad);
-		var delta:Double = Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
+		var delta:Double = Math.sqrt(grad.norm());
 		
 		//# number of iterations
 		//iter = 0
@@ -85,14 +82,13 @@ public class SeqLogReg {
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-		val zeros_D:Vector(X.N) = Vector.make(X.N);
 		//# boolean for convergence check
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxiter);
 		//norm_r2 = sum(grad*grad)
-		var norm_r2:Double = grad.norm(); //NormChange: grad.norm(grad) to grad.norm()
+		var norm_r2:Double = grad.norm();
 		//alpha = t(w) %*% w
-		var alpha:Double = w.norm();  //NormChange: w.norm(w) to w.norm()
+		var alpha:Double = w.norm();
 		// Add temp memory space
 		val s:Vector(X.N) = Vector.make(X.N);
 		val r:Vector(X.N)= Vector.make(X.N);
@@ -105,13 +101,12 @@ public class SeqLogReg {
 		while(!converge) {
 			
 // 			norm_grad = sqrt(sum(grad*grad))
-			var norm_grad:Double=Math.sqrt(grad.norm()); //NormChange: grad.norm(grad) to grad.norm()
+			val norm_grad = Math.sqrt(grad.norm());
 // 			# SOLVE TRUST REGION SUB-PROBLEM
 // 			s = zeros_D
 			s.reset();
 // 			r = -grad
-			grad.copyTo(r);
-			r.scale(-1);
+			r.scale(-1.0, grad);
 // 			d = r
 			r.copyTo(d);
 // 			inneriter = 0
@@ -122,7 +117,7 @@ public class SeqLogReg {
  			while (!innerconverge) {
 //  
 // 				norm_r2 = sum(r*r)
- 				norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
+ 				norm_r2 = r.norm();
 // 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
  				compute_Hd(Hd, logisticD, d);
 
@@ -131,20 +126,20 @@ public class SeqLogReg {
 // 				alpha = norm_r2 / alpha_deno
  				alpha = norm_r2 / alpha_deno;
 // 				s = s + castAsScalar(alpha) * d
- 				s.cellAdd(alpha * d);
+ 				s.scaleAdd(alpha, d);
 // 				sts = t(s) %*% s
- 				val sts:Double = s.norm();  //NormChange: s.norm(s) to s.norm()
+ 				val sts = s.norm();
 // 				delta2 = delta*delta 
  				val delta2 = delta*delta;
 // 				stsScalar = castAsScalar(sts)
- 				var stsScalar:Double = sts;
+ 				val stsScalar = sts;
 // 				shouldBreak = false;
  				var shouldBreak:Boolean = false;
  				if (stsScalar > delta2) {
 // 					std = t(s) %*% d
  					val std = s.norm(d);
 // 					dtd = t(d) %*% d
- 					val dtd = d.norm(); //NormChange: d.norm(d) to d.norm()
+ 					val dtd = d.norm();
 // 					rad = sqrt(std*std + dtd*(delta2 - sts))
  					val rad = Math.sqrt(std*std+dtd*(delta2-sts));
 // 					stdScalar = castAsScalar(std)
@@ -155,27 +150,24 @@ public class SeqLogReg {
  					} else {
  						tau = (rad - std)/dtd;
  					}
-// 					
+
 // 					s = s + castAsScalar(tau) * d
- 					s.cellAdd(tau*d);
+ 					s.scaleAdd(tau, d);
 // 					r = r - castAsScalar(tau) * Hd
- 					r.cellSub(tau * Hd);
-// 					
+ 					r.scaleAdd(-tau, Hd);
+
 // 					#break
-// 					shouldBreak = true;
  					shouldBreak = true;
-// 					innerconverge = true;
  					innerconverge = true;
-// 					
  				} 
-// 				
+
  				if (!shouldBreak) {
 // 					r = r - castAsScalar(alpha) * Hd
- 					r.cellSub(alpha * Hd);
+ 					r.scaleAdd(-alpha, Hd);
 // 					old_norm_r2 = norm_r2 
  					val old_norm_r2 = norm_r2;
 // 					norm_r2 = sum(r*r)
- 					norm_r2 = r.norm(); //NormChange: r.norm(r) to r.norm()
+ 					norm_r2 = r.norm();
 // 					beta = norm_r2/old_norm_r2
  					val beta = norm_r2/old_norm_r2;
 // 					d = r + beta*d
@@ -190,22 +182,20 @@ public class SeqLogReg {
  			val qk = -0.5 * s.norm(grad-r);
 // 			
 // 			wnew = w + s
- 			w.copyTo(wnew);
- 			wnew.cellAdd(s);
+ 			wnew.cellAdd(w, s);
 // 			onew = X %*% wnew
  			compute_XmultB(onew, wnew);
 // 			logisticnew = 1.0/(1.0 + exp(-y * o ))
- 			logisticnew.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
-			
+            logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 // 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
- 			val objnew = 0.5 * wnew.norm() + C * logisticnew.sum(); //NormChange: wnew.norm(wnew) to wnew.norm()
+ 			val objnew = 0.5 * wnew.norm() + C * logisticnew.sum();
 // 			
 // 			rho = (objnew - obj) / qk
  			val rho = (objnew - obj)/qk;
 // 			rhoScalar = castAsScalar(rho);
  			val rhoScalar = rho;
 // 			snorm = sqrt(sum( s * s ))
- 			val snorm = Math.sqrt(s.norm()); //NormChange: s.norm(s) to s.norm()
+ 			val snorm = Math.sqrt(s.norm());
  			if (rhoScalar > eta0) {
 // 				w = wnew
  				wnew.copyTo(w);
@@ -217,7 +207,7 @@ public class SeqLogReg {
 // 			
  			iter = iter + 1;
  			converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
-// 
+
 // 			alphaScalar = castAsScalar(alpha)
  			val alphaScalar = alpha;			
  			if (rhoScalar < eta0){
