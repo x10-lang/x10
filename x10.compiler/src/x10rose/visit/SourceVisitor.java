@@ -1172,20 +1172,23 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10ConstructorCall_c n) {
+        /* 
+         * n.target() is null at this traversal moment
+         */
         toRose(n, "X10ConstructorCall:", n, n.target());
-        //n.constructorInstance().container()
-        
-//        visitChild(n, n.target());
-//        JNI.cactionSuperReference(RoseTranslator.createJavaToken(n, n.toString()));
-//        visitChildren(n, n.typeArguments());
-//        visitChildren(n, n.arguments());
+       
         JNI.cactionExplicitConstructorCall(RoseTranslator.createJavaToken(n, n.toString()));
-        
-//        JNI.cactionExplicitConstructorCallEnd(is_implicit_super, n.kind()==Kind.SUPER,
-//                                              n.qualifier()!=null, package_name, type_name,
-//                                              constructor_index, n.typeArguments().size(),
-//                                              n.arguments().size(),
-//                                              RoseTranslator.createJavaToken(n, n.toString()));
+        visitChildren(n, n.typeArguments());
+        visitChildren(n, n.arguments());
+        /*
+         * Information about package, type, and constructor index 
+         * is not given to the following JNI interface. 
+         */
+        JNI.cactionExplicitConstructorCallEnd(false, n.kind()==Kind.SUPER,
+                                              n.qualifier()!=null, "", "",
+                                              0, n.typeArguments().size(),
+                                              n.arguments().size(),
+                                              RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Block_c n) {
