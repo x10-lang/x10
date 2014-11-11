@@ -524,8 +524,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
         visitChild(n, n.body());
         JNI.cactionTypeDeclarationEnd(true, RoseTranslator.createJavaToken(n, class_name));
         JNI.cactionSetCurrentClassName(path);
-        if (!n.classDef().isInnerClass())
+        if (!n.classDef().isInnerClass()
+            && !n.classDef().isNested()) {
             JNI.cactionPopPackage();
+        }
     }
 
     public void visit(X10ClassDecl_c n) {
