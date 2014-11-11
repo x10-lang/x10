@@ -1020,6 +1020,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     hasStructArg = true;
                 }
             }
+            Type rt = meth.returnType();
+            hasStructArg |= (xts.isStructType(rt) && !xts.isNumeric(rt) && !xts.isChar(rt));
             
             ClassifiedStream bs = hasStructArg ? context.genericFunctions : h;
             // Method for ::x10::lang::Reference (objects, closures, boxed structs)
@@ -1036,7 +1038,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // (b) Repeat decl in body stream
                 emitter.printTemplateSignature(currentClass.x10Def().typeParameters(), bs);
                 bs.write("template <class R> "+Emitter.translateType(meth.returnType(), true)+" ");
-                bs.write(Emitter.translateType(currentClass, false)+"::"+mname+"(R* _recv");
+                bs.write(Emitter.translateType(currentClass, false, false)+"::"+mname+"(R* _recv");
                 argNum=0;
                 for (Type f : meth.formalTypes()) {
                     bs.write(", ");
@@ -1086,7 +1088,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // (b) Repeat decl in body stream
                 emitter.printTemplateSignature(currentClass.x10Def().typeParameters(), bs);
                 bs.write("template <class R> "+Emitter.translateType(meth.returnType(), true));
-                bs.write(" "+Emitter.translateType(currentClass, false)+"::"+mname+"(R _recv");
+                bs.write(" "+Emitter.translateType(currentClass, false, false)+"::"+mname+"(R _recv");
                 argNum=0;
                 for (Type f : meth.formalTypes()) {
                     bs.write(", ");
