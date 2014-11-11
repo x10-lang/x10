@@ -236,20 +236,23 @@ class FinishResilientPlace0 extends FinishResilient {
     def notifyActivityTermination():void {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
-        lowLevelAt(place0, ()=>{ atomic {
-            val state = states(id);
-            if (!state.isAdopted()) {
-                state.live(dstId)--;
-                if (quiescent(id)) releaseLatch(id);
-            } else {
-                val adopterId = getCurrentAdopterId(id);
-                val adopterState = states(adopterId);
-                adopterState.liveAdopted(dstId)--;
-                if (quiescent(adopterId)) releaseLatch(adopterId);
+        at (place0) @Immediate("notifyActivityTermination_to_zero") async {
+            atomic {
+                if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.live(dstId)--;
+                    if (quiescent(id)) releaseLatch(id);
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.liveAdopted(dstId)--;
+                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                }
             }
-        }});
-        if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") returning");
+        };
     }
+
     def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
         lowLevelAt(place0, ()=>{ atomic {
