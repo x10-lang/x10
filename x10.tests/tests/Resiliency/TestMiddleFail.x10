@@ -73,13 +73,11 @@ public class TestMiddleFail extends x10Test {
 
         } catch (e:MultipleExceptions) {
 
-            assert e.exceptions.size == 1l : e.exceptions;
-
-            val e2 = e.exceptions(0);
-
-            val e3 = e2 as DeadPlaceException;
-
-            assert e3.place == p1 : e3.place;
+            val dpes = e.getExceptionsOfType[DeadPlaceException]();
+            assert dpes.size >= 1;
+            for (dpe in dpes) {
+                assert dpe.place == p1 : dpe.place;
+            }
 
             good_dec();
 

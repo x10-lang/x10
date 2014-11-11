@@ -68,13 +68,11 @@ public class TestDistantFail extends x10Test {
 
         } catch (e:MultipleExceptions) {
 
-            assert e.exceptions.size == 1l : e.exceptions;
-
-            val e2 = e.exceptions(0);
-
-            val e3 = e2 as DeadPlaceException;
-
-            assert e3.place == p2;
+            val dpes = e.getExceptionsOfType[DeadPlaceException]();
+            assert dpes.size >= 1;
+            for (dpe in dpes) {
+                assert dpe.place == p2;
+            }
 
             good_dec();
 
