@@ -1068,15 +1068,24 @@
         /.$BeginJava
 			r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,ClosureBody);
         $EndJava./
+    BlockExpression ::= BlockExpressionBody
+        /.$BeginJava
+            r.rule_ClosureExpression0(null,null,null,null,BlockExpressionBody);
+        $EndJava./
 
     LastExpression ::= Expression
         /.$BeginJava
 			r.rule_LastExpression0(Expression);
         $EndJava./
 
-    ClosureBody ::= Expression
+    LastExpressionWithoutBlockExpression ::= ExpressionWithoutBlockExpression
         /.$BeginJava
-			r.rule_ClosureBody0(Expression);
+			r.rule_LastExpression0(ExpressionWithoutBlockExpression);
+        $EndJava./
+
+    ClosureBody ::= ExpressionWithoutBlockExpression
+        /.$BeginJava
+			r.rule_ClosureBody0(ExpressionWithoutBlockExpression);
         $EndJava./
                   | Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
@@ -1086,7 +1095,16 @@
         /.$BeginJava
 			r.rule_ClosureBody2(Annotationsopt,Block);
         $EndJava./
-                  
+
+    BlockExpressionBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+        /.$BeginJava
+			r.rule_ClosureBody1(Annotationsopt,BlockStatementsopt,LastExpression);
+        $EndJava./
+                  | Annotationsopt Block
+        /.$BeginJava
+			r.rule_ClosureBody2(Annotationsopt,Block);
+        $EndJava./
+
                   
     AtExpression ::= Annotationsopt at ( Expression ) ClosureBody
         /.$BeginJava
@@ -1502,9 +1520,9 @@
         $EndJava./
     
 
-    MethodBody ::= = LastExpression ;
+    MethodBody ::= = LastExpressionWithoutBlockExpression ;
         /.$BeginJava
-			r.rule_MethodBody0(LastExpression);
+			r.rule_MethodBody0(LastExpressionWithoutBlockExpression);
         $EndJava./
                   | = Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
@@ -2258,7 +2276,10 @@
         $EndJava./
     
     
-    ConditionalExpression ::= ConditionalOrExpression
+    ConditionalExpression ::= ConditionalExpressionWithoutBlockExpression
+                            | BlockExpression
+
+    ConditionalExpressionWithoutBlockExpression ::= ConditionalOrExpression
                             | ClosureExpression
                             | AtExpression
                             | OBSOLETE_FinishExpression
@@ -2269,6 +2290,9 @@
     
     AssignmentExpression ::= Assignment
                            | ConditionalExpression
+
+    AssignmentExpressionWithoutBlockExpression ::= Assignment
+                           | ConditionalExpressionWithoutBlockExpression
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava
@@ -2375,6 +2399,8 @@
         $EndJava./
     
     Expression ::= AssignmentExpression
+
+    ExpressionWithoutBlockExpression ::= AssignmentExpressionWithoutBlockExpression
     
     ConstantExpression ::= Expression
 
