@@ -2011,7 +2011,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Atomic_c n) {
         toRose(n, "Atomic:");
+        JNI.cactionAtomic(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
+        JNI.cactionAtomicEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(When_c n) {
