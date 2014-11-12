@@ -940,13 +940,15 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
         if (class_name.equals("x10.lang.Long") 
                 && (   func_name.equals("parse") 
-                    || func_name.equals("parseLong"))) {
+                    || func_name.equals("parseLong"))
+         || class_name.equals("x10.lang.Int")
+                && func_name.equals("parseInt")) {
 
             String callerClass = JNI.cactionGetCurrentClassName();
 
             String helperName = "X10RoseUtility_" + func_name;
             String returnType = "void";
-            String methodName = "Long_" + func_name;
+            String methodName = class_name.replaceAll("\\.", "_") + "_" + func_name;
             String argType = "x10.lang.String";
             String argName = n.arguments().get(0).toString();
             if (RoseTranslator.DEBUG)
