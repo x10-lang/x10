@@ -62,8 +62,8 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     transient var gdist:DistGrid = null;
 
     //The place group on which the matrix is distributed
-    //FIXME: places should be transient
     private var places:PlaceGroup;
+    public def places() = places;
     
     public def this(bs:PlaceLocalHandle[BlockSet], plcs:PlaceGroup) {
         super(bs().grid.M, bs().grid.N);

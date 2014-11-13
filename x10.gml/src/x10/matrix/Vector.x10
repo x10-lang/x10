@@ -100,18 +100,17 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     }
     
     /**
-     * Initialize vector x with random 
-     * values between the specified range.
-     * 
-     * @param lb    lower bound of random values
-     * @param up    upper bound of random values
+     * Initialize this vector with random 
+     * values in the specified range.
+     * @param min lower bound of random values
+     * @param max upper bound of random values
      */    
-    public def initRandom(lb:Long, ub:Long): Vector(this) {
-        val len = Math.abs(ub-lb)+1;
+    public def initRandom(min:Long, max:Long):Vector(this) {
+        val len = Math.abs(max-min)+1;
         val rgen = RandTool.getRandGen();
         //val ll = M*M / 100;
          for (i in 0..(M-1))
-            this.d(i) = rgen.nextLong(len)+lb;
+            this.d(i) = rgen.nextLong(len)+min;
         return this;
     }
     
@@ -447,13 +446,8 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     public static def lInfNorm(a:Vector, b:Vector(a.M)) = chebyshevDistance(a,b);
      public def lInfNorm(V:Vector(M)) = chebyshevDistance(this, V);
      
-     /** Sum of all elements of this vector */
-     public def sum():Double {
-         var s:Double = 0.0;
-         for (i in 0..(M-1))
-            s+= this.d(i);
-         return s;
-     }
+    /** Sum of all elements of this vector */
+    public def sum():Double = reduce((a:Double,b:Double)=> {a+b}, 0.0);
      
      /**
       * Solve equation A &#42 x = this, wehre A is triangular matrix.
@@ -530,6 +524,7 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     /**
      * Apply the map function <code>op</code> to each element of <code>a</code>,
      * storing the result in the corresponding element of this vector.
+     * @param a a vector of the same size as this vector
      * @param op a unary map function to apply to each element of vector <code>a</code>
      * @return this vector, containing the result of the map
      */
@@ -566,6 +561,15 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         RailUtils.map(a.d, b.d, this.d, op);
         return this;
     }
+
+    /**
+     * Combine the elements of this vector using the provided reducer function.
+     * @param op a binary reducer function to combine elements of this vector
+     * @param unit the identity value for the reduction function
+     * @return the result of the reducer function applied to all elements
+     */
+    public final @Inline def reduce(op:(a:Double,b:Double)=>Double, unit:Double):Double
+        = RailUtils.reduce(this.d, op, unit);
 
     public def toString():String {
         val output=new StringBuilder();

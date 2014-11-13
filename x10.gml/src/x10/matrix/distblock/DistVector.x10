@@ -11,6 +11,7 @@
 
 package x10.matrix.distblock;
 
+import x10.compiler.Inline;
 import x10.regionarray.Dist;
 import x10.util.Pair;
 import x10.util.StringBuilder;
@@ -43,6 +44,8 @@ public class DistVector(M:Long) implements Snapshottable {
     
     /*The place group used for distribution*/
     private var places:PlaceGroup;
+
+    public def places() = places;
     
     public def this(m:Long, vs:PlaceLocalHandle[Vector], segsz:Rail[Long], pg:PlaceGroup) {
         property(m);
@@ -106,15 +109,21 @@ public class DistVector(M:Long) implements Snapshottable {
         }
         return this;
     }
-    
-    public def initRandom(lo:Int, up:Int) : DistVector(this) {
+
+    /**
+     * Initialize this vector with random 
+     * values in the specified range.
+     * @param min lower bound of random values
+     * @param max upper bound of random values
+     */ 
+    public def initRandom(min:Long, max:Long):DistVector(this) {
         finish ateach(Dist.makeUnique(places)) {
-            distV().initRandom(lo, up);
+            distV().initRandom(min, max);
         }
         return this;
     }
     
-    public def init(f:(Long)=>Double) : DistVector(this) {
+    public def init(f:(Long)=>Double):DistVector(this) {
         finish ateach(Dist.makeUnique(places)) {
             distV().init(f);
         }
@@ -299,6 +308,9 @@ public class DistVector(M:Long) implements Snapshottable {
     //FIXME: review the correctness of using places here
     public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
         DistDupVectorMult.comp(that, this, DupVector.make(that.M, places), false);
+
+    /** Get the sum of all elements in this vector. */
+    public def sum():Double = reduce((a:Double,b:Double)=>{a+b}, 0.0);
     
     public def likeMe(that:DistVector): Boolean  {
         if (this.M!=that.M) return false;
@@ -340,6 +352,98 @@ public class DistVector(M:Long) implements Snapshottable {
             ret &= at(places(pindx)) distV().equals(dval);
         }
         return ret;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to each element of this vector,
+     * overwriting the element of this vector with the result.
+     * @param op a unary map function to apply to each element of this vector
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(op:(x:Double)=>Double):DistVector(this) {
+        finish ateach(Dist.makeUnique(places)) {
+            val d = distV();
+            d.map(op);
+        }
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to each element of <code>a</code>,
+     * storing the result in the corresponding element of this vector.
+     * @param a a vector of the same distribution as this vector
+     * @param op a unary map function to apply to each element of vector <code>a</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:DistVector(M), op:(x:Double)=>Double):DistVector(this) {
+        assert(likeMe(a));
+        finish ateach(Dist.makeUnique(places)) {
+            val d = distV();
+            val ad = a.distV() as Vector(d.M);
+            d.map(ad, op);
+        }
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to combine each element of this
+     * vector with the corresponding element of vector <code>a</code>,
+     * overwriting the element of this vector with the result.
+     * @param a a vector of the same distribution as this vector
+     * @param op a binary map function to apply to each element of this vector
+     *   and the corresponding element of <code>a</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:DistVector(M), op:(x:Double,y:Double)=>Double):DistVector(this) {
+        assert(likeMe(a));
+        finish ateach(Dist.makeUnique(places)) {
+            val d = distV();
+            val ad = a.distV() as Vector(d.M);
+            d.map(d, ad, op);
+        }
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to combine each element of vector
+     * <code>a</code> with the corresponding element of vector <code>b</code>,
+     * overwriting the corresponding element of this vector with the result.
+     * @param a first vector of the same distribution as this vector
+     * @param b second vector of the same distribution as this vector
+     * @param op a binary map function to apply to each element of 
+     *   <code>a</code> and the corresponding element of <code>b</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:DistVector(M), b:DistVector(M), op:(x:Double,y:Double)=>Double):DistVector(this) {
+        assert(likeMe(a));
+        finish ateach(Dist.makeUnique(places)) {
+            val d = distV();
+            val ad = a.distV() as Vector(d.M);
+            val bd = b.distV() as Vector(d.M);
+            d.map(ad, bd, op);
+        }
+        return this;
+    }
+
+    /**
+     * Combine the elements of this vector using the provided reducer function.
+     * @param op a binary reducer function to combine elements of this vector
+     * @param unit the identity value for the reduction function
+     * @return the result of the reducer function applied to all elements
+     */
+    public final @Inline def reduce(op:(a:Double,b:Double)=>Double, unit:Double):Double {
+        class Reducer implements Reducible[Double] {
+            public def zero() = unit;
+            public operator this(a:Double, b:Double) = op(a,b); 
+        }
+        val reducer = new Reducer();
+        val result = finish (reducer) {
+            ateach(Dist.makeUnique(places)) {
+                val d = distV();
+                d.reduce(op, unit);
+            }
+        };
+        return result;
     }
 
     public def getCalcTime() = calcTime;
