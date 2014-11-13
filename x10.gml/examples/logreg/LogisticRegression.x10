@@ -82,7 +82,6 @@ public class LogisticRegression implements ResilientIterativeApp {
         this.w = w as Vector(X.N);
         
         dup_w  = DupVector.make(X.N, places);
-Console.OUT.println(System.heapSize());
 
         tmp_w  = Vector.make(X.N);
         tmp_y  = DistVector.make(X.M, X.getAggRowBs(), places);
@@ -97,8 +96,6 @@ Console.OUT.println(System.heapSize());
         wnew   = Vector.make(X.N);
         logisticnew = DistVector.make(X.M, X.getAggRowBs(), places);
 
-Console.OUT.println(System.heapSize());
-        
         maxiter = it;
         maxinneriter =nit;
         
@@ -150,8 +147,6 @@ Console.OUT.println(System.heapSize());
         //alpha = t(w) %*% w
         alpha = w.norm();
         Debug.flushln("Done initialization. Starting converging iteration");
-
-Console.OUT.println(System.heapSize());
 
         new ResilientExecutor(chkpntIterations).run(this);
         
