@@ -74,11 +74,6 @@ public class RunLogReg {
                                           : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
 
             val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFrequency, places);
-            val X = prun.X;
-            val y = prun.y;
-            val w = prun.w;
-			val yt = y.clone();
-			val wt = w.clone();
 
             Debug.flushln("Starting logistic regression");
 			val startTime = Timer.milliTime();
@@ -89,7 +84,13 @@ public class RunLogReg {
 					totalTime, prun.paraRunTime, prun.commUseTime); 
 			
 			if (verify) { /* Sequential run */
+                val X = prun.X;
+                val y = Vector.make(X.M);
+                prun.y.copyTo(y); // gather
+                val w = prun.w;
 				val denX = X.toDense();
+			    val yt = y.clone();
+			    val wt = w.clone();
 				val seq = new SeqLogReg(denX, yt, wt, iterations, iterations);
 
 		        Debug.flushln("Starting sequential logistic regression");

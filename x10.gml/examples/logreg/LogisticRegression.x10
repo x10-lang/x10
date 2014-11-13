@@ -31,17 +31,16 @@ public class LogisticRegression implements ResilientIterativeApp {
     
     //X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
     public val X:DistBlockMatrix;
-    public val y:Vector(X.M);
+    public val y:DistVector(X.M);
     //w = Rand(rows=D, cols=1, min=0.0, max=0.0);
     public val w:Vector(X.N);
 
     val dup_w:DupVector(X.N); 
-    val dst_y:DistVector(X.M);
     
     val tmp_w:Vector(X.N);
-    val tmp_y:Vector(X.M);
+    val tmp_y:DistVector(X.M);
 
-    val o:Vector(X.M);
+    val o:DistVector(X.M);
     val grad:Vector(X.N);
     
     val eta0 = 0.0;
@@ -58,16 +57,16 @@ public class LogisticRegression implements ResilientIterativeApp {
     var norm_r2:Double; 
     var alpha:Double;    
     var obj:Double; // value does not change after being initialized
-    var logisticD:Vector(X.M); // value does not change after being initialized
+    var logisticD:DistVector(X.M); // value does not change after being initialized
     
     // Temp memory space
     val s:Vector(X.N);
     val r:Vector(X.N);
     val d:Vector(X.N);
     val Hd:Vector(X.N);
-    val onew:Vector(X.M);
+    val onew:DistVector(X.M);
     val wnew:Vector(X.N);
-    val logisticnew:Vector(X.M);    
+    val logisticnew:DistVector(X.M);    
     
     public var paraRunTime:Long=0;
     public var commUseTime:Long=0;
@@ -77,24 +76,28 @@ public class LogisticRegression implements ResilientIterativeApp {
     private val nzd:Double;
     private var X_snapshot:DistObjectSnapshot[Any,Any];
 
-    public def this(x_:DistBlockMatrix, y_:Vector, w_:Vector, it:Long, nit:Long, sparseDensity:Double, chkpntIter:Long, places:PlaceGroup) {
-        X=x_; y=y_ as Vector(X.M);    w=w_ as Vector(X.N);
+    public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Double, chkpntIter:Long, places:PlaceGroup) {
+        X=x_;
+        this.y = y as DistVector(X.M);
+        this.w = w as Vector(X.N);
         
-        dst_y  = DistVector.make(X.M, X.getAggRowBs(), places) as DistVector(X.M);
         dup_w  = DupVector.make(X.N, places);
+Console.OUT.println(System.heapSize());
 
         tmp_w  = Vector.make(X.N);
-        tmp_y  = Vector.make(X.M);
-        o      = Vector.make(X.M);
+        tmp_y  = DistVector.make(X.M, X.getAggRowBs(), places);
+        o      = DistVector.make(X.M, X.getAggRowBs(), places);
         grad   = Vector.make(X.N);//w.clone();
         // Add temp memory space
         s      = Vector.make(X.N);
         r      = Vector.make(X.N);
         d      = Vector.make(X.N);
         Hd     = Vector.make(X.N);
-        onew   = Vector.make(X.M);
+        onew   = DistVector.make(X.M, X.getAggRowBs(), places);
         wnew   = Vector.make(X.N);
-        logisticnew = Vector.make(X.M);
+        logisticnew = DistVector.make(X.M, X.getAggRowBs(), places);
+
+Console.OUT.println(System.heapSize());
         
         maxiter = it;
         maxinneriter =nit;
@@ -108,12 +111,12 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup){
         val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
-        val y:Vector(X.M) = Vector.make(X.M);
-        val w:Vector(X.N) = Vector.make(X.N);
+        val w = Vector.make(X.N);
+        val y = DistVector.make(X.M, X.getAggRowBs(), places);
 
         X.initRandom(1, 10);
         y.initRandom(1, 10);
-        w.initRandom();        
+        w.initRandom();
 
         return new LogisticRegression(X, y, w, it, nit, nzd, chkpntIter, places);
     }
@@ -122,7 +125,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         //o = X %*% w
         compute_XmultB(o, w);
         //logistic = 1.0/(1.0 + exp( -y * o))
-        val logistic = Vector.make(X.M);
+        val logistic = DistVector.make(X.M, X.getAggRowBs(), X.places());
         logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 
         //obj = 0.5 * t(w) %*% w + C*sum(logistic)
@@ -132,7 +135,8 @@ public class LogisticRegression implements ResilientIterativeApp {
         compute_grad(grad, logistic);
 
         //logisticD = logistic*(1-logistic)
-        logisticD = new Vector(logistic.M, (i:Long)=> {logistic(i)*(1.0-logistic(i))});
+        logisticD = logistic.clone();
+        logisticD.map((x:Double)=> {x*(1.0-x)});
 
         //delta = sqrt(sum(grad*grad))
         delta = Math.sqrt(grad.norm());
@@ -147,9 +151,11 @@ public class LogisticRegression implements ResilientIterativeApp {
         alpha = w.norm();
         Debug.flushln("Done initialization. Starting converging iteration");
 
+Console.OUT.println(System.heapSize());
+
         new ResilientExecutor(chkpntIterations).run(this);
         
-        commUseTime += dup_w.getCommTime()+dst_y.getCommTime();
+        commUseTime += dup_w.getCommTime()+y.getCommTime();
     }
 
     public def step():void{
@@ -274,37 +280,30 @@ public class LogisticRegression implements ResilientIterativeApp {
         }
     }
 
-    private def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
+    private def compute_XmultB(result:DistVector(X.M), opB:Vector(X.N)):void {
         //o = X %*% w
         val stt:Long=Timer.milliTime();
         opB.copyTo(dup_w.local());
         dup_w.sync();
-        dst_y.mult(X, dup_w, false);
-        
-        val ctt:Long = Timer.milliTime();
-        dst_y.copyTo(result); //gather single column matrix
-        commUseTime += Timer.milliTime() - ctt;
+        result.mult(X, dup_w, false);
         paraRunTime += Timer.milliTime() - stt;
     }
     
-    private def compute_tXmultB(result:Vector(X.N), opB:Vector(X.M)):void {
+    private def compute_tXmultB(result:Vector(X.N), B:DistVector(X.M)):void {
         val stt = Timer.milliTime();
-        dst_y.copyFrom(opB);//Scattering
-        dup_w.mult(dst_y, X, false);
+        dup_w.mult(B, X, false);
         dup_w.local().copyTo(result);
         paraRunTime += Timer.milliTime() - stt;
     }
     
-    private def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
+    private def compute_grad(grad:Vector(X.N), logistic:DistVector(X.M)):void {
         //grad = w + C*t(X) %*% ((logistic - 1)*y)
-        logistic.copyTo(tmp_y);
-        tmp_y.cellSub(1.0).cellMult(y);
-        compute_tXmultB(grad, tmp_y);
-        grad.scale(C);
-        grad.cellAdd(w);
+        logistic.map(y, (x:Double, v:Double)=> {(1.0 - x) * v});
+        compute_tXmultB(grad, logistic);
+        grad.scale(C).cellAdd(w);
     }
     
-    private def compute_Hd(Hd:Vector(X.N), logisticD:Vector(X.M), d:Vector(X.N)):void {
+    private def compute_Hd(Hd:Vector(X.N), logisticD:DistVector(X.M), d:Vector(X.N)):void {
         //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
         compute_XmultB(tmp_y, d);
         tmp_y.cellMult(logisticD);
@@ -349,7 +348,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         Console.OUT.println("Going to restore LogisticRegression app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         X.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
         dup_w.remake(newPlaces);
-        dst_y.remake(X.getAggRowBs(), newPlaces);
+        y.remake(X.getAggRowBs(), newPlaces);
         store.restore();
         iter = lastCheckpointIter;
         delta = appSnapshotInfo.delta;
