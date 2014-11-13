@@ -57,6 +57,8 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val states = (here.id==0) ? new x10.util.GrowableRail[State]() : null;
     
     private val id:Long;
+    private var hasRemote:Boolean = false;
+
     public def toString():String = "FinishResilientPlace0(id="+id+")";
     private def this(id:Long) { this.id = id; }
     
@@ -93,6 +95,7 @@ class FinishResilientPlace0 extends FinishResilient {
 
     def notifySubActivitySpawn(place:Place):void {
         val srcId = here.id, dstId = place.id;
+        if (dstId != srcId) hasRemote = true;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
         lowLevelAt(place0, ()=>{ atomic {
             val state = states(id);
@@ -265,6 +268,7 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
         // terminate myself
         notifyActivityTermination(); // TOOD: merge this to the following lowLevelFetch
+
         // get the latch to wait
         val gLatchCell = new Cell[GlobalRef[SimpleLatch]](GlobalRef(null as SimpleLatch));
         lowLevelFetch(place0, gLatchCell, ()=>{ atomic {
@@ -273,10 +277,18 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         val gLatch = gLatchCell();
         assert gLatch.home==here;
-        
+        val lLatch = gLatch.getLocalOrCopy();
+
+        // If we haven't gone remote with this finish yet, see if this worker
+        // can execute other asyncs that are governed by the finish before waiting on the latch.
+        if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || !hasRemote)) {
+            if (verbose>=2) debug("calling worker.join for id="+id);
+            Runtime.worker().join(lLatch);
+        }
+
         // wait for the latch release
         if (verbose>=2) debug("calling latch.await for id="+id);
-        gLatch.getLocalOrCopy().await(); // wait for the termination (latch may already be released)
+        lLatch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
         
         // get exceptions
