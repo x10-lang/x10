@@ -31,7 +31,7 @@ X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 4
-test_args = -m 100 -n 100 --rowBlocks 4 --colBlocks 1 --density 0.9 --iterations 10 --verify --skip 2
+test_args = -m 100 -n 100 --rowBlocks 4 --colBlocks 1 --density 0.9 --iterations 10 --verify
 
 ###################################################
 # Build rules

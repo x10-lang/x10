@@ -61,7 +61,7 @@ public class RunLogReg {
         val verify = opts("v");
         val print = opts("p");
         val skipPlaces = opts("s", 0n);
-        val checkpointFrequency = opts("f", -1n);
+        val checkpointFreq = opts("f", -1n);
 
         Console.OUT.println("X: rows:"+mX+" cols:"+nX
                            +" density:"+nonzeroDensity+" iterations:"+iterations);
@@ -73,7 +73,7 @@ public class RunLogReg {
             val places = (skipPlaces==0n) ? Place.places() 
                                           : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
 
-            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFrequency, places);
+            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places);
 
             Debug.flushln("Starting logistic regression");
 			val startTime = Timer.milliTime();

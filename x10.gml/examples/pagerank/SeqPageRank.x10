@@ -9,10 +9,7 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-package pagerank;
-
 import x10.matrix.util.Debug;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 
@@ -50,12 +47,10 @@ public class SeqPageRank {
 	}
 	
 	public def run():Vector {
-		Debug.flushln("Start sequential PageRank");
 		for (1..iterations) {
 			GP.mult(G, P).scale(alpha);			
-			P.mult(E, U.dotProd(P)).scale(1-alpha).cellAdd(GP);
+			P.scale(U.dotProd(P), E).scale(1-alpha).cellAdd(GP);
 		}
-		Debug.flushln("Sequential PageRank completes");
 		return P;
 	}
 }

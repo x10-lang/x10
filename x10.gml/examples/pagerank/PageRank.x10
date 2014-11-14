@@ -10,8 +10,6 @@
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
 
-package pagerank;
-
 import x10.util.Timer;
 
 import x10.matrix.util.Debug;
@@ -65,7 +63,7 @@ public class PageRank implements ResilientIterativeApp {
     
     var vP:Vector(G.N);   //result vector
 
-    var parTime:Long = 0;
+    var paraRunTime:Long = 0;
     var seqTime:Long = 0;
     var bcastTime:Long = 0;
     var gatherTime:Long = 0;
@@ -94,8 +92,8 @@ public class PageRank implements ResilientIterativeApp {
         U = u as Vector(G.N);
         iterations = it;
         
-        GP    = DistVector.make(G.N, G.getAggRowBs(), places);//G must have vertical distribution
-        vGP      = Vector.make(G.N);
+        GP = DistVector.make(G.N, G.getAggRowBs(), places);//G must have vertical distribution
+        vGP = Vector.make(G.N);
 
         vP = P.local();
         
@@ -125,30 +123,18 @@ public class PageRank implements ResilientIterativeApp {
     }    
     
     public def init():void {
-        Debug.flushln("Start initialize input matrices");        
         G.initRandom();
-        Debug.flushln("Dist sparse matrix initialization completes");        
         P.initRandom();
-        Debug.flushln("Initialize duplicated dense matrix P completes");        
         E.initRandom();
-        Debug.flushln("Initialize dense matrix E completes");        
         U.initRandom();
-        Debug.flushln("Initialize dense matrix U completes");        
     }
 
     public def run():Vector(G.N) {
-        var totalTime:Long = 0;
-
-        totalTime -= Timer.milliTime();    
-
         new ResilientExecutor(chkpntIterations).run(this);
 
-        totalTime += Timer.milliTime();
         val mulTime = GP.getCalcTime();
-        val commTime = bcastTime + gatherTime;
+
         Console.OUT.printf("Gather: %d ms Bcast: %d ms Mul: %d ms\n", gatherTime, bcastTime, mulTime);
-        Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iterations, totalTime);
-        Console.OUT.printf("comm: %d ms, par calc: %d ms, seq calc: %d ms\n", commTime, parTime, seqTime);
         Console.OUT.flush();
         
         return vP;
@@ -179,14 +165,14 @@ public class PageRank implements ResilientIterativeApp {
     public def step():void{
         val startPar = Timer.milliTime();
         GP.mult(G, P).scale(alpha);
-        parTime += (Timer.milliTime() - startPar);
+        paraRunTime += (Timer.milliTime() - startPar);
     
         val startGather = Timer.milliTime();
         GP.copyTo(vGP);     // dist -> local dense
         gatherTime += (Timer.milliTime() - startGather);
     
         val startSeq = Timer.milliTime();
-        vP.mult(E, U.dotProd(vP)).scale(1-alpha).cellAdd(vGP);
+        vP.scale(U.dotProd(vP), E).scale(1-alpha).cellAdd(vGP);
         seqTime += (Timer.milliTime() - startSeq);
     
         val startBcast = Timer.milliTime();
