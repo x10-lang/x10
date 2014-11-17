@@ -255,6 +255,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      */
     @Native("java", "x10.runtime.impl.java.FloatUtils.toShort(#x)")
     @Native("c++",  "::x10::lang::FloatNatives::toShort(#x)")
+    @Native("cuda", "((x10_short) (#x))")
     public native static operator (x:Float) as Short;
 
     /**
@@ -264,6 +265,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      */
     @Native("java", "x10.runtime.impl.java.DoubleUtils.toShort(#x)")
     @Native("c++",  "::x10::lang::DoubleNatives::toShort(#x)")
+    @Native("cuda", "((x10_short) (#x))")
     public native static operator (x:Double) as Short;
 
     /**
