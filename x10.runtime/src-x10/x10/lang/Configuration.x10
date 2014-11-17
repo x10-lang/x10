@@ -82,7 +82,7 @@ final class Configuration {
            v = Int.parse(Runtime.env.getOrElse("X10_MAX_THREADS", "0"));
        } catch (NumberFormatException) {
        }
-       if (v <= 0) v = nthreads();
+       if (v <= 0) v = nthreads() + num_immediate_threads();
        if (!static_threads() && v < 1000) v = 1000n;
        if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
        return v;
