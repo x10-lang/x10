@@ -77,7 +77,7 @@ public class ApplicationMaster {
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
 	public static final String X10_YARNUPLOAD = "X10_YARNUPLOAD";
-	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
+	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE, LAUNCH_REQUEST, LAUNCH_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
 	private Configuration conf;
@@ -377,7 +377,7 @@ public class ApplicationMaster {
 			case HELLO:
 			{
 				// read the port information, and update the record for this place
-				assert(datalen == 4 && source < initialNumPlaces && source >= 0);
+				assert(datalen == 4 && source < Math.max(initialNumPlaces, numRequestedContainers.get()) && source >= 0);
 				CommunicationLink linkInfo;
 				LOG.info("Getting link for place "+source);
 				synchronized (links) {
@@ -458,6 +458,33 @@ public class ApplicationMaster {
 				}
 			}
 			break;
+			case LAUNCH_REQUEST:
+			{
+				assert(datalen == 8);
+				int numPlacesRequested = (int) msg.getLong();
+
+				int oldvalue = numRequestedContainers.getAndAdd((int)numPlacesRequested);
+
+				// Send request for containers to RM
+				for (int i = 0; i < numPlacesRequested; i++) {
+					Resource capability = Resource.newInstance(memoryPerPlaceInMb, coresPerPlace);
+					ContainerRequest request = new ContainerRequest(capability, null, null, Priority.newInstance(0));
+					LOG.info("Adding a new container request " + request.toString());
+					resourceManager.addContainerRequest(request);
+				}
+
+				LOG.info("Requested an increase of "+numPlacesRequested+" places on top of the previous "+oldvalue+" places");
+				msg.rewind();
+				msg.putInt(CTRL_MSG_TYPE.LAUNCH_RESPONSE.ordinal());
+				msg.rewind();
+				try {
+					while (msg.hasRemaining())
+						sc.write(msg);
+				} catch (IOException e) {
+					LOG.warn("Unable to send out launch response to place "+source, e);
+				}
+			}
+			break;
 			default:
 				LOG.warn("unknown message type "+type);
 		}
@@ -483,11 +510,11 @@ public class ApplicationMaster {
 		FinalApplicationStatus appStatus;
 		String appMessage = null;
 		boolean success = true;
-		if (numFailedContainers.get() == 0 && numCompletedContainers.get() == initialNumPlaces) {
+		if (numFailedContainers.get() == 0 && numCompletedContainers.get() == numRequestedContainers.get()) {
 			appStatus = FinalApplicationStatus.SUCCEEDED;
 		} else {
 			appStatus = FinalApplicationStatus.FAILED;
-			appMessage = "Diagnostics." + ", total=" + initialNumPlaces
+			appMessage = "Diagnostics." + ", total=" + numRequestedContainers.get()
 					+ ", completed=" + numCompletedContainers.get() + ", allocated="
 					+ numAllocatedContainers.get() + ", failed="
 					+ numFailedContainers.get();
@@ -509,7 +536,7 @@ public class ApplicationMaster {
 		@Override
 		public float getProgress() {
 			// ramp up to 50% as places start up, then up to 100% as they shut down
-			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()) / (initialNumPlaces*2);
+			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()) / (Math.max(initialNumPlaces, numRequestedContainers.get())*2);
 		}
 
 		@Override
@@ -563,7 +590,7 @@ public class ApplicationMaster {
 						if (!key.startsWith("BASH_FUNC_"))
 							env.put(key, System.getenv(key));
 					}
-					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(initialNumPlaces));
+					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(Math.max(initialNumPlaces, numRequestedContainers.get())));
 					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));
 					env.put(ApplicationMaster.X10_LAUNCHER_HOST, allocatedContainer.getNodeId().getHost());
@@ -644,11 +671,13 @@ public class ApplicationMaster {
 					if (ContainerExitStatus.ABORTED != exitStatus) {
 						numCompletedContainers.incrementAndGet();
 						numFailedContainers.incrementAndGet();
+						LOG.info("Container aborted");
 					} else {
 						// container was killed by framework, possibly preempted
 						// TODO: re-spawn a new place, to replace the one which was killed?
 						numAllocatedContainers.decrementAndGet();
 						numRequestedContainers.decrementAndGet();
+						LOG.info("Container exited");
 						// we do not need to release the container as it would be done by the RM
 					}
 				} else {
@@ -660,6 +689,7 @@ public class ApplicationMaster {
 			}
 			// check to see if everything is down, and if so, exit ourselves
 			if (numCompletedContainers.get() == numRequestedContainers.get()) {
+				LOG.info("Shutting down now that all "+numRequestedContainers.get()+" containers have exited");
 				running = false;
 				selector.wakeup();
 			}

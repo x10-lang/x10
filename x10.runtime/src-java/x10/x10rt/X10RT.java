@@ -495,6 +495,16 @@ public class X10RT {
     public static void remoteXor__1$u(GlobalRail target, long idx, long val) {
         throw new UnsupportedOperationException("remoteXor not implemented for Managed X10");
     }
+    
+    /*
+     * Forward a request to add more places to the launcher, if supported
+     */
+    public static long addPlaces(long newPlaces) {
+    	if (X10RT.javaSockets != null)
+    		return X10RT.javaSockets.addPlaces(newPlaces);
+    	else
+    		return 0;
+    }
 
     /*
      * Native methods exported from x10rt_front.h that are 

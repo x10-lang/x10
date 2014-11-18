@@ -45,7 +45,7 @@
 /* *********************************************************************** */
 /*     utility methods, called outside of the launcher					   */
 /* *********************************************************************** */
-const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE"};
+const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE", "LAUNCH_REQUEST", "LAUNCH_RESPONSE"};
 
 int Launcher::setPort(uint32_t place, int port)
 {
@@ -1006,6 +1006,20 @@ int Launcher::handleControlMessage(int fd)
 				#endif
 				TCP::write(_childControlLinks[_numchildren], &m, sizeof(struct ctrl_msg));
 				TCP::write(_childControlLinks[_numchildren], data, m.datalen);
+			}
+			break;
+			case LAUNCH_REQUEST:
+			{
+				m.to = m.from;
+				m.from = _myproc;
+				m.type = LAUNCH_RESPONSE;
+				int zero = 0;
+				m.datalen = sizeof(zero);
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %d responding to an unsupported launch request \n", _myproc);
+				#endif
+				TCP::write(fd, &m, sizeof(struct ctrl_msg));
+				TCP::write(fd, &zero, m.datalen);
 			}
 			break;
 			default:

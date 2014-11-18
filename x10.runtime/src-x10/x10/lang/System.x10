@@ -61,6 +61,21 @@ public class System {
     public static def killThere(victim:Place) {
         at (victim) @x10.compiler.Immediate("killThere") async killHere();
     }
+    
+    /**
+     * Requests the launcher to create N additional places asynchronously.
+     * 
+     * @return The number of new places that this request attempted to spawn.
+     * May be less than the number requested, if resources are not available, 
+     * or if the current launcher does not support adding places after startup.
+     * 
+     * Please note that since this is an asynchronous operation, a return 
+     * code greater than zero does not guarantee those places have actually
+     * started, as they may fail for reasons outside of the launcher's control
+     */
+    @Native("java", "x10.x10rt.X10RT.addPlaces(#newPlaces)")
+    @Native("c++", "return 0")
+    public static native def addPlaces(newPlaces:Long): Long;
 
 
     /**

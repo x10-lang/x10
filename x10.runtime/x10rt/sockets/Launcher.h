@@ -61,7 +61,8 @@
 // Enable/disable debug information
 //#define DEBUG 1
 
-enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // matching set in SocketTransport.java
+enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE, LAUNCH_REQUEST, LAUNCH_RESPONSE}; // matching set in SocketTransport.java
+
 struct ctrl_msg
 {
 	CTRL_MSG_TYPE type;
