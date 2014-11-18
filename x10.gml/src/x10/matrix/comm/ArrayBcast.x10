@@ -138,7 +138,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
                 binaryTreeCast(dmlist, dataCnt, pg, start, mid-1);
             }
             // left branch
-            async binaryTreeCast(dmlist, dataCnt, pg, mid+1, end);
+            binaryTreeCast(dmlist, dataCnt, pg, mid+1, end);
         }
     }
 
@@ -253,7 +253,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
                 binaryTreeCast(smlist, dataCnt, pg, start, mid-1);
             }
             // left branch
-            async binaryTreeCast(smlist, dataCnt, pg, mid+1, end);
+            binaryTreeCast(smlist, dataCnt, pg, mid+1, end);
         }
     }
     
