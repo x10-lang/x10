@@ -29,11 +29,6 @@ import x10.util.resilient.ResilientStoreForApp;
 
 /**
  * Parallel Page Rank algorithm based on GML distributed block matrix.
- * 
- * Input parameters:
- * <p> 1) Sparse matrix G
- * <p> 4) Iterations
- * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
  * are distributed to (Place.numPlaces(), 1) places, or vertical distribution.
  * <p>[g_(0,0),           g_(0,1),           ..., g(0,numColBsG-1)]
@@ -157,7 +152,7 @@ public class PageRank implements ResilientIterativeApp {
         Console.OUT.flush();
     }
     
-    public def isFinished():Boolean{
+    public def isFinished():Boolean {
         return iter >= iterations;
     }
 
@@ -182,7 +177,7 @@ public class PageRank implements ResilientIterativeApp {
         iter++;
     }
 
-    public def checkpoint(store:ResilientStoreForApp):void{
+    public def checkpoint(store:ResilientStoreForApp):void {
         store.startNewSnapshot();
         if (G_snapshot == null)
             G_snapshot = G.makeSnapshot();
@@ -193,8 +188,7 @@ public class PageRank implements ResilientIterativeApp {
         store.commit();
     }
 
-
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void{
+    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void {
         val newRowPs = newPlaces.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
@@ -210,7 +204,7 @@ public class PageRank implements ResilientIterativeApp {
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] ...");
     }
     
-    public def getMaxIterations():Long{
+    public def getMaxIterations():Long {
         return iterations;
     }
 }

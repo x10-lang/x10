@@ -99,7 +99,12 @@ public class RunLinReg {
 
             if (verify) {
                 // Create sequential version running on dense matrices
-                val bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
+                val bV:BlockMatrix(parLR.V.M, parLR.V.N);
+                if (nonzeroDensity < 0.1) {
+                    bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
+                } else {
+                    bV = BlockMatrix.makeDense(parLR.V.getGrid());
+                }
                 val V = DenseMatrix.make(mV, nV);
                 val b = Vector.make(nV);
 

@@ -14,15 +14,8 @@ package linreg;
 import x10.util.Timer;
 
 import x10.matrix.util.Debug;
-import x10.matrix.Matrix;
 import x10.matrix.Vector;
 
-import x10.matrix.block.Grid;
-import x10.matrix.sparse.SparseCSC;
-import x10.matrix.sparse.SparseMultDenseToDense;
-
-import x10.matrix.distblock.DistGrid;
-import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
@@ -95,10 +88,16 @@ public class LinearRegression implements ResilientIterativeApp {
 
     public static def make(mV:Long, nV:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, chkpntIter:Long, places:PlaceGroup) {
         //First dist block matrix must have vertical distribution
-        val V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, places.size(), 1, nzd, places);
+        val V:DistBlockMatrix(mV, nV);
+        if (nzd < 0.1) {
+            V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, places.size(), 1, nzd, places);
+        } else {
+            Console.OUT.println("using dense matrix as non-zero density = " + nzd);
+            V = DistBlockMatrix.makeDense(mV, nV, nRowBs, nColBs, places.size(), 1, places);
+        }
         val b = Vector.make(nV);
 
-        Console.OUT.printf("Start init sparse matrix V(%d,%d) blocks(%dx%d) ", mV, nV, nRowBs, nColBs);
+        Console.OUT.printf("Start init matrix V(%d,%d) blocks(%dx%d) ", mV, nV, nRowBs, nColBs);
         Console.OUT.printf("dist(%dx%d) nzd:%f\n", places.size(), 1, nzd);
         V.initRandom();
 
