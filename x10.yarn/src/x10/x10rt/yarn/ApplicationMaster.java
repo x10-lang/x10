@@ -77,6 +77,7 @@ public class ApplicationMaster {
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
 	public static final String X10_YARNUPLOAD = "X10_YARNUPLOAD";
+	public static final String X10YARNENV_ = "X10YARNENV_";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE, LAUNCH_REQUEST, LAUNCH_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
 	
@@ -118,17 +119,17 @@ public class ApplicationMaster {
 	private int coresPerPlace;
 	private int memoryPerPlaceInMb;
 	
-	// Counter for completed containers ( complete denotes successful or failed )
+	// these are all atomic, since they get updated in callbacks
+	// count of requests we make for new places
+	private AtomicInteger numRequestedContainers = new AtomicInteger();
+	// count of allocated containers we start places in.
+	private AtomicInteger numAllocatedContainers = new AtomicInteger();
+	// count of containers that were allocated to us but not requested (bug in yarn v2.5.1)
+	private AtomicInteger numExtraContainers = new AtomicInteger();
+	// count of completed containers, will eventually reach allocated+extra
 	private AtomicInteger numCompletedContainers = new AtomicInteger();
-	// Allocated container count so that we know how many containers has the RM allocated to us
-	protected AtomicInteger numAllocatedContainers = new AtomicInteger();
 	// Count of failed containers
 	private AtomicInteger numFailedContainers = new AtomicInteger();
-	// Count of containers already requested from the RM
-	// Needed as once requested, we should not request for containers again.
-	// Only request for more if the original requirement changes.
-	protected AtomicInteger numRequestedContainers = new AtomicInteger();
-
 	
 	public static void main(String[] args) {
 		ApplicationMaster appMaster;
@@ -265,6 +266,7 @@ public class ApplicationMaster {
 		 appMasterPort = launcherChannel.socket().getLocalPort();
 		 launcherChannel.register(selector, SelectionKey.OP_ACCEPT);
 		 
+		 numRequestedContainers.set(initialNumPlaces);
 		 // Send request for containers to RM
 		 for (int i = 0; i < numTotalContainersToRequest; ++i) {
 			 Resource capability = Resource.newInstance(memoryPerPlaceInMb, coresPerPlace);
@@ -272,7 +274,6 @@ public class ApplicationMaster {
 			 LOG.info("Requested container ask: " + request.toString());
 			 resourceManager.addContainerRequest(request);
 		 }
-		 numRequestedContainers.set(initialNumPlaces);
 	}
 	
 
@@ -377,7 +378,7 @@ public class ApplicationMaster {
 			case HELLO:
 			{
 				// read the port information, and update the record for this place
-				assert(datalen == 4 && source < Math.max(initialNumPlaces, numRequestedContainers.get()) && source >= 0);
+				assert(datalen == 4 && source < numRequestedContainers.get() && source >= 0);
 				CommunicationLink linkInfo;
 				LOG.info("Getting link for place "+source);
 				synchronized (links) {
@@ -510,14 +511,15 @@ public class ApplicationMaster {
 		FinalApplicationStatus appStatus;
 		String appMessage = null;
 		boolean success = true;
-		if (numFailedContainers.get() == 0 && numCompletedContainers.get() == numRequestedContainers.get()) {
+		if (numFailedContainers.get() == 0) {
 			appStatus = FinalApplicationStatus.SUCCEEDED;
 		} else {
 			appStatus = FinalApplicationStatus.FAILED;
 			appMessage = "Diagnostics." + ", total=" + numRequestedContainers.get()
 					+ ", completed=" + numCompletedContainers.get() + ", allocated="
 					+ numAllocatedContainers.get() + ", failed="
-					+ numFailedContainers.get();
+					+ numFailedContainers.get() + ", extra="
+					+ numExtraContainers.get();
 			success = false;
 		}
 		try {
@@ -536,13 +538,22 @@ public class ApplicationMaster {
 		@Override
 		public float getProgress() {
 			// ramp up to 50% as places start up, then up to 100% as they shut down
-			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()) / (Math.max(initialNumPlaces, numRequestedContainers.get())*2);
+			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()-numExtraContainers.get()) / (numRequestedContainers.get()*2);
 		}
 
 		@Override
 		public void onContainersAllocated(List<Container> allocatedContainers) {
 			LOG.info("Got response from RM for container ask, allocatedCnt="+ allocatedContainers.size());
 			for (Container allocatedContainer : allocatedContainers) {
+				if (numAllocatedContainers.get() >= numRequestedContainers.get()) {
+					// There is currently a bug in yarn, where it will allocate more
+					// containers than requested, if the request comes in later.  Workaround.
+					LOG.info("Dropping unexpected container "+allocatedContainer.getId());
+					numExtraContainers.incrementAndGet();
+					resourceManager.releaseAssignedContainer(allocatedContainer.getId());
+					continue;
+				}
+				
 				int placeId = numAllocatedContainers.getAndIncrement();
 				String hostname = allocatedContainer.getNodeId().getHost();
 				LOG.info("Launching place on a new container."
@@ -585,10 +596,10 @@ public class ApplicationMaster {
 					Map<String, String> env = new HashMap<String, String>();
 					//env.putAll(System.getenv()); // copy all environment variables from the client side to the application side
 					// copy over existing environment variables
+					final int prefixlen = X10YARNENV_.length();
 					for (String key : System.getenv().keySet()) {
-						//if (key.startsWith("X10_") || key.startsWith("X10RT_"))
-						if (!key.startsWith("BASH_FUNC_"))
-							env.put(key, System.getenv(key));
+						if (key.startsWith(X10YARNENV_))
+							env.put(key.substring(prefixlen), System.getenv(key));
 					}
 					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(Math.max(initialNumPlaces, numRequestedContainers.get())));
 					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
@@ -665,30 +676,25 @@ public class ApplicationMaster {
 						+ containerStatus.getDiagnostics());
 
 				// increment counters for completed/failed containers
+				numCompletedContainers.incrementAndGet();
 				int exitStatus = containerStatus.getExitStatus();
 				if (0 != exitStatus) {
 					// container failed
-					if (ContainerExitStatus.ABORTED != exitStatus) {
-						numCompletedContainers.incrementAndGet();
-						numFailedContainers.incrementAndGet();
+					if (ContainerExitStatus.ABORTED == exitStatus) {
+						// killed by framework, not really a failure?
 						LOG.info("Container aborted");
 					} else {
-						// container was killed by framework, possibly preempted
-						// TODO: re-spawn a new place, to replace the one which was killed?
-						numAllocatedContainers.decrementAndGet();
-						numRequestedContainers.decrementAndGet();
-						LOG.info("Container exited");
-						// we do not need to release the container as it would be done by the RM
+						numFailedContainers.incrementAndGet();
+						LOG.info("Container exited with exit code "+exitStatus);
 					}
 				} else {
 					// nothing to do
 					// container completed successfully
-					numCompletedContainers.incrementAndGet();
 					LOG.info("Container completed successfully." + ", containerId="+ containerStatus.getContainerId());
 				}
 			}
 			// check to see if everything is down, and if so, exit ourselves
-			if (numCompletedContainers.get() == numRequestedContainers.get()) {
+			if (numCompletedContainers.get() == (numAllocatedContainers.get()+numExtraContainers.get())) {
 				LOG.info("Shutting down now that all "+numRequestedContainers.get()+" containers have exited");
 				running = false;
 				selector.wakeup();
