@@ -1704,10 +1704,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
         visitChild(n, n.target());
 
-        if (RoseTranslator.isX10Primitive(pkg, type) || pkg.length() == 0) {
+        if (RoseTranslator.isX10Primitive(pkg, type)) {
             JNI.cactionTypeReference("", type, this, RoseTranslator.createJavaToken());
         } 
-        else if (pkg.length() != 0) {
+        else {
             JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, type));
             JNI.cactionPopPackage();
             JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken());
