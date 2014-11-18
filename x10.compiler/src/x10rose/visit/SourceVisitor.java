@@ -1706,7 +1706,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
         if (RoseTranslator.isX10Primitive(pkg, type) || pkg.length() == 0) {
             JNI.cactionTypeReference("", type, this, RoseTranslator.createJavaToken());
-        } else if (pkg.length() != 0) {
+        } 
+        else if (pkg.length() != 0) {
             JNI.cactionPushPackage(pkg, RoseTranslator.createJavaToken(n, type));
             JNI.cactionPopPackage();
             JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken());

@@ -263,8 +263,9 @@ public class LibraryVisitor extends NodeVisitor {
             // JNI.cactionTypeReference(amb.prefix().toString(),
             // amb.name().toString(), this, RoseTranslator.createJavaToken(amb,
             // amb.toString()));
-            // return;
-        }
+            // return;            
+            type_ = ambTypeName;
+        } 
 
         try {
             TypeSystem ts = currentJob.extensionInfo().typeSystem();
