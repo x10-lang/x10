@@ -54,31 +54,32 @@ public class ResilientExecutor {
         // TODO checkpoint before first iter?
 
         while (!app.isFinished()) {
-            if (restoreRequired) {
-                if (lastCheckpointIter > -1) {
-                    val startRestore = Timer.milliTime();
-                    val newPG = places.filterDeadPlaces();
-
-                    if (VERBOSE) {
-                        Console.OUT.println("restoring at iter " + lastCheckpointIter);
-                        Console.OUT.println("The place group after filtering the dead ...");
-                        for (p in newPG)
-                            Console.OUT.println(p);
-                    }
-
-                    app.restore(newPG, store, lastCheckpointIter);
-                    iter = lastCheckpointIter;
-
-                    restoreRequired = false;
-                    restoreTime += (Timer.milliTime() - startRestore);
-                    restoreCount++;
-                } else {
-                    throw new UnsupportedOperationException("failure occurred at iter "
-                         + iter + " but no valid checkpoint exists!");
-                }
-            }
-
             try {
+                if (restoreRequired) {
+                    if (lastCheckpointIter > -1) {
+                        val startRestore = Timer.milliTime();
+                        val newPG = places.filterDeadPlaces();
+
+                        if (VERBOSE) {
+                            Console.OUT.println("restoring at iter " + lastCheckpointIter);
+                            Console.OUT.println("The place group after filtering the dead ...");
+                            for (p in newPG)
+                                Console.OUT.println(p);
+                        }
+
+                        app.restore(newPG, store, lastCheckpointIter);
+                        iter = lastCheckpointIter;
+
+                        restoreRequired = false;
+                        restoreTime += (Timer.milliTime() - startRestore);
+                        restoreCount++;
+                    } else {
+                        throw new UnsupportedOperationException("failure occurred at iter "
+                             + iter + " but no valid checkpoint exists!");
+                    }
+                }
+
+
                 // TODO use an external 'hammer' to kill places
                 if (isResilient && !simulatePlaceDeathDone 
                  && iter == killIter && places.size() > 1) {
@@ -96,11 +97,15 @@ public class ResilientExecutor {
 
                 if (isResilient && (iter % itersPerCheckpoint) == 0) {
                     if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
-                    val startCheckpoint = Timer.milliTime();
-                    app.checkpoint(store);
-                    lastCheckpointIter = iter;
-                    checkpointTime += (Timer.milliTime() - startCheckpoint);
-                    checkpointCount++;
+                    try {
+                        val startCheckpoint = Timer.milliTime();
+                        app.checkpoint(store);
+                        lastCheckpointIter = iter;
+                        checkpointTime += (Timer.milliTime() - startCheckpoint);
+                        checkpointCount++;
+                    } catch (deadExp:DeadPlaceException) {
+                        store.cancelSnapshot();
+                    }
                 }
             } catch (deadExp:DeadPlaceException) {
                 deadExp.printStackTrace();

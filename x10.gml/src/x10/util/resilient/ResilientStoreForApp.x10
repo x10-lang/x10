@@ -26,6 +26,11 @@ public class ResilientStoreForApp {
         val idx = (commitCount+1) % 2;
         tempSnapshot = snapshots(idx);
     }
+
+    /** Cancel the current snapshot, in case of failure during checkpoint. */
+    public def cancelSnapshot() {
+        tempSnapshot = null;
+    }
     
     public def save(distObject:Snapshottable) {
         save(distObject, false);
@@ -49,7 +54,7 @@ public class ResilientStoreForApp {
     
     public def commit() {
         val idx = commitCount % 2;
-        commitCount++; // swith to the new snapshot
+        commitCount++; // switch to the new snapshot
         tempSnapshot = null;
 
         // delete the old snapshot
