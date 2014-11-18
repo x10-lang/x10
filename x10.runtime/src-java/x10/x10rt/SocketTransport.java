@@ -623,18 +623,18 @@ public class SocketTransport {
 				Message toProcess = null;
 				synchronized (sc) {
 					Message m = pendingReads.get(sc);
-					if (m != null) { // there is an existing message partially read in from this socket
-						sc.read(m.data);
-						if (!m.data.hasRemaining()) {
-							pendingReads.remove(sc);
-							m.data.flip();
-							toProcess = m;
+					try {
+						if (m != null) { // there is an existing message partially read in from this socket
+							sc.read(m.data);
+							if (!m.data.hasRemaining()) {
+								pendingReads.remove(sc);
+								m.data.flip();
+								toProcess = m;
+							}
 						}
-					}
-					else { // this is a new message coming in
-						ByteBuffer controlData = ByteBuffer.allocateDirect(12);
-						int msgType=0, callbackId=0, datalen;				
-						try {
+						else { // this is a new message coming in
+							ByteBuffer controlData = ByteBuffer.allocateDirect(12);
+							int msgType=0, callbackId=0, datalen;
 							if (!readNBytes(sc, controlData, controlData.capacity()))
 								return false;
 							controlData.flip(); // switch from write to read mode
@@ -737,23 +737,23 @@ public class SocketTransport {
 							else 
 								System.err.println("Unknown message type: "+msgType);
 						}
-						catch (IOException e) {
-							// figure out which place this is
-							for (Integer place : channels.keySet()) {
-								try {
-									CommunicationLink cl = channels.get(place);
-									if (cl != null && sc.equals(cl.sc)) {
-										if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
-										markPlaceDead(place);
-										cl.pendingWrites = null;
-										break;
-									}
-								} catch (NullPointerException e2){} // channels[i] can become null after we check for null
-							}
-							try {sc.close();}
-				    		catch (Exception e2){}
-				    		return false;
+					}
+					catch (IOException e) {
+						// figure out which place this is
+						for (Integer place : channels.keySet()) {
+							try {
+								CommunicationLink cl = channels.get(place);
+								if (cl != null && sc.equals(cl.sc)) {
+									if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
+									markPlaceDead(place);
+									cl.pendingWrites = null;
+									break;
+								}
+							} catch (NullPointerException e2){} // channels[i] can become null after we check for null
 						}
+						try {sc.close();}
+			    		catch (Exception e2){}
+			    		return false;
 					}
 				}
 				// run the callback if it was set
