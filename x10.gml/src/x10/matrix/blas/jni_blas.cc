@@ -111,9 +111,9 @@ extern "C" {
     jlong dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed
     // to have a continuous memory layout like C arrays.
-    env->GetLongArrayRegion(dim, 0, 2, (blas_long*)dimlist);
+    env->GetLongArrayRegion(dim, 0, 2, dimlist);
 
-    matrix_vector_mult(alpha, amat, xvec, beta, yvec, dimlist, tranA);
+    matrix_vector_mult(alpha, amat, xvec, beta, yvec, (blas_long*)dimlist, tranA);
 
     if (isCopy == JNI_TRUE) {
        //printf("Copying data from c library back to original data in JVM\n");
@@ -443,9 +443,9 @@ extern "C" {
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxmat = env->GetDoubleArrayElements(BX, &isCopy);
     jlong dimlist[3];
-    env->GetLongArrayRegion(dim, 0, 3, (blas_long*)dimlist);
+    env->GetLongArrayRegion(dim, 0, 3, dimlist);
 
-	matrix_tri_solve(bxmat, amat, dimlist, tranA);
+	matrix_tri_solve(bxmat, amat, (blas_long*)dimlist, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");

@@ -12,11 +12,7 @@
 #ifndef WRAP_BLAS_H
 #define WRAP_BLAS_H
 
-#ifdef jniport_h
-typedef long long blas_long;
-#else
 typedef int64_t blas_long;
-#endif
 
 //------------------------------------------------------------------------
 // Level One 
