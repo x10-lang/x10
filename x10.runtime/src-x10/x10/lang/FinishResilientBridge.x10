@@ -10,6 +10,8 @@
  */
 package x10.lang;
 
+import x10.util.concurrent.SimpleLatch;
+
 /*
  * This class is used to make some interfaces in FinishResilient accessible
  * from classes in a different package (e.g. x10.lang.managed.FinishResilientHC)
@@ -30,4 +32,8 @@ class FinishResilientBridge extends FinishResilient {
     public def notifyActivityTermination():void { throw new UnsupportedOperationException(); }
     public def pushException(t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     public def waitForFinish():void { throw new UnsupportedOperationException(); }
+
+    public def joinFinish(latch:SimpleLatch):void {
+       Runtime.worker().join(latch);
+    }
 }

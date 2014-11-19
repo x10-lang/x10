@@ -154,6 +154,7 @@ class FinishResilientHC extends FinishResilientBridge {
     // fields of this FinishState
     private val id:FinishID; // should be global
     private transient val latch:SimpleLatch; // latch is stored only in the original local finish
+    private var hasRemote:Boolean = false;
     
     public def toString():String = System.identityToString(this) + "(id="+id+")";
     
@@ -246,6 +247,8 @@ class FinishResilientHC extends FinishResilientBridge {
     public
     def notifySubActivitySpawn(dstPlace:Place):void {
         val srcId = hereId, dstId = dstPlace.id;
+        if (dstId != srcId) hasRemote = true;
+
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
         
         // counts[srcId,dstId]++;
@@ -372,6 +375,13 @@ class FinishResilientHC extends FinishResilientBridge {
         
         notifyActivityTermination(); // terminate myself, this should trigger entryUpdated listener added above
         
+        // If we haven't gone remote with this finish yet, see if this worker
+        // can execute other asyncs that are governed by the finish before waiting on the latch.
+        if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || !hasRemote)) {
+            if (verbose>=2) debug("calling worker.join for id="+id);
+            joinFinish(latch);
+        }
+
         if (verbose>=2) debug("calling latch.await for id="+id);
         latch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
