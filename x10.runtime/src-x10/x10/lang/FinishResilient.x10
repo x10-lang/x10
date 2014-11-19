@@ -54,6 +54,10 @@ abstract class FinishResilient extends FinishState {
     // def notifyActivityTermination():void;
     // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
+
+    private static def failJavaOnlyMode() {
+        throw new UnsupportedOperationException("Java-only RESILIENT_MODE " + Runtime.RESILIENT_MODE);
+    }
     
     /*
      * Dispatcher methods
@@ -81,7 +85,7 @@ abstract class FinishResilient extends FinishState {
             val o = p as Any;
             var r:FinishState = null;
             @Native("java", "r = x10.lang.managed.FinishResilientHC.make(o, l);")
-            { if (true) throw new UnsupportedOperationException("Java-only RESILIENT_MODE " + Runtime.RESILIENT_MODE); }
+            { failJavaOnlyMode(); }
             fs = r;
             break;
         }
@@ -116,7 +120,7 @@ abstract class FinishResilient extends FinishState {
             break;
         case Configuration.RESILIENT_MODE_HC:
             @Native("java", "x10.lang.managed.FinishResilientHC.notifyPlaceDeath();")
-            { if (true) throw new UnsupportedOperationException("Java-only RESILIENT_MODE " + Runtime.RESILIENT_MODE); }
+            { failJavaOnlyMode(); }
             break;
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
             FinishResilientPlace0opt.notifyPlaceDeath();
