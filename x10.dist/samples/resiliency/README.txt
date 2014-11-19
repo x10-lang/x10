@@ -44,8 +44,6 @@ place 0 should not be killed in current implementation.
 
 Known limitations:
 - Currently, only "X10_RESILIENT_MODE=11" is supported.
-- Current implementation needs more internal threads to run.  If you
-  encounter a "TOO MANY THREADS" error, try to increase "X10_MAX_THREADS".
 - Both of native and managed X10 are supported, but only for sockets
   (default) backend.
-- Clocked finish and workstealing are not supported yet.
+- Clocked finish and collecting finish are not resilient yet.
