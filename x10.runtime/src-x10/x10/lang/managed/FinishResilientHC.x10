@@ -309,6 +309,13 @@ class FinishResilientHC extends FinishResilientBridge {
         return notifyActivityCreation(srcPlace, activity);
     }
 
+    public 
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
+        notifyActivityCreation(srcPlace, null);
+        pushException(t);
+        notifyActivityTermination();
+    }
+
     public
     def notifyActivityTermination():void {
         val dstId = hereId;
