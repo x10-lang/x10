@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef __int64
+#define __int64 __int64_t
+#endif
+
 #include <jni.h>
 #include "wrap_blas.h"
 
@@ -88,7 +92,7 @@ extern "C" {
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
     env->GetLongArrayRegion(off, 0, 4, offlist);
 
-    matrix_vector_mult(alpha, amat, xvec, beta, yvec, dimlist, lda, offlist, tranA);
+    matrix_vector_mult(alpha, amat, xvec, beta, yvec, (blas_long*)dimlist, lda, (blas_long*)offlist, tranA);
 
     if (isCopy == JNI_TRUE) {
        //printf("Copying data from c library back to original data in JVM\n");
@@ -107,7 +111,7 @@ extern "C" {
     jlong dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed
     // to have a continuous memory layout like C arrays.
-    env->GetLongArrayRegion(dim, 0, 2, dimlist);
+    env->GetLongArrayRegion(dim, 0, 2, (blas_long*)dimlist);
 
     matrix_vector_mult(alpha, amat, xvec, beta, yvec, dimlist, tranA);
 
@@ -131,7 +135,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
 
-	sym_vector_mult(alpha, amat, xvec, beta, yvec, dimlist);
+	sym_vector_mult(alpha, amat, xvec, beta, yvec, (blas_long*)dimlist);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -175,7 +179,7 @@ extern "C" {
     env->GetLongArrayRegion(offset, 0, 2, offsetlist);
     env->GetLongArrayRegion(inc, 0, 2, inclist);
 
-    rank_one_update(amat, xvec, yvec, dimlist, offsetlist, inclist, lda, alpha);
+    rank_one_update(amat, xvec, yvec, (blas_long*)dimlist, (blas_long*)offsetlist, (blas_long*)inclist, lda, alpha);
 
     if (isCopy == JNI_TRUE) {
        //printf("Copying data from c library back to original data in JVM\n");
@@ -208,7 +212,7 @@ extern "C" {
     env->GetLongArrayRegion(off, 0, 6, offlist);
     env->GetIntArrayRegion(trans, 0, 2, trnlist);
 
-	matrix_matrix_mult(alpha, amat, bmat, beta, cmat, dimlist, ldlist, offlist, trnlist);
+	matrix_matrix_mult(alpha, amat, bmat, beta, cmat, (blas_long*)dimlist, (blas_long*)ldlist, (blas_long*)offlist, trnlist);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -234,7 +238,7 @@ extern "C" {
     env->GetLongArrayRegion(ld, 0, 3, ldlist);
     env->GetIntArrayRegion(trans, 0, 2, trnlist);
 
-	matrix_matrix_mult(alpha, amat, bmat, beta, cmat, dimlist, ldlist, trnlist);
+	matrix_matrix_mult(alpha, amat, bmat, beta, cmat, (blas_long*)dimlist, (blas_long*)ldlist, trnlist);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -260,7 +264,7 @@ extern "C" {
     env->GetLongArrayRegion(ld, 0, 2, ldlist);
     env->GetLongArrayRegion(off, 0, 4, offlist);
 
-	sym_rank_k_update(alpha, amat, beta, cmat, dimlist, ldlist, offlist, upper, trans);
+	sym_rank_k_update(alpha, amat, beta, cmat, (blas_long*)dimlist, (blas_long*)ldlist, (blas_long*)offlist, upper, trans);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -282,7 +286,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
 
-	sym_rank_k_update(alpha, amat, beta, cmat, dimlist, upper, trans);
+	sym_rank_k_update(alpha, amat, beta, cmat, (blas_long*)dimlist, upper, trans);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -304,7 +308,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
 	//printf("Here calling blas matrix mult\n"); fflush(stdout);
-	sym_matrix_mult(alpha, amat, bmat, beta, cmat, dimlist);
+	sym_matrix_mult(alpha, amat, bmat, beta, cmat, (blas_long*)dimlist);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -325,7 +329,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 2, dimlist);
 	//printf("Here calling blas matrix mult\n"); fflush(stdout);
-	matrix_sym_mult(bmat, alpha, amat, beta, cmat, dimlist);
+	matrix_sym_mult(bmat, alpha, amat, beta, cmat, (blas_long*)dimlist);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -364,7 +368,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 3, dimlist);
 
-	tri_matrix_mult(amat, bmat, dimlist, tranA);
+	tri_matrix_mult(amat, bmat, (blas_long*)dimlist, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -384,7 +388,7 @@ extern "C" {
     // to have a continuous memory layout like C arrays.
     env->GetLongArrayRegion(dim, 0, 3, dimlist);
 
-	matrix_tri_mult(bmat, amat, dimlist, tranA);
+	matrix_tri_mult(bmat, amat, (blas_long*)dimlist, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -406,7 +410,7 @@ extern "C" {
     jlong dimlist[3];
     env->GetLongArrayRegion(dim, 0, 3, dimlist);
 
-	tri_vector_solve(amat, bxvec, dimlist, tranA);
+	tri_vector_solve(amat, bxvec, (blas_long*)dimlist, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -424,7 +428,7 @@ extern "C" {
 
     env->GetLongArrayRegion(dim, 0, 3, dimlist);
 
-    tri_matrix_solve(amat, bxmat, dimlist, tranA);
+    tri_matrix_solve(amat, bxmat, (blas_long*)dimlist, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -439,7 +443,7 @@ extern "C" {
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxmat = env->GetDoubleArrayElements(BX, &isCopy);
     jlong dimlist[3];
-    env->GetLongArrayRegion(dim, 0, 3, dimlist);
+    env->GetLongArrayRegion(dim, 0, 3, (blas_long*)dimlist);
 
 	matrix_tri_solve(bxmat, amat, dimlist, tranA);
 
