@@ -32,6 +32,7 @@ import x10.util.resilient.Snapshottable;
  * dense/sparse matrix
  */
 public class LinearRegression implements ResilientIterativeApp {
+    static val MAX_SPARSE_DENSITY = 0.1;
 
     //Input matrix
     public val V:DistBlockMatrix;
@@ -59,7 +60,7 @@ public class LinearRegression implements ResilientIterativeApp {
     public var commT:Long;
 
     private var appSnapshotInfo:LinearRegressionSnapshotInfo;
-    private val npz:Double;
+    private val nzd:Double;
 
     //the matrix snapshot should be taken only once
     private var V_snapshot:DistObjectSnapshot[Any,Any];
@@ -83,13 +84,13 @@ public class LinearRegression implements ResilientIterativeApp {
         }
         this.chkpntIterations = chkpntIter;
 
-        npz = sparseDensity;
+        nzd = sparseDensity;
     }
 
     public static def make(mV:Long, nV:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, chkpntIter:Long, places:PlaceGroup) {
         //First dist block matrix must have vertical distribution
         val V:DistBlockMatrix(mV, nV);
-        if (nzd < 0.1) {
+        if (nzd < MAX_SPARSE_DENSITY) {
             V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, places.size(), 1, nzd, places);
         } else {
             Console.OUT.println("using dense matrix as non-zero density = " + nzd);
@@ -207,7 +208,11 @@ public class LinearRegression implements ResilientIterativeApp {
         val newColPs = 1;
         Console.OUT.println("Going to restore LinearReg app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         //remake all the distributed data structures
-        V.remakeSparse(newRowPs, newColPs, npz, newPg);
+        if (nzd < MAX_SPARSE_DENSITY) {
+            V.remakeSparse(newRowPs, newColPs, nzd, newPg);
+        } else {
+            V.remakeDense(newRowPs, newColPs, newPg);
+        }
         d_p.remake(newPg);
         Vp.remake(V.getAggRowBs(), newPg);
         d_q.remake(newPg);

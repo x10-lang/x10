@@ -932,12 +932,11 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         val oldGrid = getGrid();        
         val blks:PlaceLocalHandle[BlockSet];
         PlaceLocalHandle.destroy(places, handleBS, (Place)=>true);        
-        if (!useOldGrid){            
+        if (!useOldGrid) {            
             val rowBs:Long = oldGrid.numRowBlocks; 
             val colBs:Long = oldGrid.numColBlocks;            
             blks = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.make(M,N,rowBs,colBs,rowPs,colPs, newPg)));
-        }
-        else{
+        } else {
             blks = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.make(oldGrid,rowPs,colPs, newPg)));
         }
         gdist = new DistGrid(blks().getGrid(), rowPs, colPs);        
@@ -957,7 +956,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     }
 
     public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup){        
-        remakeDense(rowPs, colPs, newPg); 
+        remake(rowPs, colPs, newPg, true); // using the old grid
         allocDenseBlocks();
     }
     
