@@ -15,8 +15,26 @@
     <property name="bash.exe" value="bash"/>
     <!-- get the environment variables -->
     <property environment="env"/>
-    <property name="tools.jar.location" value="${env.JAVA_HOME}/lib/${tools.jar}"/>
-    <path id="project.classpath">
+    <condition property="tools.jar.location"
+            value="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}">
+        <available file="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}"/>
+    </condition>
+    <condition property="tools.jar.location"
+            value="${java.home}${file.separator}lib{file.separator}${tools.jar}">
+        <and>
+            <not>
+                <isset property="tools.jar.location"/>
+            </not>
+            <available file="${java.home}${file.separator}lib{file.separator}${tools.jar}"/>
+        </and>
+    </condition>
+    <condition property="tools.jar.location"
+               value="${java.home}${file.separator}..${file.separator}lib${file.separator}${tools.jar}">
+        <not>
+            <isset property="tools.jar.location"/>
+        </not>
+    </condition>
+	<path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="compiler.classpath"/>
@@ -42,6 +60,7 @@
         <mkdir dir="${build}"/>
     </target>
     <target name="clean">
+        <echo message="${ant.project.name}: ${tools.jar.location}"/>
         <delete dir="${build}" failonerror="false"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
