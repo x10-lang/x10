@@ -48,10 +48,6 @@ Instructions
      an exception will be thrown if the corresponding solver method is called.
      The environment variable DISABLE_LAPACK controls this build option.
     
-     In system_setting.mk, uncomment "add_lapack=yes" line to build GML with 
-     LAPACK library.  
-     Also make sure "lapack_path" and "lapack_name" are defined correctly.
-
      The file scripts/system_setting.mk defines build variables POST_CXXFLAGS
      and POST_LDFLAGS to compile against several commonly used BLAS and LAPACK 
      implementations, including:
