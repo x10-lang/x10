@@ -1887,15 +1887,20 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Try_c n) {
         toRose(n, "Try:");
+        JNI.cactionTryStatement(n.catchBlocks().size(), n.finallyBlock() != null, RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.tryBlock());
         visitChildren(n, n.catchBlocks());
         visitChild(n, n.finallyBlock());
+        JNI.cactionTryStatementEnd(0, n.catchBlocks().size(), n.finallyBlock() != null, RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Catch_c n) {
-        toRose(n, "Catch: ");
-        visitChild(n, n.formal());
+        toRose(n, "Catch: ", n.formal().name());
+        JNI.cactionCatchArgument(n.formal().name().toString(), RoseTranslator.createJavaToken(n, n.toString()));
+        visitChild(n, n.formal().type());
+        JNI.cactionCatchArgumentEnd(0, n.formal().name().toString(), 1, true, RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
+        JNI.cactionCatchBlockEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Labeled_c n) {
