@@ -1882,7 +1882,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Throw_c n) {
         toRose(n, "Throw:");
+        JNI.cactionThrowStatement(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.expr());
+        JNI.cactionThrowStatementEnd(RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Try_c n) {
