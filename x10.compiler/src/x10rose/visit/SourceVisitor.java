@@ -778,24 +778,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             package_name = qname.qualifier().toString();     
         String type_name = fieldDecl.type().toString();
         
-        System.out.println("xyz=" + fieldDecl.type().getClass());
-        int token_constraint;
-        // TODO: remove this when type constraint is supported
-        if ((token_constraint = type_name.indexOf('{')) > 0) {
-            type_name = type_name.substring(0, token_constraint);
-        }
-        int typeParam = type_name.indexOf("[");
-        int lastDot = type_name.lastIndexOf(".", typeParam > 0 ? typeParam : type_name.length()-1);
-        if (lastDot > 0)
-            type_name = type_name.substring(lastDot+1);
-        
-        if (RoseTranslator.isX10Primitive(package_name, type_name))
-            JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken());
-        else {
-            JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(fieldDecl, type_name));
-            JNI.cactionPopPackage();
-            JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
-        }
+        visit((X10CanonicalTypeNode_c)fieldDecl.type());
         JNI.cactionBuildFieldSupport(fieldName, RoseTranslator.createJavaToken());
 
         Flags flags = fieldDecl.flags().flags();
