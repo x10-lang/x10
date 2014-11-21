@@ -458,7 +458,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             JNI.cactionBuildTypeParameterSupport(package_name, class_name, -1, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
         }
         if (typeParamList.size() > 0)
-            JNI.cactionSetCurrentClassName(package_name + "." + class_name);
+            JNI.cactionSetCurrentClassName((package_name.length() > 0 ? package_name + "." : "") + class_name);
 
         JNI.cactionBuildClassSupportStart(class_name, "", true, 
                 false, false, false, false, RoseTranslator.createJavaToken(n, class_name));
