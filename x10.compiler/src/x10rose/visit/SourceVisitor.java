@@ -778,6 +778,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             package_name = qname.qualifier().toString();     
         String type_name = fieldDecl.type().toString();
         
+        System.out.println("xyz=" + fieldDecl.type().getClass());
         int token_constraint;
         // TODO: remove this when type constraint is supported
         if ((token_constraint = type_name.indexOf('{')) > 0) {
@@ -1298,10 +1299,23 @@ public class SourceVisitor extends X10DelegatingVisitor {
         } else if (    n.type().toString().indexOf("x10.lang.Rail[") == 0 
                     || n.type().toString().indexOf("x10.util.GrowableRail[") == 0) {
             String railString = n.type().toString();
-            class_name = railString.substring(railString.indexOf('[') + 1, railString.indexOf(']'));
-            String[] names = getPackageAndTypeName(class_name);
-            String package_name = names[0];
-            String type_name = names[1];
+            class_name = railString.substring(railString.indexOf('[') + 1, railString.lastIndexOf(']'));
+            String[] names;
+            String package_name = "";
+            String type_name = "";
+            int dim = 1;
+            while (true) {
+                names = getPackageAndTypeName(class_name);
+                package_name = names[0];
+                type_name = names[1];
+                if ( ! (package_name.equals("x10.lang") && type_name.indexOf("Rail[") == 0
+                        ||  package_name.equals("x10.util") && type_name.indexOf("GrowableRail[") == 0)) {
+                    class_name = type_name;
+                    break;
+                }
+                class_name = type_name.substring(type_name.indexOf('[') + 1, type_name.lastIndexOf(']'));
+                ++dim;
+            }
             if (RoseTranslator.isX10Primitive(class_name))
                 package_name = "";
             if (package_name.length() != 0) {
@@ -1309,7 +1323,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 JNI.cactionPopPackage();
             }
             JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
-            JNI.cactionArrayTypeReference(1, RoseTranslator.createJavaToken());
+            JNI.cactionArrayTypeReference(dim, RoseTranslator.createJavaToken());
         } else if (n.node().toString().indexOf("{self") >= 0) {
             class_name = n.node().toString();
             int index = class_name.indexOf("[");
