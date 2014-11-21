@@ -153,7 +153,7 @@ public class DistArrayRcast extends DistArrayRemoteCopy {
 	 * @param smlist 		distributed storage for copies of compress array in all places
 	 */
 	public static def rcast(smlist:DistCompArray): void {
-		rcast(smlist, smlist(here.id()).count());
+		rcast(smlist, smlist(here.id()).count);
 	}
 
 	/**

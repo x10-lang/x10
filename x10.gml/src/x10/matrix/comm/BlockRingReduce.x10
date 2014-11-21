@@ -63,7 +63,8 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			//Romte capture: distBS(), rootbid, colCnt
 			val dmap = distBS().getDistMap();
 			val grid = distBS().getGrid();
-			val plst =  CastPlaceMap.buildPlaceList(grid, dmap, rootbid, select); 
+			// TODO: is Place.places() the proper parameter below?
+			val plst =  CastPlaceMap.buildPlaceList(grid, dmap, rootbid, select, Place.places()); 
 			//Root is the first in the list
 			assert (plst(0)==rootpid) :
                 "RingCast place list must starts with root place id";
