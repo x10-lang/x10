@@ -99,6 +99,23 @@ public class Allreduce extends x10Test {
             }
         }
 
+        // allreduce on user-defined Arithmetic type
+        val src4 = new Rail[MyData](count, (i:long)=>MyData((here.id+1) as Double * i * i));
+        val dst4 = new Rail[MyData](count, (i:long)=>MyData(-i as Double));     
+        {
+            team.allreduce(src4, 0L, dst4, 0L, count, Team.ADD);
+
+            val oracle_base = ((team.size()*team.size() + team.size())/2) as Double;
+            for (i in 0..(count-1)) {
+                val oracle:double = oracle_base * i * i;
+                if (dst4(i).v != oracle) {
+                    Console.OUT.printf("Team %d place %d received invalid sum %f at %d instead of %f\n",
+                                       team.id(), here.id, dst4(i).v, i, oracle);
+                    success = false;
+                }
+            }
+        }
+
         val reducedSuccess = team.allreduce(success ? 1 : 0, Team.AND);
 
         team.barrier();
@@ -111,6 +128,15 @@ public class Allreduce extends x10Test {
 
         if (!success) at (res.home) res().set(false);
 
+    }
+
+    static struct MyData(v:Double) implements Arithmetic[MyData] {
+        public operator + this = this;
+        public operator - this = MyData(-this.v);
+        public operator this + (x:MyData) = MyData(this.v + x.v);
+        public operator this - (x:MyData) = MyData(this.v - x.v);
+        public operator this * (x:MyData) = MyData(this.v * x.v);
+        public operator this / (x:MyData) = MyData(this.v / x.v);
     }
 
     public def run(): boolean {

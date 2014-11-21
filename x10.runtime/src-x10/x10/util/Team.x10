@@ -319,12 +319,57 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-    public def reduce[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
+    public def reduce[T](root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
+    }
+
+    /* 
+     * horrible hack - we want to use native (MPI) implementations for builtin
+     * struct types, but X10 implementations for user-defined struct types
+     */
+    public def reduce(root:Place, src:Rail[Byte], src_off:Long, dst:Rail[Byte], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[UByte], src_off:Long, dst:Rail[UByte], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[Short], src_off:Long, dst:Rail[Short], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[UShort], src_off:Long, dst:Rail[UShort], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[Int], src_off:Long, dst:Rail[Int], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[UInt], src_off:Long, dst:Rail[UInt], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[Long], src_off:Long, dst:Rail[Long], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[ULong], src_off:Long, dst:Rail[ULong], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[Float], src_off:Long, dst:Rail[Float], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+    public def reduce(root:Place, src:Rail[Double], src_off:Long, dst:Rail[Double], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
+
+    /** 
+     * Implementation of reduce for builtin struct types (Int, Double etc.)
+     */
+    private def reduce_builtin[T](root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             finish nativeReduce(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
         } else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            if (DEBUG) Runtime.println(here + " entering pre-reduce barrier on team "+id);
             barrier();
+            if (DEBUG) Runtime.println(here + " entering native reduce on team "+id);
             finish nativeReduce(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
+            if (DEBUG) Runtime.println(here + " Finished native reduce on team "+id);
         } else {
             state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
         }
@@ -355,6 +400,8 @@ public struct Team {
     public def reduce (root:Place, src:Float, op:Int) = genericReduce(root, src, op);
     /** Performs a reduction on a single value, returning the result at the root */
     public def reduce (root:Place, src:Double, op:Int) = genericReduce(root, src, op);
+    /** Performs a reduction on a single value, returning the result at the root */
+    public def reduce[T](root:Place, src:T, op:Int) = genericReduce(root, src, op);
 
     private def genericReduce[T] (root:Place, src:T, op:Int) : T {
         val chk = new Rail[T](1, src);
@@ -383,7 +430,49 @@ public struct Team {
      *
      * @param op The operation to perform
      */
-    public def allreduce[T] (src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int) : void {
+    public def allreduce[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, Place.FIRST_PLACE, src, src_off, dst, dst_off, count, op);
+    }
+
+    /* 
+     * horrible hack - we want to use native (MPI) implementations for builtin
+     * struct types, but X10 implementations for user-defined struct types
+     */
+    public def allreduce(src:Rail[Byte], src_off:Long, dst:Rail[Byte], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[UByte], src_off:Long, dst:Rail[UByte], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[Short], src_off:Long, dst:Rail[Short], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[UShort], src_off:Long, dst:Rail[UShort], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[Int], src_off:Long, dst:Rail[Int], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[UInt], src_off:Long, dst:Rail[UInt], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[Long], src_off:Long, dst:Rail[Long], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[ULong], src_off:Long, dst:Rail[ULong], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[Float], src_off:Long, dst:Rail[Float], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+    public def allreduce(src:Rail[Double], src_off:Long, dst:Rail[Double], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
+
+    /** 
+     * Implementation of allreduce for builtin struct types (Int, Double etc.)
+     */
+    private def allreduce_builtin[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
@@ -424,6 +513,8 @@ public struct Team {
     public def allreduce (src:Float, op:Int) = genericAllreduce(src, op);
     /** Performs a reduction on a single value, returning the result */
     public def allreduce (src:Double, op:Int) = genericAllreduce(src, op);
+    /** Performs a reduction on a single value, returning the result */
+    public def allreduce[T](src:T, op:Int) = genericAllreduce(src, op);
 
     private def genericAllreduce[T] (src:T, op:Int) : T {
         val chk = new Rail[T](1, src);
