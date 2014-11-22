@@ -32,6 +32,10 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
         this.max1 = max1;
     }
 
+    public operator this * (that:LongRange):DenseIterationSpace_3{self!=null} {
+        return new DenseIterationSpace_3(min0, min1, that.min, max0, max1, that.max);
+    }
+
     public def min(i:Long):Long {
        if (i == 0) return min0;
        if (i == 1) return min1;
