@@ -2780,6 +2780,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
                 w.write(".");
             }
+            else {
+                tr.print(n, target, w);
+                w.write(".");
+            }
             tr.print(n, n.name(), w);
             if (closeParen) w.write(")");
             w.end();
