@@ -24,6 +24,7 @@ import x10.matrix.comm.ArrayReduce;
 
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.Snapshottable;
+import x10.util.resilient.VectorSnapshotInfo;
 
 public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};
@@ -413,18 +414,23 @@ public class DupVector(M:Long) implements Snapshottable {
     /*
      * Snapshot mechanism
      */
-    private transient val DUMMY_KEY:Long = 8888L;   
+    private transient val DUMMY_KEY:Long = 8888L;
 
-    public def makeSnapshot():DistObjectSnapshot[Any,Any] {        
-        val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();        
+    public def makeSnapshot():DistObjectSnapshot {
+        //val startTime = Timer.milliTime();
+        val snapshot = DistObjectSnapshot.make();        
         val data = dupV();
-        snapshot.save(DUMMY_KEY, data);
+        val placeIndex  = 0;
+        snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex, data.d));
+        //Console.OUT.println("DupVector.SnapshotTime["+(Timer.milliTime() - startTime)+"]");
         return snapshot;
     }
 
-    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
-        val data:Vector = snapshot.load(DUMMY_KEY) as Vector;
-        data.copyTo(dupV());
+    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
+        //val startTime = Timer.milliTime();        
+        val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
+        new Vector(dupSnapshotInfo.data).copyTo(dupV());
         sync();
-    }   
+        //Console.OUT.println("DupVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
+    }
 }

@@ -17,8 +17,8 @@ import x10.matrix.util.Debug;
 public class ResilientStoreForApp {
     class SnapshottableEntryKey(snapshottable:Snapshottable, keepOldSnapshot:Boolean) { }
 
-    private val snapshots = new Rail[HashMap[SnapshottableEntryKey,DistObjectSnapshot[Any,Any]]](2, (Long)=>new x10.util.HashMap[SnapshottableEntryKey,DistObjectSnapshot[Any,Any]]());
-    private var tempSnapshot:HashMap[SnapshottableEntryKey,DistObjectSnapshot[Any,Any]] = null;
+    private val snapshots = new Rail[HashMap[SnapshottableEntryKey,DistObjectSnapshot]](2, (Long)=>new x10.util.HashMap[SnapshottableEntryKey,DistObjectSnapshot]());
+    private var tempSnapshot:HashMap[SnapshottableEntryKey,DistObjectSnapshot] = null;
     private transient var commitCount:Long = 0L;
     
     public def startNewSnapshot() {
@@ -36,7 +36,7 @@ public class ResilientStoreForApp {
         save(distObject, false);
     }
     
-    public def save(distObject:Snapshottable, snapshot:DistObjectSnapshot[Any,Any]) {
+    public def save(distObject:Snapshottable, snapshot:DistObjectSnapshot) {
         save(distObject, snapshot, false);
     }
     
@@ -46,10 +46,10 @@ public class ResilientStoreForApp {
         save(distObject, snapshot, keepOldSnapshot);
     }
     
-    public def save(distObject:Snapshottable, snapshot:DistObjectSnapshot[Any,Any], keepOldSnapshot:Boolean) {
+    public def save(distObject:Snapshottable, snapshot:DistObjectSnapshot, keepOldSnapshot:Boolean) {
         Debug.assure(tempSnapshot != null, "New snapshot should be started first");
         val snapshotKey = new SnapshottableEntryKey(distObject,keepOldSnapshot);
-        tempSnapshot.put(snapshotKey, snapshot);
+        atomic tempSnapshot.put(snapshotKey, snapshot);
     }
     
     public def commit() {
@@ -73,11 +73,13 @@ public class ResilientStoreForApp {
     public def restore() {
         val idx = commitCount % 2;
         val appSnapshot = snapshots(idx);
-        val iter = appSnapshot.keySet().iterator(); 
-        while (iter.hasNext()) {
-            val key = iter.next();
-            val distObjectSnapshot = appSnapshot.getOrElse(key, null);
-            key.snapshottable.restoreSnapshot(distObjectSnapshot);
+        val iter = appSnapshot.keySet().iterator();
+        finish{
+            while (iter.hasNext()) {
+                val key = iter.next();
+                val distObjectSnapshot = appSnapshot.getOrElse(key, null);
+                async key.snapshottable.restoreSnapshot(distObjectSnapshot);
+            }
         }
     }
 }

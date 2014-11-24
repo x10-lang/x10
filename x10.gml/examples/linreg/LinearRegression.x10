@@ -25,7 +25,6 @@ import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
-import x10.util.resilient.Snapshottable;
 
 /**
  * Parallel linear regression based on GML distributed
@@ -52,18 +51,17 @@ public class LinearRegression implements ResilientIterativeApp {
     private val chkpntIterations:Long;
 
     var norm_r2:Double;
+    var lastCheckpointNorm:Double;
     var iter:Long;
 
     //----Profiling-----
     public var parCompT:Long=0;
     public var seqCompT:Long=0;
     public var commT:Long;
-
-    private var appSnapshotInfo:LinearRegressionSnapshotInfo;
     private val nzd:Double;
 
     //the matrix snapshot should be taken only once
-    private var V_snapshot:DistObjectSnapshot[Any,Any];
+    private var V_snapshot:DistObjectSnapshot;
 
     public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
         iterations = it;
@@ -79,9 +77,6 @@ public class LinearRegression implements ResilientIterativeApp {
 
         w  = Vector.make(V.N);
 
-        if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
-            appSnapshotInfo = new LinearRegressionSnapshotInfo();
-        }
         this.chkpntIterations = chkpntIter;
 
         nzd = sparseDensity;
@@ -172,32 +167,21 @@ public class LinearRegression implements ResilientIterativeApp {
         iter++;
     }
 
-    static class LinearRegressionSnapshotInfo implements Snapshottable {
-        public var norm:Double;
-
-        public def makeSnapshot():DistObjectSnapshot[Any,Any]{
-            val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
-            snapshot.save("norm",norm);
-            return snapshot;
+    public def checkpoint(resilientStore:ResilientStoreForApp) {       
+        resilientStore.startNewSnapshot();        
+        finish{
+            async {
+                if (V_snapshot == null)                    
+                    V_snapshot = V.makeSnapshot();                
+                resilientStore.save(V, V_snapshot, true);
+            }
+            async resilientStore.save(d_p);
+            async resilientStore.save(d_q);
+            async resilientStore.save(r);
+            async resilientStore.save(w);
         }
-
-        public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
-            norm = snapshot.load("norm") as Double;
-        }
-    }
-
-    public def checkpoint(resilientStore:ResilientStoreForApp) {
-        resilientStore.startNewSnapshot();
-        if (V_snapshot == null)
-            V_snapshot = V.makeSnapshot();
-        resilientStore.save(V, V_snapshot, true);
-        resilientStore.save(d_p);
-        resilientStore.save(d_q);
-        resilientStore.save(r);
-        resilientStore.save(w);
-        appSnapshotInfo.norm = norm_r2;
-        resilientStore.save(appSnapshotInfo);
         resilientStore.commit();
+        lastCheckpointNorm = norm_r2;
     }
 
     /**
@@ -206,7 +190,6 @@ public class LinearRegression implements ResilientIterativeApp {
     public def restore(newPg:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long) {
         val newRowPs = newPg.size();
         val newColPs = 1;
-        Console.OUT.println("Going to restore LinearReg app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
             V.remakeSparse(newRowPs, newColPs, nzd, newPg);
@@ -221,8 +204,8 @@ public class LinearRegression implements ResilientIterativeApp {
 
         //adjust the iteration number and the norm value
         iter = lastCheckpointIter;
-        norm_r2 = appSnapshotInfo.norm;
-        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"]");
+        norm_r2 = lastCheckpointNorm;
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
     }
     
     public def getMaxIterations():Long{

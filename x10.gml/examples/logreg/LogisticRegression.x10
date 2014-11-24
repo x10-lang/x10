@@ -21,7 +21,6 @@ import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
-import x10.util.resilient.Snapshottable;
 
 public class LogisticRegression implements ResilientIterativeApp {
     static val MAX_SPARSE_DENSITY = 0.1;
@@ -55,6 +54,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     var iter:Long =0;
     var converge:Boolean;
     var delta:Double;
+    var lastCheckpointDelta:Double;
     var norm_r2:Double; 
     var alpha:Double;    
     var obj:Double; // value does not change after being initialized
@@ -73,9 +73,8 @@ public class LogisticRegression implements ResilientIterativeApp {
     public var commUseTime:Long=0;
     
     private val chkpntIterations:Long;
-    private var appSnapshotInfo:LogRegressionSnapshotInfo;
     private val nzd:Double;
-    private var X_snapshot:DistObjectSnapshot[Any,Any];
+    private var X_snapshot:DistObjectSnapshot;
 
     public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Double, chkpntIter:Long, places:PlaceGroup) {
         X=x_;
@@ -85,24 +84,21 @@ public class LogisticRegression implements ResilientIterativeApp {
         dup_w  = DupVector.make(X.N, places);
 
         tmp_w  = Vector.make(X.N);
-        tmp_y  = DistVector.make(X.M, X.getAggRowBs(), places);
-        o      = DistVector.make(X.M, X.getAggRowBs(), places);
+        val rowBs = X.getAggRowBs();
+        tmp_y  = DistVector.make(X.M, rowBs, places);
+        o      = DistVector.make(X.M, rowBs, places);
         grad   = Vector.make(X.N);//w.clone();
         // Add temp memory space
         s      = Vector.make(X.N);
         r      = Vector.make(X.N);
         d      = Vector.make(X.N);
         Hd     = Vector.make(X.N);
-        onew   = DistVector.make(X.M, X.getAggRowBs(), places);
+        onew   = DistVector.make(X.M, rowBs, places);
         wnew   = Vector.make(X.N);
-        logisticnew = DistVector.make(X.M, X.getAggRowBs(), places);
+        logisticnew = DistVector.make(X.M, rowBs, places);
 
         maxiter = it;
         maxinneriter =nit;
-        
-        if (chkpntIter > 0 && Runtime.RESILIENT_MODE > 0) {
-            appSnapshotInfo = new LogRegressionSnapshotInfo();
-        }
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
     }
@@ -266,7 +262,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         iter = iter + 1;
         converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
         //             alphaScalar = castAsScalar(alpha)
-        val alphaScalar = alpha;    
+        val alphaScalar = alpha;
         if (rhoScalar < eta0){
             delta = Math.min(Math.max( alphaScalar , sigma1) * snorm, sigma2 * delta );            
         } else {
@@ -312,20 +308,6 @@ public class LogisticRegression implements ResilientIterativeApp {
         compute_tXmultB(Hd, tmp_y);
         Hd.scale(C).cellAdd(d);
     }
-
-    static class LogRegressionSnapshotInfo implements Snapshottable {
-        public var delta:Double;
-
-        public def makeSnapshot():DistObjectSnapshot[Any,Any]{
-            val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();
-            snapshot.save("delta", delta);
-            return snapshot;
-        }
-
-        public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]){
-            delta = snapshot.load("delta") as Double;
-        }
-    }
     
     public def isFinished():Boolean{
         return converge;
@@ -333,17 +315,20 @@ public class LogisticRegression implements ResilientIterativeApp {
     
     public def checkpoint(store:ResilientStoreForApp):void {        
         store.startNewSnapshot();
-        if (X_snapshot == null)
-            X_snapshot = X.makeSnapshot();
-        store.save(X, X_snapshot, true);
-        store.save(y);
-        store.save(grad);
-        store.save(o);
-        store.save(w);
-        store.save(logisticD);
-        appSnapshotInfo.delta = delta;    
-        store.save(appSnapshotInfo);        
+        finish {
+            async {
+        	    if (X_snapshot == null)
+            	    X_snapshot = X.makeSnapshot();
+        	    store.save(X, X_snapshot, true);
+            }
+            async store.save(y);
+            async store.save(grad);
+            async store.save(o);
+            async store.save(w);
+            async store.save(logisticD);
+        }
         store.commit();
+        lastCheckpointDelta = delta;
     }
 
     public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void{        
@@ -360,15 +345,15 @@ public class LogisticRegression implements ResilientIterativeApp {
         val rowBs = X.getAggRowBs();
         o.remake(rowBs, newPlaces);
         onew.remake(rowBs, newPlaces);
-        y.remake(X.getAggRowBs(), newPlaces);
-        tmp_y.remake(X.getAggRowBs(), newPlaces);
+        y.remake(rowBs, newPlaces);
+        tmp_y.remake(rowBs, newPlaces);
         logisticD.remake(rowBs, newPlaces);
         logisticnew.remake(rowBs, newPlaces);
         dup_w.remake(newPlaces);
 
         store.restore();
         iter = lastCheckpointIter;
-        delta = appSnapshotInfo.delta;
+        delta = lastCheckpointDelta;
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] delta["+delta+"] ...");
     }
     

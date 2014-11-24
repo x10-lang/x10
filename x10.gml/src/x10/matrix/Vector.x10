@@ -22,7 +22,7 @@ import x10.matrix.util.MathTool;
 import x10.matrix.util.RandTool;
 import x10.util.resilient.Snapshottable;
 import x10.util.resilient.DistObjectSnapshot;
-
+import x10.util.resilient.VectorSnapshotInfo;
 public type Vector(m:Long)=Vector{self.M==m};
 public type Vector(v:Vector)=Vector{self==v};
 
@@ -43,9 +43,9 @@ public type Vector(v:Vector)=Vector{self==v};
  */
 public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     /** Vector data */
-    public val d:Rail[Double]{self.size==M};
+    public val d:Rail[Double]{self!=null,self.size==M};
 
-    public def this(x:Rail[Double]):Vector(x.size) {
+    public def this(x:Rail[Double]{self!=null}):Vector(x.size) {
         property(x.size);
         this.d=x;
     }
@@ -444,7 +444,7 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
      }
 
     public static def lInfNorm(a:Vector, b:Vector(a.M)) = chebyshevDistance(a,b);
-     public def lInfNorm(V:Vector(M)) = chebyshevDistance(this, V);
+    public def lInfNorm(V:Vector(M)) = chebyshevDistance(this, V);
      
     /** Sum of all elements of this vector */
     public def sum():Double = reduce((a:Double,b:Double)=> {a+b}, 0.0);
@@ -585,15 +585,15 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
      */
     private transient val DUMMY_KEY:Long = 8888L;
 
-    public def makeSnapshot():DistObjectSnapshot[Any,Any] {        
-        val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();        
-        snapshot.save(DUMMY_KEY, d);
+    public def makeSnapshot():DistObjectSnapshot {        
+        val snapshot = DistObjectSnapshot.make();
+        val placeIndex:Long = 0;
+        snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex,d));
         return snapshot;
     }
 
-    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {
-        val data = snapshot.load(DUMMY_KEY) as Rail[Double]{self.size==M};
-        new Vector(data).copyTo(this);
+    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
+        val vectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;        
+        new Vector(vectorSnapshotInfo.data).copyTo(this);
     }
 }
-

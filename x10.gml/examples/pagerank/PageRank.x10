@@ -68,7 +68,7 @@ public class PageRank implements ResilientIterativeApp {
     private val chkpntIterations:Long;
     private val nzd:Double;    
     
-    private var G_snapshot:DistObjectSnapshot[Any,Any];
+    private var G_snapshot:DistObjectSnapshot;
     
     public def this(
             g:DistBlockMatrix{self.M==self.N}, 
@@ -179,12 +179,16 @@ public class PageRank implements ResilientIterativeApp {
 
     public def checkpoint(store:ResilientStoreForApp):void {
         store.startNewSnapshot();
-        if (G_snapshot == null)
-            G_snapshot = G.makeSnapshot();
-        store.save(G, G_snapshot, true);
-        store.save(P);
-        store.save(E);
-        store.save(U);
+        finish {
+            async {
+                if (G_snapshot == null)
+                    G_snapshot = G.makeSnapshot();
+                store.save(G, G_snapshot, true);
+            }
+            async store.save(P);
+            async store.save(E);
+            async store.save(U);
+        }
         store.commit();
     }
 

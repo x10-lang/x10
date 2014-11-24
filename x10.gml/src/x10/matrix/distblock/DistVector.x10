@@ -11,6 +11,7 @@
 
 package x10.matrix.distblock;
 
+import x10.util.Timer;
 import x10.compiler.Inline;
 import x10.regionarray.Dist;
 import x10.util.Pair;
@@ -27,6 +28,7 @@ import x10.matrix.comm.ArrayGather;
 import x10.matrix.comm.ArrayScatter;
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.Snapshottable;
+import x10.util.resilient.VectorSnapshotInfo;
 
 public type DistVector(m:Long)=DistVector{self.M==m};
 public type DistVector(v:DistVector)=DistVector{self==v};
@@ -47,6 +49,9 @@ public class DistVector(M:Long) implements Snapshottable {
 
     public def places() = places;
     
+    //oldSegSize used only for remake and restore
+    private var oldSegSize:Rail[Long];
+
     public def this(m:Long, vs:PlaceLocalHandle[Vector], segsz:Rail[Long], pg:PlaceGroup) {
         property(m);
         assert (segsz.size == pg.size()) :
@@ -482,7 +487,8 @@ public class DistVector(M:Long) implements Snapshottable {
             "number of vector segments must be equal to number of places";
         PlaceLocalHandle.destroy(places, distV, (Place)=>true);
         distV = PlaceLocalHandle.make[Vector](newPg, ()=>Vector.make(segsz(newPg.indexOf(here))));
-        segSize = segsz;        
+        oldSegSize = segSize;
+        segSize = segsz;
         PlaceLocalHandle.destroy(places, distData, (Place)=>true);
         distData = PlaceLocalHandle.make[Rail[Double]](newPg, ()=>distV().d);
         places = newPg;
@@ -490,51 +496,52 @@ public class DistVector(M:Long) implements Snapshottable {
     
     public def remake(newPg:PlaceGroup){
         val m = M;
+        oldSegSize = segSize;
         val segNum = newPg.size;
         val slst = new Rail[Long](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int));
         remake (slst, newPg);
     }
-    
-    static class DistVectorSnapshotInfo (placeIndex:Long,v:Vector, segsz:Rail[Long]) {}
-    public def makeSnapshot():DistObjectSnapshot[Any,Any]{        
-        val snapshot:DistObjectSnapshot[Any, Any] = DistObjectSnapshot.make[Any,Any]();              
-        val segments = segSize;
-        finish for (pl in places) {
-            at (pl) async {
-                val i = places.indexOf(here);
-                val data = distV();
-                //the segSize should only be saved only at place 0
-                val distVecInfo:DistVectorSnapshotInfo;
-                if (i == 0)
-                    distVecInfo = new DistVectorSnapshotInfo(i, data, segments);
-                else
-                    distVecInfo = new DistVectorSnapshotInfo(i, data, null);
-        
-                snapshot.save(i, distVecInfo);
-            }
-        }        
+
+    public def makeSnapshot():DistObjectSnapshot{
+        //val startTime = Timer.milliTime();
+        val snapshot = DistObjectSnapshot.make();
+        finish ateach(pl in Dist.makeUnique(places)){
+            val i = places.indexOf(here);
+            val data = distV();
+            //the segSize should only be saved only at place 0
+            val distVecInfo = new VectorSnapshotInfo(i, data.d);
+            snapshot.save(i, distVecInfo);
+        }
+        //Console.OUT.println("DistVector.SnapshotTime["+(Timer.milliTime() - startTime)+"]");
         return snapshot;
     }
     
-    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]) {        
-        val savedP0Info = snapshot.load(0) as DistVectorSnapshotInfo; //loading the snapshot at place 0
-        val segmentSizes = savedP0Info.segsz;        
-        val cached = PlaceLocalHandle.make[Cell[DistVectorSnapshotInfo]](places, ()=>new Cell[DistVectorSnapshotInfo](null));    
-        val initFunc = (i:Long)=>{            
-            val loc = find(i, segmentSizes);    
+    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
+        //val startTime = Timer.milliTime();
+        val segmentSizes = oldSegSize;
+        val newSegmentsOffsets = new Rail[Long](places.size());
+        newSegmentsOffsets(0) = 0;
+        for (var i:Long = 1; i < places.size(); i++){
+            for (var j:Long = 0; j < i; j++){
+                newSegmentsOffsets(i) += segSize(j);
+            }
+        }
+        val cached = PlaceLocalHandle.make[Cell[VectorSnapshotInfo]](places, ()=>new Cell[VectorSnapshotInfo](null));    
+        val initFunc = (i:Long)=>{
+            val myPlaceSegmentOffset = newSegmentsOffsets(places.indexOf(here));
+            val loc = find(i+myPlaceSegmentOffset, segmentSizes);    
             val loadPlaceIndex = loc.first;
-            val offset = loc.second;           
-        
-            var cashedObj:DistVectorSnapshotInfo = cached()();            
+            val offset = loc.second;
+            var cashedObj:VectorSnapshotInfo = cached()();            
             if ( (cashedObj==null) || (cashedObj.placeIndex!=loadPlaceIndex))
-                cashedObj = snapshot.load(loadPlaceIndex) as DistVectorSnapshotInfo;
+                cashedObj = snapshot.load(loadPlaceIndex) as VectorSnapshotInfo;
+            val data =cashedObj.data;
         
-            val vec =cashedObj.v;
-        
-            return vec(offset);            
-        };  
-        
+            return data(offset);            
+        };
         init(initFunc);
-        PlaceLocalHandle.destroy(places, cached, (Place)=>true);        
+        PlaceLocalHandle.destroy(places, cached, (Place)=>true);       
+        oldSegSize = null;
+        //Console.OUT.println("DistVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
     }
 }

@@ -26,6 +26,8 @@ public class ResilientExecutor {
     private var checkpointCount:Long = 0;
     private var restoreTime:Long = 0;
     private var restoreCount:Long = 0;
+    private var stepExecTime:Long = 0;
+    private var stepExecCount:Long = 0;
     
     public def this(itersPerCheckpoint:Long) {
         places = Place.places();
@@ -41,9 +43,9 @@ public class ResilientExecutor {
     public def run(app:ResilientIterativeApp) {
         val startRun = Timer.milliTime();
 
-        val rand = new Random(System.nanoTime());
-        val killIter:Long = rand.nextLong(app.getMaxIterations()-1) + 1;
-        val killPlaceIndex:Long = rand.nextLong(places.size()-1) + 1;
+        //val rand = new Random(System.nanoTime());
+        val killIter:Long = app.getMaxIterations()/2; //rand.nextLong(app.getMaxIterations()-1) + 1;
+        val killPlaceIndex:Long = places.size()/2; //rand.nextLong(places.size()-1) + 1;
         
         var restoreRequired:Boolean = false;
         var simulatePlaceDeathDone:Boolean = false;
@@ -51,7 +53,14 @@ public class ResilientExecutor {
         var iter:Long = 0;
         var lastCheckpointIter:Long = -1;
 
-        // TODO checkpoint before first iter?
+        // Checkpoint before first iter
+        if (isResilient){            
+            val startFirstCheckpoint = Timer.milliTime();
+            app.checkpoint(store);
+            lastCheckpointIter = iter;
+            checkpointTime += (Timer.milliTime() - startFirstCheckpoint);
+            checkpointCount++;            
+        }
 
         while (!app.isFinished()) {
             try {
@@ -60,12 +69,7 @@ public class ResilientExecutor {
                         val startRestore = Timer.milliTime();
                         val newPG = places.filterDeadPlaces();
 
-                        if (VERBOSE) {
-                            Console.OUT.println("restoring at iter " + lastCheckpointIter);
-                            Console.OUT.println("The place group after filtering the dead ...");
-                            for (p in newPG)
-                                Console.OUT.println(p);
-                        }
+                        if (VERBOSE) Console.OUT.println("restoring at iter " + lastCheckpointIter);
 
                         app.restore(newPG, store, lastCheckpointIter);
                         iter = lastCheckpointIter;
@@ -75,7 +79,7 @@ public class ResilientExecutor {
                         restoreCount++;
                     } else {
                         throw new UnsupportedOperationException("failure occurred at iter "
-                             + iter + " but no valid checkpoint exists!");
+                            + iter + " but no valid checkpoint exists!");
                     }
                 }
 
@@ -90,39 +94,47 @@ public class ResilientExecutor {
                         System.killHere();
                     }
                 }
-
+                val startStep = Timer.milliTime();
                 app.step();
+                stepExecTime += (Timer.milliTime() - startStep);
+                stepExecCount++;
 
                 iter++;
 
                 if (isResilient && (iter % itersPerCheckpoint) == 0) {
                     if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
                     try {
-                        val startCheckpoint = Timer.milliTime();
-                        app.checkpoint(store);
-                        lastCheckpointIter = iter;
-                        checkpointTime += (Timer.milliTime() - startCheckpoint);
-                        checkpointCount++;
+                    val startCheckpoint = Timer.milliTime();
+                    app.checkpoint(store);
+                    lastCheckpointIter = iter;
+                    checkpointTime += (Timer.milliTime() - startCheckpoint);
+                    checkpointCount++;
                     } catch (deadExp:DeadPlaceException) {
                         store.cancelSnapshot();
                     }
                 }
-            } catch (deadExp:DeadPlaceException) {
-                deadExp.printStackTrace();
-                if (!isResilient)
-                    throw deadExp;
-                else
+            } catch (dpe:DeadPlaceException) {
+                dpe.printStackTrace();
+                if (!isResilient) {
+                    throw dpe;
+                } else {
                     restoreRequired = true;
+                }
             } catch (mulExp:MultipleExceptions) {
-                mulExp.printStackTrace();
-                val deadPlaceExceptions = (mulExp as MultipleExceptions).getExceptionsOfType[DeadPlaceException]();
-                if (isResilient & deadPlaceExceptions.size > 0)
+                if (isResilient) {
+                    val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
+                    if (filtered != null) throw filtered;
+                    val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
+                    for (dpe in deadPlaceExceptions) {
+                        dpe.printStackTrace();
+                    }
                     restoreRequired = true;
-                else
+                } else {
                     throw mulExp;
+                }
             }
         }
-        runTime += (Timer.milliTime() - startRun);
-        Console.OUT.println("ResilientExecutor completed,  RunTime["+runTime+"] checkpointCount["+checkpointCount+"] checkpointTime["+checkpointTime+"] restoreCount["+restoreCount+"] restoreTime["+restoreTime+"] ...");
+        runTime = (Timer.milliTime() - startRun);
+        Console.OUT.println("ResilientExecutor completed:checkpointTime:"+checkpointTime+":restoreTime:"+restoreTime+":stepsTime:"+stepExecTime+":AllTime:"+runTime+":checkpointCount:"+checkpointCount+":restoreCount:"+restoreCount+":stepsCount:"+stepExecCount);
     }
 }

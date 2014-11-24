@@ -25,6 +25,8 @@ import x10.matrix.block.DenseBlock;
 import x10.matrix.block.SparseBlock;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.util.Debug;
+import x10.matrix.sparse.SparseCSC;
+import x10.matrix.DenseMatrix;
 
 /**
  * This class provides implementation of list of matrix blocks stored in on place.
@@ -779,5 +781,160 @@ public class BlockSet  {
         }
         Console.OUT.println(outstr.toString());
         Console.OUT.flush();
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////Utility Methods to Remote Copy Blockset/////////////////////////////
+    private static val META_DATA_SIZE=7;
+    public def getBlocksMetaData() {
+        val blocksCount = blocklist.size();
+        val metaDataRail = new Rail[Long](blocksCount*META_DATA_SIZE);
+        var metaDataRailIndex:Long = 0;        
+        val blkitr = this.iterator();        
+        val srcColOff = 0;
+        while (blkitr.hasNext()){
+            val src = blkitr.next();
+            val srcmat = src.getMatrix();
+            metaDataRail(metaDataRailIndex++) = src.myRowId;  
+            metaDataRail(metaDataRailIndex++) = src.myColId;
+            metaDataRail(metaDataRailIndex++) = src.rowOffset;
+            metaDataRail(metaDataRailIndex++) = src.colOffset;                 
+            metaDataRail(metaDataRailIndex++) = srcmat.M;
+            metaDataRail(metaDataRailIndex++) = srcmat.N;            
+            if (src instanceof SparseBlock){
+                val sparsemat:SparseCSC = srcmat as SparseCSC;                
+                metaDataRail(metaDataRailIndex++) =  src.getIndex().size;                
+            }
+            else{
+                val densemat:DenseMatrix = srcmat as DenseMatrix;
+                metaDataRail(metaDataRailIndex++) = densemat.d.size;                
+            }
+            
+        }
+        return metaDataRail;
+    }
+    
+    public static def makeBlocksFromMetaData(metaDataRail:Rail[Long], blocksCount:Long, isSparse:Boolean) {
+        val blocksList = new ArrayList[MatrixBlock]();
+        var remoteMetaDataRailIndex:Long = 0;
+        for (var i:Long = 0; i < blocksCount; i++){        
+            val mIndex = i*META_DATA_SIZE;
+            val rowBlockId:Long = metaDataRail(mIndex);
+            val colBlockId:Long = metaDataRail(mIndex+1);
+            val rowOffset:Long = metaDataRail(mIndex+2);
+            val colOffset:Long = metaDataRail(mIndex+3);
+            val matM = metaDataRail(mIndex+4);
+            val matN = metaDataRail(mIndex+5);            
+            val datcnt = metaDataRail(mIndex+6); // the block's data count can be less than the index size of the block                        
+            var blk:MatrixBlock;
+            if (isSparse)
+                blk = SparseBlock.make(rowBlockId, colBlockId, rowOffset, colOffset, matM, matN, datcnt);
+            else
+                blk = DenseBlock.make(rowBlockId, colBlockId, rowOffset, colOffset, matM, matN);            
+            blocksList.add(blk);
+        }
+        return blocksList;
+    }
+    
+    
+    public def getStorageSize():Long{
+        var totalSize:Long = 0;
+        val blkitr = this.iterator();       
+        while (blkitr.hasNext()){
+            val blk = blkitr.next();            
+            totalSize += blk.getStorageSize();
+        }
+        return totalSize;
+    }
+    
+    public def flattenIndex(allBlocksIndex:Rail[Long]){
+        val blkitr = this.iterator();
+        var destIndex:Long = 0;
+        while (blkitr.hasNext()){
+            val src = blkitr.next();
+            val idxbuf = src.getIndex() as Rail[Long]{self!=null};
+            Rail.copy(idxbuf, 0, allBlocksIndex,destIndex,idxbuf.size);
+            destIndex+= src.getIndex().size;
+        }
+    }
+    
+    public def flattenValue(allBlocksValue:Rail[Double]){
+        val blkitr = this.iterator();
+        var destIndex:Long = 0;
+        while (blkitr.hasNext()){
+            val src = blkitr.next();
+            val valbuf = src.getData() as Rail[Double]{self!=null};
+            Rail.copy(valbuf, 0, allBlocksValue,destIndex,valbuf.size);
+            destIndex+= src.getData().size;
+        }
+    }
+    
+    public def initSparseBlocksRemoteCopyAtSource(){
+        val blkitr = this.iterator();       
+        while (blkitr.hasNext()){
+            val blk = blkitr.next();
+            val sparsemat:SparseCSC = blk.getMatrix() as SparseCSC;
+            sparsemat.initRemoteCopyAtSource(0, sparsemat.N);
+        }
+    }
+    
+    public def finalizeSparseBlocksRemoteCopyAtSource(){
+        val blkitr = this.iterator();       
+        while (blkitr.hasNext()){
+            val blk = blkitr.next();
+            val sparsemat:SparseCSC = blk.getMatrix() as SparseCSC;
+            sparsemat.finalizeRemoteCopyAtSource();
+        }
+    }
+    
+    public static def remoteMakeSparseBlockSet(blocksCount:Long, metaDataSize:Long, totalSize:Long, mGR:GlobalRail[Long], idxGR:GlobalRail[Long], valGR:GlobalRail[Double]):BlockSet{
+        val metaDataTarget = new Rail[Long](metaDataSize);
+        val allIndexTarget = new Rail[Long](totalSize);
+        val allValueTarget = new Rail[Double](totalSize);
+        finish{
+            Rail.asyncCopy[Long](mGR, 0, metaDataTarget, 0, metaDataSize);
+            Rail.asyncCopy[Long](idxGR, 0, allIndexTarget, 0, totalSize);
+            Rail.asyncCopy[Double](valGR, 0, allValueTarget, 0, totalSize);
+        }    
+        val blocksList = BlockSet.makeBlocksFromMetaData(metaDataTarget, blocksCount, true);                
+        var offset:Long = 0;
+        for (var i:Long = 0; i < blocksCount; i++){        
+            val blk = blocksList.get(i);
+            val dstspa = blk.getMatrix() as SparseCSC;
+            val indexValueSize = blk.getIndex().size;
+            val dstColOff = 0;
+            val colCnt = dstspa.N;   
+            val datcnt = indexValueSize;
+            dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datcnt);  
+            finish{
+                async Rail.copy(allIndexTarget, offset, dstspa.getIndex(),0 , indexValueSize);    
+                async Rail.copy(allValueTarget, offset, dstspa.getValue(),0 , indexValueSize);                
+            }
+            dstspa.finalizeRemoteCopyAtDest();
+            offset += indexValueSize;
+        }
+        val newBlockSet = new BlockSet(null, null, null);
+        newBlockSet.blocklist.addAll(blocksList);
+        return newBlockSet;
+    }
+   
+    public static def remoteMakeDenseBlockSet(blocksCount:Long, metaDataSize:Long, totalSize:Long, mGR:GlobalRail[Long], valGR:GlobalRail[Double]):BlockSet{
+        val metaDataTarget = new Rail[Long](metaDataSize);
+        val allValueTarget = new Rail[Double](totalSize);
+        finish{
+            Rail.asyncCopy[Long](mGR, 0, metaDataTarget, 0, metaDataSize);    
+            Rail.asyncCopy[Double](valGR, 0, allValueTarget, 0, totalSize);
+        }
+        val blocksList = BlockSet.makeBlocksFromMetaData(metaDataTarget, blocksCount, false);                
+        var offset:Long = 0;
+        for (var i:Long = 0; i < blocksCount; i++){        
+            val blk = blocksList.get(i);
+            val dataSize = blk.getStorageSize();
+            Rail.copy(allValueTarget, offset, blk.getData(), 0, dataSize);
+            offset += dataSize;
+        }
+        val newBlockSet = new BlockSet(null, null, null);
+        newBlockSet.blocklist.addAll(blocksList);
+        return newBlockSet;
     }
 }
