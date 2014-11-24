@@ -1241,7 +1241,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             if (package_.length() == 0)
                 break;
             
-            if (class_name.indexOf(package_) == 0) {
+            if (class_name.indexOf(package_) == 0 && class_name.length() != package_.length()) {
                 package_name = package_;
                 type_name = class_name.substring(package_name.length()+1);            
                 // reset package name if type name is ""
