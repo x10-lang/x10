@@ -11,23 +11,27 @@
 package x10.lang;
 import x10.compiler.*;
 import x10.util.concurrent.SimpleLatch;
+import x10.array.Array_2;
+import x10.array.Array_3;
 
-/*
+/**
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
 class FinishResilientPlace0 extends FinishResilient {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
+
+    private static val AT = 0;
+    private static val ASYNC = 1;
+    private static val AT_AND_ASYNC = AT..ASYNC;
     
-    // FIXME: Once we stabilize the implementation, switch to using Array_2
-    //        instead of Rail for the logically 2-D arrays.
     private static class State { // data stored at Place0
         val NUM_PLACES = Place.numPlaces();
-        val transit = new Rail[Int](NUM_PLACES * NUM_PLACES, 0n);
-        val transitAdopted = new Rail[Int](NUM_PLACES * NUM_PLACES, 0n);
-        val live = new Rail[Int](NUM_PLACES, 0n);
-        val liveAdopted = new Rail[Int](NUM_PLACES, 0n);
+        val transit = new Array_3[Int](NUM_PLACES, NUM_PLACES, 2);
+        val transitAdopted = new Array_3[Int](NUM_PLACES, NUM_PLACES, 2);
+        val live = new Array_2[Int](NUM_PLACES, 2);
+        val liveAdopted = new Array_2[Int](NUM_PLACES, 2);
         val excs = new x10.util.GrowableRail[CheckedThrowable](); // exceptions to report
         val children = new x10.util.GrowableRail[Long](); // children
         var adopterId:Long = -1; // adopter (if adopted)
@@ -71,7 +75,7 @@ class FinishResilientPlace0 extends FinishResilient {
             val id = states.size();
             val state = new State(parentId, gLatch);
             states.add(state);
-            state.live(gLatch.home.id) = 1n; // for myself, will be decremented in waitForFinish
+            state.live(gLatch.home.id,ASYNC) = 1n; // for myself, will be decremented in waitForFinish
             if (parentId != -1) states(parentId).children.add(id);
             return id;
         }});
@@ -80,6 +84,7 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug("<<<< make returning fs="+fs);
         return fs;
     }
+
     static def notifyPlaceDeath():void {
         if (verbose>=1) debug(">>>> notifyPlaceDeath called");
         if (here != place0) {
@@ -94,17 +99,23 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifySubActivitySpawn(place:Place):void {
+        notifySubActivitySpawn(place, ASYNC);
+    }
+    def notifyShiftedActivitySpawn(place:Place):void {
+        notifySubActivitySpawn(place, AT);
+    }
+    def notifySubActivitySpawn(place:Place, kind:long):void {
         val srcId = here.id, dstId = place.id;
         if (dstId != srcId) hasRemote = true;
-        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         lowLevelAt(place0, ()=>{ atomic {
             val state = states(id);
             if (!state.isAdopted()) {
-                state.transit(srcId*state.NUM_PLACES + dstId)++;
+                state.transit(srcId, dstId, kind)++;
             } else {
                 val adopterId = getCurrentAdopterId(id);
                 val adopterState = states(adopterId);
-                adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)++;
+                adopterState.transitAdopted(srcId, dstId, kind)++;
             }
             if (verbose>=3) state.dump("DUMP id="+id);
         }});
@@ -121,9 +132,12 @@ class FinishResilientPlace0 extends FinishResilient {
      * be received (unless dstId's place fails, in which case it doesn't matter).
      */
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, ASYNC);
+    }
+    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:long):Boolean {
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         if (srcPlace.isDead()) {
             if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
             return false;
@@ -134,13 +148,13 @@ class FinishResilientPlace0 extends FinishResilient {
             atomic {
                 val state = states(id);
                 if (!state.isAdopted()) {
-                    state.live(dstId)++;
-                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    state.live(dstId, kind)++;
+                    state.transit(srcId, dstId, kind)--;
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
-                    adopterState.liveAdopted(dstId)++;
-                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    adopterState.liveAdopted(dstId, kind)++;
+                    adopterState.transitAdopted(srcId, dstId, kind)--;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
             };
@@ -159,9 +173,15 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreationBlocking(srcPlace, activity, ASYNC);
+    }
+    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreationBlocking(srcPlace, activity, AT);
+    }
+    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity, kind:long):Boolean {
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         if (srcPlace.isDead()) {
             if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
             return false;
@@ -171,13 +191,13 @@ class FinishResilientPlace0 extends FinishResilient {
             atomic {
                 val state = states(id);
                 if (!state.isAdopted()) {
-                    state.live(dstId)++;
-                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    state.live(dstId, kind)++;
+                    state.transit(srcId, dstId, kind)--;
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
-                    adopterState.liveAdopted(dstId)++;
-                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    adopterState.liveAdopted(dstId, kind)++;
+                    adopterState.transitAdopted(srcId, dstId, kind)--;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
             }
@@ -187,22 +207,25 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
+        notifyActivityCreationFailed(srcPlace, t, ASYNC);
+    }
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable, kind:long):void { 
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         at (place0) @Immediate("notifyActivityCreationFailed_to_zero") async {
             atomic {
                 if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
-                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    state.transit(srcId, dstId, kind)--;
                     state.excs.add(t);
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
-                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    adopterState.transitAdopted(srcId, dstId, kind)--;
                     adopterState.excs.add(t);
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
@@ -213,21 +236,24 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+        notifyActivityCreatedAndTerminated(srcPlace, ASYNC);
+    }
+    def notifyActivityCreatedAndTerminated(srcPlace:Place, kind:long) {
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         at (place0) @Immediate("notifyActivityCreatedAndTerminated_to_zero") async {
             atomic {
                 if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
-                    state.transit(srcId*state.NUM_PLACES + dstId)--;
+                    state.transit(srcId, dstId, kind)--;
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
-                    adopterState.transitAdopted(srcId*state.NUM_PLACES + dstId)--;
+                    adopterState.transitAdopted(srcId, dstId, kind)--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
             };
@@ -237,19 +263,25 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     def notifyActivityTermination():void {
+        notifyActivityTermination(ASYNC);
+    }
+    def notifyShiftedActivityCompletion():void {
+        notifyActivityTermination(AT);
+    }
+    def notifyActivityTermination(kind:long):void {
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId+" kind="+kind);
         at (place0) @Immediate("notifyActivityTermination_to_zero") async {
             atomic {
                 if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
-                    state.live(dstId)--;
+                    state.live(dstId, kind)--;
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
-                    adopterState.liveAdopted(dstId)--;
+                    adopterState.liveAdopted(dstId, kind)--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
             }
@@ -264,10 +296,11 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
     }
+
     def waitForFinish():void {
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
         // terminate myself
-        notifyActivityTermination(); // TOOD: merge this to the following lowLevelFetch
+        notifyActivityTermination(ASYNC); // TOOD: merge this to the following lowLevelFetch
 
         // get the latch to wait
         val gLatchCell = new Cell[GlobalRef[SimpleLatch]](GlobalRef(null as SimpleLatch));
@@ -322,6 +355,7 @@ class FinishResilientPlace0 extends FinishResilient {
         }
         return currentId;
     }
+
     private static def releaseLatch(id:Long) { // release the latch for this state
         assert here==place0; // should be called inside atomic
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
@@ -333,6 +367,7 @@ class FinishResilientPlace0 extends FinishResilient {
         });
         if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
+
     private static def quiescent(id:Long):Boolean {
         assert here==place0; // should be called inside atomic
         if (verbose>=2) debug("quiescent(id="+id+") called");
@@ -364,32 +399,35 @@ class FinishResilientPlace0 extends FinishResilient {
                 assert !childState.isAdopted();
                 childState.adopterId = id;
                 state.children.addAll(childState.children); // will be checked in the following iteration
-                for (i in 0..(state.NUM_PLACES-1)) {
-                    state.liveAdopted(i) += (childState.live(i) + childState.liveAdopted(i));
-                    for (j in 0..(state.NUM_PLACES-1)) {
-                        val idx = i*state.NUM_PLACES + j;
-                        state.transitAdopted(idx) += (childState.transit(idx) + childState.transitAdopted(idx));
+		for (k in AT_AND_ASYNC) {
+                    for (i in 0..(state.NUM_PLACES-1)) {
+                        state.liveAdopted(i,k) += (childState.live(i,k) + childState.liveAdopted(i,k));
+                        for (j in 0..(state.NUM_PLACES-1)) {
+                            state.transitAdopted(i, j, k) += (childState.transit(i, j, k) + childState.transitAdopted(i, j, k));
+                        }
                     }
                 }
             } // for (chIndex)
         }
+
         // 2 delete dead entries
         for (i in 0..(state.NUM_PLACES-1)) {
             if (Place.isDead(i)) {
-                for (unused in 1..state.live(i)) {
-                    if (verbose>=3) debug("adding DPE for live("+i+")");
+                for (1..state.live(i, ASYNC)) {
+                    if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
                     addDeadPlaceException(state, i);
                 }
-                state.live(i) = 0n; state.liveAdopted(i) = 0n;
+                state.live(i, AT) = 0n; state.liveAdopted(i, AT) = 0n;
+                state.live(i, ASYNC) = 0n; state.liveAdopted(i, ASYNC) = 0n;
                 for (j in 0..(state.NUM_PLACES-1)) {
-                    val idx = i*state.NUM_PLACES + j;
-                    state.transit(idx) = 0n; state.transitAdopted(idx) = 0n;
-                    val idx2 = j*state.NUM_PLACES + i;
-                    for (unused in 1..state.transit(idx2)) {
-                        if (verbose>=3) debug("adding DPE for transit("+j+","+i+")");
+                    state.transit(i,j, AT) = 0n; state.transitAdopted(i, j, AT) = 0n;
+                    state.transit(i,j, ASYNC) = 0n; state.transitAdopted(i, j, ASYNC) = 0n;
+                    for (1..state.transit(j,i,ASYNC)) {
+                        if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
                         addDeadPlaceException(state, i);
                     }
-                    state.transit(idx2) = 0n; state.transitAdopted(idx2) = 0n;
+                    state.transit(j,i,AT) = 0n; state.transitAdopted(j,i,AT) = 0n;
+                    state.transit(j,i,ASYNC) = 0n; state.transitAdopted(j,i,ASYNC) = 0n;
                 }
             }
         }
@@ -397,15 +435,15 @@ class FinishResilientPlace0 extends FinishResilient {
         // 3 quiescent check
         if (verbose>=3) state.dump("DUMP id="+id);
         var quiet:Boolean = true;
-        for (i in 0..(state.NUM_PLACES-1)) {
-            if (state.live(i) > 0) { quiet = false; break; }
-            if (state.liveAdopted(i) > 0) { quiet = false; break; }
-            for (j in 0..(state.NUM_PLACES-1)) {
-                val idx = i*state.NUM_PLACES + j;
-                if (state.transit(idx) > 0) { quiet = false; break; }
-                if (state.transitAdopted(idx) > 0) { quiet = false; break; }
+        outer: for (i in 0..(state.NUM_PLACES-1)) {
+            for (k in AT_AND_ASYNC) {
+                if (state.live(i,k) > 0) { quiet = false; break outer; }
+                if (state.liveAdopted(i,k) > 0) { quiet = false; break outer; }
+                for (j in 0..(state.NUM_PLACES-1)) {
+                    if (state.transit(i,j,k) > 0) { quiet = false; break outer; }
+                    if (state.transitAdopted(i,j,k) > 0) { quiet = false; break outer; }
+                }
             }
-            if (!quiet) break;
         }
         if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;

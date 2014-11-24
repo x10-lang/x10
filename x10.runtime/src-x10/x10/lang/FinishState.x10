@@ -43,6 +43,18 @@ abstract class FinishState {
      */
     abstract def notifySubActivitySpawn(dstPlace:Place):void;
 
+
+    /**
+     * Called by an activity running at the current Place when it
+     * is "shifting" execution to the dstPlace bacause of an 'at'.
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
+    def notifyShiftedActivitySpawn(dstPlace:Place):void {
+        notifySubActivitySpawn(dstPlace);
+    }
+
     /**
      * Called at the Place at which the argument activity will execute.
      * If this method returns true, the activity will be submitted to
@@ -59,6 +71,7 @@ abstract class FinishState {
      */
     abstract def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
 
+
     /**
      * Called at the Place at which the argument activity will execute.
      * If this method returns true, the activity should be submitted to
@@ -74,6 +87,25 @@ abstract class FinishState {
      *                  Therefore this variant is allowed to block/pause.
      */
     abstract def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
+
+
+    /**
+     * Called at the Place at which the argument activity will execute.
+     * If this method returns true, the activity should be submitted to
+     * the XRX Pool for execution. If this method returns false, the activity
+     * should not be submitted. 
+     * 
+     * Machinations: activity may actually be null when the XRX runtime
+     *               is calling this method to simulate the stages in the
+     *               Activity life-cycles from lowlevel code (eg implementation
+     *               of at or asyncCopy).
+     *
+     * Scheduling note: This variant may not be called on @Immediate worker.
+     *                  Therefore this variant is allowed to block/pause.
+     */
+    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreationBlocking(srcPlace, activity);
+    }
 
 
     /**
@@ -106,6 +138,19 @@ abstract class FinishState {
      *                  this method is allowed to block/pause.
      */
     abstract def notifyActivityTermination():void;
+
+    /**
+     * Called to indicate that the currently executing shifted activity 
+     * has terminated at the remote place successfully and is logically
+     * resuming back at its source Place.
+     *
+     * Scheduling note: Will only be called on a full-fledged worker thread;
+     *                  this method is allowed to block/pause.
+     */
+    def notifyShiftedActivityCompletion():void {
+        notifyActivityTermination();
+    }
+
 
     /**
      * Called to record the CheckedThrowable which caused the currently executing 

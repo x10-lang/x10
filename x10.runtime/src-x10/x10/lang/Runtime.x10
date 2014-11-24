@@ -1383,11 +1383,11 @@ public final class Runtime {
         ser.writeAny(body);
         val bytes = ser.toRail();
 
-        finishState.notifySubActivitySpawn(place);
+        finishState.notifyShiftedActivitySpawn(place);
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
+                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
                     activity().clockPhases = clockPhases;
                     val syncFinishState = activity().swapFinish(finishState);
                     var exc:CheckedThrowable = null;
@@ -1420,7 +1420,7 @@ public final class Runtime {
                         // Suppress exceptions during windup of internal activity.
                         // Should not be user-visible.
                     } finally {
-                        finishState.notifyActivityTermination();
+                        finishState.notifyShiftedActivityCompletion();
                         if (exc != null) syncFinishState.pushException(exc);
                     }
                 }
@@ -1557,12 +1557,12 @@ public final class Runtime {
         val bytes = ser.toRail();
         val resultCell = new Cell[Any](null);
 
-        finishState.notifySubActivitySpawn(place);
+        finishState.notifyShiftedActivitySpawn(place);
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         val resultCellGR = GlobalRef[Cell[Any]](resultCell);
         try {
 	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyActivityCreationBlocking(srcPlace, null)) {
+                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
                     activity().clockPhases = clockPhases;
                     val syncFinishState = activity().swapFinish(finishState);
                     var exc:CheckedThrowable = null;
@@ -1607,7 +1607,7 @@ public final class Runtime {
                             syncFinishState.pushException(me);
                         }
                     } finally {
-                        finishState.notifyActivityTermination();
+                        finishState.notifyShiftedActivityCompletion();
                         if (exc != null) syncFinishState.pushException(exc);
                     }
                 }
