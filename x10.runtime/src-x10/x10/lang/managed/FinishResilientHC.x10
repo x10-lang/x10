@@ -13,6 +13,7 @@ package x10.lang.managed;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.GrowableRail;
 import x10.util.ArrayList;
+import x10.array.Array_3;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.AbstractEntryProcessor;
@@ -28,6 +29,10 @@ class FinishResilientHC extends FinishResilientBridge {
     private static val verbose = FinishResilientBridge.verbose;
     private static val hereId = Runtime.hereLong();
     private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10
+
+    private static val AT = 0;
+    private static val ASYNC = 1;
+    private static val AT_AND_ASYNC = AT..ASYNC;
     
     private static val useX10RTforInit = true; // turn off this to use my own initialization code
     private static val imap:IMap = getIMap("FinishResilientHC");
@@ -83,7 +88,7 @@ class FinishResilientHC extends FinishResilientBridge {
     
     private static class State(parentId:FinishID) { // data stored into Hazelcast IMap
         var nonzero:Long = 0; // number of non-zero entries in counts array
-        val counts = new Rail[Int](MAX_PLACES * MAX_PLACES, 0n); //TODO: make this dynamic
+        val counts = new Array_3[Int](MAX_PLACES, MAX_PLACES, 2); //TODO: make this dynamic
         val liveChIds = new ArrayList[FinishID](); // FinishIDs of live children
         val deadChIds = new ArrayList[FinishID](); // FinishIDs of dead children
         val deadPlIds = new ArrayList[Long]();     // Place IDs that have died during the finish
@@ -170,7 +175,7 @@ class FinishResilientHC extends FinishResilientBridge {
         
         // create State in Hazelcast IMap
         val state = new State(parentId);
-        state.counts(hereId*MAX_PLACES + hereId) = 1n; // for myself, will be decremented in waitForFinish
+        state.counts(hereId, hereId, ASYNC) = 1n; // for myself, will be decremented in waitForFinish
         state.nonzero = 1;
         if (verbose>=3) state.dump("DUMP id="+id);
         val prev = imap.put(id, state); assert prev==null;
@@ -227,14 +232,18 @@ class FinishResilientHC extends FinishResilientBridge {
         assert !state.deadPlIds.contains(placeId);
         state.deadPlIds.add(placeId); 
         for (var i:Long = 0; i < MAX_PLACES; i++) {
-            val idx1 = i*MAX_PLACES + placeId;
-            if (state.counts(idx1) != 0n) {
+            if (state.counts(i, placeId, ASYNC) != 0n) {
                 addDeadPlaceException(state, placeId); //@@ should add n times?
-                state.counts(idx1) = 0n; --state.nonzero;
+                state.counts(i, placeId, ASYNC) = 0n; --state.nonzero;
             }
-            val idx2 = placeId*MAX_PLACES + i;
-            if (state.counts(idx2) != 0n) {
-                state.counts(idx2) = 0n; --state.nonzero;
+            if (state.counts(i, placeId, AT) != 0n) {
+                state.counts(i, placeId, AT) = 0n; --state.nonzero;
+            }
+            if (state.counts(placeId, i, ASYNC) != 0n) {
+                state.counts(placeId, i, ASYNC) = 0n; --state.nonzero;
+            }
+            if (state.counts(placeId, i, AT) != 0n) {
+                state.counts(placeId, i, AT) = 0n; --state.nonzero;
             }
         }
     }
@@ -246,10 +255,18 @@ class FinishResilientHC extends FinishResilientBridge {
     
     public
     def notifySubActivitySpawn(dstPlace:Place):void {
+        notifySubActivitySpawn(dstPlace, ASYNC);
+    }
+    public
+    def notifyShiftedActivitySpawn(dstPlace:Place):void {
+        notifySubActivitySpawn(dstPlace, AT);
+    }
+    public
+    def notifySubActivitySpawn(dstPlace:Place, kind:long):void {
         val srcId = hereId, dstId = dstPlace.id;
         if (dstId != srcId) hasRemote = true;
 
-        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         
         // counts[srcId,dstId]++;
         propagate(id, new AbstractEntryProcessor/*[FinishID,State]*/() {
@@ -257,11 +274,12 @@ class FinishResilientHC extends FinishResilientBridge {
                 val state = entry.getValue() as State;
                 if (state == null || state.deadPlIds.contains(hereId)) throw new HereIsDeadError(); // finish thinks this place is dead, exit
                 if (Place.isDead(dstId) || state.deadPlIds.contains(dstId)) { // destination place has died
+                    // should not do ++counts, because following notifyActivityCreation/Termination will not be executed
                     if (verbose>=2) debug("destination place has died, just adding DPE");
                     if (!state.deadPlIds.contains(dstId)) handleNewPlaceDeath(state, dstId);
-                    addDeadPlaceException(state, dstId); // should not do ++counts, because following notifyActivityCreation/Termination will not be executed
+                    if (kind == ASYNC) addDeadPlaceException(state, dstId); 
                 } else {
-                    val c = ++state.counts(srcId*MAX_PLACES + dstId);
+                    val c = ++state.counts(srcId, dstId, kind);
                     if (c == 1n) ++state.nonzero; else if (c == 0n) --state.nonzero;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
@@ -275,8 +293,13 @@ class FinishResilientHC extends FinishResilientBridge {
     
     public
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, ASYNC);
+    }
+
+    public
+    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:long):Boolean {
         val srcId = srcPlace.id, dstId = hereId;
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         
       try {
         // counts[dstId,dstId]++; counts[srcId,dstId]--;
@@ -289,9 +312,9 @@ class FinishResilientHC extends FinishResilientBridge {
                     if (!state.deadPlIds.contains(srcId)) { handleNewPlaceDeath(state, srcId); entry.setValue(filter(id, state)); }
                     throw new PeerIsDeadException(); // throw exception to return false (no need to propagate)
                 }
-                val c1 = ++state.counts(dstId*MAX_PLACES + dstId);
+                val c1 = ++state.counts(dstId, dstId, kind);
                 if (c1 == 1n) ++state.nonzero; else if (c1 == 0n) --state.nonzero;
-                val c2 = --state.counts(srcId*MAX_PLACES + dstId);
+                val c2 = --state.counts(srcId, dstId, kind);
                 if (c2 == 0n) --state.nonzero; else if (c2 ==-1n) ++state.nonzero;
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
@@ -309,27 +332,42 @@ class FinishResilientHC extends FinishResilientBridge {
     
     public
     def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity);
+        return notifyActivityCreation(srcPlace, activity, ASYNC);
+    }
+
+    public
+    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, AT);
     }
 
     public 
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
-        notifyActivityCreation(srcPlace, null);
+        notifyActivityCreation(srcPlace, null, ASYNC);
         pushException(t);
-        notifyActivityTermination();
+        notifyActivityTermination(ASYNC);
     }
 
     public
     def notifyActivityTermination():void {
+        notifyActivityTermination(ASYNC);
+    }
+
+    public
+    def notifyShiftedActivityCompletion():void {
+        notifyActivityTermination(AT);
+    }
+
+    public
+    def notifyActivityTermination(kind:long):void {
         val dstId = hereId;
-        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId+" kind="+kind);
         
         // counts[dstId,dstId]--;
         propagate(id, new AbstractEntryProcessor/*[FinishID,State]*/() {
             public def process(entry:Map.Entry/*[FinishID,State]*/) {
                 val state = entry.getValue() as State;
                 if (state == null || state.deadPlIds.contains(hereId)) throw new HereIsDeadError(); // finish thinks this place is dead, exit
-                val c = --state.counts(dstId*MAX_PLACES + dstId);
+                val c = --state.counts(dstId, dstId, kind);
                 if (c == 0n) --state.nonzero; else if (c ==-1n) ++state.nonzero;
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
@@ -373,7 +411,7 @@ class FinishResilientHC extends FinishResilientBridge {
             public def mapCleared(event:com.hazelcast.core.MapEvent) { }
         }, id, true/* include value in EntryEvent */);
         
-        notifyActivityTermination(); // terminate myself, this should trigger entryUpdated listener added above
+        notifyActivityTermination(ASYNC); // terminate myself, this should trigger entryUpdated listener added above
         
         // If we haven't gone remote with this finish yet, see if this worker
         // can execute other asyncs that are governed by the finish before waiting on the latch.
