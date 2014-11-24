@@ -104,6 +104,13 @@ ifeq ($(BLASLIB),ESSL)
 
     endif
 else
+ifeq ($(BLASLIB),OpenBLAS)
+    # OpenBLAS
+    OPENBLAS_LIB_PATH ?= /usr/lib64
+    ifndef DISABLE_BLAS
+        X10CXX_POSTARGS += -cxx-postarg -L$(OPENBLAS_LIB_PATH) -cxx-postarg -lopenblas
+    endif
+else
 ifeq ($(BLASLIB),GotoBLAS2)
     # GotoBLAS2
     GOTOBLAS2_LIB_PATH ?= $(HOME)/GotoBLAS2
@@ -138,6 +145,7 @@ else
             X10CXX_POSTARGS += -cxx-postarg -llapack
         endif
     endif
+endif
 endif
 endif
 endif
