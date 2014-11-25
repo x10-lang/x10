@@ -36,7 +36,7 @@ public class DistArray_Block_2[T] extends DistArray[T]{this.rank()==2} implement
     @NonEscaping
     protected final def reloadLocalIndices():DenseIterationSpace_2{self!=null} {
         val ls = localHandle() as LocalState_B2[T];
-        return ls != null ? ls.localIndices : new DenseIterationSpace_2(0, 0, -1, -1);
+        return ls != null ? ls.dist.localIndices : new DenseIterationSpace_2(0, 0, -1, -1);
     }
     
     @TransientInitExpr(reloadMinIndex_1())
@@ -263,28 +263,26 @@ public class DistArray_Block_2[T] extends DistArray[T]{this.rank()==2} implement
 // TODO:  Would prefer this to be a protected static nested class, but 
 //        when written that way we non-deterministically fail compilation.
 class LocalState_B2[S] extends LocalState[S] {
-    val globalIndices:DenseIterationSpace_2{self!=null};
-    val localIndices:DenseIterationSpace_2{self!=null};
+    val dist:Dist_Block_2{self!=null};
 
     def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:Long, 
-             gs:DenseIterationSpace_2{self!=null}, ls:DenseIterationSpace_2{self!=null}) {
+             d:Dist_Block_2{self!=null}) {
         super(pg, data, size);
-        globalIndices = gs;
-        localIndices = ls;
+        dist = d;
     }
 
     static def make[S](pg:PlaceGroup{self!=null}, m:Long, n:Long, init:(Long,Long)=>S):LocalState_B2[S] {
         val globalSpace = new DenseIterationSpace_2(0, 0, m-1, n-1);
-	val local_m = BlockingUtils.partitionBlock(0, m-1, pg.numPlaces(), pg.indexOf(here));
-        val localSpace = new DenseIterationSpace_2(local_m.min(0), 0, local_m.max(0), n-1);
+        val dist = new Dist_Block_2(pg, globalSpace);
+
 	val data:Rail[S]{self!=null};
-	if (localSpace.isEmpty()) { 
+	if (dist.localIndices.isEmpty()) { 
             data = new Rail[S]();
         } else {            
-            val low1 = localSpace.min(0);
-            val hi1 = localSpace.max(0);
-            val low2 = localSpace.min(1);
-            val hi2 = localSpace.max(1);
+            val low1 = dist.localIndices.min(0);
+            val hi1 = dist.localIndices.max(0);
+            val low2 = dist.localIndices.min(1);
+            val hi2 = dist.localIndices.max(1);
             val localSize1 = hi1 - low1 + 1;
             val localSize2 = hi2 - low2 + 1;
             val dataSize = localSize1 * localSize2;
@@ -296,7 +294,7 @@ class LocalState_B2[S] extends LocalState[S] {
                 }
             }
         }
-        return new LocalState_B2[S](pg, data, m*n, globalSpace, localSpace);
+        return new LocalState_B2[S](pg, data, m*n, dist);
     }
 }
 
