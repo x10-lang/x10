@@ -12,7 +12,6 @@
 package x10.matrix.sparse;
 
 import x10.util.Pair;
-import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.util.MathTool;
@@ -106,9 +105,9 @@ public class SparseCSR extends Matrix {
 	 *              to the surface index at the same position in ja.
 	 */
 	public static def make(m:Long, n:Long,	
-						   ia:Rail[Long],
-						   ja:Rail[Long],
-						   av:Rail[Double]{av.size==ja.size}
+						   ia:Rail[Long]{self!=null},
+						   ja:Rail[Long]{self!=null},
+						   av:Rail[Double]{self!=null,av.size==ja.size}
 						   ):SparseCSR(m,n){
 		val crd = Compress2D.make(ia, ja, av);
 		return new SparseCSR(m, n, crd);
@@ -674,11 +673,6 @@ public class SparseCSR extends Matrix {
 		SparseSubToDense.comp(x, this);
 		return x;
 	}
-	
-	public def cellSubFrom(dv:Double):SparseCSR(this) {
-		throw new UnsupportedOperationException("Cell-wise multiplication does not support using SparseCSR to store result");
-	}
-	
 
     /**
      * Return this *= x, not supported

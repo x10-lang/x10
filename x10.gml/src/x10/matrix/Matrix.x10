@@ -179,11 +179,6 @@ public abstract class Matrix(M:Long, N:Long) {
     abstract protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x);
     
     /**
-     * Cell-wise subtraction this = x - this
-     */
-    abstract protected def cellSubFrom(dv:Double):Matrix(this);
-    
-    /**
      * Compute cell-wise multiplication on "this" and given matrix x: this= this &#42 x
      * 
      * @param x   matrix of multiplication object 

@@ -72,8 +72,8 @@ public class Compress2D {
 	 * @param aval     Rail of matrix nonzero values.
 	 */
 	public static def make(ia:Rail[Long],
-						   ja:Rail[Long],
-						   aval:Rail[Double]{self.size==ja.size}
+						   ja:Rail[Long]{self!=null},
+						   aval:Rail[Double]{self!=null,self.size==ja.size}
 						   ):Compress2D {
 		val len = ia.size-1;
 		val cpd = new Rail[Compress1D](len);
@@ -192,7 +192,6 @@ public class Compress2D {
 		var offset:Long=0L;
 		val ca = getStorage();
 		val nl = cLine.size;
-		//val ll:Long = nl /100 >0?nl/100:1;
 		for (var l:Long=0L; l<nl; l++) {
 			cLine(l).initRandomFast(ldm, nzp, offset, ca, lb, ub);
 			offset += cLine(l).length;
@@ -204,7 +203,6 @@ public class Compress2D {
 		var offset:Long=0L;
 		val ca = getStorage();
 		val nl = cLine.size;
-		//val ll:Long = nl /100 >0?nl/100:1;
 		for (var l:Long=0L; l<nl; l++) {
 			if (up)
 				cLine(l).initRandomFast(0L, l>ldm?ldm:l, nzp, offset, ca, lb, ub);

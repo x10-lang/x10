@@ -482,17 +482,6 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
         return this;
     }
 
-    /**
-     * this = v - this
-     */
-    public def cellSubFrom(dv:Double) : BlockMatrix(this) {
-        for (var p:Long=0; p<grid.size; p++) {
-            val dst = this.getMatrix(p);
-            dst.cellSubFrom(dv);
-        }
-        return this;    
-    }
-
 
     /**
      * Cell-wise multiplication, return this *= x
@@ -655,7 +644,6 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     public operator this + (v:Double) = makeDense(this).cellAdd(v) as BlockMatrix(M,N);
     public operator this - (v:Double) = makeDense(this).cellSub(v) as BlockMatrix(M,N);
     
-    public operator (v:Double) - this = makeDense(this).cellSubFrom(v) as BlockMatrix(M,N);
     public operator this / (v:Double) = makeDense(this).cellDiv(v) as BlockMatrix(M,N);
     public operator (v:Double) / this = makeDense(this).cellDivBy(v) as BlockMatrix(M,N);
     

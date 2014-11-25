@@ -38,11 +38,11 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 */
 	public var upper:Boolean = false; 
 	
-    public def this(n:Long, x:Rail[Double]):TriDense(n){
+    public def this(n:Long, x:Rail[Double]{self!=null}):TriDense(n){
 		super(n, n, x);
 	}
 	
-	public def this(up:Boolean, n:Long, x:Rail[Double]) : TriDense(n){
+	public def this(up:Boolean, n:Long, x:Rail[Double]{self!=null}) : TriDense(n){
 		super(n, n, x);
 		upper = up;
 	}	
@@ -276,24 +276,6 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		return x;
 	}
 
-	// Cell-wise matrix multiplication
-
-	public def cellSubFrom(v:Double):TriDense(this) {
-		var colstt:Long=0;
-		if (upper==false) {
-		    for (var c:Long=0; c < N; c++, colstt+=M+1)
-			    for (var i:Long=colstt; i<colstt+M-c; i++)
-					this.d(i) = v-this.d(i);
-		} else {
-		    for (var c:Long=0; c < N; c++, colstt+=M)
-			    for (var i:Long=colstt; i<colstt+c+1; i++)
-					this.d(i) = v-this.d(i);
-		}
-		return this;
-	}
-	
-	//public def cellSub(x:TriDense(M)): DenseMatrix(this) = cellSub(x as DenseMatrix(M,N));
-	
 	/**
 	 * x = x - this;
 	 */
@@ -430,7 +412,6 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public operator (v:Double) + this = this + v;
 
 	public operator this - (v:Double) = this.clone().cellSub(v)     as TriDense(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v) as TriDense(M,N);
 	
 	public operator this / (v:Double) = this.clone().cellDiv(v)   as TriDense(M,N);
 	public operator (v:Double) / this = this.clone().cellDivBy(v) as TriDense(M,N);

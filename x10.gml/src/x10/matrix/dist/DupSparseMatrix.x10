@@ -375,13 +375,6 @@ public class DupSparseMatrix extends Matrix {
 	public def cellSub(A:Matrix(M,N)):DupSparseMatrix(this) {
 		throw new UnsupportedOperationException("Not support use sparse matrix to store result");
 	}
-
-	/**
-	 * this = v - this
-	 */
-	public def cellSubFrom(v:Double):DupSparseMatrix(this) {
-		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
-	}
 	
 	/**
 	 * dst = dst - this

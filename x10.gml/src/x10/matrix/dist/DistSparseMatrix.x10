@@ -533,13 +533,6 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     public def cellSub(x:Matrix(M,N)):DistSparseMatrix(this) {
         throw new UnsupportedOperationException("Not support using sparse matrix to store result");
     }
-
-    /**
-     * Perform cell-wise subtraction  this = dv - this. Not support;
-     */
-    public def cellSubFrom(dv:Double):DistSparseMatrix(this) {
-        throw new UnsupportedOperationException("Not support using sparse matrix to store result");
-    }    
     
     /**
      * Perform cell-wise subtraction  x = x - this.

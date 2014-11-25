@@ -385,10 +385,6 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
-	
-	public def cellSubFrom(dv:Double) : SparseBlockMatrix(this) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
 
     /**
      * Cell-wise multiplication, return this = this &#42 x

@@ -80,9 +80,8 @@ public class LogisticRegression {
 		val o = DenseMatrix.make(X.M, 1);
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
-		val logistic:DenseMatrix(X.M, 1) = y.clone();
-		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
-        //logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
+		val logistic = y.clone();
+        logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
 		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 
@@ -95,8 +94,8 @@ public class LogisticRegression {
 		val Xd:DenseMatrix(X.M,1)=DenseMatrix.make(X.M, 1);
 		
 		//logisticD = logistic*(1-logistic)
-		val logisticD:DenseMatrix(X.M, 1) = DenseMatrix.make(logistic);
-		logisticD.cellSubFrom(1.0).cellMult(logistic);
+		val logisticD = logistic.clone();
+        logisticD.map((x:Double)=> {x*(1.0-x)});
 
 		//delta = sqrt(sum(grad*grad))
 		val sq = grad.norm(grad);

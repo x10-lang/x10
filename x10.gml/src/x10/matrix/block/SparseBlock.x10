@@ -208,12 +208,12 @@ public class SparseBlock extends MatrixBlock {
 	/**
 	 * Return the element value array of the sparse block
 	 */
-	public def getData():Rail[Double]   = sparse.getValue();
+	public def getData() = sparse.getValue();
 
 	/**
 	 * Return the index array of the sparse block
 	 */
-	public def getIndex():Rail[Long]    = sparse.getIndex();
+	public def getIndex() = sparse.getIndex();
 
 
 

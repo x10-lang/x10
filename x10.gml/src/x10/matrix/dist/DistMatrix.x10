@@ -452,17 +452,6 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         }
         return dst;
     }
-     
-    /**
-     * dst = dv - this
-     */
-    public def cellSubFrom(dv:Double):DistMatrix(this) {
-        finish ateach([p] in this.dist) {
-            val m = local();
-            m.cellSubFrom(dv);
-        }
-        return this;
-    }
 
     /**
      * Cellwise multiplication. A must be a DistMatrix instance
@@ -583,7 +572,6 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
     public operator this + (v:Double) = v + this;
 
     public operator this - (v:Double) = makeDense(this).cellAdd(-v) as DistMatrix(M,N);
-    public operator (v:Double) - this = makeDense(this).cellSubFrom(v) as DistMatrix(M,N);
     public operator this / (v:Double) = makeDense(this).scale(1.0/v) as DistMatrix(M,N);
     //public operator (v:Double) / this = makeDense(this).cellDivBy(v) as DistMatrix(M,N);
             

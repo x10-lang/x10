@@ -137,7 +137,7 @@ public abstract class MatrixBlock(myRowId:Long, myColId:Long) {
 	/**
 	 * Return the underlying matrix element data storage.
 	 */
-	abstract public def getData():Rail[Double];
+	abstract public def getData():Rail[Double]{self!=null};
 
 	/**
 	 * Return the index array, the surface indices for the sparse matrix.

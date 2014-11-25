@@ -116,7 +116,7 @@ public class DupDenseMatrix extends Matrix {
 		val dms = DistArray.make[DenseMatrix](da.dist);
 		finish ateach(val [p]:Point in dms.dist) {
 			val mypid = here.id();
-			dms(mypid) = new DenseMatrix(m, n, da(mypid) as Rail[Double]);
+			dms(mypid) = new DenseMatrix(m, n, da(mypid) as Rail[Double]{self!=null});
 		}
 		val dm  = new DupDenseMatrix(dms) as DupDenseMatrix(m,n);
 		return dm;
@@ -443,18 +443,6 @@ public class DupDenseMatrix extends Matrix {
 	        val dm = local();
 	        dm.cellSub(sm);
 	    }
-		return this;
-	}
-
-	/**
-	 * this = v - this
-	 */
-	public def cellSubFrom(v:Double):DupDenseMatrix(this) {
-		
-		finish ateach([p] in this.dupMs) {
-			val mat = local();
-			mat.cellSubFrom(v);
-		}
 		return this;
 	}
 	

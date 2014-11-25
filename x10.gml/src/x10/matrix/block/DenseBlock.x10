@@ -69,7 +69,7 @@ public class DenseBlock extends MatrixBlock {
 	public static def make(
 			gp:Grid, 
 			rid:Long, cid:Long, 
-			da:Rail[Double]):DenseBlock {
+			da:Rail[Double]{self!=null}):DenseBlock {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val dmat = new DenseMatrix(m, n, da);
@@ -148,7 +148,7 @@ public class DenseBlock extends MatrixBlock {
 	/**
 	 * Return the data for the matrix block.
 	 */
-	public def getData():Rail[Double] = dense.d;
+	public def getData() = dense.d;
 
 	/**
 	 * Return the surface index array. Valid for sparse matrix only.

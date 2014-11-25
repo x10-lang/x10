@@ -67,8 +67,6 @@ public class RunLogReg {
 			y.initRandom(1, 10);
 			//y.print();
 			w.initRandom();
-			val yt = y.clone();
-			val wt = w.clone();
 			
 			//y.print("Input y:");
 			val prun = new LogisticRegression(X, y, w, iterations, iterations);
@@ -83,6 +81,8 @@ public class RunLogReg {
 			
 			if (verify) { /* Sequential run */
 				val denX = X.toDense();
+			    val yt = y.clone();
+			    val wt = w.clone();
 				val seq = new SeqLogReg(denX, yt, wt, iterations, iterations);
 
 		        Debug.flushln("Starting sequential logistic regression");

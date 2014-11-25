@@ -654,20 +654,6 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
         throw new UnsupportedOperationException("Matrix type mismatch");                        
     }
-    
-    public def cellSubFrom(dv:Double): DistBlockMatrix(this) {
-        finish ateach(p in Dist.makeUnique(places))  {
-            //Remote capture: dv
-            val bitr:Iterator[MatrixBlock] = this.handleBS().iterator();
-            
-            while (bitr.hasNext()) {
-                val b:MatrixBlock = bitr.next();
-                val mat = b.getMatrix();
-                mat.cellSubFrom(dv);
-            }
-        }
-        return this;
-    }
 
     public def cellMult(A:Matrix(M,N)): Matrix(this) {
         if (! likeMe(A))
@@ -783,7 +769,6 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     public operator this + (dv:Double) = this.clone().cellAdd(dv) as DistBlockMatrix(M,N);
     public operator this - (dv:Double) = this.clone().cellAdd(-dv) as DistBlockMatrix(M,N);
     public operator (dv:Double) + this = this.clone().cellAdd(dv) as DistBlockMatrix(M,N);
-    public operator (dv:Double) - this = this.clone().cellSubFrom(-dv) as DistBlockMatrix(M,N);
     
     public operator this + (that:DistBlockMatrix(M,N)) = this.clone().cellAdd(that) as DistBlockMatrix(M,N);
     public operator this - (that:DistBlockMatrix(M,N)) = this.clone().cellSub(that) as DistBlockMatrix(M,N);

@@ -134,9 +134,9 @@ public class SparseCSC extends Matrix {
 	 *              to its surface index at the same position in ja.
 	 */
 	public static def make(m:Long,n:Long,	
-						   ia:Rail[Long],
-						   ja:Rail[Long],
-						   av:Rail[Double]{self.size==ja.size}
+						   ia:Rail[Long]{self!=null},
+						   ja:Rail[Long]{self!=null},
+						   av:Rail[Double]{self!=null,self.size==ja.size}
 						   ):SparseCSC{
 		val ccd = Compress2D.make(ia, ja, av);
 		return new SparseCSC(m, n, ccd);
@@ -1003,9 +1003,6 @@ public class SparseCSC extends Matrix {
 		return x;
 	}
 
-
-	// Subtract operation
-
     /**
      * Return this = this - x, not supported
      */
@@ -1023,14 +1020,6 @@ public class SparseCSC extends Matrix {
 		SparseSubToDense.comp(x, this);
 		return x;
 	}
-	
-	public def cellSubFrom(dv:Double): SparseCSC(this) {
-		throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");		
-	}
-	
-
-	// Cellwise multiplication
-
 
     /**
      * Return this = this &#42 x, not supported
@@ -1200,7 +1189,6 @@ public class SparseCSC extends Matrix {
 	}
 	
 	public operator this - (dv:Double)  :DenseMatrix(M,N) = this.toDense().cellSub(dv);
-	public operator (dv:Double) - this  :DenseMatrix(M,N) = this.toDense().cellSubFrom(dv);
 	
 
 	// Cellwise mult method

@@ -108,7 +108,6 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
     public def initRandom(min:Long, max:Long):Vector(this) {
         val len = Math.abs(max-min)+1;
         val rgen = RandTool.getRandGen();
-        //val ll = M*M / 100;
          for (i in 0..(M-1))
             this.d(i) = rgen.nextLong(len)+min;
         return this;

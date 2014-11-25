@@ -287,16 +287,6 @@ public class DupBlockMatrix extends Matrix {
         }
         return this;
     }
-
-    /**
-     * this = v - this
-     */
-    public def cellSubFrom(v:Double):DupBlockMatrix(this) {
-        finish ateach(Dist.makeUnique()) {
-            local().cellSubFrom(v);
-        }
-        return this;
-    }
     
     /**
      * Perform cell-wise subtraction  x = x - this.
@@ -397,7 +387,6 @@ public class DupBlockMatrix extends Matrix {
     public operator this + (v:Double) = makeDense(this).cellAdd(v)  as DupBlockMatrix(M,N);
     public operator this - (v:Double) = makeDense(this).cellAdd(-v) as DupBlockMatrix(M,N);
     
-    public operator (v:Double) - this = makeDense(this).cellSubFrom(v) as DupBlockMatrix(M,N);
     public operator this / (v:Double) = makeDense(this).cellDiv(v)     as DupBlockMatrix(M,N);
     
     public operator this * (alpha:Double) = this.clone().scale(alpha) as DupBlockMatrix(M,N);

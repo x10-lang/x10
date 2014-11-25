@@ -32,7 +32,7 @@ public type SymDense(C:Matrix)=SymDense{self==C};
  */
 public class SymDense extends DenseMatrix{self.M==self.N} {
 	
-	public def this(n:Long, x:Rail[Double]) : SymDense(n){
+	public def this(n:Long, x:Rail[Double]{self!=null}) : SymDense(n){
 		super(n, n, x);
 	}
 	
@@ -42,7 +42,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	}
 
 	public def clone():SymDense(M){
-		val nd = new Rail[Double](this.d) as Rail[Double];
+		val nd = new Rail[Double](this.d);
 		val nm = new SymDense(M, nd);
 		return nm as SymDense(M);
 	}
@@ -239,9 +239,6 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	// }
 	public def cellSub(v:Double):SymDense(this) = 
 		super.cellSub(v) as SymDense(this);
-
-	public def cellSubFrom(v:Double):SymDense(this) =
-		super.cellSubFrom(v) as SymDense(this);
 	
 	public def cellSub(x:SymDense(M,N)):SymDense(this) =
 		super.cellSub(x as DenseMatrix(M,N)) as SymDense(this);
@@ -339,7 +336,6 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	public operator (v:Double) + this = (this + v) as SymDense(M,N);
 
 	public operator this - (v:Double) = this.clone().cellSub(v)       as SymDense(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v)   as SymDense(M,N);
 	public operator this / (v:Double) = this.clone().cellDiv(v)       as SymDense(M,N);
 	public operator (v:Double) / this = this.clone().cellDivBy(v)     as SymDense(M,N);
 	public operator this * (alpha:Double) = this.clone().scale(alpha) as SymDense(M,N);

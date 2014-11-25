@@ -155,7 +155,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			val roff= gp.startRow(rid);
 			val coff= gp.startCol(cid);
 			at(ddb.dist(p)) async {
-				val den = new DenseMatrix(m, n, da(p) as Rail[Double]);
+				val den = new DenseMatrix(m, n, da(p) as Rail[Double]{self!=null});
 				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
 			}
 		}
@@ -534,15 +534,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	public def cellSubFrom(dv:Double):DistDenseMatrix(this) {
-		finish ateach([p] in this.dist) {
-			//Remote capture: dv
-		   val d = this.local();
-		   d.cellSubFrom(dv);
-		}
-		return this;
-	}	
-
 	/**
 	 * Cellwise multiplication. Input A must be a DistDenseMatrix instance
 	 */
@@ -844,7 +835,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	public operator this + (v:Double) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
 
 	public operator this - (v:Double) = this.clone().cellAdd(-v) as DistDenseMatrix(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DistDenseMatrix(M,N);
 	
 	public operator this / (v:Double) = this.clone().scale(1.0/v) as DistDenseMatrix(M,N);
 	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);

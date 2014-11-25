@@ -35,13 +35,13 @@ public class CompressArray {
 	// CHECK: Rail[Pair] uses the continuous memory space, so as to support
 	// MPI inter-process communication
 
-	public var index:Rail[Long]; // the indices i1,..., in; indices must be positive
-	public var value:Rail[Double];//{self.size==index.size}; // the values v1,..., vn
+	public var index:Rail[Long]{self!=null}; // the indices i1,..., in; indices must be positive
+	public var value:Rail[Double]{self!=null};//{self.size==index.size}; // the values v1,..., vn
 
 	public var count:Long=0; // n
 
-	public def this(idxlst:Rail[Long], 
-					vallst:Rail[Double]{self.size==idxlst.size},
+	public def this(idxlst:Rail[Long]{self!=null}, 
+					vallst:Rail[Double]{self!=null,self.size==idxlst.size},
 					cnt:Long) { 
 		this.index = idxlst;
 		this.value = vallst;
@@ -53,8 +53,8 @@ public class CompressArray {
 	 */
 	public def this(s:Long) { 
 		assert s >= 0;
-		index = new Rail[Long](s, -1) as Rail[Long];
-		value = new Rail[Double](s) as Rail[Double];
+		index = new Rail[Long](s, -1) as Rail[Long]{self!=null};
+		value = new Rail[Double](s) as Rail[Double]{self!=null};
 		count = 0;
 	}
 
@@ -270,8 +270,8 @@ public class CompressArray {
 	 * Make a copy of myself
 	 */
 	public def clone():CompressArray {
-		val idxlist = new Rail[Long](this.index) as Rail[Long];
-		val vallist = new Rail[Double](this.value) as Rail[Double]{self.size==idxlist.size};
+		val idxlist = new Rail[Long](this.index);
+		val vallist = new Rail[Double](this.value) as Rail[Double]{self!=null,self.size==idxlist.size};
 		val ca = new CompressArray(idxlist, vallist, this.count);
 		return ca;
 	}

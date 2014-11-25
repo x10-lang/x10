@@ -431,18 +431,6 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
-	/**
-	 * Cell-wise add this = double - this
-	 */
-	public def cellSubFrom(d:Double):DenseBlockMatrix(this) {
-		for (p in 0..(listBs.size-1)) {
-			val dst = listBs(p).dense;
-			dst.cellSubFrom(d);
-		}		
-		return this;
-	}
-
-
 
     /**
      * Cell-wise multiplication, return this = this &#42 x
@@ -606,7 +594,6 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	public operator this + (v:Double) = this.clone().cellAdd(v) as DenseBlockMatrix(M,N);
 
 	public operator this - (v:Double) = this.clone().cellAdd(-v) as DenseBlockMatrix(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DenseBlockMatrix(M,N);
 	
 	public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseBlockMatrix(M,N);
 	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DenseBlockMatrix(M,N);
