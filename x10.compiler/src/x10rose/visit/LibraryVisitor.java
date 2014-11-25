@@ -757,6 +757,7 @@ public class LibraryVisitor extends NodeVisitor {
     }
 
     void toRose(Node n, String name, String... extra) {
+        if (RoseTranslator.DEBUG) System.out.print("PRINT ");
         if (name != null)
             if (RoseTranslator.DEBUG) System.out.print(name);
         if (extra != null)

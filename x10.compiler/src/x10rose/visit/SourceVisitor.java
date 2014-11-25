@@ -1320,6 +1320,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
             String[] names = getPackageAndTypeName(class_name);
             String package_name = names[0];
             String type_name = names[1];
+            JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, package_name));
+            JNI.cactionPopPackage();
             JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
         } else {
             class_name = n.node().toString();
