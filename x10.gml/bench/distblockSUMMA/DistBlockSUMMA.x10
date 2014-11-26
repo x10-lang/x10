@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2012.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2012-2014.
  */
 
 import x10.util.Option;
@@ -133,17 +138,18 @@ class BenchRunSumma {
 	public def benchMult(){
 		Console.OUT.println("Starting SUMMA on dist block matrix multiplication benchmark");
 		Console.OUT.flush();
-		val stt:Long = Timer.milliTime();
+		val stt = Timer.milliTime();
 		for (1..itnum) {
 			summa.parallelMult();
 		}
-		val runtime:Double = 1.0*(Timer.milliTime() - stt)/itnum;
+		val runtime = 1.0*(Timer.milliTime() - stt)/itnum;
 
 		val cmmtime = 1.0*summa.commTime/itnum;
 		val caltime = 1.0*summa.calcTime/itnum;
 		Console.OUT.printf("SUMMA mult total run time: %8.1f ms, ", runtime);
 		Console.OUT.printf("commun: %8.1f ms( %2.1f percent), comput: %8.1f ms( %2.1f percent)\n",
 				cmmtime, 100.0*cmmtime/runtime, caltime,  100.0*caltime/runtime);
+
         val flops = 2.0*M*N*K;
         val gflopPerSec = flops/runtime/1e6;
         Console.OUT.printf("GFLOP: %9.2f GFLOP/s: %9.2f GFLOP/s/place: %9.2f\n", flops, gflopPerSec, gflopPerSec/Place.numPlaces());
@@ -152,11 +158,11 @@ class BenchRunSumma {
 	public def benchMultTrans() {
 		Console.OUT.println("Starting SUMMA on dist block matrix of multiply-Transpose benchmark");
 		Console.OUT.flush();
-		val stt:Long = Timer.milliTime();
+		val stt = Timer.milliTime();
 		for (1..itnum) {
 			summaT.parallelMultTrans();
 		}
-		val runtime:Double = 1.0*(Timer.milliTime() - stt)/itnum;
+		val runtime = 1.0*(Timer.milliTime() - stt)/itnum;
 		
 		val cmmtime = 1.0*summaT.commTime/itnum;
 		val caltime = 1.0*summaT.calcTime/itnum;
@@ -167,5 +173,4 @@ class BenchRunSumma {
         val gflopPerSec = flops/runtime/1e6;
         Console.OUT.printf("GFLOP: %9.2f GFLOP/s: %9.2f GFLOP/s/place: %9.2f\n", flops, gflopPerSec, gflopPerSec/Place.numPlaces());
 	}
-
 } 
