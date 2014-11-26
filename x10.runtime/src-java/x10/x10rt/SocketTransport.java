@@ -901,7 +901,10 @@ public class SocketTransport {
     				launcherLink.writeLock.unlock();
     			}
     		}
-    		String[] split = connectionInfo.split(":");
+		String[] split = connectionInfo.split(":");
+		if (split.length < 2) {
+			throw new IOException("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\"");
+		}
     		hostname = split[0];
     		port = Integer.parseInt(split[1]);
     	}
