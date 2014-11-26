@@ -4,11 +4,12 @@
  *  (C) Copyright IBM Corporation 2012.
  */
 
+import x10.util.Option;
+import x10.util.OptionsParser;
 import x10.util.Timer;
 
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.distblock.DistBlockMatrix;
@@ -17,15 +18,38 @@ import x10.matrix.distblock.summa.SummaMultTrans;
 
 public class DistBlockSUMMA {
 	public static def main(args:Rail[String]) {
-		val M   = args.size > 0 ? Long.parse(args(0)):100;
-		val K   = args.size > 1 ? Long.parse(args(1)):100;
-		val N   = args.size > 2 ? Long.parse(args(2)):100;
-		val nzd = args.size > 3 ? Double.parse(args(3)):1.0;//Default is dense block matrix
-		val pnl = args.size > 4 ? Long.parse(args(4)):64;
-		val bMN = args.size > 5 ? Long.parse(args(5)):1;
-		val it  = args.size > 6 ? Long.parse(args(6)):4;
+        val opts = new OptionsParser(args, [
+            Option("h","help","this information")
+        ], [
+            Option("m","","number of rows in matrices A and C, default = 100"),
+            Option("k","","number of columns in matrix A and rows in matrix B, default = 100"),
+            Option("n","","number of columns in matrices B and C, default = 100"),
+            Option("d","density","nonzero density, default = 1.0 (dense)"),
+            Option("p","panelSize","number of row blocks, default = 100"),
+            Option("b","blockMN","number of row/column blocks in matrix C; default = 1"),
+            Option("i","iterations","number of iterations, default = 10")
+        ]);
 
-		val testcase = new BenchRunSumma(M,K,N,nzd,it,pnl,bMN);
+        if (opts.filteredArgs().size!=0) {
+            Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
+            Console.ERR.println("Use -h or --help.");
+            System.setExitCode(1n);
+            return;
+        }
+        if (opts("h")) {
+            Console.OUT.println(opts.usage(""));
+            return;
+        }
+
+        val M = opts("m", 100);
+        val K = opts("k", 100);
+        val N = opts("n", 100);
+        val nonzeroDensity = opts("d", 1.0);
+        val panelSize = opts("p", 100);
+        val blockMN = opts("b", 1);
+        val iterations = opts("i", 10);
+
+		val testcase = new BenchRunSumma(M,K,N,nonzeroDensity,iterations,panelSize,blockMN);
 		testcase.run();
 	}
 }
@@ -89,24 +113,19 @@ class BenchRunSumma {
 		Console.OUT.flush();
 		Console.OUT.printf("SUMMA panel size:%d\n", panel);
 
-		Console.OUT.printf("Start initialization dist matrices\n", panel);
-		Console.OUT.flush();
+		Debug.flushln("Start initialization dist matrices");
 
 		A.initRandom();
 		B.initRandom();
 		tB.initRandom();
 
 		if (nzd < 0.9) 
-			Console.OUT.printf("All matries has sparse blocks, sparsity is set to %f\n", nzd);
+			Debug.flushln("All matrices have sparse blocks, sparsity is set to " + nzd);
 		else
-			Console.OUT.printf("All matries has dense blocks\n");
-		Console.OUT.flush();
+			Debug.flushln("All matrices have dense blocks");
 	}
 
     public def run (): void {
-
-		var ret:Boolean = true;
- 		// Set the matrix function
 		benchMult();
 		benchMultTrans();	
 	}
@@ -125,7 +144,9 @@ class BenchRunSumma {
 		Console.OUT.printf("SUMMA mult total run time: %8.1f ms, ", runtime);
 		Console.OUT.printf("commun: %8.1f ms( %2.1f percent), comput: %8.1f ms( %2.1f percent)\n",
 				cmmtime, 100.0*cmmtime/runtime, caltime,  100.0*caltime/runtime);
-		
+        val flops = 2.0*M*N*K;
+        val gflopPerSec = flops/runtime/1e6;
+        Console.OUT.printf("GFLOP: %9.2f GFLOP/s: %9.2f GFLOP/s/place: %9.2f\n", flops, gflopPerSec, gflopPerSec/Place.numPlaces());
 	}
 
 	public def benchMultTrans() {
@@ -142,6 +163,9 @@ class BenchRunSumma {
 		Console.OUT.printf("SUMMA multTrans total run time: %8.1f ms, " , runtime);
 		Console.OUT.printf("commun: %8.1f ms( %2.1f percent), comput: %8.1f ms( %2.1f percent)\n",
 				cmmtime, 100.0*cmmtime/runtime, caltime,  100.0*caltime/runtime);
+        val flops = 2.0*M*N*K;
+        val gflopPerSec = flops/runtime/1e6;
+        Console.OUT.printf("GFLOP: %9.2f GFLOP/s: %9.2f GFLOP/s/place: %9.2f\n", flops, gflopPerSec, gflopPerSec/Place.numPlaces());
 	}
 
 } 
