@@ -6,13 +6,13 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 package x10.matrix.lapack;
 
 /**
- * Defines routines in X10 calling JNI wrapper for corresponding LAPACK routine
+ * JNI wrappers for corresponding functions in wrap_lapack.cc
  */
 public class WrapLAPACK {
 	static { 
@@ -21,6 +21,8 @@ public class WrapLAPACK {
 
 	public static native int solveLinearEquation(double[] A, double[] BX, int[] ipiv, int[] dim);
 
-	public static native int compEigenValue(double[] A, double[] W, double[] WORK, int[] dim);
-	public static native int compEigenVector(double[] A, double[] W, double[] WORK, int[] dim);
+	public static native int compEigenvalues(double[] A, double[] W, double[] WORK, int[] IWORK, int[] dim);
+	public static native int compEigenvectors(double[] A, double[] W, double[] Z, double[] WORK, int[] IWORK, int[] IFAIL, int[] dim);
 }
+
+// vim:tabstop=4:shiftwidth=4:expandtab

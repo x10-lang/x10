@@ -86,7 +86,8 @@ bwrap_src=\
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
-	x10/matrix/lapack/DriverLAPACK.x10
+	x10/matrix/lapack/DriverLAPACK.x10 \
+    x10/matrix/lapack/LAPACKException.x10
 
 sparse_src=\
 	x10/matrix/sparse/Compress1D.x10 \

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 #include <stdio.h>
@@ -101,26 +101,31 @@ void dgesv_(int* N, int* NRHS, double* A, int* LDA, int* IPIV, double* B, int* L
 #endif
 
 /****************************************************************************
-SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
+SUBROUTINE DSYEVX( JOBZ, RANGE, UPLO, N, A, LDA, VL, VU, IL, IU,
+     $                   ABSTOL, M, W, Z, LDZ, WORK, LWORK, IWORK,
+     $                   IFAIL, INFO )
 *
-*  -- LAPACK driver routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*  -- LAPACK driver routine (version 3.1) --
+*     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
 *     November 2006
 *
 *     .. Scalar Arguments ..
-  CHARACTER          JOBZ, UPLO
-  INTEGER            INFO, LDA, LWORK, N
+      CHARACTER          JOBZ, RANGE, UPLO
+      INTEGER            IL, INFO, IU, LDA, LDZ, LWORK, M, N
+      DOUBLE PRECISION   ABSTOL, VL, VU
 *     ..
 *     .. Array Arguments ..
-  DOUBLE PRECISION   A( LDA, * ), W( * ), WORK( * )
+      INTEGER            IFAIL( * ), IWORK( * )
+      DOUBLE PRECISION   A( LDA, * ), W( * ), WORK( * ), Z( LDZ, * )
 *     ..
 *
 *  Purpose
 *  =======
 *
-*  DSYEV computes all eigenvalues and, optionally, eigenvectors of a
-*  real symmetric matrix A.
+*  DSYEVX computes selected eigenvalues and, optionally, eigenvectors
+*  of a real symmetric matrix A.  Eigenvalues and eigenvectors can be
+*  selected by specifying either a range of values or a range of indices
+*  for the desired eigenvalues.
 *
 *  Arguments
 *  =========
@@ -128,6 +133,12 @@ SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 *  JOBZ    (input) CHARACTER*1
 *          = 'N':  Compute eigenvalues only;
 *          = 'V':  Compute eigenvalues and eigenvectors.
+*
+*  RANGE   (input) CHARACTER*1
+*          = 'A': all eigenvalues will be found.
+*          = 'V': all eigenvalues in the half-open interval (VL,VU]
+*                 will be found.
+*          = 'I': the IL-th through IU-th eigenvalues will be found.
 *
 *  UPLO    (input) CHARACTER*1
 *          = 'U':  Upper triangle of A is stored;
@@ -142,43 +153,107 @@ SUBROUTINE DSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 *          upper triangular part of the matrix A.  If UPLO = 'L',
 *          the leading N-by-N lower triangular part of A contains
 *          the lower triangular part of the matrix A.
-*          On exit, if JOBZ = 'V', then if INFO = 0, A contains the
-*          orthonormal eigenvectors of the matrix A.
-*          If JOBZ = 'N', then on exit the lower triangle (if UPLO='L')
-*          or the upper triangle (if UPLO='U') of A, including the
-*          diagonal, is destroyed.
+*          On exit, the lower triangle (if UPLO='L') or the upper
+*          triangle (if UPLO='U') of A, including the diagonal, is
+*          destroyed.
 *
 *  LDA     (input) INTEGER
 *          The leading dimension of the array A.  LDA >= max(1,N).
 *
+*  VL      (input) DOUBLE PRECISION
+*  VU      (input) DOUBLE PRECISION
+*          If RANGE='V', the lower and upper bounds of the interval to
+*          be searched for eigenvalues. VL < VU.
+*          Not referenced if RANGE = 'A' or 'I'.
+*
+*  IL      (input) INTEGER
+*  IU      (input) INTEGER
+*          If RANGE='I', the indices (in ascending order) of the
+*          smallest and largest eigenvalues to be returned.
+*          1 <= IL <= IU <= N, if N > 0; IL = 1 and IU = 0 if N = 0.
+*          Not referenced if RANGE = 'A' or 'V'.
+*
+*  ABSTOL  (input) DOUBLE PRECISION
+*          The absolute error tolerance for the eigenvalues.
+*          An approximate eigenvalue is accepted as converged
+*          when it is determined to lie in an interval [a,b]
+*          of width less than or equal to
+*
+*                  ABSTOL + EPS *   max( |a|,|b| ) ,
+*
+*          where EPS is the machine precision.  If ABSTOL is less than
+*          or equal to zero, then  EPS*|T|  will be used in its place,
+*          where |T| is the 1-norm of the tridiagonal matrix obtained
+*          by reducing A to tridiagonal form.
+*
+*          Eigenvalues will be computed most accurately when ABSTOL is
+*          set to twice the underflow threshold 2*DLAMCH('S'), not zero.
+*          If this routine returns with INFO>0, indicating that some
+*          eigenvectors did not converge, try setting ABSTOL to
+*          2*DLAMCH('S').
+*
+*          See "Computing Small Singular Values of Bidiagonal Matrices
+*          with Guaranteed High Relative Accuracy," by Demmel and
+*          Kahan, LAPACK Working Note #3.
+*
+*  M       (output) INTEGER
+*          The total number of eigenvalues found.  0 <= M <= N.
+*          If RANGE = 'A', M = N, and if RANGE = 'I', M = IU-IL+1.
+*
 *  W       (output) DOUBLE PRECISION array, dimension (N)
-*          If INFO = 0, the eigenvalues in ascending order.
+*          On normal exit, the first M elements contain the selected
+*          eigenvalues in ascending order.
+*
+*  Z       (output) DOUBLE PRECISION array, dimension (LDZ, max(1,M))
+*          If JOBZ = 'V', then if INFO = 0, the first M columns of Z
+*          contain the orthonormal eigenvectors of the matrix A
+*          corresponding to the selected eigenvalues, with the i-th
+*          column of Z holding the eigenvector associated with W(i).
+*          If an eigenvector fails to converge, then that column of Z
+*          contains the latest approximation to the eigenvector, and the
+*          index of the eigenvector is returned in IFAIL.
+*          If JOBZ = 'N', then Z is not referenced.
+*          Note: the user must ensure that at least max(1,M) columns are
+*          supplied in the array Z; if RANGE = 'V', the exact value of M
+*          is not known in advance and an upper bound must be used.
+*
+*  LDZ     (input) INTEGER
+*          The leading dimension of the array Z.  LDZ >= 1, and if
+*          JOBZ = 'V', LDZ >= max(1,N).
 *
 *  WORK    (workspace/output) DOUBLE PRECISION array, dimension (MAX(1,LWORK))
 *          On exit, if INFO = 0, WORK(1) returns the optimal LWORK.
 *
 *  LWORK   (input) INTEGER
-*          The length of the array WORK.  LWORK >= max(1,3*N-1).
-*          For optimal efficiency, LWORK >= (NB+2)*N,
-*          where NB is the blocksize for DSYTRD returned by ILAENV.
+*          The length of the array WORK.  LWORK >= 1, when N <= 1;
+*          otherwise 8*N.
+*          For optimal efficiency, LWORK >= (NB+3)*N,
+*          where NB is the max of the blocksize for DSYTRD and DORMTR
+*          returned by ILAENV.
 *
 *          If LWORK = -1, then a workspace query is assumed; the routine
 *          only calculates the optimal size of the WORK array, returns
 *          this value as the first entry of the WORK array, and no error
 *          message related to LWORK is issued by XERBLA.
 *
+*  IWORK   (workspace) INTEGER array, dimension (5*N)
+*
+*  IFAIL   (output) INTEGER array, dimension (N)
+*          If JOBZ = 'V', then if INFO = 0, the first M elements of
+*          IFAIL are zero.  If INFO > 0, then IFAIL contains the
+*          indices of the eigenvectors that failed to converge.
+*          If JOBZ = 'N', then IFAIL is not referenced.
+*
 *  INFO    (output) INTEGER
 *          = 0:  successful exit
 *          < 0:  if INFO = -i, the i-th argument had an illegal value
-*          > 0:  if INFO = i, the algorithm failed to converge; i
-*                off-diagonal elements of an intermediate tridiagonal
-*                form did not converge to zero.
-*
+*          > 0:  if INFO = i, then i eigenvectors failed to converge.
+*                Their indices are stored in array IFAIL.
 */
 #if defined(__essl__)
-void dsyev(char* JOBZ, char* UPLO, int* N, double* A, int* LDA, double* W, double* WORK, int* LWORK, int* INFO );
+void dsyevx(char* JOBZ, char* RANGE, char* UPLO, int* N, double* A, int* LDA, double* VL, double* VU, int* IL, int* IU, double *ABSTOL, int *M, double* W, double* Z, int* LDZ, double* WORK, int* LWORK, int* IWORK, int* IFAIL, int* INFO );
 #else
-void dsyev_(char* JOBZ, char* UPLO, int* N, double* A, int* LDA, double* W, double* WORK, int* LWORK, int* INFO );
+void dsyevx_(char* JOBZ, char* RANGE, char* UPLO, int* N, double* A, int* LDA, double* VL, double* VU, int* IL, int* IU, double *ABSTOL, int *M, double* W, double* Z, int* LDZ, double* WORK, int* LWORK, int* IWORK, int* IFAIL, int* INFO );
 #endif
 
 
@@ -217,26 +292,34 @@ int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 	return INFO;
 }
 
-int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
+int comp_eigenvalues(double* A, double* W, double* WORK, int* IWORK, int* dim)
 {
-	char JOBZ = 'N';   //Compute eigenvalues
-	char UPLO = dim[1]?'U':'L';
-	int  N   = dim[0]; //order of A
-	int  LDA = N; //leading dimension of A
-	//double* A;// Input, on exit, A is destroyed.
-	//doulbe* W;// If INFO = 0, the eigenvalues in ascending order
-	//double* WORK; //work space
-	//int LWORK; //work space size optimized on exit, LWORK >= max(1,3*N-1).
-	int*  LWORK = &dim[1];//dim[1];
+	char JOBZ = 'N'; // compute eigenvalues only
+    char RANGE = 'A'; // all eigenvalues
+	char UPLO = 'U';
+	int N   = dim[0]; // order of A
+    int M   = N; // all eigenvalues
+	int LDA = N;
+    double ABSTOL = 0.0;
+    int LDZ = N;
+	int* LWORK = &dim[1];
 	int INFO;
+
 #ifdef ENABLE_LAPACK
 
 #if defined(__essl__)
-	dsyev(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
+    dsyevx(&JOBZ, &RANGE, &UPLO, &N, A, &LDA,
+           NULL, NULL, // VL, VU
+           NULL, NULL, // IL, IU
+           &ABSTOL, &M, W, NULL, &LDZ,
+           WORK, LWORK, IWORK, NULL, &INFO);
 #else
-	dsyev_(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
+    dsyevx_(&JOBZ, &RANGE, &UPLO, &N, A, &LDA,
+           NULL, NULL, // VL, VU
+           NULL, NULL, // IL, IU
+           &ABSTOL, &M, W, NULL, &LDZ,
+           WORK, LWORK, IWORK, NULL, &INFO);
 #endif
-
 #else
     error_missing_lapack();
 #endif
@@ -244,25 +327,33 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 	return INFO;
 }
 
-int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
+int comp_eigenvectors(double* A, double* W, double* Z, double* WORK, int* IWORK, int* IFAIL, int* dim)
 {
-	char JOBZ = 'V';    //Compute eigenvalues and eigenvectors
-	char UPLO = dim[1]?'U':'L';
-	int  N   = dim[0]; //order of A
-	int  LDA  = N; //leading dimension of A
-	//double* A;// On exit, if INFO = 0, A contains the orthonormal eigenvectors of the matrix A.
-	//doulbe* W;// If INFO = 0, the eigenvalues in ascending order
-	//double* WORK; //work space
-	//int LWORK; //work space size optimized on exit, LWORK >= max(1,3*N-1).
-	int*  LWORK = &dim[1];
+	char JOBZ = 'V'; // compute eigenvalues and eigenvectors
+    char RANGE = 'A'; // all eigenvalues
+	char UPLO = 'U';
+	int N   = dim[0]; // order of A
+    int M   = N; // all eigenvalues
+	int LDA = N;
+    double ABSTOL = 0.0;
+    int LDZ = N;
+	int* LWORK = &dim[1];
 	int INFO;
 
 #ifdef ENABLE_LAPACK
 
 #if defined(__essl__)
-	dsyev(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
+    dsyevx(&JOBZ, &RANGE, &UPLO, &N, A, &LDA,
+           NULL, NULL, // VL, VU
+           NULL, NULL, // IL, IU
+           &ABSTOL, &M, W, Z, &LDZ,
+           WORK, LWORK, IWORK, IFAIL, &INFO);
 #else
-	dsyev_(&JOBZ, &UPLO, &N, A, &LDA, W, WORK, LWORK, &INFO );
+    dsyevx_(&JOBZ, &RANGE, &UPLO, &N, A, &LDA,
+           NULL, NULL, // VL, VU
+           NULL, NULL, // IL, IU
+           &ABSTOL, &M, W, Z, &LDZ,
+           WORK, LWORK, IWORK, IFAIL, &INFO);
 #endif
 #else
     error_missing_lapack();

@@ -6,22 +6,16 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 #ifndef WRAP_LAPACK_H
 #define WRAP_LAPACK_H
 
-//------------------------------------------------------------------------
-// Solve linear equations
-//------------------------------------------------------------------------
 // A * X = B
 int solve_linear_equation(double* A, double* B, int* IPIV, int* dim);
 
-//------------------------------------------------------------------------
-// Compute eigenvalues and eigenvector
-//------------------------------------------------------------------------
-int comp_eigenvalue(double* A, double* W, double* WORK, int* dim);
-int comp_eigenvector(double* A, double* W, double* WORK, int* dim);
+int comp_eigenvalues(double* A, double* W, double* WORK, int* IWORK, int* dim);
+int comp_eigenvectors(double* A, double* W, double* Z, double* WORK, int* IWORK, int* IFAIL, int* dim);
 
 #endif
