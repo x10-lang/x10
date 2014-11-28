@@ -237,6 +237,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public boolean addFileIndex() {
+        System.out.println("1127-ABC-Y");
         if (++RoseTranslator.fileIndex == numSourceFile) {
             --RoseTranslator.fileIndex;
             return false;
@@ -426,7 +427,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
             class_name = outer + "." + class_name;
         }
         RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
-  
         JNI.cactionSetCurrentClassName((package_name.length() == 0 ? "" : package_name + ".") + class_name);
         
         // MH-20141008
@@ -484,7 +484,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
         
 //        JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken(n, class_name));
         JNI.cactionBuildClassSupportEnd(class_name, members.size(), RoseTranslator.createJavaToken(n, class_name));
-
+        
+        // MH-20141128
+        JNI.cactionSetupSourceFilename(srcfile.source().path());
+        
         Flags flags = n.flags().flags();
         JNI.cactionTypeDeclaration(package_name, class_name, /* num_annotations */0, n.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
         /* is_enum */false, flags.isAbstract(), flags.isFinal(), flags.isPrivate(), flags.isPublic(), flags.isProtected(), flags.isStatic(), /* is_strictfp */false, RoseTranslator.createJavaToken(n, class_name));
@@ -497,6 +500,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
         }
         if (propList.size() > 0)
             JNI.cactionSetProperties(propList.size(), RoseTranslator.createJavaToken());
+        //MH-20141128
+        JNI.cactionSetCurrentClassName(class_name);
     }
 
     public void visitDefinitions(X10ClassDecl_c n) {
@@ -1416,7 +1421,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             // JNI.cactionTypeReference("", type, this, RoseTranslator.createJavaToken());
         }
         // JNI.cactionTypeDeclaration("", n.nameString(), false, false,
-        // false, false, false, false, false, false, false, false);
+        // false, false, false, false, false, false, false, false);                
     }
 
     public void visit(Return_c n) {

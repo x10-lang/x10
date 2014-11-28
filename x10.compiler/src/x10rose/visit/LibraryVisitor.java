@@ -584,7 +584,7 @@ public class LibraryVisitor extends NodeVisitor {
         SourceFile_c file = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);
 
         RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
-        JNI.cactionSetCurrentClassName(package_name + "." + class_name);
+        JNI.cactionSetCurrentClassName(((package_name.length() == 0)? "" : package_name + ".") + class_name);
 
         if (package_name.length() != 0)
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
@@ -612,7 +612,7 @@ public class LibraryVisitor extends NodeVisitor {
             JNI.cactionBuildTypeParameterSupport(package_name, class_name, -1, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
         }
         if (typeParamList.size() > 0)
-            JNI.cactionSetCurrentClassName(package_name + "." + class_name);
+            JNI.cactionSetCurrentClassName(((package_name.length() == 0)? "" : package_name + ".") + class_name);
 
         JNI.cactionBuildClassSupportStart(class_name, "", true, 
                 false, false, false, false, RoseTranslator.createJavaToken(n, class_name));
