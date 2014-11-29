@@ -133,6 +133,7 @@ import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
 import x10.ast.ParExpr_c;
+import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
@@ -674,6 +675,23 @@ public class LibraryVisitor extends NodeVisitor {
         JNI.cactionTypeDeclaration(package_name, class_name, 0, decl.superClass() != null, /* is_annotation_interface */false, flags.isInterface(),
         /* is_enum */false, flags.isAbstract(), flags.isFinal(), flags.isPrivate(), flags.isPublic(), flags.isProtected(), flags.isStatic(), /* is_strictfp */false, RoseTranslator.createJavaToken(n, class_name));
 
+        List<PropertyDecl> propList = n.properties();
+        for (PropertyDecl prop : propList) {
+            visitChild(prop, prop.type());
+            boolean isRail = false;
+            TypeNode type = prop.type();
+            if (type instanceof AmbTypeNode_c) {
+                String ambTypeName = prop.toString().replaceAll("\\{amb\\}", "");
+                isRail = ambTypeName.indexOf("Rail[") >= 0 || ambTypeName.indexOf("GrowableRail[") >= 0;
+            }
+            else 
+                isRail = type.type().isRail();
+            
+            JNI.cactionAppendProperty(prop.name().id().toString(), isRail, 
+                                        prop.flags().flags().isFinal(), RoseTranslator.createJavaToken());
+        }
+        if (propList.size() > 0)
+            JNI.cactionSetProperties(propList.size(), RoseTranslator.createJavaToken());
     }
 
     public void visitDefinitions(X10ClassDecl_c n) {
