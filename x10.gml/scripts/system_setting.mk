@@ -74,9 +74,9 @@ ifdef BGQ
     BLASLIB = ESSL
     ifndef DISABLE_BLAS
         IBMCMP_ROOT ?= /opt/ibmcmp
-        XLSMP_LIB_PATH = $(IBMCMP_ROOT)/xlsmp/bg/3.1/bglib64
-        XLMASS_LIB_PATH = $(IBMCMP_ROOT)/xlmass/bg/7.3/bglib64
-        XLF_LIB_PATH = $(IBMCMP_ROOT)/xlf/bg/14.1/bglib64
+        XLSMP_LIB_PATH ?= $(IBMCMP_ROOT)/xlsmp/bg/3.1/bglib64
+        XLMASS_LIB_PATH ?= $(IBMCMP_ROOT)/xlmass/bg/7.3/bglib64
+        XLF_LIB_PATH ?= $(IBMCMP_ROOT)/xlf/bg/14.1/bglib64
         ESSL_LIB_PATH ?= /opt/ibmmath/essl/5.1/lib64
         ESSL_LIB = esslsmpbg
         # need mass lib on BG/Q
@@ -93,8 +93,8 @@ ifeq ($(BLASLIB),ESSL)
     X10CXX_PREARGS += -cxx-prearg -D__essl__
     ifndef DISABLE_BLAS
         IBMCMP_ROOT ?= /opt/ibmcmp
-        XLSMP_LIB_PATH = $(IBMCMP_ROOT)/xlsmp/3.1/lib64
-        XLF_LIB_PATH = $(IBMCMP_ROOT)/xlf/14.1/lib64
+        XLSMP_LIB_PATH ?= $(IBMCMP_ROOT)/xlsmp/3.1/lib64
+        XLF_LIB_PATH ?= $(IBMCMP_ROOT)/xlf/14.1/lib64
         ESSL_LIB_PATH ?= /usr/lib64
         ESSL_LIB ?= esslsmp6464
         X10CXX_POSTARGS += -cxx-postarg -L$(ESSL_LIB_PATH) -cxx-postarg -l$(ESSL_LIB) -cxx-postarg -L$(XLF_LIB_PATH) -cxx-postarg -lxlf90_r -cxx-postarg -L$(XLSMP_LIB_PATH) -cxx-postarg -lxlsmp -cxx-postarg -lxlopt -cxx-postarg -lxlfmath -cxx-postarg -lxl
