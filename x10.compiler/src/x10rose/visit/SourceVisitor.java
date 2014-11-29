@@ -237,7 +237,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public boolean addFileIndex() {
-        System.out.println("1127-ABC-Y");
         if (++RoseTranslator.fileIndex == numSourceFile) {
             --RoseTranslator.fileIndex;
             return false;
@@ -254,6 +253,12 @@ public class SourceVisitor extends X10DelegatingVisitor {
         isDecl = true;
         SourceFile_c file = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);
         FileStatus fileStatus = ExtensionInfo.fileHandledMap.get(file);
+        /* MH-20141129 : Skips the second traversal if this file has been already visited.
+         *               This check is necessary when this method is invoked by ROSE.
+         *               @see src/frontend/X10_ROSE_Connection/x10ActionROSE.C:Java_x10rose_visit_JNI_cactionTypeReference()
+         */
+        if (fileStatus.isDeclHandled()) 
+            return;
         fileStatus.handleDecl();
         ExtensionInfo.fileHandledMap.put(file, fileStatus);
         visit(file);
