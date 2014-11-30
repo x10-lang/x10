@@ -13,7 +13,7 @@ import x10.compiler.*;
 import x10.util.HashMap;
 import x10.util.concurrent.SimpleLatch;
 
-class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
+public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     private static val verbose = ResilientStore.verbose;
     
     private static def lowLevelSend(dst:Place, cl:()=>void) = FinishResilient.lowLevelSend(dst, cl);
