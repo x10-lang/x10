@@ -34,7 +34,13 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
     public abstract def load(key:K):V;
     public abstract def delete(key:K):void;
     public abstract def deleteAll():void;
- 
+
+    // HashMap-like I/F
+    public def put(key:K, value:V) { save(key, value); }
+    public def getOrThrow(key:K) { return load(key); }
+    public def get(key:K) { try { return load(key); } catch (e:x10.util.NoSuchElementException) { return Zero.get[V](); } }
+    public def getOrElse(key:K, orelse:V) { try { return load(key); } catch (e:x10.util.NoSuchElementException) { return orelse; } }
+    
     /**
      * Place0 implementation of ResilientStore
      */
