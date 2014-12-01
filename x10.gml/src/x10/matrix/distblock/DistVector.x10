@@ -464,7 +464,7 @@ public class DistVector(M:Long) implements Snapshottable {
         return output.toString();
     }
 
-    public def printAllCopies() {
+    public def allToString() {
         val output = new StringBuilder();
         output.add( "-------- Distributed vector :["+M+"] ---------\n");
         for (p in places) {
@@ -472,8 +472,7 @@ public class DistVector(M:Long) implements Snapshottable {
             output.add(at (p) { distV().toString()});
         }
         output.add("--------------------------------------------------\n");
-        Console.OUT.print(output.toString());
-        Console.OUT.flush();
+        return output.toString();
     }
     
     /*

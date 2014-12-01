@@ -525,12 +525,10 @@ public class DupSparseMatrix extends Matrix {
 		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
-
-	// Util
 	public def getCommTime():Long = this.commTime;
 	public def getCalcTime():Long = this.calcTime;
 
-	// Check integrity 
+	/** Check integrity */
 	public def syncCheck():Boolean {
 		val m = local();
 		for (var p:Long=0; p<Place.numPlaces(); p++) {
@@ -547,27 +545,19 @@ public class DupSparseMatrix extends Matrix {
 	}
 
 	public def toString() :String {
-		var output:String = "---Duplicated Dense Matrix size:["+M+"x"+N+"]---\n";
+		var output:String = "---Duplicated sparse matrix size:["+M+"x"+N+"]---\n";
 		output += dupMs(here.id()).toString();
 		output += "--------------------------------------------------\n";
 		return output;
 	}
 
 	public def allToString() : String {
-		var output:String = "Duplicated Dense Matrix size:["+M+"x"+N+"]\n";
+		var output:String = "Duplicated sparse matrix size:["+M+"x"+N+"]\n";
 		for (var p:Long=0; p<Place.numPlaces(); p++) { 
 			val pid = p;
 			val mstr = at(dupMs.dist(pid)) dupMs(pid).toString();
 			output += "Duplication at place " + pid + "\n"+mstr;
 		}
 		return output;
-	}
-
-	public def printAll(msg:String) :void {
-		Console.OUT.print(msg+allToString());
-		Console.OUT.flush();
-	}
-	public def printAll() {
-		printAll("");
 	}
 }

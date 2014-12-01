@@ -139,7 +139,6 @@ public class TestP2P extends x10Test {
 				}
 			}
 		}
-		//smat.printAll("Copy result");
 		val tt =  Timer.milliTime() - st;
 		
 		val avgt = 1.0*tt/iter/(numplace-1);

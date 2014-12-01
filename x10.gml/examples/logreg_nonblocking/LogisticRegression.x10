@@ -35,15 +35,12 @@ public class LogisticRegression {
 	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
 	val w:DenseMatrix(X.N,1);
 
-	val prt_y:Grid; 
 	val dup_w:DupDenseMatrix(X.N, 1); 
-	//val dup_w_:DupDenseMatrix(X.N, 1); 
 	val dst_y:DistDenseMatrix(X.M, 1);
 	
 	val tmp_w:DenseMatrix(X.N,1);
 	val tmp_y:DenseMatrix(X.M,1);
 	
-	val prt_ty:Grid;
 	val dst_ty:DistDenseMatrix(1, X.M);
 
 	val eta0 = 0.0;
@@ -61,12 +58,11 @@ public class LogisticRegression {
 					it:Long, nit:Long) {
 		X=x_; y=y_ as DenseMatrix(X.M, 1);	w=w_ as DenseMatrix(X.N, 1);
 		
-		prt_y = new Grid(X.M, 1, Place.numPlaces(), 1);
+		val prt_y = new Grid(X.M, 1, Place.numPlaces(), 1);
 		dst_y  = DistDenseMatrix.make(prt_y) as DistDenseMatrix(X.M, 1);
 		dup_w  = DupDenseMatrix.make(X.N, 1);
-		//dup_w_ = DupDenseMatrix.make(X.N,1);
 		
-		prt_ty = new Grid(1, X.M, 1, Place.numPlaces());
+		val prt_ty = new Grid(1, X.M, 1, Place.numPlaces());
 		dst_ty = DistDenseMatrix.make(prt_ty) as DistDenseMatrix(1, X.M);
 
 		tmp_w  = DenseMatrix.make(X.N,1);
@@ -87,11 +83,11 @@ public class LogisticRegression {
 		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		val grad:DenseMatrix(X.N ,1) = DenseMatrix.make(X.N, 1);//w.clone();
+		val grad = DenseMatrix.make(X.N, 1);//w.clone();
 		compute_grad(grad, logistic);
 		
 		//Additional memory space allocation
-		val Xd:DenseMatrix(X.M,1)=DenseMatrix.make(X.M, 1);
+		val Xd = DenseMatrix.make(X.M, 1);
 		
 		//logisticD = logistic*(1-logistic)
 		val logisticD = logistic.clone();
@@ -100,7 +96,6 @@ public class LogisticRegression {
 		//delta = sqrt(sum(grad*grad))
 		val sq = grad.norm(grad);
 		var delta:Double = Math.sqrt(grad.norm(grad));
-		//Debug.flushln("Dist "+ sq+ " Delta is "+delta);
 		
 		//# number of iterations
 		//iter = 0
@@ -108,7 +103,7 @@ public class LogisticRegression {
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-		val zeros_D:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1, 0.0);
+		val zeros_D = DenseMatrix.make(X.N, 1, 0.0);
 		//# boolean for convergence check
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxiter);
@@ -117,24 +112,23 @@ public class LogisticRegression {
 		//alpha = t(w) %*% w
 		var alpha:Double = w.norm(w);
 		// Add temp memory space
-		val s:DenseMatrix(X.N,1) = DenseMatrix.make(X.N,1);
-		val r:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val d:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val Hd:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N,1);
-		val onew:DenseMatrix(X.M, 1) = DenseMatrix.make(X.M, 1);
-		val wnew:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1);
-		val logisticnew:DenseMatrix(X.M,1) = DenseMatrix.make(X.M, 1);		
+		val s = DenseMatrix.make(X.N,1);
+		val r = DenseMatrix.make(X.N,1);
+		val d = DenseMatrix.make(X.N,1);
+		val Hd = DenseMatrix.make(X.N,1);
+		val onew = DenseMatrix.make(X.M, 1);
+		val wnew = DenseMatrix.make(X.N, 1);
+		val logisticnew = DenseMatrix.make(X.M, 1);		
 		Debug.flushln("Done initialization. Starting converging iteration");
 		while(!converge) {
 			
 			// 			norm_grad = sqrt(sum(grad*grad))
-			var norm_grad:Double=Math.sqrt(grad.norm(grad));
+			val norm_grad = Math.sqrt(grad.norm(grad));
 			// 			# SOLVE TRUST REGION SUB-PROBLEM
 			// 			s = zeros_D
 			s.reset();
 			// 			r = -grad
-			grad.copyTo(r);
-			r.scale(-1);
+			r.scale(-1.0, grad);
 			// 			d = r
 			r.copyTo(d);
 			// 			inneriter = 0
@@ -155,14 +149,12 @@ public class LogisticRegression {
 				// 				s = s + castAsScalar(alpha) * d
 				s.cellAdd(alpha * d);
 				// 				sts = t(s) %*% s
-				val sts:Double = s.norm(s);
+				val sts = s.norm(s);
 				// 				delta2 = delta*delta 
 				val delta2 = delta*delta;
-				// 				stsScalar = castAsScalar(sts)
-				var stsScalar:Double = sts;
 				// 				shouldBreak = false;
 				var shouldBreak:Boolean = false;
-				if (stsScalar > delta2) {
+				if (sts > delta2) {
 					// 
 					// 					std = t(s) %*% d
 					val std = s.norm(d);
@@ -170,10 +162,8 @@ public class LogisticRegression {
 					val dtd = d.norm(d);
 					// 					rad = sqrt(std*std + dtd*(delta2 - sts))
 					val rad = Math.sqrt(std*std+dtd*(delta2-sts));
-					// 					stdScalar = castAsScalar(std)
-					val stdScalar = std;
 					var tau:Double;
-					if(stdScalar >= 0) {
+					if(std >= 0) {
 						tau = (delta2 - sts)/(std + rad);
 					} else {
 						tau = (rad - std)/dtd;
@@ -210,7 +200,6 @@ public class LogisticRegression {
 				// 				
 				// 				
 			}  
-			// 			Debug.flushln("Dend trust region sub-problem");
 			// 			# END TRUST REGION SUB-PROBLEM
 			// 			# compute rho, update w, obtain delta
 			// 			qk = -0.5*(t(s) %*% (grad - r))
@@ -230,11 +219,9 @@ public class LogisticRegression {
 			// 			
 			// 			rho = (objnew - obj) / qk
 			val rho = (objnew - obj)/qk;
-			// 			rhoScalar = castAsScalar(rho);
-			val rhoScalar = rho;
 			// 			snorm = sqrt(sum( s * s ))
 			val snorm = Math.sqrt(s.norm(s));
-			if (rhoScalar > eta0) {
+			if (rho > eta0) {
 				// 				
 				// 				w = wnew
 				wnew.copyTo(w);
@@ -247,82 +234,61 @@ public class LogisticRegression {
 			iter = iter + 1;
 			converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
 			// 
-			// 			alphaScalar = castAsScalar(alpha)
-			val alphaScalar = alpha;			
-			if (rhoScalar < eta0){
-				delta = Math.min(Math.max( alphaScalar , sigma1) * snorm, sigma2 * delta );
+			if (rho < eta0){
+				delta = Math.min(Math.max(alpha, sigma1) * snorm, sigma2 * delta );
 			} else {
-				if (rhoScalar < eta1){
-					delta = Math.max(sigma1 * delta, Math.min( alphaScalar  * snorm, sigma2 * delta));
+				if (rho < eta1){
+					delta = Math.max(sigma1 * delta, Math.min(alpha  * snorm, sigma2 * delta));
 				} else { 
-					if (rhoScalar < eta2) {
-						delta = Math.max(sigma1 * delta, Math.min( alphaScalar * snorm, sigma3 * delta));
+					if (rho < eta2) {
+						delta = Math.max(sigma1 * delta, Math.min(alpha * snorm, sigma3 * delta));
 					} else {
-						delta = Math.max(delta, Math.min( alphaScalar * snorm, sigma3 * delta));
+						delta = Math.max(delta, Math.min(alpha * snorm, sigma3 * delta));
 					}
 				}
 			}
-			//Debug.flushln("End of converging iteration");
 		}
-		//Debug.flushln("End");
 		commUseTime += dup_w.getCommTime()+dst_y.getCommTime();
 	}
-	
 
-	
 	private def compute_XmultB(result:DenseMatrix(X.M, 1), opB:DenseMatrix(X.N, 1)):void {
 		//o = X %*% w
-		//Debug.flushln("Start X * nw ");
 		val stt:Long=Timer.milliTime();
-		opB.copyTo(dup_w.local());
-		dup_w.sync();
+		dup_w.copyFrom(opB);
 		DistMultDupToDist.comp(X, dup_w, dst_y);
 		
 		val ctt:Long = Timer.milliTime();
 		dst_y.copyTo(result); //gather single column matrix
 		commUseTime += Timer.milliTime() - ctt;
 		paraRunTime += Timer.milliTime() - stt;
-		//Debug.flushln("Done X * nw");	
-		//result.print("paralle X % B result:");
 	}
 	
 	private def compute_tXmultB(result:DenseMatrix(X.N,1), opB:DenseMatrix(X.M,1)):void {
 		
 		val stt = Timer.milliTime();
 		dst_y.copyFrom(opB);//Scattering
-		//opB.print("Scatter data source:");
-		//dst_y.print("Scatterring data:");
 		DistMultDistToDup.compTransMult(X, dst_y, dup_w, false);
 		dup_w.local().copyTo(result);
-		//result.print("Parallel X^t % B:");
 		paraRunTime += Timer.milliTime() - stt;
 	}
 	
 	private def compute_grad(grad:DenseMatrix(X.N, 1), logistic:DenseMatrix(X.M, 1)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		//Debug.flushln("Start computing grad");
 		logistic.copyTo(tmp_y);
 		tmp_y.cellSub(1.0).cellMult(y);
 		compute_tXmultB(grad, tmp_y);
 		grad.scale(C);
 		grad.cellAdd(w);
-		//Debug.flushln("Done");
-		//grad.print("Parallel grad:");
 	}
 	
 	private def compute_Hd(Hd:DenseMatrix(X.N, 1), 
-							 logistricD:DenseMatrix(X.M, 1), 
+							 logisticD:DenseMatrix(X.M, 1), 
 							 d:DenseMatrix(X.N, 1)):void {
 		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
-		//Debug.flushln("Start computing Hd");
 		compute_XmultB(tmp_y, d);
-		//Debug.flushln("Done Xd <- X * d");
-		tmp_y.cellMult(logistricD);
-		//Debug.flushln("Done logD cellmult");
+		tmp_y.cellMult(logisticD);
 		compute_tXmultB(Hd, tmp_y);
 		Hd.scale(C).cellAdd(d);
-		//Debug.flushln("Done computing Hd");
-		//Hd.print("Parallel Hd:");
 	}
 	
 }

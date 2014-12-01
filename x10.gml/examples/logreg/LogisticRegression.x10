@@ -188,21 +188,17 @@ public class LogisticRegression implements ResilientIterativeApp {
             val sts = s.norm();
             //                 delta2 = delta*delta 
             val delta2 = delta*delta;
-            //                 stsScalar = castAsScalar(sts)
-            val stsScalar = sts;
             //                 shouldBreak = false;
             var shouldBreak:Boolean = false;
-            if (stsScalar > delta2) {
+            if (sts > delta2) {
                 //                     std = t(s) %*% d
                 val std = s.norm(d);
                 //                     dtd = t(d) %*% d
                 val dtd = d.norm();
                 //                     rad = sqrt(std*std + dtd*(delta2 - sts))
                 val rad = Math.sqrt(std*std+dtd*(delta2-sts));
-                //                     stdScalar = castAsScalar(std)
-                val stdScalar = std;
                 var tau:Double;
-                if(stdScalar >= 0) {
+                if(std >= 0) {
                     tau = (delta2 - sts)/(std + rad);
                 } else {
                     tau = (rad - std)/dtd;
@@ -249,11 +245,9 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             
         //             rho = (objnew - obj) / qk
         val rho = (objnew - obj)/qk;
-        //             rhoScalar = castAsScalar(rho);
-        val rhoScalar = rho;
         //             snorm = sqrt(sum( s * s ))
         val snorm = Math.sqrt(s.norm());
-        if (rhoScalar > eta0){            
+        if (rho > eta0){            
             //                 w = wnew
             wnew.copyTo(w);
             //                 o = onew
@@ -263,18 +257,16 @@ public class LogisticRegression implements ResilientIterativeApp {
         } 
         iter = iter + 1;
         converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
-        //             alphaScalar = castAsScalar(alpha)
-        val alphaScalar = alpha;
-        if (rhoScalar < eta0){
-            delta = Math.min(Math.max( alphaScalar , sigma1) * snorm, sigma2 * delta );            
+        if (rho < eta0){
+            delta = Math.min(Math.max(alpha , sigma1) * snorm, sigma2 * delta );            
         } else {
-            if (rhoScalar < eta1){
-                delta = Math.max(sigma1 * delta, Math.min( alphaScalar  * snorm, sigma2 * delta));                
+            if (rho < eta1){
+                delta = Math.max(sigma1 * delta, Math.min(alpha  * snorm, sigma2 * delta));                
             } else { 
-                if (rhoScalar < eta2) {
-                    delta = Math.max(sigma1 * delta, Math.min( alphaScalar * snorm, sigma3 * delta));                    
+                if (rho < eta2) {
+                    delta = Math.max(sigma1 * delta, Math.min(alpha * snorm, sigma3 * delta));                    
                 } else {
-                    delta = Math.max(delta, Math.min( alphaScalar * snorm, sigma3 * delta));                    
+                    delta = Math.max(delta, Math.min(alpha * snorm, sigma3 * delta));                    
                 }
             }
         }
@@ -283,8 +275,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     private def compute_XmultB(result:DistVector(X.M), opB:Vector(X.N)):void {
         // o = X %*% w
         val stt = Timer.milliTime();
-        opB.copyTo(dup_w.local());
-        dup_w.sync();
+        dup_w.copyFrom(opB);
         result.mult(X, dup_w, false);
         paraRunTime += Timer.milliTime() - stt;
     }

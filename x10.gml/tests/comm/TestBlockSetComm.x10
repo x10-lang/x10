@@ -125,7 +125,6 @@ public class TestBlockSetComm extends x10Test {
 			};
 			tt += Timer.milliTime() - st;
 		}
-		//src.printAllCopies();		
 		ret = src.checkSync();
 		val avgt = 1.0*tt/(numplace-1);
 		Console.OUT.printf("P2P copyFrom %d bytes: %.3f ms, thput: %2.2f MB/s per iteration\n", 
@@ -154,7 +153,6 @@ public class TestBlockSetComm extends x10Test {
 			val st:Long =  Timer.milliTime();
 			BlockSetBcast.bcast(bmat.handleDB, p);
 			avgt += (Timer.milliTime() - st);
-			//bmat.printAllMatrixCopies();
 			ret &= bmat.checkSync();
 		}
 	

@@ -88,8 +88,6 @@ public class TestColl extends x10Test {
 
 		MatrixRingCast.rcast(dupmat.dupMs);
 		
-		//dupDA.printAll("All copies:");
-
 		ret =dupmat.syncCheck();
 		if (!ret)
 			Console.OUT.println("-----Test dense matrix ring cast failed!-----");
@@ -224,7 +222,6 @@ public class TestColl extends x10Test {
 		val tmpDA = DupDenseMatrix.make(M,N);
 		dupDA.allReduceSum();
 		//MatrixReduce.allReduceSum(dupDA.dupMs, tmpDA.dupMs);
-		//dupDA.printAll("Result");
 		denDA.scale(numplace);
 		
 		ret = denDA.equals(dupDA.local() as Matrix(denDA.M, denDA.N));

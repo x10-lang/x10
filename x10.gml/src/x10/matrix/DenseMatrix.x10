@@ -529,6 +529,12 @@ public class DenseMatrix extends Matrix {
         = map((x:Double)=>{alpha * x});
 
     /**
+     * this = alpha * X
+     */
+    public def scale(alpha:Double, X:DenseMatrix(M,N)):DenseMatrix(this)
+        = map(X, (x:Double)=> {alpha * x});
+
+    /**
      * Compute the Euclidean distance between "this" and the given matrix
      * 
      * @param x matrix object
@@ -667,6 +673,13 @@ public class DenseMatrix extends Matrix {
         A.cellAdd(this);
         return A;
     }
+
+    /**
+     * this = A + B
+     * Cellwise addition of two matrices, storing the result in this matrix.
+     */
+    public def cellAdd(A:DenseMatrix(M,N), B:DenseMatrix(M,N)):DenseMatrix(this)
+        = map(A, B, (a:Double, b:Double)=> {a + b});
 
     /**
      * Subtract a constant value from each element of this matrix 

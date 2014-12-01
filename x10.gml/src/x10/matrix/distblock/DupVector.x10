@@ -128,6 +128,11 @@ public class DupVector(M:Long) implements Snapshottable {
             dupV().copyTo(dst.dupV());
         }
     }
+
+    public def copyFrom(vec:Vector(M)):void {
+        vec.copyTo(local());
+        sync();
+    }
     
     public  operator this(x:Long):Double = dupV()(x);
 
@@ -311,7 +316,6 @@ public class DupVector(M:Long) implements Snapshottable {
         /* Timing */ val st = Timer.milliTime();        
         ArrayBcast.bcast(dupData, places);
         /* Timing */ commTime += Timer.milliTime() - st;
-        //Debug.flushln("Calling sync "+commTime);
     }
 
     
@@ -384,7 +388,7 @@ public class DupVector(M:Long) implements Snapshottable {
         return output.toString();
     }
 
-    public def printAllCopies() {
+    public def allToString() {
         val output = new StringBuilder();
         output.add("-------- Duplicate vector :["+M+"] ---------\n");
         for (p in places) {
@@ -392,8 +396,7 @@ public class DupVector(M:Long) implements Snapshottable {
             output.add(at (p) { dupV().toString()});
         }
         output.add("--------------------------------------------------\n");
-        Console.OUT.print(output.toString());
-        Console.OUT.flush();
+        return output.toString();
     }
     
     /**
@@ -417,20 +420,16 @@ public class DupVector(M:Long) implements Snapshottable {
     private transient val DUMMY_KEY:Long = 8888L;
 
     public def makeSnapshot():DistObjectSnapshot {
-        //val startTime = Timer.milliTime();
         val snapshot = DistObjectSnapshot.make();        
         val data = dupV();
         val placeIndex  = 0;
         snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex, data.d));
-        //Console.OUT.println("DupVector.SnapshotTime["+(Timer.milliTime() - startTime)+"]");
         return snapshot;
     }
 
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        //val startTime = Timer.milliTime();        
         val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
         new Vector(dupSnapshotInfo.data).copyTo(dupV());
         sync();
-        //Console.OUT.println("DupVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
     }
 }

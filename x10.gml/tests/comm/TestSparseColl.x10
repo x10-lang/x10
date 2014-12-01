@@ -73,7 +73,6 @@ public class TestSparseColl extends x10Test {
 		spa.initRandom(nzdensity);
 
 		MatrixBcast.bcast(dupSM.dupMs);
-		//dspa.printAll();
 
 		ret =dupSM.syncCheck();
 		if (!ret)

@@ -638,28 +638,15 @@ public class DupBlockMatrix extends Matrix {
         return output.toString();
     }
 
-    public def printAllCopies() {
+    public def allToString() {
         val output=new StringBuilder();
-        output.add("-------- Duplicate block matrix :["+M+" x "+N+"] ---------\n");
+        output.add("-------- Duplicated block matrix :["+M+" x "+N+"] ---------\n");
         for (p in Place.places()) {
             output.add("Copy at place " + p.id() +"\n");
             output.add(at (p) { handleDB().toString()});
         }
         output.add("--------------------------------------------------\n");
-        Console.OUT.print(output.toString());
-        Console.OUT.flush();
-    }
-    
-    public def printAllMatrixCopies() {
-        val output = new StringBuilder();
-        output.add("-------- Duplicate block matrix:["+M+" x "+N+"] ---------\n");
-        for (p in Place.places()) {
-            output.add("Copy at place " + p.id() +"\n");
-            output.add(at (p) {(local() as Matrix).toString()});
-        }
-        output.add("--------------------------------------------------\n");
-        Console.OUT.print(output.toString());
-        Console.OUT.flush();
+        return output.toString();
     }
 }
 

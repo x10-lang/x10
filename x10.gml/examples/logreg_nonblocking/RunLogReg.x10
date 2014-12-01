@@ -45,7 +45,6 @@ public class RunLogReg {
 
         val mX = opts("m", 10);
         val nX = opts("n", 10);
-        val colBlocks = opts("c", 1);
         val nonzeroDensity = opts("d", 0.5);
         val iterations = opts("i", 2n);
         val verify = opts("v");
@@ -55,20 +54,17 @@ public class RunLogReg {
 		if ((mX<=0) ||(nX<=0))
 			Console.OUT.println("Error in settings");
 		else {
-			val prt:Grid = new Grid(mX, nX, Place.numPlaces(), 1);
+			val prt = new Grid(mX, nX, Place.numPlaces(), 1);
 			val X = DistSparseMatrix.make(prt, nonzeroDensity) as DistSparseMatrix(mX, nX);
 			val y = DenseMatrix.make(X.M, 1);
 			val w = DenseMatrix.make(X.N, 1);
 			
 			//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 			X.initRandom(1, 10);
-			//X.print();
 			//y = Rand(rows = 1000, cols = 1, min = 1, max = 10, pdf = "uniform");
 			y.initRandom(1, 10);
-			//y.print();
 			w.initRandom();
 			
-			//y.print("Input y:");
 			val prun = new LogisticRegression(X, y, w, iterations, iterations);
 		
             Debug.flushln("Starting logistic regression");

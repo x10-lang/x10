@@ -36,7 +36,6 @@ public class DistDupVectorMult  {
             }
         }
         vC.calcTime += Timer.milliTime() - stt;
-        //vC.printAllCopies();
         vC.reduceSum();
         return vC;
     }
