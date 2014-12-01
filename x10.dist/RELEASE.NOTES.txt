@@ -1,37 +1,27 @@
-X10 Release 2.5.0
+X10 Release 2.5.1
 
 HIGHLIGHTS OF THIS RELEASE
 
-X10 Release 2.5.0 includes a redesign of several X10 standard library
-APIs to better support Resilient and Elastic X10.  In particular, we
-have rethought various aspects of Place-related functionality to more
-naturally support execution over a dynamically varying set of
-Places. For all the details, please see the X10Doc for x10.lang.Place,
-x10.lang.PlaceGroup, and x10.lang.PlaceTopology. 
-Some of the key changes are:
-  + The removal of static constants such as PlaceGroup.WORLD,
-    and Place.MAX_PLACES. They are replaced by Place.places()
-    and Place.numPlaces() which return values that represent
-    the current view on the dynamically changeable set of Places
-    available to the computation.
-  + The removal of iteration functionality (next/prev) from Place.
-    This functionality is now provided only through PlaceGroup.
-  + The addition of PlaceTopology to provide a more flexible set of
-    APIs describing the topological relationships of Places.
-
-X10 2.5.0 also includes a set of enabling runtime system changes to
-better support the embedding of X10 and the XRX runtime into larger
-programs written in other programming languages.  These changes are
-surfaced to the programmer via a new set of APIs on x10.lang.Runtime
-that support initializing the XRX runtime, submitting jobs for
-execution by the XRX runtime, job cancellation, and runtime shutdown. 
-
-A backwards incompatible change to the x10.util.Map interface removes
-the usage of x10.util.Box on the return value of the put and get
-methods of Map by requiring that Values stored in Map satisfy the
-haszero constraint (XTENLANG-573).  This may require adjustment in
-application code that uses implementation of x10.util.Map. 
-
+The primary features of the X10 2.5.1 release are enhancements to
+Resilient and Elastic X10.  Key highlights include:
+  + Full integration of the Hazelcast in-memory data grid with Managed
+    X10.  Key features include new X10 APIs to utilize Hazelcast as an
+    implementation of x10.util.resilient.ResilientMap, an
+    implementation of resilient finish using Hazelcast (X10_RESILIENT_MODE=12), 
+    and integration of Hazelcast grid initialization into the X10
+    launcher (bin/x10 script).
+  + Resilient X10 using Place 0 resilient finish
+    (X10_RESILIENT_MODE=1) can now support the same levels of
+    concurrency and distribution as non-resilient X10.  This was
+    enabled by new features in the X10 runtime and network layer for
+    message stratification and stronger progress guarantees for
+    explicitly marked short messages (see x10.compiler.Immediate).
+  + The development of additional Resilient and Elastic X10 sample
+    applications. Resiliency support has been added to the Global
+    Matrix Library (GML) and several of its sample applications.
+    Resiliency and Elasticity have also been added to M3RLite (Main
+    Memory Map Reduce Lite) and several new M3RLite sample
+    applications are now available as well.
 For additional information about Resilient and Elastic X10, please see
 samples/resiliency and the x10-lang.org website.
 
@@ -61,52 +51,38 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.5.0
+Below is a summary of JIRA issues addressed for the X10 2.5.1
 
 ** New Features and Improvements
-    * [XTENLANG-573] - x10.util.HashMap & Boxing
-    * [XTENLANG-1955] - Calling external MPI Library(PWSMP) on multiple nodes has performance issue
-    * [XTENLANG-2493] - static val members with constant values should be const in generated C++
-    * [XTENLANG-2866] - Modernize x10.util.Map (and others) to provide operators as shorthands
-    * [XTENLANG-3181] - Ensure graceful failure of X10 runtime in presence of failures
-    * [XTENLANG-3302] - Faster put, remove for MapSet
-    * [XTENLANG-3394] - Upgrade to bdwgc 7.4.x
-    * [XTENLANG-3399] - Rail.uncountedCopy for Managed X10
-    * [XTENLANG-3401] - X10 implementation of Team reduce, allreduce
-    * [XTENLANG-3411] - Native X10: codegen for string literals
-    * [XTENLANG-3414] - GML arbitrary place group distribution
-    * [XTENLANG-3416] - Need Watcher.await with timeout
-    * [XTENLANG-3423] - Change MultipleExceptions.exceptions to Rail[CheckedThrowable]
-    * [XTENLANG-3429] - Change default value of X10_NTHREADS from 1 to availableProcessors
-    * [XTENLANG-3430] - X10 implementation of Team scatter
+    * [XTENLANG-3333] - X10 WebSite: Add information on current community projects under community
+    * [XTENLANG-3443] - ArrayList.resize
+    * [XTENLANG-3445] - RailUtils.scan
+    * [XTENLANG-3456] - Create as many BDWGC marker threads as X10 worker threads
+    * [XTENLANG-3457] - Reduce memory usage of X10RT sockets launcher processes
+    * [XTENLANG-3461] - Map / reduce methods on local Matrix and Vector classes
+    * [XTENLANG-3468] - Team reduce, allreduce for user-defined Arithmetic/Bitwise/Ordered struct types
+    * [XTENLANG-3475] - GML: Wrap LAPACK eigensolver DSYEVX instead of DSYEV
 
 ** Bugs
-    * [XTENLANG-3051] - Cannot pass "INIT_THREADS" flag to Java runtime
-    * [XTENLANG-3312] - Rail.asyncCopy sometime fails on large input
-    * [XTENLANG-3313] - x10c should detect recursive jar creation
-    * [XTENLANG-3371] - Race condition in Runtime.Workers.multiplace
-    * [XTENLANG-3372] - Intermittent stack overflow in polyglot
-    * [XTENLANG-3390] - Allow X10 values to be serialized via Java serialization
-    * [XTENLANG-3392] - Initial activity does not drop its clocks upon terminating.
-    * [XTENLANG-3395] - Spurious wake-up in x10.util.concurrent.SPMDBarrier causes deadlock
-    * [XTENLANG-3396] - Fail to compile a static method in Native X10
-    * [XTENLANG-3398] - Evaluation of Team.WORLD hangs on multi places with JavaSockets
-    * [XTENLANG-3400] - PlaceLocalHandles: remove dependency on Place 0 for id assignment
-    * [XTENLANG-3408] - Performance of JavaSockets transport
-    * [XTENLANG-3413] - Native X10: closures in generic methods that do not capture type params should go in .cc not .h
-    * [XTENLANG-3417] - Support generation of a jar file which includes no X10/Java source files
-    * [XTENLANG-3418] - Reader#{mark(Int),available():Int} should use Long rather than Int
-    * [XTENLANG-3421] - C++ post compilation error (missing inclusion of x10/lang/Float.h) 
-    * [XTENLANG-3425] - Inconsistencies between Managed and Native implementations of zero-size Rail.asyncCopy, Rail.uncountedCopy 
-    * [XTENLANG-3426] - Update online help contents for X10DT 2.5
-    * [XTENLANG-3431] - Killing second place results in program termination
-    * [XTENLANG-3432] - Fix to experimental Java MPI launcher
+    * [XTENLANG-3304] - On Resilient X10, at (p) { body } may block even if the body finished
+    * [XTENLANG-3343] - Resilient X10 fails with "TOO MANY THREADS"
+    * [XTENLANG-3344] - Resilient X10 fails with "TOO MANY THREADS" (another case)
+    * [XTENLANG-3379] - On Resilient X10, at (p) async is not executed in parallel without X10_BUSY_WAITING
+    * [XTENLANG-3428] - Elastic X10 and Runtime.Workers.multiplace
+    * [XTENLANG-3435] - @NoInline on closure within static @Inline method results in wrong saved_this
+    * [XTENLANG-3437] - Experimental Java MPI launcher causes SEGV with non-IBM Java VM
+    * [XTENLANG-3438] - GC library and build system patch for K computer
+    * [XTENLANG-3442] - Some structs can't be interface's members's return types
+    * [XTENLANG-3462] - Incorrect implementation of instanceof and cast for nested generic types
+    * [XTENLANG-3463] - Resilient X10 requires BUSY_WAITING=true
+    * [XTENLANG-3466] - Template-related compile error in Native X10
+    * [XTENLANG-3470] - Incorrect generated code for variable shadowing
 
 ** Tasks
-    * [XTENLANG-3201] - Need official release of GML
+    * [XTENLANG-3439] - Update sample programs (online; X10DT help) for 2.5.1
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=19141
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=20503
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
