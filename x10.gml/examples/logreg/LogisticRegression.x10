@@ -230,7 +230,7 @@ public class LogisticRegression implements ResilientIterativeApp {
                 //                     innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
                 innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
             }
-        }  
+        }
         //             # END TRUST REGION SUB-PROBLEM
         //             # compute rho, update w, obtain delta
         //             qk = -0.5*(t(s) %*% (grad - r))
@@ -240,7 +240,9 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             onew = X %*% wnew
         compute_XmultB(onew, wnew); 
         //             logisticnew = 1.0/(1.0 + exp(-y * o ))
+        val stt = Timer.milliTime();
         logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
+        paraRunTime += Timer.milliTime() - stt;
         
         //             objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
         val objnew = 0.5 * wnew.norm() + C * logisticnew.sum();
@@ -279,36 +281,38 @@ public class LogisticRegression implements ResilientIterativeApp {
     }
 
     private def compute_XmultB(result:DistVector(X.M), opB:Vector(X.N)):void {
-        //o = X %*% w
-        val stt:Long=Timer.milliTime();
+        // o = X %*% w
+        val stt = Timer.milliTime();
         opB.copyTo(dup_w.local());
         dup_w.sync();
         result.mult(X, dup_w, false);
         paraRunTime += Timer.milliTime() - stt;
     }
     
-    private def compute_tXmultB(result:Vector(X.N), B:DistVector(X.M)):void {
-        val stt = Timer.milliTime();
-        dup_w.mult(B, X, false);
-        dup_w.local().copyTo(result);
-        paraRunTime += Timer.milliTime() - stt;
-    }
-    
     private def compute_grad(grad:Vector(X.N), logistic:DistVector(X.M)):void {
-        //grad = w + C*t(X) %*% ((logistic - 1)*y)
+        // grad = w + C*t(X) %*% ((logistic - 1)*y)
+        val stt = Timer.milliTime();
         logistic.map(y, (x:Double, v:Double)=> {(1.0 - x) * v});
         compute_tXmultB(grad, logistic);
+        paraRunTime += Timer.milliTime() - stt;
         grad.scale(C).cellAdd(w);
     }
     
     private def compute_Hd(Hd:Vector(X.N), logisticD:DistVector(X.M), d:Vector(X.N)):void {
-        //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
+        // Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
         compute_XmultB(tmp_y, d);
+        val stt = Timer.milliTime();        
         tmp_y.cellMult(logisticD);
         compute_tXmultB(Hd, tmp_y);
+        paraRunTime += Timer.milliTime() - stt;
         Hd.scale(C).cellAdd(d);
     }
     
+    private def compute_tXmultB(result:Vector(X.N), B:DistVector(X.M)):void {
+        dup_w.mult(B, X, false);
+        dup_w.local().copyTo(result);
+    }
+
     public def isFinished():Boolean{
         return converge;
     }
