@@ -13,6 +13,7 @@ import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Timer;
 
+import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
 import x10.matrix.util.PlaceGroupBuilder;
@@ -75,6 +76,16 @@ public class RunLogReg {
 
             val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places);
 
+            var denX:DenseMatrix(mX,nX) = null;
+            var y:Vector(mX) = null;
+            var w:Vector(nX) = null;
+            if (verify) {
+                denX = prun.X.toDense();
+                y = Vector.make(denX.M);
+                prun.y.copyTo(y); // gather
+                w = prun.w.clone() as Vector(nX);
+            }
+
             Debug.flushln("Starting logistic regression");
 			val startTime = Timer.milliTime();
 			prun.run();
@@ -84,20 +95,13 @@ public class RunLogReg {
 					totalTime, prun.paraRunTime, prun.commUseTime); 
 			
 			if (verify) { /* Sequential run */
-                val X = prun.X;
-                val y = Vector.make(X.M);
-                prun.y.copyTo(y); // gather
-                val w = prun.w;
-				val denX = X.toDense();
-			    val yt = y.clone();
-			    val wt = w.clone();
-				val seq = new SeqLogReg(denX, yt, wt, iterations, iterations);
+				val seq = new SeqLogReg(denX, y, w, iterations, iterations);
 
 		        Debug.flushln("Starting sequential logistic regression");
 				seq.run();
                 Debug.flushln("Verifying results against sequential version");
 				
-				if (w.equals(wt)) {
+				if (prun.w.equals(w)) {
 					Console.OUT.println("Verification passed.");
 				} else {
                     Console.OUT.println("Verification failed!");

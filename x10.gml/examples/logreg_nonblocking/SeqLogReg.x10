@@ -36,7 +36,6 @@ public class SeqLogReg {
 	val sigma3 = 4.0;
 	val psi = 0.1; 	
 	
-	val tmp_w:DenseMatrix(X.N, 1);
 	val tmp_y:DenseMatrix(X.M, 1);
 	
 	public def this(x_:DenseMatrix, y_:DenseMatrix(x_.M,1), w_:DenseMatrix(x_.N,1),
@@ -45,7 +44,6 @@ public class SeqLogReg {
 		y=y_ as DenseMatrix(X.M, 1);
 		w=w_ as DenseMatrix(X.N, 1);
 		
-		tmp_w = DenseMatrix.make(X.N, 1);
 		tmp_y = DenseMatrix.make(X.M, 1);
 		
 		maxiter = it;
