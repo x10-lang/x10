@@ -311,8 +311,10 @@ void Launcher::readHostFile()
 
 			char * p = strtok(buffer, " \t\n\r");
 			int plen = p ? strlen(p) : 0;
-			if (plen <= 0)
+			if (plen <= 0) {
+				fprintf(stderr, "Launcher %d: detected a line %i is blank in hostfile!  Please verify hostfile contents.\n", _myproc, lineNumber);
 				break;
+			}
 
 			char * host = (char *) malloc(plen + 10);
 			if (!host)

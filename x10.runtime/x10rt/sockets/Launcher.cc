@@ -852,8 +852,15 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %d: captured exit code %s, %i of child %u\n", _myproc, (WIFEXITED(status)?"true":"false"), WEXITSTATUS(status), childNo);
 	#endif
+
+	// check for failure to launch, via special ssh exit code 255
+	if (childNo < _numchildren && WIFEXITED(status) && WEXITSTATUS(status)==255) {
+		_exitcode = 255;
+		DIE("Launcher %d: Error launching place %u on host \"%s\".  Please verify hostnames are specified correctly.", _myproc, _firstchildproc+childNo, _hostlist[childNo]);
+	}
+	// launch was ok, this is the program exiting.
 	// save this return code if it's worth saving.  The local runtime overwrites other runtimes if there are multiple errors (runtime 0 is top dog).
-	if (_exitcode == (int)0xFEEDC0DE || (childNo == _numchildren && !(WIFSIGNALED(status) && WTERMSIG(status)==SIGTERM)))
+	else if (_exitcode == (int)0xFEEDC0DE || (childNo == _numchildren && !(WIFSIGNALED(status) && WTERMSIG(status)==SIGTERM)))
 	{
 		if (childNo == _numchildren)
 		{
@@ -1400,7 +1407,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 		DIE("Launcher %d: Unable to exec ssh because argv[0] is null", _myproc);
 	z = execvp(argv[0], argv);
 
-	if (z)
-		DIE("Launcher %d: ssh exec failed", _myproc);
+	if (z != 0)
+		DIE("Launcher %d: ssh exec failed.  errno=%i", _myproc, errno);
 	abort();
 }
