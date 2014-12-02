@@ -104,13 +104,26 @@ public class ResilientExecutor {
                 if (isResilient && (iter % itersPerCheckpoint) == 0) {
                     if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
                     try {
-                    val startCheckpoint = Timer.milliTime();
-                    app.checkpoint(store);
-                    lastCheckpointIter = iter;
-                    checkpointTime += (Timer.milliTime() - startCheckpoint);
-                    checkpointCount++;
+                        val startCheckpoint = Timer.milliTime();
+                        app.checkpoint(store);
+                        lastCheckpointIter = iter;
+                        checkpointTime += (Timer.milliTime() - startCheckpoint);
+                        checkpointCount++;
                     } catch (deadExp:DeadPlaceException) {
+                        Console.OUT.println("place failure during checkpoint: cancelling snapshot!");
+                        deadExp.printStackTrace();
                         store.cancelSnapshot();
+                        restoreRequired = true;
+                    } catch (mulExp:MultipleExceptions) {
+                        val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
+                        if (filtered != null) throw filtered;
+                        Console.OUT.println("place failure (MultipleExceptions) during checkpoint: cancelling snapshot!");
+                        val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
+                        for (dpe in deadPlaceExceptions) {
+                            dpe.printStackTrace();
+                        }
+                        store.cancelSnapshot();
+                        restoreRequired = true;
                     }
                 }
             } catch (dpe:DeadPlaceException) {
