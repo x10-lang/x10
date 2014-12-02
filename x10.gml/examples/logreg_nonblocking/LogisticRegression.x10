@@ -38,7 +38,6 @@ public class LogisticRegression {
 	val dup_w:DupDenseMatrix(X.N, 1); 
 	val dst_y:DistDenseMatrix(X.M, 1);
 	
-	val tmp_w:DenseMatrix(X.N,1);
 	val tmp_y:DenseMatrix(X.M,1);
 	
 	val dst_ty:DistDenseMatrix(1, X.M);
@@ -65,7 +64,6 @@ public class LogisticRegression {
 		val prt_ty = new Grid(1, X.M, 1, Place.numPlaces());
 		dst_ty = DistDenseMatrix.make(prt_ty) as DistDenseMatrix(1, X.M);
 
-		tmp_w  = DenseMatrix.make(X.N,1);
 		tmp_y  = DenseMatrix.make(X.M,1);
 		maxiter = it;
 		maxinneriter =nit;

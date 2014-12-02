@@ -37,7 +37,6 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     val dup_w:DupVector(X.N); 
     
-    val tmp_w:Vector(X.N);
     val tmp_y:DistVector(X.M);
 
     val o:DistVector(X.M);
@@ -83,11 +82,10 @@ public class LogisticRegression implements ResilientIterativeApp {
         
         dup_w  = DupVector.make(X.N, places);
 
-        tmp_w  = Vector.make(X.N);
         val rowBs = X.getAggRowBs();
         tmp_y  = DistVector.make(X.M, rowBs, places);
         o      = DistVector.make(X.M, rowBs, places);
-        grad   = Vector.make(X.N);//w.clone();
+        grad   = Vector.make(X.N);
         // Add temp memory space
         s      = Vector.make(X.N);
         r      = Vector.make(X.N);
@@ -283,7 +281,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     private def compute_grad(grad:Vector(X.N), logistic:DistVector(X.M)):void {
         // grad = w + C*t(X) %*% ((logistic - 1)*y)
         val stt = Timer.milliTime();
-        logistic.map(y, (x:Double, v:Double)=> {(1.0 - x) * v});
+        logistic.map(y, (x:Double, v:Double)=> {(x - 1.0) * v});
         compute_tXmultB(grad, logistic);
         paraRunTime += Timer.milliTime() - stt;
         grad.scale(C).cellAdd(w);
@@ -307,7 +305,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     public def isFinished():Boolean{
         return converge;
     }
-    
+
     public def checkpoint(store:ResilientStoreForApp):void {        
         store.startNewSnapshot();
         finish {
@@ -338,9 +336,10 @@ public class LogisticRegression implements ResilientIterativeApp {
             X.remakeDense(newRowPs, newColPs, newPlaces);
         }
         val rowBs = X.getAggRowBs();
+        y.remake(rowBs, newPlaces);
         o.remake(rowBs, newPlaces);
         onew.remake(rowBs, newPlaces);
-        y.remake(rowBs, newPlaces);
+
         tmp_y.remake(rowBs, newPlaces);
         logisticD.remake(rowBs, newPlaces);
         logisticnew.remake(rowBs, newPlaces);

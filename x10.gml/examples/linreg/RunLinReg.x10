@@ -83,6 +83,23 @@ public class RunLinReg {
                                               nonzeroDensity, iterations,
                                               checkpointFrequency, places);
 
+            var V:DenseMatrix(mV, nV) = null;
+            var b:Vector(nV) = null;
+            if (verify) {
+                val bV:BlockMatrix(parLR.V.M, parLR.V.N);
+                if (nonzeroDensity < 0.1) {
+                    bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
+                } else {
+                    bV = BlockMatrix.makeDense(parLR.V.getGrid());
+                }
+                V = DenseMatrix.make(mV, nV);
+                b = Vector.make(nV);
+
+                parLR.V.copyTo(bV as BlockMatrix(parLR.V.M, parLR.V.N));
+                bV.copyTo(V);
+                parLR.b.copyTo(b as Vector(parLR.b.M));
+            }
+
             //Run the parallel linear regression
             Debug.flushln("Starting parallel linear regression");
             val startTime = Timer.milliTime();
@@ -99,18 +116,6 @@ public class RunLinReg {
 
             if (verify) {
                 // Create sequential version running on dense matrices
-                val bV:BlockMatrix(parLR.V.M, parLR.V.N);
-                if (nonzeroDensity < 0.1) {
-                    bV = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
-                } else {
-                    bV = BlockMatrix.makeDense(parLR.V.getGrid());
-                }
-                val V = DenseMatrix.make(mV, nV);
-                val b = Vector.make(nV);
-
-                parLR.V.copyTo(bV as BlockMatrix(parLR.V.M, parLR.V.N));
-                bV.copyTo(V);
-                parLR.b.copyTo(b as Vector(parLR.b.M));
                 val seqLR = new SeqLinearRegression(V, b, iterations);
 
                 Debug.flushln("Starting sequential linear regression");

@@ -40,7 +40,6 @@ public class SeqLogReg {
 	val sigma3 = 4.0;
 	val psi = 0.1; 	
 	
-	val tmp_w:Vector(X.N);
 	val tmp_y:Vector(X.M);
 	
 	public def this(x_:DenseMatrix, y_:Vector(x_.M), w_:Vector(x_.N),
@@ -49,7 +48,6 @@ public class SeqLogReg {
 		y=y_ as Vector(X.M);
 		w=w_ as Vector(X.N);
 		
-		tmp_w = Vector.make(X.N);
 		tmp_y = Vector.make(X.M);
 		
 		maxiter = it;
@@ -228,19 +226,18 @@ public class SeqLogReg {
 	
 	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		logistic.copyTo(tmp_y);
-		tmp_y.cellSub(1.0).cellMult(y);
-		compute_tXmultB(grad, tmp_y);
+        logistic.map(y, (x:Double, v:Double)=> {(x - 1.0) * v});
+		compute_tXmultB(grad, logistic);
 		grad.scale(C);
 		grad.cellAdd(w);
 	}
 	
 	protected def compute_Hd(Hd:Vector(X.N), 
-							logistricD:Vector(X.M), 
+							logisticD:Vector(X.M), 
 							d:Vector(X.N)):void {
 		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
 		compute_XmultB(tmp_y, d);
-		tmp_y.cellMult(logistricD);
+		tmp_y.cellMult(logisticD);
 		compute_tXmultB(Hd, tmp_y);
 		Hd.scale(C).cellAdd(d);
 	}
