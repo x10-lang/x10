@@ -33,6 +33,10 @@ while [ $# != 0 ]; do
 	debug_arg="-nodebug"
     ;;
 
+    -rpm)
+	rpm_arg="-rpm"
+    ;;
+
     -skip_source)
         pushed_source="done"       
     ;;
@@ -58,10 +62,13 @@ for host in $hosts
 do
     echo "Launching buildRelease.sh on $host"
     scp buildRelease.sh $host:/tmp 
-    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg'"
+    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg $rpm_arg'"
     ssh $host "(cd /tmp; rm ./buildRelease.sh)"
     echo "transfering binary build from $host to orquesta"
     scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+    if [[ "$rpm_arg" == "-rpm" ]]; then
+        scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.rpm" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+    fi
 
     if [[ -z "$pushed_source" ]]; then
 	echo "transfering source build and testsuite from $host to orquesta"
