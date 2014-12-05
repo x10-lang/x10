@@ -723,7 +723,8 @@ public struct Team {
         private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
         private var local_temp_buff2:Any = null;
         private var local_count:Long = 0;
-        private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us
+        private var local_parentIndex:Long = -1;
+        private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us        
         private var local_child1Index:Long = -1;
         private var local_child2Index:Long = -1;
 
@@ -795,7 +796,15 @@ public struct Team {
             val sleepUntil = (condition:() => Boolean) => @NoInline {
                 if (!condition()) {
                     Runtime.increaseParallelism();
-                    while (!condition()) System.threadSleep(0);
+                    while (!condition()) {
+                        if (local_parentIndex > -1 && places(local_parentIndex).isDead())
+                        	throw new DeadPlaceException(places(local_parentIndex), "Detected at least one dead member in team "+teamidcopy);
+                        if (local_child1Index > -1 && places(local_child1Index).isDead())
+                            throw new DeadPlaceException(places(local_child1Index), "Detected at least one dead member in team "+teamidcopy);
+                        if (local_child2Index > -1 && places(local_child2Index).isDead())
+                            throw new DeadPlaceException(places(local_child2Index), "Detected at least one dead member in team "+teamidcopy);
+                        System.threadSleep(0);
+                    }
                     Runtime.decreaseParallelism(1n);
                 }
             };
@@ -824,6 +833,7 @@ public struct Team {
             local_dst = dst;
             local_dst_off = dst_off;
             local_count = count;
+            local_parentIndex = myLinks.parentIndex;
             local_grandchildren = myLinks.totalChildren;
             local_child1Index = myLinks.child1Index;
             local_child2Index = myLinks.child2Index;
@@ -1083,6 +1093,9 @@ if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk fro
             local_dst = null;
             local_temp_buff = null;
             local_temp_buff2 = null;
+            local_parentIndex = -1;
+            local_child1Index = -1;
+            local_child2Index = -1;
             this.phase.set(PHASE_READY);
             // done!
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
