@@ -797,13 +797,13 @@ public struct Team {
                 if (!condition()) {
                     Runtime.increaseParallelism();
                     while (!condition()) {
-                        if (local_parentIndex > -1 && places(local_parentIndex).isDead())
+/*                      if (local_parentIndex > -1 && places(local_parentIndex).isDead())
                         	throw new DeadPlaceException(places(local_parentIndex), "Detected at least one dead member in team "+teamidcopy);
                         if (local_child1Index > -1 && places(local_child1Index).isDead())
                             throw new DeadPlaceException(places(local_child1Index), "Detected at least one dead member in team "+teamidcopy);
                         if (local_child2Index > -1 && places(local_child2Index).isDead())
                             throw new DeadPlaceException(places(local_child2Index), "Detected at least one dead member in team "+teamidcopy);
-                        System.threadSleep(0);
+*/                      System.threadSleep(0);
                     }
                     Runtime.decreaseParallelism(1n);
                 }
