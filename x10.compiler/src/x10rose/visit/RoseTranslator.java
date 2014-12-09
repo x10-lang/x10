@@ -218,7 +218,6 @@ import x10.util.StringResource;
 import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10TypeChecker;
 import x10rose.ExtensionInfo;
-import x10rose.ExtensionInfo.FileStatus;
 
 public class RoseTranslator extends Translator {
 
@@ -564,6 +563,7 @@ public class RoseTranslator extends Translator {
             binaryOpTable.put(Binary.Operator.USHR, 19);
             binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
             binaryOpTable.put(Binary.Operator.EQ, 21);
+            binaryOpTable.put(Binary.Operator.NE, 22);
             binaryOpTable.put(Binary.Operator.COND_OR, 100);
             binaryOpTable.put(Binary.Operator.COND_AND, 101);
         }
