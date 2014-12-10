@@ -49,6 +49,7 @@ import polyglot.ast.Cast_c;
 import polyglot.ast.CharLit_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall.Kind;
+import polyglot.ast.Assign;
 import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Case_c;
@@ -223,6 +224,8 @@ public class RoseTranslator extends Translator {
 
     public static Set<String> package_traversed = new HashSet<String>();
 
+    public static int uniqMemberIndex = 0;
+    
     /** 
      * Key represents full path for a class, and the value for a key represents
      * the package name for the class
@@ -400,8 +403,6 @@ public class RoseTranslator extends Translator {
 
     static List<Job> jobList = new ArrayList<Job>();
 
-    static HashMap<String, HashMap<String, Integer>> classMemberMap = new HashMap<String, HashMap<String, Integer>>();
-
     static HashMap<String, Integer> memberMap = new HashMap<String, Integer>();
 
     static int fileIndex;
@@ -512,7 +513,8 @@ public class RoseTranslator extends Translator {
 
     private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
     private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
-
+    private static HashMap<Assign.Operator, Integer> assignOpTable = new HashMap<Assign.Operator, Integer>();
+    
     /**
      * 
      * operator code values are directly derived from ECJ.
@@ -568,5 +570,21 @@ public class RoseTranslator extends Translator {
             binaryOpTable.put(Binary.Operator.COND_AND, 101);
         }
         return binaryOpTable.get(op);
+    }
+    
+    static int getOperatorKind(Assign.Operator op) {
+        if (assignOpTable.isEmpty()) {
+            assignOpTable.put(Assign.Operator.BIT_AND_ASSIGN, 2);
+            assignOpTable.put(Assign.Operator.BIT_OR_ASSIGN, 3);
+            assignOpTable.put(Assign.Operator.BIT_XOR_ASSIGN, 8);
+            assignOpTable.put(Assign.Operator.DIV_ASSIGN, 9);
+            assignOpTable.put(Assign.Operator.SHL_ASSIGN, 10);
+            assignOpTable.put(Assign.Operator.SUB_ASSIGN, 13);
+            assignOpTable.put(Assign.Operator.ADD_ASSIGN, 14);
+            assignOpTable.put(Assign.Operator.MUL_ASSIGN, 15);
+            assignOpTable.put(Assign.Operator.MOD_ASSIGN, 16);
+            assignOpTable.put(Assign.Operator.SHR_ASSIGN, 17);
+        }
+        return assignOpTable.get(op);
     }
 }

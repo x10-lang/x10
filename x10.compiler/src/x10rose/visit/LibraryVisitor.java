@@ -185,7 +185,7 @@ public class LibraryVisitor extends NodeVisitor {
     private int memberIndex;
     private Node_c node;
     private Job currentJob;
-
+    
     private static HashMap<Operator, Integer> opTable = new HashMap<Operator, Integer>();
 
     public LibraryVisitor(String pack, String clazz, SourceFile_c src, Job job) {
@@ -526,8 +526,7 @@ public class LibraryVisitor extends NodeVisitor {
                 for (Formal f : methodDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
                 }
-                RoseTranslator.memberMap.put(methodDecl.name().toString() + "(" + param + ")", i);
-                RoseTranslator.classMemberMap.put(type_name, RoseTranslator.memberMap);
+                RoseTranslator.memberMap.put(JNI.cactionGetCurrentClassName() + ":" + methodDecl.name().toString() + "(" + param + ")", RoseTranslator.uniqMemberIndex++);
                 previsit(methodDecl, type_name);
             } else if (m instanceof X10ConstructorDecl_c) {
                 X10ConstructorDecl_c constructorDecl = (X10ConstructorDecl_c) m;
@@ -536,16 +535,14 @@ public class LibraryVisitor extends NodeVisitor {
                 StringBuffer param = new StringBuffer();
                 for (Formal f : constructorDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
-                }
-                RoseTranslator.memberMap.put(((X10ConstructorDecl_c) m).name().toString() + "(" + param + ")", i);
-                RoseTranslator.classMemberMap.put(type_name, RoseTranslator.memberMap);
+                }      
+                RoseTranslator.memberMap.put(JNI.cactionGetCurrentClassName() + ":" + ((X10ConstructorDecl_c) m).name().toString() + "(" + param + ")", RoseTranslator.uniqMemberIndex++);
                 previsit(constructorDecl, package_name, type_name);
             } else if (m instanceof X10FieldDecl_c) {
                 X10FieldDecl_c fieldDecl = (X10FieldDecl_c) m;
                 if (RoseTranslator.hasFunctionType(fieldDecl))
-                    continue;
-                RoseTranslator.memberMap.put(((X10FieldDecl_c) m).name().toString(), i);
-                RoseTranslator.classMemberMap.put(type_name, RoseTranslator.memberMap);
+                    continue;  
+                RoseTranslator.memberMap.put(JNI.cactionGetCurrentClassName() + ":" + ((X10FieldDecl_c) m).name().toString(), RoseTranslator.uniqMemberIndex++);
                 previsit(fieldDecl, type_name);
             } else if (m instanceof TypeNode_c) {
                 if (RoseTranslator.DEBUG)
@@ -586,8 +583,8 @@ public class LibraryVisitor extends NodeVisitor {
         if (RoseTranslator.DEBUG) System.out.println("PACKAGE_NAME=" + package_name);
         SourceFile_c file = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);
 
-        RoseTranslator.classMemberMap.put(class_name, RoseTranslator.memberMap);
         JNI.cactionSetCurrentClassName(((package_name.length() == 0)? "" : package_name + ".") + class_name);
+//        RoseTranslator.classMemberMap.put(((package_name.length() == 0)? "" : package_name + ".") + class_name, RoseTranslator.memberMap);
 
         if (package_name.length() != 0)
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
@@ -694,7 +691,11 @@ public class LibraryVisitor extends NodeVisitor {
             TypeNode type = prop.type();
             if (type instanceof AmbTypeNode_c) {
                 String ambTypeName = prop.toString().replaceAll("\\{amb\\}", "");
-                isRail = ambTypeName.indexOf("Rail[") >= 0 || ambTypeName.indexOf("GrowableRail[") >= 0;
+                /**
+                 * Currently, eliminate GlobalRail
+                 */
+                isRail = (ambTypeName.indexOf("Rail[") >= 0 || ambTypeName.indexOf("GrowableRail[") >= 0)
+                        && ambTypeName.indexOf("GlobalRef") < 0;
             }
             else 
                 isRail = type.type().isRail();
@@ -821,25 +822,13 @@ public class LibraryVisitor extends NodeVisitor {
         for (Formal f : n.formals()) {
             param.append(f.type().toString().toLowerCase());
         }
-
-        int method_index = RoseTranslator.memberMap.get(method_name + "(" + param + ")");
+        
+        int method_index = RoseTranslator.memberMap.get(JNI.cactionGetCurrentClassName() + ":" + method_name + "(" + param + ")");
       
         JNI.cactionBuildMethodSupportStart(method_name, method_index, RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
 
         List<TypeParamNode> typeParamList = n.typeParameters();
-        // MH-20141205
-//        for (int i = 0; i < typeParamList.size(); ++i) {
-//            String typeParam = typeParamList.get(i).name().toString();
-//            // Mangled name. This should be fine for processing only library classes.
-//            typeParam = typeParam + "_" + method_index + "_" + package_name + "_" + class_name;
-//            if (RoseTranslator.DEBUG) System.out.println("TypeParam=" + typeParam + ", package=" + package_name + ", type=" + class_name);
-//            JNI.cactionPushTypeParameterScope(package_name, class_name, RoseTranslator.createJavaToken(n, typeParam));
-//            JNI.cactionInsertTypeParameter(typeParam, RoseTranslator.createJavaToken(n, typeParam));
-//            JNI.cactionBuildTypeParameterSupport(package_name, class_name, method_index, typeParam, 0, RoseTranslator.createJavaToken(n, typeParam));
-//            JNI.cactionPopTypeParameterScope(RoseTranslator.createJavaToken(n, typeParam));
-//        }
-//        JNI.cactionBuildMethodSupportStart(method_name, method_index, RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
-
+        
         // in case the return type is unknown. Such a case will occur by
         // writing
         // like"public def toString() = "Place(" + this.id + ")";"
@@ -864,8 +853,7 @@ public class LibraryVisitor extends NodeVisitor {
         for (Formal f : n.formals()) {
             param.append(f.type().toString().toLowerCase());
         }
-
-        int method_index = RoseTranslator.memberMap.get(method_name + "(" + param + ")");
+        int method_index = RoseTranslator.memberMap.get(JNI.cactionGetCurrentClassName() + ":" + method_name + "(" + param + ")");
 
         List<TypeParamNode> typeParamList = n.typeParameters();
         for (int i = 0; i < typeParamList.size(); ++i) {
@@ -1968,7 +1956,7 @@ public class LibraryVisitor extends NodeVisitor {
 //                System.out.println("So far, return in case of \"operator()\"");
 //            visitChild(n, n.target());
 //            return;
-            
+
             if (n.target().type().isRail()) {
                 visitChild(n, n.target());
                 List<Expr> args = n.arguments();
@@ -2058,7 +2046,7 @@ public class LibraryVisitor extends NodeVisitor {
         // createJavaToken());
         // visitChild(n, n.returnType());
         // visitChildren(n, n.formals());
-        int method_index = RoseTranslator.memberMap.get(method_name + "(" + param + ")");
+        int method_index = RoseTranslator.memberMap.get(JNI.cactionGetCurrentClassName() + ":" + method_name + "(" + param + ")");
 
         JNI.cactionMethodDeclaration(n.name().id().toString(), method_index, formals.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
 

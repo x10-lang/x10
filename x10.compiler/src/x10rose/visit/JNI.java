@@ -300,6 +300,7 @@ class JNI implements Callable<Boolean> {
     
     public static native void cactionAttachTypeParameterToType(String typeParam, JavaToken jToken);
     public static native void cactionAttachTypeParameterToMethodDecl(String typeParam, JavaToken jToken);
+    public static native void cactionAttachTypeParameterToMethodCall(String typeParam, JavaToken jToken);
     public static native void cactionAttachGuard(String typeParam, JavaToken jToken);
     
     public static native void cactionWhen(JavaToken jToken);
