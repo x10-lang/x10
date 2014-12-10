@@ -13,7 +13,7 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 
 /**
- * Parallel implementation of support vector machine
+ * Sequential implementation of support vector machine
  */
 public class SeqSVM(N:Long) {
     /** Weights for each feature.  w(N-1) is the intercept. */
