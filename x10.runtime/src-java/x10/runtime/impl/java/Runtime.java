@@ -346,7 +346,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             start = prof!=null ? System.nanoTime() : 0;
             if (X10RT.javaSockets != null) {
             	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
-            		System.err.println("Unable to send a message to "+place);
+            		//System.err.println("Unable to send a message to "+place);
             		throw new DeadPlaceException(new Place(place), "Unable to send a message to "+place);
             	}
             } else {
