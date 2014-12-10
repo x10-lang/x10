@@ -819,10 +819,6 @@ public struct Team {
                     }
                     Runtime.decreaseParallelism(1n);
                 }
-                if (!Team.state(teamidcopy).isValid) {
-                    if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" skipping sleep, because the team has been marked invalid");
-                    throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
-                }
             };
 
             // block if some other collective is in progress.
@@ -1006,12 +1002,18 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                sleepUntil(() => this.phase.get() == PHASE_DONE);
 	                if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
 	            }
-            } catch (dpe:DeadPlaceException) {
-                if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating parent: "+dpe);
-                Team.state(teamidcopy).isValid = false;
+            } catch (me:MultipleExceptions) {
+                val dper = me.getExceptionsOfType[DeadPlaceException]();
+                if (dper.size > 0) {
+                    if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating parent: "+dper(0));
+                    Team.state(teamidcopy).isValid = false;
+                }
             }
             
 	        try {
+    	        if (!Team.state(teamidcopy).isValid) // skip ahead if places have died, as the destination rails may not be set up
+	                throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
+
 	            // move data from parent to children
 	            // reduce and barrier do not move data in this direction, so they are not included here
 	            if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE) {
@@ -1110,54 +1112,55 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                    Runtime.runUncountedAsync(places(local_child2Index), freeChild2, null);
 	                }
 	            }
-	        } catch (dpe:DeadPlaceException) {
-	            if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating child: "+dpe);
-                Team.state(teamidcopy).isValid = false;
-
+	        } catch (me:MultipleExceptions) {
+	            val dper = me.getExceptionsOfType[DeadPlaceException]();
+	            if (dper.size > 0) {
+	                if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating child: "+dper(0));
+	                Team.state(teamidcopy).isValid = false;
+	            }
 	        }
-
+	        
+	        // done with local structures
+	        local_src = null;
+	        local_dst = null;
+	        local_temp_buff = null;
+	        local_temp_buff2 = null;
+	        local_parentIndex = -1;
+	        local_child1Index = -1;
+	        local_child2Index = -1;
+	        this.phase.set(PHASE_READY);
+	        
             // notify all associated places of the death of some other place
             if (!isValid) {
-                if (local_parentIndex != -1) {
+                if (myLinks.parentIndex != -1 && !places(myLinks.parentIndex).isDead()) {
 	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying parent of place death");
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(local_parentIndex)) async {
+	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying parent of an invalid team");
+	                    finish at (places(myLinks.parentIndex)) async {
 		                    Team.state(teamidcopy).isValid = false;
 		                }
-		            } catch (dpe:DeadPlaceException){}
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no parent to notify of place death");
-	            if (local_child1Index != -1) {
+		            } catch (me:MultipleExceptions){}
+	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no parent to notify of an invalid team");
+	            if (myLinks.child1Index != -1 && !places(myLinks.child1Index).isDead()) {
 	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child1 of place death");
-		                @Pragma(Pragma.FINISH_ASYNC) finish at (places(local_child1Index)) async {
+	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child1 of an invalid team");
+		                finish at (places(myLinks.child1Index)) async {
 		                    Team.state(teamidcopy).isValid = false;
 		                }
-		            } catch (dpe:DeadPlaceException){}
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child1 to notify of place death");
-	            if (local_child2Index != -1) {
+		            } catch (me:MultipleExceptions){}
+	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child1 to notify of an invalid team");
+	            if (myLinks.child2Index != -1 && !places(myLinks.child2Index).isDead()) {
 	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child2 of place death");
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(local_child2Index)) async {
+	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child2 of an invalid team");
+	                    finish at (places(myLinks.child2Index)) async {
 	                        Team.state(teamidcopy).isValid = false;
 	                    }
-	                } catch (dpe:DeadPlaceException){}    
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child2 to notify of place death");
+	                } catch (me:MultipleExceptions){}
+	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child2 to notify of an invalid team");
 	        }
+	        
+	        if (!isValid) throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
 
-	          
-            local_src = null;
-            local_dst = null;
-            local_temp_buff = null;
-            local_temp_buff2 = null;
-            local_parentIndex = -1;
-            local_child1Index = -1;
-            local_child2Index = -1;
-            this.phase.set(PHASE_READY);
-
-            if (!Team.state(teamidcopy).isValid)
-                throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
-
-            // done!
+            // completed successfully
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
         }
     }
