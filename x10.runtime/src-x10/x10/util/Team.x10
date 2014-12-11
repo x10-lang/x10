@@ -788,10 +788,6 @@ public struct Team {
         private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int):void {
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" phase="+phase.get()+", root="+root);
             
-            // don't do anything if this team was previously set to invalid
-            if (!Team.state(this.teamid).isValid)
-                throw new DeadPlaceException("Team "+this.teamid+" contains at least one dead member");
-            
             val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
 
             /**
@@ -824,7 +820,12 @@ public struct Team {
             };
 
             // block if some other collective is in progress.
+            // note that local indexes are not yet set up, so we won't check for dead places in this call
             sleepUntil(() => this.phase.compareAndSet(PHASE_READY, PHASE_INIT));
+            
+            // don't do anything if this team was previously set to invalid
+            if (!Team.state(this.teamid).isValid)
+                throw new DeadPlaceException("Team "+this.teamid+" contains at least one dead member");
             
             // figure out our links in the tree structure
             val myLinks:TreeStructure;
@@ -1131,7 +1132,6 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	        local_parentIndex = -1;
 	        local_child1Index = -1;
 	        local_child2Index = -1;
-	        this.phase.set(PHASE_READY);
 	        
             // notify all associated places of the death of some other place
             if (!isValid) {
@@ -1160,6 +1160,8 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                } catch (me:MultipleExceptions){}
 	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child2 to notify of an invalid team");
 	        }
+	        
+	        this.phase.set(PHASE_READY);
 	        
 	        if (!isValid) throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
 
