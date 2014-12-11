@@ -808,14 +808,16 @@ public struct Team {
                             Team.state(teamidcopy).isValid = false;
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex)+" is dead!");
                         }
-                        if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
+                        else if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
                             Team.state(teamidcopy).isValid = false;
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index)+" is dead!");
                         }
-                        if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
+                        else if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
                             Team.state(teamidcopy).isValid = false;
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index)+" is dead!");
                         }
+                        else
+                            System.threadSleep(0); // release the CPU to more productive pursuits
                     }
                     Runtime.decreaseParallelism(1n);
                 }
@@ -1136,7 +1138,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
                 if (myLinks.parentIndex != -1 && !places(myLinks.parentIndex).isDead()) {
 	                try {
 	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying parent of an invalid team");
-	                    finish at (places(myLinks.parentIndex)) async {
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
 		                    Team.state(teamidcopy).isValid = false;
 		                }
 		            } catch (me:MultipleExceptions){}
@@ -1144,7 +1146,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	            if (myLinks.child1Index != -1 && !places(myLinks.child1Index).isDead()) {
 	                try {
 	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child1 of an invalid team");
-		                finish at (places(myLinks.child1Index)) async {
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child1Index)) async {
 		                    Team.state(teamidcopy).isValid = false;
 		                }
 		            } catch (me:MultipleExceptions){}
@@ -1152,7 +1154,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	            if (myLinks.child2Index != -1 && !places(myLinks.child2Index).isDead()) {
 	                try {
 	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child2 of an invalid team");
-	                    finish at (places(myLinks.child2Index)) async {
+	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child2Index)) async {
 	                        Team.state(teamidcopy).isValid = false;
 	                    }
 	                } catch (me:MultipleExceptions){}
