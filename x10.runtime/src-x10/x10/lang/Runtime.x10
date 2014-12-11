@@ -527,8 +527,7 @@ public final class Runtime {
             }
             val p = probing;
             lock.unlock();
-            if (p && multiplace) x10rtUnblockProbe();
-            if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
+            if (multiplace && (p || NUM_IMMEDIATE_THREADS > 0)) x10rtUnblockProbe();
         }
 
         public operator this(i:Int) = workers(i);
@@ -546,8 +545,7 @@ public final class Runtime {
             finishStates.clear(e);
             val p = probing;
             lock.unlock();
-            if (p && multiplace) x10rtUnblockProbe();
-            if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
+            if (multiplace && (p || NUM_IMMEDIATE_THREADS > 0)) x10rtUnblockProbe();
             for (var i:Int=0n; i<count; i++) {
                 if (workers(i) != null) workers(i).unpark();
             }
@@ -635,7 +633,7 @@ public final class Runtime {
                 t.printStackTrace();
             } finally {
                 pool.release(promoted);
-                if (NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
+                if (pool.workers.multiplace && NUM_IMMEDIATE_THREADS > 0) x10rtUnblockProbe();
             }
         }
 
@@ -764,10 +762,12 @@ public final class Runtime {
                 workers(i) = new Worker(i);
             }
             // Create NUM_IMMEDIATE_THREADS dedicated to processing @Immediate asyncs
-	    for (j in 1..NUM_IMMEDIATE_THREADS) {
-                val id = workers.count++;
-                workers(id) = new Worker(id, true, "@ImmediateWorker-"+j);
-                workers.deadCount++; // ignore immediate threads in dynamic pool-size adjustment
+	    if (workers.multiplace) {
+	        for (j in 1..NUM_IMMEDIATE_THREADS) {
+                    val id = workers.count++;
+                    workers(id) = new Worker(id, true, "@ImmediateWorker-"+j);
+                    workers.deadCount++; // ignore immediate threads in dynamic pool-size adjustment
+                }
             }
             for (var i:Int = 1n; i<workers.count; i++) {
                 workers(i).start();
