@@ -178,7 +178,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 				protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq)  {
 			    	SourceVisitor.isGatheringFile = false;
 		    		SourceVisitor roseVisitor = new SourceVisitor(null, null);
-		    		
+
 			    	for (int i = 0; i < sourceList.size(); ++i) {
 			    		SourceFile_c file = sourceList.get(i);
 			    		FileStatus fileStatus = fileHandledMap.get(file);

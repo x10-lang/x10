@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Allocation_c;
@@ -74,6 +75,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorQueue;
 import polyglot.util.StringUtil;
+import x10.ast.AnnotationNode;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
@@ -134,6 +136,7 @@ import x10.ast.X10Special_c;
 import x10.ast.X10StringLit_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
+import x10.extension.X10Ext;
 import x10.types.ParameterType.Variance;
 import x10.visit.X10DelegatingVisitor;
 import x10rose.ExtensionInfo;
@@ -1652,8 +1655,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(Tuple_c n) {
-        toRose(n, "Tuple:");
+        toRose(n, "Tuple:", n);
+        JNI.cactionTuple(RoseTranslator.createJavaToken(n, n.toString()));
         visitChildren(n, n.arguments());
+        JNI.cactionTupleEnd(n.arguments().size(), RoseTranslator.createJavaToken(n, n.toString()));
+        toRose(n, "Tuple end:", n);
     }
 
     public void visit(SettableAssign_c n) {
@@ -1954,24 +1960,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         if (    (qname = n.type().type().fullName()) != null
              && qname.qualifier() != null)
             package_name = qname.qualifier().toString();
-        String type_name = n.type().toString();
-        int token_constraint;
-        // TODO: remove this when type constraint is supported
-        if ((token_constraint = type_name.indexOf('{')) > 0) {
-            type_name = type_name.substring(0, token_constraint);
-        }
-        int typeParam = type_name.indexOf("[");
-        int lastDot = type_name.lastIndexOf(".", typeParam > 0 ? typeParam : type_name.length()-1);
-        if (lastDot > 0)
-            type_name = type_name.substring(lastDot+1);
-        
-        if (RoseTranslator.isX10Primitive(package_name, type_name))
-            JNI.cactionTypeReference("", type_name, this, RoseTranslator.createJavaToken());
-        else {
-            JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, type_name));
-            JNI.cactionPopPackage();
-            JNI.cactionTypeReference(package_name, type_name, this, RoseTranslator.createJavaToken());
-        }
+        visitChild(n, n.type());
         /*
          * 
          * if (init != null) JNI.cactionAssignment(RoseTranslator.createJavaToken(n,
@@ -2119,7 +2108,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(Finish_c n) {
-        toRose(n, "Finish:");
+        toRose(n, "Finish:");        
         JNI.cactionFinish(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.body());
         JNI.cactionFinishEnd(n.clocked(), RoseTranslator.createJavaToken(n, n.toString()));
@@ -2134,7 +2123,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(AtStmt_c n) {
-        toRose(n, "AtStmt:", n.place().toString(), n.body().toString());
+        toRose(n, "AtStmt:", n.place().toString(), n.body().toString());        
         JNI.cactionAt(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.place());
         visitChild(n, n.body());
