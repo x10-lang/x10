@@ -16,10 +16,19 @@ X10RT_LIB ?= x10rt_sockets
 # Variables #
 #############
 
-override CXXFLAGS += -I$(APGAS_DIR)/src -I$(APGAS_DIR)/src-crx -I$(DISTDIR)/include -g
+ifdef DEBUG
+    XRX_LIB=lib-dbg
+    XRX_INCLUDE=include-dbg
+else
+    XRX_LIB=lib
+    XRX_INCLUDE=include
+endif
 
-APGAS_LINK_ARGS = -L$(APGAS_DIR) -lapgas -Wl,--rpath -Wl,$(APGAS_DIR) \
-	-L$(DISTDIR)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(DISTDIR)/lib
+override CXXFLAGS += -I$(APGAS_DIR)/src -I$(DISTDIR)/include -I$(DISTDIR)/stdlib/$(XRX_INCLUDE) -g
+
+APGAS_LINK_ARGS = -L$(APGAS_DIR) -ldl -lapgas -Wl,--rpath -Wl,$(APGAS_DIR) \
+	-L$(DISTDIR)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(DISTDIR)/lib \
+	-L$(DISTDIR)/stdlib/$(XRX_LIB) -lx10 -Wl,--rpath -Wl,$(DISTDIR)/stdlib/$(XRX_LIB)
 
 ###########
 # Targets #

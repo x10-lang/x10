@@ -130,9 +130,6 @@ public final class Configuration extends x10.config.Configuration {
     public boolean OPTIMIZE_COMMUNICATIONS = false;
     private static final String OPTIMIZE_COMMUNICATIONS_desc = "Communication optimizations, i.e. scalar replacement";
     
-    public boolean APGAS_LIB_MODE = false;
-    private static final String APGAS_LIB_MODE_desc = "Allow compilation with incomplete X10 libraries for building APGAS Library";
-
     public boolean EXECUTOR_MODE = false;
     private static final String EXECUTOR_MODE_desc = "Allow main method to submit and cancel jobs";
 
