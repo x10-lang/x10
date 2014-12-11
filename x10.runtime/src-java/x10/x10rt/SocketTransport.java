@@ -55,7 +55,8 @@ public class SocketTransport {
 	public static final String X10_NPLACES = "X10_NPLACES";
 	public static final String X10_LAUNCHER_PARENT = "X10_LAUNCHER_PARENT";
 	public static final String X10_NOWRITEBUFFER = "X10_NOWRITEBUFFER"; // turns off non-blocking sockets
-	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT";
+	public static final String X10_SOCKET_TIMEOUT = "X10_SOCKET_TIMEOUT"; // milliseconds, used to set socket.soTimeout()
+	public static final String X10_CONNECTION_TIMEOUT = "X10_CONNECTION_TIMEOUT"; // milliseconds, time allowed before we declare a place dead while attempting initial communication
 	static final String UTF8 = "UTF-8";
 	private static final String DEAD = "DEAD";
 	private static enum PROBE_TYPE {ACCEPT, ACCEPTORWRITE, ALL};
@@ -101,7 +102,7 @@ public class SocketTransport {
 	private volatile int lowestValidPlaceId = 0; // responsible for global knowledge of nplaces. Increases as places die
 	private ServerSocketChannel localListenSocket = null;
 	private final ConcurrentHashMap<Integer,CommunicationLink> channels = new ConcurrentHashMap<Integer, SocketTransport.CommunicationLink>(); // communication links to remote places, and launcher stored at myPlaceId
-	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>();
+	private final TreeSet<Integer> deadPlaces = new TreeSet<Integer>(); // place updates get synchronized on this object
 	private final boolean bufferedWrites;
 	private final LinkedList<CommunicationLink> pendingJoins = new LinkedList<CommunicationLink>();
 	private final ConcurrentHashMap<SocketChannel, Message> pendingReads = new ConcurrentHashMap<SocketChannel, Message>();
@@ -110,6 +111,7 @@ public class SocketTransport {
 	private Selector selector = null;
 	private Iterator<SelectionKey> events = null;
 	private int socketTimeout = -1;
+	private int connectionTimeout = 30000;
 	private volatile boolean shuttingDown = false;
 	private volatile boolean allowBlockingProbe = true;
 	
@@ -151,7 +153,11 @@ public class SocketTransport {
 		try {
 			socketTimeout = Integer.parseInt(System.getProperty(X10_SOCKET_TIMEOUT));
 		}
-		catch (NumberFormatException e){} // not set.		
+		catch (NumberFormatException e){} // not set.
+		try {
+			connectionTimeout = Integer.parseInt(System.getProperty(X10_CONNECTION_TIMEOUT));
+		}
+		catch (NumberFormatException e){} // not set.
 		
 		if (DEBUG) System.err.println("Socket library initialized. myPlaceid="+this.myPlaceId+" nplaces="+this.nplaces);
 	}
@@ -452,8 +458,10 @@ public class SocketTransport {
 						registerOnSelector(sc, SelectionKey.OP_READ, null);
 						if (DEBUG) System.err.println("Place "+myPlaceId+" accepted a connection from place "+remote);
 						
-						if (remote >= nplaces)
-							this.nplaces = remote+1;
+						synchronized (deadPlaces) {
+							if (remote >= nplaces)
+								this.nplaces = remote+1;
+						}
 					}
 					else if (to == -1) {
 						remote = controlMsg.getInt();
@@ -473,13 +481,35 @@ public class SocketTransport {
 								controlMsg = ByteBuffer.allocateDirect(24+allPlaceLinksBytes.length);
 								controlMsg.putInt(CTRL_MSG_TYPE.HELLO.ordinal());
 								// we handle new place id assignment directly here
-								remote = this.nplaces++;
+								synchronized (deadPlaces) {
+									remote = this.nplaces++;
+								}
 								controlMsg.putInt(remote);
 								controlMsg.putInt(myPlaceId);
 								controlMsg.putInt(8+allPlaceLinksBytes.length); // epoch, plus link info
 								controlMsg.putLong(Runtime.epoch$O());
 								controlMsg.put(allPlaceLinksBytes);
 								controlMsg.flip();
+								
+								// send this to the next place, in case I die before the new place links to it
+								ByteBuffer nextPlaceUpdate = ByteBuffer.allocateDirect(12);
+								nextPlaceUpdate.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
+								nextPlaceUpdate.putInt(remote);
+								nextPlaceUpdate.putInt(myPlaceId);
+								nextPlaceUpdate.flip();
+								int nextPlace = myPlaceId+1;
+								while (nextPlace < remote) {
+									try {
+										if (!isPlaceDead(nextPlace)) {
+											writeNBytes(channels.get(nextPlace).sc, nextPlaceUpdate);
+											break;
+										}
+									}
+									catch (Exception e){}
+									nextPlace++;
+								}
+								
+								// send the assignment to the new place
 								writeNBytes(sc, controlMsg);
 								channels.put(remote, new CommunicationLink(sc, remote, linkString));
 								setSocketOptions(sc);
@@ -503,9 +533,9 @@ public class SocketTransport {
 									pendingJoins.add(new CommunicationLink(sc, remote, linkString));
 								}
 								// send the place request to the lowest place
-								if (sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, -1, null) != RETURNCODE.X10RT_ERR_OK.ordinal() &&
+								if (sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, this.myPlaceId, null) != RETURNCODE.X10RT_ERR_OK.ordinal() &&
 									    // try again.  Maybe the place died while transmitting
-									    sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, -1, null) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+									    sendMessage(MSGTYPE.GET_PLACE_REQUEST, lowestValidPlaceId, this.myPlaceId, null) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
 										    System.err.println("Error sending place request to "+lowestValidPlaceId);
 								}
 								else
@@ -543,18 +573,18 @@ public class SocketTransport {
 				Message toProcess = null;
 				synchronized (sc) {
 					Message m = pendingReads.get(sc);
-					if (m != null) { // there is an existing message partially read in from this socket
-						sc.read(m.data);
-						if (!m.data.hasRemaining()) {
-							pendingReads.remove(sc);
-							m.data.flip();
-							toProcess = m;
+					try {
+						if (m != null) { // there is an existing message partially read in from this socket
+							sc.read(m.data);
+							if (!m.data.hasRemaining()) {
+								pendingReads.remove(sc);
+								m.data.flip();
+								toProcess = m;
+							}
 						}
-					}
-					else { // this is a new message coming in
-						ByteBuffer controlData = ByteBuffer.allocateDirect(12);
-						int msgType=0, callbackId=0, datalen;				
-						try {
+						else { // this is a new message coming in
+							ByteBuffer controlData = ByteBuffer.allocateDirect(12);
+							int msgType=0, callbackId=0, datalen;
 							if (!readNBytes(sc, controlData, controlData.capacity()))
 								return false;
 							controlData.flip(); // switch from write to read mode
@@ -579,10 +609,29 @@ public class SocketTransport {
 								// assign a new place id, increment nplaces
 								controlData.clear();
 								controlData.putInt(MSGTYPE.GET_PLACE_RESPONSE.ordinal());
-								controlData.putInt(this.nplaces++);
+								synchronized (deadPlaces) {
+									controlData.putInt(this.nplaces++);
+								}
 								controlData.putInt(myPlaceId);
 								controlData.flip();// switch from write to read mode (for outputting to the socket)
-								writeNBytes(sc, controlData); // write back to the original requester, not "remote"
+								
+								// send this to the next place, in case I die before the new place links to it
+								int nextPlace = myPlaceId+1;
+								while (nextPlace < this.nplaces-1) {
+									try {
+										if (!isPlaceDead(nextPlace)) {
+											if (callbackId != nextPlace) // no need to send two copies of GET_PLACE_RESPONSE, if the request came from the next place
+												writeNBytes(channels.get(nextPlace).sc, controlData);
+											break;
+										}
+									}
+									catch (Exception e){}
+									nextPlace++;
+								}
+								
+								// write the response back to the original requester
+								controlData.rewind();
+								writeNBytes(sc, controlData);
 							}
 							else if (msgType == MSGTYPE.GET_PLACE_RESPONSE.ordinal()) {
 								// get the socket channel we stashed earlier
@@ -591,6 +640,13 @@ public class SocketTransport {
 								synchronized (pendingJoins) {
 									newPlace = pendingJoins.poll();
 								}
+
+								// update nplaces here, because we won't get a connection from the new place, as it already exists
+								synchronized (deadPlaces) {
+									if (remote >= nplaces)
+										this.nplaces = remote+1;
+								}
+
 								if (newPlace != null) {
 									String allPlaceLinks = getAllPlaceLinks();
 									byte[] allPlaceLinksBytes = allPlaceLinks.getBytes(Charset.forName(UTF8));
@@ -608,10 +664,6 @@ public class SocketTransport {
 									registerOnSelector(newPlace.sc, SelectionKey.OP_READ, null);
 									if (DEBUG) System.err.println("Place "+myPlaceId+" initialized new place "+remote);
 									
-									// update nplaces here, because we won't get a connection from the new place, as it already exists
-									if (remote >= nplaces)
-										this.nplaces = remote+1;
-									
 									// tell the new place to connect to the hazelcast cluster
 									if (X10RT.hazelcastDatastore != null) {
 										try {
@@ -623,8 +675,7 @@ public class SocketTransport {
 										}
 									}
 								}
-								else
-									System.err.println("Unexpected GET_PLACE_RESPONSE arrived!!");
+								else if (DEBUG) System.err.println("Taking note of new num places: "+remote);
 							}
 							else if (msgType == MSGTYPE.CONNECT_DATASTORE.ordinal()) {
 								byte[] linkdata = new byte[datalen];
@@ -636,23 +687,23 @@ public class SocketTransport {
 							else 
 								System.err.println("Unknown message type: "+msgType);
 						}
-						catch (IOException e) {
-							// figure out which place this is
-							for (Integer place : channels.keySet()) {
-								try {
-									CommunicationLink cl = channels.get(place);
-									if (cl != null && sc.equals(cl.sc)) {
-										if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
-										markPlaceDead(place);
-										cl.pendingWrites = null;
-										break;
-									}
-								} catch (NullPointerException e2){} // channels[i] can become null after we check for null
-							}
-							try {sc.close();}
-				    		catch (Exception e2){}
-				    		return false;
+					}
+					catch (IOException e) {
+						// figure out which place this is
+						for (Integer place : channels.keySet()) {
+							try {
+								CommunicationLink cl = channels.get(place);
+								if (cl != null && sc.equals(cl.sc)) {
+									if (DEBUG) System.err.println("Place "+myPlaceId+" discovered link to place "+place+" is broken in probe");
+									markPlaceDead(place);
+									cl.pendingWrites = null;
+									break;
+								}
+							} catch (NullPointerException e2){} // channels[i] can become null after we check for null
 						}
+						try {sc.close();}
+			    		catch (Exception e2){}
+			    		return false;
 					}
 				}
 				// run the callback if it was set
@@ -745,10 +796,25 @@ public class SocketTransport {
     	
     	if (connectionInfo == null && !channels.containsKey(myPlaceId) && remotePlace > -1) { // link does not exist, and no link to launcher
     		String forcePortsFlag = System.getenv(X10_FORCEPORTS);
-    		if (forcePortsFlag == null) throw new IOException("Unknown location for place "+remotePlace);
-    		hostname = "localhost";		
-    		port = Integer.parseInt(forcePortsFlag)+remotePlace;
-    		connectionInfo = new String(hostname+":"+port);
+    		if (forcePortsFlag != null) {
+    			hostname = "localhost";
+	    		port = Integer.parseInt(forcePortsFlag)+remotePlace;
+	    		connectionInfo = new String(hostname+":"+port);
+    		}
+    		else {
+    			// it's possible the place is about to connect to us.  Give it a moment.
+    			int delay = connectionTimeout;
+    			do {
+	    		    try { Thread.sleep(100); }
+	    			catch (InterruptedException e1) {
+	    				delay = 0;
+	    			}
+    				delay-=100;
+    				if (channels.containsKey(remotePlace)) return;
+    	    	} while (!shuttingDown && delay > 0);
+				markPlaceDead(remotePlace); // mark it as dead
+    			throw new IOException("Unknown location for place "+remotePlace);	    		
+    		}
     	}
     	else {
     		if (connectionInfo == null && remotePlace > -1) {
@@ -779,19 +845,23 @@ public class SocketTransport {
     			connectionInfo = new String(chars);
     			if (DEBUG) System.err.println("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\" (len="+strlen+")");
     		}
-    		String[] split = connectionInfo.split(":");
+		String[] split = connectionInfo.split(":");
+		if (split.length < 2) {
+			throw new IOException("Place "+myPlaceId+" lookup of place "+remotePlace+" returned \""+connectionInfo+"\"");
+		}
     		hostname = split[0];
     		port = Integer.parseInt(split[1]);
     	}
     	
     	InetSocketAddress addr = new InetSocketAddress(hostname, port);
     	SocketChannel sc = null;
-    	// wait up to 30 seconds for the remote place to become available.  It may be starting up still.
-    	int delay = 30000;
+    	// wait for the remote place to become available.  It may be starting up still.
+    	int delay = connectionTimeout;
     	do {
 	    	try { sc = SocketChannel.open(addr);
 	    	} catch (ConnectException e) {
 	    		try {
+	    			if (channels.containsKey(remotePlace)) return; // connection was established in the background
 					Thread.sleep(100);
 					delay-=100;
 					if (delay <= 0 || shuttingDown)
