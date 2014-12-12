@@ -1233,7 +1233,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Block_c n) {
         toRose(n, "Block: ", n.toString());
-         if (RoseTranslator.DEBUG) System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
+        if (RoseTranslator.DEBUG) System.out.println("Block start : " + n.statements().size() + ", " + n.statements());
         JNI.cactionBlock(RoseTranslator.createJavaToken(n, n.toString()));
         visitChildren(n, n.statements());
         JNI.cactionBlockEnd(n.statements().size(), RoseTranslator.createJavaToken(n, n.toString()));
@@ -2193,7 +2193,13 @@ public class SourceVisitor extends X10DelegatingVisitor {
             // n.objectType().type().arrayOf());
             // visitChild(n, n.objectType());
             visitChildren(n, n.arguments());
-            JNI.cactionArrayAllocationExpressionEnd(1, false, RoseTranslator.createJavaToken(n, n.toString()));
+            /**
+             * Second parameter of cactionArrayAllocationExpressionEnd is whether an initializer exists or not. 
+             * Here, an initializer means the way of representation by using {' and '}' such as "int[] a = {1, 2, 3}".
+             * For x10, Michihiro modified the code for the initializer so that it can parse instantiation of Rail with 
+             * initial values such as "new Rail[Long](5, 1)".
+             */
+            JNI.cactionArrayAllocationExpressionEnd(1, n.arguments().size() == 2, RoseTranslator.createJavaToken(n, n.toString()));
         } else {
             JNI.cactionAllocationExpression(RoseTranslator.createJavaToken(n, n.toString()));
             List<TypeNode> typeArg = n.typeArguments();
