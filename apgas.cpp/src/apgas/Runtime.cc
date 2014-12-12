@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 #include <apgas/Task.h>
-#include <apgas/Pool.h>
+#include <apgas/Runtime.h>
 
 #include <x10aux/alloc.h>
 #include <x10aux/bootstrap.h>
@@ -20,18 +20,18 @@
 
 namespace apgas {
 
-    static Pool* hack;
+    static Runtime* hack;
 
     void dummy_main(x10::lang::Rail<x10::lang::String*>* args) {
         hack->_mainTask->execute();
     }
     
-    Pool::Pool(Task* mainTask) {
+    Runtime::Runtime(Task* mainTask) {
         _mainTask = mainTask;
-        _mainTask->setPool(this);
+        _mainTask->setRuntime(this);
     }
 
-    void Pool::start() {
+    void Runtime::start() {
         // HACK: Whack x10.lang.Activity.DEALLOC_BODY to be false.
         x10::lang::Activity::FMGL(DEALLOC_BODY__get)();
         x10::lang::Activity::FMGL(DEALLOC_BODY) = false;
@@ -42,13 +42,13 @@ namespace apgas {
         hack = NULL;
     }
         
-    void Pool::runAsync(Task* task) {
-        task->setPool(this);
+    void Runtime::runAsync(Task* task) {
+        task->setRuntime(this);
         x10::lang::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
         
-    void Pool::runFinish(Task* task) {
-        task->setPool(this);
+    void Runtime::runFinish(Task* task) {
+        task->setRuntime(this);
         x10::lang::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
 
@@ -59,25 +59,25 @@ namespace apgas {
         FinishBlock(int nt, Task** ts) : numTasks(nt), tasks(ts) {}
         virtual void execute() {
             for (int i=0; i<numTasks; i++) {
-                myPool->runAsync(tasks[i]);
+                myRuntime->runAsync(tasks[i]);
             }
         }
     };
     
-    void Pool::runFinish(int numTasks, Task* tasks[]) {
+    void Runtime::runFinish(int numTasks, Task* tasks[]) {
         FinishBlock fb(numTasks, tasks);
         runFinish(&fb);
     }        
     
-    void* Pool::alloc_impl(size_t size) {
+    void* Runtime::alloc_impl(size_t size) {
         return x10aux::alloc_internal(size, true);
     }
             
-    void Pool::dealloc_impl(void* obj) {
+    void Runtime::dealloc_impl(void* obj) {
         x10aux::dealloc_internal(obj);
     }
 
-    void* Pool::realloc_impl(void* src, size_t dsz) {
+    void* Runtime::realloc_impl(void* src, size_t dsz) {
         return x10aux::realloc_internal(src, dsz);
     }
 }

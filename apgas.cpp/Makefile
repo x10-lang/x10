@@ -1,13 +1,5 @@
-DISTDIR = $(call abspath,../x10.dist)
-X10_RUNTIME_DIR = $(call abspath,../x10.runtime)
-APGAS_DIR = $(call abspath,.)
-
-#########################
-# User-servicable Parts #
-#########################
-
-include $(X10_RUNTIME_DIR)/Make.rules
-include $(DISTDIR)/stdlib/libx10.properties
+include ../x10.runtime/Make.rules
+include Make.rules
 
 FIND ?= find
 XARGS ?= xargs
@@ -16,15 +8,7 @@ XARGS ?= xargs
 # Variables #
 #############
 
-ifdef DEBUG
-    XRX_LIB=lib-dbg
-    XRX_INCLUDE=include-dbg
-else
-    XRX_LIB=lib
-    XRX_INCLUDE=include
-endif
-
-override CXXFLAGS += $(X10LIB_CXXFLAGS) -I$(DISTDIR)/include -Isrc -I$(DISTDIR)/stdlib/$(XRX_INCLUDE) -g 
+override CXXFLAGS += -g 
 
 ###########
 # Targets #
@@ -34,11 +18,14 @@ APGAS_ARCHIVE = $(LIBPREFIX)apgas$(LIBSUFFIX)
 
 # this builds everything
 apgas: $(APGAS_ARCHIVE)
+	@echo installing $(APGAS_ARCHIVE) in $(X10_DIST)/stdlib/$(XRX_LIB)
+	@cp -p $(APGAS_ARCHIVE) $(X10_DIST)/stdlib/$(XRX_LIB)
+	@cd src && $(FIND) . -name \*.h | tar cf - -T - | (cd $(X10_DIST)/stdlib/$(XRX_INCLUDE) && tar xf -)
 
 .PHONY: apgas
 
-APGAS_SRC = src/apgas/Pool.cc src/apgas/Task.cc
 
+APGAS_SRC = src/apgas/Runtime.cc src/apgas/Task.cc
 APGAS_OBJS = $(APGAS_SRC:.cc=.o)
 
 ###############################
@@ -61,7 +48,7 @@ $(APGAS_ARCHIVE): $(APGAS_OBJS)
 %:%.cc
 
 %.o: %.cc %.h 
-	$(CXX) $(CXXFLAGS)  $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
 
 #remove only object code

@@ -10,7 +10,7 @@
  */
 
 #include <apgas/Task.h>
-#include <apgas/Pool.h>
+#include <apgas/Runtime.h>
 
 #include <stdio.h>
 
@@ -31,7 +31,7 @@ class FibAsync : public Task {
             Task* myTasks[2];
             myTasks[0] = &child1;
             myTasks[1] = &child2;
-            myPool->runFinish(2, myTasks);
+            myRuntime->runFinish(2, myTasks);
             result = child1.result + child2.result;
         }
     }
@@ -47,8 +47,8 @@ int main(int argc, char **argv) {
     printf("Computing Fib of %d\n", N);
     
     FibAsync fibTask(N);
-    apgas::Pool aPool(&fibTask);
-    aPool.start();
+    apgas::Runtime aRuntime(&fibTask);
+    aRuntime.start();
 
     printf("Fib(%d) = %d\n", N, fibTask.result);
 }

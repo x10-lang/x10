@@ -10,7 +10,7 @@
  */
 
 #include <apgas/Task.h>
-#include <apgas/Pool.h>
+#include <apgas/Runtime.h>
 
 #include <stdio.h>
 
@@ -37,16 +37,16 @@ class MyMain : public Task {
         if (argc-1 > 0) {
             printf("Hello World, I have %d things to say\n", argc-1);
             int numTasks = argc-1;
-            Task** myTasks = Pool::alloc<Task*>(numTasks*sizeof(Task*));
+            Task** myTasks = Runtime::alloc<Task*>(numTasks*sizeof(Task*));
             for (int i=0; i<numTasks; i++) {
-                myTasks[i] = new (Pool::alloc<MyTask>()) MyTask (argv[i]);
+                myTasks[i] = new (Runtime::alloc<MyTask>()) MyTask (argv[i]);
             }
-            myPool->runFinish(numTasks, myTasks);
+            myRuntime->runFinish(numTasks, myTasks);
             printf("Goodbye World, I am done talking\n");
             for (int i=0; i<numTasks; i++) {
-                Pool::dealloc(myTasks[i]);
+                Runtime::dealloc(myTasks[i]);
             }
-            Pool::dealloc(myTasks);
+            Runtime::dealloc(myTasks);
         } else {
             printf("Please give me something to say on the command line\n");
         }
@@ -56,6 +56,6 @@ class MyMain : public Task {
 
 int main(int argc, char **argv) {
     MyMain m(argc, argv);
-    apgas::Pool aPool(&m);
-    aPool.start();
+    apgas::Runtime aRuntime(&m);
+    aRuntime.start();
 }

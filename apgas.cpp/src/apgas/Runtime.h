@@ -15,16 +15,16 @@
 namespace apgas {
     class Task;
 
-    class Pool {
+    class Runtime {
     public:
         Task* _mainTask; //   TEMPORARY HACK MAKE PUBLIC (should be private)
 
         /**
          * Create a pool and specify the main task that the pool should execute.
          * Note that this does not begin executing mainTask; execution does not
-         * start until the start method is called on the Pool.
+         * start until the start method is called on the Runtime.
          */
-        Pool(Task* mainTask);
+        Runtime(Task* mainTask);
 
         /**
          * Initialize the APGAS runtime and start executing the mainTask.
