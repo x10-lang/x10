@@ -7,6 +7,7 @@ APGAS_DIR = $(call abspath,.)
 #########################
 
 include $(X10_RUNTIME_DIR)/Make.rules
+include $(DISTDIR)/stdlib/libx10.properties
 
 FIND ?= find
 XARGS ?= xargs
@@ -23,7 +24,7 @@ else
     XRX_INCLUDE=include
 endif
 
-override CXXFLAGS += -I$(DISTDIR)/include -Isrc -I$(DISTDIR)/stdlib/$(XRX_INCLUDE) -g 
+override CXXFLAGS += $(X10LIB_CXXFLAGS) -I$(DISTDIR)/include -Isrc -I$(DISTDIR)/stdlib/$(XRX_INCLUDE) -g 
 
 ###########
 # Targets #

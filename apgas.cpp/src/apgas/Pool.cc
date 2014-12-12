@@ -14,6 +14,7 @@
 #include <apgas/Task.h>
 #include <apgas/Pool.h>
 
+#include <x10aux/alloc.h>
 #include <x10aux/bootstrap.h>
 #include <x10/lang/Runtime.h>
 
@@ -67,4 +68,16 @@ namespace apgas {
         FinishBlock fb(numTasks, tasks);
         runFinish(&fb);
     }        
+    
+    void* Pool::alloc_impl(size_t size) {
+        return x10aux::alloc_internal(size, true);
+    }
+            
+    void Pool::dealloc_impl(void* obj) {
+        x10aux::dealloc_internal(obj);
+    }
+
+    void* Pool::realloc_impl(void* src, size_t dsz) {
+        return x10aux::realloc_internal(src, dsz);
+    }
 }

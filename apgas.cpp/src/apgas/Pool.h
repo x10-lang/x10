@@ -12,8 +12,6 @@
 #ifndef APGAS_POOL_H
 #define APGAS_POOL_H
 
-#include <x10aux/alloc.h>
-
 namespace apgas {
     class Task;
 
@@ -54,9 +52,14 @@ namespace apgas {
         void runFinish(int numTasks, Task** tasks);
 
         
-        template<class T> static inline T* alloc(size_t size = sizeof(T)) { return x10aux::alloc<T>(size); }
-        template<class T> static inline void dealloc(const T* obj) { x10aux::dealloc(obj); }
-        template<class T> static inline T* realloc(T* src, size_t dsz) { return x10aux::realloc<T>(src, dsz); }
+        template<class T> static inline T* alloc(size_t size = sizeof(T)) { return (T*)alloc_impl(size); }
+        template<class T> static inline void dealloc(const T* obj) { dealloc_impl((void*)obj); }
+        template<class T> static inline T* realloc(T* src, size_t dsz) { return (T*)realloc_impl(src, dsz); }
+
+    private:
+        static void* alloc_impl(size_t size);
+        static void dealloc_impl(void* obj);
+        static void* realloc_impl(void* src, size_t dsz);
     };
 }
 

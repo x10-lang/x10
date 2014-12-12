@@ -7,6 +7,7 @@ APGAS_DIR = $(call abspath,../apgas.cpp)
 #########################
 
 include $(X10_RUNTIME_DIR)/Make.rules
+include $(DISTDIR)/stdlib/libx10.properties
 
 FIND ?= find
 XARGS ?= xargs
@@ -26,9 +27,9 @@ endif
 
 override CXXFLAGS += -I$(APGAS_DIR)/src -I$(DISTDIR)/include -I$(DISTDIR)/stdlib/$(XRX_INCLUDE) -g
 
-APGAS_LINK_ARGS = -L$(APGAS_DIR) -ldl -lapgas -Wl,--rpath -Wl,$(APGAS_DIR) \
+APGAS_LINK_ARGS = -L$(APGAS_DIR) -lapgas -Wl,--rpath -Wl,$(APGAS_DIR) \
 	-L$(DISTDIR)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(DISTDIR)/lib \
-	-L$(DISTDIR)/stdlib/$(XRX_LIB) -lx10 -Wl,--rpath -Wl,$(DISTDIR)/stdlib/$(XRX_LIB)
+	-L$(DISTDIR)/stdlib/$(XRX_LIB) $(X10LIB_LDLIBS) -Wl,--rpath -Wl,$(DISTDIR)/stdlib/$(XRX_LIB)
 
 ###########
 # Targets #
