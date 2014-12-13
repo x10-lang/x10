@@ -50,6 +50,16 @@ public class FileReader extends InputStreamReader implements Unserializable {
         return ans;
     }
 
+    /**
+     * Return the current offset in the file.
+     * For binary files, this is equal to the number of bytes from the
+     * beginning of the file.
+     * @return the current offset in the file stream
+     */
+    @Native("c++", "reinterpret_cast< ::x10::io::FileReader__FileInputStream* >((#this)->FMGL(stream))->offset()")
+    @Native("java", "((x10.core.io.FileInputStream) #this.stream).offset()")
+    public native def offset():Long;
+
     // Specialize code path to call readLine directly since
     // that will get to the efficient @Native impl for Native X10
     private static class FRLM implements Marshal[String] {

@@ -84,6 +84,10 @@ void FileReader__FileInputStream::skip(x10_long bytes) {
     ::fseek(FMGL(file), bytes, SEEK_CUR);
 }
 
+long FileReader__FileInputStream::offset() {
+    return ::ftell(FMGL(file));
+}
+
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer);
 
