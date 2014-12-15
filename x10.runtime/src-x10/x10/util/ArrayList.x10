@@ -44,6 +44,11 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a.add(v);
         return true;
     }
+
+    public def addAll(elems:Rail[T]):Boolean {
+        a.addAll(elems);
+        return true;
+    }
     
     public def remove(v: T): Boolean {
         for (i in 0..(a.size()-1)) {

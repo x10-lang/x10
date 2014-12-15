@@ -21,6 +21,7 @@ public class TestArrayList extends x10Test {
         testAccess();
         testRemove();
         testResize();
+        testAddAll();
 
         return true;
 	}
@@ -89,6 +90,16 @@ public class TestArrayList extends x10Test {
         for (i in 0..9) {
             chk(a(i) == 0.0);
         }
+    }
+
+    public def testAddAll() {
+        val a = new ArrayList[Long]();
+        val b = new ArrayList[Long]();
+        val x = [ 0, 1, 2, 3, 4 ];
+        b.addAll(x); // Rail
+        a.addAll(b); // ArrayList
+        chk(a.size() == 5);
+        chk(a(4) == 4);
     }
 
 	public static def main(args: Rail[String]): void = {
