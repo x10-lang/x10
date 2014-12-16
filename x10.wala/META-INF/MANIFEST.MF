@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 WALA AST Translator
+Bundle-SymbolicName: x10.wala;singleton:=true
+Bundle-Version: 2.5.1.qualifier
+Bundle-Vendor: x10-users@lists.sourceforge.net
+Require-Bundle: com.ibm.wala.cast,
+ com.ibm.wala.cast.java,
+ com.ibm.wala.core,
+ com.ibm.wala.shrike;bundle-version="1.3.1",
+ org.eclipse.core.runtime,
+ x10.compiler
+Bundle-ActivationPolicy: lazy
+Export-Package: x10.wala.analysis.typeInference,
+ x10.wala.classLoader,
+ x10.wala.client,
+ x10.wala.ipa.callgraph,
+ x10.wala.ipa.cha,
+ x10.wala.ssa,
+ x10.wala.translator,
+ x10.wala.tree.visit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

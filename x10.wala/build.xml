@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10.wala" default="dist" basedir=".">
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
+    <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
+    <property name="build" location="${basedir}/bin"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10wala.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="compiler.classpath"/>
+        <path refid="lib.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="compiler.classpath">
+        <pathelement location="${x10.compiler.location}/classes"/>
+    </path>
+    <path id="lib.classpath">
+      <fileset dir="${lib}" includes="com.ibm.wala.cast.java_1.0.0.201101071300.jar,com.ibm.wala.cast_1.0.0.201101071300.jar,com.ibm.wala.core_1.1.3.201101071300.jar,com.ibm.wala.shrike_1.3.1.201101071300.jar,org.eclipse.equinox.common_3.6.0.v20100503.jar"/> 
+    </path>
+    <fileset id="classes" dir="${build}" includes="x10/wala/**" excludes="${jar}"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+        <mkdir dir="${lib}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+	<target name="dist" depends="jar">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+	</target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset refid="classes"/>
+            <fileset dir="${build}/data" >
+                <include name="**/*.xml"/>
+            </fileset>
+        </jar>
+    </target>
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" includes="x10/wala/**">
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+</project>
