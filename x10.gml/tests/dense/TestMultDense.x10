@@ -1,5 +1,10 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2011-2014.
  *  (C) Copyright Australian National University 2013.
@@ -42,6 +47,7 @@ public class TestMultDense extends x10Test {
 		ret &= (testMultDrivers());
 		ret &= (testMatMultVector());
 		ret &= (testMatMultVectorOffset());
+        ret &= (testRankOneUpdate());
 		ret &= (testSymRankKUpdate());
 		ret &= (testSymRankKUpdateOffset());
 		//ret &= (mm.testSmallMult());
@@ -286,6 +292,26 @@ public class TestMultDense extends x10Test {
 
 		return ret;
 	}
+
+    public def testRankOneUpdate():Boolean {
+		Console.OUT.printf("\nTest rank-one update: (%dx%d) += %d * %d\n",
+				M, N, M, N);
+		val a = DenseMatrix.make(M, N);
+		val x = Vector.make(M).initRandom();
+        val y = Vector.make(N).initRandom();
+        var ret:Boolean=true;
+        DenseMatrixBLAS.rankOneUpdate(x, y, a);
+
+        for (i in 0..(M-1)) {
+            for (j in 0..(N-1)) {
+                chk(a(i,j) == x(i) * y(j));
+            }
+        }
+
+		if (!ret)
+			Console.OUT.println("-----Dense matrix rank-one update test failed!-----");
+		return ret;
+    }
 
 	public def testSymRankKUpdate():Boolean {
 		Console.OUT.printf("\nTest X10 symmetric rank-K update driver: (%dx%d) * (%dx%d)\n",

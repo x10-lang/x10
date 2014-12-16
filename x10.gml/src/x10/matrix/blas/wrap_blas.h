@@ -41,7 +41,7 @@ void sym_vector_mult(double alpha, double* x, double* A, double beta, double* y,
 void tri_vector_mult(double* A, blas_long uplo, double* bx, blas_long lda, int transA);
 
 // A = alpha*x*y**T + A
-void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long* offset, blas_long* inc, blas_long lda, double alpha);
+void rank_one_update(double alpha, double* x, double* y, double* A, blas_long* dim, blas_long* offset, blas_long* inc, blas_long lda);
 
 //  B := alpha*op( A )*B, A is lower-non-unit triangular
 void tri_matrix_mult(double* A, double* B, blas_long* dim, int tranB);

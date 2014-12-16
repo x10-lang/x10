@@ -351,26 +351,28 @@ protected class DriverBLAS {
     /**
      * Compute A = alpha &#42 x &#42 y &#42 &#42 T + A, general rank-1 update.
      *
-     * @param mA     the first matrix (right-side)
-     * @param x      left-side operand vector
+     * @param alpha  scalar alpha
+     * @param x      vector of dimension at least M+offsetX
      * @param y      output vector
+     * @param mA     the first matrix (right-side)
      * @param dim    dimension array [M, N], which are rows and columns of mA
      * @param offset starting offsets [offsetX, offsetY] for elements of X and Y
      * @param inc    increments [incX, incY] for elements of X and Y
      * @param lda    leading dimension of A
-     * @param alpha  scalar alpha
+
      */
-    @Native("java","WrapBLAS.rankOneUpdate((#1).getDoubleArray(),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getLongArray(),(#5).getLongArray(),(#6).getLongArray(),#7,#8)")
-    @Native("c++","rank_one_update((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,#7,#8)")
+    @Native("java","WrapBLAS.rankOneUpdate((#1),(#2).getDoubleArray(),(#3).getDoubleArray(),(#4).getDoubleArray(),(#5).getLongArray(),(#6).getLongArray(),(#7).getLongArray(),#8)")
+    @Native("c++","rank_one_update((#1),(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,#8)")
     public static native def rank_one_update(
-            mA:Rail[Double],
+            alpha:Double,
             x:Rail[Double],
             y:Rail[Double],
+            mA:Rail[Double],
             dim:Rail[Long],
             offset:Rail[Long],
             inc:Rail[Long],
-            lda:Long,
-            alpha:Double):void;
+            lda:Long
+            ):void;
 
     /**
      * Solve equation  mA &#42 x = b, where mA is unit lower-triangular matrix.

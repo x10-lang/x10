@@ -1270,27 +1270,26 @@ void tri_vector_mult(double* A, blas_long ul, double* bx, blas_long lda, int tra
 }
 
 // A = alpha*x*y**T + A
-void rank_one_update(double* A, double* x, double* y, blas_long* dim, blas_long* offset, blas_long* inc, blas_long lda, double alpha)
+void rank_one_update(double alpha, double* x, double* y, double* A, blas_long* dim, blas_long* offset, blas_long* inc, blas_long lda)
 {
 #ifdef ENABLE_BLAS
   blas_long m    = dim[0];
   blas_long n    = dim[1];
-  blas_long offx = offset[0];
-  blas_long offy = offset[1];
-  double* xStart = x + offx;
-  double* yStart = y + offy;
+  blas_long offsetX = offset[0];
+  blas_long offsetY = offset[1];
+  blas_long offsetA = offset[0] + offset[1]*lda;
   blas_long incx = inc[0];
   blas_long incy = inc[1];
 #if defined(__essl__)
   dger(&m, &n,
-		 &alpha, xStart, &incx,
-		         yStart, &incy,
-		         A, &lda);
+		 &alpha, x+offsetX, &incx,
+		         y+offsetY, &incy,
+		         A+offsetA, &lda);
 #else
   dger_(&m, &n,
-		 &alpha, xStart, &incx,
-		         yStart, &incy,
-		         A, &lda);
+		 &alpha, x+offsetX, &incx,
+		         y+offsetY, &incy,
+		         A+offsetA, &lda);
 #endif
 #else
   error_missing_blas();

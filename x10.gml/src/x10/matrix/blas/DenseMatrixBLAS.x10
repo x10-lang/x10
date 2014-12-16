@@ -122,7 +122,42 @@ public class DenseMatrixBLAS {
         val dim=[A.N, A.M];
         DriverBLAS.sym_vector_mult(alpha, A.d, B.d, beta, C.d, dim);
     }
+    
+    /**
+     * Compute the rank-1 update A += alpha * x &#42 y<sup>T<sup>,
+     * for an offset patch within each matrix / vector.
+     * @param alpha  scalar by which the result of x &#42 y is multiplied
+     * @param x      vector dimension at least (M+xr)
+     * @param y      vector of dimension at least (N+yr)
+     * @param A      dense matrix of dimension at least (M+Ar,N+Ac)
+     * @param dim    the dimensions M and N used in BLAS multiply where
+     *               M is the number of rows in A and x,
+                     N is the number of columns in A and rows in y
+     * @param offset row and column offsets [xr, yr, Ar, Ac] into matrix/vectors
+     */
+    public static def rankOneUpdate(
+            alpha:Double, x:Vector, y:Vector,
+            A:DenseMatrix,
+            dim:Rail[Long], offset:Rail[Long]):void {
+        if (CompilerFlags.checkBounds()) {
+            Debug.assure(offset(0)+dim(0) <= x.M,
+                offset(0)+"+"+dim(0) + " <= " + x.M);
+            Debug.assure(offset(1)+dim(1) <= y.M,
+                offset(1)+"+"+dim(1) + " <= " + y.M);
+            Debug.assure(offset(2)+dim(0) <= A.M && offset(3)+dim(1) <= A.N,
+                offset(2)+"+"+dim(0) + " <= " + A.M + " && " + offset(3)+"+"+dim(1) + " <= " + A.N);
+        }
+        val inc = [ 1, 1 as Long ];
 
+        DriverBLAS.rank_one_update(alpha, x.d, y.d, A.d, dim, offset, inc, A.M);
+    }
+
+    public static def rankOneUpdate(x:Vector, y:Vector, A:DenseMatrix) {
+        val alpha = 1.0;
+        val dim = [A.M, A.N];
+        val offset = [0, 0, 0, 0 as Long];
+        rankOneUpdate(alpha, x, y, A, dim, offset);
+    }
 
     /** Symmetric multiply dense */
     public static def comp(

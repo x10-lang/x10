@@ -11,9 +11,19 @@
 
 package x10.matrix.blas;
 
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2014.
+ */
 
 /**
- * This Java class provide wrap JNI for BLAS library
+ * This Java class provides JNI wrappers for BLAS library routines.
  */
 public class WrapBLAS {
 
@@ -40,7 +50,7 @@ public class WrapBLAS {
 	public static native void matvecMult(double alpha, double[] A, double[] x, double beta, double[] y, long[] dim, int transA);
 	public static native void symvecMult(double alpha, double[] A, double[] x, double beta, double[] y, long[] dim);
 	public static native void trivecMult(double[] A, int uplo, double[] bx, long lda, int tranA);
-	public static native void rankOneUpdate(double[] A, double[] x, double[] y, long[] dim, long[] offset, long[] inc, long lda, double alpha);
+	public static native void rankOneUpdate(double alpha, double[] x, double[] y, double[] A, long[] dim, long[] offset, long[] inc, long lda);
 
 	public static native void trimatMult(double[] A, double[] B, long[] dim, int tranA);
 	public static native void mattriMult(double[] B, double[] A, long[] dim, int tranA);
