@@ -272,7 +272,7 @@ public struct Team {
 /*
         else {
             if (DEBUG) Runtime.println(here + " entering Team.x10 alltoall of team "+id);
-            state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, places(0), src, src_off, dst, dst_off, count, 0n);
+            state(id).collective_impl[T](LocalTeamState.COLL_ALLTOALL, state(id).places(0), src, src_off, dst, dst_off, count, 0n);
         }
 */
         if (DEBUG) Runtime.println(here + " leaving alltoall of team "+id);
