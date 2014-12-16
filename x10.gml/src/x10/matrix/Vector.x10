@@ -246,12 +246,14 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
         BLAS.compDotProd(this.M, this.d, x.d);
     
 
-    public def dotProd(v:Vector(M)):Double {
+    public def dot(v:Vector(M)):Double {
         var d:Double = 0.0;
          for (i in 0..(M-1))
             d += this.d(i) * v.d(i);
         return d;
     }
+
+    public def dotProd(v:Vector(M)) = dot(v);
 
     // Using Blas routines: self = op(A)* b, self += op(A) * b,
 

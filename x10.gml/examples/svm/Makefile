@@ -31,7 +31,7 @@ X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 4
-test_args = -i ionosphere.data
+test_args = -f ionosphere.data
 
 ###################################################
 # Build rules

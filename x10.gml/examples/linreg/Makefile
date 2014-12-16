@@ -26,12 +26,15 @@ build_path	= build
 gml_path    = ../..
 
 # compile options
-X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -g -O #-NO_CHECKS
 
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 4
-test_args = -m 10000 -n 4 --rowBlocks 4 --colBlocks 1 --density 0.6 --iterations 10 --checkpointFreq 2 --skip 2 --verify
+test_args = -m 10000 -n 4 --rowBlocks 4 --colBlocks 1 --density 0.6 --iterations 10 --verify
+
+run_resilient:		java
+	X10_RESILIENT_MODE=1 X10_NPLACES=$(numplaces) $(Xjvm) -DX10RT_DATASTORE=Hazelcast -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args) --checkpointFreq 2 --skip 2
 
 ###################################################
 # Build rules

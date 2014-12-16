@@ -31,11 +31,11 @@ import x10.util.resilient.ResilientStoreForApp;
  * dense/sparse matrix
  */
 public class LinearRegression implements ResilientIterativeApp {
-    static val MAX_SPARSE_DENSITY = 0.1;
+    public static val MAX_SPARSE_DENSITY = 0.1;
 
     //Input matrix
     public val V:DistBlockMatrix;
-    public val b:Vector(V.N);
+    public val y:DistVector(V.M);
     //Parameters
     public val iterations:Long;
     static val lambda:Double = 0.000001;
@@ -48,7 +48,7 @@ public class LinearRegression implements ResilientIterativeApp {
     val r:Vector(V.N);
     val d_q:DupVector(V.N);
 
-    private val chkpntIterations:Long;
+    private val checkpointFreq:Long;
 
     var norm_r2:Double;
     var lastCheckpointNorm:Double;
@@ -63,10 +63,10 @@ public class LinearRegression implements ResilientIterativeApp {
     //the matrix snapshot should be taken only once
     private var V_snapshot:DistObjectSnapshot;
 
-    public def this(v:DistBlockMatrix, b_:Vector(v.N), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
+    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
         iterations = it;
-        V =v;
-        b =b_ as Vector(V.N);
+        this.V = v;
+        this.y = y;
 
         Vp = DistVector.make(V.M, V.getAggRowBs(), places);
 
@@ -77,30 +77,9 @@ public class LinearRegression implements ResilientIterativeApp {
 
         w  = Vector.make(V.N);
 
-        this.chkpntIterations = chkpntIter;
+        this.checkpointFreq = chkpntIter;
 
         nzd = sparseDensity;
-    }
-
-    public static def make(mV:Long, nV:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, chkpntIter:Long, places:PlaceGroup) {
-        //First dist block matrix must have vertical distribution
-        val V:DistBlockMatrix(mV, nV);
-        if (nzd < MAX_SPARSE_DENSITY) {
-            V = DistBlockMatrix.makeSparse(mV, nV, nRowBs, nColBs, places.size(), 1, nzd, places);
-        } else {
-            Console.OUT.println("using dense matrix as non-zero density = " + nzd);
-            V = DistBlockMatrix.makeDense(mV, nV, nRowBs, nColBs, places.size(), 1, places);
-        }
-        val b = Vector.make(nV);
-
-        Console.OUT.printf("Start init matrix V(%d,%d) blocks(%dx%d) ", mV, nV, nRowBs, nColBs);
-        Console.OUT.printf("dist(%dx%d) nzd:%f\n", places.size(), 1, nzd);
-        V.initRandom();
-
-        Debug.flushln("Done. Start init other matrices, b, r, p, q, and w");
-        b.initRandom();
-
-        return new LinearRegression(V, b, it, chkpntIter, nzd, places);
     }
 
     public def isFinished() {
@@ -108,13 +87,18 @@ public class LinearRegression implements ResilientIterativeApp {
     }
 
     public def run() {
-        b.copyTo(r);
-        b.copyTo(d_p.local());
+        val dupR = DupVector.make(V.N, Vp.places());
+        // 4: r=-(t(V) %*% y)
+        dupR.mult(y, V);
+        dupR.local().copyTo(r);
+        // 5: p=-r
+        r.copyTo(d_p.local());
+        // 4: r=-(t(V) %*% y)
         r.scale(-1.0);
-
+        // 6: norm_r2=sum(r*r)
         norm_r2 = r.norm();
 
-        new ResilientExecutor(chkpntIterations).run(this);
+        new ResilientExecutor(checkpointFreq).run(this);
 
         return w;
     }

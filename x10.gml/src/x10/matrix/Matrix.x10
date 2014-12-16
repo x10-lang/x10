@@ -353,7 +353,7 @@ public abstract class Matrix(M:Long, N:Long) {
         for (var r:Long=0; r<M; r++) {
             dstr.add(r.toString()+"\t[ ");
             for (var c:Long=0; c<N; c++)
-                dstr.add(String.format("%05.3f ", [this(r,c) as Any]));
+                dstr.add(this(r,c).toString()+" ");
             dstr.add("]\n");
         }
         dstr.add("---------------------------------------");

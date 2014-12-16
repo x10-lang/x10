@@ -45,7 +45,7 @@ public class RunPageRank {
             Option("d","density","nonzero density, default = 0.001"),
             Option("i","iterations","number of iterations, default = 20"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
-            Option("f","checkpointFreq","checkpoint iteration frequency")
+            Option("", "checkpointFreq","checkpoint iteration frequency")
         ]);
 
         if (opts.filteredArgs().size!=0) {
@@ -67,7 +67,7 @@ public class RunPageRank {
         val verify = opts("v");
         val print = opts("p");
         val skipPlaces = opts("s", 0n);
-        val checkpointFreq = opts("f", -1n);
+        val checkpointFreq = opts("checkpointFreq", -1n);
 
         Console.OUT.println("G: rows/cols: "+mG+" density:"+nonzeroDensity+" iterations:"+iterations);
 		if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || skipPlaces < 0 || skipPlaces >= Place.numPlaces())

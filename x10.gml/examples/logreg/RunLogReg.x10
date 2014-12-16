@@ -39,7 +39,7 @@ public class RunLogReg {
             Option("d","density","nonzero density, default = 0.5"),
             Option("i","iterations","number of iterations, default = 2"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
-            Option("f","checkpointFreq","checkpoint iteration frequency")
+            Option("", "checkpointFreq","checkpoint iteration frequency")
         ]);
 
         if (opts.filteredArgs().size!=0) {
@@ -62,7 +62,7 @@ public class RunLogReg {
         val verify = opts("v");
         val print = opts("p");
         val skipPlaces = opts("s", 0n);
-        val checkpointFreq = opts("f", -1n);
+        val checkpointFreq = opts("checkpointFreq", -1n);
 
         Console.OUT.println("X: rows:"+mX+" cols:"+nX
                            +" density:"+nonzeroDensity+" iterations:"+iterations);
@@ -83,7 +83,7 @@ public class RunLogReg {
                 denX = prun.X.toDense();
                 y = Vector.make(denX.M);
                 prun.y.copyTo(y); // gather
-                w = prun.w.clone() as Vector(nX);
+                w = prun.w.clone();// as Vector(nX);
             }
 
             Debug.flushln("Starting logistic regression");
