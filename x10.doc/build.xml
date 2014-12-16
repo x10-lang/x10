@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.doc" default="jar" basedir=".">
+    &buildfile;
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10doc.jar"/>
+    <property name="lpg.jar" value="lpg.jar"/>
+    <property name="compiler.jar" value="x10c.jar"/>
+    <property name="runtime.jar" value="x10.jar"/>
+    <property name="tools.jar" value="tools.jar"/>
+    <property name="bash.exe" value="bash"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+    <condition property="tools.jar.location"
+            value="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}">
+        <available file="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}"/>
+    </condition>
+    <condition property="tools.jar.location"
+            value="${java.home}${file.separator}lib{file.separator}${tools.jar}">
+        <and>
+            <not>
+                <isset property="tools.jar.location"/>
+            </not>
+            <available file="${java.home}${file.separator}lib{file.separator}${tools.jar}"/>
+        </and>
+    </condition>
+    <condition property="tools.jar.location"
+               value="${java.home}${file.separator}..${file.separator}lib${file.separator}${tools.jar}">
+        <not>
+            <isset property="tools.jar.location"/>
+        </not>
+    </condition>
+	<path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="lpg.classpath"/>
+        <path refid="compiler.classpath"/>
+        <path refid="x10.runtime.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="lpg.classpath">
+        <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="compiler.classpath">
+        <pathelement location="${lib}/${compiler.jar}"/>
+    </path>
+    <path id="x10.runtime.classpath">
+        <pathelement location="${lib}/${runtime.jar}"/>
+    </path>
+    <path id="tools.classpath">
+        <pathelement location="${tools.jar.location}"/>
+    </path>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <echo message="${ant.project.name}: ${tools.jar.location}"/>
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="check-jar" depends="init">
+        <fileset id="x10doc.classes" dir="${build}" includes="x10doc/**" excludes="${jar}"/>
+        <uptodate property="x10doc.uptodate" targetfile="${build}/${jar}">
+            <srcfiles refid="x10doc.classes"/>
+            <!--<globmapper from="*.java" to="${build}/*.class" handledirsep="true"/>-->
+        </uptodate>
+    </target>
+    <target name="jar" depends="build,check-jar" unless="x10doc.uptodate">
+        <jar jarfile="${build}/${jar}">
+            <fileset refid="x10doc.classes"/>
+        </jar>
+    </target>
+    <target name="prereq-jars">
+        <condition property="lpg.jar.present">
+            <available file="${lib}/${lpg.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
+        <condition property="compiler.jar.present">
+            <available file="${lib}/${compiler.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${compiler.jar}" unless="compiler.jar.present"/>
+    </target>
+    <target name="build" depends="init,prereq-jars">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" includes="x10doc/**" excludes="">
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+            <classpath refid="tools.classpath"/>
+        </javac>
+    </target>
+</project>
