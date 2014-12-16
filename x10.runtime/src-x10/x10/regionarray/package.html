@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+-->
+</head>
+<body bgcolor="white">
+
+<p>Provides an implementation of single place and distributed arrays and
+supporting abstractions such as regions, points, and distributions. </p>
+
+<h2>Package Specification</h2>
+
+<p>This package provides an implementation of single place and distributed arrays and
+supporting abstractions such as regions, points, and distributions.  The indexing abstractions
+supported by this package include flexible and user-extensible regions and distributions. 
+Thus the arrays in this package are more flexible than those of the x10.array package, but
+also tend to be lower performance. </p>
+
+<h3>Regions, and Arrays</h3>
+
+Region class defines a set of static factory methods for constructing
+regions. There are properties and methods for accessing basic
+information about of a region, such as its bounding box, its size,
+whether or not it is convex, whether or not it is empty. There are a
+set of methods for supporting algebraic operations on regions, such as
+intersection, union, difference, and so on. The set of points in a
+region may be iterated over.
+
+
+<p>Arrays provide indexed access to data at a single Place. An Array may
+be either single or multi-dimensional; in X10 the dimensionality of an
+Array is recorded in the Array's rank property.  An Array instance of
+a particular rank is indexed by using Points of the same rank.  As a
+convenience to the programmer, Arrays of rank 4 or less may also be
+indexed using the appropriate number of Integer indices. </p>
+
+<p>DistArrays provide indexed access to data at multiple Places.  The mapping
+of Points in the DistArray's Region to Places is specified by the DistArray's
+Dist (distribution).  The DistArray class supports user-extensible distributions,
+(enabling significant flexibility), but as a result have fairly expensive indexing 
+operations.  Computationally intensive code using DistArrays should either use
+the simpler DistArray abstractions provided by the x10.array package or make use
+of the getLocalPortion() API to access the local backing storage of the DistArray
+via the Array class (which supports higher-performance indexing operations).</p>
+
+
+<h2>Related Documentation</h2>
+
+
+
+</body>
+</html>

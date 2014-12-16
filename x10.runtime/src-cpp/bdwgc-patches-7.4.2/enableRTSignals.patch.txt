@@ -1,0 +1,89 @@
+diff --git a/configure b/configure
+index 8d8d4f2..e684752 100755
+--- a/configure
++++ b/configure
+@@ -1507,6 +1507,8 @@ Optional Features:
+   --enable-redirect-malloc
+                           Redirect malloc and friends to GC routines
+   --enable-large-config   Optimize for large (> 100 MB) heap or root set
++  --enable-sigrt-signals  Force the gc to use SIGRTMIN-based signals for
++                          thread suspend/resume
+   --enable-handle-fork    Attempt to ensure a usable collector after fork() in
+                           multi-threaded programs.
+   --enable-gc-assertions  collector-internal assertion checking
+@@ -16396,7 +16398,17 @@ $as_echo "#define GC_GCJ_SUPPORT 1" >>confdefs.h
+ fi
+ 
+ 
++# Check whether --enable-sigrt-signals was given.
++if test "${enable_sigrt_signals+set}" = set; then :
++  enableval=$enable_sigrt_signals;
++fi
++
++
++if test "${enable_sigrt_signals}" = yes; then
+ 
++$as_echo "#define GC_USESIGRT_SIGNALS 1" >>confdefs.h
++
++fi
+ 
+ 
+ UNWINDLIBS=
+diff --git a/configure.ac b/configure.ac
+index 7667949..92c2411 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -678,6 +678,17 @@ if test x"${enable_sigrt_signals}" = xyes; then
+ fi
+ 
+ 
++
++dnl Interaction with other programs that might use signals.
++dnl Force the GC to use signals based on SIGRTMIN+k 
++AC_ARG_ENABLE(sigrt-signals,
++       [AC_HELP_STRING([--enable-sigrt-signals], [Force the gc to use SIGRTMIN-based signals for thread suspend/resume])])
++
++if test "${enable_sigrt_signals}" = yes; then
++   AC_DEFINE(GC_USESIGRT_SIGNALS)
++fi
++
++
+ dnl Debugging
+ dnl ---------
+ 
+diff --git a/include/config.h.in b/include/config.h.in
+index dfabebf..351a42d 100644
+--- a/include/config.h.in
++++ b/include/config.h.in
+@@ -45,6 +45,9 @@
+ /* Define to include support for gcj. */
+ #undef GC_GCJ_SUPPORT
+ 
++/* Define to use SIGRTMIN-based signals for thread suspend/resume */
++#undef GC_USESIGRT_SIGNALS
++
+ /* Define to support GNU pthreads. */
+ #undef GC_GNU_THREADS
+ 
+diff --git a/include/private/gc_priv.h b/include/private/gc_priv.h
+index 0ad92fc..fb5f59f 100644
+--- a/include/private/gc_priv.h
++++ b/include/private/gc_priv.h
+@@ -2386,6 +2386,16 @@ GC_INNER ptr_t GC_store_debug_info(ptr_t p, word sz, const char *str,
+               /* some other reason.                                     */
+ #endif /* PARALLEL_MARK */
+ 
++# if defined(GC_USESIGRT_SIGNALS)
++#  if defined(_SIGRTMIN)
++#   define SIG_SUSPEND _SIGRTMIN + 6
++#   define SIG_THR_RESTART _SIGRTMIN + 5
++#  else
++#   define SIG_SUSPEND SIGRTMIN + 6
++#   define SIG_THR_RESTART SIGRTMIN + 5
++#  endif
++# endif
++
+ #if defined(GC_PTHREADS) && !defined(GC_WIN32_THREADS) && !defined(NACL) \
+     && !defined(GC_DARWIN_THREADS) && !defined(SIG_SUSPEND)
+   /* We define the thread suspension signal here, so that we can refer  */
+

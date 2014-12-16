@@ -1,0 +1,14 @@
+diff --git a/include/private/pthread_support.h b/include/private/pthread_support.h
+index 525a9aa..1bbb848 100644
+--- a/include/private/pthread_support.h
++++ b/include/private/pthread_support.h
+@@ -114,7 +114,7 @@ typedef struct GC_Thread_Rep {
+ #   endif
+ } * GC_thread;
+ 
+-# define THREAD_TABLE_SZ 256    /* Must be power of 2   */
++# define THREAD_TABLE_SZ 4096    /* Must be power of 2   */
+ GC_EXTERN volatile GC_thread GC_threads[THREAD_TABLE_SZ];
+ 
+ GC_EXTERN GC_bool GC_thr_initialized;
+

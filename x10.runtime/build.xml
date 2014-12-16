@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.runtime" default="dist" basedir=".">
+    &buildfile;
+    <property name="dep.baseurl" value="http://x10-lang.org"/>
+    <property name="dep.baseurl.alt" value="http://sourceforge.net/projects/x10/files"/>
+    <property name="bdwgc.version" value="7.4.2"/>
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src-java"/>
+    <property name="gen" location="${src}/gen"/>
+    <property name="inc" location="${x10.dist.location}/include"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="stdlib" location="${x10.dist.location}/stdlib"/>
+    <property name="jar" value="x10.jar"/>
+	<property name="gen-java.zip" value="gen-java.zip"/>
+    <property name="ecj.jar" value="${lib}/ecj-4.4.1.jar"/>
+    <property name="math.jar" value="${lib}/commons-math3-3.3.jar"/>
+    <property name="log.jar" value="${lib}/commons-logging-1.2.jar"/>
+    <property name="hazelcast.jar" value="${lib}/hazelcast-3.3.1.jar"/>
+    <property name="shrike.jar" value="${lib}/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+    <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc-${bdwgc.version}"/>
+    <property name="bdwgc.tar" value="bdwgc-${bdwgc.version}.tar.gz"/>
+    <property name="bdwgc.url" value="dependencies/${bdwgc.tar}"/>
+    <property name="make.exe" value="make"/>
+    <property name="bash.exe" value="bash"/>
+    <property name="tar.exe" value="tar"/>
+    <property name="optimize" value="false" />
+    <property name="debug" value="false" />
+    <property name="COPY_PROPAGATION" value="false" />
+    <property name="ELIMINATE_DEAD_VARIABLES" value="false" />
+    <property name="EXPERIMENTAL" value="false" />
+    <property name="DISABLE_GC" value="false" />
+    <property name="NO_CHECKS" value="false" />
+    <property name="FLATTEN_EXPRESSIONS" value="false" />
+    <property name="HOMOGENEOUS" value="true" />
+    <property name="GCC_SYMBOLS" value="false" />
+    <property name="INCLUDE_JAVA_SOURCE" value="false" />
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="x10.constraints.classpath"/>
+        <path refid="x10.common.classpath"/>
+        <pathelement path="${math.jar}"/>
+        <pathelement path="${log.jar}"/>
+        <pathelement path="${hazelcast.jar}"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="x10.constraints.classpath">
+        <pathelement location="${x10.constraints.location}/classes"/>
+    </path>
+    <path id="x10.common.classpath">
+        <pathelement location="${x10.common.location}/classes"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <!-- set up to use ECJ -->
+    <property name="ejc.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+    <property name="ejc.classpath" location="${ecj.jar}"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${gen}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="true" debug="on" nowarn="on">
+            <src path="${x10.common.location}/contrib/ant"/>
+            <include name="Ejc.java"/>
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+        <!-- Allow using the Eclipse compiler -->
+        <taskdef name="ejc" classname="Ejc">
+            <classpath>
+                <pathelement location="${ejc.classpath}"/>
+                <pathelement location="${build}"/>
+            </classpath>
+        </taskdef>
+        <!-- use ECJ instead of javac (needs ecj.jar on the classpath) -->
+        <!--<property name="build.compiler" value="${ejc.compiler}"/>-->
+    </target>
+
+    <!-- Determine whether or not we should be building with GC enabled -->
+    <condition property="bdwgc.enabled">
+        <and>
+            <isfalse value="${DISABLE_GC}" />
+            <or>
+                <os family="unix" name="linux"/>
+                <os family="mac"/>
+                <os family="windows"/>
+                <os family="unix" name="freebsd"/>
+            </or>
+        </and>
+    </condition>
+
+    <condition property="x10rt.jnibindings.disabled">
+        <or>
+            <istrue value="${CROSS_COMPILE_BGQ}" />
+            <and>
+		       <istrue value="${CROSS_COMPILE_FX10}" />
+		       <not>
+		 		 <isset property="env.TARGET_JAVA_HOME"/>
+		       </not>
+		     </and>
+        </or>
+    </condition>
+
+    <!-- darwin architectures -->
+    <condition property="darwin.32" value="-arch i386 " else="">
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_32BIT}" />
+        </and>
+    </condition>
+    <condition property="darwin.64" value="-arch x86_64 " else="">
+        <and>
+            <os family="mac"/>
+            <istrue value="${env.USE_64BIT}" />
+        </and>
+    </condition>
+    <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+        <isset property="bdwgc.enabled" />
+    </condition>
+    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DUMMY_ARG=1">
+        <istrue value="${optimize}" />
+    </condition>
+    <condition property="cppmake.debug" value="DEBUG=1" else="DUMMY_ARG=1">
+        <istrue value="${debug}" />
+    </condition>
+    <condition property="cppmake.experimental" value="EXPERIMENTAL=1" else="DUMMY_ARG=1">
+        <istrue value="${EXPERIMENTAL}" />
+    </condition>
+    <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
+        <istrue value="${NO_CHECKS}" />
+    </condition>
+    <condition property="cppmake.flatten_expressions" value="FLATTEN_EXPRESSIONS=1" else="DUMMY_ARG=1">
+        <or>
+            <istrue value="${FLATTEN_EXPRESSIONS}" />
+            <istrue value="${CROSS_COMPILE_FX10}" />
+        </or>
+    </condition>
+    <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
+        <or>
+            <istrue value="${X10RT_MPI}" />
+            <istrue value="${CROSS_COMPILE_BGQ}" />
+        </or>
+    </condition>
+    <condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
+        <or> 
+            <istrue value="${X10RT_PAMI}" />
+            <istrue value="${CROSS_COMPILE_BGQ}" />
+        </or>
+    </condition>
+    <condition property="cppmake.x10rt_cuda" value="ENABLE_X10RT_CUDA=1" else="DISABLE_X10RT_CUDA=1">
+        <istrue value="${X10RT_CUDA}" />
+    </condition>
+    <condition property="cppmake.gcc_symbols" value="ENABLE_GCC_SYMBOLS=1" else="DISABLE_GCC_SYMBOLS=1">
+        <istrue value="${GCC_SYMBOLS}" />
+    </condition>
+    <condition property="cppmake.cross_compile_bgq" value="ENABLE_CROSS_COMPILE_BGQ=1" else="DISABLE_CROSS_COMPILE_BGQ=1">
+        <istrue value="${CROSS_COMPILE_BGQ}" />
+    </condition>
+    <condition property="cppmake.cross_compile_fx10" value="ENABLE_CROSS_COMPILE_FX10=1" else="DISABLE_CROSS_COMPILE_FX10=1">
+        <istrue value="${CROSS_COMPILE_FX10}" />
+    </condition>
+    <condition property="cppmake.homogeneous" value="HOMOGENEOUS=1" else="DUMMY_ARG=1">
+        <istrue value="${HOMOGENEOUS}" />
+    </condition>
+    <condition property="x10c.optimize" value="-O" else="">
+        <istrue value="${optimize}" />
+    </condition>
+    <condition property="x10c.copy_propagation" value="-COPY_PROPAGATION=true" else="">
+        <istrue value="${COPY_PROPAGATION}" />
+    </condition>
+    <condition property="x10c.eliminate_dead_variables" value="-ELIMINATE_DEAD_VARIABLES=true" else="">
+        <istrue value="${ELIMINATE_DEAD_VARIABLES}" />
+    </condition>
+    <condition property="x10c.experimental" value="-EXPERIMENTAL=true" else="">
+        <istrue value="${EXPERIMENTAL}" />
+    </condition>
+    <condition property="x10c.no_checks" value="-NO_CHECKS=true" else="">
+        <istrue value="${NO_CHECKS}" />
+    </condition>
+    <target name="available-procs" unless="available.procs">
+        <property name="available.procs" value="2"/>
+    </target>
+
+    <target name="distclean" depends="distclean-java,distclean-cpp,distclean-x10rt"/>
+    <target name="clean" depends="clean-java,clean-cpp,clean-x10rt"/>
+    <target name="distclean-java" depends="clean-java"/>
+    <target name="clean-java">
+        <delete dir="${build}" failonerror="false"/>
+        <delete failonerror="false"> <!-- keep the gen directory itself because Eclipse needs it -->
+            <fileset dir="${gen}">
+                <include name="**"/>
+            </fileset>
+        </delete>
+    </target>
+    <target name="distclean-cpp" depends="clean-cpp,clean-bdwgc"/>
+    <target name="clean-cpp" depends="available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="-j1" />
+            <arg value="clean"/>
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+    <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
+        <delete dir="${bdwgc.dir}" quiet="true"/>
+    </target>
+    <target name="clean-bdwgc" depends="prepare-clean-bdwgc" if="bdwgc.makefile.present">
+        <exec executable="${make.exe}" failonerror="true" dir="${bdwgc.dir}/src">
+            <arg value="distclean"/>
+        </exec>
+    </target>
+    <target name="distclean-x10rt" depends="clean-x10rt"/>
+    <target name="clean-x10rt" depends="available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <arg value="-j1" />
+            <arg value="clean"/>
+            <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+
+    <target name="dist-x10rt" depends="build-x10rt">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j1" />
+            <arg value="install" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+    <target name="dist-java" depends="jar,dist-stdlibprops">
+        <mkdir dir="${stdlib}"/>
+        <copy todir="${stdlib}">
+            <fileset dir="${gen}" includes="${jar},${gen-java.zip}"/>
+        </copy>
+    </target>
+    <target name="dist-java-x10rt" depends="dist-java,dist-x10rt"/>
+    <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j${available.procs}" />
+            <arg value="install" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.experimental}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+    <target name="dist-cpp-no-x10rt" depends="build-cpp,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j${available.procs}" />
+            <arg value="install" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.experimental}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+    <target name="dist-stdlibprops" depends="init">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="install_props" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.experimental}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+    <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
+    </target>
+    <target name="dist-par" depends="init,available-procs,dist-stdlibprops">
+        <parallel>
+            <antcall target="dist-java-x10rt"/>
+            <antcall target="dist-cpp-no-x10rt"/>
+        </parallel>
+    </target>
+    <target name="jar" depends="build-xrx">
+        <tstamp/>
+        <jar jarfile="${gen}/${jar}">
+            <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-x10" includes="x10/**/*.x10" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-java">
+                <exclude name="${jar}" />
+                <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
+            </fileset>
+            <fileset dir="${basedir}/src-java/gen">
+                <exclude name="${jar}" />
+                <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
+            </fileset>
+            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+            <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
+		    <manifest>
+		      <attribute name="Built-By" value="X10 Project" />
+		      <attribute name="Specification-Title" value="X10 Language Runtime"/>
+		      <attribute name="Specification-Version" value="${x10.version}"/>
+		      <attribute name="Specification-Vendor" value="IBM"/>
+		      <attribute name="Implementation-Title" value="x10.runtime"/>
+		      <attribute name="Implementation-Version" value="${x10.version}.${DSTAMP}_${TSTAMP}"/> 
+		      <attribute name="Implementation-Vendor" value="IBM"/>
+		    </manifest>
+        </jar>
+    	<zip destfile="${gen}/${gen-java.zip}" 
+    	  comment="This archive contains the intermediate java files corresponding to the .x10 and .class files in x10.jar" >
+    		<fileset dir="${basedir}/src-java/gen">
+    			<exclude name="${jar}" />
+    		    <include name="x10/**/*.java" unless="${INCLUDE_JAVA_SOURCE}"/>
+    		</fileset>
+	    </zip>
+        <copy todir="${build}"><!-- copy x10.jar into classes to let scripts find it there too -->
+            <fileset dir="${gen}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="gen-xrj" depends="init">
+        <java classname="x10c.util.MakeFun" classpath="${x10.dist.location}/lib/x10c.jar" fork="true" dir="${gen}"/>
+    </target>
+    <target name="build-java" depends="init,gen-xrx,gen-xrj">
+      <sequential>
+        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
+            <src path="${src}"/>
+            <size value="50" when="more"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+        </ejc>
+        <echo message="Updating SMAP debug info for XRX"/>
+        <java classname="x10c.smap.Main" classpath="${x10.dist.location}/lib/x10c.jar:${shrike.jar}" fork="true" dir="${basedir}">
+	  <arg value="-x10_dir" />
+	  <arg value="src-x10" />
+	  <arg value="-java_dir" />
+	  <arg value="src-java/gen" />
+	  <arg value="-class_dir" />
+	  <arg value="classes" />
+	  <arg value="-exhaustive" />
+	</java>
+      </sequential>
+
+    </target>
+    <target name="build-x10-x10rt" depends="init">
+        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
+            <src path="${src}/x10/x10rt"/>
+            <size value="50" when="more"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+        </ejc>
+    </target>
+    <!-- TODO: check the generated files with respect to the compiler jar -->
+    <target name="check-xrx" depends="init">
+        <fileset id="xrx.files" dir="${basedir}/src-x10" includes="**/*.x10"/>
+        <uptodate property="xrx.uptodate">
+            <srcfiles refid="xrx.files"/>
+            <globmapper from="*.x10" to="${gen}/*.java" handledirsep="true"/>
+        </uptodate>
+    </target>
+    <target name="gen-xrx" depends="init,check-xrx" unless="xrx.uptodate">
+        <echo message="Building Java sources for XRX"/>
+        <fileset id="changed.xrx.files" dir="${basedir}/src-x10" includes="**/*.x10">
+            <depend targetdir="${gen}">
+                <mapper type="glob" from="*.x10" to="*.java"/>
+            </depend>
+        </fileset>
+        <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
+            <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
+        </pathconvert>
+	<tempfile destdir="${java.io.tmpdir}" prefix="XRXChanges" property="xrx.filelist"/>
+	<echo file="${xrx.filelist}" message="${xrx.list}"/>
+	<echo message="Compiling X10 source files ${xrx.list}"/>
+        <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} @${xrx.filelist}"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
+            <arg value="-c" />
+            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c @'${xrx.filelist}'" />
+        </exec>
+	<delete file="${xrx.filelist}" quiet="true"/>
+    </target>
+    <target name="build-xrx" depends="init,gen-xrx,build-java">
+        <!--
+        <ejc destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
+            <src path="${gen}"/>
+            <size value="50" when="more"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+        </ejc>
+        -->
+    </target>
+
+    <target name="init-x10rt" depends="init">
+        <mkdir dir="x10rt/bin"/>
+        <mkdir dir="x10rt/etc"/>
+        <mkdir dir="x10rt/lib"/>
+    </target>
+
+    <target name="jni-headers" depends="init,init-x10rt,build-x10-x10rt" unless="x10rt.jnibindings.disabled" >
+        <javah destdir="x10rt/include">
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+            <class name="x10.x10rt.MessageHandlers"/>
+            <class name="x10.x10rt.TeamSupport"/>
+            <class name="x10.x10rt.X10RT"/>
+        </javah>
+    </target>
+
+    <target name="build-x10rt" depends="init,init-x10rt,jni-headers">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j1" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+
+    <target name="x10rt-headers" depends="init,init-x10rt">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j1" />
+            <arg value="headers" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+
+    <target name="build-cpp" depends="init,dist-bdwgc,available-procs,x10rt-headers">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-j${available.procs}" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.experimental}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.homogeneous}" />
+            <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
+            <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.flatten_expressions}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgq}" />
+            <arg value="${cppmake.cross_compile_fx10}" />
+        </exec>
+    </target>
+
+    <target name="build" depends="build-xrx,build-cpp">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,patch-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
+        <sequential>
+            <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
+            <if>
+              <conditions>
+                  <os family="unix" name="linux" />
+              </conditions>
+              <then>
+		<if>
+		  <conditions>
+		    <or>
+                      <istrue value="${CROSS_COMPILE_FX10}" />
+                      <istrue value="${CROSS_COMPILE_BGQ}" />
+		    </or>
+		  </conditions>
+		  <then>
+		    <!-- Various cross-compilation with linux as the host os scenarios -->
+		    <if>
+		      <conditions>
+			<istrue value="${CROSS_COMPILE_FX10}" />
+		      </conditions>
+		      <then>
+			<sequential>
+			  <echo message="Configuring BDWGC for FX10 cross compile"/>
+			  <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+		 	    <env key="CXX" value="FCCpx"/>
+		 	    <env key="CC" value="fccpx"/>
+		 	    <env key="CFLAGS" value="-Xg -w" />
+		 	    <env key="CXXFLAGS" value="-Xg -w" />
+			    <arg value="${bdwgc.dir}/src/configure" />
+			    <arg value="--host=sparc64-unknown-linux-gnu" />
+			    <arg value="-enable-threads=posix" />
+			    <arg value="-enable-thread-local-alloc" />
+			    <arg value="-enable-large-config" />
+			    <arg value="-enable-parallel-mark" />
+			    <arg value="--prefix=${bdwgc.platform.dir}/install" />
+			  </exec>
+			</sequential>
+		      </then>
+		    </if>
+                    <if>
+                      <conditions>
+			<istrue value="${CROSS_COMPILE_BGQ}" />
+                      </conditions>
+                      <then>
+			<echo message="Configuring BDWGC for BGQ cross compile"/>
+			<exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+			  <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++"/>
+			  <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc"/>
+			  <arg value="${bdwgc.dir}/src/configure" />
+			  <arg value="--host=powerpc64-bgq-linux" />
+			  <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="-enable-parallel-mark" />
+			  <arg value="--disable-shared" />
+			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+			</exec>
+                      </then>
+		    </if>
+		  </then>
+                  <else>
+		    <!-- Linux, but not a cross-compilation -->
+                    <if>
+                      <conditions>
+                        <or>
+                          <os arch="ppc"/>
+                          <os arch="ppc32"/>
+                          <os arch="ppc64"/>
+                          <!-- POE has problems with BDWGC using the signal for "CPU time limit exceeded".  Use alternate signals -->
+                          <istrue value="${X10RT_PAMI}"/>
+                          <istrue value="${X10RT_MPI}"/>
+                        </or>
+                      </conditions>
+                      <then>
+                        <echo message="Configuring BDWGC for PPC linux"/>
+                        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                          <arg value="${bdwgc.dir}/src/configure" />
+                          <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="--enable-large-config" />
+                          <arg value="--enable-parallel-mark" />
+                          <arg value="--enable-sigrt-signals" />
+                          <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                        </exec>
+                      </then>
+                      <else>
+                        <echo message="Configuring BDWGC for generic linux"/>
+                        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                          <env key="CONFIG_SHELL" value="/bin/bash" />
+                          <arg value="${bdwgc.dir}/src/configure" />
+                          <arg value="-enable-threads=posix" />
+                          <arg value="-enable-thread-local-alloc" />
+                          <arg value="--enable-large-config" />
+                          <arg value="--enable-parallel-mark" />
+                          <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                        </exec>
+                      </else>
+                    </if>
+                  </else>
+                </if>
+              </then>
+            </if>
+            <if>
+              <conditions>
+                <os family="mac"/>
+              </conditions>
+              <then>
+                <echo message="Configuring BDWGC for mac"/>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--enable-large-config" />
+                  <arg value="--enable-parallel-mark" />
+                  <arg value="--disable-dependency-tracking" />
+                  <!-- there is no good way to make an @rpath shared gc lib -->
+                  <arg value="--disable-shared" />
+                  <env key="CFLAGS" value="${darwin.32}${darwin.64}-D_XOPEN_SOURCE" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </then>
+            </if>
+            <if>
+              <conditions>
+                <os family="unix" name="aix"/>
+              </conditions>
+              <then>
+                <echo message="Configuring BDWGC for aix"/>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <env key="OBJECT_MODE" value="32_64" />
+                  <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
+                  <env key="CXXFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=aix" />
+                  <arg value="--enable-large-config" />
+                  <!-- TODO: <arg value="- - enable-parallel-mark" /> -->
+                  <!-- TODO: <arg value="-enable-thread-local-alloc" /> -->
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </then>
+            </if>
+            <if>
+              <conditions>
+                <os family="windows"/>
+              </conditions>
+              <then>
+                <echo message="Configuring BDWGC for windows"/>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--enable-large-config" />
+                  <arg value="--enable-parallel-mark" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </then>
+            </if>
+            <if>
+              <conditions>
+                <os family="unix" name="freebsd"/>
+              </conditions>
+              <then>
+                <echo message="Configuring BDWGC for freebsd"/>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--enable-large-config" />
+                  <arg value="--enable-parallel-mark" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </then>
+            </if>
+            <echo message="Running make"/>
+            <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <env key="OBJECT_MODE" value="32_64" />
+                <arg value="-j${available.procs}" />
+            </exec>
+            <echo message="Running make install"/>
+            <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <env key="OBJECT_MODE" value="32_64" />
+                <arg value="install" />
+            </exec>
+        </sequential>
+    </target>
+
+    <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
+      <sequential>
+        <mkdir dir="${lib}"/>
+      	<if><conditions><istrue value="${env.X10_STATIC_LIB}"/></conditions><then>
+      		<!-- Skip shared libraries when using static linking -->
+            <copy todir="${lib}" preservelastmodified="true" flatten="true" >
+               <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.dylib"/>
+            </copy></then>
+        <else>
+        	<copy todir="${lib}" preservelastmodified="true" flatten="true" >
+               <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
+        	</copy></else>
+        </if>
+        <copy todir="${lib}" preservelastmodified="true" flatten="true" >
+           <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
+        </copy>
+        <mkdir dir="${inc}"/>
+        <copy todir="${inc}">
+           <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
+        </copy>
+      </sequential>
+    </target>
+
+	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
+		<sequential>
+		  <mkdir dir="${bdwgc.dir}/src" />
+		  <get-x10-dependency src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+		</sequential>
+	</target>
+			
+    <target name="patch-bdwgc" depends="download-bdwgc" unless="bdwgc.skip.patch">
+        <sequential>
+            <!-- Can't use the untar rule in ant because it bungles symbolic links. Sigh -->
+            <exec executable="${tar.exe}" dir="${bdwgc.dir}/src">
+                <arg value="xzf" />
+                <arg value="${bdwgc.platform.dir}/${bdwgc.tar}" />
+            </exec>
+
+	    <!-- Patches to apply for bdwgc version 7.2d -->
+	    <if>
+	      <conditions>
+		  <equals arg1="${bdwgc.version}" arg2="7.2d" />
+	      </conditions>
+	      <then>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+                <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+	      </then>
+	    </if>
+
+	    <!-- Patches to apply for bdwgc version 7.4.2 -->
+	    <if>
+	      <conditions>
+		  <equals arg1="${bdwgc.version}" arg2="7.4.2" />
+	      </conditions>
+	      <then>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/machdep.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/clang.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/gc_markers.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+	      </then>
+	    </if>
+
+        </sequential>
+    </target>
+
+    <target name="convert-bdwgc-paths-cygwin" depends="check-bdwgc" if="running.on.cygwin">
+        <exec executable="cygpath" outputproperty="bdwgc.platform.dir" errorproperty="bdwgc.conversion.errors">
+            <arg value="${bdwgc.dir}" />
+        </exec>
+    </target>
+    <target name="convert-bdwgc-paths-other" depends="check-bdwgc" unless="running.on.cygwin">
+        <property name="bdwgc.platform.dir" value="${bdwgc.dir}" />
+    </target>
+    <target name="convert-bdwgc-paths" depends="convert-bdwgc-paths-cygwin,convert-bdwgc-paths-other" />
+
+    <target name="check-bdwgc">
+        <sequential>
+        	<condition property="bdwgc.skip.download">
+                <or>
+                    <available file="${bdwgc.dir}/${bdwgc.tar}" property="bdwgc.downloaded"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
+            </condition>
+            <condition property="bdwgc.skip.patch">
+                <or>
+                    <available file="${bdwgc.dir}/src/configure" property="bdwgc.patched"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
+            </condition>
+            <condition property="bdwgc.skip.build">
+                <or>
+                    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+                    <available file="${bdwgc.dir}/install/lib/libgc.a" property="bdwgc.built"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
+            </condition>
+            <condition property="running.on.cygwin">
+                <os family="windows"/>
+            </condition>
+        </sequential>
+    </target>
+
+</project>

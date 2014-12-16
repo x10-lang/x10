@@ -1,0 +1,28 @@
+diff -ur a/Makefile.in b/Makefile.in
+--- a/Makefile.in		 2014-06-04 05:09:25.000000000 +0900
++++ b/Makefile.in		 2014-10-06 21:17:26.000000000 +0900
+@@ -2426,10 +2426,10 @@
+	uninstall-pkgincludeHEADERS
+ 
+ .s.lo:
+-		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
++		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
+ 
+ .S.lo:
+-		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
++		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
+ 
+ #
+ # :GOTCHA: GNU make rule for making .s out of .S is flawed,
+diff -ur a/configure b/configure
+--- a/configure		 2014-06-04 05:08:54.000000000 +0900
++++ b/configure		 2014-10-06 21:17:41.000000000 +0900
+@@ -16524,7 +16524,7 @@
+ esac
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $machdep" >&5
+ $as_echo "$machdep" >&6; }
+-addobjs="$addobjs $machdep"
++addobjs="$addobjs src/$machdep"
+ 
+ 
+ 

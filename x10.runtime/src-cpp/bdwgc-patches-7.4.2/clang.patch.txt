@@ -1,0 +1,28 @@
+diff -r -u a/include/gc_config_macros.h b/include/gc_config_macros.h
+--- a/include/gc_config_macros.h	2014-06-03 02:08:02.000000000 -0400
++++ b/include/gc_config_macros.h	2014-10-17 13:50:52.813704754 -0400
+@@ -242,13 +242,17 @@
+ #ifndef GC_ATTR_ALLOC_SIZE
+   /* 'alloc_size' attribute improves __builtin_object_size correctness. */
+   /* Only single-argument form of 'alloc_size' attribute is used.       */
+-# if defined(__GNUC__) && (__GNUC__ > 4 \
+-        || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 && !defined(__ICC)) \
+-        || __clang_major__ > 3 \
+-        || (__clang_major__ == 3 && __clang_minor__ >= 2))
+-#   define GC_ATTR_ALLOC_SIZE(argnum) __attribute__((__alloc_size__(argnum)))
+-# else
+-#   define GC_ATTR_ALLOC_SIZE(argnum)
++# ifdef __clang__
++#   if __has_attribute(__alloc_size__)
++#     define GC_ATTR_ALLOC_SIZE(argnum) __attribute__((__alloc_size__(argnum)))
++#   else
++#     define GC_ATTR_ALLOC_SIZE(argnum) /* empty */
++#   endif
++# elif __GNUC__ > 4 \
++       || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3 && !defined(__ICC))
++ #   define GC_ATTR_ALLOC_SIZE(argnum) __attribute__((__alloc_size__(argnum)))
++ # else
++#   define GC_ATTR_ALLOC_SIZE(argnum) /* empty */
+ # endif
+ #endif
+ 

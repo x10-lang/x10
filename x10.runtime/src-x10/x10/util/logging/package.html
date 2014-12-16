@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!--
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+-->
+<html>
+<head>
+</head>
+<body bgcolor="white">
+This package provides a logging interface for X10.
+
+The {@link x10.util.logging.LogFactory} class provides static methods
+that can be used to obtain a {@link x10.util.logging.Log} instance,
+which can be used for logging.
+
+While the interface is uniform, this package is implemented very
+differently for the native (c++) backend and the managed (Java)
+backend.  First we describe some <a href="#api">general details about its API</a>, which
+are heavily modeled on apache commons-logging.  Then, we describe the
+provided implementation for the <a href="#native">native</a> and <a
+href="#native">managed</a> backends.
+
+<a name="#api" />
+<h1>
+General API description
+</h1>
+The commons usage pattern for the API is to obtain a {@link
+package x10.util.logging.Log} instance using one of the static
+{@link package x10.util.logging.LogFactory#getLog} methods.
+
+For example, <tt>val LOG = LogFactory.getLog[MyClass]()</tt>.
+This instance can then be used for logging at different levels, and
+the various <tt>isXXXEnabled</tt> methods can be used to determine if
+the given log level will log the message (this should be used to
+avoid the expense of message construction for log messages that will
+not be logged at the current level).
+
+<a name="#config" />
+<h1>
+Configuration
+</h1>
+Configuration is currently very different for the <a
+href="#native">native</a> and <a href="#managed">managed</a>
+backends.
+<p>For the native backend, the logging is not currently very
+configurable.  The default log level can be globally configured by setting the
+<tt>X10_LOG_LEVEL</tt> environment variable (to a log level string).</p>
+
+<p>For the managed backend, see <a
+href="http://commons.apache.org/proper/commons-logging/guide.html#Configuration">the
+commons logging documentation</a>.</p>
+
+<a name="#native" />
+<h1>
+Behavior on the native backend
+</h1>
+<p>
+On the native backend, this package is self-contained.  It contains a
+basic implementation of the logging interface, which currently outputs
+to standard out.  By default, it logs items at the level of
+<tt>INFO</tt> of higher.  This can be globally configured by setting the
+<tt>X10_LOG_LEVEL</tt> environment variable to a different log level.
+The implementation is currently very
+minimal.
+</p>
+
+<a name="#managed" />
+<h1>
+Behavior on the managed backend
+</h1>
+<p>
+On the managed backend, the logging implementation uses <a
+href="http://commons.apache.org/proper/commons-logging/">Apache
+commons-logging</a>.
+
+In fact, the {@link package x10.util.logging.LogFactory} and {@link
+package x10.util.logging.Log} are treated as synonyms for the
+equivalent commons logging class.  The system is configured (and
+behaves) identically with the commons logging system, so its
+documentation should be consulted for more information about the API
+as well as configuration.  Apache commons logging is meant as a
+bridge over various logging APIs, including <tt>java.util.logging</tt>
+and <tt> log4j </tt>.
+</p>
+
+</body>
+</html>
