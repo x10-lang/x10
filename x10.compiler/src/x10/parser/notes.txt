@@ -1,0 +1,8 @@
+Sat Aug 22 10:14:31 2009
+
+How to add new flags.
+
+-- Add to softkeywords in x10.g
+-- Change productions in x10.g to recognize this.
+-- Add to X10Flags.
+-- Add to X10KWLexer.gi

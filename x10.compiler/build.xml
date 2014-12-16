@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.compiler" default="dist" basedir=".">
+    &buildfile;
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
+    <property name="lpg.location" location="${x10.home}/lpg.generator"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10c.jar"/>
+    <property name="etc" location="${x10.dist.location}/etc"/>
+    <property name="config" value="*.cfg"/>
+    <property name="lpg.jar" value="lpg.jar"/>
+    <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="lpg.classpath"/>
+        <path refid="shrike.classpath"/>
+        <path refid="x10.constraints.classpath"/>
+        <path refid="x10.common.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="lpg.classpath">
+        <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="shrike.classpath">
+        <pathelement location="${lib}/${shrike.jar}"/>
+    </path>
+    <path id="x10.constraints.classpath">
+        <pathelement location="${x10.constraints.location}/classes"/>
+    </path>
+    <path id="x10.common.classpath">
+        <pathelement location="${x10.common.location}/classes"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+        <mkdir dir="${etc}"/>
+        <copy todir="${etc}">
+            <fileset dir="${basedir}/etc" includes="${config}"/>
+        </copy>
+    </target>
+    <target name="check-jar" depends="init">
+        <fileset id="compiler.classes" dir="${build}" includes="org/**,polyglot/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**,x10rose/**" excludes="${jar}"/>
+        <fileset id="constraints.classes" dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+        <fileset id="common.classes" dir="${x10.common.location}/classes" includes="x10/**"/>
+        <uptodate property="compiler.uptodate" targetfile="${build}/${jar}">
+            <srcfiles refid="compiler.classes"/>
+            <srcfiles refid="constraints.classes"/>
+            <srcfiles refid="common.classes"/>
+            <!--<globmapper from="*.java" to="${build}/*.class" handledirsep="true"/>-->
+        </uptodate>
+    </target>
+    <target name="jar" depends="build,check-jar" unless="compiler.uptodate">
+        <jar jarfile="${build}/${jar}">
+            <fileset refid="compiler.classes"/>
+            <fileset refid="constraints.classes"/>
+            <fileset refid="common.classes"/>
+        </jar>
+    </target>
+    <target name="prereq-jars">
+        <condition property="lpg.jar.present">
+            <available file="${lib}/${lpg.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
+        <condition property="shrike.jar.present">
+            <available file="${lib}/${shrike.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${shrike.jar}" unless="shrike.jar.present"/>
+    </target>
+    <target name="build" depends="init,prereq-jars">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" includes="polyglot/**,x10/**,x10c/**,x10cpp/**,x10cuda/**,x10rose/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+    <target name="grammar" depends="init">
+        <property name="grammar.file" location="${src}/x10/parser/x10.g"/>
+        <property name="templates.dir" location="${lpg.location}/templates/java"/>
+        <property name="include.dir" location="${lpg.location}/include/java"/>
+        <condition property="platform" value="win32"><os family="windows"/></condition>
+        <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
+        <condition property="arch" value="x86" else="${os.arch}">
+            <or>
+                <!-- Work around Mac OS's Java reporting x86 as i386 -->
+                <equals arg1="${os.arch}" arg2="i386"/>
+                <!-- Treat amd64 as x86 -->
+                <equals arg1="${os.arch}" arg2="amd64"/>
+            </or>
+        </condition>
+        <property name="lpg.executable" location="${lpg.location}/lpgexe/lpg-${platform}_${arch}"/>
+        <!--
+        <echo message="OS: ${os.name} ${os.arch}"/>
+        <echo message="Platform: ${platform}"/>
+        <echo message="LPG: ${lpg.executable}"/>
+        <echo>
+            dir="${src}/x10/parser" executable="${lpg.executable}"
+            "-include-directory=${include.dir}"
+            "${grammar.file}"
+        </echo>
+        -->
+        <delete>
+            <fileset dir="${src}/x10/parser">
+                <include name="X10KWLexer.java"/>
+                <include name="X10KWLexerprs.java"/>
+                <include name="X10KWLexersym.java"/>
+                <include name="X10Lexer.java"/>
+                <include name="X10Lexerprs.java"/>
+                <include name="X10Lexersym.java"/>
+                <include name="X10Parser.java"/>
+                <include name="X10Parserprs.java"/>
+                <include name="X10Parsersym.java"/>
+            </fileset>
+        </delete>
+        <echo message="cd ${src}/x10/parser &amp;&amp; ${lpg.executable} -include-directory=${templates.dir}\;${include.dir}\; -directory-prefix=${src}/ ${grammar.file}"/>
+        <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
+            <arg value="-include-directory=${templates.dir};${include.dir};"/>
+            <arg value="-directory-prefix=${src}/"/>
+            <arg value="${grammar.file}"/>
+        </exec>
+    </target>
+    <target name="rebuild" depends="grammar,build"/>
+    <target name="tags" depends="init">
+      <!-- create a blank tags file -->
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="."/>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-f-"/>
+        <arg value="--langdef=xcd"/>
+        <arg value="--langmap=xcd:.xcd"/>
+        <arg value="--languages=xcd"/>
+        <arg value="--extra=+f"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="x10.compiler"/>
+        <redirector output="${x10.home}/tags" logError="true" append="true">
+          <outputfilterchain>
+            <replaceregex pattern="^(\S+)\.xcd" replace="\1"/>
+            <replaceregex pattern="(;.\t)F$" replace="\1t"/>
+            <replaceregex pattern="(;.\t)file$" replace="\1template"/>
+          </outputfilterchain>
+        </redirector>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="--append=yes"/>
+        <arg value="--languages=java"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="lpg.runtime.java"/>
+        <arg value="x10.compiler"/>
+        <arg value="x10.runtime"/>
+        <arg value="x10.common"/>
+        <arg value="x10.constraints"/>
+      </exec>
+    </target>
+</project>
