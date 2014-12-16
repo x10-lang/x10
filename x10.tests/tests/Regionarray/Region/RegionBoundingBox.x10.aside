@@ -1,0 +1,108 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * Was "convex hull" test but that was a misnomer: convex hull was
+ * actually bounding box.
+ *
+ * @author kemal 4/2005
+ */
+
+public class RegionBoundingBox extends x10Test {
+
+    // need fix for XTENLANG-51, or change test
+
+    public def run(): boolean = {
+        val P: Dist = Dist.makeUnique();
+        val R1: Region{rank==2} = [0..1, 0..7]; // horizontal strip
+        pr("R1", R1);
+        chk(R1.isConvex());
+        chk(R1.boundingBox().equals(R1));
+        val R2: Region{rank==2} = [4..5, 0..7]; // horizontal strip
+        pr("R2", R2);
+        chk(R2.isConvex());
+        chk(R2.boundingBox().equals(R2));
+        val R3: Region{rank==2} = [0..7, 4..5]; // vertical strip
+        pr("R3", R3);
+        chk(R3.isConvex());
+        chk(R3.boundingBox().equals(R3));
+        val R1orR2: Region{rank==2} = (R1 || R2);
+        pr("R1orR2", R1orR2);
+        chk(!R1orR2.isConvex());
+        val R1orR2BoundingBox: Region{rank==2} = R1orR2.boundingBox();
+        pr("R1orR2BoundingBox", R1orR2BoundingBox);
+        chk(R1orR2BoundingBox.isConvex());
+        chk(R1orR2BoundingBox.equals([0..5, 0..7]));
+        val R1orR2andR3: Region{rank==2} = R1orR2 && R3;
+        pr("R1orR2andR3", R1orR2andR3);
+        chk(R1orR2andR3.equals(([0..1, 4..5] as Region{rank==2}) || [4..5, 4..5]));
+        chk(R1orR2.contains(R1orR2andR3) && R3.contains(R1orR2andR3));
+        chk(!R1orR2andR3.isConvex());
+        val R1orR2andR3BoundingBox: Region{rank==2} = R1orR2andR3.boundingBox() as Region{rank==2};
+        pr("R1orR2andR3BoundingBox", R1orR2andR3BoundingBox);
+        chk(R1orR2andR3BoundingBox.isConvex());
+        chk(R1orR2andR3BoundingBox.equals([0..5, 4..5]));
+        val R1orR2orR3: Region{rank==2} = R1 || R2 || R3;
+        pr("R1orR2orR3", R1orR2orR3);
+        chk(R1orR2orR3.equals(([0..1, 0..7] as Region{rank==2}) || [4..5, 0..7] || [2..3, 4..5] || [6..7, 4..5]));
+        chk(R1orR2orR3.contains(R1) && R1orR2orR3.contains(R2) && R1orR2orR3.contains(R3));
+        chk(!R1orR2orR3.isConvex());
+        val R1orR2orR3BoundingBox: Region = R1orR2orR3.boundingBox();
+        pr("R1orR2orR3BoundingBox", R1orR2orR3BoundingBox);
+        chk(R1orR2orR3BoundingBox.isConvex());
+        //just the bounding box for all points in region
+        chk(R1orR2orR3BoundingBox.equals([0..7, 0..7]));
+        val R1orR2minusR3: Region{rank==2} = R1orR2 - R3;
+        pr("R1orR2minusR3", R1orR2minusR3);
+        chk(R1orR2minusR3.equals(([0..1, 0..3] as Region{rank==2}) || [0..1, 6..7] || [4..5, 0..3] || [4..5, 6..7]));
+        chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
+        chk(!R1orR2minusR3.isConvex());
+        val R1orR2minusR3BoundingBox: Region{rank==2} = R1orR2minusR3.boundingBox() as Region{rank==2};
+        pr("R1orR2minusR3BoundingBox", R1orR2minusR3BoundingBox);
+        chk(R1orR2minusR3BoundingBox.isConvex());
+        chk(R1orR2minusR3BoundingBox.equals([0..5, 0..7]));
+        val R4: Region{rank==2} = (([0..0, 4..4] as Region{rank==2}) || [1..1, 3..3] || [5..5, 2..2] || [3..3, 6..6]);
+        pr("R4", R4);
+        val R4boundingBox: Region{rank==2} = R4.boundingBox() as Region{rank==2};
+        pr("R4boundingBox", R4boundingBox);
+        // just bounding box
+        chk(R4boundingBox.equals([0..5, 2..6]));
+        val R1andR2: Region{rank==2} = (R1 && R2);
+        // an empty region is convex and its
+        // bounding box is also the empty region
+        pr("R1andR2", R1andR2);
+        chk(R1andR2.isConvex());
+        chk(R1andR2.boundingBox().equals(R1andR2));
+
+        return true;
+    }
+
+    static def iff(var x: boolean, var y: boolean): boolean = {
+        return (x == y);
+    }
+
+    static def pr(var s: String, var r: Region): void = {
+        x10.io.Console.OUT.println();
+        x10.io.Console.OUT.println("printing region "+s);
+        var k: int = 0;
+        val N: int = 8;
+        for (val (i,j): Point in [0..N-1, 0..N-1]) {
+            x10.io.Console.OUT.print(" "+(r.contains([i, j]) ? "+" : "."));
+            if ((++k) % N == 0) x10.io.Console.OUT.println();
+        }
+    }
+
+    public static def main(var args: Array[String](1)): void = {
+        new RegionBoundingBox().execute();
+    }
+}

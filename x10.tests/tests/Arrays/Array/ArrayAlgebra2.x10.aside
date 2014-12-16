@@ -1,0 +1,85 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+/* STATUS: 1/21/2010 -- this file doesn't compile, because 
+   it uses some unimplemented Array operations.
+*/
+
+import harness.x10Test;
+
+/**
+ * Constant promotions to arrays: (D n)
+ * disjoint union and overlay of arrays
+ * array lift, scan and reduce.
+ *
+ * This one tests arrays of Booleans.
+ *
+ * @author kemal 4/2005
+ */
+
+public class ArrayAlgebra2 extends x10Test {
+
+    public static N: int = 24;
+    def makeArray(D: Dist, k: Boolean): DistArray[Boolean](D) = DistArray.make[Boolean](D, (Point)=>k);
+
+    public def run(): Boolean = {
+
+        val D = Dist.makeBlockCyclic(0..N-1, 2);
+        val D01 = D | 0..N/2-1;
+        val D23 = D | (N/2)..N-1;
+        val D0 = D | 0..N/4-1;
+        val D1: Dist = D | (N/4)..N/2-1;
+        val D2: Dist = D | (N/2)..3*N/4-1;
+        val D3: Dist = D | (3*N/4)..N-1;
+        val ia1: DistArray[Boolean] =
+            makeArray(D, false)
+                .overlay((makeArray(D01, true) || makeArray(D23, false))
+                .overlay(makeArray(D3, true))
+                .overlay(makeArray(D0, false)));
+
+        arrEq(ia1 | D0, makeArray(D0, false));
+        arrEq(ia1 | D1, makeArray(D1, true));
+        arrEq(ia1 | D2, makeArray(D2, false));
+        arrEq(ia1 | D3, makeArray(D3, true));
+
+        // We should eventually support the following:
+        //chk(ia1.or() == true);
+        //chk(ia1.and() == false);
+        //chk(ia1.xor() == false);
+        //TODO: scan does not need a unit operand
+
+        arrEq(ia1.scan(Boolean.|, false),
+              DistArray.make[Boolean](D, (p(i): Point(1)) => (ia1 | 0..i).reduce(Boolean.|, false)));
+
+        arrEq((makeArray(D0, true) || makeArray(D1, false)).lift(Boolean.^,makeArray(D01, true)),
+              (makeArray(D0, false) || makeArray(D1, true)));
+
+        // a1 || a2 where a1, a2 are Boolean arrays
+        //causes ambiguity with array disjoint union
+        //arrEq(makeArray(D01, false) | makeArray(D01, false),
+        //      makeArray(D01,false) & makeArray(D01, true));
+
+        return true;
+    }
+
+    /**
+     * Throw an error iff x and y are not arrays with same
+     * content and dist
+     */
+    static def arrEq(val x: DistArray[Boolean], val y: DistArray[Boolean]): void = {
+        chk(x.dist.equals(y.dist));
+        finish ateach (val p: Point in x) chk(x(p) == y(p));
+    }
+
+    public static def main(var args: Array[String](1)): void = {
+        new ArrayAlgebra2().execute();
+    }
+}

@@ -1,0 +1,31 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Array;
+
+/**
+ * Purpose: Checks X10 array identity cast works.
+ * @author vcave
+ **/
+public class ArrayIdentityCast extends x10Test {
+
+	public def run(): boolean = {
+		var rank1Zero: region{rank==1&&zeroBased} = (region{rank==1&&zeroBased})) region.factory.region(0, 10);
+		
+		var d1: dist{rank==1&&zeroBased} = (dist{rank==1&&zeroBased})) rank1Zero->here;
+
+		var ia: Array[int]{rank==1&&zeroBased} = (Array[int]{rank==1&&zeroBased}) new Array[int](d1);
+		
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new ArrayIdentityCast().execute();
+	}
+
+}

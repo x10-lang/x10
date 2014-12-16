@@ -1,0 +1,25 @@
+import harness.x10Test;;
+
+/**
+ * Purpose: Checks code generated refer to this.p correctly (i.e. has CastConstraintOnThis.this.p)
+ * @author vcave
+ **/
+public class CastConstraintOnThis extends x10Test {
+
+	 private val p: int;
+
+	public def this(val k: int): CastConstraintOnThis = {
+	    this.p=k;
+	}
+
+	public def run(): boolean = {
+		
+		var one: X10DepTypeClassTwo{self.p==this.p} = (X10DepTypeClassTwo{self.p==this.p})) new X10DepTypeClassTwo(this.p,0);
+		
+		return one.p() == 2;
+	}
+	
+	public static def main(var args: Array[String](1)): void = {
+		new CastConstraintOnThis(2).execute();
+	}
+}

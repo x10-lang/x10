@@ -1,0 +1,53 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * Purpose: Illustrates various scenario where constraints may causes problems with short.
+ * Note: Contraint value is stored as an integer.
+ * @author vcave
+ **/
+public class Short_ConstraintDeclaredAsShort extends x10Test {
+
+	public def run(): boolean = {
+		val sconstraint: short{self==0} = 0;
+		
+		// UPDATE COMMENT WHEN FIXED
+		// not valid: because constraint constant and assigned one have different type
+		var s0: short{self == 0} = 0 as short{self==0};
+
+		// UPDATE COMMENT WHEN FIXED
+		// not valid: as constraint on self is a short and the other is an integer
+		var s1: short{self == sconstraint} = 0 as short{self==0};
+
+		// UPDATE COMMENT WHEN FIXED
+		// not valid: because cannot cast 0 which is of type int(:self==int) as short(:self==short)
+		var s2: short{self == sconstraint} = 0 as short{self==sconstraint};
+		
+		// UPDATE COMMENT WHEN FIXED
+		// not valid: as constraint on self is a short (self==sconstraint) and the other is an integer (self==0)
+		var s3: short{self == sconstraint} = (0 as short) as short{self==0};
+
+		// valid
+		var s4: short{self == sconstraint} = (0 as short) as short{self==sconstraint};
+
+		var j: short = -1;
+		var i: short{self == sconstraint} = (++j) as short{self == sconstraint};
+		return ((j==sconstraint) && (i==sconstraint));
+
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new Short_ConstraintDeclaredAsShort().execute();
+	}
+
+}

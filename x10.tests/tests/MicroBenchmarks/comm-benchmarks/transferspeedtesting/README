@@ -1,0 +1,48 @@
+(1) This x10 micro-benchmark tests put/get/send implementation on different platforms by testing at(p){remote access data}(i.e., send) and bi-directional asyncCopy (i.e., put/get)
+(2) Compile/Run
+(2.1) managed backend
+      x10c ZYN.x10 -d ./class 
+      x10 -classpath ./class ZYN -a
+(2.2) native backend
+      x10c++ -NO_CHECKS ZYN.x10 -d /tmp -o ZYN
+      ./ZYN -a
+(3) Usage:
+Usage: ZYN <args>
+-h (--help)        this message
+-l (--length) <n>      size of individual message
+-w (--window) <n>number of pongs to wait for in parallel (window size)
+-i (--iterations) <n>  top-level iterations (round trips)
+-v (--validate)    check whether messages are mangled in transit
+-p (--put)    use x10rt_send_put instead of x10rt_send_msg
+-g (--get)    use x10rt_send_get instead of x10rt_send_msg
+-a (--auto)    test a variety of --length and --window
+(4) Sample Results:
+(4.1) automatic testing:
+        1       2       3       4       5       6       7       8       9       10      11      12      13      14      15      16      b/w (MB)
+0       68.0    54.0    40.0    49.0    53.0    87.0    65.0    43.0    33.0    42.0    51.0    33.0    29.0    31.0    32.0    40.0    0.0     
+1       86.0    105.0   54.0    65.0    54.0    86.0    42.0    38.0    27.0    51.0    59.0    37.0    38.0    26.0    29.0    30.0    0.0333  
+2       72.0    64.0    56.0    72.0    101.0   43.0    58.0    40.0    52.0    45.0    35.0    31.0    39.0    31.0    34.0    36.0    0.0555  
+4       103.0   83.0    70.0    51.0    81.0    42.0    40.0    47.0    42.0    42.0    32.0    34.0    31.0    30.0    33.0    31.0    0.1290  
+8       117.0   87.0    88.0    60.0    30.0    73.0    60.0    57.0    39.0    59.0    46.0    41.0    30.0    32.0    32.0    35.0    0.2285  
+16      99.0    65.0    78.0    91.0    50.0    53.0    38.0    38.0    35.0    44.0    54.0    40.0    30.0    37.0    31.0    31.0    0.5161  
+32      79.0    87.0    50.0    50.0    35.0    37.0    33.0    34.0    34.0    34.0    30.0    33.0    33.0    30.0    33.0    32.0    1.0     
+64      104.0   57.0    53.0    50.0    36.0    32.0    31.0    41.0    35.0    34.0    36.0    29.0    34.0    35.0    31.0    33.0    1.9393  
+128     84.0    82.0    43.0    36.0    48.0    45.0    33.0    38.0    36.0    45.0    37.0    29.0    31.0    38.0    32.0    30.0    4.2666  
+256     46.0    50.0    35.0    41.0    38.0    48.0    66.0    50.0    27.0    37.0    28.0    31.0    27.0    33.0    30.0    38.0    6.7368  
+512     83.0    113.0   44.0    32.0    68.0    63.0    46.0    35.0    41.0    34.0    30.0    26.0    37.0    26.0    33.0    27.0    18.962  
+1024    96.0    88.0    56.0    61.0    46.0    37.0    55.0    42.0    42.0    33.0    40.0    34.0    36.0    32.0    36.0    40.0    25.600  
+2048    104.0   83.0    49.0    66.0    133.0   64.0    53.0    39.0    42.0    39.0    38.0    33.0    39.0    39.0    36.0    39.0    52.512  
+4096    91.0    67.0    74.0    44.0    43.0    38.0    37.0    34.0    35.0    37.0    35.0    34.0    33.0    38.0    35.0    41.0    99.902  
+8192    106.0   71.0    55.0    50.0    44.0    42.0    42.0    48.0    42.0    40.0    43.0    38.0    38.0    43.0    37.0    43.0    190.51  
+16384   115.0   85.0    51.0    54.0    49.0    40.0    46.0    45.0    47.0    45.0    43.0    41.0    41.0    47.0    40.0    39.0    420.10  
+32768   104.0   77.0    70.0    56.0    55.0    56.0    57.0    52.0    58.0    48.0    49.0    52.0    52.0    52.0    44.0    48.0    682.66  
+65536   120.0   96.0    87.0    77.0    74.0    75.0    73.0    68.0    74.0    64.0    66.0    64.0    65.0    64.0    65.0    65.0    1008.2  
+131072  174.0   107.0   103.0   98.0    83.0    88.0    92.0    95.0    89.0    96.0    95.0    93.0    94.0    87.0    87.0    88.0    1489.4  
+262144  245.0   195.0   185.0   182.0   178.0   170.0   168.0   175.0   190.0   182.0   170.0   179.0   179.0   179.0   177.0   173.0   1515.2  
+
+(4.2) put/get testing:
+put/get test
+Half roundtrip time: 35.0 us  Bandwidth: 29.257142857142856 MB/s
+
+(5) Notes:
+We can pin a bounded chunk of memory in the put/get case, but we cannot do the same in the send case. Thus when we run "automatic" testing, we will suffer from GC complaints. 

@@ -1,0 +1,39 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Dist;
+import x10.regionarray.Array;
+
+/**
+ * Purpose: Checks a constraint composed of a shortcut property is translated as a runtime constraint.
+ * Issue: The array tested is not zeroBased.
+ * @author vcave
+ **/
+public class ArrayDynamicCastFromMethod2 extends x10Test {
+
+	public def run(): boolean = {
+		//invalid downcast
+		try {
+			var dynCast: Array[int]{zeroBased} = (Array[int]{zeroBased}) this.createArray();			
+		} catch(var e: ClassCastException) {
+			return true;
+		}
+		return false;
+	}
+	
+	public def createArray(): x10.lang.Object = {
+		var d1: dist = Dist.makeConstant([1..10, 1..10], here);
+		var x10array: Array[int] = new Array[int](d1);
+		return x10array;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new ArrayDynamicCastFromMethod2().execute();
+	}
+
+}

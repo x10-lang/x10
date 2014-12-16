@@ -1,0 +1,46 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+//LIMITATION: closure type params
+
+import harness.x10Test;
+
+
+/**
+ * Function types are defined via the => type constructor. Closures
+ * (§12.5) and method selectors (§12.6) are of function type. The general
+ * form of a function type is:
+ * 
+ * [X1, . . ., Xm](x1: T1, . . ., xn: Tn){c} => T
+ * throws S1, . . ., Sk
+ *
+ * @author bdlucas 8/2008
+ */
+
+public class ClosureFunctionType1 extends x10Test {
+
+    var f: [T,U] (x:String, y:T) {y<0 && T<:X && U<:Exception} => T throws U, Exception;
+
+    def set(ff: [V,W] (a:String, b:V) {b<0 && V<:X && W<:Exception} => V throws W, Exception) {
+        f = ff;
+    }
+
+    public def run(): boolean {
+        
+        // syntax and type checking test - nothing to run
+
+        return result;
+    }
+
+    public static def main(var args: Array[String](1)): void {
+        new ClosureFunctionType1().execute();
+    }
+}

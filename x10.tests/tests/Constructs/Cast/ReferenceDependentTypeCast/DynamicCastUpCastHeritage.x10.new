@@ -1,0 +1,40 @@
+****Error: examples/Constructs/Cast/ReferenceDependentTypeCast/DynamicCastUpCastHeritage.x10:25:71:25:78:0:-1:9: ";" inserted to complete scope
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+public class DynamicCastUpCastHeritage extends x10Test {
+
+	public def this(): DynamicCastUpCastHeritage = {
+	}
+	
+	public def run(): boolean = {
+		final val a: int = 1val b: int = 2;
+
+		// no constraints
+		var one: X10DepTypeClassOne = new X10DepTypeSubClassOne(a,b);
+		
+		var twoObj: x10.lang.Object = new X10DepTypeSubClassOne(1,b);
+		var two: X10DepTypeClassOne{p==1} = (X10DepTypeClassOne{p==1})) twoObj;
+		
+		var threeObj: x10.lang.Object = new X10DepTypeSubClassOne(a,b);
+		var three: X10DepTypeClassOne{p==1} = (X10DepTypeClassOne{p==1})) threeObj
+
+		var fourObj: x10.lang.Object = new X10DepTypeSubClassOne(b,b);
+		var four: X10DepTypeClassOne{p==b} = (X10DepTypeClassOne{p==b})) fourObj;
+		
+		var fiveObj: x10.lang.Object = new X10DepTypeSubClassOne(a,b);
+		var five: X10DepTypeClassOne{p==a} = (X10DepTypeClassOne{p==a})) fiveObj;
+
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new DynamicCastUpCastHeritage().execute();
+	}
+}

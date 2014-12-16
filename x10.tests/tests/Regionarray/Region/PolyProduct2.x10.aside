@@ -1,0 +1,48 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+/**
+ * Form a cross product of three 1-d rectangles, construct an array
+ * from it, and observe it.
+ */
+
+class PolyProduct2 extends TestRegion {
+
+    public def run() {
+        var r1: Region = Region.makeRectangular(1, 2);
+        var r2: Region = Region.makeRectangular(3, 4);
+        var r3: Region = Region.makeRectangular(5, 6);
+        var r4: Region = Region.make([r1, r2, r3]);
+        prArray("rectangular product", r4);
+        return status();
+    }
+
+    def expected() =
+        "--- PolyProduct2: rectangular product\n"+
+        "rank 3\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 8\n"+
+        "region: [1..2,3..4,5..6]\n"+
+        "  iterator\n"+
+        "    --- 1\n"+
+        "    3  . . . . . 5 8 . . . \n"+
+        "    4  . . . . . 0 4 . . . \n"+
+        "    --- 2\n"+
+        "    3  . . . . . 0 6 . . . \n"+
+        "    4  . . . . . 0 8 . . . \n";
+    
+    public static def main(Array[String](1)) {
+        new PolyProduct2().execute();
+    }
+}

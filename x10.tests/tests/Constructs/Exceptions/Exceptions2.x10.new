@@ -1,0 +1,61 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Array;
+
+/**
+ * Test multiple exceptions with multiple children running out of memory.
+ *
+ * Parent must wait until all children are finished even if
+ * any child threw an out-of-memory exception.
+ *
+ * Note that this test case times-out if memoryHog()
+ * shows more extensive memory-consuming behavior than here.
+ *
+ * @author kemal 4/2005
+ */
+public class Exceptions2 extends x10Test {
+
+	public static MAXINT: int = 2147483647;
+	public static N: int = 1000000;
+	val a: java.util.Set = new java.util.HashSet();
+	def memoryHog(): void = { var a: Array[byte] = new Array[byte](MAXINT); X.use(a); }
+	public def run(): boolean = {
+		final val N: long = 1000000L;
+		final val M: int = 4;
+		final val MIN_MSG_SIZE: int = 100;
+		try {
+			finish {
+				ateach (val (i): point in distmakeUnique()) {
+					foreach (val (j): point in [1..M]) memoryHog();
+				}
+				async(here) { for (var i: long = 0; i < N; i++) { var x: Node2 = new Node2(); X.use(x); } }
+			}
+			return false;
+		} catch (var me: x10.lang.MultipleExceptions) {
+			// Ensure that message is informative
+			if ((me.toString()).length() <= MIN_MSG_SIZE) return false;
+			//me.printStackTrace();
+			return true;
+		}
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new Exceptions2().execute();
+	}
+
+	static class Node2 {
+		var data: int;
+		var next: nullable<Node2>;
+	}
+
+	static class X {
+		static def use(var x: Node2): void = { }
+		static def use(var x: Array[byte]): void = { }
+	}
+}

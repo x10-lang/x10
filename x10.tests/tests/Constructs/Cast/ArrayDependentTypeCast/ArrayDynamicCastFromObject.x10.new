@@ -1,0 +1,41 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Dist;
+import x10.regionarray.Array;
+
+/**
+ * Purpose: Checks dynamic cast from object to X10 array works properly.
+ * Issue: Object does not meet rank constraint of targeted type.
+ * int[:rect&&rank==3] <-- int[:rect&&rank==2&&zerobased]
+ * @author vcave
+ **/
+public class ArrayDynamicCastFromObject extends x10Test {
+
+	public def run(): boolean = {
+		try {
+			// array creation
+			var e: region = region.factory.region(0, 10);
+			var d1: dist{rank==2&&rect&&zeroBased} = Dist.makeConstant([0..10, 0..10], here);
+			var x10array: Array[int] = new Array[int](d1);
+			// upcast
+			var obj: x10.lang.Object = x10array;
+			//invalid downcast
+			var dynCast: Array[int]{rank==3&&rect} = (Array[int]{rect&&rank==3}) obj;		
+		} catch (var e: ClassCastException) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new ArrayDynamicCastFromObject().execute();
+	}
+
+}

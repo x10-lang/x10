@@ -1,0 +1,31 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Dist;
+
+/**
+ * Purpose: Checks widening dynamic cast works for distribution.
+ * @author vcave
+ **/
+public class DistributionIdentityCast extends x10Test {
+
+	public def run(): boolean = {		
+		var rank1Zero: region{rank==1&&zeroBased} = (region{rank==1&&zeroBased})) region.factory.region(0, 10);
+		
+		var d1: dist{rank==1&&zeroBased} = (dist{rank==1&&zeroBased})) rank1Zero->here;
+
+		var d2: dist{rank==2&&zeroBased} = (dist{rank==2&&zeroBased})) dist.factory.constant(
+				region.factory.region(rank1Zero,rank1Zero), here);
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new DistributionIdentityCast().execute();
+	}
+
+}

@@ -1,0 +1,12 @@
+This folder contains examples of finish-async patterns we optimize.
+Each program contains two "finish"-es: the first one is not annotated, and
+used only for timing. The second one is annotated with the correct pattern.
+
+If the compiler finds a different pattern from the programmer specifies,
+it will produce an warning, and the programmer's choice is respected. 
+
+LocalFinish, ManyLocalFinish1, and ManyLocalFinish2 have the pattern that 
+all "async"s in a "finish" are in the same place as the "finish".
+
+SimpleFinish* have the pattern that remote "async"s only spawn local 
+"async"s. 

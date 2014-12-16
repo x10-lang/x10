@@ -1,0 +1,15 @@
+This is the test suite for the X10 Programming Language.
+
+The active set of test cases can be found in the tests directory tree.
+
+The script bin/runTest.sh is used to compile & execute sets of test cases
+and optionally record the results in XML files using the JUnit schema.
+For details, on command line arguments to runTests.sh, do
+  bin/runTest.sh -help
+
+For example, to run all the test cases in tests/Samples with Native X10 do
+
+cd tests
+../bin/runTest.sh -native -l Samples
+
+You might need to make the scripts in bin executable before running them.

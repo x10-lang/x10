@@ -1,0 +1,87 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * References to a var from within an at 
+ * access the location, not a copied value.
+ *
+ * Explore variations of this when the var contains a reference to an object,
+ * with mutable field, not just a simple struct.
+ */
+public class AtAndBackWithObject extends x10Test {
+
+    static class C {
+        var x:int;
+        def this(a:int) { x = a; }
+    }
+
+    public def run():boolean {
+        var passed:boolean = true;
+        passed &= scenario1();
+        passed &= scenario2();
+        return passed;
+    }
+
+    public def scenario1():boolean {
+        val a = new C(10);
+        var b:C = a;
+        val w = here;
+        at (Place.places().next(here)) {
+	    a.x = 100;  // Copy of the object pointed to by a has its x field changed to 100.
+	    at (w) {
+	        // Here a is referring to a second copy of the object created by the first at, 
+                // whose x field was changed to 100.  It does not refer to the original a whose
+                // x field still contains 10.
+	        chk(a.x == 100);  
+	        a.x = 200;
+                // b is a var, we are statically in the right place, so we get the C object reachable 
+                // from b's location, not the copied copy reachable via at
+	        chk (b.x == 10);  
+	        // Changes b.x to 11
+	        b.x++;
+	        chk (b.x == 11);  
+	    }
+	    chk (a.x == 100);  // The assignment to 200 happened in a different copy, not the local copy at this place
+        }
+        chk(a.x == 11);  // Side-effected by b.x++
+        chk(b == a); // Still same object
+        return true;
+    }
+        
+    public def scenario2():boolean {
+        val a = new C(10);
+        var b:C = a;
+        val w = here;
+        at (Place.places().next(here)) {
+	    a.x = 100;  // Copy of the object pointed to by a has its x field changed to 100.
+	    at (w) {
+	        // Here a is referring to a second copy of the object created by the first at, 
+                // whose x field was changed to 100.  It does not refer to the original a whose
+                // x field still contains 10.
+	        chk(a.x == 100); 
+	        a.x = 200;
+	        // Assigns copy of object referred to by local shadow of a to b's location
+	        b = a;
+	    }
+	    chk (a.x == 100);  // The assignment to 200 happened in a different copy, not the local copy at this place
+        }
+        chk(a.x == 10);  // Not changed by the assignment to b
+        chk(b != a); // due to assignment
+        chk(b.x == 200); // due to assignment in at above
+	return true;
+    }
+
+    public static def main(Array[String](1)) {
+        new AtAndBackWithObject().execute();
+    }
+}

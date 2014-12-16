@@ -1,0 +1,118 @@
+/**
+see: 
+http://jira.codehaus.org/browse/XTENLANG-1445
+http://jira.codehaus.org/browse/XTENLANG-865
+http://jira.codehaus.org/browse/XTENLANG-638
+http://jira.codehaus.org/browse/XTENLANG-1470
+http://jira.codehaus.org/browse/XTENLANG-1519
+*/
+class TestCoAndContraVarianceInInterfaces {
+	
+	 class CtorTest[+T] {
+	  val t1:T;
+	  def this(t:T) { t1 = t; } // ok
+	  class Inner {
+		val t2:T;
+		def this(t:T) { t2 = t; } // ok
+	  }
+	}
+	class Bar[T] {
+		def bar[U]() {}
+		//def bar2[+U]() {} // parsing error, which is good :)
+		def foo(z:T, y:Bar[T],x:Box[Bar[Bar[T]{self!=null}]]{x!=null}) {}
+	}
+
+	interface Covariant[+T] {
+		def get():T;
+		def set(t:T):void; // ERR
+	}
+	interface Contravariant[-T] {
+		def get():T; // ERR
+		def set(t:T):void; 
+	}
+	interface Invariant[T] {
+		def get():T;
+		def set(t:T):void;
+	}
+
+	// check extends
+	interface E1[+T] extends Covariant[T] {}
+	interface E2[-T] extends Covariant[T] {} // ERR
+	interface E3[+T] extends Contravariant[T] {} // ERR
+	interface E4[-T] extends Contravariant[T] {} 
+	interface E5[+T] extends 
+		Contravariant[T], // ERR
+		Covariant[T] {} 
+	interface E6[-T] extends 
+		Contravariant[T],
+		Covariant[T] {} // ERR
+	interface E7[T] extends Contravariant[T],Covariant[T] {}
+	interface E8[+T] extends Contravariant[Contravariant[T]] {}
+	interface E9[-T] extends 
+		Contravariant[Contravariant[T]] {}  // ERR (todo: error should be on the use of T, and not on the entire TypeNode, see XTENLANG-1439): "Cannot use contravariant type parameter T in a covariant position"
+	interface E10[-T] extends Invariant[T] {} // ERR: "Cannot use contravariant type parameter T in an invariant position"
+
+	interface GenericsAndVariance[+CO,-CR,IN] {
+		def ok1(CR,IN):CO;
+		def ok2(CR,IN):IN;
+		def ok3(CR,IN):void;
+		def ok4():Contravariant[CR];
+		def ok5():Contravariant[IN];
+		def ok6():Contravariant[Contravariant[Contravariant[CR]]];
+		def ok7():Covariant[CO];
+		def ok8():Covariant[IN];
+		def ok9(GenericsAndVariance[CR,CO,IN]):void;
+		def ok10():GenericsAndVariance[CO,CR,IN];
+		def ok11(GenericsAndVariance[IN,IN,IN]):void;
+		def ok12():GenericsAndVariance[IN,IN,IN];
+		def ok13( (CO)=>void, ()=>CR, ()=>IN, (IN)=>IN ): ((CR)=>CO);
+
+		def err1():CR; // ERR
+		def err2(CO):void; // ERR
+		def err3():Contravariant[CO]; // ERR
+		def err4():Covariant[CR]; // ERR
+		def err5(GenericsAndVariance[CO,IN,IN]):void; // ERR
+		def err6(GenericsAndVariance[IN,CR,IN]):void; // ERR
+		def err7(GenericsAndVariance[IN,IN,CO]):void; // ERR
+		def err8(GenericsAndVariance[IN,IN,CR]):void; // ERR
+		def err9():GenericsAndVariance[CR,IN,IN]; // ERR
+		def err10(): ( (CO)=>void ); // ERR
+		def err11(): ( ()=>CR ); // ERR
+		def err12((CR)=>void):void; // ERR
+		def err13(()=>CO):void; // ERR
+	}
+
+	// todo: what about constraints? and properties fields and methods?
+	interface Constraints[+CO,-CR,IN](p1:CO,p2:IN,p3:(CR)=>void) 
+		// todo: can we variance in the constraint?
+		{ CO <: CR ,
+		  CO <: IN ,
+  		  CR <: CO ,
+  		  CR <: IN ,
+  		  IN <: CO ,
+  		  IN <: CR ,
+		  IN <: String,
+		  CO <: String,
+		  CR <: String,
+		  String <: CO,
+		  String <: CR,
+		  String <: IN,
+  		  CO <: Contravariant[CO] ,
+  		  CR <: Covariant[CR]
+		}
+	{
+		// todo: can we use variance in method guards?
+		def m() { CO <: CR } :void;
+		// todo: property methods?
+		property pm():CO;
+	}
+
+	interface Comparable[+T] {}
+	static class Foo implements Comparable[Foo] {
+		def test() {
+			val x:Comparable[Foo] = this;
+			val y:Comparable[Comparable[Foo]] = this;
+			val z:Comparable[Comparable[Comparable[Foo]]] = this;
+		}
+	}
+}

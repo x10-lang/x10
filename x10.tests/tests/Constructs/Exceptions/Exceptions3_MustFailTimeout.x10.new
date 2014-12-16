@@ -1,0 +1,49 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Array;
+
+/**
+ * Test multiple exceptions.
+ *
+ * Behavior of conjunctive finish:
+ *
+ * If any child activity does not terminate,
+ * parent will not terminate, even if other children threw exceptions.
+ *
+ * Desired behavior of test: must time out.
+ *
+ * @author kemal 5/2005
+ */
+public class Exceptions3_MustFailTimeout extends x10Test {
+
+	public static MAXINT: int = 2147483647;
+	def memoryHog(): void = { var a: Array[byte] = new Array[byte](MAXINT); X.use(a); }
+	public def run(): boolean = {
+		final val M: int = 4;
+		try {
+			finish {
+				ateach (val (i): point in distmakeUnique()) {
+					foreach (val (j): point in [1..M]) memoryHog();
+				}
+				async(here) await(!X.t());
+			}
+		} catch (var me: x10.lang.MultipleExceptions) {
+		}
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new Exceptions3_MustFailTimeout().execute();
+	}
+
+	static class X {
+		static def use(var x: Array[byte]): void = { }
+		static def t(): boolean = { return true; }
+	}
+}

@@ -1,0 +1,348 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+/**
+ * Tests bounding box, ==.
+ *
+ */
+
+class PolyBox1 extends TestRegion {
+
+    public def run() {
+
+        val r1 = r(0,1,0,7);
+        prArray("r1", r1, true);
+        pr("r1.boundingBox().equals(r1) checks " + r1.boundingBox().equals(r1));
+
+        val r2 = r(4,5,0,7);
+        prArray("r2", r2, true);
+        pr("r2.boundingBox().equals(r2) checks " + r2.boundingBox().equals(r2));
+
+        val r3 = r(0,7,4,5);
+        prArray("r3", r3, true);
+        pr("r3.boundingBox().equals(r3) checks " + r3.boundingBox().equals(r3));
+
+        val r12 = r1 || r2;
+        prArray("r12", r12, true);
+
+        val r12b = r12.boundingBox();
+        prArray("r12b", r12b, true);
+        pr("r12b.equals(r(0,5,0,7)) checks " + r12b.equals(r(0,5,0,7)));
+
+        val r12a3 = r12 && r3;
+        prArray("r12a3", r12a3, true);
+        val r12a3x = r(0,1,4,5) || r(4,5,4,5);
+        prArray("r12a3x", r12a3x, true);
+        pr("r12a3.equals(r12a3x) checks " + r12a3.equals(r12a3x));
+        pr("r12.contains(r12a3) checks " + r12.contains(r12a3));
+        pr("r3.contains(r12a3) checks " + r3.contains(r12a3));
+
+        val r12a3b = r12a3.boundingBox();
+        prArray("r12a3b", r12a3b, true);
+        pr("r12a3b.equals(r(0,5,4,5)) checks " + r12a3b.equals(r(0,5,4,5)));
+
+        val r123 = r1 || r2 || r3;
+        prArray("r123", r123, true);
+        val r123x = r(0,1,0,7) || r(4,5,0,7) || r(2,3,4,5) || r(6,7,4,5);
+        prArray("r123x", r123x, true);
+        pr("r123.equals(r123x) checks " + r123.equals(r123x));
+        pr("r123.contains(r1) checks " + r123.contains(r1));
+        pr("r123.contains(r2) checks " + r123.contains(r2));
+        pr("r123.contains(r3) checks " + r123.contains(r3));
+
+        val r123b = r123.boundingBox();
+        prArray("r123b", r123b, true);
+        pr("r123b.equals(r(0,7,0,7)) checks " + r123b.equals(r(0,7,0,7)));
+
+        val r12m3 = r12 - r3;
+        prArray("r12m3", r12m3, true);
+        val r12m3x = r(0,1,0,3) || r(0,1,6,7) || r(4,5,0,3) || r(4,5,6,7);
+        pr("r12m3.equals(r12m3x) checks " + r12m3.equals(r12m3x));
+        pr("r12.contains(r12m3) checks " + r12.contains(r12m3));
+        pr("r12m3.disjoint(r3) checks " + r12m3.disjoint(r3));
+
+        val r12m3b = r12m3.boundingBox();
+        prArray("r12m3b", r12m3b, true);
+        pr("r12m3b.equals(r(0,5,0,7)) checks " + r12m3b.equals(r(0,5,0,7)));
+
+        val r4 = r(0,0,4,4) || r(1,1,3,3) || r(5,5,2,2) || r(3,3,6,6);
+        prArray("r4", r4, true);
+
+        val r4b = r4.boundingBox();
+        prArray("r4b", r4b, true);
+        pr("r4b.equals(r(0,5,2,6)) checks " + r4b.equals(r(0,5,2,6)));
+
+        val r1a2 = r1 && r2;
+        prArray("r1a2", r1a2, true);
+        pr("r1a2.isEmpty() checks " + r1a2.isEmpty());
+
+        return status();
+    }
+
+    def expected() =
+        "--- PolyBox1: r1\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased true\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 16\n"+
+        "region: [0..1,0..7]\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "r1.boundingBox().equals(r1) checks true\n"+
+        "--- PolyBox1: r2\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 16\n"+
+        "region: [4..5,0..7]\n"+
+        "  iterator\n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "r2.boundingBox().equals(r2) checks true\n"+
+        "--- PolyBox1: r3\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 16\n"+
+        "region: [0..7,4..5]\n"+
+        "  iterator\n"+
+        "    0  . . . . 1 1 . . . . \n"+
+        "    1  . . . . 1 1 . . . . \n"+
+        "    2  . . . . 1 1 . . . . \n"+
+        "    3  . . . . 1 1 . . . . \n"+
+        "    4  . . . . 1 1 . . . . \n"+
+        "    5  . . . . 1 1 . . . . \n"+
+        "    6  . . . . 1 1 . . . . \n"+
+        "    7  . . . . 1 1 . . . . \n"+
+        "r3.boundingBox().equals(r3) checks true\n"+
+        "--- PolyBox1: r12\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 32\n"+
+        "region: ([0..1,0..7] || [4..5,0..7])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2\n"+
+        "    3\n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "--- PolyBox1: r12b\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased true\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 48\n"+
+        "region: [0..5,0..7]\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "r12b.equals(r(0,5,0,7)) checks true\n"+
+        "--- PolyBox1: r12a3\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 8\n"+
+        "region: ([0..1,4..5] || [4..5,4..5])\n"+
+        "  iterator\n"+
+        "    0  . . . . 1 1 . . . . \n"+
+        "    1  . . . . 1 1 . . . . \n"+
+        "    2\n"+
+        "    3\n"+
+        "    4  . . . . 1 1 . . . . \n"+
+        "    5  . . . . 1 1 . . . . \n"+
+        "--- PolyBox1: r12a3x\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 8\n"+
+        "region: ([0..1,4..5] || [4..5,4..5])\n"+
+        "  iterator\n"+
+        "    0  . . . . 1 1 . . . . \n"+
+        "    1  . . . . 1 1 . . . . \n"+
+        "    2\n"+
+        "    3\n"+
+        "    4  . . . . 1 1 . . . . \n"+
+        "    5  . . . . 1 1 . . . . \n"+
+        "r12a3.equals(r12a3x) checks true\n"+
+        "r12.contains(r12a3) checks true\n"+
+        "r3.contains(r12a3) checks true\n"+
+        "--- PolyBox1: r12a3b\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 12\n"+
+        "region: [0..5,4..5]\n"+
+        "  iterator\n"+
+        "    0  . . . . 1 1 . . . . \n"+
+        "    1  . . . . 1 1 . . . . \n"+
+        "    2  . . . . 1 1 . . . . \n"+
+        "    3  . . . . 1 1 . . . . \n"+
+        "    4  . . . . 1 1 . . . . \n"+
+        "    5  . . . . 1 1 . . . . \n"+
+        "r12a3b.equals(r(0,5,4,5)) checks true\n"+
+        "--- PolyBox1: r123\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 40\n"+
+        "region: ([0..1,0..7] || [4..5,0..7] || [2..3,4..5] || [6..7,4..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2  . . . . 1 1 . . . . \n"+
+        "    3  . . . . 1 1 . . . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "    6  . . . . 1 1 . . . . \n"+
+        "    7  . . . . 1 1 . . . . \n"+
+        "--- PolyBox1: r123x\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 40\n"+
+        "region: ([0..1,0..7] || [4..5,0..7] || [2..3,4..5] || [6..7,4..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2  . . . . 1 1 . . . . \n"+
+        "    3  . . . . 1 1 . . . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "    6  . . . . 1 1 . . . . \n"+
+        "    7  . . . . 1 1 . . . . \n"+
+        "r123.equals(r123x) checks true\n"+
+        "r123.contains(r1) checks true\n"+
+        "r123.contains(r2) checks true\n"+
+        "r123.contains(r3) checks true\n"+
+        "--- PolyBox1: r123b\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased true\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 64\n"+
+        "region: [0..7,0..7]\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "    6  1 1 1 1 1 1 1 1 . . \n"+
+        "    7  1 1 1 1 1 1 1 1 . . \n"+
+        "r123b.equals(r(0,7,0,7)) checks true\n"+
+        "--- PolyBox1: r12m3\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 24\n"+
+        "region: ([0..1,0..3] || [0..1,6..7] || [4..5,0..3] || [4..5,6..7])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 . . 1 1 . . \n"+
+        "    1  1 1 1 1 . . 1 1 . . \n"+
+        "    2\n"+
+        "    3\n"+
+        "    4  1 1 1 1 . . 1 1 . . \n"+
+        "    5  1 1 1 1 . . 1 1 . . \n"+
+        "r12m3.equals(r12m3x) checks true\n"+
+        "r12.contains(r12m3) checks true\n"+
+        "r12m3.disjoint(r3) checks true\n"+
+        "--- PolyBox1: r12m3b\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased true\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 48\n"+
+        "region: [0..5,0..7]\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 1 1 . . \n"+
+        "    1  1 1 1 1 1 1 1 1 . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "r12m3b.equals(r(0,5,0,7)) checks true\n"+
+        "--- PolyBox1: r4\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 4\n"+
+        "region: ([0..0,4..4] || [1..1,3..3] || [5..5,2..2] || [3..3,6..6])\n"+
+        "  iterator\n"+
+        "    0  . . . . 1 . . . . . \n"+
+        "    1  . . . 1 . . . . . . \n"+
+        "    2\n"+
+        "    3  . . . . . . 1 . . . \n"+
+        "    4\n"+
+        "    5  . . 1 . . . . . . . \n"+
+        "--- PolyBox1: r4b\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 30\n"+
+        "region: [0..5,2..6]\n"+
+        "  iterator\n"+
+        "    0  . . 1 1 1 1 1 . . . \n"+
+        "    1  . . 1 1 1 1 1 . . . \n"+
+        "    2  . . 1 1 1 1 1 . . . \n"+
+        "    3  . . 1 1 1 1 1 . . . \n"+
+        "    4  . . 1 1 1 1 1 . . . \n"+
+        "    5  . . 1 1 1 1 1 . . . \n"+
+        "r4b.equals(r(0,5,2,6)) checks true\n"+
+        "--- PolyBox1: r1a2\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 0\n"+
+        "region: empty(2)\n"+
+        "  iterator\n"+
+        "r1a2.isEmpty() checks true\n";
+
+    public static def main(Array[String](1)) {
+        new PolyBox1().execute();
+    }
+}

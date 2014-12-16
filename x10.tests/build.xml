@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.tests" default="exec" basedir=".">
+    &buildfile;
+    <property name="bin" location="${basedir}/bin"/>
+    <property name="etc" location="${basedir}/etc"/>
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="testdir"  location="${basedir}/tests"/>
+    <path id="project.classpath"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <target name="init">
+        <tstamp/>
+    </target>
+
+    <target name="clean">
+        <delete>
+            <fileset dir="${testdir}">
+                <include name="**/*.class"/>
+                <include name="**/*.java"/>
+                <include name="**/*.pem"/>
+                <include name="**/*_x10stub.c"/>
+                <include name="**/log*"/>
+                <include name="**/TMP_*"/>
+                <include name="**/javacore*"/>
+                <include name="**/heapdump*"/>
+                <include name="**/ErrorsLog"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="dist" depends="init,build"/>
+
+    <target name="build" depends="init,exec">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="exec"
+        description="makes .dll and .so files in lib and testdir and the files in bin executable">
+        <chmod perm="ugo+rx">
+            <fileset dir="${testdir}">
+                <include name="**/*.dll"/>
+                <include name="**/*.so"/>
+            </fileset>
+            <fileset dir="${lib}">
+                <include name="**/*.dll"/>
+                <include name="**/*.so"/>
+            </fileset>
+        </chmod>
+        <chmod perm="+x" file="${bin}/testScript"/>
+        <chmod perm="+x" file="${bin}/testScript0"/>
+        <chmod perm="+x" file="${bin}/newpgrp"/>
+        <chmod perm="+x" file="${bin}/makeTestCompiler"/>
+    </target>
+
+</project>

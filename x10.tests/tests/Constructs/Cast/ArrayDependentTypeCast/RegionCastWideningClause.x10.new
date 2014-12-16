@@ -1,0 +1,38 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+import x10.regionarray.Array;
+import x10.regionarray.Region;
+
+/**
+ * Purpose: Checks widening dynamic cast works for region.
+ * @author vcave
+ **/
+public class RegionCastWideningClause extends x10Test {
+
+	public def run(): boolean = {
+		// widening cast
+		var rank1Zero_1: region = region.factory.region(0, 10);
+		var rank1Zero_2: region{rank==1} = (region{rank==1})) region.factory.region(0, 10);
+		var rank1Zero_3: region{zeroBased} = (region{zeroBased})) region.factory.region(0, 10);
+		
+		// widening cast
+		// new region construct from previously defined one
+		var rank2RectZero_1: region{rank==2&&rect&&zeroBased} = (region{rank==2&&rect&&zeroBased})) region.factory.region(new Array[region] {rank1Zero_2, rank1Zero_3});
+
+		var rank2RectZero_2: region{rank==2} = (region{rank==2})) region.factory.region(new Array[region] {rank1Zero_2, rank1Zero_3});
+
+		var rank2RectZero_3: region{rect&&zeroBased} = (region{rect&&zeroBased})) region.factory.region(new Array[region] {rank1Zero_2, rank1Zero_3});
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new RegionCastWideningClause().execute();
+	}
+
+}

@@ -1,0 +1,41 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+//OPTIONS: -STATIC_CHECKS
+
+import x10.compiler.tests.*; // err markers
+import harness.x10Test;
+
+/**
+ * This is one of our basic idioms.  It really ought to compile, but, as of rev. 
+ * 20126, did not.
+ * @author bardb 1/2011
+ */
+public class XTENLANG_2440(x:Int) extends x10Test {
+
+    public static def oughttowork() {
+        val result : Int; // Uninitialized
+        val start = here;
+        at(Place.places().next(here)) {
+            val heavyMath = 1+1;
+            at(start) {
+                result = heavyMath;
+            }
+        }
+        return result == 2; 
+    }
+
+    public def run() = oughttowork();
+
+    public static def main(Array[String](1)) {
+        new XTENLANG_2440(5).execute();
+    }
+}

@@ -1,0 +1,47 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Purpose: Several test to checks dynamic cast to wider constraint works.
+ * Note: The following code will use an inlining strategy to dynamically checks constraints.
+ * @author vcave
+ **/
+public class DynamicCast3_Object extends x10Test {
+
+	public def run(): boolean = {
+		try {						
+			// object declaration. We "loose" constraint info at compile time.
+			var object: x10.lang.Object = new X10DepTypeClassTwo(0,1);
+			
+			// identity cast and assignment
+			var convertedObject2: X10DepTypeClassTwo{p==0&&q==1} = (X10DepTypeClassTwo{p==0&&q==1})) object;
+			
+			// widening cast to a subset of the constraint
+			var convertedObject3: X10DepTypeClassTwo{q==1} = (X10DepTypeClassTwo{q==1})) object;
+			
+			// widening cast to a subset of the constraint
+			var convertedObject1: X10DepTypeClassTwo{p==0} = (X10DepTypeClassTwo{p==0})) object;
+
+			// widening cast to base type
+			var convertedObject4: X10DepTypeClassTwo = (X10DepTypeClassTwo) object;
+
+			// identity cast, widening assignment
+			var convertedObject5: X10DepTypeClassTwo{p==0} = (X10DepTypeClassTwo{p==0&&q==1})) object;
+		}catch(var e: Exception) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new DynamicCast3_Object().execute();
+	}
+
+}

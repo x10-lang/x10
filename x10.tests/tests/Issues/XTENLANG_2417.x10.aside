@@ -1,0 +1,61 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * @author Bard 2/11
+ * This is an example of the idiom to go somewhere, do some work, go back with 'at', 
+ * and accumulate the work into a variable.  
+ * XTENLANG-2417 says that it doesn't compile on the Java back end.
+ */
+public class XTENLANG_2417 extends x10Test {
+  
+  public def run(): boolean {
+      return true;
+  }
+  
+  
+  public static def main(Array[String](1)) {
+    new XTENLANG_2417().execute();
+  }
+}
+
+class VarAt1 {
+  public static def partial_sum(start:Int, n:Int, k:Int, f:(Int)=>Int) {
+     var local_sum : Int = 0;
+     var i : Int = start;
+     while (i <= n) {
+         local_sum += f(i);
+         i += k;
+     }
+     return local_sum;
+  }
+  public static def sum(m:Int, n:Int, f:(Int)=>Int) {
+    val k = Place.numPlaces();
+    var s : Int = 0;
+    val start = here;
+    finish for(p in Place.places()) {
+       async {
+         at(p) {
+            val sumForP =  partial_sum(m+p.id(), n, k, f);      
+            at(start) {
+               atomic { s += sumForP; }
+            }
+         }
+       }
+    }
+    return s;
+  }// sum
+
+  public static def main(argv:Array[String](1)) {
+  }
+}

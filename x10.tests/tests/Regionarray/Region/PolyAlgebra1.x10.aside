@@ -1,0 +1,266 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+/**
+ * Inverse, difference and union for some basic rectangular
+ * regions. Includes Os, Ls, Us, and a non-connected region.
+ *
+ * Uses "bump" argument to prArray to probe for whether constituent
+ * regions of UnionRegion are disjoint: all array elements in region
+ * should be bumped once and therefore all should be 1.
+ */
+
+class PolyAlgebra1 extends TestRegion {
+
+    public def run() {
+
+        val r1 = Region.makeRectangular([2,2], [3,4]);
+        prRegion("r1", r1);
+
+        val r2 = r1.complement();
+        prUnbounded("r2=r1.complement()", r2);
+
+        val r3 = Region.makeRectangular([0,0], [5,5]);
+        val r4 = r3.intersection(r2);
+        prArray("r4=r3.intersection(r2)", r4, true);
+
+        val r5 = r3.difference(r1);
+        prArray("r5=r3.difference(r1)", r5, true);
+
+        val r6 = Region.makeRectangular([2,2], [7,7]);
+        prArray("r6", r6, true);
+
+        val r7 = r3.difference(r6);
+        prArray("r7=r3.difference(r6)", r7, true);
+
+        val r8 = Region.makeRectangular([2,2], [4,7]);
+        prArray("r8", r8, true);
+
+        val r9 = r3.difference(r8);
+        prArray("r9=r3.difference(r8)", r9, true);
+
+        val r10 = Region.makeRectangular([4,1], [5,2]);
+        prArray("r10", r10, true);
+
+        val r11 = r9.difference(r10);
+        prArray("r11=r9.difference(r10)", r11, true);
+
+        prArray("r3.union(r6)", r3.union(r6), true);
+
+        prArray("r6.union(r3)", r6.union(r3), true);
+
+        prArray("r3.union(r8)", r3.union(r8), true);
+
+        prArray("r8.union(r3)", r8.union(r3), true);
+
+        return status();
+    }
+
+    def expected() =
+        "--- PolyAlgebra1: r1\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 6\n"+
+        "region: [2..3,2..4]\n"+
+        "--- PolyAlgebra1: r2=r1.complement()\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() Incomplete method.\n"+
+        "region: ((x0<=1) || (x0>=2 && x1<=1) || (x0>=2 && x1>=5) || (x0>=4 && x1>=2 && x1<=4))\n"+
+        "x10.regionarray.UnboundedRegionException: axis 1 has no minimum\n"+
+        "--- PolyAlgebra1: r4=r3.intersection(r2)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 30\n"+
+        "region: ([0..1,0..5] || [2..5,0..1] || [2..5,5..5] || [4..5,2..4])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 . . . 1 . . . . \n"+
+        "    3  1 1 . . . 1 . . . . \n"+
+        "    4  1 1 1 1 1 1 . . . . \n"+
+        "    5  1 1 1 1 1 1 . . . . \n"+
+        "--- PolyAlgebra1: r5=r3.difference(r1)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 30\n"+
+        "region: ([0..1,0..5] || [2..5,0..1] || [2..5,5..5] || [4..5,2..4])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 . . . 1 . . . . \n"+
+        "    3  1 1 . . . 1 . . . . \n"+
+        "    4  1 1 1 1 1 1 . . . . \n"+
+        "    5  1 1 1 1 1 1 . . . . \n"+
+        "--- PolyAlgebra1: r6\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 36\n"+
+        "region: [2..7,2..7]\n"+
+        "  iterator\n"+
+        "    2  . . 1 1 1 1 1 1 . . \n"+
+        "    3  . . 1 1 1 1 1 1 . . \n"+
+        "    4  . . 1 1 1 1 1 1 . . \n"+
+        "    5  . . 1 1 1 1 1 1 . . \n"+
+        "    6  . . 1 1 1 1 1 1 . . \n"+
+        "    7  . . 1 1 1 1 1 1 . . \n"+
+        "--- PolyAlgebra1: r7=r3.difference(r6)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 20\n"+
+        "region: ([0..1,0..5] || [2..5,0..1])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 . . . . . . . . \n"+
+        "    3  1 1 . . . . . . . . \n"+
+        "    4  1 1 . . . . . . . . \n"+
+        "    5  1 1 . . . . . . . . \n"+
+        "--- PolyAlgebra1: r8\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 18\n"+
+        "region: [2..4,2..7]\n"+
+        "  iterator\n"+
+        "    2  . . 1 1 1 1 1 1 . . \n"+
+        "    3  . . 1 1 1 1 1 1 . . \n"+
+        "    4  . . 1 1 1 1 1 1 . . \n"+
+        "--- PolyAlgebra1: r9=r3.difference(r8)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 24\n"+
+        "region: ([0..1,0..5] || [2..5,0..1] || [5..5,2..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 . . . . . . . . \n"+
+        "    3  1 1 . . . . . . . . \n"+
+        "    4  1 1 . . . . . . . . \n"+
+        "    5  1 1 1 1 1 1 . . . . \n"+
+        "--- PolyAlgebra1: r10\n"+
+        "rank 2\n"+
+        "rect true\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() true\n"+
+        "size() 4\n"+
+        "region: [4..5,1..2]\n"+
+        "  iterator\n"+
+        "    4  . 1 1 . . . . . . . \n"+
+        "    5  . 1 1 . . . . . . . \n"+
+        "--- PolyAlgebra1: r11=r9.difference(r10)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 21\n"+
+        "region: ([0..1,0..5] || [2..3,0..1] || [4..5,0..0] || [5..5,3..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 . . . . . . . . \n"+
+        "    3  1 1 . . . . . . . . \n"+
+        "    4  1 . . . . . . . . . \n"+
+        "    5  1 . . 1 1 1 . . . . \n"+
+        "--- PolyAlgebra1: r3.union(r6)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 56\n"+
+        "region: ([0..5,0..5] || [2..7,6..7] || [6..7,2..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "    6  . . 1 1 1 1 1 1 . . \n"+
+        "    7  . . 1 1 1 1 1 1 . . \n"+
+        "--- PolyAlgebra1: r6.union(r3)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 56\n"+
+        "region: ([2..7,2..7] || [0..1,0..5] || [2..5,0..1])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 1 1 . . \n"+
+        "    6  . . 1 1 1 1 1 1 . . \n"+
+        "    7  . . 1 1 1 1 1 1 . . \n"+
+        "--- PolyAlgebra1: r3.union(r8)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 42\n"+
+        "region: ([0..5,0..5] || [2..4,6..7])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 . . . . \n"+
+        "--- PolyAlgebra1: r8.union(r3)\n"+
+        "rank 2\n"+
+        "rect false\n"+
+        "zeroBased false\n"+
+        "rail false\n"+
+        "isConvex() false\n"+
+        "size() 42\n"+
+        "region: ([2..4,2..7] || [0..1,0..5] || [2..5,0..1] || [5..5,2..5])\n"+
+        "  iterator\n"+
+        "    0  1 1 1 1 1 1 . . . . \n"+
+        "    1  1 1 1 1 1 1 . . . . \n"+
+        "    2  1 1 1 1 1 1 1 1 . . \n"+
+        "    3  1 1 1 1 1 1 1 1 . . \n"+
+        "    4  1 1 1 1 1 1 1 1 . . \n"+
+        "    5  1 1 1 1 1 1 . . . . \n";
+    
+    public static def main(Array[String](1)) {
+        new PolyAlgebra1().execute();
+    }
+}

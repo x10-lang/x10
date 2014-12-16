@@ -1,0 +1,246 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+import harness.x10Test;;
+import x10.regionarray.Array;
+
+/**
+ * A test for bad place exceptions
+ *
+ * @author Christoph von Praun
+ */
+public class Exceptions_BadPlace extends x10Test {
+
+	public static M: int = 10;
+	public def run(): boolean = {
+		if (Place.numPlaces() == 1) return true;
+
+		var gotException: boolean;
+
+		final val B: Array[BoxedBoolean] = new Array[BoxedBoolean](distmakeBlock([0..M-1]), (var point [i]: point): BoxedBoolean => { return new BoxedBoolean(); });
+		gotException = false;
+		try {
+			for (val (i): point in B) { B(i).val = true; }
+		} catch (var e: BadPlaceException) {
+			gotException = true;
+		}
+		System.out.println("1");
+		if (!gotException) return false;
+
+		final val A: Array[double] = new Array[double](distmakeBlock([0..M-1]));
+		gotException = false;
+		try {
+			for (val (i): point in A) { A(i) = 1.0; }
+		} catch (var e: BadPlaceException) {
+			gotException = true;
+		}
+		System.out.println("2");
+		if (!gotException) return false;
+
+		final val VB: Array[boxedInt] = new Array[boxedInt](distmakeBlock([0..M-1]), (var point [i]: point): boxedInt => { return new boxedInt(); });
+		gotException = false;
+		try {
+			var x: int = 0;
+			for (val (i): point in VB) {  x |= VB(i).val; }
+		} catch (var e: BadPlaceException) {
+			gotException = true;
+		}
+		System.out.println("3");
+		if (gotException) return false;
+		// CVP -- fails if the boxedInt class is a reference, not a value class
+		// hence a BadPlaceException occurs on access.
+
+		final val VA: Array[double] = new Array[double](distmakeBlock([0..M-1]));
+		gotException = false;
+		try {
+			var x: double = 0.0;
+			for (val (i): point in VA) { x += VA(i); }
+		} catch (var e: BadPlaceException) {
+			gotException = true;
+		}
+		System.out.println("4");
+		if (gotException) return false;
+
+		return true;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new Exceptions_BadPlace().execute();
+	}
+
+	static class BoxedBoolean {
+		var val: boolean = false;
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+import harness.x10Test;
+
+/**
+ * A test for bad place exceptions
+ *
+ * @author Christoph von Praun
+ */
+public class Exceptions_BadPlace extends x10Test {
+
+	const int M = 10;
+	public boolean run() {
+		if (Place.numPlaces() == 1) return true;
+
+		boolean gotException;
+
+		final BoxedBoolean[.] B = new BoxedBoolean[distmakeBlock([0:M-1])]
+			(point [i]) { return new BoxedBoolean(); };
+		gotException = false;
+		try {
+			for (point [i]: B) { B[i].val = true; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("1");
+		if (!gotException) return false;
+
+		final double[.] A = new double[distmakeBlock([0:M-1])];
+		gotException = false;
+		try {
+			for (point [i]: A) { A[i] = 1.0; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("2");
+		if (!gotException) return false;
+
+		final boxedInt value[.] VB = new boxedInt value[distmakeBlock([0:M-1])]
+			(point [i]) { return new boxedInt(); };
+		gotException = false;
+		try {
+			int x = 0;
+			for (point [i]: VB) {  x |= VB[i].val; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("3");
+		if (gotException) return false;
+		// CVP -- fails if the boxedInt class is a reference, not a value class
+		// hence a BadPlaceException occurs on access.
+
+		final double value[.] VA = new double value[distmakeBlock([0:M-1])];
+		gotException = false;
+		try {
+			double x = 0.0;
+			for (point [i]: VA) { x += VA[i]; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("4");
+		if (gotException) return false;
+
+		return true;
+	}
+
+	public static void main(String[] args) {
+		new Exceptions_BadPlace().execute();
+	}
+
+	static class BoxedBoolean {
+		boolean val = false;
+	}
+
+	// CVP -- if this class is declared as value class, then case 3 succeeds.
+	static value class boxedInt extends x10.lang.Object*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+import harness.x10Test;
+
+/**
+ * A test for bad place exceptions
+ *
+ * @author Christoph von Praun
+ */
+public class Exceptions_BadPlace extends x10Test {
+
+	const int M = 10;
+	public boolean run() {
+		if (Place.numPlaces() == 1) return true;
+
+		boolean gotException;
+
+		final BoxedBoolean[.] B = new BoxedBoolean[distmakeBlock([0:M-1])]
+			(point [i]) { return new BoxedBoolean(); };
+		gotException = false;
+		try {
+			for (point [i]: B) { B[i].val = true; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("1");
+		if (!gotException) return false;
+
+		final double[.] A = new double[distmakeBlock([0:M-1])];
+		gotException = false;
+		try {
+			for (point [i]: A) { A[i] = 1.0; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("2");
+		if (!gotException) return false;
+
+		final boxedInt value[.] VB = new boxedInt value[distmakeBlock([0:M-1])]
+			(point [i]) { return new boxedInt(); };
+		gotException = false;
+		try {
+			int x = 0;
+			for (point [i]: VB) {  x |= VB[i].val; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("3");
+		if (gotException) return false;
+		// CVP -- fails if the boxedInt class is a reference, not a value class
+		// hence a BadPlaceException occurs on access.
+
+		final double value[.] VA = new double value[distmakeBlock([0:M-1])];
+		gotException = false;
+		try {
+			double x = 0.0;
+			for (point [i]: VA) { x += VA[i]; }
+		} catch (BadPlaceException e) {
+			gotException = true;
+		}
+		System.out.println("4");
+		if (gotException) return false;
+
+		return true;
+	}
+
+	public static void main(String[] args) {
+		new Exceptions_BadPlace().execute();
+	}
+
+	static class BoxedBoolean {
+		boolean val = false;
+	}
+
+	// CVP -- if this class is declared as value class, then case 3 succeeds.
+	static value class boxedInt extends x10.lang.Object {
+		var val: int = 0;
+	}
+}

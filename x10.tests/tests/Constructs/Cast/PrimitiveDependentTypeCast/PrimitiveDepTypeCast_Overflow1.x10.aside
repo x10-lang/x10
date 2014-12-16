@@ -1,0 +1,38 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * Purpose: Checks overflow is corretly handled by the constraint.
+ * Note: We assign a value greater than short max value. 
+ *       Then we check constraint's value has been overflowed.
+ * @author vcave
+ **/
+public class PrimitiveDepTypeCast_Overflow1 extends x10Test {
+	 private static aboveShort: int = (Short.MAX_VALUE as int) + 10;
+	 
+	public def run(): boolean = {
+		// 32777 stored in a short is overflowed to -32759
+		val overflow: short = aboveShort as short;
+
+		var ss: short{self==overflow} = overflow as short{self==overflow};
+		var sss: short{self==32777} = overflow as short{self==32777};
+		var ssss: short{self==32777} = 32777 as short{self==32777};
+
+		return (ss == -32759) && (sss == -32759) && (ssss == -32759);
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new PrimitiveDepTypeCast_Overflow1().execute();
+	}
+
+}

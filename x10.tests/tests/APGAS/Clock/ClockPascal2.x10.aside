@@ -1,0 +1,162 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
+import harness.x10Test;
+
+/**
+ * Create a "Pascal's triangle" matrix using a wavefront
+ * computation with multiple clocks.
+ *
+ * This is the same as ClockPascal but uses
+ * array elements as clocks (was failing as of 5/17)
+ *
+ * Here is a sample computation with a 3*3 matrix:
+ * <code>
+
+   a00 a01 a02
+   a10 a11 a12
+   a20 a21 a22
+
+11: (w10,n01,w11,n11)
+// activity 11 is registered with w10 n01 w11 n11
+   a11 = f(a10,a01);
+   next;
+
+21: (w20,n11,w21,n21)
+   next;
+   a21 = f(a20,a11)
+   next;
+
+12: (w11,n02,w12,n12)
+   next;
+   a12 = f(a11,a02);
+   next;
+
+22: (w21,n12,w22,n22)
+   next;
+   next;
+   a22 = f(a21,a12);
+   next;
+
+Column 0 and row 0 is initialized to 1s.
+
+One possible execution:
+
+0.451 sec: About to do next 1 of 3 (wait for input): [2,2]
+0.732 sec: About to do next 1 of 1 (produce output): A[1,1] = 2
+1.122 sec: About to do next 1 of 2 (wait for input): [1,2]
+1.122 sec: Passed next 1 of 2 (wait for input): [1,2]
+1.383 sec: About to do next 2 of 2 (produce output): A[1,2] = 3
+1.983 sec: About to do next 1 of 2 (wait for input): [2,1]
+1.993 sec: Passed next 1 of 3 (wait for input): [2,2]
+1.993 sec: Passed next 1 of 1 (produce output): A[1,1] = 2
+1.993 sec: Passed next 1 of 2 (wait for input): [2,1]
+2.424 sec: About to do next 2 of 2 (produce output): A[2,1] = 3
+2.895 sec: About to do next 2 of 3 (wait for input): [2,2]
+2.895 sec: Passed next 2 of 2 (produce output): A[1,2] = 3
+2.895 sec: Passed next 2 of 2 (produce output): A[2,1] = 3
+2.895 sec: Passed next 2 of 3 (wait for input): [2,2]
+3.506 sec: About to do next 3 of 3 (produce output): A[2,2] = 6
+3.506 sec: Passed next 3 of 3 (produce output): A[2,2] = 6
+
+ * </code>
+ *
+ * @author kemal, 5/2005
+ */
+public class ClockPascal2 extends x10Test {
+
+	public static N: int = 5;
+	public static EXPECTED_CHECKSUM: int = prod(N+1, 2*N) / prod(1, N) - 1;
+	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
+	public static DELAY: int = 2000;
+	public def run(): boolean = {
+		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
+		val Dinner = D|([1..N-1, 1..N-1] as Region);
+		val Dboundary = D-Dinner;
+		val A: Array[int](2) = DistArray.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
+		finish async {
+			val N = DistArray.make[Clock](D, (Point)=>Clock.make());
+			for ((i,j) in D.region) { N(i, j) = Clock.make(); }
+			val W = DistArray.make[Clock](D, (Point)=>Clock.make());
+
+			foreach ((i,j) in Dinner.region)
+			 	clocked(N(i-1,j), W(i,j-1), N(i,j), W(i,j)) {
+					for ((n):Point(1) in 3..(i+j)) {
+						randDelay(DELAY);
+						pr1(i, j, n);
+						next;
+						pr2(i, j, n);
+					}
+					randDelay(DELAY);
+					A(i, j) = compute(A(i-1, j), A(i, j-1));
+					pr3(i, j, A);
+					next;
+					pr4(i, j, A);
+				}
+		}
+                val aSum = A.reduce(Int.+, 0);
+                return aSum == EXPECTED_CHECKSUM;
+//WAS: 		return A.sum() == EXPECTED_CHECKSUM;
+	}
+
+	public static rand: x10.util.Random! = new x10.util.Random(1L);
+
+	static def randDelay(var millis: int): void = {
+		var n: int;
+		atomic n = rand.nextInt(millis);
+		System.sleep(n);
+	}
+
+	public static startTime: long = System.currentTimeMillis();
+
+	static def tim(): double = {
+		var x: long = System.currentTimeMillis();
+		return ((x-startTime)/1000.00 as double);
+	}
+
+	static def pr1(var i: int, var j: int, var n: int): void = {
+		x10.io.Console.OUT.println(tim()+" sec: About to do next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+	}
+
+	static def pr2(var i: int, var j: int, var n: int): void = {
+		x10.io.Console.OUT.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+	}
+
+	static def pr3(var i: int, var j: int, var A: Array[int]): void = {
+//		x10.io.Console.OUT.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+	}
+
+	static def pr4(var i: int, var j: int, var A: Array[int]): void = {
+//		x10.io.Console.OUT.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+	}
+
+	/**
+	 * Compute the array element using its west and north neighbors
+	 */
+	static def compute(var x: int, var y: int): int = {
+		return x+y;
+	}
+
+	/**
+	 * Product of numbers from m to n inclusive.
+	 * Note that prod(1, n) == n!
+	 */
+	static def prod(var m: int, var n: int): int = {
+		var s: int = 1;
+		for (var i: int = m; i <= n; i++)
+			s *= i;
+		return s;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new ClockPascal2().execute();
+	}
+}
