@@ -1936,11 +1936,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Modifiersopt0() {
         setResult(new LinkedList<Modifier>());
     }
-    // Production: Modifiersopt ::= Modifiersopt Modifier
-    void rule_Modifiersopt1(Object _Modifiersopt, Object _Modifier) {
-        List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
+    // Production: Modifiers ::= Modifier
+    void rule_Modifiers0(Object _Modifier) {
+        List<Modifier> Modifiers = new LinkedList<Modifier>();
         Modifier Modifier = (Modifier) _Modifier;
-        Modifiersopt.add(Modifier);
+        Modifiers.add(Modifier);
+	setResult(Modifiers);
+    }
+    // Production: Modifiers ::= Modifiers Modifier
+    void rule_Modifiers1(Object _Modifiers, Object _Modifier) {
+        List<Modifier> Modifiers = (List<Modifier>) _Modifiers;
+        Modifier Modifier = (Modifier) _Modifier;
+        Modifiers.add(Modifier);
     }
     // Production: BooleanLiteral ::= true
     void rule_BooleanLiteral0() {
@@ -2606,28 +2613,51 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 ? null
                 : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
     }
-    // Production: MethodInvocation ::= Primary '.' Identifier TypeArgumentsopt '(' ArgumentListopt ')'
-    void rule_MethodInvocation4(Object _Primary, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+    // Production: MethodInvocation ::= Primary '.' Identifier '(' ArgumentListopt ')'
+    void rule_MethodInvocation4(Object _Primary, Object _Identifier, Object _ArgumentListopt) {
         Expr Primary = (Expr) _Primary;
         Id Identifier = (Id) _Identifier;
-        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
+        setResult(nf.X10Call(pos(), Primary, Identifier, TypeArguments, ArgumentListopt));
     }
-    // Production: MethodInvocation ::= super '.' Identifier TypeArgumentsopt '(' ArgumentListopt ')'
-    void rule_MethodInvocation5(Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+    // Production: MethodInvocation ::= Primary '.' Identifier TypeArguments '(' ArgumentListopt ')'
+    void rule_MethodInvocation4(Object _Primary, Object _Identifier, Object _TypeArguments, Object _ArgumentListopt) {
+        Expr Primary = (Expr) _Primary;
         Id Identifier = (Id) _Identifier;
-        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
+        setResult(nf.X10Call(pos(), Primary, Identifier, TypeArguments, ArgumentListopt));
     }
-    // Production: MethodInvocation ::= ClassName '.' super '.' Identifier TypeArgumentsopt '(' ArgumentListopt ')'
-    void rule_MethodInvocation6(Object _ClassName, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+    // Production: MethodInvocation ::= super '.' Identifier '(' ArgumentListopt ')'
+    void rule_MethodInvocation5(Object _Identifier, Object _ArgumentListopt) {
+        Id Identifier = (Id) _Identifier;
+        List<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArguments, ArgumentListopt));
+    }
+    // Production: MethodInvocation ::= super '.' Identifier TypeArguments '(' ArgumentListopt ')'
+    void rule_MethodInvocation5(Object _Identifier, Object _TypeArguments, Object _ArgumentListopt) {
+        Id Identifier = (Id) _Identifier;
+        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArguments, ArgumentListopt));
+    }
+    // Production: MethodInvocation ::= ClassName '.' super '.' Identifier '(' ArgumentListopt ')'
+    void rule_MethodInvocation6(Object _ClassName, Object _Identifier, Object _ArgumentListopt) {
         ParsedName ClassName = (ParsedName) _ClassName;
         Id Identifier = (Id) _Identifier;
-        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
+        setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt));
+    }
+    // Production: MethodInvocation ::= ClassName '.' super '.' Identifier TypeArguments '(' ArgumentListopt ')'
+    void rule_MethodInvocation6(Object _ClassName, Object _Identifier, Object _TypeArguments, Object _ArgumentListopt) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Id Identifier = (Id) _Identifier;
+        List<TypeNode> TypeArguments = (List<TypeNode>) _TypeArguments;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt));
     }
     // Production: MethodInvocation ::= Primary TypeArgumentsopt '(' ArgumentListopt ')'
     void rule_MethodInvocation7(Object _Primary, Object _TypeArgumentsopt, Object _ArgumentListopt) {
@@ -3599,7 +3629,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr call = nf.Binary(pos(), expr1, Binary.BOWTIE, expr2);
         setResult(call);
     }
-    // Production: ExplicitConstructorInvocation ::= this TypeArgumentsopt '(' ArgumentListopt ')' ';'
+    // Production: ExplicitConstructorInvocation ::= this '(' ArgumentListopt ')' ';'
+    void rule_ExplicitConstructorInvocation00(Object _ArgumentListopt) {
+        List<TypeNode> TypeArgumentsopt = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
+    }
+    // Production: ExplicitConstructorInvocation ::= this TypeArguments '(' ArgumentListopt ')' ';'
     void rule_ExplicitConstructorInvocation0(Object _TypeArgumentsopt, Object _ArgumentListopt) {
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;

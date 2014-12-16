@@ -285,15 +285,20 @@
 
 -- End: Error recovery rules
 
-
-
     Modifiersopt ::= %Empty
         /.$BeginJava
 			r.rule_Modifiersopt0();
         $EndJava./
-                   | Modifiersopt Modifier
+                   | Modifiers
+
+
+    Modifiers ::= Modifier
         /.$BeginJava
-			r.rule_Modifiersopt1(Modifiersopt,Modifier);
+			r.rule_Modifiers0(Modifier);
+        $EndJava./
+                   | Modifiers Modifier
+        /.$BeginJava
+			r.rule_Modifiers1(Modifiers,Modifier);
         $EndJava./
 
     Modifier ::= abstract
@@ -451,9 +456,13 @@
                                                  
         $EndJava./
 
-    ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
+    ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
         /.$BeginJava
-			r.rule_ExplicitConstructorInvocation0(TypeArgumentsopt,ArgumentListopt);
+			r.rule_ExplicitConstructorInvocation00(ArgumentListopt);
+        $EndJava./
+                                    | this TypeArguments ( ArgumentListopt ) ;
+        /.$BeginJava
+			r.rule_ExplicitConstructorInvocation0(TypeArguments,ArgumentListopt);
         $EndJava./
                                     | super TypeArgumentsopt ( ArgumentListopt ) ;
         /.$BeginJava
@@ -495,6 +504,7 @@
     Type ::= FunctionType
            |  ConstrainedType
            |  Void
+
 
     FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt OBSOLETE_Offersopt => Type
         /.$BeginJava
@@ -850,8 +860,42 @@
         /.$BeginJava
 			r.rule_ForInit1(LocalVariableDeclaration);
         $EndJava./
-    
-    ForUpdate ::= StatementExpressionList
+
+    ForUpdateExpression ::= Assignment
+                          | PreIncrementExpression
+                          | PreDecrementExpression
+                          | PostIncrementExpression
+                          | PostDecrementExpression
+                          | MethodInvocation
+                          | ClassInstanceCreationExpression
+                          | ForUpdateOverloadableExpression
+
+    ForUpdateOverloadableExpression ::= OverloadableUnaryExpressionPlusMinus
+                                      | OverloadableUnaryExpression
+                                      | OverloadableRangeExpression
+                                      | OverloadableMultiplicativeExpression
+                                      | OverloadableAdditiveExpression
+                                      | OverloadableShiftExpression
+                                      | OverloadableRelationalExpression
+                                      | OverloadableEqualityExpression
+                                      | OverloadableAndExpression
+                                      | OverloadableExclusiveOrExpression
+                                      | OverloadableInclusiveOrExpression
+                                      | OverloadableConditionalAndExpression
+                                      | OverloadableConditionalOrExpression
+
+
+    ForUpdateExpressionList ::= ForUpdateExpression
+         /.$BeginJava
+			r.rule_StatementExpressionList0(ForUpdateExpression);
+        $EndJava./
+                              | ForUpdateExpressionList , ForUpdateExpression
+        /.$BeginJava
+			r.rule_StatementExpressionList1(ForUpdateExpressionList,ForUpdateExpression);
+        $EndJava./
+
+    ForUpdate ::= ForUpdateExpressionList
+--    ForUpdate ::= StatementExpressionList
     
     StatementExpressionList ::= StatementExpression
         /.$BeginJava
@@ -1872,17 +1916,29 @@
         /.$BeginJava
 			r.rule_MethodInvocation3(MethodName,TypeArgumentsopt,ArgumentListopt);
         $EndJava./
-                       | Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+                       | Primary . Identifier ( ArgumentListopt )
         /.$BeginJava
-			r.rule_MethodInvocation4(Primary,Identifier,TypeArgumentsopt,ArgumentListopt);
+			r.rule_MethodInvocation4(Primary,Identifier,ArgumentListopt);
         $EndJava./
-                       | super . Identifier TypeArgumentsopt ( ArgumentListopt )
+                       | Primary . Identifier TypeArguments ( ArgumentListopt )
         /.$BeginJava
-			r.rule_MethodInvocation5(Identifier,TypeArgumentsopt,ArgumentListopt);
+			r.rule_MethodInvocation4(Primary,Identifier,TypeArguments,ArgumentListopt);
         $EndJava./
-                       | ClassName . super . Identifier TypeArgumentsopt ( ArgumentListopt )
+                       | super . Identifier ( ArgumentListopt )
         /.$BeginJava
-			r.rule_MethodInvocation6(ClassName,Identifier,TypeArgumentsopt,ArgumentListopt);
+			r.rule_MethodInvocation5(Identifier,ArgumentListopt);
+        $EndJava./
+                       | super . Identifier TypeArguments ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_MethodInvocation5(Identifier,TypeArguments,ArgumentListopt);
+        $EndJava./
+                       | ClassName . super . Identifier ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_MethodInvocation6(ClassName,Identifier,ArgumentListopt);
+        $EndJava./
+                       | ClassName . super . Identifier TypeArguments ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_MethodInvocation6(ClassName,Identifier,TypeArguments,ArgumentListopt);
         $EndJava./
                        | Primary TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
@@ -1941,26 +1997,26 @@
         /.$BeginJava
 			r.rule_OperatorPrefix9(ClassName,BinOp);
         $EndJava./
-                       | operator PrefixOp
-        /.$BeginJava
-			r.rule_OperatorPrefix10(PrefixOp);
-        $EndJava./
-                       | FullyQualifiedName . operator PrefixOp
-        /.$BeginJava
-			r.rule_OperatorPrefix11(FullyQualifiedName,PrefixOp);
-        $EndJava./
-                       | Primary . operator PrefixOp
-        /.$BeginJava
-			r.rule_OperatorPrefix12(Primary,PrefixOp);
-        $EndJava./
-                       | super . operator PrefixOp
-        /.$BeginJava
-			r.rule_OperatorPrefix13(PrefixOp);
-        $EndJava./
-                       | ClassName . super . operator PrefixOp
-        /.$BeginJava
-			r.rule_OperatorPrefix14(ClassName,PrefixOp);
-        $EndJava./
+--                     | operator PrefixOp
+--      /.$BeginJava
+--  		r.rule_OperatorPrefix10(PrefixOp);
+--      $EndJava./
+--                     | FullyQualifiedName . operator PrefixOp
+--      /.$BeginJava
+--  		r.rule_OperatorPrefix11(FullyQualifiedName,PrefixOp);
+--      $EndJava./
+--                     | Primary . operator PrefixOp
+--      /.$BeginJava
+--  		r.rule_OperatorPrefix12(Primary,PrefixOp);
+--      $EndJava./
+--                     | super . operator PrefixOp
+--      /.$BeginJava
+--  		r.rule_OperatorPrefix13(PrefixOp);
+--      $EndJava./
+--                     | ClassName . super . operator PrefixOp
+--      /.$BeginJava
+--  		r.rule_OperatorPrefix14(ClassName,PrefixOp);
+--      $EndJava./
                        | operator ( )
         /.$BeginJava
 			r.rule_OperatorPrefix15();
@@ -2727,5 +2783,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | OverloadableExpression | OverloadableUnaryExpressionPlusMinus | OverloadableUnaryExpression | OverloadableRangeExpression | OverloadableMultiplicativeExpression | OverloadableAdditiveExpression | OverloadableShiftExpression | OverloadableRelationalExpression | OverloadableEqualityExpression | OverloadableAndExpression | OverloadableExclusiveOrExpression | OverloadableInclusiveOrExpression | OverloadableConditionalAndExpression | OverloadableConditionalOrExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | IsRefConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt | Throwsopt | Throws | ThrowsList
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | OverloadableExpression | OverloadableUnaryExpressionPlusMinus | OverloadableUnaryExpression | OverloadableRangeExpression | OverloadableMultiplicativeExpression | OverloadableAdditiveExpression | OverloadableShiftExpression | OverloadableRelationalExpression | OverloadableEqualityExpression | OverloadableAndExpression | OverloadableExclusiveOrExpression | OverloadableInclusiveOrExpression | OverloadableConditionalAndExpression | OverloadableConditionalOrExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | ForUpdate | ForUpdateExpression | ForUpdateOverloadableExpression | ForUpdateExpressionList | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | IsRefConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiers | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | OperatorPrefix | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt | Throwsopt | Throws | ThrowsList
 %End
