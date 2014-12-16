@@ -51,6 +51,10 @@ namespace apgas {
          */
         void runFinish(int numTasks, Task** tasks);
 
+        /**
+         * Return the number of worker threads available to execute asyncs
+         */
+        int numWorkers(void);
         
         template<class T> static inline T* alloc(size_t size = sizeof(T)) { return (T*)alloc_impl(size); }
         template<class T> static inline void dealloc(const T* obj) { dealloc_impl((void*)obj); }

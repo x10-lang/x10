@@ -48,7 +48,7 @@ $(APGAS_ARCHIVE): $(APGAS_OBJS)
 %:%.cc
 
 %.o: %.cc %.h 
-	$(CXX) $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(CXX) -Isrc $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
 
 #remove only object code

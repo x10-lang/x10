@@ -68,7 +68,11 @@ namespace apgas {
         FinishBlock fb(numTasks, tasks);
         runFinish(&fb);
     }        
-    
+
+    int Runtime::numWorkers() {
+        return x10::lang::Runtime::FMGL(NTHREADS__get)();
+    }
+        
     void* Runtime::alloc_impl(size_t size) {
         return x10aux::alloc_internal(size, true);
     }

@@ -39,7 +39,7 @@ class MyMain : public Task {
             int numTasks = argc-1;
             Task** myTasks = Runtime::alloc<Task*>(numTasks*sizeof(Task*));
             for (int i=0; i<numTasks; i++) {
-                myTasks[i] = new (Runtime::alloc<MyTask>()) MyTask (argv[i]);
+                myTasks[i] = new (Runtime::alloc<MyTask>()) MyTask (argv[i+1]);
             }
             myRuntime->runFinish(numTasks, myTasks);
             printf("Goodbye World, I am done talking\n");
