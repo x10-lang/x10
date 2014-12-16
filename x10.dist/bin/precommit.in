@@ -1,0 +1,112 @@
+testFailed() {
+  rc=$?
+
+  echo ""
+  echo ""
+  echo "FAILURE!!!"
+  exit $rc
+}
+
+echo "Running precommit tests for X10"
+
+ROOT="$TOP/.."
+
+echo "Rebuilding X10"
+
+cd "$ROOT/x10.dist"
+target=dist
+[ "$1" = "cpp" -o "$1" = "-cpp" -o "$1" = "-c++" ] && target=dist-cpp && shift
+[ "$1" = "java" -o "$1" = "-java" ] && target=dist-java && shift
+nice ant "$@" squeakyclean || testFailed
+nice ant -Doptimize=true "$@" $target || testFailed
+
+echo "Making temp dir"
+if [ -z "$TMP_DIR" ]; then
+  export TMP_DIR=/tmp/precommit-$USER
+fi
+if [ -n "$IS_CYGWIN" ]; then TMP_DIR="$(cygpath -am "$TMP_DIR")"; fi
+
+rm -rf "$TMP_DIR"
+mkdir -p "$TMP_DIR"
+
+echo "Testing"
+
+echo "Running front-end RunTestSuite on FrontEndTests_MustFailCompile.x10"
+cd "$TMP_DIR"
+nice $JAVA -Xmx1G -ea -DQUIET=true -cp "$ROOT/x10.dist/lib/x10c.jar${PATH_SEP}$ROOT/x10.dist/lib/lpg.jar" x10.util.RunTestSuite "$ROOT/x10.tests/tests/Misc/x10/frontend/tests/FrontEndTests_MustFailCompile.x10" -extclass x10c.ExtensionInfo -sourcepath "$ROOT/x10.dist/stdlib/x10.jar" -sourcepath "$ROOT/x10.tests/tests/x10lib" -commandlineonly || testFailed
+
+if [ "$target" != "dist-java" ]; then
+
+echo "Compiling PreCommit.x10 with x10c++"
+
+cd "$ROOT/x10.tests/tests-inactive/Misc"
+
+nice "$ROOT/x10.dist/bin/x10c++" -O -DEBUG \
+ -sourcepath "$ROOT/x10.dist/samples" \
+ -sourcepath "$ROOT/x10.tests/tests/x10lib" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Async" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/At" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Atomic" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Clock" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Place" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Distribution" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Region" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/DepType" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/Generics" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/Typedefs" \
+-d "$TMP_DIR" -o "$TMP_DIR/PreCommit" PreCommit.x10 || testFailed
+
+echo "Running"
+
+X10_NPLACES=2 X10_HOSTLIST=localhost "$ROOT/x10.dist/bin/runx10" "$TMP_DIR/PreCommit" || testFailed
+
+fi
+
+if [ "$target" != "dist-cpp" ]; then
+
+echo "Compiling PreCommit.x10 with x10c"
+
+# create temp dir for classes
+rm -rf "${TMP_DIR}.tmp"
+mkdir -p "${TMP_DIR}.tmp"
+
+cd "$ROOT/x10.tests/tests-inactive/Misc"
+
+nice "$ROOT/x10.dist/bin/x10c" -O \
+ -sourcepath "$ROOT/x10.dist/samples" \
+ -sourcepath "$ROOT/x10.tests/tests/x10lib" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Async" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/At" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Atomic" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Clock" \
+ -sourcepath "$ROOT/x10.tests/tests/APGAS/Place" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Distribution" \
+ -sourcepath "$ROOT/x10.tests/tests/Regionarray/Region" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Call" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Cast" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Closures" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/For" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Import" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Instanceof" \
+ -sourcepath "$ROOT/x10.tests/tests/Constructs/Structs" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/DepType" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/Generics" \
+ -sourcepath "$ROOT/x10.tests/tests/Types/Typedefs" \
+-d "${TMP_DIR}.tmp" -o "$TMP_DIR/PreCommit.jar" PreCommit.x10 || testFailed
+
+echo "Running"
+
+X10_NPLACES=2 X10_HOSTLIST=localhost "$ROOT/x10.dist/bin/x10" -classpath "$TMP_DIR/PreCommit.jar" PreCommit || testFailed
+
+fi
+
+echo ""
+echo ""
+echo "SUCCESS"

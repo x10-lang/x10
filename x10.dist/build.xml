@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.dist" default="dist" basedir=".">
+    &buildfile;
+    <property name="dep.baseurl" value="http://x10-lang.org"/>
+    <property name="dep.baseurl.alt" value="http://sourceforge.net/projects/x10/files"/>
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="builddir" value="classes"/>
+    <property name="bin" location="${basedir}/bin"/>
+    <property name="etc" location="${basedir}/etc"/>
+    <property name="incdir" location="${basedir}/include"/>
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="build" location="${basedir}/build"/>
+    <property name="stdlib" location="${basedir}/stdlib"/>
+    <property name="lpg.jar" value="lpg.jar"/>
+    <property name="lpg.jar.url" value="dependencies/lpg.runtime.java_2.0.22.jar"/>
+    <property name="ecj.jar" value="ecj-4.4.1.jar"/>
+    <property name="ecj.jar.url" value="dependencies/ecj-4.4.1.jar"/>
+    <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
+    <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.3.1.jar"/>
+    <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
+    <property name="wala.jar.url" value="dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
+    <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
+    <property name="wala2.jar.url" value="dependencies/com.ibm.wala.cast_1.0.0.201101071300.jar"/>
+    <property name="wala3.jar" value="com.ibm.wala.core_1.1.3.201101071300.jar"/>
+    <property name="wala3.jar.url" value="dependencies/com.ibm.wala.core_1.1.3.201101071300.jar"/>
+    <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+    <property name="shrike.jar.url" value="dependencies/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
+    <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="equinox.jar.url" value="dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="math.jar" value="commons-math3-3.3.jar"/>
+    <property name="math.jar.url" value="dependencies/commons-math3-3.3.jar"/>
+    <property name="log.jar" value="commons-logging-1.2.jar"/>
+    <property name="log.jar.url" value="dependencies/commons-logging-1.2.jar"/>
+    <property name="logging.properties" value="logging.properties"/>
+    <property name="x10.bridge.location" location="${x10.home}/x10.wala"/>
+    <property name="bridge.jar" value="x10wala.jar" />
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
+    <property name="constraints.jar" value="x10constraints.jar"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common"/>
+    <property name="common.jar" value="x10common.jar"/>
+    <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
+    <property name="compiler.jar" value="x10c.jar"/>
+    <property name="config" value="standard.cfg"/>
+    <property name="x10.runtime.location" location="${x10.home}/x10.runtime"/>
+    <property name="xrx.src.dir" location="${x10.home}/x10.runtime/src-x10" />
+    <property name="runtime.jar" value="x10.jar"/>
+    <property name="x10.tests.location" location="${x10.home}/x10.tests"/>
+    <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
+    <property name="bash.exe" value="bash"/>
+    <property name="CROSS_COMPILE_BGQ" value="false" />
+    <property name="CROSS_COMPILE_FX10" value="false" />
+    <property name="X10RT_MPI" value="false" />
+    <property name="X10RT_PAMI" value="false" />
+    <property name="X10RT_PAMI_IS_DEFAULT" value="false" />
+    <property name="X10RT_CUDA" value="false" />
+    <path id="project.classpath"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <macrodef name="get-x10-dependency">
+      <attribute name="src" />
+      <attribute name="dest" />
+      <sequential>
+	<retry retrycount="3">
+	  <doOne>
+            <get usetimestamp="true" src="${dep.baseurl}/@{src}" dest="@{dest}"/>
+            <get usetimestamp="true" src="${dep.baseurl.alt}/@{src}" dest="@{dest}"/>
+	  </doOne>
+	</retry>
+      </sequential>
+    </macrodef>
+
+    <target name="x10-version" unless="x10.version">
+      <loadproperties srcFile="META-INF/MANIFEST.MF">
+	<filterchain>
+	  <linecontains>
+	    <contains value="Bundle-Version" />
+	  </linecontains>
+	  <tokenfilter>
+	    <replacestring from=".qualifier" />
+	  </tokenfilter>
+	</filterchain>
+      </loadproperties>
+      <property name="x10.version" value="${Bundle-Version}" />
+    </target>
+
+    <target name="init" depends ="x10-version">
+        <tstamp/>
+        <mkdir dir="${etc}" />
+        <mkdir dir="${incdir}" />
+        <mkdir dir="${lib}" />
+        <mkdir dir="${build}" />
+        <mkdir dir="${stdlib}" />
+        <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
+            <isset property="env.LOCAL_LPG_JAR"/>
+        </condition>
+        <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
+            <isset property="env.LOCAL_ECJ_JAR"/>
+        </condition>
+        <condition property="local.hazelcast.jar" value="${env.LOCAL_HAZELCAST_JAR}">
+            <isset property="env.LOCAL_HAZELCAST_JAR"/>
+        </condition>
+        <condition property="local.wala.jar" value="${env.LOCAL_WALA_JAR}">
+            <isset property="env.LOCAL_WALA_JAR"/>
+        </condition>
+        <condition property="local.wala2.jar" value="${env.LOCAL_WALA2_JAR}">
+            <isset property="env.LOCAL_WALA2_JAR"/>
+        </condition>
+        <condition property="local.wala3.jar" value="${env.LOCAL_WALA3_JAR}">
+            <isset property="env.LOCAL_WALA3_JAR"/>
+        </condition>
+        <condition property="local.shrike.jar" value="${env.LOCAL_SHRIKE_JAR}">
+            <isset property="env.LOCAL_SHRIKE_JAR"/>
+        </condition>
+        <condition property="local.equinox.jar" value="${env.LOCAL_EQUINOX_JAR}">
+            <isset property="env.LOCAL_EQUINOX_JAR"/>
+        </condition>
+        <condition property="local.math.jar" value="${env.LOCAL_MATH_JAR}">
+            <isset property="env.LOCAL_MATH_JAR"/>
+        </condition>
+        <condition property="local.log.jar" value="${env.LOCAL_LOG_JAR}">
+            <isset property="env.LOCAL_LOG_JAR"/>
+        </condition>
+
+	<!-- build custom ant tasks -->
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="true" debug="on" nowarn="on">
+            <src path="${x10.common.location}/contrib/ant"/>
+            <include name="IfTask.java"/>
+            <include name="DoOne.java"/>
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+        <taskdef name="if" classname ="IfTask" classpath="${build}" />
+        <taskdef name="doOne" classname ="DoOne" classpath="${build}" />
+    </target>
+
+    <target name="clean">
+        <delete>
+            <fileset dir="${bin}">
+                <include name="defs"/>
+                <include name="x10"/>
+                <include name="x10c"/>
+                <include name="x10cj"/>
+                <include name="runjava"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="clean-java" depends="clean">
+        <delete dir="${etc}" failonerror="false"/>
+        <mkdir dir="${etc}" />
+        <delete dir="${stdlib}" failonerror="false"/>
+        <mkdir dir="${stdlib}" />
+        <mkdir dir="${lib}" />
+        <delete> <!-- TODO: download jars elsewhere and copy -->
+            <fileset dir="${lib}">
+                <include name="x10*.jar"/>
+                <include name="RunJava.jar"/>
+            </fileset>
+        </delete>
+        <!-- TODO: remove generated libs, but not downloaded ones
+        <delete dir="${lib}" failonerror="false"/>
+        <mkdir dir="${lib}" />
+        -->
+        <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean-java" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
+    </target>
+
+    <target name="clean-cpp" depends="clean-java">
+        <delete dir="${incdir}" failonerror="false"/>
+        <mkdir dir="${incdir}" />
+        <mkdir dir="${lib}" />
+        <delete> <!-- TODO: download jars elsewhere and copy -->
+            <fileset dir="${lib}">
+                <include name="*.a"/>
+                <include name="*.la"/>
+                <include name="*.so"/>
+                <include name="*.so.*"/>
+                <include name="*.dylib"/>
+                <include name="*.jnilib"/>
+                <include name="*.dll"/>
+            </fileset>
+        </delete>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+
+    <target name="clean-x10doc">
+        <ant antfile="${x10.doc.location}/build.xml" target="clean" inheritAll="false" dir="${x10.doc.location}"/>
+    </target>
+
+    <target name="squeakyclean" depends="clean-java,clean-cpp,clean-bridge,clean-x10doc"/>
+
+    <target name="distclean" depends="squeakyclean">
+        <delete>
+            <fileset dir="${lib}">
+                <exclude name="${logging.properties}"/>
+            </fileset>
+        </delete>
+        <!-- Delete here instead of in clean rule because precommit invokes squeakyclean when it is running -->
+        <delete>
+            <fileset dir="${bin}">
+                <include name="precommit"/>
+            </fileset>
+        </delete>
+        <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+
+    <target name="clean-bridge">
+        <delete>
+            <fileset dir="${lib}">
+                <include name="${bridge.jar}"/>
+            </fileset>
+        </delete>
+        <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
+    </target>
+
+    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
+    <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
+    <target name="dist-x10rt" depends="runtime-x10rt"/>
+    <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
+    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+    <target name="dist-bridge" depends="dist-java,bridge-jar"/>
+    <target name="dist-x10doc" depends="dist-java,init,compiler-jar">
+        <ant antfile="${x10.doc.location}/build.xml" target="dist" inheritAll="false" dir="${x10.doc.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+    <target name="check-jar-cache" depends="init">
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
+        <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
+        <available property="shrike.jar.present" file="${lib}/${shrike.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
+        <condition property="cache.up-to-date">
+            <and>
+                <isset property="lpg.jar.present"/>
+                <isset property="ecj.jar.present"/>
+                <isset property="hazelcast.jar.present"/>
+                <isset property="wala.jar.present"/>
+                <isset property="wala2.jar.present"/>
+                <isset property="wala3.jar.present"/>
+                <isset property="shrike.jar.present"/>
+                <isset property="equinox.jar.present"/>
+                <isset property="math.jar.present"/>
+                <isset property="log.jar.present"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="xrx-xdoc" depends="dist-x10doc">
+        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**,**/compiler/tests/**" />
+        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
+            <map from="${xrx.src.dir}${file.separator}" to=""/>
+        </pathconvert>
+        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" "/>
+	<tempfile destdir="${java.io.tmpdir}" prefix="XRXFiles" property="xrx.filelist"/>
+	<echo file="${xrx.filelist}" message="${xrx.list}"/>
+	<echo message="Invoking x10doc on X10 source files ${xrx.list}"/>
+        <echo message="x10doc -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' @${xrx.filelist}"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${xrx.src.dir}">
+            <env key="X10_ROOT" value="${x10.home}" />
+            <arg value="-c" />
+            <arg value="'${bin}/x10doc' -d '${stdlib}/x10doc' -rtdev -sourcepath '${xrx.src.dir}' @'${xrx.filelist}'" />
+        </exec>
+	<delete file="${xrx.filelist}" quiet="true"/>
+    </target>
+
+    <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+        <delete file="${lib}/lpgruntime.jar"/>
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <fail message="Unable to get ${lpg.jar} from ${lpg.jar.url}" unless="lpg.jar.present"/>
+    </target>
+    <target name="lpg-local-jar" depends="init" if="local.lpg.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
+        <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <fail message="Unable to find ${lpg.jar} at ${local.lpg.jar}" unless="lpg.jar.present"/>
+    </target>
+
+    <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <fail message="Unable to get ${ecj.jar} from ${ecj.jar.url}" unless="ecj.jar.present"/>
+    </target>
+    <target name="ecj-local-jar" depends="init" if="local.ecj.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.ecj.jar}" tofile="${lib}/${ecj.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
+    </target>
+
+    <target name="hazelcast-jar" depends="init,hazelcast-local-jar" unless="local.hazelcast.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${hazelcast.jar.url}" dest="${lib}/${hazelcast.jar}"/>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <fail message="Unable to get ${hazelcast.jar} from ${hazelcast.jar.url}" unless="hazelcast.jar.present"/>
+    </target>
+    <target name="hazelcast-local-jar" depends="init" if="local.hazelcast.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.hazelcast.jar}" tofile="${lib}/${hazelcast.jar}"/>
+        <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <fail message="Unable to find ${hazelcast.jar} at ${local.hazelcast.jar}" unless="hazelcast.jar.present"/>
+    </target>
+
+    <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
+    </target>
+    <target name="wala-local-jar" depends="init" if="local.wala.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.wala.jar}" tofile="${lib}/${wala.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to find ${wala.jar} at ${local.wala.jar}" unless="wala.jar.present"/>
+    </target>
+
+    <target name="wala2-jar" depends="init,wala2-local-jar" unless="local.wala2.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${wala2.jar.url}" dest="${lib}/${wala2.jar}"/>
+        <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
+        <fail message="Unable to get ${wala2.jar} from ${wala2.jar.url}" unless="wala2.jar.present"/>
+    </target>
+    <target name="wala2-local-jar" depends="init" if="local.wala2.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.wala2.jar}" tofile="${lib}/${wala2.jar}"/>
+        <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
+        <fail message="Unable to find ${wala2.jar} at ${local.wala2.jar}" unless="wala2.jar.present"/>
+    </target>
+
+    <target name="wala3-jar" depends="init,wala3-local-jar" unless="local.wala3.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${wala3.jar.url}" dest="${lib}/${wala3.jar}"/>
+        <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
+        <fail message="Unable to get ${wala3.jar} from ${wala3.jar.url}" unless="wala3.jar.present"/>
+    </target>
+    <target name="wala3-local-jar" depends="init" if="local.wala3.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.wala3.jar}" tofile="${lib}/${wala3.jar}"/>
+        <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
+        <fail message="Unable to find ${wala3.jar} at ${local.wala3.jar}" unless="wala3.jar.present"/>
+    </target>
+
+    <target name="shrike-jar" depends="init,shrike-local-jar" unless="local.shrike.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${shrike.jar.url}" dest="${lib}/${shrike.jar}"/>
+        <available property="shrike.jar.present" file="${lib}/${shrike.jar}"/>
+        <fail message="Unable to get ${shrike.jar} from ${shrike.jar.url}" unless="shrike.jar.present"/>
+    </target>
+    <target name="shrike-local-jar" depends="init" if="local.shrike.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.shrike.jar}" tofile="${lib}/${shrike.jar}"/>
+        <available property="shrike.jar.present" file="${lib}/${shrike.jar}"/>
+        <fail message="Unable to find ${shrike.jar} at ${local.shrike.jar}" unless="shrike.jar.present"/>
+    </target>
+
+    <target name="equinox-jar" depends="init,equinox-local-jar" unless="local.equinox.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
+    </target>
+    <target name="equinox-local-jar" depends="init" if="local.equinox.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.equinox.jar}" tofile="${lib}/${equinox.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <fail message="Unable to find ${equinox.jar} at ${local.equinox.jar}" unless="equinox.jar.present"/>
+    </target>
+
+    <target name="math-jar" depends="init,math-local-jar" unless="local.math.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${math.jar.url}" dest="${lib}/${math.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <fail message="Unable to get ${math.jar} from ${math.jar.url}" unless="math.jar.present"/>
+    </target>
+    <target name="math-local-jar" depends="init" if="local.math.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.math.jar}" tofile="${lib}/${math.jar}"/>
+        <available property="math.jar.present" file="${lib}/${math.jar}"/>
+        <fail message="Unable to find ${math.jar} at ${local.math.jar}" unless="math.jar.present"/>
+    </target>
+
+    <target name="log-jar" depends="init,log-local-jar" unless="local.log.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${log.jar.url}" dest="${lib}/${log.jar}"/>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
+        <fail message="Unable to get ${log.jar} from ${log.jar.url}" unless="log.jar.present"/>
+    </target>
+    <target name="log-local-jar" depends="init" if="local.log.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.log.jar}" tofile="${lib}/${log.jar}"/>
+        <available property="log.jar.present" file="${lib}/${log.jar}"/>
+        <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
+    </target>
+
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
+
+	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
+    	<ant antfile="${x10.runtime.location}/build.xml" target="download-bdwgc" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+	
+    <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
+    </target>
+
+    <target name="build" depends="init,bin,etc,prereq-jars">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="runtime-java" depends="init,common-jar,constraints-jar">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+
+    <target name="runtime-cpp" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+
+    <target name="runtime-x10rt" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-x10rt" inheritAll="false" dir="${x10.runtime.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+
+    <target name="bridge-jar" depends="init,compiler-jar">
+        <ant antfile="${x10.bridge.location}/build.xml" target="jar" inheritAll="false" dir="${x10.bridge.location}"/>
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${x10.bridge.location}/bin" includes="${bridge.jar}"/>
+        </copy>
+    </target>
+
+    <target name="constraints-jar" depends="init">
+        <ant antfile="${x10.constraints.location}/build.xml" target="build" inheritAll="false" dir="${x10.constraints.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+
+    <target name="common-jar" depends="init">
+        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+        <ant antfile="${x10.constraints.location}/build.xml" target="build" inheritAll="false" dir="${x10.constraints.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+    </target>
+
+    <target name="compiler-jar" depends="init,common-jar,constraints-jar">
+        <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}">
+	  <property name="x10.version" value="${x10.version}" />
+	</ant>
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${x10.compiler.location}/${builddir}" includes="${compiler.jar}"/>
+        </copy>
+    </target>
+
+    <target name="tools-java" depends="build,compiler-jar,runtime-java">
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/tools/runjava">
+	    <arg value="-c" />
+	    <arg value="'${bin}/x10c' -O -NO_CHECKS -o '${lib}/RunJava.jar' RunJava.x10" />
+        </exec>
+    </target>
+
+    <target name="bin"
+            description="configure bin directory"
+            depends="bin-deps"
+            unless="bin.up-to-date">
+        <antcall target="x10"/>
+        <antcall target="x10c"/>
+        <antcall target="x10cj"/>
+        <antcall target="runjava"/>
+        <antcall target="precommit"/>
+    </target>
+
+    <target name="etc"
+            description="configure etc directory"
+            depends="etc-deps"
+            unless="etc.up-to-date">
+        <antcall target="config"/>
+    </target>
+
+    <target name="etc-deps">
+        <condition property="etc.up-to-date">
+            <!-- Cannot simply say <true/> -->
+            <istrue value="true"/>
+        </condition>
+    </target>
+
+    <target name="bin-deps">
+        <uptodate property="x10.up-to-date" targetfile="${bin}/x10">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/x10.in"/>
+        </uptodate>
+        <uptodate property="x10c.up-to-date" targetfile="${bin}/x10c">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/x10c.in"/>
+        </uptodate>
+        <uptodate property="x10cj.up-to-date" targetfile="${bin}/x10cj">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/x10cj.in"/>
+        </uptodate>
+        <uptodate property="runjava.up-to-date" targetfile="${bin}/runjava">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/runjava.in"/>
+        </uptodate>
+        <uptodate property="precommit.up-to-date" targetfile="${bin}/precommit">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/precommit.in"/>
+        </uptodate>
+        <condition property="bin.up-to-date">
+            <and>
+                <isset property="precommit.up-to-date"/>
+                <isset property="x10.up-to-date"/>
+                <isset property="x10c.up-to-date"/>
+                <isset property="x10cj.up-to-date"/>
+                <isset property="runjava.up-to-date"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="config"
+            description="creates the default config file">
+        <mkdir dir="${etc}"/>
+        <copy todir="${etc}">
+            <fileset dir="${x10.compiler.location}/etc" includes="${config}"/>
+        </copy>
+    </target>
+
+    <target name="defs-deps">
+        <condition property="defs.up-to-date">
+            <uptodate targetfile="${bin}/defs" srcfile="${ant.file}"/>
+        </condition>
+    </target>
+
+    <target name="find-java">
+        <echo message="JAVA_HOME = '${env.JAVA_HOME}'"/>
+        <echo message="java.home = '${java.home}'"/>
+        <!-- First check in $JAVA_HOME/bin -->
+        <condition property="java.executable"
+                   value="${env.JAVA_HOME}${file.separator}bin${file.separator}java">
+            <or>
+                <available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java"/>
+                <available file="${env.JAVA_HOME}${file.separator}bin${file.separator}java.exe"/>
+            </or>
+        </condition>
+        <!-- Now check in ${java.home}/bin -->
+        <condition property="java.executable"
+                   value="${java.home}${file.separator}bin${file.separator}java">
+            <and>
+                <not>
+                    <isset property="java.executable"/>
+                </not>
+                <or>
+                    <available file="${java.home}${file.separator}bin${file.separator}java"/>
+                    <available file="${java.home}${file.separator}bin${file.separator}java.exe"/>
+                </or>
+            </and>
+        </condition>
+        <fail message="Could not find the java executable" unless="java.executable"/>
+        <echo message="JAVA = '${java.executable}'"/>
+    </target>
+
+    <target name="executable-defs" depends="find-java,defs-deps" unless="defs.up-to-date"
+            description="creates a file containing common environment variable definitions">
+        <echo message="Creating ${bin}/defs"/>
+        <echo message="FILE_SEP = '${file.separator}'"/>
+        <echo message="PATH_SEP = '${path.separator}'"/>
+        <echo message="TOP = '${basedir}'"/>
+        <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
+	<echo file="${bin}/defs" append="no">#!/usr/bin/env bash
+# DO NOT EDIT - This file was automatically generated.
+UNAME=`uname -smp | sed -e 's/ /,/g'`
+UNAMES=(${UNAME//,/ })
+unset IS_CYGWIN; if [[ "$UNAME" = CYGWIN* ]]; then IS_CYGWIN=1; fi
+FILE_SEP='/'; if [ -n "$IS_CYGWIN" ]; then FILE_SEP='\\'; fi
+PATH_SEP=':'; if [ -n "$IS_CYGWIN" ]; then PATH_SEP=';'; fi
+
+prog="$(readlink "$0" 2&gt;&amp;1)"
+[ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
+TOP="$(cd "$(dirname "$prog")/.." &amp;&amp; pwd)"
+if [ -n "$IS_CYGWIN" ]; then PATH="$PATH:$TOP/lib"; TOP="$(cygpath -am "$TOP")"; fi
+
+[ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
+[ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
+if [ -n "$IS_CYGWIN" ]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; JRE_HOME="$(cygpath -am "$JRE_HOME")"; fi
+if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+    JAR="$JAVA_HOME/bin/jar"
+elif [ -n "$JRE_HOME" -a -e "$JRE_HOME/bin/java" ]; then
+    JAVA="$JRE_HOME/bin/java"
+    JAR="$JRE_HOME/bin/jar"
+else
+    echo "JAVA_HOME ($JAVA_HOME) is not pointing to a JRE or a JDK"
+    exit 1
+fi
+if [ -n "$IS_CYGWIN" ]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "$JAR")"; fi
+
+# NOTE: the above assumes that Cygwin==win32 (probably valid)
+
+#CONFIG_FILE='${config}'
+LPG_JAR='${lpg.jar}'
+ECJ_JAR='${ecj.jar}'
+HAZELCAST_JAR='${hazelcast.jar}'
+WALA_JAR='${wala.jar}'
+WALA2_JAR='${wala2.jar}'
+WALA3_JAR='${wala3.jar}'
+SHRIKE_JAR='${shrike.jar}'
+MATH_JAR='${math.jar}'
+LOG_JAR='${log.jar}'
+LOGGING_PROPERTIES='${logging.properties}'
+CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
+CROSS_COMPILE_FX10='${CROSS_COMPILE_FX10}'
+X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
+
+</echo>
+    </target>
+
+    <target name="x10c" unless="x10c.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script x10c">
+        <echo message="Creating ${bin}/x10c"/>
+        <concat destfile="${bin}/x10c" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/x10c" append="yes">
+            <filelist dir="${bin}" files="x10c.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/x10c"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="x10cj" unless="x10cj.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script x10cj">
+        <echo message="Creating ${bin}/x10cj"/>
+        <concat destfile="${bin}/x10cj" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/x10cj" append="yes">
+            <filelist dir="${bin}" files="x10cj.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/x10cj"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="runjava" unless="runjava.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script runjava">
+        <echo message="Creating ${bin}/runjava"/>
+        <concat destfile="${bin}/runjava" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/runjava" append="yes">
+            <filelist dir="${bin}" files="runjava.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/runjava"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="precommit" unless="precommit.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script precommit">
+        <echo message="Creating ${bin}/precommit"/>
+        <concat destfile="${bin}/precommit" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/precommit" append="yes">
+            <filelist dir="${bin}" files="precommit.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/precommit"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="x10" unless="x10.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script x10">
+        <echo message="Creating ${bin}/x10"/>
+        <concat destfile="${bin}/x10" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/x10" append="yes">
+            <filelist dir="${bin}" files="x10.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/x10"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
+    <target name="tar-location" depends="init" unless="tar.location">
+        <property name="tar.location" value="${x10.home}"/>
+    </target>
+    <target name="src-tar-location" depends="init,tar-location" unless="src.tar.location">
+        <property name="src.tar.location" value="${tar.location}"/>
+    </target>
+    <target name="test-tar-location" depends="init,tar-location" unless="test.tar.location">
+        <property name="test.tar.location" value="${tar.location}"/>
+    </target>
+    <target name="set-tar-location" depends="init,tar-location,src-tar-location,test-tar-location"/>
+    <target name="tar" depends="init,set-tar-location,dist">
+        <tar destfile="${tar.location}/x10-${x10.version}.tar.bz2" compression="bzip2" longfile="gnu">
+            <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
+            <tarfileset prefix="bin" dir="${bin}" includes="x10,x10c,x10cj,runjava"/>
+            <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
+            <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
+            <tarfileset prefix="lib" dir="${lib}" includes="*.jar"/>
+            <tarfileset prefix="samples" dir="${basedir}/samples" excludes="**/.*.swp"/>
+        </tar>
+    </target>
+    <target name="src-tar" depends="srctar"/>
+    <target name="srctar" depends="init,set-tar-location,build">
+        <tar destfile="${src.tar.location}/x10-${x10.version}-src.tar.bz2" compression="bzip2" longfile="gnu">
+            <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,BUILDING.txt"/>
+            <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="bin/**,releng/**,**/.*.swp,lib/**,stdlib/**,etc/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/runx10" filemode="755"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/x10c++" filemode="755"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/x10doc" filemode="755"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/*.in"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" includes="lib/logging.properties"/>
+            <tarfileset prefix="x10.doc" dir="${x10.doc.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
+            <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
+            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
+            <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
+            <tarfileset prefix="apgas" dir="${x10.home}/apgas" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.examples" dir="${x10.home}/apgas.examples" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.impl" dir="${x10.home}/apgas.impl" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.tests" dir="${x10.home}/apgas.tests" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.cpp" dir="${x10.home}/apgas.cpp" excludes="bin/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="apgas.cpp.examples" dir="${x10.home}/apgas.cpp.examples" excludes="bin/**,**/.*.swp,classes/**"/>
+        </tar>
+    </target>
+    <target name="test-tar" depends="testtar"/>
+    <target name="testtar" depends="init,set-tar-location,build">
+        <tar destfile="${test.tar.location}/x10-${x10.version}-testsuite.tar.bz2" compression="bzip2" longfile="gnu">
+            <tarfileset fullpath="TESTS-README" dir="${x10.tests.location}" includes="README"/>
+            <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html"/>
+            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
+            <tarfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
+        </tar>
+    </target>
+    <!--
+      To build a tar with a specific version (VER), invoke the target below as
+         ant -Dx10.version=VER tars
+    -->
+    <target name="tars" depends="tar,srctar,testtar"/>
+
+    <target name="update-host-fragment" description="Updates the x10.dist platform-specific fragment in this workspace">
+        <condition property="platform" value="win32"><os family="windows"/></condition>
+        <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
+	<condition property="hacked_arch" value="x86_64" else="${os.arch}"><os arch="amd64"/></condition>
+        <condition property="arch" value="x86" else="${hacked_arch}">
+            <or>
+                <!-- Work around Mac OS's Java reporting x86 as i386 -->
+                <equals arg1="${os.arch}" arg2="i386"/>
+            	<and>
+            		<os name="Mac OS X"/>
+            		<os arch="x86_64"/>
+            	</and>
+            	<and>
+            		<os name="Mac OS X"/>
+            		<os arch="amd64"/>
+            	</and>
+            </or>
+        </condition>
+    	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
+
+        <mkdir dir="${targetDir}/bin" />
+        <mkdir dir="${targetDir}/etc" />
+        <mkdir dir="${targetDir}/include" />
+        <mkdir dir="${targetDir}/lib" />
+        <mkdir dir="${targetDir}/stdlib" />
+        <mkdir dir="${targetDir}/src-x10" />
+        <echo message="Cleaning out bin, etc, include, lib, and stdlib of old files from ${targetDir}..."/>
+        <delete>
+          <fileset dir="${targetDir}/bin"     includes="**"/>
+          <fileset dir="${targetDir}/etc"     includes="**"/>
+          <fileset dir="${targetDir}/include" includes="**"/>
+          <fileset dir="${targetDir}/lib"     includes="**"/>
+          <fileset dir="${targetDir}/stdlib"  includes="**"/>
+          <fileset dir="${targetDir}/src-x10"  includes="**"/>
+        </delete>
+
+    	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
+        <copy todir="${targetDir}">
+            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/runjava,bin/runx10,bin/x10c++,bin/X10Launcher,bin/X10MPIJava,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
+        </copy>
+        <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
+        <chmod file="${targetDir}/bin/x10cj" perm="u+x"/>
+        <chmod file="${targetDir}/bin/runjava" perm="u+x"/>
+        <chmod file="${targetDir}/bin/runx10" perm="u+x"/>
+        <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
+        <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
+        <chmod file="${targetDir}/bin/X10MPIJava" perm="u+x"/>
+
+        <echo message="Extracting X10 sources to src-x10..."/>
+        <unzip src="${targetDir}/stdlib/x10.jar" dest="${targetDir}/src-x10">
+	  <patternset>
+	    <include name="**/*.x10" />
+	  </patternset>
+	</unzip>
+
+        <echo message="Attempting to compile Hello, World..."/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${targetDir}">
+	    <arg value="-c" />
+            <arg value="${targetDir}/bin/x10c++ -d ${targetDir}/tmp -o ${targetDir}/tmp/HelloWorld ${targetDir}/samples/HelloWorld.x10"/>
+        </exec>
+        <echo message="Attempting to launch Hello, World..."/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${targetDir}">
+	    <arg value="-c" />
+	    <arg value="${targetDir}/bin/runx10 ${targetDir}/tmp/HelloWorld" />
+        </exec>
+        <echo message="Cleaning up Hello World generated code"/>
+        <delete>
+          <fileset dir="${targetDir}/tmp"     includes="**"/>
+        </delete>
+    </target>
+
+</project>

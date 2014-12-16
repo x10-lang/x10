@@ -1,0 +1,138 @@
+help=""
+time=""
+verbose=""
+extra_cp=""
+ext=""
+rtdev=""
+java_args=""
+args=""
+optimize=""
+debug=""
+flatexprs=""
+
+if [ "$CROSS_COMPILE_BGQ" = "true" ]; then
+    x10rt_impl="pami"
+elif [ "$X10RT_PAMI_IS_DEFAULT" = "true" ]; then
+    x10rt_impl="pami"
+else
+    x10rt_impl="sockets"
+fi
+
+parse=true
+while [ -n "$1" ]; do
+    if [ -z "$parse" ]; then
+        args="$args '$1'"
+        shift
+        continue
+    fi
+    case "$1" in
+        -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -t|-time) time="time ";;
+        -classpath|-cp) shift; extra_cp="$1";;
+        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"
+                 [ -n "$IS_CYGWIN" ] && propfile="$(cygpath -am "$propfile")"
+                 args="$args -x10lib '$propfile'";;
+        -profile) profile="-Xrunhprof:cpu=samples";;
+        -config) shift; config="$1.cfg";;
+        -extclass) shift; ext=$1;;
+        -x10rt) shift; x10rt_impl=$1;;
+        -O|-optimize) optimize="true";;
+        -g|-DEBUG) debug="true";;
+        -DEBUG=*) debug='${1##-DEBUG=}';;
+        -FLATTEN_EXPRESSIONS) flatexprs="true";;
+        -FLATTEN_EXPRESSIONS=*) flatexprs='${1##-FLATTEN_EXPRESSIONS=}';;
+        -rtdev) rtdev="true";;
+        -J*) java_args="${java_args} '${1##-J}'";;
+        --) parse=;;
+        *) args="$args '$1'";;
+    esac
+    shift
+done
+
+if [ -n "$help" -o -z "$args" ]; then
+    cat << EOF
+Usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+    -sourcepath <path>       source path
+    -classpath <path>        search path for class files
+    -x10lib <lib.properties> use the precompiled x10 library described by <lib.properties>
+    -buildx10lib <dir>       generate property file in <dir>
+    -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
+    -version                 print version info
+    -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi)
+    -t -time                 display execution time
+    -v -verbose --verbose    print verbose debugging information
+    -h -help --help          print this message
+    -disable <pass>          disable compiler pass <pass>
+                             valid passes are: async-elimination
+    -O -optimize             generate optimized code
+    -g                       generate debug information
+
+    Use "x10c -- -help" to get more detailed help on compiler options
+EOF
+    exit 1
+fi
+
+[ -z "$DEXT" ] && DEXT="x10c.ExtensionInfo"
+[ -z "$ext" ] && ext="$DEXT"
+
+CONFIG_DIR="${TOP}${FILE_SEP}etc"
+LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
+
+#[ -z "$config" ] && config="${CONFIG_FILE}"
+[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
+
+[ -n "$extra_cp" ] && args="$args -classpath \"${extra_cp}\""
+
+WALA_JARS="${LIB_DIR}${FILE_SEP}${WALA_JAR}"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA2_JAR}"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA3_JAR}"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${SHRIKE_JAR}"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar"
+WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
+
+classpath="${CP_OVERRIDE}"
+if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
+    classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}"
+    [ -z "$TOOLSJAR" ] && TOOLSJAR="${JAVA_HOME}${FILE_SEP}lib${FILE_SEP}tools.jar"
+    if [ -f "$TOOLSJAR" ]; then
+        classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
+    else
+        echo "Warning: x10doc requires javadoc framework in JDK"
+    fi
+fi
+
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
+classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
+classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
+
+# Set flags to flatten expressions if we've been asked to do so.
+[ "$CROSS_COMPILE_FX10" = "true" ] && flatexprs="true"
+[ -n "$flatexprs" ] && args="-FLATTEN_EXPRESSIONS=$flatexprs $args"
+
+# Set flags to generate optimized code if we've been asked to do so.
+[ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
+
+# Set flags to generate debug information if we've been asked to do so.
+[ -n "$debug" ] && args="-DEBUG=$debug $args"
+
+# include libx10.properties as a x10lib unless rtdev
+[ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
+
+# define backend-specific macro
+[ -z "$DDEF" ] && DDEF="__JAVA__"
+args="-define $DDEF $args"
+
+# pass x10rt_impl via environment variable
+export X10RT_IMPL=$x10rt_impl
+
+[ -z "$MAIN" ] && MAIN="polyglot.main.Main"
+
+command="\"$JAVA\" -Xmx1024m -Xss1m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+
+[ -n "$verbose" ] && echo "$command"
+
+eval "$time$command"
+exit $?

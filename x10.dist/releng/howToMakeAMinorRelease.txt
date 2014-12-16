@@ -1,0 +1,45 @@
+Notes on how to make a minor X10/X10DT Release
+
+The steps are the same for making minor releases based off a branch
+(eg making x10 2.4.1.4 from the x10 2.4.1 branch) or for making a
+weekly build off the trunk. The only difference is the naming scheme
+used for the tags and the portion of the repository that is tagged.
+
+For an X10 only release there are only three steps:
+
+   1. If you are making a minor release off a release branch
+      (ie, 2.4.3.1 from the x10-2.4.3 branch), update x10.dist/RELEASE_NOTES.txt 
+      on the branch to list the changes made since the last minor release 
+      on this branch.  Add the contents to the top of the file, 
+      leaving the original content of RELEASE_NOTES.txt
+      in place in the rest of the file.  You can get this
+      information by inspecting the svn log for the base branch.
+
+   2. "Tag" the release by using x10.dist/releng/makeTag.sh
+       Before tagging verify by inspecting Jenkins test results 
+       that you are tagging a "good" svn version.
+
+       To tag basing off a branch do:
+         makeTag.sh -rev 27400 -branch x10-2.4.2 -tag SF_RELEASE_2_4_2_1 -x10
+
+       To tag basing off the trunk do
+         makeTag.sh -rev 27400 -branch trunk -tag WB_20140212 -x10
+
+   3. Go to Jenkins, select the Package-X10-Release job and then select
+      "Build With Parameters".  Select the appropriate svn tag, fill in
+      the version number, and other parameters then hit the 'Build' button.
+      Note, depending on how loaded slave machines are this step may take
+      several hours to complete.  Tarballs will be automatically published
+      on orquesta as they are available.
+
+To also build an X10DT that will incorporate the X10 minor release
+you just made, there are two or three additional steps:
+
+   1. Optionally use makeTag to tag x10dt as well
+         makeTag.sh -rev 27400 -branch trunk -tag WB_20140212 -x10dt
+
+   2. In the RTC build engine, edit the definitions for the X10DT and 
+      X10DT Editor Only Weekly Builds to use the 
+      tag/version you created via makeTag.
+
+   3. Request builds of X10DT/X10DT Editor Edition

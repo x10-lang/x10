@@ -1,0 +1,51 @@
+(c) IBM Corporation
+
+This program is controlled by the Eclipse Public Licence v1.0.
+
+This is a distribution of the X10 Programming Language.
+http://x10-lang.org/
+
+To complete the installation, the scripts in bin/ may need to be made
+executable.
+
+Set the JAVA_HOME environment variable to point to the
+directory where you find bin/java.
+
+Java backend instructions
+-------------------------
+To compile an X10 source program using the Java backend, invoke
+"bin/x10c <class_name>.x10".
+See "bin/x10c --help" for command-line help.
+
+To run the compiled X10 class, invoke "bin/x10 <class_name>".
+See "bin/x10 --help" for command-line help.
+
+On all platforms except Windows, use the same environment variables
+as for the C++ backend (below) to control multi-place X10 executions.
+
+C++ backend instructions
+------------------------
+To compile an X10 source program using the C++ backend, invoke
+"bin/x10c++ -o <class_name> <class_name>.x10".  This will
+produce an executable named "<class_name>" in the current
+directory[*].
+
+To run the compiled X10 executable in one place, invoke
+./<class_name>.
+
+To run in multiple places on a single host, 
+export X10_NPLACES=<num_places>
+./<class_name>
+
+To run in multiple places, on multiple hosts,
+export X10_HOSTFILE=<hostfile>
+export X10_NPLACES=<num_places>
+./<class_name>
+
+[*] On Cygwin, the name will be "<class_name>.exe".  
+the -o argument may be omitted, but the compiler will then produce 
+an executable with the default name ("a.out" on Unix, "a.exe" on Cygwin).
+Also, on Cygwin you either need to use the x10.dist/bin/runx10 script
+to run the compiled executable or ensure that you include both
+x10.dist/lib and x10.dist/stdlib/lib in your load library path.
+

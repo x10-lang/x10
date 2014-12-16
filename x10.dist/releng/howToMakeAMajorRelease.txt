@@ -1,0 +1,122 @@
+Notes on how to make an X10 Release.
+
+A number of artifacts are produced as part of making an X10 release.
+The main artifacts are:
+
+   1. A source release of X10.
+   2. A source release of the X10 test suite.
+   3. A source release of the X10 benchmarks and applications
+   4. Binary platform-dependent releases that contain both the Java 
+      and C++ backend and runtimes for each supported OS/hardware target.
+   5. X10DT all-in-one-zips and update sites.
+   6. PDF of the X10 language specification
+
+The following is the procedure used to make a release of X10 and X10DT.
+
+I. Just before creating the release branch of X10 and X10DT
+
+   1. Update the version information in x10.compiler/src/x10/Version.java
+
+   2. Update the plugin manifest version in all MANIFEST.MF files in 
+      X10 core projects. Also update product files and common.properties.
+      (do recursive find/grep to find previous verison number and 
+       change it)
+
+II. Create the release branch and enter into final testing phase
+
+   1. Create a branch of X10 by using x10.dist/releng/makeBranch.sh 
+        makeBranch.sh -rev 27050 -branch x10-2.4.1 -x10
+
+   2. Create a matching branch of the internal test suite as well.
+        makeBranch.sh -rev 222 -branch x10-2.4.1 -torTest
+
+   3. Clone the appropriate Build and Test jobs in Jenkins 
+      to enable testing on the branch you just created.
+
+   4. If fixes need to be applied to the release after it is created, apply 
+      fixes to trunk first. After they pass regression testing on trunk, 
+      pull them over to the release branch using
+
+        svn merge -c <change revision> ^/trunk
+
+III. When all necessary fixes have been propagated to the release branch,
+     one can tag the release in svn and build the actual release artifacts:
+
+   1. Update JIRA version management to indicate that version has been released.
+
+   2. Edit and commit release notes to the trunk. Release notes can be
+      mostly generated from JIRA.  Use svn merge to get the release
+      notes from the trunk to the release branch.
+
+   3. Tag the release by using x10.dist/releng/makeTag.sh 
+      Use a svn revision number that matches one reported as good 
+      by a testing run.
+
+      makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1 -x10
+
+   4. Also use the same tag/revision to tag the applications, benchmarks
+      and x10dt. Do this as a separate makeTag operation because you'll be 
+      tagging using the trunk of these parts of the svn repository as the base. 
+
+      makeTag.sh -rev 28000 -tag SF_RELEASE_2_4_1 -app -bench -x10dt
+
+   5. Go to Jenkins, select the Package-X10-Release job and then select
+      "Build With Parameters".  Select the appropriate svn tag, fill in
+      the version number, and other parameters then hit the 'Build' button.
+      Note, depending on how loaded slave machines are this step may take
+      several hours to complete.  Tarballs will be automatically published
+      on orquesta at the end of the job.  They are staged on the jenkins master
+      node in the userContent directory until all sub-builds complete/fail.  
+      The BlueGene/Q build is not integrated with Jenkins; you will need to 
+      use masterBuildRelease.sh create it:
+          ./masterBuildRelease.sh -skip_source -version 2.5.0 -tag SF_RELEASE_2_5_0 -nodebug -hosts bgqfen1
+
+   6. Once the X10 tarballs are available on orquesta, you can build X10DT.
+      Using the RTC build server, edit the build defintions for the X10DT 
+      and X10DT Editor Only Edition to match the tags you just created.  
+      Also login to orquesta as x10dt and do an svn update in x10dt.build
+      and x10dt.editor.edition.build to make sure they are in synch.  
+      Finally, request builds of X10DT and X10DT Editor Only Edition from 
+      the build server.
+
+   7. ssh into shell.sf.net and create a subdirectory of 
+      /home/frs/project/x/x1/x10 to hold the downloads. 
+      Use sftp to move all of the release artifacts from orquesta to sf.
+      Use SF web admin API to set the default downloads for each OS 
+      platform to the new files
+
+   8. ssh into shell.sf.net and create a subdirectory of 
+      /home/frs/project/x/x1/x10dt to hold the downloads. 
+      Use sftp to move all of the release artifacts from orquesta to sf.
+
+   9. ssh into shell.sf.net and create a subdirectory of 
+      /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
+      create an updateSite subdir of the new directory and unzip the
+      update site zip from the download section into it.
+      Also create an updateSite-EditorOnly subdir and unzip 
+      the X10DT Editor Only Edition update site into it.
+
+   10. Make sure language manual has the right version, date, etc. 
+      Tag the language manual
+
+        makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
+
+      Put language spec pdf in project web space at x10.sourceforge.net
+      Update in place x10-latest.pdf in addition to creating a 
+      x10-<version>.pdf. 
+      The release page itself will point to the x10-<version>.pdf. 
+      All of the other parts of the website refer to x10-latest.pdf.
+
+   11. Generate new x10doc and upload to project web space at x10.sourceforge.net
+      update the "latest" sym link to point to the new directory.
+
+   12. Create a release page for the new release on the web site.  
+      Update the "X10 Releases" page to link to the new download version.
+      Update the "latest release" menu item in Downloads-submenu to point to 
+      the new release page.
+      Create a redirect entry to get a nice external URL 
+         (eg  http://x10-lang.org/releases/x10-release-223) for the release.
+
+   13. Post release announcement in SF news and web page front-page news.
+
+   14. Send out mail announcements to x10-users and x10-announce

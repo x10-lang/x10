@@ -1,0 +1,32 @@
+verbose=""
+extra_cp=""
+args=""
+
+parse=true
+while [ -n "$1" ]; do
+    if [ -z "${parse}" ]; then
+        args="${args} '$1'"
+        shift
+        continue
+    fi
+    case "$1" in
+        -v|-verbose|--verbose) verbose="1";;
+        -classpath|-cp) shift; extra_cp="$1";;
+        --) parse=;;
+        *) args="${args} '$1'";;
+    esac
+    shift
+done
+
+LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
+
+classpath="${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
+[ -n "${extra_cp}" ] && classpath="${extra_cp}${PATH_SEP}${classpath}"
+
+command="\"${JAVA}\" -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.6 -nowarn -encoding utf-8 -classpath \"${classpath}\" ${args}"
+
+[ -n "$verbose" ] && echo "$command"
+
+eval "$command"
+exit $?

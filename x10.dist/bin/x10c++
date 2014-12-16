@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+UNAME=`uname -s`
+unset IS_CYGWIN; if [[ "$UNAME" = CYGWIN* ]]; then IS_CYGWIN=1; fi
+FILE_SEP='/'; if [ -n "$IS_CYGWIN" ]; then FILE_SEP='\\'; fi
+PATH_SEP=':'; if [ -n "$IS_CYGWIN" ]; then PATH_SEP=';'; fi
+
+prog=$(readlink "$0" 2>&1)
+[ $? -eq 127 -o "$prog" = "" ] && prog="$0"
+export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
+if [ -n "$IS_CYGWIN" ]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
+
+export DEXT="x10cuda.ExtensionInfo"
+export DDEF="__CPP__"
+
+exec "${X10_DIST}/bin/x10c" "$@"

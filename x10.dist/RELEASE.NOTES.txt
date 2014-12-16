@@ -1,0 +1,89 @@
+X10 Release 2.5.1
+
+HIGHLIGHTS OF THIS RELEASE
+
+The primary features of the X10 2.5.1 release are enhancements to
+Resilient and Elastic X10.  Key highlights include:
+  + Full integration of the Hazelcast in-memory data grid with Managed
+    X10.  Key features include new X10 APIs to utilize Hazelcast as an
+    implementation of x10.util.resilient.ResilientMap, an
+    implementation of resilient finish using Hazelcast (X10_RESILIENT_MODE=12), 
+    and integration of Hazelcast grid initialization into the X10
+    launcher (bin/x10 script).
+  + Resilient X10 using Place 0 resilient finish
+    (X10_RESILIENT_MODE=1) can now support the same levels of
+    concurrency and distribution as non-resilient X10.  This was
+    enabled by new features in the X10 runtime and network layer for
+    message stratification and stronger progress guarantees for
+    explicitly marked short messages (see x10.compiler.Immediate).
+  + The development of additional Resilient and Elastic X10 sample
+    applications. Resiliency support has been added to the Global
+    Matrix Library (GML) and several of its sample applications.
+    Resiliency and Elasticity have also been added to M3RLite (Main
+    Memory Map Reduce Lite) and several new M3RLite sample
+    applications are now available as well.
+For additional information about Resilient and Elastic X10, please see
+samples/resiliency and the x10-lang.org website.
+
+LIMITATIONS OF THIS RELEASE
+
+The size and index of arrays must be less than 2^31 with Managed X10.
+An attempt to allocate a longer array causes IllegalArgumentException. 
+
+The following features described in the 2.5 language manual do not
+currently work and may be fixed in the subsequent releases:
+  - Non-static type definitions as class or interface members
+    (static type defs do work)
+
+The constraint solver used by X10 typechecker is known to be incomplete 
+for situations in which a constraint implies an infinite number of 
+distinct constraints.
+
+Additionally, the following features described in the language
+manual do not currently work with Native X10.
+  - Non-final generic instance methods
+  - Exception stack traces on Cygwin
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.4.
+  + On Power/Linux and BG/Q, you may either use g++ 4.2 or better
+    or xlC 11.1 or better. 
+
+SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
+
+Below is a summary of JIRA issues addressed for the X10 2.5.1
+
+** New Features and Improvements
+    * [XTENLANG-3333] - X10 WebSite: Add information on current community projects under community
+    * [XTENLANG-3443] - ArrayList.resize
+    * [XTENLANG-3445] - RailUtils.scan
+    * [XTENLANG-3456] - Create as many BDWGC marker threads as X10 worker threads
+    * [XTENLANG-3457] - Reduce memory usage of X10RT sockets launcher processes
+    * [XTENLANG-3461] - Map / reduce methods on local Matrix and Vector classes
+    * [XTENLANG-3468] - Team reduce, allreduce for user-defined Arithmetic/Bitwise/Ordered struct types
+    * [XTENLANG-3475] - GML: Wrap LAPACK eigensolver DSYEVX instead of DSYEV
+
+** Bugs
+    * [XTENLANG-3304] - On Resilient X10, at (p) { body } may block even if the body finished
+    * [XTENLANG-3343] - Resilient X10 fails with "TOO MANY THREADS"
+    * [XTENLANG-3344] - Resilient X10 fails with "TOO MANY THREADS" (another case)
+    * [XTENLANG-3379] - On Resilient X10, at (p) async is not executed in parallel without X10_BUSY_WAITING
+    * [XTENLANG-3428] - Elastic X10 and Runtime.Workers.multiplace
+    * [XTENLANG-3435] - @NoInline on closure within static @Inline method results in wrong saved_this
+    * [XTENLANG-3437] - Experimental Java MPI launcher causes SEGV with non-IBM Java VM
+    * [XTENLANG-3438] - GC library and build system patch for K computer
+    * [XTENLANG-3442] - Some structs can't be interface's members's return types
+    * [XTENLANG-3462] - Incorrect implementation of instanceof and cast for nested generic types
+    * [XTENLANG-3463] - Resilient X10 requires BUSY_WAITING=true
+    * [XTENLANG-3466] - Template-related compile error in Native X10
+    * [XTENLANG-3470] - Incorrect generated code for variable shadowing
+
+** Tasks
+    * [XTENLANG-3439] - Update sample programs (online; X10DT help) for 2.5.1
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=20503
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1

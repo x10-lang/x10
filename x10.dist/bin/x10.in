@@ -1,0 +1,317 @@
+JAVACMD="$JAVA"
+MAIN_CLASS='$Main'
+
+help=""
+time=""
+timelimit=""
+verbose=""
+extra_cp=""
+extra_lib=""
+config=""
+logconf=""
+ms=""
+mx=""
+ss=""
+defs=""
+dev=""
+noassert=""
+noclassloadtest=""
+nativeyarn=""
+java_args=()
+args=()
+if [ "$X10RT_IMPL" = "local" ]; then
+x10rt_impl="$X10RT_IMPL"
+else
+x10rt_impl=""
+fi
+yarnupload=""
+launcher_args=()
+launcher_env=()
+
+PRINT_DIR=""
+
+while [ -n "$1" ]; do
+    case "$1" in
+        -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -t|-time) time="time ";;
+        -timelimit) shift; timelimit="timeout --signal=9 $1 ";;
+#        -ms) shift; ms="$1";;
+        -ms*) ms="${1##-ms}";;
+        -Xms*) ms="${1##-Xms}";;
+        -mx) shift; mx="$1";;
+        -mx*) mx="${1##-mx}";;
+        -Xmx*) mx="${1##-Xmx}";;
+#        -ss) shift; ss="$1";;
+        -ss*) ss="${1##-ss}";;
+        -Xss*) ss="${1##-Xss}";;
+        -D*) if [[ "${1##-D}" = java.library.path=* ]]; then
+                 echo >&2 "Error: Cannot reset java.library.path, use -libpath instead"
+                 exit 1
+             fi
+             if [[ "${1##-D}" = java.class.path=* ]]; then
+                 echo >&2 "Error: Cannot reset java.class.path, use -classpath instead"
+                 exit 1
+             fi
+             if [[ "${1##-D}" = java.util.logging.config.file=* ]]; then
+                 echo >&2 "Error: Cannot reset java.util.logging.config.file, use -logconf instead"
+                 exit 1
+             fi
+             # TODO: add tests for more system properties above
+             defs="${defs} $1";;
+        -classpath|-cp)
+            shift
+            if [ -z "$extra_cp" ] ; then
+                extra_cp="${1}"
+            else
+                extra_cp="${extra_cp}${PATH_SEP}${1}"
+            fi
+            ;;
+        -libpath) shift; extra_lib="$1";;
+        -np|--np) shift; export X10_NPLACES="$1";;
+        -host|--host) shift; export X10_HOSTLIST="$1";;
+        -hostfile|--hostfile) shift; export X10_HOSTFILE="$1";;
+        -x10rt) shift; x10rt_impl="$1";;
+        -upload) shift; yarnupload="-DX10_YARNUPLOAD=$1";;
+        -config) shift; config="$1.cfg";;
+        -logconf) shift; logconf="$1";;
+        -noassert) noassert="true";;
+        -noclassloadtest) noclassloadtest="true";;
+        -dev) dev="true";;
+        -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1;;
+        -pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
+        -pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1;;
+        -J*) java_args=("${java_args[@]}" "${1##-J}");;
+        -*=*) java_args=("${java_args[@]}" "-Dx10.${1##-}");;
+        -*) java_args=("${java_args[@]}" "-Dx10.${1##-}=true");;
+        *.jar) args=("${args[@]}" -jar "$1"); shift; args=("${args[@]}" "$@"); break;;
+        *) if [ -z "$main" ]; then
+               main="$1"
+           fi
+           if [[ "${x10rt_impl}" = "local" || "${x10rt_impl}" = "yarn" ]]; then
+             args=("${args[@]}" "$1")
+           else
+             args=("${args[@]}" "$1\$${MAIN_CLASS}")
+           fi
+           shift; args=("${args[@]}" "$@"); break;;
+    esac
+    shift
+done
+
+if [ -n "$help" -o -z "${args[*]}" ]; then
+    cat << EOF
+Usage: x10 [options] <main-class> [arg0 arg1 ...]
+where [options] includes:
+   -t -time                       display execution time
+   -timelimit <limit>             force exit when the time limit is reached (suffix of s,m,h,d)
+   -v -verbose --verbose          print verbose debugging information
+   -h -help --help                print this message
+   -ms<size>                      set initial heap size to <size>, e.g. -ms256m
+   -mx<size>                      set maximum heap size to <size>, e.g. -mx1024m
+   -ss<size>                      set maximum Java thread stack size to <size>
+   -D<name>=<value>               set system property <name> to <value>
+   -classpath <path>              search path for class files
+   -libpath <path>                search path for native libraries
+   -np <num>                      number of places to launch (overrides X10_NPLACES or MP_PROCS)
+   -host <host1,host2,...>        list of hosts to launch places on (overrides X10_HOSTLIST. ignored with IBM PE)
+   -hostfile <file>               provide a hostfile (overrides X10_HOSTFILE or MP_HOSTFILE)
+   -x10rt <impl>                  select X10RT implementation
+   -upload <file1,file2,...>      copy files from local filesystem to remote (only valid with "-x10rt yarn")
+   -config <conf>                 (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
+   -logconf <logging.properties>  specify configuration file for java.util.logging
+   -noassert                      disable assertion check
+   -noclassloadtest               disable class load test
+   -dev                           developer mode (use unpackaged X10 libraries)
+   -pkg-conf=dir                  print absolute directory, where dir is one of [bin, etc, include, lib, stdlib]
+   -J<arg>                        [USE WITH CAUTION] pass <arg> directly to Java.
+                                    e.g., use -J-verbose to make Java execution verbose.
+EOF
+    exit 1
+fi
+
+CONFIG_DIR="${TOP}${FILE_SEP}etc"
+LIB_DIR="${TOP}${FILE_SEP}lib"
+STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
+
+if [ "${PRINT_DIR}XX" != XX ]; then
+    case ${PRINT_DIR} in
+	bin) echo ${TOP}${FILE_SEP}bin ;;
+	etc) echo ${CONFIG_DIR} ;;
+	include) echo ${TOP}${FILE_SEP}include ;;
+	lib) echo ${LIB_DIR} ;;
+	stdlib) echo ${STDLIB_DIR} ;;
+	*) echo "pkg-conf: Unrecognized option (${PRINT_DIR})"; exit 1 ;;
+    esac
+    exit 0
+fi
+
+[ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
+
+classpath=""
+[ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
+classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
+
+if [ -z "$dev" ]; then
+  if [[ ! -a "${STDLIB_DIR}${FILE_SEP}x10.jar" ]]; then
+    echo >&2 "Error: Cannot find x10 runtime" at "${STDLIB_DIR}${FILE_SEP}x10.jar"
+    exit 1
+  fi
+fi
+
+[ -n "$extra_cp" ] && classpath="$extra_cp${PATH_SEP}$classpath"
+
+externpath="${LIB_DIR}"
+if [ -n "$LD_LIBRARY_PATH" ] ; then
+    OLD_IFS="$IFS"
+    IFS=':'
+    for i in $LD_LIBRARY_PATH ; do
+       externpath="$i${PATH_SEP}$externpath"
+    done
+    IFS="$OLD_IFS"
+fi
+[ -n "$extra_lib" ] && externpath="$extra_lib${PATH_SEP}$externpath"
+
+if [ "${x10rt_impl}" = "local" ]; then
+    unset launcher
+    java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
+    unset X10_HOSTFILE
+    unset X10_HOSTLIST
+elif [ -n "$IS_CYGWIN" ]; then 
+    launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    java_args=("-DX10RT_IMPL=JavaSockets" "${java_args[@]}")
+else
+    if [ -z "${x10rt_impl}" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+    elif [ "${x10rt_impl}" = "sockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "JavaSockets" ]; then
+        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+#    elif [ "${x10rt_impl}" = "standalone" ]; then
+#        launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
+#        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    elif [ "${x10rt_impl}" = "mpi" ]; then
+        if [ $(which poe 2>/dev/null) ]; then
+            launcher="poe"
+            [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
+            [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
+            [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
+        else
+            launcher="mpirun"
+            [ -n "$X10_NPLACES" ] && launcher_args=("-np" "$X10_NPLACES" "${launcher_args[@]}")
+            [ -n "$X10_HOSTLIST" ] && launcher_args=("-host" "$X10_HOSTLIST" "${launcher_args[@]}")
+            [ -n "$X10_HOSTFILE" ] && launcher_args=("-machinefile" "$X10_HOSTFILE" "${launcher_args[@]}")
+        fi
+        JAVA="${TOP}${FILE_SEP}bin${FILE_SEP}X10MPIJava"
+        # add LD_LIBRARY_PATH for loading libjvm.so
+        jarch=${UNAMES[2]} # $(uname -p)
+        [ "${jarch}" = "unknown" ] && jarch=${UNAMES[1]} # $(uname -m)
+        [ "${jarch}" = "x86_64" ] && jarch=amd64
+        if [ -d "$JAVA_HOME${FILE_SEP}jre" ]; then
+           JRE_DIR="$JAVA_HOME${FILE_SEP}jre"
+        else
+           JRE_DIR="$JAVA_HOME"
+        fi
+        JRE_LIB="$JRE_DIR${FILE_SEP}lib${FILE_SEP}${jarch}"
+# -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
+        JVM_LIB="$JRE_LIB${FILE_SEP}j9vm${PATH_SEP}$JRE_LIB${FILE_SEP}server${PATH_SEP}$JRE_LIB${FILE_SEP}client${PATH_SEP}$JRE_LIB"
+        if [ -n "$LD_LIBRARY_PATH" ]; then
+            export LD_LIBRARY_PATH="$LD_LIBRARY_PATH${PATH_SEP}$JVM_LIB"
+        else
+            export LD_LIBRARY_PATH="$JVM_LIB"
+        fi
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+        noclassloadtest="true"
+    elif [ "${x10rt_impl}" = "pami" ]; then
+        launcher="poe"
+        [ -n "$X10_NPLACES" ] && launcher_env=("MP_PROCS=$X10_NPLACES" "${launcher_env[@]}")
+        [ -n "$X10_HOSTLIST" ] && echo "Warning: -host option is ignored with IBM PE. Use -hostfile instead."
+        [ -n "$X10_HOSTFILE" ] && launcher_env=("MP_HOSTFILE=$X10_HOSTFILE" "${launcher_env[@]}")
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+        noclassloadtest="true"
+    elif [ "${x10rt_impl}" = "yarn" ]; then
+        unset launcher
+        unset X10_HOSTFILE
+        unset X10_HOSTLIST
+        #TODO: remove this test, and use runX10 instead for native X10
+        if [ -f "$main" ]; then
+            # running native X10 program, not managed X10
+            noclassloadtest="true"
+            nativeyarn="true"
+        fi
+    elif [ "${x10rt_impl}" = "disabled" ]; then
+        java_args=("-DX10RT_IMPL=${x10rt_impl}" "${java_args[@]}")
+    else
+        echo >&2 "Error: Unsupported x10rt implementation"
+        exit 1
+    fi
+fi
+
+[ -z "$logconf" ] && logconf="${LIB_DIR}${FILE_SEP}${LOGGING_PROPERTIES}"
+java_args=("-Djava.util.logging.config.file=$logconf" "${java_args[@]}")
+
+# TODO: executable jar
+# Note: use bootstrap class path instead of user class path to make it visible from jar file
+java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${java_args[@]}")
+#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
+
+[ -z "$noassert" ] && java_args=("-ea" "${java_args[@]}")
+
+[ -n "$ss" ] && java_args=("-Xss$ss" "${java_args[@]}")
+[ -n "$mx" ] && java_args=("-Xmx$mx" "${java_args[@]}")
+[ -n "$ms" ] && java_args=("-Xms$ms" "${java_args[@]}")
+
+java_args=("${java_args[@]}" ${defs})
+
+java_version=
+# skip loading test in case of executable jar
+if [ -z "$noclassloadtest" -a -n "$main" ]; then
+command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
+#[ -n "$verbose" ] && echo "${command[*]}"
+java_version=`(
+unset X10_NPLACES
+"${command[@]}" 2>&1
+if [ "$?" -ne "0" ]; then
+  echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
+  exit 1
+fi
+)`
+fi
+
+# detect broadly which JVM we are using
+ibmj9vm=
+hotspotjvm=
+case "${java_version}" in
+    *IBM\ J9\ VM*) ibmj9vm=true ;;
+esac
+case "${java_version}" in
+    *Java\ HotSpot*) hotspotjvm=true ;;
+esac
+case "${java_version}" in
+    *OpenJDK*) hotspotjvm=true ;;
+esac
+
+# reduce garbage collector threads when X10_NTHREADS is set
+# the IBM jvm needs this, but the hotspot JVM is more reasonable, and arguably does not need adjusting
+if [ -n "$X10_NTHREADS" ]; then
+    [ -n "${ibmj9vm}" ] && java_args=("-Xgcthreads$X10_NTHREADS" "${java_args[@]}")
+    [ -n "${hotspotjvm}" ] && java_args=("-XX:ParallelGCThreads=$X10_NTHREADS" "${java_args[@]}")
+fi
+
+[ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
+if [ "${x10rt_impl}" = "yarn" ]; then
+  if [ -z "$nativeyarn" ]; then
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "x10.x10rt.yarn.Client" "${java_args[@]}")
+  else
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
+  fi
+fi
+command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
+[ -n "$verbose" ] && echo "${command[*]}"
+
+[ ${#launcher_env[@]} -gt 0 ] && launcher_env=("/usr/bin/env" "${launcher_env[@]}")
+exec "${launcher_env[@]}" $time$timelimit$launcher "${launcher_args[@]}" "${command[@]}"
+
+
+exit $?
