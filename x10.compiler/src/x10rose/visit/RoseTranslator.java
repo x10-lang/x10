@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,6 +148,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.AmbDepTypeNode_c;
+import x10.ast.AnnotationNode;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
@@ -211,6 +213,7 @@ import x10.ast.X10StringLit_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
 import x10.extension.X10Del;
+import x10.extension.X10Ext;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
 import x10.types.X10ClassDef;
@@ -531,6 +534,7 @@ public class RoseTranslator extends Translator {
             unaryOpTable.put(Unary.Operator.POST_DEC, 13);
             unaryOpTable.put(Unary.Operator.PRE_INC, 14);
             unaryOpTable.put(Unary.Operator.POST_INC, 14);
+            unaryOpTable.put(Unary.Operator.NEG, 13);
         }
         return unaryOpTable.get(op);
     }
