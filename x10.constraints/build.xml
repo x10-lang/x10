@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="x10.constraints" default="build" basedir=".">
+    &buildfile;
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10constraints.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="x10.common.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="x10.common.classpath">
+        <pathelement location="${x10.common.location}/classes"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="x10/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
+            <src path="${src}"/>
+            <include name="x10/**"/>
+            <exclude name="x10/constraint/test/**"/>
+            <exclude name="x10/constraint/tests/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+    <target name="tests" depends="init,build">
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
+            <src path="${src}"/>
+            <include name="x10/constraint/test/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+                <!--TODO <path refid="junit.classpath"/>-->
+            </classpath>
+        </javac>
+    </target>
+</project>
