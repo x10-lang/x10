@@ -99,8 +99,8 @@ class JNI implements Callable<Boolean> {
 
     public static native void cactionMethodDeclarationHeader(String name, boolean java_is_abstract, boolean java_is_native, boolean java_is_static, boolean java_is_final, boolean java_is_synchronized, boolean java_is_public, boolean java_is_protected, boolean java_is_private, boolean java_is_strictfp, int numberOfTypeParameters, int numArguments, int numThrows, JavaToken jToken);
 //MH-20140414
-//    public static native void cactionMethodDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
-    public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
+    public static native void cactionMethodDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
+//    public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
 
     public static native void cactionTypeParameterReference(String package_name, String type_name, int method_index, String type_parameter_name, JavaToken jToken);
     public static native void cactionTypeReference(String package_name, String type_name, /*RoseTranslator.ToRoseVisitor*/Object visitor, JavaToken jToken);
@@ -302,6 +302,9 @@ class JNI implements Callable<Boolean> {
     public static native void cactionAttachTypeParameterToMethodDecl(String typeParam, JavaToken jToken);
     public static native void cactionAttachTypeParameterToMethodCall(String typeParam, JavaToken jToken);
     public static native void cactionAttachGuard(String typeParam, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToMethodDecl(int numerOfAnnotations, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToLocalDecl(int numerOfAnnotations, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToNewExp(int numerOfAnnotations, JavaToken jToken);
     
     public static native void cactionWhen(JavaToken jToken);
     public static native void cactionWhenEnd(JavaToken jToken);

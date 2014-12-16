@@ -245,10 +245,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
     public boolean addFileIndex() {
         if (++RoseTranslator.fileIndex == numSourceFile) {
             --RoseTranslator.fileIndex;
-            System.out.println(", false");
             return false;
         }
-        System.out.println(", true");
         return true;
     }
 
@@ -616,7 +614,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
             return;
 
         List<Formal> formals = n.formals();
-
         String method_name = n.name().id().toString();
         StringBuffer param = new StringBuffer();
         for (Formal f : n.formals()) {
@@ -648,19 +645,19 @@ public class SourceVisitor extends X10DelegatingVisitor {
         Flags flags = n.flags().flags();
         JNI.cactionMethodDeclarationHeader(method_name, flags.isAbstract(), flags.isNative(), flags.isStatic(), flags.isFinal(), /* java_is_synchronized */false, flags.isPublic(), flags.isProtected(), flags.isPrivate(), /* java_is_strictfp */false, n.typeParameters().size(), formals.size(), n.throwsTypes().size(), RoseTranslator.createJavaToken(n, method_name));
         visitChild(n, n.body());
-        JNI.cactionMethodDeclarationEnd(n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+//        JNI.cactionMethodDeclarationEnd(annotations.size(), n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+      JNI.cactionMethodDeclarationEnd(0, n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
         // JNI.cactionMethodDeclarationEnd(0, RoseTranslator.createJavaToken());
         toRose(n, "method decl end: ", n.name().id().toString());
     }
     
-    void processAnnotation(Node_c n) {
-//       
+    void processAnnotation(Node_c n) {    
 //        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
-//        System.out.println("1215:annotation size=" + annotations.size() + " for " + n);
+//        System.out.println("1216:annotation size=" + annotations.size() + " for " + n);
 //        for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
 //             AnnotationNode a = i.next();
-//             
-//             System.out.println("1215:anno=" + a + ", " + a.annotationType() + ", " + a.annotationType().type().toClass());
+//             System.out.println("1216:anno=" + a + ", " + a.annotationType() + ", " + a.annotationType().type().toClass());
 //             visitChild(n, a.annotationType());
 //             JNI.cactionNormalAnnotationEnd(0, RoseTranslator.createJavaToken(n, n.toString()));
 //        }
@@ -670,7 +667,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
         toRose(n, "Previsit method decl: ", n.name().id().toString());
         List<Formal> formals = n.formals();
         
-//        processAnnotation(n);
         String method_name = n.name().id().toString();
         StringBuffer param = new StringBuffer();
         for (Formal f : n.formals()) {
@@ -727,6 +723,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
 //            System.out.println("TypeParam=" + typeParam);
             JNI.cactionAttachTypeParameterToMethodDecl(typeParam, RoseTranslator.createJavaToken(n, n.name().id().toString()));
         }
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+        for (AnnotationNode a : annotations) 
+            visitChild(n, a.annotationType());
+        JNI.cactionAttachAnnotationsToMethodDecl(annotations.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
+
         if (RoseTranslator.DEBUG) System.out.println("Previsit method decl end");
     }
     
@@ -827,6 +828,36 @@ public class SourceVisitor extends X10DelegatingVisitor {
         visitChildren(n, n.formals());
 
         JNI.cactionBuildMethodSupportEnd(method_name, method_index, false, false, false, 0, formals.size(), true, RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        
+        if (n.guard() != null) {
+            String guard = "";
+            List<Expr> cond = n.guard().condition();
+            for (int i = 0; i < cond.size(); ++i) {
+                if (i > 0)
+                    guard += ", ";
+                Expr exp = cond.get(i);
+                if (exp instanceof IsRefTest) {
+                    guard += ((IsRefTest)exp).firstChild() + " isref";
+                } else if (exp instanceof HasZeroTest_c) {
+                    guard += ((HasZeroTest_c)exp).firstChild() + " haszero";
+                } else {
+                    throw new RuntimeException("Unsupported guard: " + exp);
+                }
+            }
+            JNI.cactionAttachGuard(guard, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        }
+        for (int i = 0; i < typeParamList.size(); ++i) { 
+            TypeParamNode node = typeParamList.get(i);
+            Variance variance = node.type().getVariance();
+            String typeParam = typeParamList.get(i).name().toString(); 
+//            System.out.println("TypeParam=" + typeParam);
+            JNI.cactionAttachTypeParameterToMethodDecl(typeParam, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        }
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+        for (AnnotationNode a : annotations) 
+            visitChild(n, a.annotationType());
+        JNI.cactionAttachAnnotationsToMethodDecl(annotations.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        
         toRose(n, "Previsit constructor decl end: ", method_name);
     }
 
@@ -1172,7 +1203,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             return;
 
         List<Formal> formals = n.formals();
-
+//        processAnnotation(n);
         String method_name = n.name().id().toString();
         StringBuffer param = new StringBuffer();
         for (Formal f : n.formals()) {
@@ -1213,7 +1244,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
         Flags flags = n.flags().flags();
         JNI.cactionMethodDeclarationHeader(method_name, flags.isAbstract(), flags.isNative(), flags.isStatic(), flags.isFinal(), /* java_is_synchronized */false, flags.isPublic(), flags.isProtected(), flags.isPrivate(), /* java_is_strictfp */false, n.typeParameters().size(), formals.size(), n.throwsTypes().size(), RoseTranslator.createJavaToken(n, method_name));
         visitChild(n, n.body());
-        JNI.cactionMethodDeclarationEnd(n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+//        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+//        JNI.cactionMethodDeclarationEnd(annotations.size(), n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+      JNI.cactionMethodDeclarationEnd(0, n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
 
         // String constructor_name = n.name().toString();
         //
@@ -1253,7 +1286,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(Block_c n) {
         toRose(n, "Block: ", n.toString(), n.statements().size());
-        processAnnotation(n);
+//        processAnnotation(n);
 //        System.out.println("1215: firstChild=" + n.firstChild());
         JNI.cactionBlock(RoseTranslator.createJavaToken(n, n.toString()));
         visitChildren(n, n.statements());
@@ -2043,6 +2076,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
             // JNI.cactionAssignmentEnd(RoseTranslator.createJavaToken(n, n.toString()));
         }
         JNI.cactionLocalDeclarationEnd(n.name().id().toString(), init != null, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+   
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+        for (AnnotationNode a : annotations)
+            visitChild(n, a.annotationType());
+        JNI.cactionAttachAnnotationsToLocalDecl(annotations.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
 
     public void visit(PropertyDecl_c n) {
@@ -2263,6 +2301,10 @@ public class SourceVisitor extends X10DelegatingVisitor {
             visitChildren(n, n.arguments());
             JNI.cactionAllocationExpressionEnd(n.objectType() != null, n.arguments().size(), RoseTranslator.createJavaToken(n, n.toString()));
         }
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+        for (AnnotationNode a : annotations) 
+            visitChild(n, a.annotationType());
+        JNI.cactionAttachAnnotationsToNewExp(annotations.size(), RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(Allocation_c n) {

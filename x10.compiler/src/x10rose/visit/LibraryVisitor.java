@@ -112,6 +112,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.StringUtil;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AmbDepTypeNode_c;
+import x10.ast.AnnotationNode;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
@@ -173,6 +174,7 @@ import x10.ast.X10Special_c;
 import x10.ast.X10StringLit_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
+import x10.extension.X10Ext;
 
 public class LibraryVisitor extends NodeVisitor {
     private List<Import> imports;
@@ -2063,8 +2065,8 @@ public class LibraryVisitor extends NodeVisitor {
         // visitChild(n, n.offerType());
         // visitChildren(n, n.throwsTypes());
         visitChild(n, n.body());
-
-        JNI.cactionMethodDeclarationEnd(n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
+        
+        JNI.cactionMethodDeclarationEnd(0, n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
         // String constructor_name = n.name().toString();
         //
         // JNI.cactionConstructorDeclarationHeader(constructor_name, false,
