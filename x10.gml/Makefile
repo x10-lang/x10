@@ -32,6 +32,7 @@ base_src=\
 	x10/matrix/DenseMatrix.x10 \
 	x10/matrix/VectorMult.x10 \
 	x10/matrix/MatrixMultXTen.x10  \
+    x10/matrix/regression/RegressionInputData.x10 \
 	x10/matrix/util/Debug.x10 \
 	x10/matrix/util/DistPConsole.x10	\
 	x10/matrix/util/MathTool.x10 \
