@@ -1641,23 +1641,24 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
         if (domain instanceof X10Call_c) {
             X10Call_c call = (X10Call_c) n.domain();
-            String class_name = call.target().toString();
-            int lastDot = class_name.lastIndexOf('.');
-            String pkg = "";
-            String type = "";
-            if (lastDot > 0) {
-                pkg = class_name.substring(0, lastDot);
-                type = class_name.substring(lastDot + 1);
-            } else
-                type = class_name;
-
-            String func_name = call.name().toString();
-            JNI.cactionMessageSend(pkg, type, func_name, RoseTranslator.createJavaToken(n, class_name));
-            JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken(n, class_name));
-            visitChild(call, call.target());
-            visitChildren(n, call.arguments());
-            handleArgumentTypes(call.arguments());
-            JNI.cactionMessageSendEnd(false, true, func_name, call.arguments().size(), 0, call.arguments().size(), RoseTranslator.createJavaToken(n, class_name));
+            visit(call);
+//            String class_name = call.target().toString();
+//            int lastDot = class_name.lastIndexOf('.');
+//            String pkg = "";
+//            String type = "";
+//            if (lastDot > 0) {
+//                pkg = class_name.substring(0, lastDot);
+//                type = class_name.substring(lastDot + 1);
+//            } else
+//                type = class_name;
+//            
+//            String func_name = call.name().toString();
+//            JNI.cactionMessageSend(pkg, type, func_name, RoseTranslator.createJavaToken(n, class_name));
+//            JNI.cactionTypeReference(pkg, type, this, RoseTranslator.createJavaToken(n, class_name));
+//            visitChild(call, call.target());
+//            visitChildren(n, call.arguments());
+//            handleArgumentTypes(call.arguments());
+//            JNI.cactionMessageSendEnd(false, true, func_name, call.arguments().size(), 0, call.arguments().size(), RoseTranslator.createJavaToken(n, class_name));
         } else if (domain instanceof X10Binary_c) {
             X10Binary_c bin = (X10Binary_c) domain;
             JNI.cactionBinaryExpression(RoseTranslator.createJavaToken(n, n.toString()));
@@ -1669,11 +1670,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
         } else if (domain instanceof X10Local_c) {
             X10Local_c local = (X10Local_c) n.domain();
             JNI.cactionSingleNameReference("", "", local.name().id().toString(), RoseTranslator.createJavaToken(local, local.name().id().toString()));
-        }
-        else {
-            if (RoseTranslator.DEBUG)
-                System.out.println("No support for " + n.domain().getClass() + " in ForLoop");
-            return;
+        } else if (domain instanceof X10Field_c) {
+            X10Field_c field = (X10Field_c) n.domain();
+            visit(field);
+        } else {
+            throw new RuntimeException("No support for " + n.domain().getClass() + " in ForLoop");
         }
 
         visitChild(n, n.body());
