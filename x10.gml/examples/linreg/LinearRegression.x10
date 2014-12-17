@@ -21,7 +21,6 @@ import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
 
 import x10.matrix.util.PlaceGroupBuilder;
-import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
@@ -59,9 +58,7 @@ public class LinearRegression implements ResilientIterativeApp {
     public var seqCompT:Long=0;
     public var commT:Long;
     private val nzd:Double;
-
-    //the matrix snapshot should be taken only once
-    private var V_snapshot:DistObjectSnapshot;
+    private var places:PlaceGroup;
 
     public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
         iterations = it;
@@ -80,6 +77,7 @@ public class LinearRegression implements ResilientIterativeApp {
         this.checkpointFreq = chkpntIter;
 
         nzd = sparseDensity;
+        this.places = places;        
     }
 
     public def isFinished() {
@@ -98,7 +96,7 @@ public class LinearRegression implements ResilientIterativeApp {
         // 6: norm_r2=sum(r*r)
         norm_r2 = r.norm();
 
-        new ResilientExecutor(checkpointFreq).run(this);
+        new ResilientExecutor(checkpointFreq, places).run(this);
 
         return w;
     }
@@ -152,18 +150,12 @@ public class LinearRegression implements ResilientIterativeApp {
     }
 
     public def checkpoint(resilientStore:ResilientStoreForApp) {       
-        resilientStore.startNewSnapshot();        
-        finish{
-            async {
-                if (V_snapshot == null)                    
-                    V_snapshot = V.makeSnapshot();                
-                resilientStore.save(V, V_snapshot, true);
-            }
-            async resilientStore.save(d_p);
-            async resilientStore.save(d_q);
-            async resilientStore.save(r);
-            async resilientStore.save(w);
-        }
+        resilientStore.startNewSnapshot();
+        resilientStore.saveReadOnly(V);
+        resilientStore.save(d_p);
+        resilientStore.save(d_q);
+        resilientStore.save(r);
+        resilientStore.save(w);
         resilientStore.commit();
         lastCheckpointNorm = norm_r2;
     }
@@ -183,13 +175,15 @@ public class LinearRegression implements ResilientIterativeApp {
         d_p.remake(newPg);
         Vp.remake(V.getAggRowBs(), newPg);
         d_q.remake(newPg);
-
         store.restore();
 
         //adjust the iteration number and the norm value
         iter = lastCheckpointIter;
         norm_r2 = lastCheckpointNorm;
+        places = newPg;        
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
+        Console.OUT.println("Load Balance After Restore: ");
+        V.printLoadStatistics();
     }
     
     public def getMaxIterations():Long{

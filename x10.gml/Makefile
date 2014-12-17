@@ -47,7 +47,8 @@ base_src=\
 	x10/util/resilient/Snapshot.x10 \
 	x10/util/resilient/Snapshottable.x10 \
 	x10/util/resilient/VectorSnapshotInfo.x10 \
-	x10/util/resilient/BlockSetSnapshotInfo.x10
+	x10/util/resilient/BlockSetSnapshotInfo.x10 \
+	x10/util/resilient/PlaceHammer.x10
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \

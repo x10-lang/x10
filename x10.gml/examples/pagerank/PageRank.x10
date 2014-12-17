@@ -21,8 +21,6 @@ import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
-
-import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
@@ -66,10 +64,9 @@ public class PageRank implements ResilientIterativeApp {
     var iter:Long;
     
     private val chkpntIterations:Long;
-    private val nzd:Double;    
-    
-    private var G_snapshot:DistObjectSnapshot;
-    
+    private val nzd:Double;
+    private var places:PlaceGroup;
+
     public def this(
             g:DistBlockMatrix{self.M==self.N}, 
             p:DupVector(g.N), 
@@ -94,6 +91,7 @@ public class PageRank implements ResilientIterativeApp {
         
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
+        this.places = places;
     }
 
     public static def make(gN:Long, nzd:Double, it:Long, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
@@ -125,7 +123,7 @@ public class PageRank implements ResilientIterativeApp {
     }
 
     public def run():Vector(G.N) {
-        new ResilientExecutor(chkpntIterations).run(this);
+        new ResilientExecutor(chkpntIterations, places).run(this);
 
         val mulTime = GP.getCalcTime();
 
@@ -179,16 +177,10 @@ public class PageRank implements ResilientIterativeApp {
 
     public def checkpoint(store:ResilientStoreForApp):void {
         store.startNewSnapshot();
-        finish {
-            async {
-                if (G_snapshot == null)
-                    G_snapshot = G.makeSnapshot();
-                store.save(G, G_snapshot, true);
-            }
-            async store.save(P);
-            async store.save(E);
-            async store.save(U);
-        }
+        store.saveReadOnly(G);
+        store.save(P);
+        store.save(E);
+        store.save(U);
         store.commit();
     }
 

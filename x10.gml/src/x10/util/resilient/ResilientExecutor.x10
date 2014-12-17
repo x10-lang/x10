@@ -13,6 +13,8 @@ package x10.util.resilient;
 
 import x10.util.Timer;
 import x10.util.Random;
+import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.PlaceHammer;
 
 public class ResilientExecutor {
     private val store:ResilientStoreForApp;
@@ -28,13 +30,18 @@ public class ResilientExecutor {
     private var restoreCount:Long = 0;
     private var stepExecTime:Long = 0;
     private var stepExecCount:Long = 0;
+    private var hammer:PlaceHammer = null;
     
-    public def this(itersPerCheckpoint:Long) {
-        places = Place.places();
+    public def this(itersPerCheckpoint:Long, places:PlaceGroup) {
+        this.places = places;
         this.itersPerCheckpoint = itersPerCheckpoint;
         if (itersPerCheckpoint > 0 && Runtime.RESILIENT_MODE > 0) {
             isResilient = true;
             store = new ResilientStoreForApp();
+            val hammerConfigFile = System.getenv("X10_GML_HAMMER_FILE");
+            if (hammerConfigFile != null && !hammerConfigFile.equals("")){                
+                hammer = PlaceHammer.make(hammerConfigFile);
+            }
         } else {
             store = null;
         }
@@ -42,17 +49,13 @@ public class ResilientExecutor {
 
     public def run(app:ResilientIterativeApp) {
         val startRun = Timer.milliTime();
-
-        //val rand = new Random(System.nanoTime());
-        val killIter:Long = app.getMaxIterations()/2; //rand.nextLong(app.getMaxIterations()-1) + 1;
-        val killPlaceIndex:Long = places.size()/2; //rand.nextLong(places.size()-1) + 1;
-        
         var restoreRequired:Boolean = false;
-        var simulatePlaceDeathDone:Boolean = false;
-
         var iter:Long = 0;
         var lastCheckpointIter:Long = -1;
 
+        if (isTimerHammerActive())
+            hammer.startTimerHammer();
+        
         // Checkpoint before first iter
         if (isResilient){            
             val startFirstCheckpoint = Timer.milliTime();
@@ -67,13 +70,23 @@ public class ResilientExecutor {
                 if (restoreRequired) {
                     if (lastCheckpointIter > -1) {
                         val startRestore = Timer.milliTime();
-                        val newPG = places.filterDeadPlaces();
-
+                        val newPG = PlaceGroupBuilder.createRestorePlaceGroup(places);
                         if (VERBOSE) Console.OUT.println("restoring at iter " + lastCheckpointIter);
 
+                        if (isIterativeHammerActive()){
+                            val tmpIter = iter;
+                            async hammer.checkKillRestore(tmpIter);
+                        }
+                        
                         app.restore(newPG, store, lastCheckpointIter);
+                        
                         iter = lastCheckpointIter;
-
+                        places = newPG;
+                        if (VERBOSE){
+                            Console.OUT.println("Used Places After Restore ...");
+                            for (x in places)
+                                Console.OUT.println(x);
+                        }
                         restoreRequired = false;
                         restoreTime += (Timer.milliTime() - startRestore);
                         restoreCount++;
@@ -83,17 +96,11 @@ public class ResilientExecutor {
                     }
                 }
 
-
-                // TODO use an external 'hammer' to kill places
-                if (isResilient && !simulatePlaceDeathDone 
-                 && iter == killIter && places.size() > 1) {
-                    simulatePlaceDeathDone = true;
-                    at (places(killPlaceIndex)) async {
-                        Console.OUT.println("at iteration " + killIter + " killing " + here);
-                        Console.OUT.flush();
-                        System.killHere();
-                    }
+                if (isIterativeHammerActive()){
+                    val tmpIter = iter;
+                    async hammer.checkKillStep(tmpIter);
                 }
+
                 val startStep = Timer.milliTime();
                 app.step();
                 stepExecTime += (Timer.milliTime() - startStep);
@@ -105,49 +112,81 @@ public class ResilientExecutor {
                     if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
                     try {
                         val startCheckpoint = Timer.milliTime();
+                        
+                        if (isIterativeHammerActive()) {
+                            val tmpIter = iter;
+                            async hammer.checkKillCheckpoint(tmpIter);
+                        }
+                        
                         app.checkpoint(store);
+                        
                         lastCheckpointIter = iter;
                         checkpointTime += (Timer.milliTime() - startCheckpoint);
                         checkpointCount++;
-                    } catch (deadExp:DeadPlaceException) {
-                        Console.OUT.println("place failure during checkpoint: cancelling snapshot!");
-                        deadExp.printStackTrace();
-                        store.cancelSnapshot();
-                        restoreRequired = true;
-                    } catch (mulExp:MultipleExceptions) {
-                        val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
-                        if (filtered != null) throw filtered;
-                        Console.OUT.println("place failure (MultipleExceptions) during checkpoint: cancelling snapshot!");
-                        val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
-                        for (dpe in deadPlaceExceptions) {
-                            dpe.printStackTrace();
-                        }
-                        store.cancelSnapshot();
+                    } catch (ex:Exception) {
+                        processCheckpointException(ex);
                         restoreRequired = true;
                     }
                 }
-            } catch (dpe:DeadPlaceException) {
-                dpe.printStackTrace();
-                if (!isResilient) {
-                    throw dpe;
-                } else {
-                    restoreRequired = true;
-                }
-            } catch (mulExp:MultipleExceptions) {
-                if (isResilient) {
-                    val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
-                    if (filtered != null) throw filtered;
-                    val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
-                    for (dpe in deadPlaceExceptions) {
-                        dpe.printStackTrace();
-                    }
-                    restoreRequired = true;
-                } else {
-                    throw mulExp;
-                }
+            } catch (iterEx:Exception) {
+                processIterationException(iterEx);
+                restoreRequired = true;
             }
         }
         runTime = (Timer.milliTime() - startRun);
+        if (isTimerHammerActive())
+            hammer.stopTimerHammer();
         Console.OUT.println("ResilientExecutor completed:checkpointTime:"+checkpointTime+":restoreTime:"+restoreTime+":stepsTime:"+stepExecTime+":AllTime:"+runTime+":checkpointCount:"+checkpointCount+":restoreCount:"+restoreCount+":stepsCount:"+stepExecCount);
     }
+    
+    
+    private def processCheckpointException(ex:Exception){
+        if (ex instanceof DeadPlaceException) {
+            val deadExp = ex as DeadPlaceException; 
+            Console.OUT.println("place failure during checkpoint: cancelling snapshot!");
+            deadExp.printStackTrace();
+            store.cancelSnapshot();            
+        }
+        else if (ex instanceof MultipleExceptions) {
+            val mulExp = ex as MultipleExceptions;
+            val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
+            if (filtered != null) throw filtered;
+            Console.OUT.println("place failure (MultipleExceptions) during checkpoint: cancelling snapshot!");
+            val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
+            for (dpe in deadPlaceExceptions) {
+                dpe.printStackTrace();
+            }
+            store.cancelSnapshot();            
+        }
+        else 
+            throw ex;
+    }
+    
+    private def processIterationException(ex:Exception) {
+        if (ex instanceof DeadPlaceException) {
+            val dpe = ex as DeadPlaceException;            
+            if (!isResilient) {
+                throw dpe;
+            }
+        }
+        else if (ex instanceof MultipleExceptions) {
+            val mulExp = ex as MultipleExceptions;
+            if (isResilient) {                
+                val filtered = mulExp.filterExceptionsOfType[DeadPlaceException]();
+                if (filtered != null) throw filtered;
+                val deadPlaceExceptions = mulExp.getExceptionsOfType[DeadPlaceException]();
+                for (dpe in deadPlaceExceptions) {
+                    dpe.printStackTrace();
+                }
+                
+            } else {
+                throw mulExp;
+            }
+        }
+        else
+            throw ex;
+    }
+    
+    private def isTimerHammerActive() = (hammer != null && hammer.isTimerHammer());
+    private def isIterativeHammerActive() = (hammer != null && hammer.isIterativeHammer());
 }

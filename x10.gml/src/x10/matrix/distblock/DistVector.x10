@@ -50,7 +50,7 @@ public class DistVector(M:Long) implements Snapshottable {
     public def places() = places;
     
     //oldSegSize used only for remake and restore
-    private var oldSegSize:Rail[Long];
+    private var snapshotSegSize:Rail[Long];
 
     public def this(m:Long, vs:PlaceLocalHandle[Vector], segsz:Rail[Long], pg:PlaceGroup) {
         property(m);
@@ -485,8 +485,7 @@ public class DistVector(M:Long) implements Snapshottable {
         assert (segsz.size == newPg.size()) :
             "number of vector segments must be equal to number of places";
         PlaceLocalHandle.destroy(places, distV, (Place)=>true);
-        distV = PlaceLocalHandle.make[Vector](newPg, ()=>Vector.make(segsz(newPg.indexOf(here))));
-        oldSegSize = segSize;
+        distV = PlaceLocalHandle.make[Vector](newPg, ()=>Vector.make(segsz(newPg.indexOf(here))));        
         segSize = segsz;
         PlaceLocalHandle.destroy(places, distData, (Place)=>true);
         distData = PlaceLocalHandle.make[Rail[Double]](newPg, ()=>distV().d);
@@ -494,8 +493,7 @@ public class DistVector(M:Long) implements Snapshottable {
     }
     
     public def remake(newPg:PlaceGroup){
-        val m = M;
-        oldSegSize = segSize;
+        val m = M;        
         val segNum = newPg.size;
         val slst = new Rail[Long](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int));
         remake (slst, newPg);
@@ -511,13 +509,14 @@ public class DistVector(M:Long) implements Snapshottable {
             val distVecInfo = new VectorSnapshotInfo(i, data.d);
             snapshot.save(i, distVecInfo);
         }
+        snapshotSegSize = segSize;
         //Console.OUT.println("DistVector.SnapshotTime["+(Timer.milliTime() - startTime)+"]");
         return snapshot;
     }
     
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
         //val startTime = Timer.milliTime();
-        val segmentSizes = oldSegSize;
+        val segmentSizes = snapshotSegSize;
         val newSegmentsOffsets = new Rail[Long](places.size());
         newSegmentsOffsets(0) = 0;
         for (var i:Long = 1; i < places.size(); i++){
@@ -539,8 +538,7 @@ public class DistVector(M:Long) implements Snapshottable {
             return data(offset);            
         };
         init(initFunc);
-        PlaceLocalHandle.destroy(places, cached, (Place)=>true);       
-        oldSegSize = null;
+        PlaceLocalHandle.destroy(places, cached, (Place)=>true);      
         //Console.OUT.println("DistVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
     }
 }

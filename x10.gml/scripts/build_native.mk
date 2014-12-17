@@ -34,6 +34,12 @@ GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gm
 # X10 file built rules
 ################################################### 
 
+# enable CPU profiling with google-perftools
+PROFILE ?=
+ifdef PROFILE
+  X10_FLAG += -gpt
+endif
+
 $(target)_sock	: $(x10src) $(depend_src) $(gml_inc)
 		$(X10CXX) -g -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'

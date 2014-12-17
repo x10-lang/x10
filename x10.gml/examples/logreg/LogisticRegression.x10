@@ -17,7 +17,6 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.util.Debug;
-import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.ResilientIterativeApp;
 import x10.util.resilient.ResilientExecutor;
 import x10.util.resilient.ResilientStoreForApp;
@@ -73,7 +72,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     
     private val chkpntIterations:Long;
     private val nzd:Double;
-    private var X_snapshot:DistObjectSnapshot;
+    private var places:PlaceGroup;
 
     public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Double, chkpntIter:Long, places:PlaceGroup) {
         X=x_;
@@ -99,6 +98,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         maxinneriter =nit;
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
+        this.places = places;
     }
 
     public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Double, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup){
@@ -149,7 +149,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         alpha = w.norm();
         Debug.flushln("Done initialization. Starting converging iteration");
 
-        new ResilientExecutor(chkpntIterations).run(this);
+        new ResilientExecutor(chkpntIterations, places).run(this);
         
         commUseTime += dup_w.getCommTime()+y.getCommTime();
     }
@@ -308,18 +308,12 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     public def checkpoint(store:ResilientStoreForApp):void {        
         store.startNewSnapshot();
-        finish {
-            async {
-        	    if (X_snapshot == null)
-            	    X_snapshot = X.makeSnapshot();
-        	    store.save(X, X_snapshot, true);
-            }
-            async store.save(y);
-            async store.save(grad);
-            async store.save(o);
-            async store.save(w);
-            async store.save(logisticD);
-        }
+        store.saveReadOnly(X);
+        store.save(y);
+        store.save(grad);
+        store.save(o);
+        store.save(w);
+        store.save(logisticD);
         store.commit();
         lastCheckpointDelta = delta;
     }

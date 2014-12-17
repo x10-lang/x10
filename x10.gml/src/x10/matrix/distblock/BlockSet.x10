@@ -27,6 +27,7 @@ import x10.matrix.block.MatrixBlock;
 import x10.matrix.util.Debug;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.DenseMatrix;
+import x10.matrix.builder.SparseCSCBuilder;
 
 /**
  * This class provides implementation of list of matrix blocks stored in on place.
@@ -937,4 +938,23 @@ public class BlockSet  {
         newBlockSet.blocklist.addAll(blocksList);
         return newBlockSet;
     }
+    
+    public def allocAndInitNonUniformSparseBlocks(f:(Long,Long)=>Double): BlockSet {        
+        val placeIndex = places.indexOf(here.id);
+        val itr = dmap.buildBlockIteratorAtPlace(placeIndex);
+        while (itr.hasNext()) {
+            val bid    = itr.next();
+            val rowbid = grid.getRowBlockId(bid);
+            val colbid = grid.getColBlockId(bid);
+            val m      = grid.rowBs(rowbid);
+            val n      = grid.colBs(colbid);            
+            val roff   = grid.startRow(rowbid);
+            val coff   = grid.startCol(colbid);            
+            val builder = SparseCSCBuilder.make(m,n);            
+            val offsetF = (a:Long,b:Long)=> f(a+roff,b+coff);            
+            builder.init(offsetF);
+            add(new SparseBlock(rowbid, colbid, roff, coff, builder.toSparseCSC()));
+        }
+        return this;
+    }   
 }
