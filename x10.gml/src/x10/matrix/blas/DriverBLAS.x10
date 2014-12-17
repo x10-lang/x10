@@ -356,7 +356,7 @@ protected class DriverBLAS {
      * @param y      output vector
      * @param mA     the first matrix (right-side)
      * @param dim    dimension array [M, N], which are rows and columns of mA
-     * @param offset starting offsets [offsetX, offsetY] for elements of X and Y
+     * @param offset row and column offsets [xr, yr, Ar, Ac] into matrix/vectors
      * @param inc    increments [incX, incY] for elements of X and Y
      * @param lda    leading dimension of A
 
