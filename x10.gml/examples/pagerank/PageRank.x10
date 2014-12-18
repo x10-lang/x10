@@ -199,8 +199,4 @@ public class PageRank implements ResilientIterativeApp {
         iter = lastCheckpointIter;
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] ...");
     }
-    
-    public def getMaxIterations():Long {
-        return iterations;
-    }
 }

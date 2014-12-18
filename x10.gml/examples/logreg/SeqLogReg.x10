@@ -20,16 +20,14 @@ import x10.matrix.util.Debug;
 public class SeqLogReg {
 	val C = 2;
 	val tol = 0.000001;
-	val maxiter:Long;
+	val maxIterations:Long;
 	val maxinneriter:Long;
 	
-	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
+    /** Matrix of training examples */
 	val X:DenseMatrix;
-	//N = nrow(X)
-	//D = ncol(X)
-	//y = Rand(rows = 1000, cols = 1, min = 1, max = 10, pdf = "uniform");
+    /** Vector of training regression targets */
 	val y:Vector(X.M);
-	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
+    /** Learned model weight vector, used for future predictions */
 	val w:Vector(X.N);
 	
 	val eta0 = 0.0;
@@ -50,7 +48,7 @@ public class SeqLogReg {
 		
 		tmp_y = Vector.make(X.M);
 		
-		maxiter = it;
+		maxIterations = it;
 		maxinneriter=nit;
 	}
 	
@@ -82,7 +80,7 @@ public class SeqLogReg {
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
 		//# boolean for convergence check
 		//converge = (delta < tol) | (iter > maxiter)
-		var converge:Boolean = (delta < tol) | (iter > maxiter);
+		var converge:Boolean = (delta < tol) | (iter > maxIterations);
 		//norm_r2 = sum(grad*grad)
 		var norm_r2:Double = grad.norm();
 		//alpha = t(w) %*% w
@@ -181,7 +179,7 @@ public class SeqLogReg {
             logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 // 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
  			val objnew = 0.5 * wnew.norm() + C * logisticnew.sum();
-// 			
+
 // 			rho = (objnew - obj) / qk
  			val rho = (objnew - obj)/qk;
 // 			snorm = sqrt(sum( s * s ))
@@ -194,9 +192,9 @@ public class SeqLogReg {
 // 				grad = w + C*t(X) %*% ((logisticnew - 1) * y )
  				compute_grad(grad, logisticnew);
  			} 
-// 			
+
  			iter = iter + 1;
- 			converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
+ 			converge = (norm_r2 < (tol * tol)) | (iter > maxIterations);
 
  			if (rho < eta0){
  				delta = Math.min(Math.max(alpha, sigma1) * snorm, sigma2 * delta );

@@ -113,7 +113,7 @@ public class RunLinReg {
             X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
             y = DistVector.make(X.M, places);
 
-            // initialize labels, example at each place
+            // initialize labels, examples at each place
             finish for (place in places) at(place) async {
                 val numFeatures = inputData.numFeatures;
                 val trainingLabels = inputData.local().trainingLabels;

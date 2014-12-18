@@ -31,15 +31,16 @@ import x10.util.resilient.ResilientStoreForApp;
  */
 public class LinearRegression implements ResilientIterativeApp {
     public static val MAX_SPARSE_DENSITY = 0.1;
+    static val lambda = 1e-6; // regularization parameter
 
-    //Input matrix
+    /** Matrix of training examples */
     public val V:DistBlockMatrix;
+    /** Vector of training regression targets */
     public val y:DistVector(V.M);
-    //Parameters
-    public val iterations:Long;
-    static val lambda:Double = 0.000001;
-
+    /** Learned model weight vector, used for future predictions */
     public val w:Vector(V.N);
+
+    public val maxIterations:Long;
 
     val d_p:DupVector(V.N);
     val Vp:DistVector(V.M);
@@ -61,7 +62,7 @@ public class LinearRegression implements ResilientIterativeApp {
     private var places:PlaceGroup;
 
     public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Double, places:PlaceGroup) {
-        iterations = it;
+        maxIterations = it;
         this.V = v;
         this.y = y;
 
@@ -81,7 +82,7 @@ public class LinearRegression implements ResilientIterativeApp {
     }
 
     public def isFinished() {
-        return iter >= iterations;
+        return iter >= maxIterations;
     }
 
     public def run() {
@@ -184,9 +185,5 @@ public class LinearRegression implements ResilientIterativeApp {
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
         Console.OUT.println("Load Balance After Restore: ");
         V.printLoadStatistics();
-    }
-    
-    public def getMaxIterations():Long{
-        return iterations;
     }
 }

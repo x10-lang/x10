@@ -25,13 +25,14 @@ public class LogisticRegression implements ResilientIterativeApp {
     static val MAX_SPARSE_DENSITY = 0.1;
     val C = 2;
     val tol = 0.000001;
-    val maxiter:Long;
+    val maxIterations:Long;
     val maxinneriter:Long; 
     
-    //X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
+    /** Matrix of training examples */
     public val X:DistBlockMatrix;
+    /** Vector of training regression targets */
     public val y:DistVector(X.M);
-    //w = Rand(rows=D, cols=1, min=0.0, max=0.0);
+    /** Learned model weight vector, used for future predictions */
     public val w:Vector(X.N);
 
     val dup_w:DupVector(X.N); 
@@ -94,7 +95,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         wnew   = Vector.make(X.N);
         logisticnew = DistVector.make(X.M, rowBs, places);
 
-        maxiter = it;
+        maxIterations = it;
         maxinneriter =nit;
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
@@ -112,8 +113,10 @@ public class LogisticRegression implements ResilientIterativeApp {
         val w = Vector.make(X.N);
         val y = DistVector.make(X.M, X.getAggRowBs(), places);
 
+        //X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
         X.initRandom(1, 10);
         y.initRandom(1, 10);
+        //w = Rand(rows=D, cols=1, min=0.0, max=0.0);
         w.initRandom();
 
         return new LogisticRegression(X, y, w, it, nit, nzd, chkpntIter, places);
@@ -142,7 +145,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         //# starting point for CG
         //# boolean for convergence check
         //converge = (delta < tol) | (iter > maxiter)
-        converge = (delta < tol) | (iter > maxiter);
+        converge = (delta < tol) | (iter > maxIterations);
         //norm_r2 = sum(grad*grad)
         norm_r2 = grad.norm();
         //alpha = t(w) %*% w
@@ -254,7 +257,7 @@ public class LogisticRegression implements ResilientIterativeApp {
             compute_grad(grad, logisticnew);
         } 
         iter = iter + 1;
-        converge = (norm_r2 < (tol * tol)) | (iter > maxiter);
+        converge = (norm_r2 < (tol * tol)) | (iter > maxIterations);
         if (rho < eta0){
             delta = Math.min(Math.max(alpha , sigma1) * snorm, sigma2 * delta );            
         } else {
@@ -343,9 +346,5 @@ public class LogisticRegression implements ResilientIterativeApp {
         iter = lastCheckpointIter;
         delta = lastCheckpointDelta;
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] delta["+delta+"] ...");
-    }
-    
-    public def getMaxIterations():Long{
-        return maxiter;
     }
 }

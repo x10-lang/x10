@@ -17,13 +17,17 @@ import x10.matrix.Vector;
  * Sequential implementation of linear regression
  */
 public class SeqLinearRegression {
+    static val lambda = 1e-6; // regularization parameter
 
-	public val iterations:Long;
-	public val w:Vector(V.N);
-	val lambda:Double;
-
+    /** Matrix of training examples */
 	public val V:DenseMatrix;
+    /** Vector of training regression targets */
     public val y:Vector(V.M);
+
+    /** Learned model weight vector, used for future predictions */
+    public val w:Vector(V.N);
+
+	public val maxIterations:Long;
 	
 	val p:Vector(V.N);
 	val Vp:Vector(V.M);
@@ -34,9 +38,7 @@ public class SeqLinearRegression {
 	public def this(V:DenseMatrix, y:Vector(V.M), it:Long) {
 		this.V = V;
         this.y = y;
-		iterations = it;
-
-		lambda = 0.000001;
+		maxIterations = it;
 
 		Vp = Vector.make(V.M);
 		r  = Vector.make(V.N);
@@ -56,7 +58,7 @@ public class SeqLinearRegression {
         // 6: norm_r2=sum(r*r)
         var norm_r2:Double = r.norm();
 
-		for (1..iterations) {
+		for (1..maxIterations) {
 			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
 			q.mult(Vp.mult(V, p), V).scaleAdd(lambda, p);
 			// 11: alpha= norm_r2/(t(p)%*%q);
