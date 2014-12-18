@@ -1020,7 +1020,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 && (   func_name.equals("parse") 
                     || func_name.equals("parseLong"))
          || class_name.equals("x10.lang.Int")
-                && func_name.equals("parseInt")) {
+                && (   func_name.equals("parse")
+                    || func_name.equals("parseInt"))) {
 
             String callerClass = JNI.cactionGetCurrentClassName();
 
@@ -1587,16 +1588,27 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10Special_c n) {
-        toRose(n, "X10Special:", n.kind().toString());
+        toRose(n, "X10Special:", n.kind().toString(), n.type().name(), n.type().fullName());
         String kind = n.kind().toString();
 
+        String className = n.type().fullName().toString();
+        int lastDot = className.lastIndexOf('.');
+        String pkg = "";
+        String type = "";
+        if (lastDot >= 0) {
+            pkg = className.substring(0, lastDot);
+            type = className.substring(lastDot + 1);
+        } else {
+            type = className;
+        }
+        
         if (kind.equals(Special.Kind.THIS.toString())) {
-            JNI.cactionThisReference(RoseTranslator.createJavaToken(n, n.kind().toString()));
+            JNI.cactionThisReference(pkg, type, RoseTranslator.createJavaToken(n, n.kind().toString()));
         } else if (kind.equals(Special.Kind.SUPER.toString())) {
             JNI.cactionSuperReference(RoseTranslator.createJavaToken(n, n.kind().toString()));
         } else if (kind.equals(Special.Kind.SELF.toString())) {
             if (RoseTranslator.DEBUG)
-                System.out.println("X10Special : Unhandled token " + kind);
+                throw new RuntimeException("X10Special : Unhandled token " + kind);
         }
         toRose(n, "X10Special end:", n.kind().toString());
     }

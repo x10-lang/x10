@@ -220,7 +220,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionSwitchStatementEnd(int numCases, boolean hasDefault, JavaToken jToken);
     public static native void cactionSynchronizedStatement(JavaToken jToken);
     public static native void cactionSynchronizedStatementEnd(JavaToken jToken);
-    public static native void cactionThisReference(JavaToken jToken);
+    public static native void cactionThisReference(String pacakgeName, String typeName, JavaToken jToken);
     public static native void cactionThrowStatement(JavaToken jToken);
     public static native void cactionThrowStatementEnd(JavaToken jToken);
     public static native void cactionTrueLiteral(JavaToken jToken);

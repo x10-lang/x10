@@ -2219,8 +2219,19 @@ public class LibraryVisitor extends NodeVisitor {
         toRose(n, "X10Special:", n.kind().toString());
         String kind = n.kind().toString();
 
+        String className = n.type().fullName().toString();
+        int lastDot = className.lastIndexOf('.');
+        String pkg = "";
+        String type = "";
+        if (lastDot >= 0) {
+            pkg = className.substring(0, lastDot);
+            type = className.substring(lastDot + 1);
+        } else {
+            type = className;
+        }
+        
         if (kind.equals(Special.Kind.THIS.toString())) {
-            JNI.cactionThisReference(RoseTranslator.createJavaToken(n, n.kind().toString()));
+            JNI.cactionThisReference(pkg, type, RoseTranslator.createJavaToken(n, n.kind().toString()));
         } else if (kind.equals(Special.Kind.SUPER.toString())) {
             JNI.cactionSuperReference(RoseTranslator.createJavaToken(n, n.kind().toString()));
         } else if (kind.equals(Special.Kind.SELF.toString())) {
