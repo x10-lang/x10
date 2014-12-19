@@ -13,6 +13,7 @@ package x10.util.resilient;
 
 import x10.util.HashMap;
 import x10.util.Timer;
+import x10.xrx.Runtime;
 
 /**
  * A distributed snapshot of an object, which can be used to restore the

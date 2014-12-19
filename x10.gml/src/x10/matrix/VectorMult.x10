@@ -135,7 +135,7 @@ public class VectorMult {
 
     private static struct RecursiveBisection1D(start:Long, end:Long, grainSize:Long) {
         public def this(start:Long, end:Long) {
-            val grainSize = (end-start) / (Runtime.NTHREADS*8);
+            val grainSize = (end-start) / (x10.xrx.Runtime.NTHREADS*8);
             property(start, end, grainSize);
         }
 

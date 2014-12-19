@@ -35,7 +35,7 @@ public class ResilientExecutor {
     public def this(itersPerCheckpoint:Long, places:PlaceGroup) {
         this.places = places;
         this.itersPerCheckpoint = itersPerCheckpoint;
-        if (itersPerCheckpoint > 0 && Runtime.RESILIENT_MODE > 0) {
+        if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0) {
             isResilient = true;
             store = new ResilientStoreForApp();
             val hammerConfigFile = System.getenv("X10_GML_HAMMER_FILE");
