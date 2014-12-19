@@ -33,8 +33,10 @@ namespace x10 {
         template<class T> class GlobalRef;
         template<class T> class GlobalRail;
         class String;
-        class Runtime__MemoryAllocator;
     }
+    namespace xrx {
+        class Runtime__MemoryAllocator;
+    }        
 }
 
 namespace x10 {
@@ -114,8 +116,8 @@ namespace x10 {
             static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
             void _constructor(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
 
-            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc);
-            void _constructor(x10_long size,  ::x10::lang::Runtime__MemoryAllocator* alloc);
+            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc);
+            void _constructor(x10_long size,  ::x10::xrx::Runtime__MemoryAllocator* alloc);
             
             ::x10::lang::LongRange range();
 
@@ -241,7 +243,7 @@ namespace x10 {
 #include <x10/lang/Place.h>
 #include <x10/lang/String.h>
 #include <x10/lang/IllegalArgumentException.h>
-#include <x10/lang/Runtime__MemoryAllocator.h>
+#include <x10/xrx/Runtime__MemoryAllocator.h>
 #ifndef X10_LANG_RAIL_H_GENERICS
 #define X10_LANG_RAIL_H_GENERICS
 #endif // X10_LANG_RAIL_H_GENERICS
@@ -356,7 +358,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::la
 }
 
 
-template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc) {
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
@@ -379,7 +381,7 @@ template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size,
     
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc) {
     // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
     if (!alloc->FMGL(hugePages)) memset(&(this->raw), 0, size*sizeof(T));
 }

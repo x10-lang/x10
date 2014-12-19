@@ -35,7 +35,7 @@ public class Thread implements Any, Unserializable {
 
     static final ThreadLocal<Thread> context = new ThreadLocal<Thread>() {
         protected Thread initialValue() {
-            return x10.lang.Runtime.wrapNativeThread();
+            return x10.xrx.Runtime.wrapNativeThread();
         }
     };
 
@@ -128,7 +128,7 @@ public class Thread implements Any, Unserializable {
             java.lang.Thread.sleep(time, nanos);
         } catch (java.lang.InterruptedException e) {
             try {
-                throw new x10.lang.InterruptedException();
+                throw new x10.xrx.InterruptedException();
             } catch (java.lang.Exception e2) {
                 e2.printStackTrace();
             }

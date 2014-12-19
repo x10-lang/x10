@@ -11,6 +11,8 @@
 
 package x10.util.concurrent;
 
+import x10.xrx.Runtime;
+
 /**
  * Simple cyclic SPMD barrier implementation.
  * Performs much better than Clock when applicable.

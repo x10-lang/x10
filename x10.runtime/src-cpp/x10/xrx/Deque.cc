@@ -12,14 +12,14 @@
 #include <x10aux/config.h>
 #include <x10aux/atomic_ops.h>
 
-#include <x10/lang/Deque.h>
+#include <x10/xrx/Deque.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
 #include <iostream>
 #endif /* XRX_DEBUG */
 
-using namespace x10::lang;
+using namespace x10::xrx;
 using namespace x10aux;
 
 Deque* Deque::_make() {
@@ -58,7 +58,7 @@ void Deque::growQueue() {
     int newMask = newSize - 1;
     do {
         int oldIndex = b & oldMask;
-        Any *t = (Any*)(oldQ->data[oldIndex]);
+        x10::lang::Any *t = (x10::lang::Any*)(oldQ->data[oldIndex]);
         if (t != NULL && !casSlotNull(oldQ, oldIndex, t)) {
             t = NULL;
         }
@@ -70,14 +70,14 @@ void Deque::growQueue() {
     // concurrently accessed by other threads.
 }
 
-Any* Deque::steal() {
-    Any *t;
+x10::lang::Any* Deque::steal() {
+    x10::lang::Any *t;
     Slots *q;
     int i;
     int b;
     if (sp != (b = base) &&
         (q = queue) != NULL && // must read q after b
-        (t = ((Any*)q->data[i = (q->capacity - 1) & b])) != NULL &&
+        (t = ((x10::lang::Any*)q->data[i = (q->capacity - 1) & b])) != NULL &&
         casSlotNull(q, i, t)) {
         base = b + 1;
         return t;
@@ -98,6 +98,6 @@ x10::lang::Reference* Deque::_deserializer(x10aux::deserialization_buffer &buf) 
     return this_;
 }
 
-RTT_CC_DECLS0(Deque, "x10.lang.Deque", RuntimeType::class_kind)
+RTT_CC_DECLS0(Deque, "x10.xrx.Deque", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

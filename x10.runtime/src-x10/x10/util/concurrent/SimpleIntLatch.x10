@@ -12,6 +12,7 @@
 package x10.util.concurrent;
 
 import x10.compiler.Pinned;
+import x10.xrx.Runtime;
 
 @Pinned public class SimpleIntLatch extends Lock {
     public def this() { super(); }

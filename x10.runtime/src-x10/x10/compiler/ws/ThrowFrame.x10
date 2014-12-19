@@ -11,6 +11,7 @@
 
 package x10.compiler.ws;
 
+import x10.xrx.*;
 import x10.compiler.Ifdef;
 
 public final class ThrowFrame extends Frame {

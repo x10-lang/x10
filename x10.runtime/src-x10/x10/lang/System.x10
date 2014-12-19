@@ -18,6 +18,8 @@ import x10.io.Console;
 import x10.util.Map;
 import x10.util.Timer;
 
+import x10.xrx.Runtime;
+
 @NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public class System {
 
@@ -206,15 +208,7 @@ public class System {
      * @return true if completed normally, false if interrupted
      */
     public static def sleep(millis:Long):Boolean {
-        try {
-            Runtime.increaseParallelism();
-            Thread.sleep(millis);
-            Runtime.decreaseParallelism(1n);
-            return true;
-        } catch (e:InterruptedException) {
-            Runtime.decreaseParallelism(1n);
-            return false;
-        }
+        return x10.xrx.Runtime.sleep(millis);
     }
 
     /**
@@ -223,11 +217,6 @@ public class System {
      * @return true if completed normally, false if interrupted
      */
     public static def threadSleep(millis:Long):Boolean {
-        try {
-            Thread.sleep(millis);
-            return true;
-        } catch (e:InterruptedException) {
-            return false;
-        }
+        return x10.xrx.Runtime.threadSleep(millis);
     }
 }

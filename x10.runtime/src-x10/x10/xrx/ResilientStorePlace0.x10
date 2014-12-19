@@ -8,7 +8,8 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-package x10.lang;
+package x10.xrx;
+
 import x10.compiler.*;
 import x10.util.HashMap;
 import x10.util.concurrent.SimpleLatch;
@@ -18,7 +19,7 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     
     private static def lowLevelSend(dst:Place, cl:()=>void) = FinishResilient.lowLevelSend(dst, cl);
     private static def lowLevelAt(dst:Place, cl:()=>void) = FinishResilient.lowLevelAt(dst, cl);
-    private static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean = FinishResilient.lowLevelFetch[T](dst, result, cl);
+    private static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean = x10.xrx.FinishResilient.lowLevelFetch[T](dst, result, cl);
 
     static type KLUDGE = Any{KLUDGE haszero};
     private static val ALL = (here.id==0) ? new HashMap[Any,KLUDGE]() : null;

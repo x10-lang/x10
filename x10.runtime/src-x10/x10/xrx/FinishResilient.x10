@@ -8,7 +8,8 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-package x10.lang;
+package x10.xrx;
+
 import x10.compiler.*;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.concurrent.AtomicBoolean;
@@ -84,7 +85,7 @@ abstract class FinishResilient extends FinishState {
             val l = (latch!=null) ? latch : new SimpleLatch();
             val o = p as Any;
             var r:FinishState = null;
-            @Native("java", "r = x10.lang.managed.FinishResilientHC.make(o, l);")
+            @Native("java", "r = x10.xrx.managed.FinishResilientHC.make(o, l);")
             { failJavaOnlyMode(); }
             fs = r;
             break;
@@ -119,7 +120,7 @@ abstract class FinishResilient extends FinishState {
             FinishResilientPlace0.notifyPlaceDeath();
             break;
         case Configuration.RESILIENT_MODE_HC:
-            @Native("java", "x10.lang.managed.FinishResilientHC.notifyPlaceDeath();")
+            @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath();")
             { failJavaOnlyMode(); }
             break;
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:

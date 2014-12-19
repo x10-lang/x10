@@ -12,6 +12,8 @@
 
 package x10.util;
 
+import x10.xrx.Runtime;
+
 /**
  * A handle to place-local lazy-initialised worker-local storage.
  * At each place, a worker-local instance of type T is created using the init

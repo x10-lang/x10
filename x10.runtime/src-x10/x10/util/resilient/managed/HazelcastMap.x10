@@ -251,7 +251,7 @@ CustomSerialization {
             public def getBackupProcessor():com.hazelcast.map.EntryBackupProcessor = null;
         };
         val c = new com.hazelcast.core.ExecutionCallback() {
-            public def onFailure(CheckedThrowable):void { Runtime.println("submitToKey failed"); } // TODO
+            public def onFailure(CheckedThrowable):void { x10.xrx.Runtime.println("submitToKey failed"); } // TODO
             public def onResponse(result:Any):void { callback(result); } // TODO: submit callback to thread pool
         };
         keyValueMap.submitToKey(k, p, c);

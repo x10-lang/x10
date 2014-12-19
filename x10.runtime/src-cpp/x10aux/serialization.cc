@@ -18,7 +18,7 @@
 #include <x10/lang/Reference.h>
 #include <x10/lang/Any.h>
 #include <x10/lang/Rail.h>
-#include <x10/lang/Runtime__Profile.h>
+#include <x10/xrx/Runtime__Profile.h>
 #include <x10/io/Serializer.h>
 #include <x10/io/SerializationException.h>
 

@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-package x10.lang.managed;
+package x10.xrx.managed;
 
 import x10.util.concurrent.SimpleLatch;
 import x10.util.GrowableRail;
@@ -19,6 +19,8 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.core.EntryListener;
 import java.util.Map;
+
+import x10.xrx.*;
 
 /*
  * Resilient Finish optimized for Hazelcast

@@ -2451,7 +2451,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType RuntimeProfileType_;
     public X10ClassType RuntimeProfile() {
         if (RuntimeProfileType_ == null)
-        	RuntimeProfileType_ = load("x10.lang.Runtime.Profile");
+        	RuntimeProfileType_ = load("x10.xrx.Runtime.Profile");
         return RuntimeProfileType_;
     }
 
@@ -2551,14 +2551,14 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType finishStateType_;
     public X10ClassType FinishState() {
         if (finishStateType_ == null)
-            finishStateType_ = load("x10.lang.FinishState"); // java file
+            finishStateType_ = load("x10.xrx.FinishState"); // java file
         return finishStateType_;
     }
 
     protected X10ClassType runtimeType_;
     public X10ClassType Runtime() {
         if (runtimeType_ == null)
-            runtimeType_ = load("x10.lang.Runtime"); // java file
+            runtimeType_ = load("x10.xrx.Runtime"); // java file
         return runtimeType_;
     }
 
@@ -2665,7 +2665,7 @@ public class TypeSystem_c implements TypeSystem
     protected X10ClassType mortalType_ = null;
     public X10ClassType Mortal() {
         if (mortalType_ == null)
-            mortalType_ = load("x10.lang.Runtime.Mortal");
+            mortalType_ = load("x10.xrx.Runtime.Mortal");
         return mortalType_;
     }
 

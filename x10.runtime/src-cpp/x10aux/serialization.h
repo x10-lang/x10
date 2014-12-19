@@ -88,7 +88,7 @@
 #include <x10aux/deserialization_buffer.h>
 #include <x10/lang/RuntimeNatives.h>
 
-namespace x10 { namespace lang { class Runtime__Profile; } }
+namespace x10 { namespace xrx { class Runtime__Profile; } }
 
 namespace x10aux {
 

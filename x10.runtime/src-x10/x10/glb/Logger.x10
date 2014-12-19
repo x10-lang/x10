@@ -10,6 +10,7 @@
  */
 
 package x10.glb;
+
 /**
  * <p>Class that collects lifeline statistics of GLB
  * </p>
@@ -121,7 +122,7 @@ public final class Logger {
      */
     public def get(verbose:Boolean) {
         if (verbose) {
-            Console.OUT.println("" + Runtime.hereLong() + " -> " +
+            Console.OUT.println("" + here.id + " -> " +
                 sub("" + (timeAlive/1E9), 0n, 6n) + " : " +
                 sub("" + (timeDead/1E9), 0n, 6n) + " : " + 
                 sub("" + ((timeAlive + timeDead)/1E9), 0n, 6n) + " : " + 

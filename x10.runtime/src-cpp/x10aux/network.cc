@@ -30,8 +30,8 @@
 
 #include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
 
-#include <x10/lang/Runtime.h>
-#include <x10/lang/FinishState.h>
+#include <x10/xrx/Runtime.h>
+#include <x10/xrx/FinishState.h>
 #include <x10/io/SerializationException.h>
 
 using namespace x10::lang;
@@ -170,7 +170,7 @@ void x10aux::network_init (int ac, char **av) {
 }
 
 void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                          x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof,
+                          x10::xrx::FinishState* fs, x10::xrx::Runtime__Profile *prof,
                           x10::lang::VoidFun_0_0* preSendAction) {
 
     x10::lang::Reference* real_body = reinterpret_cast<x10::lang::Reference*>(body_fun);
@@ -243,7 +243,7 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
 }
 
 void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                            x10::lang::Runtime__Profile *prof,
+                            x10::xrx::Runtime__Profile *prof,
                             x10::lang::VoidFun_0_0* preSendAction) {
 
     x10::lang::Reference* body = reinterpret_cast<x10::lang::Reference*>(body_fun);
@@ -336,7 +336,7 @@ static void receive_async (const x10rt_msg_params *p) {
             }
         } break;
         case x10aux::CLOSURE_KIND_ASYNC_CLOSURE: {
-            x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+            x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
             x10::lang::Place src = buf.read<x10::lang::Place>();
             Reference* body = NULL;
             try {
@@ -355,7 +355,7 @@ static void receive_async (const x10rt_msg_params *p) {
             _X_("The deserialised async closure was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
             if (NULL == body) return;
-            x10::lang::Runtime::submitRemoteActivity(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
+            x10::xrx::Runtime::submitRemoteActivity(reinterpret_cast<VoidFun_0_0*>(body), src, fs);
         } break;
         default: abort();
     }
@@ -366,7 +366,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback with mid "<<p->type<<", deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+    x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
     x10::lang::Place sendingPlace = buf.read<x10::lang::Place>();
     fs->notifyActivityCreation(sendingPlace, NULL);
     serialization_id_t nid = x10aux::NetworkDispatcher::getNetworkId(p->type);
@@ -388,7 +388,7 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     }
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-        x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+        x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
         fs->notifyActivityTermination();
     }
 }
@@ -509,14 +509,14 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 // teams
 
 void *x10aux::coll_enter() {
-    x10::lang::FinishState* fs = Runtime::activity()->finishState();
+    x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
     fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here), NULL);
     return fs;
 }
 
 void x10aux::coll_handler(void *arg) {
-    x10::lang::FinishState* fs = (x10::lang::FinishState*)arg;
+    x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
     fs->notifyActivityTermination();
 }
 
@@ -537,7 +537,7 @@ void *x10aux::coll_enter2(void *arg) {
 
 void x10aux::coll_handler2(x10rt_team id, void *arg) {
     struct pointer_pair *p = (struct pointer_pair*)arg;
-    x10::lang::FinishState *fs = (x10::lang::FinishState*)p->fst;
+    x10::xrx::FinishState *fs = (x10::xrx::FinishState*)p->fst;
     x10rt_team *t = (x10rt_team*)p->snd;
     *t = id;
     x10aux::system_dealloc(p);

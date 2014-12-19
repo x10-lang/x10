@@ -11,6 +11,8 @@
 
 package x10.util;
 
+import x10.xrx.Runtime;
+
 /**
  * We want to get highly efficient code for reductions on both Managed 
  * and Native X10 without dropping into @Native code.

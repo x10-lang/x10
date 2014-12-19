@@ -1174,7 +1174,7 @@ public class Lowerer extends ContextVisitor {
     }
 
     //  offer e ->
-    //  x10.lang.Runtime.offer(e);      
+    //  x10.xrx.Runtime.offer(e);      
     private Stmt visitOffer(Offer n) throws SemanticException {		
     	Position pos = n.position();
     	Expr offerTarget = n.expr();

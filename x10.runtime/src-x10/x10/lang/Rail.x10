@@ -101,7 +101,7 @@ public final class Rail[T](
      * @param allocator the MemoryAllocator to use
      * @throws IllegalArgumentException if size exceeds Int.MAX_VALUE on ManagedX10
      */
-    public native def this(size:Long, allocator:Runtime.MemoryAllocator){T haszero}:Rail[T]{self.size==size};
+    public native def this(size:Long, allocator:x10.xrx.Runtime.MemoryAllocator){T haszero}:Rail[T]{self.size==size};
 
 
     /**

@@ -8,7 +8,8 @@
  *
  *  (C) Copyright IBM Corporation 2006-2014.
  */
-package x10.lang;
+package x10.xrx;
+
 import x10.util.resilient.ResilientMap; // ResilientMap using Hazelcast
 
 public class ResilientStoreHC[K,V] {V haszero} extends ResilientStore[K,V] {V haszero} {

@@ -16,6 +16,7 @@ import x10.compiler.NoInline;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
 import x10.compiler.Pragma;
+import x10.xrx.Runtime;
 
 /**
  * A team is a collection of activities that work together by simultaneously 

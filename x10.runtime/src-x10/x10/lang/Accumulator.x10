@@ -15,6 +15,7 @@ import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.compiler.NonEscaping;
+import x10.xrx.Runtime;
 
 /**
  * The naive implementation of an accumulator (without any piggybacking on finish or clocks).

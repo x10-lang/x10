@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-#ifndef X10_LANG_DEQUE_H
-#define X10_LANG_DEQUE_H
+#ifndef X10_XRX_DEQUE_H
+#define X10_XRX_DEQUE_H
 
 #include <x10/lang/X10Class.h>
 
@@ -18,7 +18,7 @@
 #include <x10aux/atomic_ops.h>
 
 namespace x10 {
-    namespace lang {
+    namespace xrx {
 
        /**
         * A Deque for use by the workstealing implementation.
@@ -127,7 +127,7 @@ namespace x10 {
                     Slots *q = queue;
                     int mask = q->capacity - 1;
                     int i = (s - 1) & mask;
-                    Any *t = (Any*)(q->data[i]);
+                    ::x10::lang::Any *t = (::x10::lang::Any*)(q->data[i]);
                     if (t == NULL || !casSlotNull(q, i, t))
                         break;
                     storeSp(s - 1);
@@ -187,9 +187,9 @@ namespace x10 {
 }
 
 namespace x10aux {
-    template<> inline const char *typeName< ::x10::lang::Deque::Slots>() { return "::x10::lang::Deque::Slots"; }
+    template<> inline const char *typeName< ::x10::xrx::Deque::Slots>() { return "::x10::xrx::Deque::Slots"; }
 }
 
-#endif /* X10_LANG_DEQUE_H */
+#endif /* X10_XRX_DEQUE_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab

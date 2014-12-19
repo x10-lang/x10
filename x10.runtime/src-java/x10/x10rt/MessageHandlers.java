@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
 import x10.core.fun.VoidFun_0_0;
-import x10.lang.FinishState;
+import x10.xrx.FinishState;
 import x10.lang.Place;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
@@ -145,7 +145,7 @@ public class MessageHandlers {
             }
     		
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.lang.Runtime.submitRemoteActivity(actObj, src, finishState);
+    		x10.xrx.Runtime.submitRemoteActivity(actObj, src, finishState);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after submitRemoteActivity");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");

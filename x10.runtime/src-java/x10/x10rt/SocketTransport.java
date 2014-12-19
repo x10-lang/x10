@@ -40,9 +40,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import x10.core.fun.VoidFun_0_0;
-import x10.lang.FinishState;
+import x10.xrx.FinishState;
 import x10.lang.Place;
-import x10.lang.Runtime;
+import x10.xrx.Runtime;
 import x10.serialization.X10JavaDeserializer;
 
 /**
@@ -1169,7 +1169,7 @@ public class SocketTransport {
             finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
             return;
     	}
-    	x10.lang.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
+    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
     }
     
     private class BackgroundLinkInitializer implements Runnable {

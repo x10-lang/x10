@@ -19,12 +19,12 @@
 #include <unistd.h>
 
 #include <x10/lang/Place.h>
-#include <x10/lang/Runtime.h>
+#include <x10/xrx/Runtime.h>
 #include <x10/io/Console.h>
-#include <x10/lang/Thread.h>
+#include <x10/xrx/Thread.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
-#include <x10/lang/Runtime__Worker.h>
+#include <x10/xrx/Runtime__Worker.h>
 #include <x10/util/Team.h>
 
 using namespace x10aux;
@@ -41,14 +41,14 @@ x10aux::itable_entry BootStrapClosure::_itables[2] = {
 };
 
 void x10aux::initialize_xrx() {
-    x10::lang::Runtime::FMGL(staticMonitor__do_init)();
-//    x10::lang::Runtime::FMGL(env__do_init)();
-    x10::lang::Runtime::FMGL(STRICT_FINISH__do_init)();
-    x10::lang::Runtime::FMGL(NTHREADS__do_init)();
-    x10::lang::Runtime::FMGL(MAX_THREADS__do_init)();
-    x10::lang::Runtime::FMGL(STATIC_THREADS__do_init)();
-    x10::lang::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
-    x10::lang::Runtime::FMGL(BUSY_WAITING__do_init)();
+    x10::xrx::Runtime::FMGL(staticMonitor__do_init)();
+//    x10::xrx::Runtime::FMGL(env__do_init)();
+    x10::xrx::Runtime::FMGL(STRICT_FINISH__do_init)();
+    x10::xrx::Runtime::FMGL(NTHREADS__do_init)();
+    x10::xrx::Runtime::FMGL(MAX_THREADS__do_init)();
+    x10::xrx::Runtime::FMGL(STATIC_THREADS__do_init)();
+    x10::xrx::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
+    x10::xrx::Runtime::FMGL(BUSY_WAITING__do_init)();
     x10::util::Team::FMGL(WORLD__do_init)();
 //    x10::lang::Place::FMGL(places__do_init)();
 //    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
@@ -92,7 +92,7 @@ int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
     pthread_attr_t* xthread_attr = x10aux::system_alloc<pthread_attr_t>();
 
     (void)pthread_attr_init(xthread_attr);
-    x10::lang::Thread::initAttributes(xthread_attr);
+    x10::xrx::Thread::initAttributes(xthread_attr);
     
     int err = pthread_create(xthread, xthread_attr,
                              &real_x10_main_inner, (void *)args);
@@ -129,7 +129,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
         // Initialise enough state to make this 'main' thread look like a normal x10 thread
         // (e.g. make Thread::CurrentThread work properly).
-        x10::lang::Runtime__Worker::_make((x10_int)0);
+        x10::xrx::Runtime__Worker::_make((x10_int)0);
 
         // Get the args into an X10 Rail[String]
         x10::lang::Rail<x10::lang::String*>* args = convert_args(main_args->ac, main_args->av);
@@ -145,7 +145,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
         // Actually start up the runtime and execute the program.
         // When this function returns, the program will have exited.
-        x10::lang::Runtime::start(main_closure);
+        x10::xrx::Runtime::start(main_closure);
 
     } catch(int exitCode) {
 

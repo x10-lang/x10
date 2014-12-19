@@ -40,7 +40,7 @@ public abstract class ThrowableUtils {
             x10_io_IOException = x10Class;
 
             javaClass = java.lang.InterruptedException.class;
-            x10Class = x10.lang.InterruptedException.class;
+            x10Class = x10.xrx.InterruptedException.class;
             x10Exceptions.put(javaClass, x10Class);
     }
         

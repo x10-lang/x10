@@ -18,7 +18,7 @@ import x10.core.fun.VoidFun_0_0;
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.DeadPlaceException;
-import x10.lang.FinishState;
+import x10.xrx.FinishState;
 import x10.lang.Place;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -77,7 +77,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         commonInit();
 
         // start and join main x10 thread in place 0
-        x10.lang.Runtime.Worker worker = new x10.lang.Runtime.Worker(0);
+        x10.xrx.Runtime.Worker worker = new x10.xrx.Runtime.Worker(0);
         worker.body = this;
         worker.start();
         try {
@@ -95,17 +95,17 @@ public abstract class Runtime implements VoidFun_0_0 {
      * Initializes X10-level statics that need to be there before we boot the X10 runtime.
      */
     public static void commonInit() {
-        x10.lang.Runtime.get$staticMonitor();
-        x10.lang.Runtime.get$STRICT_FINISH();
-        x10.lang.Runtime.get$NTHREADS();
-        x10.lang.Runtime.get$MAX_THREADS();
-        x10.lang.Runtime.get$STATIC_THREADS();
-        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
-        x10.lang.Runtime.get$BUSY_WAITING();
+        x10.xrx.Runtime.get$staticMonitor();
+        x10.xrx.Runtime.get$STRICT_FINISH();
+        x10.xrx.Runtime.get$NTHREADS();
+        x10.xrx.Runtime.get$MAX_THREADS();
+        x10.xrx.Runtime.get$STATIC_THREADS();
+        x10.xrx.Runtime.get$WARN_ON_THREAD_CREATION();
+        x10.xrx.Runtime.get$BUSY_WAITING();
         if (X10RT.initialEpoch != -1) {
             // initialize epoch to match other places
-            x10.lang.Runtime.epoch$O(); 
-            x10.lang.Runtime.get$pool().workers.epoch = X10RT.initialEpoch;
+            x10.xrx.Runtime.epoch$O(); 
+            x10.xrx.Runtime.get$pool().workers.epoch = X10RT.initialEpoch;
         }
         x10.util.Team.get$WORLD();
 
@@ -135,9 +135,9 @@ public abstract class Runtime implements VoidFun_0_0 {
         try {
             if (X10RT.hereId() == 0) {
                 new $Closure$Main(this, aargs).$apply();
-                x10.lang.Runtime.terminateAllJob();
+                x10.xrx.Runtime.terminateAllJob();
             }
-            x10.lang.Runtime.join();
+            x10.xrx.Runtime.join();
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
             if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
@@ -168,7 +168,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 
         commonInit();
 
-        x10.lang.Runtime.start();
+        x10.xrx.Runtime.start();
 
         // x10rt-level registration of MessageHandlers
         X10RT.registerHandlers();
@@ -229,7 +229,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         // execute root x10 activity
         try {
             // start xrx
-            x10.lang.Runtime.start(
+            x10.xrx.Runtime.start(
             // body of main activity
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
@@ -312,7 +312,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 
     // TODO: add epoch to x10rt transports
     public static void runAsyncAt(long epoch, int place, VoidFun_0_0 body, FinishState finishState, 
-                                  x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
+                                  x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 		// skipping the intermediate buffers contained within the X10JavaSerializer class.
         try {
@@ -346,7 +346,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             start = prof!=null ? System.nanoTime() : 0;
             if (X10RT.javaSockets != null) {
             	if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.simpleAsyncMessageID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
-            		if (x10.lang.Runtime.get$RESILIENT_MODE() == 0) System.err.println("Unable to send an async to place "+place);
+            		if (x10.xrx.Runtime.get$RESILIENT_MODE() == 0) System.err.println("Unable to send an async to place "+place);
             		throw new DeadPlaceException(new Place(place), "Unable to send an async to "+place);
             	}
             } else {
@@ -368,11 +368,11 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Synchronously executes body at place(id)
      */
-    public static void runClosureAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
+    public static void runClosureAt(int place, VoidFun_0_0 body, x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
         runAt(place, body, prof, preSendAction);
     }
 
-	public static void runAt(int place, VoidFun_0_0 body, x10.lang.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
+	public static void runAt(int place, VoidFun_0_0 body, x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		try {
 			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 			// skipping the intermediate buffers contained within the X10JavaSerializer class.
@@ -399,7 +399,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 			start = prof!=null ? System.nanoTime() : 0;
 			if (X10RT.javaSockets != null) {
 				if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.closureMessageID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
-					if (x10.lang.Runtime.get$RESILIENT_MODE() == 0) System.err.println("Unable to send a closure to place "+place);
+					if (x10.xrx.Runtime.get$RESILIENT_MODE() == 0) System.err.println("Unable to send a closure to place "+place);
             		throw new DeadPlaceException(new Place(place), "Unable to send a closure to "+place);
 				}
 			} else {

@@ -15,7 +15,7 @@
 #include <x10aux/network.h>
 #include <x10aux/atomic_ops.h>
 
-#include <x10/lang/Runtime.h>
+#include <x10/xrx/Runtime.h>
 #include <x10/lang/ExceptionInInitializer.h>
 
 #include <assert.h>
@@ -90,19 +90,19 @@ WAIT:
 
 
 void StaticInitController::lock() {
-    x10::lang::Runtime::StaticInitBroadcastDispatcherLock();
+    x10::xrx::Runtime::StaticInitBroadcastDispatcherLock();
 }
 
 void  StaticInitController::await() {
-    x10::lang::Runtime::StaticInitBroadcastDispatcherAwait();
+    x10::xrx::Runtime::StaticInitBroadcastDispatcherAwait();
 }
 
 void  StaticInitController::unlock() {
-    x10::lang::Runtime::StaticInitBroadcastDispatcherUnlock();
+    x10::xrx::Runtime::StaticInitBroadcastDispatcherUnlock();
 }
 
 void  StaticInitController::notify() {
-    x10::lang::Runtime::StaticInitBroadcastDispatcherNotify();
+    x10::xrx::Runtime::StaticInitBroadcastDispatcherNotify();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

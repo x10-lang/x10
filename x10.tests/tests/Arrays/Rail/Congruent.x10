@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.xrx.Runtime;
 
 // SKIP_MANAGED_X10: Congruent memory not supported by Managed X10
 

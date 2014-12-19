@@ -9,12 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.lang;
-
-import x10.io.Deserializer;
-import x10.io.Serializer;
-import x10.util.Map;
-import x10.util.HashMap;
+package x10.xrx;
 
 /**
  * Runtime representation of an async. Only to be used in the runtime implementation.
@@ -26,43 +21,6 @@ public class Activity {
     //       can simply ask the body if it should be deallocated on completion.
     private static DEALLOC_BODY:Boolean = canDealloc();
     private static def canDealloc():Boolean = true;  // sigh. Block constant propagation.
-
-    static class ClockPhases extends HashMap[Clock,Int] {
-        // compute spawnee clock phases from spawner clock phases in async clocked(clocks)
-        // and register spawnee on these on clocks
-        static def make(clocks:Rail[Clock]) {
-            val clockPhases = new ClockPhases();
-            for(var i:Long = 0; i < clocks.size; i++) 
-                clockPhases.put(clocks(i), clocks(i).register());
-            return clockPhases;
-        }
-
-        // next statement
-        def advanceAll() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeUnsafe();
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().advanceUnsafe();
-        }
-
-        // resume all clocks
-        def resumeAll() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeUnsafe();
-        }
-
-        // drop all clocks
-        def drop() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().dropInternal();
-            clear();
-        }
-
-        // HashMap implements CustomSerialization, so we must as well
-        public def serialize(s:Serializer) {
-            super.serialize(s);
-        }
-        def this() { super(); }
-        def this(ds:Deserializer) { 
-            super(ds); 
-        }
-    }
 
     /**
      * the finish state governing the execution of this activity (may be remote)
@@ -78,7 +36,7 @@ public class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:ClockPhases;
+    var clockPhases:Clock.ClockPhases;
 
     /** Set to true unless this activity represents the body of an 'at' statement.
      */
@@ -116,7 +74,7 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:ClockPhases) {
+    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:Clock.ClockPhases) {
         this(epoch, body, srcPlace, finishState);
         this.clockPhases = clockPhases;
     }
@@ -124,9 +82,10 @@ public class Activity {
     /**
      * Return the clock phases
      */
-    def clockPhases():ClockPhases {
-        if (null == clockPhases)
-            clockPhases = new ClockPhases();
+    def clockPhases():Clock.ClockPhases {
+        if (null == clockPhases) {
+            clockPhases = Clock.ClockPhases.make();
+        }
         return clockPhases;
     }
 

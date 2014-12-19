@@ -15,6 +15,7 @@ import x10.compiler.Global;
 import x10.compiler.Pinned;
 import x10.compiler.SuppressTransientError;
 import x10.util.GrowableRail;
+import x10.xrx.Runtime;
 
 /**
  * The representation of an X10 future expression.

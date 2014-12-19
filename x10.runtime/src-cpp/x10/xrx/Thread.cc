@@ -17,15 +17,15 @@
 #include <x10aux/alloc.h>
 #include <x10aux/throw.h>
 
-#include <x10/lang/Thread.h>
+#include <x10/xrx/Thread.h>
 
 #include <x10/lang/Place.h>
 #include <x10/lang/String.h>
 
 #include <x10/lang/Debug.h>
-#include <x10/lang/InterruptedException.h>
+#include <x10/xrx/InterruptedException.h>
 #include <x10/lang/IllegalArgumentException.h>
-#include <x10/lang/Runtime__Worker.h>
+#include <x10/xrx/Runtime__Worker.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -40,6 +40,7 @@
 #define pthread_attr_setstacksize(A,B) do { (void)A; (void)B; } while(0)
 #endif
 
+using namespace x10::xrx;
 using namespace x10::lang;
 using namespace x10aux;
 using namespace std;
@@ -49,13 +50,13 @@ using namespace std;
 extern "C" void __thread_start_trap() {}
 
 // initialize static data members
-long x10::lang::Thread::__thread_cnt = 0;
+long x10::xrx::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
 x10_boolean Thread::__thread_mapper_inited = false;
 
 // Thread start routine.
 void*
-x10::lang::Thread::thread_start_routine(void *arg)
+x10::xrx::Thread::thread_start_routine(void *arg)
 {
     // simply call the run method of the invoking thread object
     __xrxDPrStart();
@@ -403,7 +404,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
         }
     }
     pthread_cleanup_pop(1);
-    if (!done) throwException<InterruptedException>();
+    if (!done) throwException<x10::xrx::InterruptedException>();
     __xrxDPrEnd();
 }
 
@@ -589,6 +590,6 @@ void Thread::_serialize_body(x10aux::serialization_buffer &buf) {
     x10aux::throwNotSerializableException("Can't serialize x10.lang.Thread");
 }
 
-RTT_CC_DECLS0(Thread, "x10.lang.Thread", RuntimeType::class_kind)
+RTT_CC_DECLS0(Thread, "x10.xrx.Thread", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -14,6 +14,8 @@ package x10.compiler;
 import x10.array.BlockingUtils;
 import x10.array.DenseIterationSpace_2;
 
+import x10.xrx.Runtime;
+
 /**
  * Parallel iteration over a set of indices using different patterns of
  * local activity creation; this is intended to be used by the compiler to

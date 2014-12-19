@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-#ifndef X10_LANG_THREAD_H
-#define X10_LANG_THREAD_H
+#ifndef X10_XRX_THREAD_H
+#define X10_XRX_THREAD_H
 
 #include <x10aux/config.h>
 #include <x10aux/serialization.h>
@@ -26,6 +26,9 @@ namespace x10 {
         class Place;
         class String;
         class Reference;
+    }
+
+    namespace xrx {
         class Runtime__Worker;
 
         // execution thread condition & associated lock pair
@@ -170,13 +173,13 @@ namespace x10 {
             void unpark();
 
             // Returns the current worker.
-            ::x10::lang::Runtime__Worker* worker(void);
+            ::x10::xrx::Runtime__Worker* worker(void);
 
             // API matching for Java runtime.  Not actually needed for C++ runtime.
             ::x10::lang::Place home(void);
             
             // Set the current worker.
-            void worker(::x10::lang::Runtime__Worker* worker);
+            void worker(::x10::xrx::Runtime__Worker* worker);
 
             // Returns this thread's name.
             ::x10::lang::String* name(void);
@@ -238,7 +241,7 @@ namespace x10 {
 
         private:
             // the current worker
-            ::x10::lang::Runtime__Worker* __current_worker;
+            ::x10::xrx::Runtime__Worker* __current_worker;
             // internal thread id counter (monotonically increasing only)
             static long __thread_cnt;
             // thread id
@@ -263,6 +266,6 @@ namespace x10 {
     }
 }
 
-#endif /* X10_LANG_THREAD_H */
+#endif /* X10_XRX_THREAD_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab

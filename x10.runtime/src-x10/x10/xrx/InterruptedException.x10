@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.lang;
+package x10.xrx;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.lang;
+package x10.xrx;
 
 import x10.compiler.Native;
 import x10.compiler.Inline;
@@ -253,7 +253,7 @@ public final class Runtime {
 
     // Environment variables
 
-    static env = Configuration.loadEnv();
+    public static env = Configuration.loadEnv();
 
     public static STRICT_FINISH = Configuration.strict_finish();
     public static NTHREADS = Configuration.nthreads();
@@ -1308,7 +1308,7 @@ public final class Runtime {
     static class RemoteControl extends SimpleLatch implements Mortal {
         public def this() { super(); }
         var e:CheckedThrowable = null;
-        var clockPhases:Activity.ClockPhases = null;
+        var clockPhases:Clock.ClockPhases = null;
     }
 
     /** Subvert X10 and target language exception checking.
@@ -1884,6 +1884,38 @@ public final class Runtime {
     }
 
     public static def epoch() = pool.workers.epoch;
+
+    /**
+     * Sleep for the specified number of milliseconds.
+     * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
+     * @param millis the number of milliseconds to sleep
+     * @return true if completed normally, false if interrupted
+     */
+    public static def sleep(millis:Long):Boolean {
+        try {
+            Runtime.increaseParallelism();
+            Thread.sleep(millis);
+            Runtime.decreaseParallelism(1n);
+            return true;
+        } catch (e:InterruptedException) {
+            Runtime.decreaseParallelism(1n);
+            return false;
+        }
+    }
+
+    /**
+     * Sleep for the specified number of milliseconds.
+     * @param millis the number of milliseconds to sleep
+     * @return true if completed normally, false if interrupted
+     */
+    public static def threadSleep(millis:Long):Boolean {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (e:InterruptedException) {
+            return false;
+        }
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.lang;
+package x10.xrx;
 
 import x10.compiler.NativeRep;
 
@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
  * Temporarily public to enable use in WS runtime classes.
  */
 @NativeRep("java", "x10.core.Deque", null, "x10.core.Deque.$RTT")
-@NativeRep("c++", "x10::lang::Deque*", "x10::lang::Deque", null)
+@NativeRep("c++", "x10::xrx::Deque*", "x10::xrx::Deque", null)
 public final class Deque {
     public native def size():Int;
 

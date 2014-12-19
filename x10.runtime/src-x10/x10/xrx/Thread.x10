@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package x10.lang;
+package x10.xrx;
 
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
@@ -19,7 +19,7 @@ import x10.io.Unserializable;
  * Native thread. Only to be used in the runtime implementation.
  */
 @NativeRep("java", "x10.core.Thread", null, "x10.core.Thread.$RTT")
-@NativeRep("c++", "x10::lang::Thread*", "x10::lang::Thread", null)
+@NativeRep("c++", "x10::xrx::Thread*", "x10::xrx::Thread", null)
 class Thread implements Unserializable {
 
     public native def this(String);
