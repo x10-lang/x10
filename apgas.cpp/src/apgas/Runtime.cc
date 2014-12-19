@@ -16,7 +16,7 @@
 
 #include <x10aux/alloc.h>
 #include <x10aux/bootstrap.h>
-#include <x10/lang/Runtime.h>
+#include <x10/xrx/Runtime.h>
 
 namespace apgas {
 
@@ -32,9 +32,9 @@ namespace apgas {
     }
 
     void Runtime::start() {
-        // HACK: Whack x10.lang.Activity.DEALLOC_BODY to be false.
-        x10::lang::Activity::FMGL(DEALLOC_BODY__get)();
-        x10::lang::Activity::FMGL(DEALLOC_BODY) = false;
+        // HACK: Whack x10.xrx.Activity.DEALLOC_BODY to be false.
+        x10::xrx::Activity::FMGL(DEALLOC_BODY__get)();
+        x10::xrx::Activity::FMGL(DEALLOC_BODY) = false;
 
         char* args = {"APGAS_LIB"};
         hack = this;
@@ -44,12 +44,12 @@ namespace apgas {
         
     void Runtime::runAsync(Task* task) {
         task->setRuntime(this);
-        x10::lang::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
+        x10::xrx::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
         
     void Runtime::runFinish(Task* task) {
         task->setRuntime(this);
-        x10::lang::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
+        x10::xrx::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
 
     class FinishBlock : public Task {
@@ -70,7 +70,7 @@ namespace apgas {
     }        
 
     int Runtime::numWorkers() {
-        return x10::lang::Runtime::FMGL(NTHREADS__get)();
+        return x10::xrx::Runtime::FMGL(NTHREADS__get)();
     }
         
     void* Runtime::alloc_impl(size_t size) {
