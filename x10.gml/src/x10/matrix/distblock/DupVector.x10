@@ -418,7 +418,10 @@ public class DupVector(M:Long) implements Snapshottable {
      * Snapshot mechanism
      */
     private transient val DUMMY_KEY:Long = 8888L;
-
+    /**
+     * Create a snapshot for the DupVector by storing the current place's vector 
+     * @return a snapshot for the DupVector data stored in a resilient store
+     */
     public def makeSnapshot():DistObjectSnapshot {
         val snapshot = DistObjectSnapshot.make();        
         val data = dupV();
@@ -427,6 +430,10 @@ public class DupVector(M:Long) implements Snapshottable {
         return snapshot;
     }
 
+    /**
+     * Restore the DupVector data using the provided snapshot object 
+     * @param snapshot  a snapshot to restore the data from
+     */
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
         val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
         new Vector(dupSnapshotInfo.data).copyTo(dupV());

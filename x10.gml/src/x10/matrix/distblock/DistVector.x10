@@ -479,7 +479,7 @@ public class DistVector(M:Long) implements Snapshottable {
      * Snapshot mechanism
      */
     /**
-     * Remake the DistBlockMatrix over a new PlaceGroup
+     * Remake the DistVector over a new PlaceGroup
      */
     public def remake(segsz:Rail[Long], newPg:PlaceGroup){        
         assert (segsz.size == newPg.size()) :
@@ -492,6 +492,9 @@ public class DistVector(M:Long) implements Snapshottable {
         places = newPg;
     }
     
+    /**
+     * Remake the DistVector over a new PlaceGroup
+     */
     public def remake(newPg:PlaceGroup){
         val m = M;        
         val segNum = newPg.size;
@@ -499,6 +502,10 @@ public class DistVector(M:Long) implements Snapshottable {
         remake (slst, newPg);
     }
 
+    /**
+     * Create a snapshot for the DistVector data 
+     * @return a snapshot for the DistVector data stored in a resilient store
+     */
     public def makeSnapshot():DistObjectSnapshot{
         //val startTime = Timer.milliTime();
         val snapshot = DistObjectSnapshot.make();
@@ -514,6 +521,10 @@ public class DistVector(M:Long) implements Snapshottable {
         return snapshot;
     }
     
+    /**
+     * Restore the DistVector data using the provided snapshot object 
+     * @param snapshot  a snapshot to restore the data from
+     */
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
         //val startTime = Timer.milliTime();
         val segmentSizes = snapshotSegSize;

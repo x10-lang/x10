@@ -236,7 +236,7 @@ public class TestDistBlock extends x10Test {
         val grid1 = grid;
         val dmap1 = DistGrid.make(grid, places.size()).dmap;
         
-        a.remakeDense(grid1, dmap1, places); //without allocate
+        a.remakeDense(grid1, dmap1, places);
         a.restoreSnapshot(a_snapshot);
         
         ret &= a.equals(1.0);        
@@ -246,7 +246,7 @@ public class TestDistBlock extends x10Test {
         val c_snapshot = c.makeSnapshot();
         c.init((r:Long,c:Long)=>5.0);        
         
-        c.remakeSparse(grid1, dmap1, nzp, places);//without allocate        
+        c.remakeSparse(grid1, dmap1, nzp, places);
         c.restoreSnapshot(c_snapshot);
         for (var i:Long=0; i< c.M; i++)
             for (var j:Long=0; j< c.N; j++)            

@@ -304,11 +304,13 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     }
     
     /**
-     * Allocate sparse matrix for blocks with unknown sizes
+     * Allocate sparse matrix for blocks with arbitrary sizes.
+     * If the block set has previosly allocated blocks, they will be deleted first.
      */
-    public def allocAndInitNonUniformSparseBlocks(f:(Long,Long)=>Double):DistBlockMatrix(this) {        
+    private def allocAndInitNonUniformSparseBlocks(f:(Long,Long)=>Double):DistBlockMatrix(this) {        
         finish ateach(p in Dist.makeUnique(places)) {
-            handleBS().allocAndInitNonUniformSparseBlocks(f);        
+            handleBS().clear(); // delete old blocks
+            handleBS().allocAndInitNonUniformSparseBlocks(f);
         }
         return this;
     }
@@ -918,18 +920,22 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * Snapshot mechanism
      */
     /**
-     * Remake the DistBlockMatrix over a new PlaceGroup
-     * Using the oldGrid can make the resulting distribution unbalanced
-     */    
+     * Remake the DistBlockMatrix over a new PlaceGroup.
+     * Remake does not allocate the new blocks' storage, so allocSparseBlocks(Double) or 
+     * allocDenseBlocks() should be called after calling this remake method.
+     *  
+     * @param rowPs, colPs      the number of rows and columns for the place grid
+     * @param newPg             the new place group to distribute the matrix over
+     * @param useOldGrid        a flag to indicate whether to use the same data grid for remake 
+     *                          or to calculate a new grid based on the new place group (newPg) size
+     */
     public def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, useOldGrid:Boolean){
         assert (rowPs*colPs==newPg.size()) :
-            "Block partitioning error: rowsPs["+rowPs+"]*colPs["+colPs+"] != newPg.size["+places.size()+"]";
-        //save the oldGrid and oldMap to be used for restore
+            "Block partitioning error: rowsPs["+rowPs+"]*colPs["+colPs+"] != newPg.size["+places.size()+"]";        
         val oldGrid = getGrid();
-        val oldMap = getMap();
         val blks:PlaceLocalHandle[BlockSet];
         PlaceLocalHandle.destroy(places, handleBS, (Place)=>true);        
-        if (!useOldGrid){
+        if (!useOldGrid){                        
             val rowBs:Long = oldGrid.numRowBlocks; 
             val colBs:Long = oldGrid.numColBlocks;            
             blks = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.make(M,N,rowBs,colBs,rowPs,colPs, newPg)));
@@ -941,27 +947,136 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         places = newPg;
     }
     
-    public def remakeSparse(rowPs:Long, colPs:Long, npz:Double, newPg:PlaceGroup){
-        if (rebalanceMode == null || rebalanceMode.equals("0")){
-            remake(rowPs, colPs, newPg, true); 
-            allocSparseBlocks(npz);
-        }
-        else{
-            remake(rowPs, colPs, newPg, false);
-            //allocation will occur during restore
-        }
-    }
-     
-    public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup){
-        if (rebalanceMode == null || rebalanceMode.equals("0")){
-            remake(rowPs, colPs, newPg, true); // use old grid
-        }
-        else{
-            remake(rowPs, colPs, newPg, false);
-        }
-        allocDenseBlocks();
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup using Sparse Blocks. 
+     * After calling this method, restoreSnapshot() must be called 
+     * 
+     * @param rowPs, colPs         the number of rows and columns for the place grid
+     * @parm  nzd                  the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
+     * @param newPg                the new place group to distribute the matrix over
+     * @param checkRebalanceMode   a flag to indicate if remake should consider the X10_GML_REBALANCE variable when
+     *                             redistributing the matrix. If checkRebalanceMode equals false then the same data grid will be used 
+     */
+    public def remakeSparse(rowPs:Long, colPs:Long, nzd:Double, newPg:PlaceGroup, checkRebalanceMode:Boolean) {
+        if (checkRebalanceMode)
+            remakeSparseCheckRebalanceMode(rowPs, colPs, nzd, newPg);        
+        else
+            remakeSparse(rowPs, colPs, nzd, newPg);
     }
     
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the sparse blocks storage.
+     * The same data grid will be used.
+     * The storage of the sparse blocks are allocated using the provided non-zero density parameter (nzd).
+     * @param rowPs, colPs     the number of rows and columns for the place grid
+     * @parm  nzd              the non-zero density of the sparse blocks.
+     * @param newPg            the new place group to distribute the matrix over
+     */
+    public def remakeSparse(rowPs:Long, colPs:Long, nzd:Double, newPg:PlaceGroup) {        
+        remake(rowPs, colPs, newPg, true);
+        allocSparseBlocks(nzd);
+    }
+    
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup using Sparse Blocks. 
+     * The environment variable X10_GML_REBALANCE will be checked to decide whether to use the same data 
+     * grid for remake or to calculate a new grid based on the new place group (newPg) size.
+     * After calling the remakeSparseCheckRebalanceMode(), the restoreSnapshot() should be called 
+     * before using the matrix in any computation.
+     * If X10_GML_REBALANCE=0, the storage of the sparse blocks will be allocated based on the provided 
+     *                         non-zero density parameter (nzd)
+     * If X10_GML_REBALANCE=1, allocating the storage will be deferred to the restore time because the actual 
+     *                         number of elements that will be placed in each block can not be determined by remake.
+     *                         That is why restoreSnapshot() should be called after remakeSparseCheckRebalanceMode().
+     * 
+     * @param rowPs, colPs     the number of rows and columns for the place grid
+     * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
+     * @param newPg            the new place group to distribute the matrix over
+     */
+    private def remakeSparseCheckRebalanceMode(rowPs:Long, colPs:Long, nzd:Double, newPg:PlaceGroup) {
+        if (rebalanceMode == null || rebalanceMode.equals("0")) {
+            remake(rowPs, colPs, newPg, true); 
+            allocSparseBlocks(nzd);
+        }
+        else {
+            remake(rowPs, colPs, newPg, false);
+            //should call the restoreSnapshot to allocate the blocks
+        }
+    }
+
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the sparse blocks storage.
+     * The storage of the sparse blocks are allocated using the provided non-zero density parameter (nzd).
+     * 
+     * If restoreSnapshot is called after calling this method and if the provided data grid (g) is different from the snapshotGrid, 
+     * the restoreSnapshot method will deallocate the blocks and reallocate them using the allocAndInitNonUniformSparseBlocks method.
+     * 
+     * @param g             the data grid
+     * @parm  d             the mapping between blocks of the data grid and the places 
+     * @param nzd           the non-zero density of the sparse blocks.
+     * @param newPg         the new place group to distribute the matrix over
+     */
+    public def remakeSparse(g:Grid, d:DistMap, nzd:Double, newPg:PlaceGroup) {        
+        PlaceLocalHandle.destroy(places, handleBS, (Place)=>true);
+        handleBS = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.makeSparse(g, d, nzd, newPg)));
+        places = newPg;
+    }
+
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the dense blocks storage.  
+     * @param rowPs, colPs     the number of rows and columns for the place grid
+     * @param newPg            the new place group to distribute the matrix over
+     * @param checkRebalanceMode   a flag to indicate if remake should consider the X10_GML_REBALANCE variable when
+     *                             redistributing the matrix. If checkRebalanceMode equals false then the same data grid will be used
+     */
+    public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup, checkRebalanceMode:Boolean){
+        if (checkRebalanceMode)
+            remakeDenseCheckRebalanceMode(rowPs, colPs, newPg);
+        else
+            remakeDense(rowPs, colPs, newPg);
+    }
+  
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup using the same data grid, and allocate the dense blocks storage. 
+     * @param rowPs, colPs     the number of rows and columns for the place grid
+     * @param newPg            the new place group to distribute the matrix over
+     */
+    private def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup){    
+        remake(rowPs, colPs, newPg, true); // use old grid    
+        allocDenseBlocks();
+    }
+
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the dense blocks storage.  
+     * The environment variable X10_GML_REBALANCE will be checked to decide whether to use the same data 
+     * grid for remake or to calculate a new grid based on the new place group (newPg) size.
+     * 
+     * @param rowPs, colPs     the number of rows and columns for the place grid
+     * @param newPg            the new place group to distribute the matrix over
+     */
+    private def remakeDenseCheckRebalanceMode(rowPs:Long, colPs:Long, newPg:PlaceGroup){
+        if (rebalanceMode == null || rebalanceMode.equals("0"))
+            remake(rowPs, colPs, newPg, true); // use old grid        
+        else
+            remake(rowPs, colPs, newPg, false);        
+       allocDenseBlocks();
+    }
+    /**
+     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the dense blocks storage. 
+     * @param g             the data grid
+     * @parm  d             the mapping between blocks of the data grid and the places 
+     * @param newPg         the new place group to distribute the matrix over
+     */
+    public def remakeDense(g:Grid, d:DistMap, newPg:PlaceGroup) {
+        PlaceLocalHandle.destroy(places, handleBS, (Place)=>true);   
+        handleBS = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.makeDense(g, d, newPg)));
+        places = newPg;                
+    }
+    
+    /**
+     * Create a snapshot for the matrix data 
+     * @return a snapshot for the matrix data stored in a resilient store
+     */
     public def makeSnapshot():DistObjectSnapshot {
         //val startTime = Timer.milliTime();
         val snapshot = DistObjectSnapshot.make();
@@ -977,7 +1092,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         return snapshot;
     }
     
-    public def restoreSnapshotRebalance(snapshot:DistObjectSnapshot) {    
+    /**
+     * Restore the matrix data using the provided snapshot object 
+     * Used when restoring a matrix using a different data grid
+     * @param snapshot      a snapshot to restore the data from
+     */
+    private def restoreSnapshotRebalance(snapshot:DistObjectSnapshot) {    
         val oldGrid = snapshotGrid;
         val oldDistMap = snapshotMap;        
         val cached = PlaceLocalHandle.make[HashMap[Long,BlockSetSnapshotInfo]](places, ()=>new HashMap[Long, BlockSetSnapshotInfo]());        
@@ -1002,7 +1122,8 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         };
         
         //non uniform sparse blocks are not allocated by remake
-        val isSparse = handleBS().blocklist.size() == 0;
+        val blockList = handleBS().blocklist;
+        val isSparse = blockList.size() == 0 || blockList.get(0).isSparse();
         if (isSparse)
             allocAndInitNonUniformSparseBlocks(initFunc);
         else
@@ -1010,17 +1131,20 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         PlaceLocalHandle.destroy(places, cached, (Place)=>true);
     }
 
-    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        if (rebalanceMode != null && rebalanceMode.equals("1")){            
-            restoreSnapshotRebalance(snapshot);
-            return;
-        }
+    /**
+     * Restore the matrix data using the provided snapshot object 
+    * @param snapshot  a snapshot to restore the data from
+     */
+    public def restoreSnapshot(snapshot:DistObjectSnapshot) {        
         val startTime = Timer.milliTime();
         val oldGrid = snapshotGrid;
         val oldDistMap = snapshotMap;
         val newGrid = getGrid();
         
-        assert(oldGrid.equals(newGrid));
+        if (!oldGrid.equals(newGrid)) {
+            restoreSnapshotRebalance(snapshot);
+            return;
+        }        
         
         finish ateach(p in Dist.makeUnique(places)) {
             var copyToTime:Long = 0;
