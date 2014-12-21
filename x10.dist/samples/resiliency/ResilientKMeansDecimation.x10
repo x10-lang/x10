@@ -39,7 +39,7 @@ class ResilientKMeansDecimation {
         
         /*
         finish for (p in Place.places()) at (p) {
-            Console.OUT.println(here+" running in "+Runtime.getName());
+            Console.OUT.println(here+" running in "+x10.xrx.Runtime.getName());
         }
         */
 
