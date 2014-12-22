@@ -13,11 +13,10 @@ package x10.util.concurrent;
 
 import x10.compiler.Pinned;
 import x10.xrx.Runtime;
+import x10.xrx.Worker;
 
 @Pinned public class SimpleIntLatch extends Lock {
     public def this() { super(); }
-
-    static type Worker = Runtime.Worker;
 
     private var worker:Worker = null;
     private var value:Int = 0n;

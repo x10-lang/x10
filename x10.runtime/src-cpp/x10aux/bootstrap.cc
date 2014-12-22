@@ -24,7 +24,7 @@
 #include <x10/xrx/Thread.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
-#include <x10/xrx/Runtime__Worker.h>
+#include <x10/xrx/Worker.h>
 #include <x10/util/Team.h>
 
 using namespace x10aux;
@@ -129,7 +129,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
         // Initialise enough state to make this 'main' thread look like a normal x10 thread
         // (e.g. make Thread::CurrentThread work properly).
-        x10::xrx::Runtime__Worker::_make((x10_int)0);
+        x10::xrx::Worker::_make((x10_int)0);
 
         // Get the args into an X10 Rail[String]
         x10::lang::Rail<x10::lang::String*>* args = convert_args(main_args->ac, main_args->av);

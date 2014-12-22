@@ -77,7 +77,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         commonInit();
 
         // start and join main x10 thread in place 0
-        x10.xrx.Runtime.Worker worker = new x10.xrx.Runtime.Worker(0);
+        x10.xrx.Worker worker = new x10.xrx.Worker(0);
         worker.body = this;
         worker.start();
         try {

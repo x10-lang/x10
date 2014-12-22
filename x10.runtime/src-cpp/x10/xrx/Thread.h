@@ -29,7 +29,7 @@ namespace x10 {
     }
 
     namespace xrx {
-        class Runtime__Worker;
+        class Worker;
 
         // execution thread condition & associated lock pair
         typedef struct {
@@ -173,13 +173,13 @@ namespace x10 {
             void unpark();
 
             // Returns the current worker.
-            ::x10::xrx::Runtime__Worker* worker(void);
+            ::x10::xrx::Worker* worker(void);
 
             // API matching for Java runtime.  Not actually needed for C++ runtime.
             ::x10::lang::Place home(void);
             
             // Set the current worker.
-            void worker(::x10::xrx::Runtime__Worker* worker);
+            void worker(::x10::xrx::Worker* worker);
 
             // Returns this thread's name.
             ::x10::lang::String* name(void);
@@ -241,7 +241,7 @@ namespace x10 {
 
         private:
             // the current worker
-            ::x10::xrx::Runtime__Worker* __current_worker;
+            ::x10::xrx::Worker* __current_worker;
             // internal thread id counter (monotonically increasing only)
             static long __thread_cnt;
             // thread id

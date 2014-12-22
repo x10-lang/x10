@@ -25,7 +25,7 @@
 #include <x10/lang/Debug.h>
 #include <x10/xrx/InterruptedException.h>
 #include <x10/lang/IllegalArgumentException.h>
-#include <x10/xrx/Runtime__Worker.h>
+#include <x10/xrx/Worker.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -525,7 +525,7 @@ Thread::unpark()
 }
 
 // Returns the current worker.
-Runtime__Worker*
+Worker*
 Thread::worker(void)
 {
     return __current_worker;
@@ -539,7 +539,7 @@ Thread::home(void)
 
 // Set the current worker.
 void
-Thread::worker(Runtime__Worker* worker)
+Thread::worker(Worker* worker)
 {
     __current_worker = worker;
 }
