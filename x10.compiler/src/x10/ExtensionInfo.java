@@ -98,15 +98,14 @@ import x10.extension.X10Ext;
 //import x10.finish.table.CallTableKey;
 //import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
-import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
+import x10.parser.antlr.X10Parser;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
 import x10.plugin.RegisterPlugins;
 import x10.types.X10SourceClassResolver;
 import polyglot.types.TypeSystem;
-
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Lowerer;
 import x10.visit.Desugarer;
@@ -191,45 +190,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-    // ###
-//        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-//        	return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-//        }
-
     	try {
-            //
-            // X10Lexer may be invoked using one of two constructors.
-            // One constructor takes as argument a string representing
-            // a (fully-qualified) filename; the other constructor takes
-            // as arguments a (file) Reader and a string representing the
-            // name of the file in question. Invoking the first
-            // constructor is more efficient because a buffered File is created
-            // from that string and read with one (read) operation. However,
-            // we depend on Polyglot to provide us with a fully qualified
-            // name for the file. In Version 1.3.0, source.name() yielded a
-            // fully-qualied name. In 1.3.2, source.path() yields a fully-
-            // qualified name. If this assumption still holds then the 
-            // first constructor will work.
-            // The advantage of using the Reader constructor is that it
-            // will always work, though not as efficiently.
-            //
-            // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
-            //
-            // FIXME: HACK! Unwrap the escaping unicode reader, because LPG will do its own decoding
-//          if (reader instanceof polyglot.lex.EscapedUnicodeReader)
-//              reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
-            X10Lexer x10_lexer =
-                // Optimization: it's faster to read from a file
-                source.resource().getClass() == FileResource.class ?
-                                new X10Lexer(source.path()) :
-                                new X10Lexer(reader, source.toString());
-            X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer, ts, nf, source, eq); // Create the parser
-            x10_lexer.lexer(x10_parser.getIPrsStream());
-            return x10_parser; // Parse the token stream to produce an AST
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        throw new IllegalStateException("Could not parse " + source.path());
+    		return new X10Parser(ts, nf, source, eq);
+    	} catch(Exception e){
+    		throw new IllegalStateException("Could not parse " + source.path());
+    	}
     }
 
     protected Set<String> manifest = CollectionFactory.newHashSet();
