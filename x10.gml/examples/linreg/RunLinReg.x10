@@ -12,6 +12,7 @@
 import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Timer;
+import x10.xrx.Runtime;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
