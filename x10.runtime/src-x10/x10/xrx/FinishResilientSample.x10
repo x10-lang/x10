@@ -12,6 +12,7 @@ package x10.xrx;
 
 import x10.util.concurrent.SimpleLatch;
 import x10.util.*;
+import x10.compiler.Immediate;
 
 // /*
 //  * Skeleton
@@ -156,11 +157,11 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
     
     private static def releaseLatch(id:FinishID) { // can be called from any place
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
-        lowLevelSend(Place(id.placeId), ()=>{
+        at (Place(id.placeId)) @Immediate("releaseLatch") async {
             val fs = ALL(id.localId); // get the original local FinishState
             if (verbose>=2) debug("calling latch.release for id="+id);
             fs.latch.release(); // latch.await is in waitForFinish
-        });
+        }
         if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
     

@@ -790,14 +790,6 @@ public final class Runtime {
         throw new AtCheckedWrapper(caught);
     }
  
-    /**
-     * When a checked exception can escape an 'at', we inject the exception into the calling activity using
-     * a sleazy trick that the javac exception checker does not know about.  This call forces it to believe
-     * that a given exception may be raised by the at.
-     */
-    //public static def pretendToThrow[T] () { T<: CheckedThrowable } : void throws T { }
-    // work-around for XTENLANG-3086 is in CheckedThrowable.x10
-
     /** 
      * Implement the exception/blocking semantics of at(p) S by 
      * combining the fundamental primitives of finish (for blocking)
@@ -903,6 +895,77 @@ public final class Runtime {
         }
     }
 
+    static def debug(msg:String) {
+        val nsec = System.nanoTime();
+        val output = "[nsec=" + nsec + " place=" + here.id + " " + Runtime.activity() + "] " + msg;
+        Console.OUT.println(output); Console.OUT.flush();
+    }
+
+    /**
+     * Blocking execution of a closure via Immediate workers.
+     * Unlike the fully-general runAt, the argument closure must
+     * comply with the restrictions of @Immediate asyncs and
+     * parallelism will not be increased in the source place.
+     * This method must not be call from an Immediate worker.
+     * The activity/worker calling runImmediateAt will be 'paused'
+     * until the remote execution of the argument closure completes
+     * (either normally or with an exception which will be thrown again).
+     */
+    public static def runImmediateAt(dst:Place, cl:()=>void):void {
+        val verbose = FinishResilient.verbose;
+        if (verbose>=1) {
+            if (Runtime.worker().promoted) {
+                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                new Exception().printStackTrace();
+            }
+        }
+        if (verbose>=4) debug("---- runImmediateAt called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
+        if (here == dst) {
+            if (verbose>=4) debug("---- runImmediateAt locally calling cl()");
+            cl();
+            if (verbose>=4) debug("---- runImmediateAt locally executed, returning true");
+        } else {
+            // remote call
+            val cond = new Condition();
+            val condGR = GlobalRef[Condition](cond); 
+            val exc = GlobalRef(new Cell[CheckedThrowable](null));
+            if (verbose>=4) debug("---- runImmediateAt initiating remote execution");
+            at (dst) @Immediate("finish_resilient_low_level_at_out") async {
+                try {
+                    if (verbose>=4) debug("---- runImmediateAt(remote) calling cl()");
+                    cl();
+                    if (verbose>=4) debug("---- runImmediateAt(remote) returned from cl()");
+                    at (condGR) @Immediate("finish_resilient_low_level_at_back") async {
+                        if (verbose>=4) debug("---- runImmediateAt(home) releasing cond");
+                        condGR().release();
+                    }
+                } catch (t:Exception) {
+                    if (verbose>=4) debug("---- runImmediateAt(remote) caught exception="+t);
+                    at (condGR) @Immediate("finish_resilient_low_level_at_back_exc") async {
+                        if (verbose>=4) debug("---- runImmediateAt(home) setting exc and releasing cond");
+                        exc()(t);
+                        condGR().release();
+                    };
+                }
+                if (verbose>=4) debug("---- runImmediateAt(remote) finished");
+            };
+        
+            if (verbose>=4) debug("---- runImmediateAt waiting for cond");
+            cond.await();
+            if (verbose>=4) debug("---- runImmediateAt released from cond");
+	    // Unglobalize objects
+	    condGR.forget();
+            exc.forget();
+
+            val t = exc()();
+            if (t != null) {
+                if (verbose>=4) debug("---- runImmediateAt throwing exception " + t);
+                Runtime.throwCheckedWithoutThrows(t);
+            }
+            if (verbose>=4) debug("---- runImmediateAt completed");
+        }
+    }
+
 
     /*
      * [GlobalGC] Special version of runAt, which does not use activity, clock, exceptions
@@ -939,14 +1002,6 @@ public final class Runtime {
         // *not* wait until body is executed at remote place
       }
         Unsafe.dealloc(body);
-    }
-
-    /**
-     * a latch with a place for an exception and return value
-     */
-    static class Remote[T] extends RemoteControl {
-        public def this() { super(); }
-        var t:Box[T] = null;
     }
 
     /** A class that is used to receive profiling information during various runtime communication constructs.
@@ -1107,6 +1162,78 @@ public final class Runtime {
         //       remote closures (Native X10).
         val eval2 = ()=>(eval() as Any);
         val r:T = evalAtImpl(place, eval2, prof) as T;
+        Unsafe.dealloc(eval2); 
+        return r;
+    }
+
+
+    private static def evalImmediateAtImpl(dst:Place, cl:()=>Any):Any {
+        val verbose = FinishResilient.verbose;
+        if (verbose>=1) {
+            if (Runtime.worker().promoted) {
+                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                new Exception().printStackTrace();
+            }
+        }
+        if (verbose>=4) debug("---- evalImmediateAt called, dst.id=" + dst.id + " ("+here.id+"->"+dst.id+")");
+        if (here == dst) {
+            if (verbose>=4) debug("---- evalImmediateAt locally calling cl()");
+            val res = cl();
+            if (verbose>=4) debug("---- evalImmediateAt locally executed, returning "+res);
+            return res;
+        }
+        
+        // remote call
+        val cond = new Condition();
+        val condGR = GlobalRef[Condition](cond); 
+        val exc = GlobalRef(new Cell[CheckedThrowable](null));
+        val result = new Cell[Any](null);
+        val gresult = GlobalRef(result);
+        if (verbose>=4) debug("---- evalImmediateAt remote execution");
+        at (dst) @Immediate("finish_resilient_low_level_fetch_out") async {
+            try {
+                if (verbose>=4) debug("---- evalImmediateAt(remote) calling cl()");
+                val r = cl();
+                if (verbose>=4) debug("---- evalImmediateAt(remote) returned from cl()");
+                at (condGR) @Immediate("finish_resilient_low_level_fetch_back") async {
+                    if (verbose>=4) debug("---- evalImmediateAt(home) setting the result and done-flag");
+                    gresult()(r); // set the result
+                    condGR().release();
+                };
+            } catch (t:Exception) {
+                at (condGR) @Immediate("finish_resilient_low_level_fetch_back_exc") async {
+                    if (verbose>=4) debug("---- evalImmediateAt(home) setting exc and relasing cond");
+                    exc()(t);
+                    condGR().release();
+                };
+            }
+            if (verbose>=4) debug("---- evalImmediateAt(remote) finished");
+        };
+        
+        if (verbose>=4) debug("---- evalImmediateAt waiting for cond");
+        cond.await();
+        if (verbose>=4) debug("---- evalImmediateAt released from cond");
+        val t = exc()();
+
+	// Unglobalize objects
+	condGR.forget();
+        exc.forget();
+	gresult.forget();
+
+        if (t != null) {
+            if (verbose>=4) debug("---- evalImmediateAt throwing exception " + t);
+            Runtime.throwCheckedWithoutThrows(t);
+        }
+        if (verbose>=4) debug("---- evalImmediateAt returning value "+result());
+        return result();
+    }
+
+    public static def evalImmediateAt[T](place:Place, eval:()=>T):T {
+        // NOTE: We are wrapping a non-generic impl of the core functionality
+        //       to control codespace growth and limit the number of actual
+        //       remote closures (Native X10).
+        val eval2 = ()=>(eval() as Any);
+        val r:T = evalImmediateAtImpl(place, eval2) as T;
         Unsafe.dealloc(eval2); 
         return r;
     }

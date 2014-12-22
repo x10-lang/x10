@@ -71,8 +71,7 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug(">>>> make called, parent="+parent + " latch="+latch);
         val parentId = (parent instanceof FinishResilientPlace0) ? (parent as FinishResilientPlace0).id : -1; // ok to ignore other cases?
         val gLatch = GlobalRef[SimpleLatch](latch);
-        val idCell= new Cell[Long](-1);
-        lowLevelFetch[Long](place0, idCell, ()=>{ atomic {
+        val id = Runtime.evalImmediateAt[Long](place0, ()=>{ atomic {
             val id = states.size();
             val state = new State(parentId, gLatch);
             states.add(state);
@@ -80,7 +79,6 @@ class FinishResilientPlace0 extends FinishResilient {
             if (parentId != -1) states(parentId).children.add(id);
             return id;
         }});
-        val id = idCell();
         val fs = new FinishResilientPlace0(id);
         if (verbose>=1) debug("<<<< make returning fs="+fs);
         return fs;
@@ -109,7 +107,7 @@ class FinishResilientPlace0 extends FinishResilient {
         val srcId = here.id, dstId = place.id;
         if (dstId != srcId) hasRemote = true;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
-        lowLevelAt(place0, ()=>{ atomic {
+        Runtime.runImmediateAt(place0, ()=>{ atomic {
             val state = states(id);
             if (!state.isAdopted()) {
                 state.transit(srcId, dstId, kind)++;
@@ -125,11 +123,11 @@ class FinishResilientPlace0 extends FinishResilient {
 
     /*
      * This method can't block because it may run on an @Immediate worker.  
-     * Therefore it can't use lowLevelAt.
+     * Therefore it can't use Runtime.runImmediateAsync.
      * Instead sequence @Immediate messages to do the nac to place0 and
      * then come back and submit the pending activity.
      * Because place0 can't fail, we know that if the first message gets
-     * to place0, the message back to push the activity will evantually
+     * to place0, the message back to push the activity will eventually
      * be received (unless dstId's place fails, in which case it doesn't matter).
      */
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
@@ -188,7 +186,7 @@ class FinishResilientPlace0 extends FinishResilient {
             return false;
         }
 
-        lowLevelAt(place0, ()=> {
+        Runtime.runImmediateAt(place0, ()=> {
             atomic {
                 val state = states(id);
                 if (!state.isAdopted()) {
@@ -291,7 +289,7 @@ class FinishResilientPlace0 extends FinishResilient {
 
     def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
-        lowLevelAt(place0, ()=>{ atomic {
+        Runtime.runImmediateAt(place0, ()=>{ atomic {
             val state = states(id);
             state.excs.add(t); // need not consider the adopter
         }});
@@ -301,15 +299,13 @@ class FinishResilientPlace0 extends FinishResilient {
     def waitForFinish():void {
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
         // terminate myself
-        notifyActivityTermination(ASYNC); // TOOD: merge this to the following lowLevelFetch
+        notifyActivityTermination(ASYNC); // TOOD: merge this to the following evalImmediateAt
 
         // get the latch to wait
-        val gLatchCell = new Cell[GlobalRef[SimpleLatch]](GlobalRef(null as SimpleLatch));
-        lowLevelFetch(place0, gLatchCell, ()=>{ atomic {
+        val gLatch = Runtime.evalImmediateAt[GlobalRef[SimpleLatch]](place0, ()=>{ atomic {
             val state = states(id);
             return state.gLatch;
         }});
-        val gLatch = gLatchCell();
         assert gLatch.home==here;
         val lLatch = gLatch.getLocalOrCopy();
 
@@ -326,8 +322,7 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=2) debug("returned from latch.await for id="+id);
         
         // get exceptions
-        val excCell = new Cell[MultipleExceptions](null);
-        lowLevelFetch(place0, excCell, ()=> { atomic {
+        val e = Runtime.evalImmediateAt[MultipleExceptions](place0, ()=> { atomic {
             val state = states(id);
             if (!state.isAdopted()) {
                 states(id) = null;
@@ -337,7 +332,6 @@ class FinishResilientPlace0 extends FinishResilient {
                 return null as MultipleExceptions;
             }
         }});
-        val e = excCell();
         if (verbose>=1) debug("<<<< waitForFinish(id="+id+") returning, exc="+e);
         if (e != null) throw e;
     }
@@ -362,10 +356,10 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
         val state = states(id);
         val gLatch = state.gLatch;
-        lowLevelSend(gLatch.home, ()=>{
+        at (gLatch.home) @Immediate("releaseLatch_gLatch_home") async {
             if (verbose>=2) debug("calling latch.release for id="+id);
             gLatch.getLocalOrCopy().release(); // latch.wait is in waitForFinish
-        });
+        };
         if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
 

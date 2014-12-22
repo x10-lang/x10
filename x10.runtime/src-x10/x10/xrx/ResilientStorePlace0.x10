@@ -17,10 +17,6 @@ import x10.util.concurrent.SimpleLatch;
 public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     private static val verbose = ResilientStore.verbose;
     
-    private static def lowLevelSend(dst:Place, cl:()=>void) = FinishResilient.lowLevelSend(dst, cl);
-    private static def lowLevelAt(dst:Place, cl:()=>void) = FinishResilient.lowLevelAt(dst, cl);
-    private static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean = x10.xrx.FinishResilient.lowLevelFetch[T](dst, result, cl);
-
     static type KLUDGE = Any{KLUDGE haszero};
     private static val ALL = (here.id==0) ? new HashMap[Any,KLUDGE]() : null;
     
@@ -34,8 +30,7 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     
     public static def make[K,V](name:Any){V haszero}:ResilientStorePlace0[K,V] {
         if (verbose>=3) debug("ResilientStorePlace0.make called, name="+name);
-        val result = new Cell[ResilientStorePlace0[K,V]](null);
-        lowLevelFetch(Place(0), result, ()=>{
+        val r = Runtime.evalImmediateAt[ResilientStorePlace0[K,V]](Place(0), ()=>{
             var rs:ResilientStorePlace0[K,V];
             atomic {
                 rs = ALL.getOrElse(name, null) as ResilientStorePlace0[K,V];
@@ -46,14 +41,13 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
             }
             return rs;
         });
-        val r = result();
         if (verbose>=3) debug("ResilientStorePlace0.make returning result="+r);
         return r;
     }
     
     public static def delete(name:Any):void {
         if (verbose>=3) debug("delete called, name="+name);
-        lowLevelAt(Place(0), ()=>{ atomic { ALL.delete(name); } });
+        Runtime.runImmediateAt(Place(0), ()=>{ atomic { ALL.delete(name); } });
         if (verbose>=3) debug("delete returning");
     }
     
@@ -62,41 +56,40 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     public def create(key:K, value:V):void { put(key, value); }
     public def put(key:K, value:V):void {
         if (verbose>=3) debug("put called, key="+key + " value="+value);
-        lowLevelAt(root.home, ()=>{ atomic { getMe().hm.put(key, value); } });
+        Runtime.runImmediateAt(root.home, ()=>{ atomic { getMe().hm.put(key, value); } });
         if (verbose>=3) debug("put returning");
     }
     
     public def getOrElse(key:K, orelse:V):V {
         if (verbose>=3) debug("getOrElse called, key="+key);
         val result = new Cell[V](orelse);
-        lowLevelFetch(root.home, result, ()=>{
+        val r = Runtime.evalImmediateAt[V](root.home, ()=>{
             val v:V; atomic { v = getMe().hm.getOrElse(key, orelse); } return v;
         });
-        val r = result();
         if (verbose>=3) debug("getOrElse returning, result="+r);
         return r;
     }
     
     public def remove(key:K):void {
-        lowLevelAt(root.home, ()=>{ atomic { getMe().hm.remove(key); } });
+        Runtime.runImmediateAt(root.home, ()=>{ atomic { getMe().hm.remove(key); } });
     }
     
     // private transient val lk:SimpleLatch = new SimpleLatch();
     // 
     // public def lock():void {
     //     if (verbose>=3) debug("lock called");
-    //     lowLevelAt(root.home, ()=>{ getMe().lk.lock(); }); // blocking op should not be used
+    //     Runtime.runImmediateAt(root.home, ()=>{ getMe().lk.lock(); }); // blocking op should not be used
     //     if (verbose>=3) debug("lock returning (locked)");
     // }
     // 
     // public def unlock():void {
     //     if (verbose>=3) debug("unlock called");
-    //     lowLevelAt(root.home, ()=>{ getMe().lk.unlock(); });
+    //     Runtime.runImmediateAt(root.home, ()=>{ getMe().lk.unlock(); });
     //     if (verbose>=3) debug("unlock returning (unlocked)");
     // }
     
     /*
-     * Lock/unlock mechanism without blocking inside lowLevelAt
+     * Lock/unlock mechanism without blocking inside Runtime.runImmediateAt
      * Should be used inside atomic
      */
     private static class MyQueue[E] {
@@ -132,14 +125,13 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     public def lock():void { //TODO: should support recursive lock?
         if (verbose>=3) debug("lock called");
         val latch = new MyLatch(), gLatch = GlobalRef[MyLatch](latch);
-        val needWait = new Cell[Boolean](false);
-        lowLevelFetch(root.home, needWait, ()=>{
+        val needWait = Runtime.evalImmediateAt[Boolean](root.home, ()=>{
             val me = getMe();
             var oldSize:Long;
             atomic { oldSize = me.lockQueue.add(gLatch); }
             return (oldSize > 0);
         });
-        if (needWait()) {
+        if (needWait) {
             if (verbose>=3) debug("lock waiting gLatch="+gLatch);
             latch.await();
             if (verbose>=2) debug("lock waited gLatch="+gLatch);
@@ -151,7 +143,7 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     
     public def unlock():void {
         if (verbose>=3) debug("unlock called");
-        lowLevelAt(root.home, ()=>{
+        Runtime.runImmediateAt(root.home, ()=>{
             val me = getMe();
             var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
             atomic {
@@ -169,11 +161,11 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
             }
             if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
             val g = gLatch;
-            lowLevelSend(g.home, ()=>{
+            at (g.home) @Immediate("unlock_gLatch_release") async {
                 if (verbose>=3) debug("unlock releasing gLatch="+g);
                 g.getLocalOrCopy().release();
                 if (verbose>=3) debug("unlock released gLatch="+g);
-            });
+            }
         });
         if (verbose>=3) debug("unlock returning (unlocked)");
     }
@@ -202,8 +194,7 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     
     // public def unlock():void {
     //     if (verbose>=3) debug("unlock called");
-    //     val toRelease = new Cell[GlobalRef[MyLatch]](GlobalRef(null as MyLatch));
-    //     lowLevelFetch(root.home, toRelease, ()=>{
+    //     val toRelease = Runtime.evalImmediateAt[GlobalRef[MyLatch]](root.home, ()=>{
     //         val me = getMe();
     //         var gLatch:GlobalRef[MyLatch] = GlobalRef(null as MyLatch);
     //         atomic {
@@ -211,15 +202,14 @@ public class ResilientStorePlace0[K,V] {V haszero} extends ResilientStore[K,V] {
     //         }
     //         return gLatch;
     //     });
-    //     val gLatch = toRelease();
     //     if (!gLatch.isNull()) {
     //         if (verbose>=3) debug("unlock need to release gLatch="+gLatch);
     //         val g = gLatch;
-    //         lowLevelSend(g.home, ()=>{
+    //         at (g.home) @Immediate("unlock_gLatch_release") async {
     //             if (verbose>=3) debug("unlock releasing gLatch="+g);
     //             g.getLocalOrCopy().release();
     //             if (verbose>=3) debug("unlock released gLatch="+g);
-    //         });
+    //         }
     //     }
     //     if (verbose>=3) debug("unlock returning (unlocked)");
     // }

@@ -20,9 +20,6 @@ public
 class FinishResilientBridge extends FinishResilient {
     public static val verbose = FinishResilient.verbose;
     public static def debug(msg:String) { FinishResilient.debug(msg); }
-    public static def lowLevelAt(dst:Place, cl:()=>void):Boolean { return FinishResilient.lowLevelAt(dst, cl); }
-    public static def lowLevelSend(dst:Place, cl:()=>void):Boolean { return FinishResilient.lowLevelSend(dst, cl); }
-    public static def lowLevelFetch[T](dst:Place, result:Cell[T], cl:()=>T):Boolean { return lowLevelFetch(dst, result, cl); }
     
     public def notifySubActivitySpawn(place:Place):void { throw new UnsupportedOperationException(); }
     public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean { throw new UnsupportedOperationException(); }
