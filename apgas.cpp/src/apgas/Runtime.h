@@ -12,42 +12,66 @@
 #ifndef APGAS_POOL_H
 #define APGAS_POOL_H
 
+#include <x10aux/alloc.h>
+
 namespace apgas {
     class Task;
-
+    class RemoteTask;
+    
     class Runtime {
     public:
-        Task* _mainTask; //   TEMPORARY HACK MAKE PUBLIC (should be private)
-
         /**
-         * Create a pool and specify the main task that the pool should execute.
-         * Note that this does not begin executing mainTask; execution does not
-         * start until the start method is called on the Runtime.
+         * Get the Runtime object for the current Place.
          */
-        Runtime(Task* mainTask);
+        static Runtime* getRuntime(void);
 
         /**
-         * Initialize the APGAS runtime and start executing the mainTask.
-         * This method will not return until the mainTask and the implicit
-         * Finish that wraps it terminate
+         * Start the Runtime.
+         * Must be called before any other methods are called on the Runtime.
          */
         void start();
+
+        /**
+         * Stop the Runtime at all Places.
+         */
+        void terminate();
+
+        /**
+         * Return the id of the current Place
+         */
+        int here(void);
+
+        /**
+         * Spawn a new task to be synchronously executed in the current Place.
+         * Will not return until task and all of its spawned children tasks complete.
+         */
+        void runSync(Task* task);
         
         /**
-         * Schedule the argument Task as an async to be executed
-         * in the current Place.
+         * Spawn a new task to be asynchronously executed as a child of the
+         * currently executing Task in the current Place.
+         * Returns immediately (does not wait for task to execute)
          */
         void runAsync(Task* task);
 
         /**
+         * Schedule the argument Task as an async to be asynchronously executed
+         * at the argument Place.
+         * Returns immediately (does not wait for task to execute)
+         */
+        void runAsyncAt(int place, RemoteTask* task);
+        
+        /**
          * Execute the body of the argument Task as the body of a Finish
-         * statement. 
+         * statement in the current Task.
+         * Will not return until task and all of its spawned children tasks complete.
          */
         void runFinish(Task* task);
 
         /**
          * Execute the argument tasks within a newly created finish scope.
          * A shorthand for a finish block that contains runAsync of all argument tasks.
+         * Will not return until task and all of its spawned children tasks complete.
          */
         void runFinish(int numTasks, Task** tasks);
 

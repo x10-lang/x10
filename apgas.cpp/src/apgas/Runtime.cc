@@ -11,42 +11,49 @@
 
 #include <stdio.h>
 
-#include <apgas/Task.h>
 #include <apgas/Runtime.h>
+#include <apgas/Task.h>
 
 #include <x10aux/alloc.h>
 #include <x10aux/bootstrap.h>
 #include <x10/xrx/Runtime.h>
+#include <x10/xrx/Runtime__Watcher.h>
 
 namespace apgas {
 
-    static Runtime* hack;
+    static Runtime theRuntime;
 
-    void dummy_main(x10::lang::Rail<x10::lang::String*>* args) {
-        hack->_mainTask->execute();
+    Runtime* Runtime::getRuntime() { return &theRuntime; }
+    
+    void Runtime::start() {
+        x10aux::apgas_main();
+    }
+
+    void Runtime::terminate() {
+        x10::xrx::Runtime::terminateAllJob();
     }
     
-    Runtime::Runtime(Task* mainTask) {
-        _mainTask = mainTask;
-        _mainTask->setRuntime(this);
+    int Runtime::here() {
+        return x10::xrx::Runtime::hereInt();
+    }
+    
+    void Runtime::runSync(Task* task) {
+        task->setRuntime(this);
+        x10::xrx::Runtime__Watcher* xrx_watcher = x10::xrx::Runtime::submit(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
+        xrx_watcher->await();
     }
 
-    void Runtime::start() {
-        // HACK: Whack x10.xrx.Activity.DEALLOC_BODY to be false.
-        x10::xrx::Activity::FMGL(DEALLOC_BODY__get)();
-        x10::xrx::Activity::FMGL(DEALLOC_BODY) = false;
-
-        char* args = {"APGAS_LIB"};
-        hack = this;
-        x10aux::real_x10_main(1, &args, &dummy_main);
-        hack = NULL;
-    }
-        
     void Runtime::runAsync(Task* task) {
         task->setRuntime(this);
         x10::xrx::Runtime::runAsync(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));
     }
-        
+
+    void Runtime::runAsyncAt(int place, RemoteTask* task) {
+        x10::xrx::Runtime::runAsync(x10::lang::Place::_make(place),
+                                    reinterpret_cast<x10::lang::VoidFun_0_0*>(task),
+                                    NULL);
+    }
+    
     void Runtime::runFinish(Task* task) {
         task->setRuntime(this);
         x10::xrx::Runtime::runFinish(reinterpret_cast<x10::lang::VoidFun_0_0*>(task));

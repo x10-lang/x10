@@ -47,8 +47,11 @@ int main(int argc, char **argv) {
     printf("Computing Fib of %d\n", N);
     
     FibAsync fibTask(N);
-    apgas::Runtime aRuntime(&fibTask);
-    aRuntime.start();
+
+    Runtime* rt = Runtime::getRuntime();
+    rt->start();
+    rt->runSync(&fibTask);
+    rt->terminate();
 
     printf("Fib(%d) = %d\n", N, fibTask.result);
 }

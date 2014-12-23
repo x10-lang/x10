@@ -9,8 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-#include <apgas/Task.h>
 #include <apgas/Runtime.h>
+#include <apgas/Task.h>
 
 #include <stdio.h>
 
@@ -56,6 +56,9 @@ class MyMain : public Task {
 
 int main(int argc, char **argv) {
     MyMain m(argc, argv);
-    apgas::Runtime aRuntime(&m);
-    aRuntime.start();
+
+    Runtime* rt = Runtime::getRuntime();
+    rt->start();
+    rt->runSync(&m);
+    rt->terminate();
 }

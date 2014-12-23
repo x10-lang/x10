@@ -73,6 +73,20 @@ static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
 
 static void* real_x10_main_inner(void* args);
 
+void x10aux::apgas_main() {
+    char* cmdLine = const_cast<char*>("APGAS_LIB");
+    x10aux::network_init(1, &cmdLine);
+
+    x10_main_args args;
+    args.ac = 1;
+    args.av = &cmdLine;
+    args.mainFunc = NULL;
+    real_x10_main_inner(&args);
+
+    x10::xrx::Activity::FMGL(DEALLOC_BODY__get)();
+    x10::xrx::Activity::FMGL(DEALLOC_BODY) = false;
+}
+
 int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
     x10aux::network_init(ac, av);
 
@@ -134,19 +148,23 @@ static void* real_x10_main_inner(void* _main_args) {
         // Get the args into an X10 Rail[String]
         x10::lang::Rail<x10::lang::String*>* args = convert_args(main_args->ac, main_args->av);
 
-        // Construct closure to invoke the user's "public static def main(Rail[String]) : void"
-        // if at place 0 otherwise wait for asyncs.
-        x10::lang::VoidFun_0_0* main_closure =
-            reinterpret_cast<x10::lang::VoidFun_0_0*>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure))) x10aux::BootStrapClosure(main_args->mainFunc, args));
-
         // Bootup the network message handling code
         x10aux::NetworkDispatcher::registerHandlers();
         x10rt_registration_complete();
 
-        // Actually start up the runtime and execute the program.
-        // When this function returns, the program will have exited.
-        x10::xrx::Runtime::start(main_closure);
+        if (NULL == main_args->mainFunc) {
+            // Actually start up the runtime. Returns as soon as Runtime in thie Place has started.
+            x10::xrx::Runtime::start();
+        } else {
+            // Construct closure to invoke the user's "public static def main(Rail[String]) : void"
+            // if at place 0 otherwise wait for asyncs.
+            x10::lang::VoidFun_0_0* main_closure =
+                reinterpret_cast<x10::lang::VoidFun_0_0*>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure))) x10aux::BootStrapClosure(main_args->mainFunc, args));
 
+            // Actually start up the runtime and execute the program.
+            // When this function returns, the program will have exited.
+            x10::xrx::Runtime::start(main_closure);
+        }
     } catch(int exitCode) {
 
         x10aux::exitCode = exitCode;
@@ -165,14 +183,16 @@ static void* real_x10_main_inner(void* _main_args) {
 
     }
 
-    // We're done.  Shutdown the place.
-    x10aux::shutdown();
+    if (NULL != main_args->mainFunc) {
+        // We're done with a normal X10 execution.  Shutdown the place.
+        x10aux::shutdown();
 
-    if (x10aux::trace_rxtx)
-        fprintf(stderr, "Place: %ld   rx: %lld/%lld   tx: %lld/%lld\n",
-                (long)x10aux::here,
-                (long long)x10aux::deserialized_bytes, (long long)x10aux::asyncs_received,
-                (long long)x10aux::serialized_bytes, (long long)x10aux::asyncs_sent);
+        if (x10aux::trace_rxtx)
+            fprintf(stderr, "Place: %ld   rx: %lld/%lld   tx: %lld/%lld\n",
+                    (long)x10aux::here,
+                    (long long)x10aux::deserialized_bytes, (long long)x10aux::asyncs_received,
+                    (long long)x10aux::serialized_bytes, (long long)x10aux::asyncs_sent);
+    }
 
     return NULL;
 }
