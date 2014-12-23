@@ -14,10 +14,12 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
+    <property name="antlr.jar" value="antlr-4.4-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
+        <path refid="antlr.classpath"/>
         <path refid="shrike.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
@@ -27,6 +29,9 @@
     </path>
     <path id="lpg.classpath">
         <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="antlr.classpath">
+        <pathelement location="${lib}/${antlr.jar}"/>
     </path>
     <path id="shrike.classpath">
         <pathelement location="${lib}/${shrike.jar}"/>
@@ -79,6 +84,10 @@
             <available file="${lib}/${lpg.jar}"/>
         </condition>
         <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
+        <condition property="antlr.jar.present">
+            <available file="${lib}/${antlr.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${antlr.jar}" unless="antlr.jar.present"/>
         <condition property="shrike.jar.present">
             <available file="${lib}/${shrike.jar}"/>
         </condition>
