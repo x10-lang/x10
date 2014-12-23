@@ -1198,6 +1198,33 @@ public class DenseMatrix extends Matrix {
         = RailUtils.reduce(this.d, op, unit);
 
     /**
+     * Reduce the rows of this matrix using the provided reducer function.
+     * @param op a binary reducer function to combine elements of this matrix
+     * @param unit the identity value for the reduction function
+     * @return a Vector whose j'th element is the reduction of all the elements in the j'th row
+     */
+    public final @Inline def reduce0(op:(a:Double,b:Double)=>Double, unit:Double)
+	= new Vector(N, (j:Long)=> {
+		var accum:Double=unit;
+		for (i in 0..(M-1)) accum = op(accum, this(i,j));
+		accum
+	    });
+
+    /**
+     * Reduce the columns of this matrix using the provided reducer function.
+     * @param op a binary reducer function to combine elements of this matrix
+     * @param unit the identity value for the reduction function
+     * @return a Vector whose i'th element is the reduction of all the elements in the i'th column
+     */
+    public final @Inline def reduce1(op:(a:Double,b:Double)=>Double, unit:Double)
+	= new Vector(M, (i:Long)=> {
+		var accum:Double=unit;
+		for (j in 0..(N-1)) accum = op(accum, this(i,j));
+		accum
+	    });
+
+
+    /**
      * Convert the whole dense matrix into a string
      */
     public def toString() : String {
