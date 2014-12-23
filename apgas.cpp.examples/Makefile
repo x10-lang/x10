@@ -7,16 +7,19 @@ include ../x10.runtime/Make.rules
 # Targets #
 ###########
 
-all:	hello fib
+all:	hello helloAll fib
 
 hello:	hello.cc
-	$(CXX) $(CXXFLAGS) -o hello hello.cc $(APGAS_LINK_ARGS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
+
+helloAll:	helloAll.cc
+	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
 
 fib:	fib.cc
-	$(CXX) $(CXXFLAGS) -o fib fib.cc $(APGAS_LINK_ARGS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
 
 clean: 
-	$(RM) hello fib
+	$(RM) hello fib helloAll
 
 .PHONY: clean 
 

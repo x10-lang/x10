@@ -27,6 +27,9 @@ namespace apgas {
     
     void Runtime::start(int argc, char** argv) {
         x10aux::apgas_main(argc, argv);
+        if (here() != 0) {
+            x10::xrx::Runtime::join();
+        }
     }
 
     void Runtime::terminate() {
@@ -35,6 +38,10 @@ namespace apgas {
     
     int Runtime::here() {
         return x10::xrx::Runtime::hereInt();
+    }
+
+    int Runtime::numPlaces() {
+        return x10aux::num_places;
     }
     
     void Runtime::runSync(Task* task) {

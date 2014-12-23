@@ -28,6 +28,7 @@ namespace apgas {
         /**
          * Start the Runtime.
          * Must be called before any other methods are called on the Runtime.
+         * This method must be called in all Places, but will only return in Place 0.
          */
         void start(int argc, char** argv);
 
@@ -41,6 +42,12 @@ namespace apgas {
          */
         int here(void);
 
+        /**
+         * Return the total number of Places.
+         * Places are densely numbered from 0..numPlaces()-1
+         */
+        int numPlaces();
+        
         /**
          * Spawn a new task to be synchronously executed in the current Place.
          * Will not return until task and all of its spawned children tasks complete.
