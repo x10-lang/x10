@@ -25,8 +25,8 @@ namespace apgas {
 
     Runtime* Runtime::getRuntime() { return &theRuntime; }
     
-    void Runtime::start() {
-        x10aux::apgas_main();
+    void Runtime::start(int argc, char** argv) {
+        x10aux::apgas_main(argc, argv);
     }
 
     void Runtime::terminate() {

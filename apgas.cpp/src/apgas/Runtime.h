@@ -29,7 +29,7 @@ namespace apgas {
          * Start the Runtime.
          * Must be called before any other methods are called on the Runtime.
          */
-        void start();
+        void start(int argc, char** argv);
 
         /**
          * Stop the Runtime at all Places.

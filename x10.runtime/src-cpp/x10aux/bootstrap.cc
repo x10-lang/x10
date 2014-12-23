@@ -73,13 +73,12 @@ static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
 
 static void* real_x10_main_inner(void* args);
 
-void x10aux::apgas_main() {
-    char* cmdLine = const_cast<char*>("APGAS_LIB");
-    x10aux::network_init(1, &cmdLine);
+void x10aux::apgas_main(int argc, char** argv) {
+    x10aux::network_init(argc, argv);
 
     x10_main_args args;
-    args.ac = 1;
-    args.av = &cmdLine;
+    args.ac = argc;
+    args.av = argv;
     args.mainFunc = NULL;
     real_x10_main_inner(&args);
 

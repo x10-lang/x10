@@ -58,7 +58,9 @@ int main(int argc, char **argv) {
     MyMain m(argc, argv);
 
     Runtime* rt = Runtime::getRuntime();
-    rt->start();
-    rt->runSync(&m);
-    rt->terminate();
+    rt->start(argc, argv);
+    if (rt->here() == 0) {
+        rt->runSync(&m);
+        rt->terminate();
+    }
 }

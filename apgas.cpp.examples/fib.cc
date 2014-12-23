@@ -39,19 +39,23 @@ class FibAsync : public Task {
     
     
 int main(int argc, char **argv) {
-    int N = 10;
-    if (argc > 1) {
-        int n2 = atoi(argv[1]);
-        N = n2;
-    }
-    printf("Computing Fib of %d\n", N);
-    
-    FibAsync fibTask(N);
-
     Runtime* rt = Runtime::getRuntime();
-    rt->start();
-    rt->runSync(&fibTask);
-    rt->terminate();
+    rt->start(argc, argv);
 
-    printf("Fib(%d) = %d\n", N, fibTask.result);
+    if (rt->here() == 0) {
+        int N = 10;
+        if (argc > 1) {
+            int n2 = atoi(argv[1]);
+            N = n2;
+        }
+
+        printf("Computing Fib of %d\n", N);
+    
+        FibAsync fibTask(N);
+
+        rt->runSync(&fibTask);
+        rt->terminate();
+
+        printf("Fib(%d) = %d\n", N, fibTask.result);
+    }
 }
