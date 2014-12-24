@@ -1204,11 +1204,11 @@ public class DenseMatrix extends Matrix {
      * @return a Vector whose j'th element is the reduction of all the elements in the j'th row
      */
     public final @Inline def reduce0(op:(a:Double,b:Double)=>Double, unit:Double)
-	= new Vector(N, (j:Long)=> {
+	= new Vector(N, new Rail[Double](N, (j:Long)=> {
 		var accum:Double=unit;
 		for (i in 0..(M-1)) accum = op(accum, this(i,j));
 		accum
-	    });
+	    }));
 
     /**
      * Reduce the columns of this matrix using the provided reducer function.
