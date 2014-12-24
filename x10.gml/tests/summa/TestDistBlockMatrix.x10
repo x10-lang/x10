@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2012.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2012-2014.
  */
 
 import x10.compiler.Ifndef;
@@ -11,12 +16,9 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;
-import x10.matrix.block.BlockMatrix;
-import x10.matrix.block.DenseBlockMatrix;
 
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
-
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.summa.SummaMult;
 import x10.matrix.distblock.summa.SummaMultTrans;

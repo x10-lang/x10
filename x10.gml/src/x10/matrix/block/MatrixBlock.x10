@@ -43,14 +43,6 @@ public abstract class MatrixBlock(myRowId:Long, myColId:Long) {
 	public var commTime:Long = 0;
 
 	/**
-	 * Neighbor block places
-	 */
-	public var placeEast:Long=-1;
-	public var placeWest:Long=-1;
-	public var placeNorth:Long=-1;
-	public var placeSouth:Long=-1;
-
-	/**
 	 * Construct a instance of matrix block with specified row and column index
 	 * of its partitioning.
 	 * 
