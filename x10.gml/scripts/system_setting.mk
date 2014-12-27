@@ -56,6 +56,14 @@ ifdef JAVA_HOME
   endif
 endif
 
+JBLAS_JNILIB = libjblas.so
+JLAPACK_JNILIB = libjlapack.so
+ifeq ($(shell uname -s),Darwin)
+    # MacOS JNI libs require extension .jnilib instead of .so
+    JBLAS_JNILIB = libjblas.jnilib
+    JLAPACK_JNILIB = libjlapack.jnilib
+endif
+
 # BLAS and LAPACK compiler options
 ifndef DISABLE_BLAS
     X10CXX_PREARGS += -cxx-prearg -DENABLE_BLAS

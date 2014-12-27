@@ -110,9 +110,7 @@ block_src=\
 	x10/matrix/block/DenseBlock.x10 \
 	x10/matrix/block/MatrixBlock.x10 \
 	x10/matrix/block/SparseBlock.x10 \
-	x10/matrix/block/DenseBlockMatrix.x10 \
 	x10/matrix/block/Grid.x10 \
-	x10/matrix/block/SparseBlockMatrix.x10 \
 	x10/matrix/block/BlockBlockMult.x10 \
 	x10/matrix/block/SymGrid.x10
 
@@ -250,10 +248,10 @@ wrap_blas.o	: wrap_blas.cc
 jni_blas.o 	: jni_blas.cc
 			$(CXX) $(JNI_INCLUDES) -c -fPIC $< -o $@
 
-libjblas.so	: wrap_blas.o jni_blas.o
+$(JBLAS_JNILIB)	: wrap_blas.o jni_blas.o
 			$(CXX) $(JNI_INCLUDES) -shared -fPIC $^ $(X10CXX_POSTARGS:-cxx-postarg=) -o $@ 
 
-jblas		: libjblas.so
+jblas		: $(JBLAS_JNILIB)
 			cp $< $(lib_path)/.
 
 ###------------------------------------------------
@@ -269,10 +267,10 @@ wrap_lapack.o: wrap_lapack.cc
 jni_lapack.o: jni_lapack.cc
 			g++ $(JNI_INCLUDES) -c -fPIC $< -o $@
 
-libjlapack.so: wrap_lapack.o jni_lapack.o
+$(JLAPACK_JNILIB): wrap_lapack.o jni_lapack.o
 			g++ -shared -fPIC $^ -o $@ $(X10CXX_POSTARGS:-cxx-postarg=)
 
-jlapack		: libjlapack.so
+jlapack		: $(JLAPACK_JNILIB)
 			cp $< $(lib_path)/.
 
 ###------------------------------------------------
