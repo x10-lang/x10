@@ -110,7 +110,9 @@ block_src=\
 	x10/matrix/block/DenseBlock.x10 \
 	x10/matrix/block/MatrixBlock.x10 \
 	x10/matrix/block/SparseBlock.x10 \
+	x10/matrix/block/DenseBlockMatrix.x10 \
 	x10/matrix/block/Grid.x10 \
+	x10/matrix/block/SparseBlockMatrix.x10 \
 	x10/matrix/block/BlockBlockMult.x10 \
 	x10/matrix/block/SymGrid.x10
 
