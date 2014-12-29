@@ -186,7 +186,7 @@ lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
 
 
-X10FLAGS	+= -VERBOSE_CHECKS -O -NO_CHECKS -g
+X10FLAGS	+= -VERBOSE_CHECKS -O -g # -NO_CHECKS
 ifdef COVERAGE
     X10CXXFLAGS += --coverage
 endif

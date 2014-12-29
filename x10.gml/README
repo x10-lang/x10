@@ -3,7 +3,7 @@ http://x10-lang.org/
 
 (C) Copyright IBM Corporation 2006-2014.
 
-This program is controlled by the Eclipse Public Licence v1.0.
+This program is controlled by the Eclipse Public License v1.0.
 http://www.eclipse.org/legal/epl-v10.html
 
 
@@ -187,4 +187,18 @@ output also serves as input operand in the operation.
   - multiply with second operand transposed
 
 
+Performance
+-----------
+
+GML can operate with a number of optimized BLAS libraries; the quality of the
+BLAS implementation can significantly affect the performance of GML operations
+like matrix multiplication. We encourage you to experiment to determine the
+best-performing BLAS library for your target platform.
+
+By default, GML builds with all checks enabled; this is the preferred setting
+for application development.  When you are sure that the code is correct, you
+may choose to compile with -NO_CHECKS (see X10FLAGS variable in the Makefile).
+
+For more information, see 
+http://x10-lang.org/documentation/practical-x10-programming/performance-tuning.html
 
