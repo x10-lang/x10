@@ -43,7 +43,7 @@ public class TestDistBlock extends x10Test {
         bN= args.size > 5 ? Long.parse(args(5)):5;
         
         grid = new Grid(M, N, bM, bN);
-        if (Runtime.RESILIENT_MODE > 0 && Place.numPlaces() > 2) {
+        if (x10.xrx.Runtime.RESILIENT_MODE > 0 && Place.numPlaces() > 2) {
             skipPlaces = 2;
         } else {
             skipPlaces = 0;
