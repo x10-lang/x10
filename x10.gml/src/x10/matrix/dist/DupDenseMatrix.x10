@@ -324,9 +324,9 @@ public class DupDenseMatrix extends Matrix {
 	}
 
 	/**
-	 * Transpose matrix and all copies and store the result at user provided ddm.
+	 * Transpose input matrix and store the result in this matrix.
 	 */
-	public def T(ddm:DupDenseMatrix(N,M)): void{
+	public def T(ddm:DupDenseMatrix(N,M)):void {
 		finish ateach(val [p]:Point in this.dupMs) {
 			val tm = ddm.local();
 			val m  = local();
@@ -336,11 +336,11 @@ public class DupDenseMatrix extends Matrix {
 	}
 
 	/**
-	 * Transpose matrix and all copies and store a new DupDenseMatrix instance.
+	 * Transpose this matrix and store in a new DupDenseMatrix instance.
 	 */
 	public def T():DupDenseMatrix(N,M) {
 		val tm = DupDenseMatrix.make(this.N, this.M);
-		this.T(tm);
+		tm.T(this);
 		return tm;
 	}
 

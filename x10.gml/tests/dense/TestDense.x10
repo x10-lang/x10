@@ -29,6 +29,7 @@ public class TestDense extends x10Test {
 		ret &= (testClone());
 		ret &= (testInit());
 		ret &= (testTrans());
+		ret &= (testTransInPlace());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -92,6 +93,21 @@ public class TestDense extends x10Test {
 		
 		if (!ret)
 			Console.OUT.println("--------Dense matrix transpose func failed!--------");
+
+		return ret;
+	}
+
+	public def testTransInPlace():Boolean {
+		Console.OUT.println("Dense Matrix in-place transpose test");
+
+		val src = DenseMatrix.makeRand(N, N);
+		val srcT = src.T();
+
+        src.selfT();
+        var ret:Boolean = src.equals(srcT as Matrix(N,N));
+
+		if (!ret)
+			Console.OUT.println("--------Dense matrix in-place transpose failed!--------");
 
 		return ret;
 	}

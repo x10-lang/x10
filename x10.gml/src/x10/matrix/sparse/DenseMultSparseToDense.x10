@@ -137,7 +137,7 @@ public class DenseMultSparseToDense {
 	public static def compTransMult_newT(m1:DenseMatrix, m2:SparseCSC{self.M==m1.M}, 
 		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean) : DenseMatrix(m3) {
 		val tm1 = DenseMatrix.make(m1.N,m1.M);
-		m1.T(tm1);
+		tm1.T(m1);
 		return comp(tm1, m2, m3, plus);
 	}
 	/**
@@ -147,7 +147,7 @@ public class DenseMultSparseToDense {
 	 */
 	public static def compTransMult(m1:DenseMatrix,m2:SparseCSC{self.M==m1.M}, 
 		m3:DenseMatrix(m1.N,m2.N), m1T:DenseMatrix(m1.N,m1.M), plus:Boolean) : DenseMatrix(m3) {
-		m1.T(m1T);
+		m1T.T(m1);
 		return comp(m1T, m2, m3, plus);
 	}
 	

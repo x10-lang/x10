@@ -607,7 +607,7 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	public operator this / (that:DenseBlockMatrix(M,N)) = this.clone().cellDiv(that) as DenseBlockMatrix(M,N);
 
 	/**
-	 * Transpose matrix
+	 * Transpose input matrix and store in this matrix.
 	 */
 	public def T(dbm:DenseBlockMatrix(N,M)): void {
 		assert (grid.numRowBlocks==dbm.grid.numColBlocks &&
@@ -615,11 +615,11 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		
 		for (var c:Long=0; c<grid.numColBlocks; c++) {
 			for (var r:Long=0; r<grid.numRowBlocks; r++) {
-				val src = listBs(grid.getBlockId(r, c)).dense;
-				val dst = dbm.listBs(dbm.grid.getBlockId(c, r)).dense 
-					as DenseMatrix(src.N, src.M);
+				val dst = listBs(grid.getBlockId(r, c)).dense;
+				val src = dbm.listBs(dbm.grid.getBlockId(c, r)).dense 
+					as DenseMatrix(dst.N, dst.M);
 
-				src.T(dst);
+				dst.T(src);
 			}
 		}
 	}

@@ -470,22 +470,21 @@ public class DenseMatrix extends Matrix {
     }
 
     /**
-     * Transpose this dense matrix and store in the input dense matrix.
-     * 
-     * @param m        object to store the transposed matrix
+     * Transpose the input matrix and store in this matrix.
+     * @param X source matrix to transpose; may not be the same as this matrix
      */
-    public def T(m:DenseMatrix(N,M)) : void {
+    public def T(X:DenseMatrix(N,M){self!=this}):DenseMatrix(this) {
         var src_idx:Long =0;
         var dst_idx:Long =0;
         //Need to be more efficient
         //Possible idea is to tranpose or copy small block each time.
-        //Debug.assure(this.M==m.N&&this.N==m.M);
-        for (var c:Long=0; c < this.N; c++) {
+        for (var c:Long=0; c < X.N; c++) {
             dst_idx = c;
-            for (var r:Long=0; r < this.M; r++, dst_idx+=m.M, src_idx++) {
-                m.d(dst_idx) = this.d(src_idx);
+            for (var r:Long=0; r < X.M; r++, dst_idx+=this.M, src_idx++) {
+                this.d(dst_idx) = X.d(src_idx);
             }
         }
+        return this;
     }
 
     /*
@@ -493,16 +492,14 @@ public class DenseMatrix extends Matrix {
      */
     public def T(): DenseMatrix(N,M) {
         val nm = DenseMatrix.make(N,M);
-        T(nm);
-        return nm;
+        return nm.T(this);
     }
     
     /*
      * Transpose this matrix in place.
      * This operation can only be performed on a square matrix.
      */
-    public def selfT():DenseMatrix(this) {
-        Debug.assure(this.M==this.N, "Cannot perform transpose for non-square matrix");
+    public def selfT():DenseMatrix(this){self.M==self.N} {
         var src_idx:Long =0;
         var dst_idx:Long =0;
         var swaptmp:Double = 0;
@@ -521,15 +518,18 @@ public class DenseMatrix extends Matrix {
 
     /**
      * Raise each element in the matrix by a factor.
-     *
+     * this = alpha * this
      * @param alpha the scaling factor
-     * @return this = this * alpha
+     * @return this = alpha * this
      */
     public def scale(alpha:Double):DenseMatrix(this)
         = map((x:Double)=>{alpha * x});
 
     /**
      * this = alpha * X
+     * @param alpha the scaling factor
+     * @param X the source matrix, may be the same as this matrix
+     * @return this = alpha * X
      */
     public def scale(alpha:Double, X:DenseMatrix(M,N)):DenseMatrix(this)
         = map(X, (x:Double)=> {alpha * x});
@@ -540,7 +540,7 @@ public class DenseMatrix extends Matrix {
      * @param x matrix object
      * @return Euclidean distance
      */
-    public def norm(x:Matrix(M,N)):Double {
+    public def distance(x:Matrix(M,N)):Double {
         return Math.sqrt(frobeniusProduct(x));
     }
 

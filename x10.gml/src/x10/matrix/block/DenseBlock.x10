@@ -304,20 +304,20 @@ public class DenseBlock extends MatrixBlock {
 	public def transposeFrom(srcblk:DenseBlock) {
 		val src = srcblk.dense;
 		val dst = this.dense as DenseMatrix(src.N,src.M); 
-		src.T(dst);
+		dst.T(src);
 	}
 	
 	public def transposeTo(dstblk:DenseBlock) {
 		val src = this.dense;
 		val dst = dstblk.dense as DenseMatrix(src.N,src.M); 
-		src.T(dst);
+		dst.T(src);
 	}
 	
 	public def transposeFrom(srcmat:Matrix) {
 		if (srcmat instanceof DenseMatrix) {
 			val src = srcmat as DenseMatrix;
 			val dst = dense as DenseMatrix(src.N,src.M);
-			src.T(dst);
+			dst.T(src);
 		} else {
 			throw new UnsupportedOperationException("Matrix types are not supported in transpose method");
 		}
