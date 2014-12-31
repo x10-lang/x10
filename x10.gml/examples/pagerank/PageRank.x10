@@ -188,7 +188,7 @@ public class PageRank implements ResilientIterativeApp {
         val newRowPs = newPlaces.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
-        G.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
+        G.remakeSparse(newRowPs, newColPs, nzd, newPlaces, true);
         P.remake(newPlaces);
         vP = P.local();
         

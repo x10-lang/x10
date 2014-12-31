@@ -56,7 +56,7 @@ public class SeqLinearRegression {
         // 4: r=-(t(V) %*% y)
         r.scale(-1.0);
         // 6: norm_r2=sum(r*r)
-        var norm_r2:Double = r.norm();
+        var norm_r2:Double = r.dot(r);
 
 		for (1..maxIterations) {
 			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
@@ -72,10 +72,11 @@ public class SeqLinearRegression {
 
 			// 14: r=r+alpha*q;
 			r.scaleAdd(alpha, q);
-			norm_r2 = r.norm();
-			// 15: beta=norm r2/old norm r2;
+            // 15: norm_r2=sum(r*r);
+			norm_r2 = r.dot(r);
+			// 16: beta=norm r2/old norm r2;
 			val beta = norm_r2/old_norm_r2;
-			// 16: p=-r+beta*p;
+			// 17: p=-r+beta*p;
 			p.scale(beta).cellSub(r);
 		}
 

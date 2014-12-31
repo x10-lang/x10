@@ -130,7 +130,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 
         //obj = 0.5 * t(w) %*% w + C*sum(logistic)
-        obj = 0.5 * w.norm() + C*logistic.sum();
+        obj = 0.5 * w.dot(w) + C*logistic.sum();
 
         //grad = w + C*t(X) %*% ((logistic - 1)*y)        
         compute_grad(grad, logistic);
@@ -140,16 +140,16 @@ public class LogisticRegression implements ResilientIterativeApp {
         logisticD.map((x:Double)=> {x*(1.0-x)});
 
         //delta = sqrt(sum(grad*grad))
-        delta = Math.sqrt(grad.norm());
+        delta = grad.norm();
 
         //# starting point for CG
         //# boolean for convergence check
         //converge = (delta < tol) | (iter > maxiter)
         converge = (delta < tol) | (iter > maxIterations);
         //norm_r2 = sum(grad*grad)
-        norm_r2 = grad.norm();
+        norm_r2 = grad.dot(grad);
         //alpha = t(w) %*% w
-        alpha = w.norm();
+        alpha = w.dot(w);
         Debug.flushln("Done initialization. Starting converging iteration");
 
         new ResilientExecutor(chkpntIterations, places).run(this);
@@ -159,7 +159,7 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     public def step():void{
         //             norm_grad = sqrt(sum(grad*grad))
-        val norm_grad = Math.sqrt(grad.norm());
+        val norm_grad = grad.norm();
         //             # SOLVE TRUST REGION SUB-PROBLEM
         //zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
         //             s = zeros_D
@@ -171,31 +171,31 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             inneriter = 0
         val inneriter:Long=0;
         //             innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
-        var innerconverge:Boolean;// = (Math.sqrt(r.norm(r)) <= psi * norm_grad);
+        var innerconverge:Boolean;// = (r.norm() <= psi * norm_grad);
         innerconverge = false;
         while (!innerconverge) {
             //  
             //                 norm_r2 = sum(r*r)
-            norm_r2 = r.norm();
+            norm_r2 = r.dot(r);
             //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
             compute_Hd(Hd, logisticD, d);
             //                 alpha_deno = t(d) %*% Hd 
-            val alpha_deno = d.norm(Hd);
+            val alpha_deno = d.dot(Hd);
             //                 alpha = norm_r2 / alpha_deno
             alpha = norm_r2 / alpha_deno;
             //                 s = s + castAsScalar(alpha) * d
             s.scaleAdd(alpha, d);
             //                 sts = t(s) %*% s
-            val sts = s.norm();
+            val sts = s.dot(s);
             //                 delta2 = delta*delta 
             val delta2 = delta*delta;
             //                 shouldBreak = false;
             var shouldBreak:Boolean = false;
             if (sts > delta2) {
                 //                     std = t(s) %*% d
-                val std = s.norm(d);
+                val std = s.dot(d);
                 //                     dtd = t(d) %*% d
-                val dtd = d.norm();
+                val dtd = d.dot(d);
                 //                     rad = sqrt(std*std + dtd*(delta2 - sts))
                 val rad = Math.sqrt(std*std+dtd*(delta2-sts));
                 var tau:Double;
@@ -219,7 +219,7 @@ public class LogisticRegression implements ResilientIterativeApp {
                 //                     old_norm_r2 = norm_r2 
                 val old_norm_r2 = norm_r2;
                 //                     norm_r2 = sum(r*r)
-                norm_r2 = r.norm();
+                norm_r2 = r.dot(r);
                 //                     beta = norm_r2/old_norm_r2
                 val beta = norm_r2/old_norm_r2;
                 //                     d = r + beta*d
@@ -231,7 +231,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         //             # END TRUST REGION SUB-PROBLEM
         //             # compute rho, update w, obtain delta
         //             qk = -0.5*(t(s) %*% (grad - r))
-        val qk = -0.5 * s.norm(grad-r);
+        val qk = -0.5 * s.dot(grad-r);
         //             wnew = w + s
         wnew.cellAdd(w, s);
         //             onew = X %*% wnew
@@ -242,12 +242,12 @@ public class LogisticRegression implements ResilientIterativeApp {
         paraRunTime += Timer.milliTime() - stt;
         
         //             objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
-        val objnew = 0.5 * wnew.norm() + C * logisticnew.sum();
+        val objnew = 0.5 * wnew.dot(wnew) + C * logisticnew.sum();
         //             
         //             rho = (objnew - obj) / qk
         val rho = (objnew - obj)/qk;
         //             snorm = sqrt(sum( s * s ))
-        val snorm = Math.sqrt(s.norm());
+        val snorm = s.norm();
         if (rho > eta0){            
             //                 w = wnew
             wnew.copyTo(w);

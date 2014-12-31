@@ -95,7 +95,7 @@ public class LinearRegression implements ResilientIterativeApp {
         // 4: r=-(t(V) %*% y)
         r.scale(-1.0);
         // 6: norm_r2=sum(r*r)
-        norm_r2 = r.norm();
+        norm_r2 = r.dot(r);
 
         new ResilientExecutor(checkpointFreq, places).run(this);
 
@@ -108,8 +108,8 @@ public class LinearRegression implements ResilientIterativeApp {
         // Parallel computing
 
         var ct:Long = Timer.milliTime();
-        // 10: q=((t(V) %*% (V %*% p)) )
 
+        // 10: q=((t(V) %*% (V %*% p)) )
         d_q.mult(Vp.mult(V, d_p), V);
 
         parCompT += Timer.milliTime() - ct;
@@ -133,20 +133,16 @@ public class LinearRegression implements ResilientIterativeApp {
 
         // 14: r=r+alpha*q;
         r.scaleAdd(alpha, q);
-        norm_r2 = r.norm();
-
-        // 15: beta=norm r2/old norm r2;
+        // 15: norm_r2=sum(r*r);
+        norm_r2 = r.dot(r);
+        // 16: beta=norm_r2/old_norm_r2;
         val beta = norm_r2/old_norm_r2;
-
-        // 16: p=-r+beta*p;
+        // 17: p=-r+beta*p;
         p.scale(beta).cellSub(r);
 
         seqCompT += Timer.milliTime() - ct;
-        // 17: i=i+1;
 
         commT = d_q.getCommTime() + d_p.getCommTime();
-        //w.print("Parallel result");
-
         iter++;
     }
 
