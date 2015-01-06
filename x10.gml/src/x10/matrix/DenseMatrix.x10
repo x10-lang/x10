@@ -473,7 +473,7 @@ public class DenseMatrix extends Matrix {
      * Transpose the input matrix and store in this matrix.
      * @param X source matrix to transpose; may not be the same as this matrix
      */
-    public def T(X:DenseMatrix(N,M){self!=this}):DenseMatrix(this) {
+    public def T(X:DenseMatrix{self!=this,self.M==this.N,self.N==this.M}):DenseMatrix(this) {
         var src_idx:Long =0;
         var dst_idx:Long =0;
         //Need to be more efficient
@@ -499,7 +499,7 @@ public class DenseMatrix extends Matrix {
      * Transpose this matrix in place.
      * This operation can only be performed on a square matrix.
      */
-    public def selfT():DenseMatrix(this){self.M==self.N} {
+    public def selfT(){this.M==this.N}:DenseMatrix(this) {
         var src_idx:Long =0;
         var dst_idx:Long =0;
         var swaptmp:Double = 0;
