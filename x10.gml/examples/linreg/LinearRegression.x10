@@ -165,9 +165,9 @@ public class LinearRegression implements ResilientIterativeApp {
         val newColPs = 1;
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
-            V.remakeSparse(newRowPs, newColPs, nzd, newPg, true);
+            V.remakeSparse(newRowPs, newColPs, nzd, newPg);
         } else {
-            V.remakeDense(newRowPs, newColPs, newPg, true);
+            V.remakeDense(newRowPs, newColPs, newPg);
         }
         d_p.remake(newPg);
         Vp.remake(V.getAggRowBs(), newPg);

@@ -14,7 +14,10 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 
 /**
- * Sequential implementation of linear regression
+ * Sequential implementation of linear regression.
+ * Based on linear regression script in SystemML from Ghoting et al. (2011).
+ * @see Ghoting et al. (2011) SystemML: Declarative machine learning on
+ *      MapReduce. Proceedings of ICDE 2011 doi:10.1109/ICDE.2011.5767930
  */
 public class SeqLinearRegression {
     static val lambda = 1e-6; // regularization parameter

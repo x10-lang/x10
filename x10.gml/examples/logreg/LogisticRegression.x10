@@ -328,9 +328,9 @@ public class LogisticRegression implements ResilientIterativeApp {
 
         // redistribute all matrices / vectors to new PlaceGroup
         if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces, true);
+            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
         } else {
-            X.remakeDense(newRowPs, newColPs, newPlaces, true);
+            X.remakeDense(newRowPs, newColPs, newPlaces);
         }
         val rowBs = X.getAggRowBs();
         y.remake(rowBs, newPlaces);

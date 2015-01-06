@@ -27,7 +27,7 @@ public abstract class DistObjectSnapshot {
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     
     static val localCopy = getEnvString("X10_RESILIENT_STORE_LOCAL_COPY", "clone"); // at, deep, clone
-    static val remoteCopy = getEnvString("X10_RESILIENT_STORE_REMOTE_COPY", "dma"); // at, dma
+    static val remoteCopy = getEnvString("X10_RESILIENT_STORE_REMOTE_COPY", "at"); // at, dma
     static val forceDeepCopy = 0N;
     
     static def getEnvInt(name:String) {
