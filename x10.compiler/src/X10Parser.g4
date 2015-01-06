@@ -24,14 +24,13 @@ modifier:
     | 'transient'
     | 'clocked'
     ;
-methodModifiersopt:
-      modifier*
-    | methodModifiersopt 'property'
-    | methodModifiersopt modifier
+methodModifier:
+      modifier
+    | 'property'
     ;
 typeDefDeclaration:
-      modifier* 'type' identifier typeParametersopt whereClauseopt '=' type ';'
-    | modifier* 'type' identifier typeParametersopt '(' formalParameterList ')' whereClauseopt '=' type ';'
+      modifier* 'type' identifier typeParameters? whereClause? '=' type ';'
+    | modifier* 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'
     ;
 properties:
       '(' propertyList ')'
@@ -41,10 +40,10 @@ propertyList:
     | propertyList ',' property
     ;
 property:
-      annotationsopt identifier resultType
+      annotations? identifier resultType
     ;
 methodDeclaration:
-      methodModifiersopt 'def' identifier typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'def' identifier typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     | binaryOperatorDeclaration
     | prefixOperatorDeclaration
     | applyOperatorDeclaration
@@ -52,52 +51,51 @@ methodDeclaration:
     | conversionOperatorDeclaration
     ;
 binaryOperatorDeclaration:
-      methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' binOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
-    | methodModifiersopt 'operator' typeParametersopt 'this' binOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
-    | methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' binOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' typeParameters? '(' formalParameter ')' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifier* 'operator' typeParameters? 'this' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifier* 'operator' typeParameters? '(' formalParameter ')' binOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 prefixOperatorDeclaration:
-      methodModifiersopt 'operator' typeParametersopt prefixOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
-    | methodModifiersopt 'operator' typeParametersopt prefixOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' typeParameters? prefixOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifier* 'operator' typeParameters? prefixOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 applyOperatorDeclaration:
-      methodModifiersopt 'operator' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 setOperatorDeclaration:
-      methodModifiersopt 'operator' 'this' typeParametersopt formalParameters '=' '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' 'this' typeParameters? formalParameters '=' '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 conversionOperatorDeclaration:
       explicitConversionOperatorDeclaration
     | implicitConversionOperatorDeclaration
     ;
 explicitConversionOperatorDeclaration:
-      methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' type whereClauseopt oBSOLETE_Offersopt throwsopt methodBody
-    | methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' '?' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' typeParameters? '(' formalParameter ')' 'as' type whereClause? oBSOLETE_Offers? throws_? methodBody
+    | methodModifier* 'operator' typeParameters? '(' formalParameter ')' 'as' '?' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 implicitConversionOperatorDeclaration:
-      methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
+      methodModifier* 'operator' typeParameters? '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 propertyMethodDeclaration:
-      methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody
-    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody
+      methodModifier* identifier typeParameters? formalParameters whereClause? hasResultType? methodBody
+    | methodModifier* identifier whereClause? hasResultType? methodBody
     ;
 explicitConstructorInvocation:
-      'this' '(' argumentListopt ')' ';'
-    | 'this' typeArguments '(' argumentListopt ')' ';'
-    | 'super' typeArgumentsopt '(' argumentListopt ')' ';'
-    | primary '.' 'this' typeArgumentsopt '(' argumentListopt ')' ';'
-    | primary '.' 'super' typeArgumentsopt '(' argumentListopt ')' ';'
+      'this' typeArguments? '(' argumentList? ')' ';'
+    | 'super' typeArguments? '(' argumentList? ')' ';'
+    | primary '.' 'this' typeArguments? '(' argumentList? ')' ';'
+    | primary '.' 'super' typeArguments? '(' argumentList? ')' ';'
     ;
 interfaceDeclaration:
-      modifier* 'interface' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt extendsInterfacesopt interfaceBody
+      modifier* 'interface' identifier typeParamsWithVariance? properties? whereClause? extendsInterfaces? interfaceBody
     ;
 classInstanceCreationExpression:
-      'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt
-    | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt
-    | fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt
+      'new' typeName typeArguments? '(' argumentList? ')' classBody?
+    | primary '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
+    | fullyQualifiedName '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
     ;
 assignPropertyCall:
-      'property' typeArgumentsopt '(' argumentListopt ')' ';'
+      'property' typeArguments? '(' argumentList? ')' ';'
     ;
 type:
       functionType
@@ -106,7 +104,7 @@ type:
     | type annotations
     ;
 functionType:
-      typeParametersopt '(' formalParameterListopt ')' whereClauseopt oBSOLETE_Offersopt '=>' type
+      typeParameters? '(' formalParameterList? ')' whereClause? oBSOLETE_Offers? '=>' type
     ;
 classType:
       namedType
@@ -140,7 +138,7 @@ namedType:
     | depNamedType
     ;
 depParameters:
-      '{' /* fUTURE_ExistentialListopt */ constraintConjunctionopt '}'
+      '{' /* fUTURE_ExistentialList? */ constraintConjunction? '}'
     ;
 typeParamsWithVariance:
       '[' typeParamWithVarianceList ']'
@@ -149,7 +147,7 @@ typeParameters:
       '[' typeParameterList ']'
     ;
 formalParameters:
-      '(' formalParameterListopt ')'
+      '(' formalParameterList? ')'
     ;
 constraintConjunction:
       expression (',' expression)*
@@ -167,23 +165,17 @@ subtypeConstraint:
 whereClause:
       depParameters
     ;
-constraintConjunctionopt:
-      constraintConjunction?
-    ;
-// fUTURE_ExistentialListopt:
-//       fUTURE_ExistentialList?
-//     ;
 // fUTURE_ExistentialList:
 //       formalParameter (';' formalParameter)*
 //     ;
 classDeclaration:
-      modifier* 'class' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt superExtendsopt interfacesopt classBody
+      modifier* 'class' identifier typeParamsWithVariance? properties? whereClause? superExtends? interfaces? classBody
     ;
 structDeclaration:
-      modifier* 'struct' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt interfacesopt classBody
+      modifier* 'struct' identifier typeParamsWithVariance? properties? whereClause? interfaces? classBody
     ;
 constructorDeclaration:
-      modifier* 'def' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt constructorBody
+      modifier* 'def' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? constructorBody
     ;
 superExtends:
       'extends' classType
@@ -201,7 +193,7 @@ statement:
     | expressionStatement
     ;
 annotationStatement:
-      annotationsopt nonExpressionStatement
+      annotations? nonExpressionStatement
     ;
 nonExpressionStatement:
       block
@@ -266,16 +258,10 @@ switchStatement:
       'switch' '(' expression ')' switchBlock
     ;
 switchBlock:
-      '{' switchBlockStatementGroupsopt switchLabelsopt '}'
-    ;
-switchBlockStatementGroups:
-      switchBlockStatementGroup+
+      '{' switchBlockStatementGroup* switchLabel* '}'
     ;
 switchBlockStatementGroup:
-      switchLabels blockStatements
-    ;
-switchLabels:
-      switchLabel*
+      switchLabel+ blockStatements
     ;
 switchLabel:
       'case' constantExpression ':'
@@ -292,42 +278,33 @@ forStatement:
     | enhancedForStatement
     ;
 basicForStatement:
-      'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement
+      'for' '(' forInit? ';' expression? ';' forUpdate? ')' statement
     ;
 forInit:
       statementExpressionList
     | localVariableDeclaration
     ;
-forUpdateExpression:
-      assignment
-    | methodInvocation
-    | classInstanceCreationExpression
-    | conditionalExpression
-    ;
-forUpdateExpressionList:
-      forUpdateExpression (',' forUpdateExpression)*
-    ;
 forUpdate:
-      forUpdateExpressionList
+      statementExpressionList
     ;
 statementExpressionList:
       statementExpression (',' statementExpression)*
     ;
 breakStatement:
-      'break' identifieropt ';'
+      'break' identifier? ';'
     ;
 continueStatement:
-      'continue' identifieropt ';'
+      'continue' identifier? ';'
     ;
 returnStatement:
-      'return' expressionopt ';'
+      'return' expression? ';'
     ;
 throwStatement:
       'throw' expression ';'
     ;
 tryStatement:
       'try' block catches
-    | 'try' block catchesopt finallyBlock
+    | 'try' block catches? finallyBlock
     ;
 catches:
       catchClause+
@@ -342,7 +319,7 @@ clockedClause:
       'clocked' arguments
     ;
 asyncStatement:
-      'async' clockedClauseopt statement
+      'async' clockedClause? statement
     | 'clocked' 'async' statement
     ;
 atStatement:
@@ -355,7 +332,7 @@ whenStatement:
       'when' '(' expression ')' statement
     ;
 atEachStatement:
-      'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement
+      'ateach' '(' loopIndex 'in' expression ')' clockedClause? statement
     | 'ateach' '(' expression ')' statement
     ;
 enhancedForStatement:
@@ -388,27 +365,21 @@ typeParameter:
       identifier
     ;
 closureExpression:
-      formalParameters whereClauseopt hasResultTypeopt oBSOLETE_Offersopt '=>' closureBody
+      formalParameters whereClause? hasResultType? oBSOLETE_Offers? '=>' closureBody
     ;
 lastExpression:
       expression
     ;
 closureBody:
       expression
-    | annotationsopt '{' blockStatements? lastExpression '}'
-    | annotationsopt block
+    | annotations? '{' blockStatements? lastExpression '}'
+    | annotations? block
     ;
 atExpression:
-      annotationsopt 'at' '(' expression ')' closureBody
+      annotations? 'at' '(' expression ')' closureBody
     ;
 oBSOLETE_FinishExpression:
       'finish' '(' expression ')' block
-    ;
-whereClauseopt:
-      whereClause?
-    ;
-clockedClauseopt:
-      clockedClause?
     ;
 typeName:
       identifier
@@ -444,15 +415,10 @@ fullyQualifiedName:
     | fullyQualifiedName '.' identifier
     ;
 compilationUnit:
-      packageDeclarationopt typeDeclaration*
-    | packageDeclarationopt importDeclarations typeDeclaration*
-    ;
-importDeclarations:
-      importDeclaration
-    | importDeclarations importDeclaration
+      packageDeclaration? importDeclaration* typeDeclaration*
     ;
 packageDeclaration:
-      annotationsopt 'package' packageName ';'
+      annotations? 'package' packageName ';'
     ;
 importDeclaration:
       singleTypeImportDeclaration
@@ -478,10 +444,7 @@ interfaceTypeList:
       type (',' type)*
     ;
 classBody:
-      '{' classMemberDeclarationsopt '}'
-    ;
-classMemberDeclarations:
-      classMemberDeclaration+
+      '{' classMemberDeclaration* '}'
     ;
 classMemberDeclaration:
       interfaceMemberDeclaration
@@ -520,9 +483,9 @@ formalParameterList:
       formalParameter (',' formalParameter)*
     ;
 loopIndexDeclarator:
-      identifier hasResultTypeopt
-    | '[' identifierList ']' hasResultTypeopt
-    | identifier '[' identifierList ']' hasResultTypeopt
+      identifier hasResultType?
+    | '[' identifierList ']' hasResultType?
+    | identifier '[' identifierList ']' hasResultType?
     ;
 loopIndex:
       modifier* loopIndexDeclarator
@@ -544,9 +507,9 @@ throwsList:
     ;
 methodBody:
       '=' lastExpression ';'
-    | '=' annotationsopt '{' blockStatements? lastExpression '}'
-    | '=' annotationsopt block
-    | annotationsopt block
+    | '=' annotations? '{' blockStatements? lastExpression '}'
+    | '=' annotations? block
+    | annotations? block
     | ';'
     ;
 constructorBody:
@@ -557,7 +520,7 @@ constructorBody:
     | ';'
     ;
 constructorBlock:
-      '{' explicitConstructorInvocationopt blockStatements? '}'
+      '{' explicitConstructorInvocation? blockStatements? '}'
     ;
 arguments:
       '(' argumentList ')'
@@ -566,7 +529,7 @@ extendsInterfaces:
       'extends' type (',' type)*
     ;
 interfaceBody:
-      '{' interfaceMemberDeclarationsopt '}'
+      '{' interfaceMemberDeclarations? '}'
     ;
 interfaceMemberDeclarations:
       interfaceMemberDeclaration+
@@ -609,12 +572,12 @@ formalDeclarator:
     ;
 fieldDeclarator:
       identifier hasResultType
-    | identifier hasResultTypeopt '=' variableInitializer
+    | identifier hasResultType? '=' variableInitializer
     ;
 variableDeclarator:
-      identifier hasResultTypeopt '=' variableInitializer
-    | '[' identifierList ']' hasResultTypeopt '=' variableInitializer
-    | identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer
+      identifier hasResultType? '=' variableInitializer
+    | '[' identifierList ']' hasResultType? '=' variableInitializer
+    | identifier '[' identifierList ']' hasResultType? '=' variableInitializer
     ;
 variableDeclaratorWithType:
       identifier hasResultType '=' variableInitializer
@@ -631,32 +594,32 @@ localVariableDeclaration:
     ;
 primary:
       'here'
-    | '[' argumentListopt ']'
+    | '[' argumentList? ']'
     | literal
     | 'self'
     | 'this'
     | className '.' 'this'
     | '(' expression ')'
 //    | classInstanceCreationExpression
-    | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt
-    | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt
-    | fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt
+    | 'new' typeName typeArguments? '(' argumentList? ')' classBody?
+    | primary '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
+    | fullyQualifiedName '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
 //    | fieldAccess
     | primary '.' identifier
     | 'super' '.' identifier
     | className '.' 'super' '.' identifier
 //    | methodInvocation
-    | methodName typeArgumentsopt '(' argumentListopt ')'
-    | primary '.' identifier '(' argumentListopt ')'
-    | primary '.' identifier typeArguments '(' argumentListopt ')'
-    | 'super' '.' identifier '(' argumentListopt ')'
-    | 'super' '.' identifier typeArguments '(' argumentListopt ')'
-    | className '.' 'super' '.' identifier '(' argumentListopt ')'
-    | className '.' 'super' '.' identifier typeArguments '(' argumentListopt ')'
-    | primary typeArgumentsopt '(' argumentListopt ')'
-//    | operatorPrefix typeArgumentsopt '(' argumentListopt ')' // XXX TODO
-    | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
+    | methodName typeArguments? '(' argumentList? ')'
+    | primary '.' identifier '(' argumentList? ')'
+    | primary '.' identifier typeArguments '(' argumentList? ')'
+    | 'super' '.' identifier '(' argumentList? ')'
+    | 'super' '.' identifier typeArguments '(' argumentList? ')'
+    | className '.' 'super' '.' identifier '(' argumentList? ')'
+    | className '.' 'super' '.' identifier typeArguments '(' argumentList? ')'
+    | primary typeArguments? '(' argumentList? ')'
+//    | operatorPrefix typeArguments? '(' argumentList? ')' // XXX TODO
+    | className '.' 'operator' 'as' '[' type ']' typeArguments? '(' argumentList? ')'
+    | className '.' 'operator' '[' type ']' typeArguments? '(' argumentList? ')'
 
     ;
 literal:
@@ -688,17 +651,17 @@ fieldAccess:
     | className '.' 'super' '.' identifier
     ;
 methodInvocation:
-      methodName typeArgumentsopt '(' argumentListopt ')'
-    | primary '.' identifier '(' argumentListopt ')'
-    | primary '.' identifier typeArguments '(' argumentListopt ')'
-    | 'super' '.' identifier '(' argumentListopt ')'
-    | 'super' '.' identifier typeArguments '(' argumentListopt ')'
-    | className '.' 'super' '.' identifier '(' argumentListopt ')'
-    | className '.' 'super' '.' identifier typeArguments '(' argumentListopt ')'
-    | primary typeArgumentsopt '(' argumentListopt ')'
-    | operatorPrefix typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
+      methodName typeArguments? '(' argumentList? ')'
+    | primary '.' identifier '(' argumentList? ')'
+    | primary '.' identifier typeArguments '(' argumentList? ')'
+    | 'super' '.' identifier '(' argumentList? ')'
+    | 'super' '.' identifier typeArguments '(' argumentList? ')'
+    | className '.' 'super' '.' identifier '(' argumentList? ')'
+    | className '.' 'super' '.' identifier typeArguments '(' argumentList? ')'
+    | primary typeArguments? '(' argumentList? ')'
+    | operatorPrefix typeArguments? '(' argumentList? ')'
+    | className '.' 'operator' 'as' '[' type ']' typeArguments? '(' argumentList? ')'
+    | className '.' 'operator' '[' type ']' typeArguments? '(' argumentList? ')'
     ;
 operatorPrefix:
       'operator' binOp
@@ -757,8 +720,8 @@ assignmentExpression:
     ;
 assignment:
       leftHandSide assignmentOperator assignmentExpression
-    | expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression
-    | primary '(' argumentListopt ')' assignmentOperator assignmentExpression
+    | expressionName '(' argumentList? ')' assignmentOperator assignmentExpression
+    | primary '(' argumentList? ')' assignmentOperator assignmentExpression
     ;
 leftHandSide:
       expressionName
@@ -836,89 +799,5 @@ binOp:
     | '!'
     | '<>'
     | '><'
-    ;
-catchesopt:
-      catches?
-    ;
-identifieropt:
-      identifier?
-    ;
-forUpdateopt:
-      forUpdate?
-    ;
-expressionopt:
-      expression?
-    ;
-forInitopt:
-      forInit?
-    ;
-switchLabelsopt:
-      switchLabels
-    ;
-switchBlockStatementGroupsopt:
-      switchBlockStatementGroups?
-    ;
-interfaceMemberDeclarationsopt:
-      interfaceMemberDeclarations?
-    ;
-extendsInterfacesopt:
-      extendsInterfaces?
-    ;
-classBodyopt:
-      classBody?
-    ;
-argumentListopt:
-      argumentList?
-    ;
-explicitConstructorInvocationopt:
-      explicitConstructorInvocation?
-    ;
-formalParameterListopt:
-      formalParameterList?
-    ;
-oBSOLETE_Offersopt:
-      oBSOLETE_Offers?
-    ;
-throwsopt:
-      throws_?
-    ;
-classMemberDeclarationsopt:
-      classMemberDeclarations?
-    ;
-interfacesopt:
-      interfaces?
-    ;
-superExtendsopt:
-      superExtends?
-    ;
-typeParametersopt:
-      typeParameters?
-    ;
-formalParametersopt:
-      formalParameters?
-    ;
-annotationsopt:
-      annotations?
-    ;
-importDeclarationsopt:
-      importDeclarations?
-    ;
-packageDeclarationopt:
-      packageDeclaration?
-    ;
-hasResultTypeopt:
-      hasResultType?
-    ;
-typeArgumentsopt:
-      typeArguments?
-    ;
-typeParamsWithVarianceopt:
-      typeParamsWithVariance?
-    ;
-propertiesopt:
-      properties?
-    ;
-varKeywordopt:
-      varKeyword?
     ;
 
