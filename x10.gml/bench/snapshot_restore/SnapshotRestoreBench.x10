@@ -29,6 +29,12 @@ public class SnapshotRestoreBench {
         val rbs = args.size > 6 ? Long.parse(args(6)):4;  // row blocks in KB
         val cbs = args.size > 7 ? Long.parse(args(7)):4;  // col blocks in KB
         val nonZeroDensity = args.size > 8 ? Double.parse(args(8)):0.09;  // non zero density for sparse matrix test
+
+        if (spare < 0 || spare >= Place.numPlaces()) {
+            Console.OUT.println("Error in settings");
+            System.setExitCode(1n);
+            return;
+        }
         
         val places = PlaceGroupBuilder.makeTestPlaceGroup(spare);
         val M = M_KB * 1024;
