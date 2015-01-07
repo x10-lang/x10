@@ -89,11 +89,6 @@ explicitConstructorInvocation:
 interfaceDeclaration:
       modifier* 'interface' identifier typeParamsWithVariance? properties? whereClause? extendsInterfaces? interfaceBody
     ;
-classInstanceCreationExpression:
-      'new' typeName typeArguments? '(' argumentList? ')' classBody?
-    | primary '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
-    | fullyQualifiedName '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
-    ;
 assignPropertyCall:
       'property' typeArguments? '(' argumentList? ')' ';'
     ;
@@ -246,8 +241,6 @@ expressionStatement:
     ;
 statementExpression:
       assignment
-    | methodInvocation
-    | classInstanceCreationExpression
     | conditionalExpression
     ;
 assertStatement:
@@ -529,10 +522,7 @@ extendsInterfaces:
       'extends' type (',' type)*
     ;
 interfaceBody:
-      '{' interfaceMemberDeclarations? '}'
-    ;
-interfaceMemberDeclarations:
-      interfaceMemberDeclaration+
+      '{' interfaceMemberDeclaration* '}'
     ;
 interfaceMemberDeclaration:
       methodDeclaration
@@ -610,17 +600,13 @@ primary:
     | className '.' 'super' '.' identifier
 //    | methodInvocation
     | methodName typeArguments? '(' argumentList? ')'
-    | primary '.' identifier '(' argumentList? ')'
-    | primary '.' identifier typeArguments '(' argumentList? ')'
-    | 'super' '.' identifier '(' argumentList? ')'
-    | 'super' '.' identifier typeArguments '(' argumentList? ')'
-    | className '.' 'super' '.' identifier '(' argumentList? ')'
-    | className '.' 'super' '.' identifier typeArguments '(' argumentList? ')'
+    | primary '.' identifier typeArguments? '(' argumentList? ')'
+    | 'super' '.' identifier typeArguments? '(' argumentList? ')'
+    | className '.' 'super' '.' identifier typeArguments? '(' argumentList? ')'
     | primary typeArguments? '(' argumentList? ')'
 //    | operatorPrefix typeArguments? '(' argumentList? ')' // XXX TODO
     | className '.' 'operator' 'as' '[' type ']' typeArguments? '(' argumentList? ')'
     | className '.' 'operator' '[' type ']' typeArguments? '(' argumentList? ')'
-
     ;
 literal:
       IntLiteral
@@ -649,19 +635,6 @@ fieldAccess:
       primary '.' identifier
     | 'super' '.' identifier
     | className '.' 'super' '.' identifier
-    ;
-methodInvocation:
-      methodName typeArguments? '(' argumentList? ')'
-    | primary '.' identifier '(' argumentList? ')'
-    | primary '.' identifier typeArguments '(' argumentList? ')'
-    | 'super' '.' identifier '(' argumentList? ')'
-    | 'super' '.' identifier typeArguments '(' argumentList? ')'
-    | className '.' 'super' '.' identifier '(' argumentList? ')'
-    | className '.' 'super' '.' identifier typeArguments '(' argumentList? ')'
-    | primary typeArguments? '(' argumentList? ')'
-    | operatorPrefix typeArguments? '(' argumentList? ')'
-    | className '.' 'operator' 'as' '[' type ']' typeArguments? '(' argumentList? ')'
-    | className '.' 'operator' '[' type ']' typeArguments? '(' argumentList? ')'
     ;
 operatorPrefix:
       'operator' binOp
@@ -701,8 +674,8 @@ conditionalExpression:
     | conditionalExpression 'instanceof' type
     | conditionalExpression ('<'|'>'|'<='|'>=') conditionalExpression
     | conditionalExpression ('=='|'!=') conditionalExpression
+    | type '==' type // Danger some type equalities can be capture by the previous rule
     | conditionalExpression ('~'|'!~') conditionalExpression
-    | type '==' type
     | conditionalExpression '&' conditionalExpression
     | conditionalExpression '^' conditionalExpression
     | conditionalExpression '|' conditionalExpression
