@@ -270,6 +270,15 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
 
         writeSerializationId(sid);
+        
+        if (sid == JAVA_OBJECT_STREAM_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Serializing using Java serialization a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
+            }
+            writeUsingObjectOutputStream(obj);
+            return;
+        }
+        
         if (obj instanceof X10JavaSerializable) {
              if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
@@ -551,6 +560,7 @@ public final class X10JavaSerializer implements SerializationConstants {
 
     // Write an object using java serialization. 
     // This is used by Rail to optimize the serialization of primitive arrays
+    // and to allow optional forcing of usage of Java serialization for Java types.
     public void writeUsingObjectOutputStream(Object obj) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(this.out);
         oos.writeObject(obj);

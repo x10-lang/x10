@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 import x10.runtime.impl.java.Runtime.OSGI_MODES;
-
 import static x10.serialization.SerializationUtils.getBundleMethod;
 import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
 import static x10.serialization.SerializationUtils.getVersionMethod;
@@ -142,9 +141,15 @@ abstract class SerializationDictionary implements SerializationConstants {
             }
             short sid = super.getSerializationId(clazz, obj, dos);
             if (sid == NO_PREASSIGNED_ID) {
-                sid = Short.valueOf(nextId++);
+                if (Runtime.USE_JAVA_SERIALIZATION && 
+                        !SerializationUtils.useX10SerializationProtocol(clazz) &&
+                        java.io.Serializable.class.isAssignableFrom(clazz)) {
+                    sid = SerializationConstants.JAVA_OBJECT_STREAM_ID;
+                } else {
+                    sid = Short.valueOf(nextId++);
+                    serializeIdAssignment(dos, sid, clazz);
+                }
                 dict.put(clazz, sid);
-                serializeIdAssignment(dos, sid, clazz);
             }
             return sid;
         }
