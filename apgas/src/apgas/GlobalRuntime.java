@@ -112,6 +112,18 @@ public abstract class GlobalRuntime {
   protected abstract void asyncat(Place p, Job f);
 
   /**
+   * Submits an uncounted task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately. The termination of
+   * this task is not tracked by the enclosing finish.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
+  protected abstract void uncountedasyncat(Place p, Job f);
+
+  /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
    * transitively spawned by {@code f}.
    * <p>

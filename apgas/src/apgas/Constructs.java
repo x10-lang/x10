@@ -66,6 +66,21 @@ public final class Constructs {
   }
 
   /**
+   * Submits an uncounted task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately. The termination of
+   * this task is not tracked by the enclosing finish. If an exception is thrown
+   * by the task it is logged to System.err and ignored.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
+  public static void uncountedasyncat(Place p, Job f) {
+    GlobalRuntime.getRuntime().uncountedasyncat(p, f);
+  }
+
+  /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
    * transitively spawned by {@code f}.
    * <p>

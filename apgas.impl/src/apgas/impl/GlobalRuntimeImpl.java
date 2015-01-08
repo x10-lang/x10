@@ -333,6 +333,19 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
+  public void uncountedasyncat(Place p, Job f) {
+    transport.send(p.id, () -> {
+      try {
+        f.run();
+      } catch (final Exception e) {
+        System.err.println("[APGAS] Uncaught exception in uncountedasyncat");
+        System.err.println("[APGAS] Caused by: " + e);
+        System.err.println("[APGAS] Ignoring...");
+      }
+    });
+  }
+
+  @Override
   public void at(Place p, Job f) {
     Constructs.finish(() -> Constructs.asyncat(p, f));
   }
