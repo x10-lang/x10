@@ -174,6 +174,13 @@ public final class X10JavaDeserializer implements SerializationConstants {
             return (T)deserializeArray();
         }
         
+        if (serializationID == JAVA_OBJECT_STREAM_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserializing an object using Java deserialization");
+            }
+            return (T)readUsingObjectInputStream();
+        }
+        
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
@@ -393,6 +400,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     
     // Read an object using java serialization. 
     // This is used to optimize the serialization of primitive arrays
+    // and to allow optional forcing of usage of Java serialization for Java types.
     public Object readUsingObjectInputStream() throws IOException {
         ObjectInputStream ois = new ObjectInputStream(this.in);
         try {

@@ -286,9 +286,14 @@ public abstract class Runtime implements VoidFun_0_0 {
     public static final boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
     
     /**
-     * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
+     * Emit very detailed serialization tracing messages.
      */
     public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
+    
+    /**
+     * Use Java serialization to serialize all non-X10 Java types that implement java.io.Serializable
+     */
+    public static final boolean USE_JAVA_SERIALIZATION = Boolean.getBoolean("x10.USE_JAVA_SERIALIZATION");
 
     public static final boolean X10_TRACE_ANSI_COLORS = Boolean.getBoolean("X10_TRACE_ANSI_COLORS");
 
