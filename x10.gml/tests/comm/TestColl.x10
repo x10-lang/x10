@@ -200,8 +200,6 @@ public class TestColl extends x10Test {
 		val tmpDA = DupDenseMatrix.make(M,N);
 		dupDA.reduceSum();
 		
-		//MatrixReduce.reduceSum(dupDA.dupMs, tmpDA.dupMs);
-
 		denDA.scale(numplace as Double);
 		ret = denDA.equals(dupDA.local() as Matrix(denDA.M, denDA.N));
 
@@ -221,7 +219,6 @@ public class TestColl extends x10Test {
 
 		val tmpDA = DupDenseMatrix.make(M,N);
 		dupDA.allReduceSum();
-		//MatrixReduce.allReduceSum(dupDA.dupMs, tmpDA.dupMs);
 		denDA.scale(numplace);
 		
 		ret = denDA.equals(dupDA.local() as Matrix(denDA.M, denDA.N));

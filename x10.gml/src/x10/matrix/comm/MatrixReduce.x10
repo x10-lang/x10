@@ -128,13 +128,13 @@ public class MatrixReduce {
 		val rtroot = root + lfcnt;
 		if (pcnt > 2) {
 			finish {
-				if (lfcnt > 1) async {
-					reduceSumToHere(ddmat, ddtmp, lfcnt); 
-				}
-				if (rtcnt > 1 ) {
+				if (rtcnt > 1) {
 					at(ddmat.dist(rtroot)) async {
 						reduceSumToHere(ddmat, ddtmp, rtcnt);
 					}
+				}
+				if (lfcnt > 1) {
+					reduceSumToHere(ddmat, ddtmp, lfcnt);
 				}
 			}
 		}
