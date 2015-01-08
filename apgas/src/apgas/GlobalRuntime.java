@@ -114,7 +114,8 @@ public abstract class GlobalRuntime {
   /**
    * Submits an uncounted task to the global runtime to be run at {@link Place}
    * {@code p} with body {@code f} and returns immediately. The termination of
-   * this task is not tracked by the enclosing finish.
+   * this task is not tracked by the enclosing finish. If an exception is thrown
+   * by the task it is logged to System.err and ignored.
    *
    * @param p
    *          the place of execution
