@@ -99,6 +99,9 @@ public class LinearRegression implements ResilientIterativeApp {
 
         new ResilientExecutor(checkpointFreq, places).run(this);
 
+        parCompT = dupR.getCalcTime() + d_q.getCalcTime() + Vp.getCalcTime();
+        commT = dupR.getCommTime() + d_q.getCommTime() + d_p.getCommTime() + Vp.getCommTime();
+
         return w;
     }
 
@@ -107,16 +110,12 @@ public class LinearRegression implements ResilientIterativeApp {
 
         // Parallel computing
 
-        var ct:Long = Timer.milliTime();
-
         // 10: q=((t(V) %*% (V %*% p)) )
         d_q.mult(Vp.mult(V, d_p), V);
 
-        parCompT += Timer.milliTime() - ct;
-
         // Sequential computing
 
-        ct = Timer.milliTime();
+        var ct:Long = Timer.milliTime();
         //q = q + lambda*p
         val p = d_p.local();
         val q = d_q.local();
@@ -142,7 +141,6 @@ public class LinearRegression implements ResilientIterativeApp {
 
         seqCompT += Timer.milliTime() - ct;
 
-        commT = d_q.getCommTime() + d_p.getCommTime();
         iter++;
     }
 
