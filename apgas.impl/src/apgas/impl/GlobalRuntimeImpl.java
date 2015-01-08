@@ -337,7 +337,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.send(p.id, () -> {
       try {
         f.run();
-      } catch (final Exception e) {
+      } catch (final Throwable e) {
         System.err.println("[APGAS] Uncaught exception in uncountedasyncat");
         System.err.println("[APGAS] Caused by: " + e);
         System.err.println("[APGAS] Ignoring...");
