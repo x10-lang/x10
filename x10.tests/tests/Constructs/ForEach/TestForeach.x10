@@ -30,6 +30,10 @@ public class TestForeach(N:Long) extends x10Test {
         };
 
         reset(x);
+        Foreach.sequential(0, N-1, body);
+        check(x);
+
+        reset(x);
         Foreach.basic(0, N-1, body);
         check(x);
 
