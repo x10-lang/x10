@@ -357,10 +357,12 @@ public class DistVector(M:Long) implements Snapshottable {
      * @return this vector, containing the result of the map
      */
     public final @Inline def map(op:(x:Double)=>Double):DistVector(this) {
+        val stt = Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             val d = distV();
             d.map(op);
         }
+        calcTime += Timer.milliTime() - stt;
         return this;
     }
 
@@ -373,11 +375,13 @@ public class DistVector(M:Long) implements Snapshottable {
      */
     public final @Inline def map(a:DistVector(M), op:(x:Double)=>Double):DistVector(this) {
         assert(likeMe(a));
+        val stt = Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             val d = distV();
             val ad = a.distV() as Vector(d.M);
             d.map(ad, op);
         }
+        calcTime += Timer.milliTime() - stt;
         return this;
     }
 
@@ -392,11 +396,13 @@ public class DistVector(M:Long) implements Snapshottable {
      */
     public final @Inline def map(a:DistVector(M), op:(x:Double,y:Double)=>Double):DistVector(this) {
         assert(likeMe(a));
+        val stt = Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             val d = distV();
             val ad = a.distV() as Vector(d.M);
             d.map(d, ad, op);
         }
+        calcTime += Timer.milliTime() - stt;
         return this;
     }
 
@@ -412,12 +418,14 @@ public class DistVector(M:Long) implements Snapshottable {
      */
     public final @Inline def map(a:DistVector(M), b:DistVector(M), op:(x:Double,y:Double)=>Double):DistVector(this) {
         assert(likeMe(a));
+        val stt = Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             val d = distV();
             val ad = a.distV() as Vector(d.M);
             val bd = b.distV() as Vector(d.M);
             d.map(ad, bd, op);
         }
+        calcTime += Timer.milliTime() - stt;
         return this;
     }
 
@@ -432,6 +440,7 @@ public class DistVector(M:Long) implements Snapshottable {
             public def zero() = unit;
             public operator this(a:Double, b:Double) = op(a,b); 
         }
+        val stt = Timer.milliTime();
         val reducer = new Reducer();
         val result = finish (reducer) {
             ateach(Dist.makeUnique(places)) {
@@ -439,6 +448,7 @@ public class DistVector(M:Long) implements Snapshottable {
                 d.reduce(op, unit);
             }
         };
+        calcTime += Timer.milliTime() - stt;
         return result;
     }
 
