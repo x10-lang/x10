@@ -1,3 +1,13 @@
+X10 Release 2.5.1.1 
+
+This is a point release of X10 containing the following changes from X10 2.5.1
+ + Addition of an option to use Java serialization to transport
+   non-X10 (Java) types in Managed X10. (trunk r28797)
+ + X10 serializes/deserializes fields in sorted order to avoid being sensitive
+   to order of declaration (trunk r28799).
+
+-------------------------------------------------------------------------
+
 X10 Release 2.5.1
 
 HIGHLIGHTS OF THIS RELEASE
