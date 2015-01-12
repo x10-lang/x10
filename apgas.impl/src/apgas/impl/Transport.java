@@ -28,6 +28,7 @@ import com.hazelcast.core.InitialMembershipListener;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.spi.ExecutionService;
 
 /**
  * The {@link Transport} class manages the Hazelcast cluster and implements
@@ -103,7 +104,11 @@ final class Transport implements InitialMembershipListener {
       config.setProperty("hazelcast.io.thread.count", "2");
       config.setProperty("hazelcast.event.thread.count", "2");
       config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
-          "hz:system", 2));
+          ExecutionService.ASYNC_EXECUTOR, 2));
+      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+          ExecutionService.SYSTEM_EXECUTOR, 2));
+      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+          ExecutionService.SCHEDULED_EXECUTOR, 2));
     }
 
     // join config
