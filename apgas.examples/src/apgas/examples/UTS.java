@@ -32,8 +32,8 @@ final class Bag implements Serializable {
   final int[] upper;
   int size;
 
-  Bag(int n) {
-    hash = new byte[n * 20 + 4]; // 4 extra slots for in-place SHA-1 computation
+  Bag(int n, int slack) {
+    hash = new byte[n * 20 + slack];
     depth = new int[n];
     lower = new int[n];
     upper = new int[n];
@@ -49,7 +49,7 @@ final class Bag implements Serializable {
     if (s == 0) {
       return null;
     }
-    final Bag bag = new Bag(s);
+    final Bag bag = new Bag(s, 0);
     for (int i = 0; i < size; ++i) {
       final int p = upper[i] - lower[i];
       if (p >= 2) {
@@ -86,12 +86,12 @@ final class UTS {
   final Random random = new Random();
   final MessageDigest md = encoder();
   final double den = Math.log(4.0 / (1.0 + 4.0)); // branching factor: 4.0
-  final Bag bag = new Bag(4096);
+  final Bag bag = new Bag(4096, 4);
   long count;
 
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
   boolean lifeline = true;
-  int state;
+  int state; // 0: inactive, 1: running, 2: stealing
 
   int digest() throws DigestException {
     final int offset = bag.size * 20;
@@ -104,20 +104,17 @@ final class UTS {
     return (int) (Math.log(1.0 - v / 2147483648.0) / den);
   }
 
-  void init(int seed, int depth) {
-    try {
-      bag.hash[16] = (byte) (seed >> 24);
-      bag.hash[17] = (byte) (seed >> 16);
-      bag.hash[18] = (byte) (seed >> 8);
-      bag.hash[19] = (byte) seed;
-      md.update(bag.hash, 0, 20);
-      final int v = digest();
-      if (v > 0) {
-        bag.depth[0] = depth;
-        bag.upper[0] = v;
-        bag.size = 1;
-      }
-    } catch (final DigestException e) {
+  void init(int seed, int depth) throws DigestException {
+    bag.hash[16] = (byte) (seed >> 24);
+    bag.hash[17] = (byte) (seed >> 16);
+    bag.hash[18] = (byte) (seed >> 8);
+    bag.hash[19] = (byte) seed;
+    md.update(bag.hash, 0, 20);
+    final int v = digest();
+    if (v > 0) {
+      bag.depth[0] = depth;
+      bag.upper[0] = v;
+      bag.size = 1;
     }
   }
 
@@ -150,29 +147,26 @@ final class UTS {
     }
   }
 
-  void run() {
-    try {
-      System.err.println(here() + " starting");
-      synchronized (this) {
-        state = 1;
-      }
-      while (bag.size > 0) {
-        while (bag.size > 0) {
-          for (int n = 500; (n > 0) && (bag.size > 0); --n) {
-            expand();
-          }
-          distribute();
-        }
-        steal();
-      }
-      synchronized (this) {
-        state = 0;
-      }
-      lifelinesteal();
-      System.err.println(here() + " stopping");
-      distribute();
-    } catch (final DigestException e) {
+  void run() throws DigestException {
+    System.err.println(here() + " starting");
+    synchronized (this) {
+      state = 1;
     }
+    while (bag.size > 0) {
+      while (bag.size > 0) {
+        for (int n = 500; (n > 0) && (bag.size > 0); --n) {
+          expand();
+        }
+        distribute();
+      }
+      steal();
+    }
+    synchronized (this) {
+      state = 0;
+    }
+    lifelinesteal();
+    System.err.println(here() + " stopping");
+    distribute();
   }
 
   void lifelinesteal() {
@@ -218,7 +212,7 @@ final class UTS {
     });
   }
 
-  void lifelinedeal(Bag b) {
+  void lifelinedeal(Bag b) throws DigestException {
     bag.merge(b);
     run();
   }
