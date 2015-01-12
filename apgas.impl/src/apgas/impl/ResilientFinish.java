@@ -33,7 +33,7 @@ final class ResilientFinish implements Finish, Serializable {
       .getRuntime().transport.<GlobalID, State> getMap("_APGAS_FINISH_");
 
   GlobalID id;
-  List<Throwable> exceptions;
+  transient List<Throwable> exceptions;
 
   static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
