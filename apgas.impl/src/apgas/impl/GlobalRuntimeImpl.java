@@ -91,8 +91,8 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     return t instanceof Worker ? (Worker) t : null;
   }
 
-  private static Process exec(String command) throws IOException {
-    final ProcessBuilder pb = new ProcessBuilder(command.split(" "));
+  private static Process exec(List<String> command) throws IOException {
+    final ProcessBuilder pb = new ProcessBuilder(command);
     pb.redirectOutput(Redirect.INHERIT);
     pb.redirectError(Redirect.INHERIT);
     return pb.start();
@@ -111,17 +111,20 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   public GlobalRuntimeImpl() throws IOException {
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
+    final int threads = Integer.getInteger(Configuration.APGAS_THREADS, Runtime
+        .getRuntime().availableProcessors());
     final String master = System.getProperty(Configuration.APGAS_MASTER);
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
+    final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
     final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
         InetAddress.getLocalHost().getHostAddress());
 
     // initialize scheduler and transport
-    scheduler = new Scheduler();
-    transport = new Transport(this, master, localhost);
+    scheduler = new Scheduler(threads);
+    transport = new Transport(this, master, localhost, compact);
 
     // initialize here
     here = transport.here();
@@ -156,22 +159,26 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     if (p > 1) {
       // launch additional places
       try {
-        String command = getClass().getSuperclass().getCanonicalName();
+        final ArrayList<String> command = new ArrayList<String>();
         if (resilient) {
-          command = "-D" + Configuration.APGAS_RESILIENT + "=true " + command;
+          command.add("-D" + Configuration.APGAS_RESILIENT + "=true");
         }
         if (serializationException) {
-          command = "-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION
-              + "=true " + command;
+          command.add("-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION
+              + "=true");
         }
-        command = "-D" + Configuration.APGAS_DAEMON + "=true " + command;
-        command = "-D" + Configuration.APGAS_MASTER + "="
-            + (master == null ? transport.getAddress() : master) + " "
-            + command;
-        command = "-D" + Configuration.APGAS_LOCALHOST + "=" + localhost + " "
-            + command;
-        command = "java -cp " + System.getProperty("java.class.path") + " "
-            + command;
+        if (compact) {
+          command.add("-D" + Configuration.APGAS_COMPACT + "=true");
+          command.add("-XX:CICompilerCount=3");
+          command.add("-XX:ParallelGCThreads=2");
+        }
+        command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
+        command.add("-D" + Configuration.APGAS_DAEMON + "=true");
+        command.add("-D" + Configuration.APGAS_MASTER + "="
+            + (master == null ? transport.getAddress() : master));
+        command.add("-D" + Configuration.APGAS_LOCALHOST + "=" + localhost);
+        command.add("java -cp " + System.getProperty("java.class.path"));
+        command.add(getClass().getSuperclass().getCanonicalName());
         for (int i = 0; i < p - 1; i++) {
           Process process = exec(command);
           synchronized (processes) {

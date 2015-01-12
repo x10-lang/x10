@@ -38,6 +38,20 @@ public final class Configuration {
   public static final String APGAS_PLACES = "apgas.places";
 
   /**
+   * Number of threads in the thread pool (Integer property).
+   * <p>
+   * The return value of "{@code Runtime.getRuntime().availableProcessors()}" is
+   * used if this property is not set.
+   */
+  public static final String APGAS_THREADS = "apgas.threads";
+
+  /**
+   * Reduces the number of threads used by the JVM and Hazelcast if set (Boolean
+   * property).
+   */
+  public static final String APGAS_COMPACT = "apgas.compact";
+
+  /**
    * Specifies how to handle serialization errors when spawning remote tasks
    * (Boolean property).
    * <p>

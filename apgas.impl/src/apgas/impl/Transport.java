@@ -87,13 +87,24 @@ final class Transport implements InitialMembershipListener {
    *          member to connect to or null
    * @param localhost
    *          the preferred ip address of this host
+   * @param compact
+   *          reduces thread creation if set
    */
-  Transport(GlobalRuntimeImpl runtime, String master, String localhost) {
+  Transport(GlobalRuntimeImpl runtime, String master, String localhost,
+      boolean compact) {
     this.runtime = runtime;
     // config
     final Config config = new Config();
     config.setProperty("hazelcast.logging.type", "none");
     config.setProperty("hazelcast.wait.seconds.before.join", "0");
+    if (compact) {
+      config.setProperty("hazelcast.operation.thread.count", "2");
+      config.setProperty("hazelcast.operation.generic.thread.count", "2");
+      config.setProperty("hazelcast.io.thread.count", "2");
+      config.setProperty("hazelcast.event.thread.count", "2");
+      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+          "hz:system", 2));
+    }
 
     // join config
     final JoinConfig join = config.getNetworkConfig().getJoin();

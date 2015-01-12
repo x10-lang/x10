@@ -33,28 +33,34 @@ final class Scheduler {
   /**
    * The current number of threads in the thread pool.
    */
-  int size = Runtime.getRuntime().availableProcessors();
+  int size;
 
   /**
    * The number of permits that have been released for threads to grab.
    */
-  private int permits = size;
+  private int permits;
 
   /**
    * The number of idle threads.
    */
   private int count = 0;
 
-  private final Semaphore semaphore = new Semaphore(size);
+  private final Semaphore semaphore;
   private Task offer;
 
   /**
    * Instantiates a new {@link Scheduler}.
    * <p>
    * Populates the thread pool. But threads are not started yet.
+   * 
+   * @param threads
+   *          the requested number of threads in the thread pool
    */
-  Scheduler() {
-    for (int i = 0; i < size; i++) {
+  Scheduler(int threads) {
+    size = threads;
+    permits = threads;
+    semaphore = new Semaphore(threads);
+    for (int i = 0; i < threads; i++) {
       pool[i] = new Worker(this);
     }
   }
