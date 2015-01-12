@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014-2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
  */
 
 #ifndef X10AUX_CHUNKED_ARRAY_H
