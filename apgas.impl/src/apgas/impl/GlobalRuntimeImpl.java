@@ -160,6 +160,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       // launch additional places
       try {
         final ArrayList<String> command = new ArrayList<String>();
+        command.add("java");
+        command.add("-cp");
+        command.add(System.getProperty("java.class.path"));
         if (resilient) {
           command.add("-D" + Configuration.APGAS_RESILIENT + "=true");
         }
@@ -177,7 +180,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         command.add("-D" + Configuration.APGAS_MASTER + "="
             + (master == null ? transport.getAddress() : master));
         command.add("-D" + Configuration.APGAS_LOCALHOST + "=" + localhost);
-        command.add("java -cp " + System.getProperty("java.class.path"));
         command.add(getClass().getSuperclass().getCanonicalName());
         for (int i = 0; i < p - 1; i++) {
           Process process = exec(command);
