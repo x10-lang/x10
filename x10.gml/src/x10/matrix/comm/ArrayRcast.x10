@@ -324,11 +324,13 @@ public class ArrayRcast extends ArrayRemoteCopy {
 		//Copy data from source place
 		if (mypid != root) {
 			//++++++++++++++++++++++++++++++++++++++++++++
-			//If receive side does not have enough space, program will crush
+			//If receive side does not have enough space, program will crash
 			//+++++++++++++++++++++++++++++++++++++++++++++
 			//rcvspa.initRemoteCopyAtDest(colOff, colCnt, datasz);
-			finish Rail.asyncCopy[Long  ](rmtIndex, 0, rcvspa.index, 0, datCnt);
-			finish Rail.asyncCopy[Double](rmtValue, 0, rcvspa.value, 0, datCnt);
+            finish {
+                Rail.asyncCopy[Long  ](rmtIndex, 0, rcvspa.index, 0, datCnt);
+                Rail.asyncCopy[Double](rmtValue, 0, rcvspa.value, 0, datCnt);
+            }
 		}
 
 		//Goto next place in the list

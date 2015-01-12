@@ -103,9 +103,9 @@ public class ArrayRemoteCopy {
 			dataCnt:Long) :void  {
 
         val gr = GlobalRail[Double](src as Rail[Double]{self!=null});
-        finish at (Place(dstpid)) {
+        at (Place(dstpid)) {
             val dst = dstplh() as Rail[Double]{self!=null};
-            Rail.asyncCopy[Double](gr, srcOff, dst, dstOff, dataCnt);
+            finish Rail.asyncCopy[Double](gr, srcOff, dst, dstOff, dataCnt);
         }
 	}
 	
@@ -118,9 +118,9 @@ public class ArrayRemoteCopy {
 			dataCnt:Long) :void  {
 
         val gr = GlobalRail[Double](src as Rail[Double]{self!=null});
-        finish at(Place(dstpid)) {
+        at(Place(dstpid)) {
             val dstLocal = dst.getLocalPortion()(0) as Rail[Double]{self!=null};
-            Rail.asyncCopy[Double](gr, srcOff, dstLocal, dstOff, dataCnt);
+            finish Rail.asyncCopy[Double](gr, srcOff, dstLocal, dstOff, dataCnt);
         }
 	}
 
@@ -185,11 +185,9 @@ public class ArrayRemoteCopy {
 			dst:Rail[Double], dstOff:Long, 
 			dataCnt:Long): void {
 		
-        // TODO should be able to use asyncCopy to remote dst
-        val gr = at(Place(srcpid))
-            GlobalRail[Double](srcplh() as Rail[Double]{self!=null});
-        finish {
-            Rail.asyncCopy[Double](gr, srcOff, dst, dstOff, dataCnt);
+        val gr = GlobalRail[Double](dst as Rail[Double]{self!=null});
+        at(Place(srcpid)) {
+            finish Rail.asyncCopy[Double](srcplh(), srcOff, gr, dstOff, dataCnt);
         }
 	}
 	
@@ -279,8 +277,10 @@ public class ArrayRemoteCopy {
 			val dst = dstplh();
 			assert (dstOff+dataCnt <= dst.storageSize()) :
                 "Receiving side arrays overflow";
-			finish Rail.asyncCopy[Long  ](rmtidx, srcOff, dst.index, dstOff, dataCnt);
-			finish Rail.asyncCopy[Double](rmtval, srcOff, dst.value, dstOff, dataCnt);
+            finish {
+                Rail.asyncCopy[Long  ](rmtidx, srcOff, dst.index, dstOff, dataCnt);
+                Rail.asyncCopy[Double](rmtval, srcOff, dst.value, dstOff, dataCnt);
+            }
 		}
 	}
 
@@ -343,23 +343,21 @@ public class ArrayRemoteCopy {
 	}
 	}
 	
-	//Sparse matrix remote copyt from
+    /** Sparse matrix remote copy from */
 	protected static def x10Copy(
 			srcplh:CompArrayPLH, srcpid:Long, srcOff:Long,
 			dst:CompressArray, dstOff:Long, 
 			dataCnt:Long): void {
 
-		val rmt:RemotePair = at(Place(srcpid)) { 
-			//Need: srclist
-			val src = srcplh();
-			val idxbuf = src.index as Rail[Long]{self!=null};
-			val valbuf = src.value as Rail[Double]{self!=null};
-			val rmtidx = new GlobalRail[Long](idxbuf);
-			val rmtval = new GlobalRail[Double](valbuf);
-			RemotePair(rmtidx, rmtval)
-		};
+        val rmt = RemotePair(new GlobalRail[Long](dst.index),
+                             new GlobalRail[Double](dst.value));
 
-		finish Rail.asyncCopy[Long  ](rmt.first,  srcOff, dst.index, dstOff, dataCnt);
-		finish Rail.asyncCopy[Double](rmt.second, dstOff, dst.value, dstOff, dataCnt);
+        at(Place(srcpid)) {
+            val src = srcplh();
+            finish {
+                Rail.asyncCopy[Long  ](src.index,  srcOff, rmt.first, dstOff, dataCnt);
+                Rail.asyncCopy[Double](src.value, srcOff, rmt.second, dstOff, dataCnt);
+            }
+        }
 	}
 }
