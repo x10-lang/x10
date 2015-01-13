@@ -86,7 +86,7 @@ final class UTS {
   final Random random = new Random();
   final MessageDigest md = encoder();
   final double den = Math.log(4.0 / (1.0 + 4.0)); // branching factor: 4.0
-  final Bag bag = new Bag(4096, 4);
+  Bag bag = new Bag(4096, 4);
   long count;
 
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
@@ -94,6 +94,9 @@ final class UTS {
   int state; // 0: inactive, 1: running, 2: stealing
 
   int digest() throws DigestException {
+    if (bag.size >= bag.depth.length) {
+      grow();
+    }
     final int offset = bag.size * 20;
     md.digest(bag.hash, offset, 20);
     ++count;
@@ -145,6 +148,16 @@ final class UTS {
       --bag.size;
       count += 1 + u - l;
     }
+  }
+
+  void grow() {
+    final Bag b = new Bag(bag.depth.length * 2, 4);
+    System.arraycopy(bag.hash, 0, b.hash, 0, bag.size * 20);
+    System.arraycopy(bag.depth, 0, b.depth, 0, bag.size);
+    System.arraycopy(bag.lower, 0, b.lower, 0, bag.size);
+    System.arraycopy(bag.upper, 0, b.upper, 0, bag.size);
+    b.size = bag.size;
+    bag = b;
   }
 
   void run() throws DigestException {
@@ -212,14 +225,21 @@ final class UTS {
     });
   }
 
-  void lifelinedeal(Bag b) throws DigestException {
+  void merge(Bag b) {
+    while (bag.size + b.size > bag.depth.length) {
+      grow();
+    }
     bag.merge(b);
+  }
+
+  void lifelinedeal(Bag b) throws DigestException {
+    merge(b);
     run();
   }
 
   void deal(Bag b) {
     if (b != null) {
-      bag.merge(b);
+      merge(b);
     }
     synchronized (this) {
       state = 1;
@@ -267,8 +287,14 @@ final class UTS {
     });
     System.out.println("Starting...");
     long time = System.nanoTime();
+    int d = 13;
+    try {
+      d = Integer.parseInt(args[0]);
+    } catch (final Exception e) {
+    }
+    final int depth = d;
     finish(() -> {
-      uts.init(19, 13);
+      uts.init(19, depth);
       uts.run();
     });
     long count = 0;
