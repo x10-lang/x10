@@ -456,7 +456,7 @@ variableDeclarators:
       variableDeclarator (',' variableDeclarator)*
     ;
 homeVariableList:
-      homeVariable (',' homeVariable)
+      homeVariable (',' homeVariable)*
     ;
 homeVariable:
       identifier
