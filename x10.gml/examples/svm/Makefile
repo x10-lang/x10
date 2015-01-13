@@ -6,7 +6,7 @@
 #  You may obtain a copy of the License at
 #      http://www.opensource.org/licenses/eclipse-1.0.php
 #
-#  (C) Copyright IBM Corporation 2014.
+#  (C) Copyright IBM Corporation 2014-2015.
 #
 
 ###################################################
@@ -26,12 +26,12 @@ build_path	= build
 gml_path    = ../..
 
 # compile options
-X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O # -NO_CHECKS
 
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 4
-test_args = -f ionosphere.data
+test_args = -f ionosphere.data --verify
 
 ###################################################
 # Build rules
@@ -60,7 +60,7 @@ help::
 	@echo " Test run places   : $(numplaces)"
 	@echo " Test run arguments: $(test_args)"
 	@echo "";
-	@echo "Trouble shooting tips";
+	@echo "Troubleshooting tips";
 	@echo " If runtime shows \"NoClassDefFoundError: x10/matrix/Matrix\"";
 	@echo " replace \"~\" by relative directory path or absolute explicit directory path name";
 	@echo "";

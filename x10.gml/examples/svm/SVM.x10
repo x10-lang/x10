@@ -9,22 +9,24 @@
  *  (C) Copyright IBM Corporation 2014-2015.
  */
 
-import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.distblock.DistVector;
+import x10.matrix.distblock.DupVector;
 
 /**
- * Sequential implementation of linear support vector machine,
+ * Parallel implementation of linear support vector machine,
  * with L2 regularization and a hinge loss function.
  */
-public class SeqSVM(N:Long) {
+public class SVM(N:Long) {
     /** Weights for each feature.  w(N-1) is the intercept. */
-	public val w:Vector(N);
+	public val w:DupVector(N);
 
     /** Construct a new SVM with (N-1) features, plus an intercept. */
-    public def this(N:Long) {
+    public def this(N:Long, places:PlaceGroup) {
         property(N);
-        w = Vector.make(N);
-        w(N-1) = 1.0; // intercept
+        w = DupVector.make(N, places);
+        w.init((i:Long)=>(i==N-1) ? /* intercept */ 1.0 : 0.0);
     }
 
     /**
@@ -36,14 +38,14 @@ public class SeqSVM(N:Long) {
      * @param initialStepSize the starting step size for gradient descent
      * @param iterations the number of iterations of gradient descent
      */
-	public def train(X:DenseMatrix{self.N==this.N},
-                     y:Vector(X.M),
+	public def train(X:DistBlockMatrix{self.N==this.N},
+                     y:DistVector(X.M),
                      initialStepSize:Double,
                      regularization:Double,
-                     iterations:Long):SeqSVM{self==this} {
-        val scaledLabel = Vector.make(X.M);
-        val wX = Vector.make(X.M);
-        val gradient = Vector.make(X.N);
+                     iterations:Long):SVM{self==this} {
+        val scaledLabel = DistVector.make(X.M);
+        val wX = DistVector.make(X.M);
+        val gradient = DupVector.make(X.N);
 
         for (iter in 1..iterations) {
             // hinge loss = max(0, 1 - (2y - 1) * w * x )
@@ -78,6 +80,6 @@ public class SeqSVM(N:Long) {
      * @param the raw prediction score (-1.0 <= score <= 1.0)
      */
     public def predict(x:Vector(N)):Double {
-        return x.dotProd(w);
+        return x.dotProd(w.local());
     }
 }

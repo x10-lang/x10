@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
  */
 
 import x10.util.Option;
@@ -15,7 +15,12 @@ import x10.util.Timer;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
+import x10.matrix.block.BlockMatrix;
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.distblock.DistVector;
 import x10.matrix.regression.RegressionInputData;
+import x10.matrix.util.Debug;
+import x10.matrix.util.VerifyTool;
 
 /**
  * Test harness for Support Vector Machine using GML
@@ -59,32 +64,85 @@ public class RunSVM {
         val verify = opts("v");
         val print = opts("p");
 
+        val places = Place.places();
         val addBias = true;
-        val input = RegressionInputData.readFromFile(inputFile, libsvmInput, trainingFraction, addBias);
+        val inputData = RegressionInputData.readFromFile(inputFile, places, libsvmInput, trainingFraction, addBias);
 
-        Console.OUT.println("Training SVM with stepSize: " + stepSize
+        val mX = inputData.numTraining;
+        val nX = inputData.numFeatures+1;
+        
+        val X = DistBlockMatrix.makeDense(mX, nX, places.size(), 1, places.size(), 1, places);
+        val y = DistVector.make(X.M, places);
+
+        // initialize labels, examples at each place
+        finish for (place in places) at(place) async {
+            val numFeatures = inputData.numFeatures;
+            val trainingLabels = inputData.local().trainingLabels;
+            val trainingExamples = inputData.local().trainingExamples;
+            val startRow = X.getGrid().startRow(places.indexOf(place));
+            val blks = X.handleBS();
+            val blkitr = blks.iterator();
+            while (blkitr.hasNext()) {
+                val blk = blkitr.next();
+                // examples have an additional feature appended for the intercept
+                blk.init((i:Long, j:Long)=> trainingExamples((i-startRow)*nX+j));
+            }
+            y.distV().init((i:Long)=> trainingLabels(i));
+        }
+
+        var localX:DenseMatrix(mX, nX) = null;
+        var localY:Vector(mX) = null;
+        if (verify) {
+            val bX = BlockMatrix.makeDense(X.getGrid());
+            localX = DenseMatrix.make(mX, nX);
+
+            localY = Vector.make(mX);
+
+            X.copyTo(bX as BlockMatrix(X.M, X.N));
+            bX.copyTo(localX);
+
+            val same = VerifyTool.testSame(X, localX);
+            Console.OUT.println(same);
+
+            y.copyTo(localY as Vector(y.M));
+        }
+
+        Debug.flushln("Training SVM with stepSize: " + stepSize
             + ", regularization: " + regularization
             + " for " + iterations + " iterations...");
 
-        // examples have an additional feature appended for the intercept
-        val X = new DenseMatrix(input.numTraining, input.numFeatures+1);
-        X.init((i:Long, j:Long) => input.local().trainingExamples(i*(input.numFeatures+1)+j));
-        val y = new Vector(X.M, input.local().trainingLabels.toRail());
+        val parSVM = new SVM(nX, places).train(X, y, stepSize, regularization, iterations);
 
-        val seq = new SeqSVM(input.numFeatures+1).train(X, y, stepSize, regularization, iterations);
+        if (inputData.numTest > 0) {
+            Debug.flushln("Attempting to predict " + inputData.numTest
+                + " test examples...");
 
-        Console.OUT.println("Attempting to predict " + input.numTest
-            + " test examples...");
-
-        var successful:Long = 0;
-        for (i in 0..(input.numTest-1)) {
-            val testExample = input.local().testExamples.moveSectionToRail(0, input.numFeatures);
-            val test = new Vector(testExample);
-            val raw = seq.predict(test);
-            val predicted = (raw < 0.0 ? 0.0 : 1.0);
-            val actual = input.local().testLabels(i);
-            if (predicted == actual) successful++;
+            val totalSuccessful = finish(new Reducible.SumReducer[Long]()) {
+                for (place in places) at(place) async {
+                    var successful:Long = 0;
+                    for (i in 0..(inputData.local().testLabels.size()-1)) {
+                        val testExample = inputData.local().testExamples.moveSectionToRail(0, inputData.numFeatures);
+                        val test = new Vector(testExample);
+                        val raw = parSVM.predict(test);
+                        val predicted = (raw < 0.0 ? 0.0 : 1.0);
+                        val actual = inputData.local().testLabels(i);
+                        if (predicted == actual) successful++;
+                    }
+                    offer successful;
+                }
+            };
+            Console.OUT.printf("Success rate: %5.3f\n", totalSuccessful as Double / inputData.numTest);
         }
-        Console.OUT.printf("Success rate: %5.3f\n", successful as Double / input.numTest);
+
+        if (verify) {
+            Debug.flushln("Verifying results against sequential version");
+            val seqSVM = new SeqSVM(nX).train(localX, localY, stepSize, regularization, iterations);
+
+            if (VerifyTool.testSame(parSVM.w.local(), seqSVM.w)) {
+                Console.OUT.println("Verification passed.");
+            } else {
+                Console.OUT.println("Verification failed!");
+            }
+        }
     }
 }

@@ -74,7 +74,7 @@ help ::
 	@echo " NOTE: after GML library is built, the \"include\" in the matrix top directory";
 	@echo " must be preserved for compiling apps.";
 	@echo "";
-	@echo "Trouble shooting tips";
+	@echo "Troubleshooting tips";
 	@echo " If runtime shows \"NoClassDefFoundError: x10/matrix/Matrix\"";
 	@echo " replace \"~\" by relative directory path or absolute explicit directory path name";
 	@echo "";
