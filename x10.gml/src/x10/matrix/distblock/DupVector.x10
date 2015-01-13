@@ -6,18 +6,16 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix.distblock;
 
+import x10.compiler.Inline;
 import x10.regionarray.Dist;
 import x10.util.Timer;
 import x10.util.StringBuilder;
 
-import x10.matrix.Matrix;
-import x10.matrix.util.Debug;
-import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.comm.ArrayBcast;
 import x10.matrix.comm.ArrayReduce;
@@ -118,10 +116,6 @@ public class DupVector(M:Long) implements Snapshottable {
         sync();
         return this;
     }
-    
-    public def copyTo(den:DenseMatrix):void {
-        dupV().copyTo(den);
-    }
 
     public def copyTo(dst:DupVector(M)):void {
         finish ateach(Dist.makeUnique(places)) {
@@ -147,128 +141,95 @@ public class DupVector(M:Long) implements Snapshottable {
     public def local() = dupV() as Vector(M);
 
     /**
-     * Scaling method. All copies are updated concurrently
+     * Scale all elements: this *= alpha
+     * All copies are updated concurrently.
      */
-    public def scale(a:Double) {
-        finish ateach(Dist.makeUnique(places)) {
-            local().scale(a);
-        }
-        return this;
-    }
-
+    public def scale(alpha:Double)
+        = map((x:Double)=>{alpha * x});
     
-    /**
-     * Cellwise multiplication. 
+    /** 
+     * Cellwise addition: this = this + V
      */
-    public def cellAdd(A:Vector(M)) {
+    public def cellAdd(V:Vector(M)) {
         val v = local();
-        v.cellAdd(A as Vector(v.M));
+        v.cellAdd(V as Vector(v.M));
         sync();
         return this;
     }
 
     /**
-     * Concurrently perform cellwise addition on all copies.
+     * Cellwise addition: this = this + V
+     * All copies are updated concurrently.
      */
-    public def cellAdd(that:DupVector(M))  {
-        //Debug.assure(this.M==A.M&&this.N==A.N);
-        finish ateach(Dist.makeUnique(places)) {
-            val dstv = local() as Vector(M);
-            val srcv = that.local() as Vector(M);
-            dstv.cellAdd(srcv);
-        }
-        return this;
-    }
+    public def cellAdd(V:DupVector(M))
+        = map(this, V, (x:Double, v:Double)=> {x + v});
 
-    public def cellAdd(dv:Double)  {
-        finish ateach(Dist.makeUnique(places)) {
-            local().cellAdd(dv);
-        }
-        return this;
-    }
+    /**
+     * Cellwise addition: this = this + d
+     * All copies are updated concurrently.
+     */
+    public def cellAdd(d:Double)
+        = map((x:Double)=> {x + d});
 
-
-    // Cellwise subtraction
-
-    public def cellSub(A:Vector(M)) {
+    /** 
+     * Cellwise subtraction: this = this - V
+     */
+    public def cellSub(V:Vector(M)) {
         val v = local() as Vector(M);
-        v.cellSub(A);
+        v.cellSub(V);
         sync();
         return this;
     }
-    /**
-     * Concurrently perform cellwise subtraction on all copies
-     */
-    public def cellSub(A:DupVector(M)) {
-        finish ateach(Dist.makeUnique(places)) {
-            val dstv = local() as Vector(M);
-            val srcv = A.local() as Vector(M);
-            dstv.cellSub(srcv);
-        }
-        return this;
-    }
 
-    
     /**
-     * Perform cell-wise subtraction  this = this - dv.
+     * Cellwise subtraction: this = this - V
+     * All copies are updated concurrently.
      */
-    public def cellSub(dv:Double):DupVector(this) {
-        finish ateach(Dist.makeUnique(places)) {
-            local().cellSub(dv);
-        }
-        return this;
-    }
-
-    // Cellwise multiplication
+    public def cellSub(V:DupVector(M))
+        = map(this, V, (x:Double, v:Double)=> {x - v});
+   
+    /**
+     * Cellwise subtraction:  this = this - d
+     * All copies are updated concurrently.
+     */
+    public def cellSub(d:Double)
+        = map((x:Double)=> {x - d});
 
     /**
      * Cellwise multiplication. 
      */
-    public def cellMult(A:Vector(M)) {
+    public def cellMult(V:Vector(M)) {
         val dstv = local();
-        dstv.cellMult(A);
+        dstv.cellMult(V);
         sync();
         return this;
     }
     
     /**
-     * Cellwise multiplication. All copies are modified with
-     * the corresponding vector copies.
+     * Cellwise multiplication
+     * All copies are updated concurrently.
      */
-    public def cellMult(A:DupVector(M)) {
-        finish ateach(Dist.makeUnique(places)) {
-            local().cellMult(A.local());
-        }
-        return this;
-    }
-
-
-    // Cellwise division
+    public def cellMult(V:DupVector(M))
+        = map(this, V, (x:Double, v:Double)=> {x * v});
 
     /**
-     * this = this / A
+     * Cellwise division: this = this / V
      */
-    public def cellDiv(A:Vector(M)) {
-        local().cellDiv(A);
+    public def cellDiv(V:Vector(M)) {
+        local().cellDiv(V);
         sync();
         return this;
     }
-    
 
     /**
-     * Cellwise division. All copies are modified with
-     * the corresponding vector copies.
-     */    
-    public def cellDiv(A:DupVector(M)) {
-        finish ateach(Dist.makeUnique(places)) {
-            local().cellDiv(A.local());
-        }
-        return this;
-    }
+     * Cellwise division
+     * All copies are updated concurrently.
+     */
+    public def cellDiv(V:DupVector(M))
+        = map(this, V, (x:Double, v:Double)=> {x / v});
     
 
     // Operator overloading cellwise operations
-
 
     public operator - this            = clone().scale(-1.0) as DupVector(M);
     public operator (v:Double) + this = clone().cellAdd(v)  as DupVector(M);
@@ -284,7 +245,6 @@ public class DupVector(M:Long) implements Snapshottable {
     public operator this * (that:DupVector(M)) = clone().cellMult(that) as DupVector(M);
     public operator this / (that:DupVector(M)) = clone().cellDiv(that)  as DupVector(M);
          
-
     // Multiplication operations 
 
     public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N), plus:Boolean):DupVector(this) =
@@ -318,7 +278,6 @@ public class DupVector(M:Long) implements Snapshottable {
         /* Timing */ commTime += Timer.milliTime() - st;
     }
 
-    
     public def reduce(opFunc:(Rail[Double],Rail[Double],Long)=>Int): void {
         allocTmp();
         /* Timing */ val st = Timer.milliTime();
@@ -339,7 +298,6 @@ public class DupVector(M:Long) implements Snapshottable {
         ArrayReduce.allReduceSum(dupData, tmpData, this.M, places);
         /* Timing */ commTime += Timer.milliTime() - st;
     }    
-
 
     public def likeMe(that:DupVector): Boolean = (this.M==that.M);
         
@@ -375,6 +333,73 @@ public class DupVector(M:Long) implements Snapshottable {
         }
         return ret;
     }
+
+    /**
+     * Apply the map function <code>op</code> to each element of this vector,
+     * overwriting the element of this vector with the result.
+     * @param op a unary map function to apply to each element of this vector
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(op:(x:Double)=>Double):DupVector(this) {
+        val stt = Timer.milliTime();
+        finish ateach(Dist.makeUnique(places)) {
+            val d = local();
+            d.map(op);
+        }
+        calcTime += Timer.milliTime() - stt;
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to each element of <code>a</code>,
+     * storing the result in the corresponding element of this vector.
+     * @param a a vector of the same distribution as this vector
+     * @param op a unary map function to apply to each element of vector <code>a</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:DupVector(M), op:(x:Double)=>Double):DupVector(this) {
+        assert(likeMe(a));
+        val stt = Timer.milliTime();
+        finish ateach(Dist.makeUnique(places)) {
+            val d = local();
+            val ad = a.local() as Vector(d.M);
+            d.map(ad, op);
+        }
+        calcTime += Timer.milliTime() - stt;
+        return this;
+    }
+
+    /**
+     * Apply the map function <code>op</code> to combine each element of vector
+     * <code>a</code> with the corresponding element of vector <code>b</code>,
+     * overwriting the corresponding element of this vector with the result.
+     * @param a first vector of the same distribution as this vector
+     * @param b second vector of the same distribution as this vector
+     * @param op a binary map function to apply to each element of 
+     *   <code>a</code> and the corresponding element of <code>b</code>
+     * @return this vector, containing the result of the map
+     */
+    public final @Inline def map(a:DupVector(M), b:DupVector(M), op:(x:Double,y:Double)=>Double):DupVector(this) {
+        assert(likeMe(a));
+        val stt = Timer.milliTime();
+        finish ateach(Dist.makeUnique(places)) {
+            val d = local();
+            val ad = a.local() as Vector(d.M);
+            val bd = b.local() as Vector(d.M);
+            d.map(ad, bd, op);
+        }
+        calcTime += Timer.milliTime() - stt;
+        return this;
+    }
+
+    /**
+     * Combine the elements of this vector using the provided reducer function.
+     * @param op a binary reducer function to combine elements of this vector
+     * @param unit the identity value for the reduction function
+     * @return the result of the reducer function applied to all elements
+     */
+    public final @Inline def reduce(op:(a:Double,b:Double)=>Double, unit:Double) 
+        = local().reduce(op, unit);
 
     public def getCalcTime() = calcTime;
     public def getCommTime() = commTime;

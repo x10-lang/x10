@@ -91,8 +91,8 @@ public class RunLogReg {
 			prun.run();
 			val totalTime = Timer.milliTime() - startTime;
 
-			Console.OUT.printf("Parallel logistic regression --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms\n",
-					totalTime, prun.paraRunTime, prun.commUseTime); 
+		    Console.OUT.printf("Parallel logistic regression --- Total: %8d ms, parallel: %8d ms, sequential: %8d ms, communication: %8d ms\n",
+				    totalTime, prun.parCompT, prun.seqCompT, prun.commT);
 			
 			if (verify) { /* Sequential run */
 				val seq = new SeqLogReg(denX, y, w, iterations, iterations);
@@ -101,6 +101,8 @@ public class RunLogReg {
 				seq.run();
                 Debug.flushln("Verifying results against sequential version");
 				
+                Console.OUT.println("prun.w " + prun.w);
+                Console.OUT.println("w " + w);
 				if (prun.w.equals(w)) {
 					Console.OUT.println("Verification passed.");
 				} else {

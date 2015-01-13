@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix.distblock;
@@ -380,27 +380,6 @@ public class DistVector(M:Long) implements Snapshottable {
             val d = distV();
             val ad = a.distV() as Vector(d.M);
             d.map(ad, op);
-        }
-        calcTime += Timer.milliTime() - stt;
-        return this;
-    }
-
-    /**
-     * Apply the map function <code>op</code> to combine each element of this
-     * vector with the corresponding element of vector <code>a</code>,
-     * overwriting the element of this vector with the result.
-     * @param a a vector of the same distribution as this vector
-     * @param op a binary map function to apply to each element of this vector
-     *   and the corresponding element of <code>a</code>
-     * @return this vector, containing the result of the map
-     */
-    public final @Inline def map(a:DistVector(M), op:(x:Double,y:Double)=>Double):DistVector(this) {
-        assert(likeMe(a));
-        val stt = Timer.milliTime();
-        finish ateach(Dist.makeUnique(places)) {
-            val d = distV();
-            val ad = a.distV() as Vector(d.M);
-            d.map(d, ad, op);
         }
         calcTime += Timer.milliTime() - stt;
         return this;

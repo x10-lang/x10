@@ -224,7 +224,7 @@ public class SeqLogReg {
 	
 	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-        logistic.map(y, (x:Double, v:Double)=> {(x - 1.0) * v});
+        logistic.map(logistic, y, (x:Double, v:Double)=> {(x - 1.0) * v});
 		compute_tXmultB(grad, logistic);
 		grad.scale(C);
 		grad.cellAdd(w);

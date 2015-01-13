@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix;
@@ -173,69 +173,69 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
      * this *= alpha
      * Product of a vector and a scalar: Mx1 * 1
      */
-    public def scale(alpha:Double):Vector(this)
+    public def scale(alpha:Double)
         = map((x:Double)=>{alpha * x});
 
     /**
      * this = alpha * V
      */
-    public def scale(alpha:Double, V:Vector(M)):Vector(this)
+    public def scale(alpha:Double, V:Vector(M))
         = map(V, (v:Double)=> {alpha * v});
 
     /**
      * this += alpha * V
      */
-    public def scaleAdd(alpha:Double, V:Vector(M)):Vector(this)
-        = map(V, (x:Double, v:Double)=> {x + alpha * v});
+    public def scaleAdd(alpha:Double, V:Vector(M))
+        = map(this, V, (x:Double, v:Double)=> {x + alpha * v});
 
     /**
      * Cell-wise mulitply of two vectors
      */
-    public def cellMult(V:Vector(M)): Vector(this)
-        = map(V, (x:Double, v:Double)=> {x * v});
+    public def cellMult(V:Vector(M))
+        = map(this, V, (x:Double, v:Double)=> {x * v});
      
 
     /**
      * Addition of two vectors: Mx1 + Mx1
      */
-    public def cellAdd(V:Vector(M)):Vector(this)
-        = map(V, (x:Double, v:Double)=> {x + v});
+    public def cellAdd(V:Vector(M))
+        = map(this, V, (x:Double, v:Double)=> {x + v});
 
-    public def cellAdd(d:Double):Vector(this)
+    public def cellAdd(d:Double)
         = map((x:Double)=> {x + d});
 
     /**
      * this = A + B
      * Cellwise addition of two vectors, storing the result in this vector.
      */
-    public def cellAdd(A:Vector(M), B:Vector(M)):Vector(this)
+    public def cellAdd(A:Vector(M), B:Vector(M))
         = map(A, B, (a:Double, b:Double)=> {a + b});
 
     /** 
      * Subtract vector V from this vector
      */
-    public def cellSub(V:Vector(M)):Vector(this)
-        = map(V, (x:Double, v:Double)=> {x - v});
+    public def cellSub(V:Vector(M))
+        = map(this, V, (x:Double, v:Double)=> {x - v});
 
     /**
      * Subtract the scalar d from this vector
      */
-    public def cellSub(d:Double):Vector(this)
+    public def cellSub(d:Double)
         = map((x:Double)=> {x - d});
 
     /**
      * cellwise division: this = this / d;
      */
-    public  def cellDiv(d:Double):Vector(this)
+    public  def cellDiv(d:Double)
         = map((x:Double)=> {x / d});
 
-    public def cellDiv(V:Vector(this.M)):Vector(this)
-        = map(V, (x:Double, v:Double)=> {x / v});
+    public def cellDiv(V:Vector(this.M))
+        = map(this, V, (x:Double, v:Double)=> {x / v});
 
     /**
      * cellwise division: this = d / this;
      */
-    public def cellDivBy(d:Double) : Vector(this)
+    public def cellDivBy(d:Double)
         = map((x:Double)=> {d / x});
 
     /**
@@ -522,20 +522,6 @@ public class Vector(M:Long) implements (Long) => Double, Snapshottable {
      */
     public final @Inline def map(a:Vector(M), op:(x:Double)=>Double):Vector(this) {
         RailUtils.map(a.d, this.d, op);
-        return this;
-    }
-
-    /**
-     * Apply the map function <code>op</code> to combine each element of this
-     * vector with the corresponding element of vector <code>a</code>,
-     * overwriting the element of this vector with the result.
-     * @param a a vector of the same size as this vector
-     * @param op a binary map function to apply to each element of this vector
-     *   and the corresponding element of <code>a</code>
-     * @return this vector, containing the result of the map
-     */
-    public final @Inline def map(a:Vector(M), op:(x:Double,y:Double)=>Double):Vector(this) {
-        RailUtils.map(this.d, a.d, this.d, op);
         return this;
     }
 

@@ -456,7 +456,6 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     }
 
     public def copyTo(dst:BlockMatrix(M,N)) {
-        
         val srcgrid = this.getGrid();
         assert (srcgrid.equals(dst.grid)) :
             "source and destination matrix partitions are not compatible";
@@ -896,11 +895,11 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         return dsz;
     }
     
-    public def toStringBlock():String {
+    public def toString():String {
         val output = new StringBuilder();
         output.add("-------- Dist Matrix Block size:["+M+" x "+N+"] ---------\n");
         for (p in places) {
-            output.add(at (p) { handleBS().toString()});
+            output.add(at(p) { handleBS().toString() });
         }
         output.add("--------------------------------------------------\n");
         return output.toString();

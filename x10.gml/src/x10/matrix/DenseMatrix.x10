@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2012-2013.
  */
 
@@ -655,7 +655,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this + A
      */
     public def cellAdd(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(A, (x:Double, a:Double)=> {x + a});
+        = map(this, A, (x:Double, a:Double)=> {x + a});
 
     public def cellAdd(A:TriDense(M,N)):DenseMatrix(this) = 
         A.cellAddTo(this);
@@ -708,7 +708,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this - A
      */
     public def cellSub(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(A, (x:Double, a:Double)=> {x - a});
+        = map(this, A, (x:Double, a:Double)=> {x - a});
     
     /**
      * Cell-wise subtract: A = A - this
@@ -749,7 +749,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this &#42 A
      */
     public def cellMult(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(A, (x:Double, a:Double)=> {x * a});
+        = map(this, A, (x:Double, a:Double)=> {x * a});
     
     /**
      * Cell-wise matrix multiply:  A = A &#42 this
@@ -1153,21 +1153,6 @@ public class DenseMatrix extends Matrix {
     public final @Inline def map(a:DenseMatrix(M,N), op:(x:Double)=>Double):DenseMatrix(this) {
         val aRaw = a.d as Rail[Double]{self!=null,self.size==this.d.size};
         RailUtils.map(aRaw, this.d, op);
-        return this;
-    }
-
-    /**
-     * Apply the map function <code>op</code> to combine each element of this
-     * matrix with the corresponding element of matrix <code>a</code>,
-     * overwriting the element of this matrix with the result.
-     * @param a a matrix of the same size as this matrix
-     * @param op a binary map function to apply to each element of this matrix
-     *   and the corresponding element of <code>a</code>
-     * @return this matrix, containing the result of the map
-     */
-    public final @Inline def map(a:DenseMatrix(M,N), op:(x:Double,y:Double)=>Double):DenseMatrix(this) {
-        val aRaw = a.d as Rail[Double]{self!=null,self.size==this.d.size};
-        RailUtils.map(this.d, aRaw, this.d, op);
         return this;
     }
 

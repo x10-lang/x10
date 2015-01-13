@@ -68,8 +68,9 @@ public class LogisticRegression implements ResilientIterativeApp {
     val wnew:Vector(X.N);
     val logisticnew:DistVector(X.M);    
     
-    public var paraRunTime:Long=0;
-    public var commUseTime:Long=0;
+    public var parCompT:Long=0;
+    public var seqCompT:Long=0;
+    public var commT:Long;
     
     private val chkpntIterations:Long;
     private val nzd:Double;
@@ -139,6 +140,8 @@ public class LogisticRegression implements ResilientIterativeApp {
         logisticD = logistic.clone();
         logisticD.map((x:Double)=> {x*(1.0-x)});
 
+        seqCompT -= Timer.milliTime();
+
         //delta = sqrt(sum(grad*grad))
         delta = grad.norm();
 
@@ -150,14 +153,21 @@ public class LogisticRegression implements ResilientIterativeApp {
         norm_r2 = grad.dot(grad);
         //alpha = t(w) %*% w
         alpha = w.dot(w);
+        seqCompT += Timer.milliTime();
+
         Debug.flushln("Done initialization. Starting converging iteration");
 
         new ResilientExecutor(chkpntIterations, places).run(this);
         
-        commUseTime += dup_w.getCommTime()+y.getCommTime();
+        parCompT += logistic.getCalcTime() + logisticnew.getCalcTime()
+                 + o.getCalcTime() + onew.getCalcTime()
+                 + tmp_y.getCalcTime() + dup_w.getCalcTime();
+        commT = o.getCommTime() + onew.getCommTime()
+                 + tmp_y.getCommTime() + dup_w.getCommTime();
     }
 
-    public def step():void{
+    public def step():void {
+        seqCompT -= Timer.milliTime();
         //             norm_grad = sqrt(sum(grad*grad))
         val norm_grad = grad.norm();
         //             # SOLVE TRUST REGION SUB-PROBLEM
@@ -168,6 +178,7 @@ public class LogisticRegression implements ResilientIterativeApp {
         r.scale(-1.0, grad);
         //             d = r
         r.copyTo(d);
+
         //             inneriter = 0
         val inneriter:Long=0;
         //             innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
@@ -178,7 +189,11 @@ public class LogisticRegression implements ResilientIterativeApp {
             //                 norm_r2 = sum(r*r)
             norm_r2 = r.dot(r);
             //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
+            seqCompT += Timer.milliTime(); // next step is parallel
             compute_Hd(Hd, logisticD, d);
+            seqCompT -= Timer.milliTime();
+
+            val stt = Timer.milliTime();
             //                 alpha_deno = t(d) %*% Hd 
             val alpha_deno = d.dot(Hd);
             //                 alpha = norm_r2 / alpha_deno
@@ -234,12 +249,12 @@ public class LogisticRegression implements ResilientIterativeApp {
         val qk = -0.5 * s.dot(grad-r);
         //             wnew = w + s
         wnew.cellAdd(w, s);
+        seqCompT += Timer.milliTime();
         //             onew = X %*% wnew
         compute_XmultB(onew, wnew); 
+
         //             logisticnew = 1.0/(1.0 + exp(-y * o ))
-        val stt = Timer.milliTime();
         logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
-        paraRunTime += Timer.milliTime() - stt;
         
         //             objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
         val objnew = 0.5 * wnew.dot(wnew) + C * logisticnew.sum();
@@ -275,29 +290,27 @@ public class LogisticRegression implements ResilientIterativeApp {
 
     private def compute_XmultB(result:DistVector(X.M), opB:Vector(X.N)):void {
         // o = X %*% w
-        val stt = Timer.milliTime();
         dup_w.copyFrom(opB);
         result.mult(X, dup_w, false);
-        paraRunTime += Timer.milliTime() - stt;
     }
     
     private def compute_grad(grad:Vector(X.N), logistic:DistVector(X.M)):void {
         // grad = w + C*t(X) %*% ((logistic - 1)*y)
-        val stt = Timer.milliTime();
-        logistic.map(y, (x:Double, v:Double)=> {(x - 1.0) * v});
+        logistic.map(logistic, y, (x:Double, v:Double)=> {(x - 1.0) * v});
         compute_tXmultB(grad, logistic);
-        paraRunTime += Timer.milliTime() - stt;
+        val stt = Timer.milliTime();
         grad.scale(C).cellAdd(w);
+        seqCompT += Timer.milliTime() - stt;
     }
     
     private def compute_Hd(Hd:Vector(X.N), logisticD:DistVector(X.M), d:Vector(X.N)):void {
         // Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
         compute_XmultB(tmp_y, d);
-        val stt = Timer.milliTime();        
         tmp_y.cellMult(logisticD);
         compute_tXmultB(Hd, tmp_y);
-        paraRunTime += Timer.milliTime() - stt;
+        val stt = Timer.milliTime();
         Hd.scale(C).cellAdd(d);
+        seqCompT += Timer.milliTime() - stt;
     }
     
     private def compute_tXmultB(result:Vector(X.N), B:DistVector(X.M)):void {
