@@ -146,6 +146,12 @@ public class DupVector(M:Long) implements Snapshottable {
      */
     public def scale(alpha:Double)
         = map((x:Double)=>{alpha * x});
+
+    /**
+     * this = alpha * V
+     */
+    public def scale(alpha:Double, V:DupVector(M))
+        = map(V, (v:Double)=> {alpha * v});
     
     /** 
      * Cellwise addition: this = this + V

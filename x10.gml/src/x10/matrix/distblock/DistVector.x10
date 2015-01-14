@@ -285,6 +285,26 @@ public class DistVector(M:Long) implements Snapshottable {
     public operator this - (that:DistVector(M)) = clone().cellSub(that)  as DistVector(M);
     public operator this * (that:DistVector(M)) = clone().cellMult(that) as DistVector(M);
     public operator this / (that:DistVector(M)) = clone().cellDiv(that)  as DistVector(M);
+
+    public def dot(v:DupVector(M)):Double {
+        val dot = finish(Reducible.SumReducer[Double]()) {
+            var off:Long=0;
+            for (p in 0..(places.size()-1)) {
+                val offset = off;
+                val s = segSize(p);
+                at(places(p)) async {
+                    val dist = distV();
+                    val dup = v.local();
+                    var d:Double = 0.0;
+                    for (i in 0..(s-1))
+                        d += dist(i) * dup(offset+i);
+                    offer d;
+                }
+                off += s;
+            }
+        };
+        return dot;
+    }
         
 
     // Multiplication operations 
