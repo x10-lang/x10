@@ -14,9 +14,7 @@ import x10.util.Timer;
 
 import x10.matrix.util.Debug;
 import x10.matrix.Vector;
-import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistGrid;
-import x10.matrix.distblock.DistMap;
 
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
@@ -44,12 +42,15 @@ public class PageRank implements ResilientIterativeApp {
     public val iterations:Long;
     public val alpha:Double= 0.85;
 
+    /** Google Matrix or link structure */
     public val G:DistBlockMatrix{self.M==self.N};
+    /** PageRank vector */
     public val P:DupVector(G.N);
+    /** Personalization vector */
     public val U:DistVector(G.N);
 
-    // Temp data
-    val GP:DistVector(G.N); // Distributed version of G*P
+    /** temp data: G * P */
+    val GP:DistVector(G.N);
     
     public var paraRunTime:Long = 0;
     public var commTime:Long;
@@ -151,8 +152,8 @@ public class PageRank implements ResilientIterativeApp {
     public def checkpoint(store:ResilientStoreForApp):void {
         store.startNewSnapshot();
         store.saveReadOnly(G);
+        store.saveReadOnly(U);
         store.save(P);
-        store.save(U);
         store.commit();
     }
 
@@ -161,6 +162,7 @@ public class PageRank implements ResilientIterativeApp {
         val newColPs = 1;
         Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         G.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
+        U.remake(G.getAggRowBs(), newPlaces);
         P.remake(newPlaces);
         
         GP.remake(G.getAggRowBs(), newPlaces);
