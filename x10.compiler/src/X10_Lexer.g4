@@ -1,4 +1,4 @@
-lexer grammar X10Lexer;
+lexer grammar X10_Lexer;
 
 @lexer::header {
   package x10.parserGen;
@@ -221,9 +221,7 @@ DoubleLiteral:
 DoubleTypeSuffix:
       'd' | 'D'
     ;
-Digits:
-      [0-9]+
-    ;
+
 fragment IntegerLiteral:
       DecimalNumeral
     | HexNumeral

@@ -99,7 +99,7 @@ import x10.extension.X10Ext;
 //import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
 import x10.parser.X10SemanticRules;
-import x10.parser.antlr.X10Parser;
+import x10.parser.antlr.ASTBuilder;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
@@ -191,7 +191,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     	try {
-    		return new X10Parser(ts, nf, source, eq);
+    		return new ASTBuilder(ts, nf, source, eq);
     	} catch(Exception e){
     		throw new IllegalStateException("Could not parse " + source.path());
     	}

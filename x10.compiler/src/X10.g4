@@ -1,14 +1,14 @@
-grammar X10Parser;
+grammar X10;
 
 @parser::header {
   package x10.parserGen;
 } 
 
-import X10Lexer;
+import X10_Lexer;
 
 
 accept:
-      compilationUnit
+      compilationUnit    
     ;
 
 modifier:
@@ -29,15 +29,15 @@ methodModifier:
     | 'property'
     ;
 typeDefDeclaration:
-      modifier* 'type' identifier typeParameters? whereClause? '=' type ';'
-    | modifier* 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'
+      modifier* 'type' identifier typeParameters? whereClause? '=' type ';'                                      #typeDef1
+    | modifier* 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'          #typeDef2
     ;
 properties:
       '(' propertyList ')'
     ;
 propertyList:
-      property
-    | propertyList ',' property
+      property                                       #propertyList1
+    | propertyList ',' property                      #propertyList2
     ;
 property:
       annotations? identifier resultType
