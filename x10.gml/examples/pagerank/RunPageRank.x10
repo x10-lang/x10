@@ -69,43 +69,50 @@ public class RunPageRank {
         val skipPlaces = opts("s", 0n);
         val checkpointFreq = opts("checkpointFreq", -1n);
 
-        Console.OUT.println("G: rows/cols: "+mG+" density:"+nonzeroDensity+" iterations:"+iterations);
+        Console.OUT.println("G: rows/cols: " + mG
+                           +" density:" + nonzeroDensity
+                           +" (non-zeros: "+ (nonzeroDensity*mG*mG) as Long
+                           + ") iterations:" + iterations);
 		if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || skipPlaces < 0 || skipPlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
             val places = (skipPlaces==0n) ? Place.places() 
                                           : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
             val paraPR = PageRank.make(mG, nonzeroDensity, iterations, rowBlocks, colBlocks, checkpointFreq, places);
-            paraPR.init();
+            paraPR.init(nonzeroDensity);
 
             if (print) paraPR.printInfo();
 
-            var orgP:Vector(mG) = null;
+            var origP:Vector(mG) = null;
             if (verify) {
-                orgP = paraPR.P.local().clone(); //for verification purpose
+                origP = paraPR.P.local().clone(); //for verification purpose
             }
 
 			val startTime = Timer.milliTime();
             val paraP = paraPR.run();
 			val totalTime = Timer.milliTime() - startTime;
 
-            val commTime = paraPR.bcastTime + paraPR.gatherTime;
 			Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms, seq: %8d ms\n",
-					totalTime, paraPR.paraRunTime, commTime, paraPR.seqTime); 
+					totalTime, paraPR.paraRunTime, paraPR.commTime, paraPR.seqTime); 
             
             if (print) {
                 Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
                 Console.OUT.println("Output vector P\n" + paraP);
             }
             
-            if (verify){
+            if (verify) {
                 val g = paraPR.G;
-                val seqPR = new SeqPageRank(g.toDense(), orgP, 
-                        paraPR.E, paraPR.U, iterations);
+                val localU = Vector.make(g.N);
+                paraPR.U.copyTo(localU);
+                
+                val seqPR = new SeqPageRank(g.toDense(), origP, 
+                        localU, iterations);
 		        Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
                 Debug.flushln("Verifying results against sequential version");
-                if (VerifyTool.testSame(paraP, seqP as Vector(paraP.M))) 
+                val localP = Vector.make(g.N);
+                paraP.copyTo(localP);
+                if (VerifyTool.testSame(localP, seqP)) 
                     Console.OUT.println("Verification passed.");
                 else
                     Console.OUT.println("Verification failed!!!!");
