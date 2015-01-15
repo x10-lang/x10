@@ -270,15 +270,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
 
         writeSerializationId(sid);
-        
-        if (sid == JAVA_OBJECT_STREAM_ID) {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Serializing using Java serialization a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
-            }
-            writeUsingObjectOutputStream(obj);
-            return;
-        }
-        
+                
         if (obj instanceof X10JavaSerializable) {
              if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
@@ -455,7 +447,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     private void serializeSpecialType(short sid, Object obj) throws IOException {
         switch (sid) {
         case STRING_ID:
-            // Preseve reference identity for Strings by looking for repeated objects
+            // Preserve reference identity for Strings by looking for repeated objects
             Integer pos = previous_position(obj, true);
             if (pos != null) {
                 return; 

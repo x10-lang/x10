@@ -141,14 +141,8 @@ abstract class SerializationDictionary implements SerializationConstants {
             }
             short sid = super.getSerializationId(clazz, obj, dos);
             if (sid == NO_PREASSIGNED_ID) {
-                if (Runtime.USE_JAVA_SERIALIZATION && 
-                        !SerializationUtils.useX10SerializationProtocol(clazz) &&
-                        java.io.Serializable.class.isAssignableFrom(clazz)) {
-                    sid = SerializationConstants.JAVA_OBJECT_STREAM_ID;
-                } else {
-                    sid = Short.valueOf(nextId++);
-                    serializeIdAssignment(dos, sid, clazz);
-                }
+                sid = Short.valueOf(nextId++);
+                serializeIdAssignment(dos, sid, clazz);
                 dict.put(clazz, sid);
             }
             return sid;

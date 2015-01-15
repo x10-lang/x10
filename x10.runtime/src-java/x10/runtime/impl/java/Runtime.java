@@ -261,7 +261,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Disable Assertions
      */
-    public static final boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");
+    public static boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");
     
     public static boolean sysPropOrElse(String s, boolean b) {
         if (System.getProperty(s) == null) {
@@ -278,24 +278,24 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Trace serialization
      */
-    public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
+    public static boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
 
     /**
      * Trace static init
      */
-    public static final boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
+    public static boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
     
     /**
      * Emit very detailed serialization tracing messages.
      */
-    public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
+    public static boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
     
     /**
      * Use Java serialization to serialize all non-X10 Java types that implement java.io.Serializable
      */
-    public static final boolean USE_JAVA_SERIALIZATION = Boolean.getBoolean("x10.USE_JAVA_SERIALIZATION");
+    public static boolean USE_JAVA_SERIALIZATION = Boolean.getBoolean("x10.USE_JAVA_SERIALIZATION");
 
-    public static final boolean X10_TRACE_ANSI_COLORS = Boolean.getBoolean("X10_TRACE_ANSI_COLORS");
+    public static boolean X10_TRACE_ANSI_COLORS = Boolean.getBoolean("X10_TRACE_ANSI_COLORS");
 
     public static final String ANSI_RESET = X10_TRACE_ANSI_COLORS? "\u001b[1;0m" :"";
     public static final String ANSI_BOLD = X10_TRACE_ANSI_COLORS? "\u001b[1;1m" :"";
@@ -532,20 +532,20 @@ public abstract class Runtime implements VoidFun_0_0 {
     /**
      * Time serialization/deserialization operations.
      */
-    public static final boolean PROF_SER = Boolean.getBoolean("x10.PROF_SER");
+    public static boolean PROF_SER = Boolean.getBoolean("x10.PROF_SER");
     
     /**
      * Minimum threshold in for reporting serialization/deserialization times.
      * The property is a value in milliseconds, we convert to nanoSeconds for efficiency when using System.nanoTime.
      * The default value is 10ms.
      */
-    public static final long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
+    public static long PROF_SER_FILTER = 1000 * 1000 * Long.getLong("x10.PROF_SER_FILTER", 10);
 
 
     /**
      * Enable OSGI framework support.
      */
     public static enum OSGI_MODES {DISABLED, EXACTVERSION, LATESTVERSION};
-    public static final OSGI_MODES OSGI = OSGI_MODES.valueOf(System.getProperty("X10_OSGI", "DISABLED"));
+    public static OSGI_MODES OSGI = OSGI_MODES.valueOf(System.getProperty("X10_OSGI", "DISABLED"));
 
 }
