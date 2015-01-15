@@ -101,9 +101,6 @@ public class RunSVM {
             X.copyTo(bX as BlockMatrix(X.M, X.N));
             bX.copyTo(localX);
 
-            val same = VerifyTool.testSame(X, localX);
-            Console.OUT.println(same);
-
             y.copyTo(localY as Vector(y.M));
         }
 

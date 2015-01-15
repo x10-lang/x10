@@ -61,8 +61,8 @@ X10_RESILIENT_STORE_LOCAL_COPY:
 X10_RESILIENT_STORE_REMOTE_COPY:
     This variable describes how the resilient store will create remote copies.
     Possible Values:
-    dma : (default) uses Rail.asyncCopy methods to create remote clones
-    at  : uses the at construct to create remote clones
+    at  : (default) uses the at construct to create remote clones
+    dma : uses Rail.asyncCopy methods to create remote clones
 
 X10_GML_REBALANCE:
     This variable determines whether restoring a Matrix should recalculate the
