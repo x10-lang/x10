@@ -28,8 +28,8 @@ x10src		= $(target).x10
 
 ##----------------------------------
 ## This directory is required for building native backend
-GML_NATIVE_JAR  = $(gml_path)/$(base_dir_elem)/lib/native_gml.jar
-GML_NAT_OPT	= -classpath $(GML_NATIVE_JAR) -x10lib $(gml_path)/$(base_dir_elem)/native_gml.properties
+GML_NATIVE_JAR  = $(base_dir_elem)/lib/native_gml.jar
+GML_NAT_OPT	= -classpath $(GML_NATIVE_JAR) -x10lib $(base_dir_elem)/native_gml.properties
 
 ###################################################
 # X10 file built rules
