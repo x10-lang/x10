@@ -446,7 +446,7 @@ public class DistVector(M:Long) implements Snapshottable {
         val result = finish (reducer) {
             ateach(Dist.makeUnique(places)) {
                 val d = distV();
-                d.reduce(op, unit);
+                offer d.reduce(op, unit);
             }
         };
         calcTime += Timer.milliTime() - stt;

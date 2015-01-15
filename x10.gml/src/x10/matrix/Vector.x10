@@ -246,6 +246,9 @@ public class Vector(M:Long) implements (Long) => ElemType, Snapshottable {
         BLAS.compDotProd(this.M, this.d, x.d);
     
 
+    /**
+     * Dot (scalar) product of this vector with another vector
+     */
     public def dot(v:Vector(M)):ElemType {
         var d:ElemType = ElemTypeTool.zero;
          for (i in 0..(M-1))

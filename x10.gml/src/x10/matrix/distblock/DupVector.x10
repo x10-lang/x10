@@ -254,6 +254,21 @@ public class DupVector(M:Long) implements Snapshottable {
     public operator this - (that:DupVector(M)) = clone().cellSub(that)  as DupVector(M);
     public operator this * (that:DupVector(M)) = clone().cellMult(that) as DupVector(M);
     public operator this / (that:DupVector(M)) = clone().cellDiv(that)  as DupVector(M);
+
+    /**
+     * Dot (scalar) product of this vector with another DupVector
+     */
+    public def dot(v:DupVector(M)):Double {
+        return local().dot(v.local());
+    }
+
+    /**
+     * L2-norm (Euclidean norm) of this vector, i.e. the square root of the
+     * sum of squares of all elements
+     */
+    public def norm():Double {
+        return local().norm();
+    }
          
     // Multiplication operations 
 
@@ -419,7 +434,6 @@ public class DupVector(M:Long) implements Snapshottable {
         val output = new StringBuilder();
         output.add("---Duplicated Vector:["+M+"], local copy---\n");
         output.add(dupV().toString());
-        output.add("--------------------------------------------------\n");
         return output.toString();
     }
 
@@ -430,7 +444,6 @@ public class DupVector(M:Long) implements Snapshottable {
             output.add("Copy at place " + p.id() +"\n");
             output.add(at (p) { dupV().toString()});
         }
-        output.add("--------------------------------------------------\n");
         return output.toString();
     }
     

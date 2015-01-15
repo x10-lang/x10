@@ -15,7 +15,7 @@ import x10.matrix.ElemType;
  * Provides some static math methods.
  */
 public class MathTool {
-    public static delta:ElemType = (()=>{val x= (ElemType == Double? 0.00000001 as ElemType: 0.001f as ElemType); Console.OUT.println("delta is " + x); x})();
+    public static delta:ElemType = (()=>{val x= (ElemType == Double? 0.00000001 as ElemType: 0.001f as ElemType); x})();
     public static delta2:ElemType = (ElemType == Float? 0.00001f as ElemType: 0.00000001 as ElemType);
 					 
 	/**
