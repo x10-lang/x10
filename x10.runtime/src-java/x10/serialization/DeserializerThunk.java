@@ -172,6 +172,11 @@ abstract class DeserializerThunk {
             return new X10JavaSerializableDeserializerThunk(clazz);
         }
 
+        if (Runtime.USE_JAVA_SERIALIZATION && java.io.Serializable.class.isAssignableFrom(clazz)) {
+            // Use default Java deserialization for this class
+            return new DefaultJavaDeSerializationThunk(clazz);
+        }
+        
         Class<?> superclass = clazz.getSuperclass();
         DeserializerThunk superThunk = null;
         if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
@@ -219,6 +224,48 @@ abstract class DeserializerThunk {
                 throw new SerializationException(e);
             }
             return obj;
+        }
+    }
+    
+    /**
+     * A thunk for a vanilla X10 class (supports compiler-generated serialization code).
+     */
+    private static class DefaultJavaDeSerializationThunk extends DeserializerThunk {
+        
+        DefaultJavaDeSerializationThunk(Class<? extends Object> clazz) {
+            super(null);  // The compiler-generated serialization code will invoke the superclass deserializer directly
+        }
+        
+        
+        /**
+         * Create an instance of clazz and initialize it by reading
+         * values for its instance fields from jds. 
+         * 
+         * @param clazz The class to create
+         * @param jds The deserializer from which to obtain the new object's state.
+         * @return the deserialized object.
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("...deserializing object using Java deserialization");
+            }
+
+            int id = jds.record_reference(null);   // Fudge id assignment in case the object has reachability to something we have already deserialized
+            T obj = (T)jds.readUsingObjectInputStream();
+            jds.update_reference(id, obj);
+
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("...completed deserializing object using Java deserialization");
+            }
+
+            return obj;
+        }
+        
+        @Override
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) {
+            throw new SerializationException("Unreachable code; should not call this method!");
         }
     }
     
