@@ -14,6 +14,7 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
+import x10.matrix.ElemType;
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -126,13 +127,13 @@ public class ArrayBcast extends ArrayRemoteCopy {
         val mid = start + (end-start) / 2;        
 
         // Specify the remote buffer
-        val srcbuf = new GlobalRail[Double](src as Rail[Double]{self!=null});
+        val srcbuf = new GlobalRail[ElemType](src as Rail[ElemType]{self!=null});
 
         finish {
             at(pg(mid)) async {
                 val dstbuf = dmlist();
                 // remote get
-                finish Rail.asyncCopy[Double](srcbuf, 0, dstbuf, 0, dataCnt);     
+                finish Rail.asyncCopy[ElemType](srcbuf, 0, dstbuf, 0, dataCnt);     
           
                 // right branch
                 binaryTreeCast(dmlist, dataCnt, pg, start, mid-1);
@@ -238,7 +239,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
         val idxbuf = srcca.index;
         val valbuf = srcca.value;
         val srcidx = new GlobalRail[Long  ](idxbuf as Rail[Long  ]{self!=null});
-        val srcval = new GlobalRail[Double](valbuf as Rail[Double]{self!=null});
+        val srcval = new GlobalRail[ElemType](valbuf as Rail[ElemType]{self!=null});
 
         finish { 
             at(pg(mid)) async {
@@ -246,7 +247,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
                 val dstca = smlist();
                 finish {
                     Rail.asyncCopy[Long  ](srcidx, 0, dstca.index, 0, dataCnt);
-                    Rail.asyncCopy[Double](srcval, 0, dstca.value, 0, dataCnt);
+                    Rail.asyncCopy[ElemType](srcval, 0, dstca.value, 0, dataCnt);
                 }
             
                 // right branch

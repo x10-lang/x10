@@ -14,12 +14,17 @@ package x10.matrix.dist.summa;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.util.Debug;
+
 import x10.matrix.Matrix;
-import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
+import x10.matrix.util.MathTool;
+import x10.matrix.util.Debug;
+
 import x10.matrix.comm.MatrixReduce;
 import x10.matrix.comm.MatrixRingCast;
+
 import x10.matrix.dist.DistDenseMatrix;
 
 /** 
@@ -35,8 +40,8 @@ import x10.matrix.dist.DistDenseMatrix;
  * BLAS library performance.
  */
 public class SummaDense {
-    //val alpha:Double;
-    val beta:Double;
+    //val alpha:ElemType;
+    val beta:ElemType;
     val panelSize:Long;
     val A:DistDenseMatrix;
     val B:DistDenseMatrix;
@@ -45,7 +50,7 @@ public class SummaDense {
     val colBsPsMap:DistArray[Rail[Long]](1);
 
     public def this(
-            ps:Long, be:Double,
+            ps:Long, be:ElemType,
             a:DistDenseMatrix, 
             b:DistDenseMatrix, 
             c:DistDenseMatrix) {
@@ -54,7 +59,7 @@ public class SummaDense {
                              Math.min(ps, b.grid.getMinRowSize()));
         A = a; B=b; C=c;
         //alpha = al;
-        if (MathTool.isZero(be)) beta = 0.0;
+        if (MathTool.isZero(be)) beta = 0.0 as ElemType;
         else beta  = be;
         //            
         rowBsPsMap = a.grid.getRowBsPsMap();
@@ -88,7 +93,7 @@ public class SummaDense {
      */
     public static def mult(
             var ps:Long,
-            beta:Double, 
+            beta:ElemType, 
             A:DistDenseMatrix, 
             B:DistDenseMatrix, 
             C:DistDenseMatrix) {
@@ -136,7 +141,7 @@ public class SummaDense {
      */
     public static def multTrans(
             var ps:Long,
-            beta:Double, 
+            beta:ElemType, 
             A:DistDenseMatrix, 
             B:DistDenseMatrix, 
             C:DistDenseMatrix) {
@@ -186,7 +191,7 @@ public class SummaDense {
      */
     public static def transMult(
             var ps:Long,
-            beta:Double,
+            beta:ElemType,
             A:DistDenseMatrix,
             B:DistDenseMatrix,
             C:DistDenseMatrix) {

@@ -13,6 +13,7 @@ package x10.matrix.lapack;
 
 /**
  * JNI wrappers for corresponding functions in wrap_lapack.cc
+ * vjTODO: Support ElemType for native code.
  */
 public class WrapLAPACK {
 	static { 

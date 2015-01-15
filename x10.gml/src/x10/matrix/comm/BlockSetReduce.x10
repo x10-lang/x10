@@ -17,6 +17,8 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.distblock.BlockSet;
 
@@ -98,7 +100,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			nearbypid:Long, rootPCnt:Long,
 			remotepid:Long, remotePCnt:Long,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
-		var rmtbuflst:Rail[GlobalRail[Double]];
+		var rmtbuflst:Rail[GlobalRail[ElemType]];
 		finish {
 			//Left branch reduction
 			rmtbuflst =  at(Place(remotepid)) {
@@ -107,8 +109,8 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 					reduceToHere(distBS, tmpBS, here.id(), remotePCnt, opFunc);
 				}
 				val bl = distBS().blocklist;
-				new Rail[GlobalRail[Double]](bl.size(), 
-						(i:Long)=>new GlobalRail[Double](bl(i).getData() as Rail[Double]{self!=null}))
+				new Rail[GlobalRail[ElemType]](bl.size(), 
+						(i:Long)=>new GlobalRail[ElemType](bl(i).getData() as Rail[ElemType]{self!=null}))
 			};
 			//Right branch reduction
 			async {
@@ -122,7 +124,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			val dstden = dstblk.getMatrix() as DenseMatrix;
 			val rcvden = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix;
 			val datcnt = dstden.M*dstden.N;
-			finish Rail.asyncCopy[Double](rmtbuflst(i), 0L, rcvden.d, 0L, datcnt);
+			finish Rail.asyncCopy[ElemType](rmtbuflst(i), 0L, rcvden.d, 0L, datcnt);
 			opFunc(rcvden, dstden);
 			
 		}

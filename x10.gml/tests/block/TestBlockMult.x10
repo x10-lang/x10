@@ -13,19 +13,22 @@ import harness.x10Test;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.BlockBlockMult;
 
 public class TestBlockMult extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 	public val M:Long;
 	public val K:Long;
 	public val N:Long;
 	public val bM:Long;
 	public val bK:Long;
 	public val bN:Long;
-	public val nzd:Double;
+	public val nzd:Float;
 
 	val gA:Grid, gB:Grid, gC:Grid, gTransA:Grid, gTransB:Grid;
 	
@@ -36,7 +39,7 @@ public class TestBlockMult extends x10Test {
 		bM = args.size > 3 ? Long.parse(args(3)):2;
 		bK = args.size > 4 ? Long.parse(args(4)):3;
 		bN = args.size > 5 ? Long.parse(args(5)):4;
-		nzd =  args.size > 6 ? Double.parse(args(6)):0.99;
+		nzd =  args.size > 6 ? Float.parse(args(6)):0.99f;
 		
 		gA = new Grid(M, K, bM, bK);
 		gB = new Grid(K, N, bK, bN);
@@ -67,8 +70,8 @@ public class TestBlockMult extends x10Test {
 		val B = BlockMatrix.makeDense(gB) as BlockMatrix(K,N);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Long,c:Long)=>1.0*((r+c)));
-		B.init((r:Long,c:Long)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
+		B.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
 		
 		BlockBlockMult.mult(A, B, C, false);
 		
@@ -92,8 +95,8 @@ public class TestBlockMult extends x10Test {
 		val B = BlockMatrix.makeDense(gB) as BlockMatrix(K,N);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Long,c:Long)=>1.0*((r+c)));
-		B.init((r:Long,c:Long)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
+		B.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
 		BlockBlockMult.transMult(A, B, C, false);
 		
 		val dA = A.toDense() as DenseMatrix(K,M);
@@ -115,8 +118,8 @@ public class TestBlockMult extends x10Test {
 		val B = BlockMatrix.makeDense(gTransB) as BlockMatrix(N,K);
 		val C = BlockMatrix.makeDense(gC) as BlockMatrix(M,N);
 		
-		A.init((r:Long,c:Long)=>1.0*((r+c)));
-		B.init((r:Long,c:Long)=>1.0*((r+c)));
+		A.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
+		B.init((r:Long,c:Long)=>ET(1.0)*((r+c)));
 		
 		BlockBlockMult.multTrans(A, B, C, false);
 		

@@ -9,9 +9,12 @@ import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.DenseMultXTen;
+import x10.matrix.ElemType;
+
+
+import x10.matrix.util.Debug;
 import x10.matrix.util.VerifyTool;
 
 import x10.matrix.block.Grid;
@@ -70,7 +73,7 @@ class RunSummaMPIBench{
 			lastps=Math.min(lps, 256);
 		}
 	}
-	public def compMFPS(t:Double) = 2.0*M*N*K/(t*1000*1000*aPart.size);
+	public def compMFPS(t:ElemType) = 2.0*M*N*K/(t*1000*1000*aPart.size);
 
     public def run(): void {
 		Console.OUT.println("Starting dist dense multiply benchamrks tests on "+

@@ -5,7 +5,7 @@
  */
 
 import harness.x10Test;
-
+import x10.matrix.ElemType;
 import x10.matrix.TriDense;
 import x10.matrix.util.MathTool;
 import x10.matrix.builder.SparseCSCBuilder;
@@ -13,10 +13,12 @@ import x10.matrix.builder.TriDenseBuilder;
 import x10.matrix.builder.TriSparseBuilder;
 
 public class TestTriBuilder extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 	public val M:Long;
-	public val nzd:Double;
+	public val nzd:Float;
 
-	public def this(m:Long, d:Double) {
+	public def this(m:Long, d:Float) {
 		M = m; nzd = d;
 	}
 
@@ -74,7 +76,7 @@ public class TestTriBuilder extends x10Test {
 
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Long.parse(args(0)):4;
-		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
+		val d = (args.size > 1) ? Float.parse(args(1)):0.5f;
 		new TestTriBuilder(m, d).execute();
 	}
 }

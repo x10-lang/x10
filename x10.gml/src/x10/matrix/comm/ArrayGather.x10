@@ -14,6 +14,8 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -39,7 +41,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather(
             src:DataArrayPLH, 
-            dst:Rail[Rail[Double]]) : void {
+            dst:Rail[Rail[ElemType]]) : void {
         
         val nb = Place.numPlaces();
         assert (nb==dst.size) :
@@ -75,7 +77,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather( 
             src:DataArrayPLH, 
-            dst:Rail[Double],
+            dst:Rail[ElemType],
             gp:Rail[Long]) : void {
 
         @Ifdef("MPI_COMMU") {
@@ -97,7 +99,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather( 
             src:DataArrayPLH, 
-            dst:Rail[Double],
+            dst:Rail[ElemType],
             gp:Rail[Long],
             places:PlaceGroup) : void {
         
@@ -119,7 +121,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def mpiGather(
             src:DataArrayPLH, 
-            dst:Rail[Double],
+            dst:Rail[ElemType],
             szlist:Rail[Long]):void {
         
         @Ifdef("MPI_COMMU") {
@@ -135,7 +137,7 @@ public class ArrayGather extends ArrayRemoteCopy {
                             //val tmpbuf= null; //fake
                             //val tmplst=null;//   //fake
                             /*******************************************/
-                            val tmpbuf = new Rail[Double](0); //fake
+                            val tmpbuf = new Rail[ElemType](0); //fake
                             val tmplst = new Rail[Long](0);   //fake
                             WrapMPI.world.gatherv(srcbuf, 0, datcnt, tmpbuf, 0, tmplst, root);
                         }
@@ -165,7 +167,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def x10Gather(
             src:DataArrayPLH, 
-            dstbuf:Rail[Double],
+            dstbuf:Rail[ElemType],
             gp:Rail[Long]): void {
 
         x10Gather(src, dstbuf, gp, Place.places());        
@@ -181,7 +183,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def x10Gather(
             src:DataArrayPLH, 
-            dstbuf:Rail[Double],
+            dstbuf:Rail[ElemType],
             gp:Rail[Long],
             places:PlaceGroup): void {
 
@@ -206,12 +208,12 @@ public class ArrayGather extends ArrayRemoteCopy {
     }
 
     public static def verify(
-            src:DataArrayPLH, buf:Rail[Double], 
+            src:DataArrayPLH, buf:Rail[ElemType], 
             szlist:Rail[Long]):Boolean =
             ArrayScatter.verify(buf, src, szlist);
 
     public static def verify(
-            src:DataArrayPLH, buf:Rail[Double], 
+            src:DataArrayPLH, buf:Rail[ElemType], 
             szlist:Rail[Long], places:PlaceGroup):Boolean =
             ArrayScatter.verify(buf, src, szlist, places);
 

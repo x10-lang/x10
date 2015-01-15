@@ -12,10 +12,15 @@
 #ifndef WRAP_LAPACK_H
 #define WRAP_LAPACK_H
 
-// A * X = B
-int solve_linear_equation(double* A, double* B, int* IPIV, int* dim);
+/**
+  vj: Added support for single precision operations. 
+ */
+#include "../elem_type.h"
 
-int comp_eigenvalues(double* A, double* W, double* WORK, int* IWORK, int* dim);
-int comp_eigenvectors(double* A, double* W, double* Z, double* WORK, int* IWORK, int* IFAIL, int* dim);
+// A * X = B
+int solve_linear_equation(ElemType* A, ElemType* B, int* IPIV, int* dim);
+
+int comp_eigenvalues(ElemType* A, ElemType* W, ElemType* WORK, int* IWORK, int* dim);
+int comp_eigenvectors(ElemType* A, ElemType* W, ElemType* Z, ElemType* WORK, int* IWORK, int* IFAIL, int* dim);
 
 #endif

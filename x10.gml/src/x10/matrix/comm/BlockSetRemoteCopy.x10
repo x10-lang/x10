@@ -11,6 +11,7 @@
 
 package x10.matrix.comm;
 
+
 public class BlockSetRemoteCopy extends BlockRemoteCopy {
 	/**
 	 * Copy source block to target block in distributed block matrix structure.

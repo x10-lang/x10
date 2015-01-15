@@ -14,6 +14,7 @@ package x10.matrix.comm;
 import x10.regionarray.DistArray;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
+import x10.matrix.ElemType;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.comm.mpi.WrapMPI;
@@ -116,7 +117,7 @@ public class MatrixBcast {
 		val rtroot = root + lfcnt;
 
 		// Specify the remote buffer
-		val srcbuf = new GlobalRail[Double](srcden.d as Rail[Double]{self!=null});
+		val srcbuf = new GlobalRail[ElemType](srcden.d as Rail[ElemType]{self!=null});
 		val srcoff = srcden.M * colOff; //Source offset is determined by local M
 			
 		finish {
@@ -125,7 +126,7 @@ public class MatrixBcast {
 				val dstoff = colOff * dstden.M; //Destination offset is determined by local M
 				val datasz = dstden.M * colCnt;
 				// Using copyFrom style
-				finish Rail.asyncCopy[Double](srcbuf, srcoff, dstden.d, dstoff, datasz);
+				finish Rail.asyncCopy[ElemType](srcbuf, srcoff, dstden.d, dstoff, datasz);
 							
 				// right branch
 				if (rtcnt > 1) {
@@ -254,7 +255,7 @@ public class MatrixBcast {
         val idxbuf = srcspa.getIndex();
         val valbuf = srcspa.getValue();
         val srcidx = new GlobalRail[Long  ](idxbuf as Rail[Long  ]{self!=null});
-        val srcval = new GlobalRail[Double](valbuf as Rail[Double]{self!=null});
+        val srcval = new GlobalRail[ElemType](valbuf as Rail[ElemType]{self!=null});
 	
 		finish {		
 			at(smlist.dist(rtroot)) async {
@@ -268,7 +269,7 @@ public class MatrixBcast {
 				dstspa.initRemoteCopyAtDest(colOffset, colCnt, dataCnt);
 				finish Rail.asyncCopy[Long  ](srcidx, srcOffset, 
 											   dstspa.getIndex(), dstoff, dataCnt);
-				finish Rail.asyncCopy[Double](srcval, srcOffset, 
+				finish Rail.asyncCopy[ElemType](srcval, srcOffset, 
 											   dstspa.getValue(), dstoff, dataCnt);
 
 				// right branch

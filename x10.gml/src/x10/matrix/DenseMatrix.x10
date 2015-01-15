@@ -25,6 +25,7 @@ import x10.matrix.sparse.DenseMultSparseToDense;
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.matrix.util.RandTool;
+import x10.matrix.util.ElemTypeTool;
 
 public type DenseMatrix(m:Long, n:Long)=DenseMatrix{self.M==m, self.N==n};
 public type DenseMatrix(m:Long)=DenseMatrix{self.M==m};
@@ -44,7 +45,7 @@ public class DenseMatrix extends Matrix {
      * the memory trunk can be passed to/from other program directly without conversion.
      * 2) Fast access to data adjacent in the same column
      */
-    public val d:Rail[Double]{self!=null};
+    public val d:Rail[ElemType]{self!=null};
 
     /**
      * Construct a dense matrix in specified rows and columns and using provided
@@ -54,7 +55,7 @@ public class DenseMatrix extends Matrix {
      * @param  n   number of columns in the dense matrix
      * @param  x   the data 
      */
-    public def this(m:Long, n:Long, x:Rail[Double]{self!=null}):DenseMatrix(m,n){
+    public def this(m:Long, n:Long, x:Rail[ElemType]{self!=null}):DenseMatrix(m,n){
         super(m, n);
         this.d=x;
         if (CompilerFlags.checkBounds()) {
@@ -70,7 +71,7 @@ public class DenseMatrix extends Matrix {
      */    
     public def this(m:Long, n:Long):DenseMatrix(m,n) {
         super(m, n);
-        this.d = new Rail[Double](m*n);
+        this.d = new Rail[ElemType](m*n);
     }
 
     /**
@@ -92,8 +93,8 @@ public class DenseMatrix extends Matrix {
      * @param  v       value assigned to all elements in the matrix
      * @return        the instance
      */
-    public static def make(m:Long, n:Long, v:Double):DenseMatrix(m,n) {
-        val d = new Rail[Double](m*n, v);
+    public static def make(m:Long, n:Long, v:ElemType):DenseMatrix(m,n) {
+        val d = new Rail[ElemType](m*n, v);
         return new DenseMatrix(m, n, d);
     }
 
@@ -104,7 +105,7 @@ public class DenseMatrix extends Matrix {
      * @return        the copy of the source matrix
      */    
     public static def make(src:DenseMatrix):DenseMatrix(src.M, src.N) {
-        val newd = new Rail[Double](src.d);
+        val newd = new Rail[ElemType](src.d);
         return new DenseMatrix(src.M, src.N, newd);
     }
     
@@ -112,7 +113,7 @@ public class DenseMatrix extends Matrix {
      * Initialize all elements of the dense matrix with a constant value.
      * @param  iv     the constant value
      */    
-    public def init(iv:Double): DenseMatrix(this) {
+    public def init(iv:ElemType): DenseMatrix(this) {
         for (var i:Long=0; i<M*N; i++)    
             this.d(i) = iv;
         return this;
@@ -124,7 +125,7 @@ public class DenseMatrix extends Matrix {
      * @param f    The function to use to initialize the matrix
      * @return this object
      */
-    public def init(f:(Long)=>Double): DenseMatrix(this) {
+    public def init(f:(Long)=>ElemType): DenseMatrix(this) {
         for (var i:Long=0; i<M*N; i++)
             this.d(i) = f(i);
         return this;
@@ -136,7 +137,7 @@ public class DenseMatrix extends Matrix {
      * @param f    The function to use to initialize the matrix, mapping (row, column) => double
      * @return this object
      */
-    public def init(f:(Long,Long)=>Double): DenseMatrix(this) {
+    public def init(f:(Long,Long)=>ElemType): DenseMatrix(this) {
         var i:Long=0;
         for (var c:Long=0; c<N; c++)
             for (var r:Long=0; r<M; r++, i++)
@@ -152,7 +153,7 @@ public class DenseMatrix extends Matrix {
      * @param f    The function to use to initialize the matrix
      * @return this object
      */
-    public def init(rowoff:Long, coloff:Long, f:(Long,Long)=>Double): DenseMatrix(this) {
+    public def init(rowoff:Long, coloff:Long, f:(Long,Long)=>ElemType): DenseMatrix(this) {
         var i:Long=0;
         for (var c:Long=0; c<N; c++)
             for (var r:Long=0; r<M; r++, i++)
@@ -167,7 +168,7 @@ public class DenseMatrix extends Matrix {
     public def initRandom(): DenseMatrix(this) {
         val rgen = RandTool.getRandGen();
         for (var i:Long=0; i<M*N; i++) {
-            this.d(i) = rgen.nextDouble();
+            this.d(i) = RandTool.nextElemType[ElemType](rgen);
         }
         return this;
     }
@@ -210,7 +211,7 @@ public class DenseMatrix extends Matrix {
      * @return        new dense matrix instance
      */
     public  def alloc(m:Long, n:Long):DenseMatrix(m,n) {
-        val d = new Rail[Double](m*n);
+        val d = new Rail[ElemType](m*n);
         return new DenseMatrix(m, n, d);
     }
     
@@ -223,7 +224,7 @@ public class DenseMatrix extends Matrix {
      * The size of clone result will be the same as its source.
       */
     public  def clone():DenseMatrix(M,N){
-        val nd = new Rail[Double](this.d);
+        val nd = new Rail[ElemType](this.d);
         return new DenseMatrix(M, N, nd);
     }
 
@@ -250,14 +251,14 @@ public class DenseMatrix extends Matrix {
     
     
     /**
-     * Reset all elements to 0.0
+     * Reset all elements to ElemTypeTool.zero
      */
     public  def reset():void {
         d.clear(0, M*N);
     }
 
     /**
-     * Reset data in column c to 0.0
+     * Reset data in column c to ElemTypeTool.zero
      *
      * @param  c  the column needs to be reset
      */    
@@ -392,7 +393,7 @@ public class DenseMatrix extends Matrix {
      * @param rowCnt         number of rows to copy
      * @param colCnt         number of column to copy
      */
-    public static def copySubset(src:Rail[Double], var srcOffset:Long,
+    public static def copySubset(src:Rail[ElemType], var srcOffset:Long,
              dst:DenseMatrix,
              var dstRowOffset:Long, var dstColOffset:Long,
              rowCnt:Long, colCnt:Long): Long {
@@ -421,7 +422,7 @@ public class DenseMatrix extends Matrix {
      * @param  x  the x-th row 
      * @param  y  the y-th column
      */
-    public final @Inline operator this(x:Long, y:Long):Double=d(y*M+x);
+    public final @Inline operator this(x:Long, y:Long):ElemType=d(y*M+x);
 
     /**
      * Set the value v at(x, y) in the dense matrix
@@ -429,7 +430,7 @@ public class DenseMatrix extends Matrix {
      * @param  x  the x-th row 
      * @param  y  the y-th column
      */
-    public final @Inline operator this(x:Long,y:Long) = (v:Double):Double {
+    public final @Inline operator this(x:Long,y:Long) = (v:ElemType):ElemType {
         d(y*M+x) = v;
         return v;
     }
@@ -502,7 +503,7 @@ public class DenseMatrix extends Matrix {
     public def selfT(){this.M==this.N}:DenseMatrix(this) {
         var src_idx:Long =0;
         var dst_idx:Long =0;
-        var swaptmp:Double = 0;
+        var swaptmp:ElemType = 0;
         for (var c:Long=0; c < this.M; c++) {
             dst_idx = (c+1)*this.M+c;
             src_idx = c * this.M + c + 1;
@@ -522,8 +523,8 @@ public class DenseMatrix extends Matrix {
      * @param alpha the scaling factor
      * @return this = alpha * this
      */
-    public def scale(alpha:Double):DenseMatrix(this)
-        = map((x:Double)=>{alpha * x});
+    public def scale(alpha:ElemType):DenseMatrix(this)
+        = map((x:ElemType)=>{alpha * x});
 
     /**
      * this = alpha * X
@@ -531,8 +532,8 @@ public class DenseMatrix extends Matrix {
      * @param X the source matrix, may be the same as this matrix
      * @return this = alpha * X
      */
-    public def scale(alpha:Double, X:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(X, (x:Double)=> {alpha * x});
+    public def scale(alpha:ElemType, X:DenseMatrix(M,N)):DenseMatrix(this)
+        = map(X, (x:ElemType)=> {alpha * x});
 
     /**
      * Compute the Euclidean distance between "this" and the given matrix
@@ -540,7 +541,7 @@ public class DenseMatrix extends Matrix {
      * @param x matrix object
      * @return Euclidean distance
      */
-    public def distance(x:Matrix(M,N)):Double {
+    public def distance(x:Matrix(M,N)):ElemType {
         return Math.sqrt(frobeniusProduct(x));
     }
 
@@ -551,8 +552,8 @@ public class DenseMatrix extends Matrix {
      * @param x matrix object
      * @return Frobenius inner product
      */
-    public def frobeniusProduct(x:Matrix(M,N)):Double {
-        var nv:Double = 0.0;
+    public def frobeniusProduct(x:Matrix(M,N)):ElemType {
+        var nv:ElemType = ElemTypeTool.zero;
         for (var c:Long=0; c<N; c++) {
             for (var r:Long=0; r<M; r++) {
                 nv += this(c,r)*x(c,r);
@@ -566,7 +567,7 @@ public class DenseMatrix extends Matrix {
      * 
      * @return Euclidean norm
      */
-    public def norm():Double {
+    public def norm():ElemType {
         return Math.sqrt(frobeniusProduct(this));
     }
 
@@ -576,7 +577,7 @@ public class DenseMatrix extends Matrix {
      * @param x dense matrix object
      * @return Euclidean distance
      */
-    public def norm(x:DenseMatrix(M,N)):Double {
+    public def norm(x:DenseMatrix(M,N)):ElemType {
         return Math.sqrt(frobeniusProduct(x));
     }
 
@@ -586,8 +587,8 @@ public class DenseMatrix extends Matrix {
      * @param x dense matrix object
      * @return Frobenius inner product
      */
-    public def frobeniusProduct(x:DenseMatrix(M,N)):Double {
-        var nv:Double = 0.0;
+    public def frobeniusProduct(x:DenseMatrix(M,N)):ElemType {
+        var nv:ElemType = ElemTypeTool.zero;
         for (var i:Long=0; i<N*M; i++) {
             nv += this.d(i)*x.d(i);
         }
@@ -600,8 +601,8 @@ public class DenseMatrix extends Matrix {
      *
      * @return max absolute value of any element
      */
-    public def maxNorm():Double {
-        var max:Double = 0.0;
+    public def maxNorm():ElemType {
+        var max:ElemType = ElemTypeTool.zero;
         for (var i:Long=0; i<N*M; i++) {
             max = Math.max(Math.abs(d(i)), max);
         }
@@ -613,8 +614,8 @@ public class DenseMatrix extends Matrix {
      *
      * @return the sum of diagonal elements
      */
-    public def trace():Double {
-        var tr:Double = 0.0;
+    public def trace():ElemType {
+        var tr:ElemType = ElemTypeTool.zero;
         for (var i:Long=0; i<M*N; i+=M+1)
             tr += d(i);
         return tr;
@@ -625,8 +626,8 @@ public class DenseMatrix extends Matrix {
      * 
      * @return        the sum of all matrix elements
      */
-    public def sum():Double
-        = reduce((a:Double,b:Double)=> {a+b}, 0.0);
+    public def sum():ElemType
+        = reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero);
 
     /**
      * Add a constant value to each element of this matrix
@@ -634,8 +635,8 @@ public class DenseMatrix extends Matrix {
      * @param d constant value to be added to all elements
      * @return this = this + d
      */
-    public def cellAdd(d:Double):DenseMatrix(this)
-        = map((x:Double)=> {x + d});
+    public def cellAdd(d:ElemType):DenseMatrix(this)
+        = map((x:ElemType)=> {x + d});
     
     /**
      * Cell-wise matrix addition
@@ -655,7 +656,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this + A
      */
     public def cellAdd(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(this, A, (x:Double, a:Double)=> {x + a});
+        = map(this, A, (x:ElemType, a:ElemType)=> {x + a});
 
     public def cellAdd(A:TriDense(M,N)):DenseMatrix(this) = 
         A.cellAddTo(this);
@@ -679,7 +680,7 @@ public class DenseMatrix extends Matrix {
      * Cellwise addition of two matrices, storing the result in this matrix.
      */
     public def cellAdd(A:DenseMatrix(M,N), B:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(A, B, (a:Double, b:Double)=> {a + b});
+        = map(A, B, (a:ElemType, b:ElemType)=> {a + b});
 
     /**
      * Subtract a constant value from each element of this matrix 
@@ -687,8 +688,8 @@ public class DenseMatrix extends Matrix {
      * @param d constant value to be subtracted from all elements
      * @return this = this - d
      */
-    public def cellSub(d:Double):DenseMatrix(this)
-        = map((x:Double)=> {x - d});
+    public def cellSub(d:ElemType):DenseMatrix(this)
+        = map((x:ElemType)=> {x - d});
     
     /**
      * Cell-wise matrix subtraction
@@ -708,7 +709,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this - A
      */
     public def cellSub(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(this, A, (x:Double, a:Double)=> {x - a});
+        = map(this, A, (x:ElemType, a:ElemType)=> {x - a});
     
     /**
      * Cell-wise subtract: A = A - this
@@ -749,7 +750,7 @@ public class DenseMatrix extends Matrix {
      * @return this = this &#42 A
      */
     public def cellMult(A:DenseMatrix(M,N)):DenseMatrix(this)
-        = map(this, A, (x:Double, a:Double)=> {x * a});
+        = map(this, A, (x:ElemType, a:ElemType)=> {x * a});
     
     /**
      * Cell-wise matrix multiply:  A = A &#42 this
@@ -775,9 +776,9 @@ public class DenseMatrix extends Matrix {
      * @param alpha constant value by which to divide every element of this matrix
      * @return this = this / alpha
      */
-    public def cellDiv(alpha:Double):DenseMatrix(this) {
-        assert alpha != 0.0;
-        return map((x:Double)=>{x / alpha});
+    public def cellDiv(alpha:ElemType):DenseMatrix(this) {
+        assert alpha != ElemTypeTool.zero;
+        return map((x:ElemType)=>{x / alpha});
     }
 
     /**
@@ -786,8 +787,8 @@ public class DenseMatrix extends Matrix {
      * @param alpha value to be divided by each element of this matrix
      * @return this = alpha / this
      */
-    public def cellDivBy(alpha:Double):DenseMatrix(this)
-        = map((x:Double)=>{alpha / x});
+    public def cellDivBy(alpha:ElemType):DenseMatrix(this)
+        = map((x:ElemType)=>{alpha / x});
     
     /**
      * Cell-wise matrix division
@@ -946,8 +947,8 @@ public class DenseMatrix extends Matrix {
      * @return        result
      */
     public def mult(A:DenseMatrix(this.M), B:DenseMatrix(A.N, this.N), plus:Boolean) {
-        val alpha = 1.0;
-        val beta = plus?1.0:0.0;
+        val alpha = ElemTypeTool.unit;
+        val beta = plus?ElemTypeTool.unit:ElemTypeTool.zero;
         DenseMatrixBLAS.comp(alpha, A, B, beta, this);
         return this;
     }
@@ -974,8 +975,8 @@ public class DenseMatrix extends Matrix {
      * @return        result
      */
     public def transMult(A:DenseMatrix{self.N==this.M}, B:DenseMatrix(A.M,this.N), plus:Boolean) {
-		val alpha = 1.0;
-		val beta = plus?1.0:0.0;
+		val alpha = ElemTypeTool.unit;
+		val beta = plus?ElemTypeTool.unit:ElemTypeTool.zero;
         DenseMatrixBLAS.compTransMult(alpha, A, B, beta, this);
         return this;
     }
@@ -990,8 +991,8 @@ public class DenseMatrix extends Matrix {
      * @return        result
      */
     public def multTrans(A:DenseMatrix(this.M), B:DenseMatrix(this.N,A.N), plus:Boolean) {
-		val alpha = 1.0;
-		val beta = plus?1.0:0.0;
+		val alpha = ElemTypeTool.unit;
+		val beta = plus?ElemTypeTool.unit :ElemTypeTool.zero;
         DenseMatrixBLAS.compMultTrans(alpha, A, B, beta, this);
         return this;
     }
@@ -1076,17 +1077,17 @@ public class DenseMatrix extends Matrix {
     /**
      * Operator overloading for cell-wise matrix subtraction, and return this - that in a new dense format
      */
-    public operator - this = clone().scale(-1.0)                as DenseMatrix(M,N);
-    public operator (v:Double) + this = this.clone().cellAdd(v) as DenseMatrix(M,N);
-    public operator this + (v:Double) = this.clone().cellAdd(v) as DenseMatrix(M,N);
+    public operator - this = clone().scale(-ElemTypeTool.unit)                as DenseMatrix(M,N);
+    public operator (v:ElemType) + this = this.clone().cellAdd(v) as DenseMatrix(M,N);
+    public operator this + (v:ElemType) = this.clone().cellAdd(v) as DenseMatrix(M,N);
 
-    public operator this - (v:Double) = this.clone().cellAdd(-v)    as DenseMatrix(M,N);
+    public operator this - (v:ElemType) = this.clone().cellAdd(-v)    as DenseMatrix(M,N);
     
-    public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseMatrix(M,N);
-    //public operator (v:Double) / this = this.clone().cellDivBy(v) as DenseMatrix(M,N);
+    public operator this / (v:ElemType) = this.clone().scale(ElemTypeTool.unit/v) as DenseMatrix(M,N);
+    //public operator (v:ElemType) / this = this.clone().cellDivBy(v) as DenseMatrix(M,N);
     
-    public operator this * (alpha:Double) = this.clone().scale(alpha) as DenseMatrix(M,N);
-    public operator (alpha:Double) * this : DenseMatrix(M,N) = this * alpha;
+    public operator this * (alpha:ElemType) = this.clone().scale(alpha) as DenseMatrix(M,N);
+    public operator (alpha:ElemType) * this : DenseMatrix(M,N) = this * alpha;
 
     /**
      * Operator overloading for cell-wise add, and return result in a new dense matrix. 
@@ -1115,8 +1116,8 @@ public class DenseMatrix extends Matrix {
      */
     public  operator this % (that:DenseMatrix{self.M==this.N}):DenseMatrix(this.M,that.N) {
         val dm = DenseMatrix.make(this.M, that.N);
-		val alpha = 1.0;
-		val beta = 0.0;
+	val alpha = ElemTypeTool.unit;
+	val beta = ElemTypeTool.zero;
         DenseMatrixBLAS.comp(alpha, this, that, beta, dm);
         return dm;
     }
@@ -1138,7 +1139,7 @@ public class DenseMatrix extends Matrix {
      * @param op a unary map function to apply to each element of this matrix
      * @return this matrix, containing the result of the map
      */
-    public final @Inline def map(op:(x:Double)=>Double):DenseMatrix(this) {
+    public final @Inline def map(op:(x:ElemType)=>ElemType):DenseMatrix(this) {
         RailUtils.map(this.d, this.d, op);
         return this;
     }
@@ -1150,8 +1151,8 @@ public class DenseMatrix extends Matrix {
      * @param op a unary map function to apply to each element of matrix <code>a</code>
      * @return this matrix, containing the result of the map
      */
-    public final @Inline def map(a:DenseMatrix(M,N), op:(x:Double)=>Double):DenseMatrix(this) {
-        val aRaw = a.d as Rail[Double]{self!=null,self.size==this.d.size};
+    public final @Inline def map(a:DenseMatrix(M,N), op:(x:ElemType)=>ElemType):DenseMatrix(this) {
+        val aRaw = a.d as Rail[ElemType]{self!=null,self.size==this.d.size};
         RailUtils.map(aRaw, this.d, op);
         return this;
     }
@@ -1166,9 +1167,9 @@ public class DenseMatrix extends Matrix {
      *   <code>a</code> and the corresponding element of <code>b</code>
      * @return this matrix, containing the result of the map
      */
-    public final @Inline def map(a:DenseMatrix(M,N), b:DenseMatrix(M,N), op:(x:Double,y:Double)=>Double):DenseMatrix(this) {
-        val aRaw = a.d as Rail[Double]{self!=null,self.size==this.d.size};
-        val bRaw = b.d as Rail[Double]{self!=null,self.size==this.d.size};
+    public final @Inline def map(a:DenseMatrix(M,N), b:DenseMatrix(M,N), op:(x:ElemType,y:ElemType)=>ElemType):DenseMatrix(this) {
+        val aRaw = a.d as Rail[ElemType]{self!=null,self.size==this.d.size};
+        val bRaw = b.d as Rail[ElemType]{self!=null,self.size==this.d.size};
         RailUtils.map(aRaw, bRaw, this.d, op);
         return this;
     }
@@ -1179,7 +1180,7 @@ public class DenseMatrix extends Matrix {
      * @param unit the identity value for the reduction function
      * @return the result of the reducer function applied to all elements
      */
-    public final @Inline def reduce(op:(a:Double,b:Double)=>Double, unit:Double):Double
+    public final @Inline def reduce(op:(a:ElemType,b:ElemType)=>ElemType, unit:ElemType):ElemType
         = RailUtils.reduce(this.d, op, unit);
 
     /**
@@ -1188,9 +1189,9 @@ public class DenseMatrix extends Matrix {
      * @param unit the identity value for the reduction function
      * @return a Vector whose i'th element is the reduction of all the elements in the i'th row
      */
-    public final @Inline def reduce0(op:(a:Double,b:Double)=>Double, unit:Double)
+    public final @Inline def reduce0(op:(a:ElemType,b:ElemType)=>ElemType, unit:ElemType)
         = new Vector(M, (i:Long)=> {
-            var accum:Double = unit;
+            var accum:ElemType = unit;
             for (j in 0..(N-1)) accum = op(accum, this(i,j));
             accum
         });
@@ -1201,13 +1202,12 @@ public class DenseMatrix extends Matrix {
      * @param unit the identity value for the reduction function
      * @return a Vector whose j'th element is the reduction of all the elements in the j'th column
      */
-    public final @Inline def reduce1(op:(a:Double,b:Double)=>Double, unit:Double)
+    public final @Inline def reduce1(op:(a:ElemType,b:ElemType)=>ElemType, unit:ElemType)
         = new Vector(N, (j:Long)=> {
-            var accum:Double = unit;
+            var accum:ElemType = unit;
             for (i in 0..(M-1)) accum = op(accum, this(i,j));
             accum
         });
-
 
     /**
      * Convert the whole dense matrix into a string

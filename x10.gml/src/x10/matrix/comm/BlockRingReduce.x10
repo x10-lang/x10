@@ -16,6 +16,8 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
@@ -110,7 +112,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			nearbyPlcList:Rail[Long], 
 			remotePlcList:Rail[Long]) {
 		
-		var rmtbuf:GlobalRail[Double];
+		var rmtbuf:GlobalRail[ElemType];
 		finish {
 			//Left branch reduction
 			val remotepid = remotePlcList(0);
@@ -122,7 +124,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
 				}
 				
-				new GlobalRail[Double](rmtblk.getData() as Rail[Double]{self!=null})
+				new GlobalRail[ElemType](rmtblk.getData() as Rail[ElemType]{self!=null})
 			};
 			//Right branch reduction
 			async {
@@ -135,7 +137,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 		val dstden = rootblk.getMatrix() as DenseMatrix;
 
 		val datcnt = dstden.M*colCnt;
-		finish Rail.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datcnt);
+		finish Rail.asyncCopy[ElemType](rmtbuf, 0, rcvden.d, 0, datcnt);
 		
 		opFunc(rcvden, dstden, colCnt);
 		//dstmat.cellAdd(rcvmat as DenseMatrix(dstmat.M, dstmat.N));

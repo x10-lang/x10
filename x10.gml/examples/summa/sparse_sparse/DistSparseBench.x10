@@ -7,9 +7,13 @@
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
-import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
+import x10.matrix.util.Debug;
+
 import x10.matrix.block.Grid;
+
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.summa.SummaSparse;
@@ -19,7 +23,7 @@ public class DistSparseBench {
 		val M = args.size > 0 ? Long.parse(args(0)):1000;
 		val K = args.size > 1 ? Long.parse(args(1)):1000;
 		val N = args.size > 2 ? Long.parse(args(2)):1000;
-		val nzD = args.size > 3 ?Double.parse(args(3)):0.1;
+		val nzD = args.size > 3 ?Float.parse(args(3)):0.1f;
 		val iter = args.size > 4 ? Long.parse(args(4)):1;
 		val ps = args.size > 5 ? Long.parse(args(5)):0;
 		val tc = new RunDistSparseBench(M, K, N, nzD, iter, ps);
@@ -28,7 +32,7 @@ public class DistSparseBench {
 }
 
 class RunDistSparseBench{
-	public val M:Long, N:Long, K:Long, iter:Long, nzD:Double, pCmp:Double;
+	public val M:Long, N:Long, K:Long, iter:Long, nzD:ElemType, pCmp:ElemType;
 	public val testps:Long; lastps:Long;
 	public val nplace = Place.numPlaces();
 
@@ -42,7 +46,7 @@ class RunDistSparseBench{
 	val tB:DistSparseMatrix(btPart.M, btPart.N);
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
-	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long, p:Long) {
+	public def this(m:Long, k:Long, n:Long, nzd:Float, it:Long, p:Long) {
 		M = m; N = n; K=k; iter=it; nzD =nzd; pCmp=nzD*nzD;
 		aPart = Grid.make(M, K);
 		bPart = Grid.make(K, N);
@@ -61,7 +65,7 @@ class RunDistSparseBench{
 			val lps = Math.min(aPart.getMinColSize(), bPart.getMinRowSize()); 
 			lastps=Math.min(lps, 256L);		}
 	}
-	public def compMFPS(t:Double) = 2.0*pCmp*M*N*K/(t*1000*1000*aPart.size);
+	public def compMFPS(t:ElemType) = 2.0*pCmp*M*N*K/(t*1000*1000*aPart.size);
 	
     public def run(): void {
 		Console.OUT.println("Starting sparse matrix  multiply benchamrks tests ov"+

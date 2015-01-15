@@ -13,7 +13,7 @@ package x10.matrix.util;
 
 import x10.matrix.Matrix;
 import x10.matrix.Vector;
-
+import x10.matrix.ElemType;	
 /**
  * This class is used to verify matrix and vector properties and operations. 
  */
@@ -54,7 +54,7 @@ public class VerifyTool {
 		for (var x:Long=0; x<C.M; x++) {
 			for (var y:Long=0; y<C.N; y++){
 				val cv   = C(x,y);
-				var v:Double = 0.0D;
+				var v:ElemType = 0.0 as ElemType;
 				for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(k, y);
 				if (! MathTool.equals(v, cv)) {
 					Console.OUT.printf("Check fail (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
@@ -82,7 +82,7 @@ public class VerifyTool {
 	public static def verifyMatMult(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 
 		val cv       = C(x,y);
-		var v:Double = 0.0D;
+		var v:ElemType = 0.0 as ElemType;
 		for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(k, y);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
 						   x, y, cv, v);
@@ -101,7 +101,7 @@ public class VerifyTool {
 	 */
 	 public static def verifyTransMultMatrix(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 		val cv   = C(x,y);
-		var v:Double = 0.0D;
+		var v:ElemType = 0.0 as ElemType;
 		
 		for (var k:Long=0; k<A.M; k++) v += A(k, x) * B(k, y);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
@@ -120,7 +120,7 @@ public class VerifyTool {
 	 */
 	public static def verifyMatrixMultTrans(x:Long, y:Long, A:Matrix, B:Matrix, C:Matrix):Boolean {
 		val cv   = C(x,y);
-		var v:Double = 0.0D;
+		var v:ElemType = 0.0 as ElemType;
 
 		for (var k:Long=0; k<A.N; k++) v += A(x, k) * B(y, k);
 		Console.OUT.printf("Check (%5d, %5d) Computed:%.8f Verified:%.8f\n", 
@@ -198,7 +198,7 @@ public class VerifyTool {
 	 * @param v -- testing value
 	 * @return true if all elements in matrix equal to v.
 	 */
-	public static def testSame(m:Matrix, v:Double):Boolean {
+	public static def testSame(m:Matrix, v:ElemType):Boolean {
 		for (var c:Long=0; c< m.N; c++)
 			for (var r:Long=0; r< m.M; r++) {
 				val v1=	m(r,c);

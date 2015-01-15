@@ -28,7 +28,7 @@ import x10.matrix.util.VerifyTool;
  * <li>Verification flag. Default 0 or false.</li>
  * <li>Row-wise partition of G. Default number of places</li>
  * <li>Column-wise partition of G. Default 1.</li>
- * <li>Nonzero density of G: Default 0.001</li>
+ * <li>Nonzero density of G: Default 0.001f</li>
  * <li>Print output flag: Default false.</li>
  * </ol>
  */
@@ -62,7 +62,7 @@ public class RunPageRank {
         val mG = opts("m", 100000);
         val rowBlocks = opts("r", Place.numPlaces());
         val colBlocks = opts("c", 1);
-        val nonzeroDensity = opts("d", 0.001);
+        val nonzeroDensity = opts("d", 0.001f);
         val iterations = opts("i", 20n);
         val verify = opts("v");
         val print = opts("p");

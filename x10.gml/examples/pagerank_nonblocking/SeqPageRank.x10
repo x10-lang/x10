@@ -22,8 +22,8 @@ public class SeqPageRank {
 	val colP:Long;
 
 	val iterations:Long;
-	val nzDensity:Double;
-	val alpha:Double= 0.85;
+	val nzDensity:Float;
+	val alpha = 0.85 as ElemType;
 
 	// Input and output data
 	public val G:DenseMatrix(rowG, rowG);
@@ -37,7 +37,7 @@ public class SeqPageRank {
 	
 	public def this(g:DenseMatrix, p:DenseMatrix, 
 					e:DenseMatrix, u:DenseMatrix, 
-					it:Long, nz:Double) {
+					it:Long, nz:Float) {
 		rowG = g.M;  colP = p.N;
 		G = g as DenseMatrix(rowG, rowG); 
 		P = p as DenseMatrix(rowG, colP); 
@@ -55,7 +55,7 @@ public class SeqPageRank {
 		Debug.flushln("Start sequential PageRank");
 		for (1..iterations) {
 			GP.mult(G, P).scale(alpha);			
-			P.mult(E, UP.mult(U, P)).scale(1-alpha).cellAdd(GP);
+			P.mult(E, UP.mult(U, P)).scale(1-alpha as ElemType).cellAdd(GP);
 		}
 		Debug.flushln("Sequential PageRank completes");
 		return P;

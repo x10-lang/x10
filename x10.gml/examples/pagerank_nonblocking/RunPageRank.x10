@@ -18,11 +18,11 @@ public class RunPageRank {
 		val iT = args.size > 1 ? Long.parse(args(1)):20; //Iterations
 		val vf = args.size > 2 ? Int.parse(args(2)):0n; //Verify result or not
 		val nP = args.size > 3 ? Long.parse(args(3)):1; //column of P
-		val nZ = args.size > 4 ? Double.parse(args(4)):0.001; //G's nonzero density
+		val nZ = args.size > 4 ? Float.parse(args(4)):0.001f; //G's nonzero density
 		val pP = args.size > 5 ? Int.parse(args(5)):0n; //Print out input and output matrices
 
 		Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iterations:"+iT);
-		if (mG<=0 || iT<1 || nP<1 || nZ<0.0)
+		if (mG<=0 || iT<1 || nP<1 || nZ<0.0f)
 			Console.OUT.println("Error in settings");
 		else {
 			val paraPR = new PageRank(mG, nP, nZ, iT);

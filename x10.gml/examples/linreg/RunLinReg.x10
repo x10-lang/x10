@@ -16,6 +16,8 @@ import x10.xrx.Runtime;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistVector;
@@ -62,7 +64,7 @@ public class RunLinReg {
         val inputFile = opts("f", "");
         var mX:Long = opts("m", 10);
         var nX:Long = opts("n", 10);
-        var nonzeroDensity:Double = opts("d", 0.9);
+        var nonzeroDensity:Float = opts("d", 0.9f);
         val verify = opts("v");
         val print = opts("p");
         val iterations = opts("i", 2n);
@@ -70,7 +72,7 @@ public class RunLinReg {
         val colBlocks = opts("c", 1);
         val skipPlaces = opts("s", 0n);
 
-        if (iterations<1 || nonzeroDensity<0.0
+        if (iterations<1 || nonzeroDensity<0.0f
          || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
             Console.OUT.println("Error in settings");
             System.setExitCode(1n);
@@ -106,10 +108,10 @@ public class RunLinReg {
             X.initRandom();
             y.initRandom();
         } else {
-            val inputData = RegressionInputData.readFromFile(inputFile, places, false, 1.0, false);
+            val inputData = RegressionInputData.readFromFile(inputFile, places, false, 1.0 as ElemType, false);
             mX = inputData.numTraining;
             nX = inputData.numFeatures;
-            nonzeroDensity = 1.0;
+            nonzeroDensity = 1.0f;
             
             X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
             y = DistVector.make(X.M, places);
@@ -141,7 +143,7 @@ public class RunLinReg {
         var localY:Vector(M) = null;
         if (verify) {
             val bX:BlockMatrix(parLR.V.M, parLR.V.N);
-            if (nonzeroDensity < 0.1) {
+            if (nonzeroDensity < 0.1f) {
                 bX = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
             } else {
                 bX = BlockMatrix.makeDense(parLR.V.getGrid());

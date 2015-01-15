@@ -16,6 +16,9 @@ import x10.io.FileReader;
 import x10.io.EOFException;
 import x10.util.ArrayList;
 import x10.util.Random;
+import x10.matrix.util.StringTool;
+import x10.matrix.util.RandTool;
+import x10.matrix.ElemType;
 
 /**
  * Holds labeled examples as input to a regression or classification algorithm.
@@ -26,10 +29,10 @@ public class RegressionInputData(numFeatures:Long) {
     public var numTest:Long;
 
     public static class LocalData {
-        public val trainingLabels = new ArrayList[Double]();
-        public val trainingExamples = new ArrayList[Double]();
-        public val testLabels = new ArrayList[Double]();
-        public val testExamples = new ArrayList[Double]();
+        public val trainingLabels = new ArrayList[ElemType]();
+        public val trainingExamples = new ArrayList[ElemType]();
+        public val testLabels = new ArrayList[ElemType]();
+        public val testExamples = new ArrayList[ElemType]();
     }
     public val local:PlaceLocalHandle[LocalData];
 
@@ -51,7 +54,7 @@ public class RegressionInputData(numFeatures:Long) {
      * @param addBias if true, append a bias column (all values 1.0) to the
      *     input examples
      */
-    public static def readFromFile(fileName:String, places:PlaceGroup, libsvmFormat:Boolean, trainingFraction:Double, addBias:Boolean):RegressionInputData {
+    public static def readFromFile(fileName:String, places:PlaceGroup, libsvmFormat:Boolean, trainingFraction:ElemType, addBias:Boolean):RegressionInputData {
         val file = new File(fileName);
         val totalSize = file.size();
 
@@ -62,38 +65,38 @@ public class RegressionInputData(numFeatures:Long) {
 
         val data = new RegressionInputData(numFeatures, places);
 
-        val addPoint = (line:String, labels:ArrayList[Double], points:ArrayList[Double]) => {
+        val addPoint = (line:String, labels:ArrayList[ElemType], points:ArrayList[ElemType]) => {
             val fields = line.split(" ");
-            var label:Double = Double.parseDouble(fields(0));
-            if (label < 0.0) label = 0.0; // scale -1,1 to 0,1
+            var label:ElemType = StringTool.parse[ElemType](fields(0));
+            if (label < (0 as ElemType)) label = 0 as ElemType; // scale -1,1 to 0,1
             labels.add(label);
             for (i in 1..numFeatures) {
                 if (libsvmFormat) {
                     // libsvm uses the format "label 1:x1 2:x2 ... n:xn"
                     val separatorIndex = fields(i).indexOf(":");
-                    val pointIndex = Double.parseDouble(fields(i).substring(0n,separatorIndex));
-                    val pointVal = Double.parseDouble(fields(i).substring(separatorIndex+1n));
+                    val pointIndex = StringTool.parse[ElemType](fields(i).substring(0n,separatorIndex));
+                    val pointVal = StringTool.parse[ElemType](fields(i).substring(separatorIndex+1n));
                     // TODO assume dense points (no missing indices)
                     points.add(pointVal);
                 } else {
                     // assume MLLib format "label x0 x1 x2 ... xn"
-                    points.add(Double.parseDouble(fields(i)));
+                    points.add(StringTool.parse[ElemType](fields(i)));
                 }
             }
             if (addBias) {
-                points.add(1.0); // append bias for the intercept
+                points.add(1.0 as ElemType); // append bias for the intercept
             }
         };
 
-        val trainingLabels = new ArrayList[Double]();
-        val trainingExamples = new ArrayList[Double]();
-        val testLabels = new ArrayList[Double]();
-        val testExamples = new ArrayList[Double]();
+        val trainingLabels = new ArrayList[ElemType]();
+        val trainingExamples = new ArrayList[ElemType]();
+        val testLabels = new ArrayList[ElemType]();
+        val testExamples = new ArrayList[ElemType]();
 
         val rand = new Random();
         try {
             while (line != null && line.trim().length() > 0) {
-                if (rand.nextDouble() < trainingFraction) {
+                if (RandTool.nextElemType[ElemType](rand) < trainingFraction) {
                     addPoint(line, trainingLabels, trainingExamples);
                 } else {
                     addPoint(line, testLabels, testExamples);
@@ -145,7 +148,7 @@ public class RegressionInputData(numFeatures:Long) {
      * @param addBias if true, append a bias column (all values 1.0) to the
      *     input examples
      */
-    public static def readFromFile(fileName:String, libsvmFormat:Boolean, trainingFraction:Double, addBias:Boolean)
+    public static def readFromFile(fileName:String, libsvmFormat:Boolean, trainingFraction:ElemType, addBias:Boolean)
         = readFromFile(fileName, PlaceGroup.make(1), libsvmFormat, trainingFraction, addBias);
 
     /**
@@ -154,5 +157,5 @@ public class RegressionInputData(numFeatures:Long) {
      * @param fileName the input file name
      */
     public static def readFromFile(fileName:String)
-        = readFromFile(fileName, PlaceGroup.make(1), false, 1.0, true);
+        = readFromFile(fileName, PlaceGroup.make(1), false, 1.0 as ElemType, true);
 }

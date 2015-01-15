@@ -21,7 +21,7 @@ public class SeqPageRank {
 	val rowG:Long;
 
 	val iterations:Long;
-	val alpha:Double= 0.85;
+	val alpha = 0.85 as ElemType;
 
 	// Input and output data
 	public val G:DenseMatrix(rowG, rowG);

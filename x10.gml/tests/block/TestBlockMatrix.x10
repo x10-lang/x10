@@ -14,6 +14,7 @@ import harness.x10Test;
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
 
 import x10.matrix.block.Grid;
 
@@ -21,19 +22,22 @@ import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.MatrixBlock;
 
 public class TestBlockMatrix extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
+
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
 	public val C:Long;
 	public val grid:Grid;
-	public val nzd:Double;
+	public val nzd:Float;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ? Long.parse(args(0)):50;
 		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+2;
 		R = args.size > 2 ? Long.parse(args(2)):2;
 		C = args.size > 3 ? Long.parse(args(3)):3;
-		nzd =  args.size > 4 ? Double.parse(args(4)):0.99;
+		nzd =  args.size > 4 ? Float.parse(args(4)):0.99f;
 		grid = new Grid(M, N, R, C);
 	}
 
@@ -50,6 +54,7 @@ public class TestBlockMatrix extends x10Test {
 		
 		return ret;
 	}
+
 
 	public def testClone():Boolean{
 		var ret:Boolean = true;
@@ -69,9 +74,9 @@ public class TestBlockMatrix extends x10Test {
 			Console.OUT.println("--------Block matrix clone and dense conversion test failed!--------");
 	
 		//must be nonzero positions
-		sbm(0, 1) = sbm(M/2,N/3) = 10.0;
+		sbm(0, 1) = sbm(M/2,N/3) = ET(10.0);
 
-		if (! ((sbm(0,1)==sbm(M/2,N/3)) && (sbm(0,1)==10.0))) {
+		if (! ((sbm(0,1)==sbm(M/2,N/3)) && (sbm(0,1)==ET(10.0)))) {
 			ret &= false;
 			Console.OUT.println("---------- Block Matrix chained assignment test failed!-------");
 		}
@@ -83,10 +88,10 @@ public class TestBlockMatrix extends x10Test {
 		Console.OUT.println("Block matrix scaling test, nzd:"+nzd);
 		val dm = BlockMatrix.makeSparse(grid, nzd);
 		dm.initRandom();
-		val dm1  = dm * 2.5;
+		val dm1  = dm * ET(2.5);
 		val m = dm.toDense();
 		
-		m.scale(2.5);
+		m.scale(ET(2.5));
 		val ret = m.equals(dm1 as Matrix(M,N));
 		if (!ret)
 			Console.OUT.println("--------Block matrix Scaling test failed!--------");	
@@ -98,9 +103,9 @@ public class TestBlockMatrix extends x10Test {
 		val dm = BlockMatrix.makeDense(grid).initRandom();
 		val sm = BlockMatrix.makeSparse(grid, nzd).initRandom();
 
-		val dm1 = dm * -1.0;
+		val dm1 = dm * ET(-1.0);
 		val dm0 = dm + dm1;
-		val ret = dm0.equals(0.0);
+		val ret = dm0.equals(ET(0.0));
 		Debug.assure(ret);
 		
 		sm.copyTo(dm);
@@ -115,7 +120,7 @@ public class TestBlockMatrix extends x10Test {
 	public def buildBlockMap():Boolean {
         Console.OUT.println("Build block map");
 		val dbm = BlockMatrix.makeDense(grid);
-		dbm.init((r:Long,c:Long)=>1.0*(r+c));
+		dbm.init((r:Long,c:Long)=>ET(1.0)*(r+c));
 		dbm.buildBlockMap();
 		
 		var retval:Boolean= true;

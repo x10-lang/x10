@@ -14,6 +14,8 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -38,7 +40,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param dst      target distributed arrays
 	 */
 	public static def scatter(
-			src:Rail[Rail[Double]], 
+			src:Rail[Rail[ElemType]], 
 			dst:DistDataArray) : void {
 		
 		val nb = dst.region.size();
@@ -72,7 +74,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * Scatter single-row partitioning blocks from here to all places
 	 */
 	public static def scatter(
-			src:Rail[Double], 
+			src:Rail[ElemType], 
 			dst:DistDataArray, 
 			gp:Rail[Long]): void {
 
@@ -99,7 +101,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
   	 * @param gp      	size list, or partitioning of array for scattering
 	 */
 	public static def mpiScatter(
-			src:Rail[Double],
+			src:Rail[ElemType],
 			dst:DistDataArray, 
 			szlist:Rail[Int]): void {
 		
@@ -117,7 +119,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 						//val tmpbuf= null; //fake
 						//val tmplst=null;//   //fake
 						/*******************************************/
-						val tmpbuf = new Array[Double](0); //fake
+						val tmpbuf = new Array[ElemType](0); //fake
 						val tmplst = new Array[Int](0);   //fake
 						WrapMPI.world.scatterv(tmpbuf, tmplst, 
 									 dstbuf, datcnt, root);
@@ -146,7 +148,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param szlist 	size list
 	 */
 	public static def x10Scatter(
-			src:Rail[Double], 
+			src:Rail[ElemType], 
 			dst:DistDataArray, 
 			szlist:Rail[Long]):void {
 
@@ -177,7 +179,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param dst      target distributed arrays
 	 */
 	public static def scatter(
-			src:Rail[Rail[Double]], 
+			src:Rail[Rail[ElemType]], 
 			dst:DataArrayPLH) : void {
 		
 		val nb = Place.numPlaces();
@@ -208,7 +210,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * Scatter single-row partitioning blocks from here to all places
 	 */
 	public static def scatter(
-			src:Rail[Double], 
+			src:Rail[ElemType], 
 			dst:DataArrayPLH, 
 			gp:Rail[Long]): void {
 
@@ -231,7 +233,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param gp      	size list, or partitioning of array for scattering
 	 */
 	public static def mpiScatter(
-			src:Rail[Double],
+			src:Rail[ElemType],
 			dst:DataArrayPLH, 
 			szlist:Rail[Int]): void {
 		
@@ -249,7 +251,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 						//val tmpbuf= null; //fake
 						//val tmplst=null;//   //fake
 						/*******************************************/
-						val tmpbuf = new Array[Double](0); //fake
+						val tmpbuf = new Array[ElemType](0); //fake
 						val tmplst = new Array[Int](0);   //fake
 						WrapMPI.world.scatterv(tmpbuf, tmplst, dstbuf, datcnt, root);
 					}
@@ -275,7 +277,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	 * @param szlist  	size list
 	 */
 	public static def x10Scatter(
-			src:Rail[Double], 
+			src:Rail[ElemType], 
 			dst:DataArrayPLH, 
 			szlist:Rail[Long]):void {
 
@@ -296,7 +298,7 @@ public class DistArrayScatter extends ArrayRemoteCopy {
 	}
 
 	public static def verify(
-			src:Rail[Double], 
+			src:Rail[ElemType], 
 			dstplh:DataArrayPLH, 
 			szlist:Rail[Long]):Boolean {
 		

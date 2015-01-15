@@ -13,7 +13,8 @@ build_path	= build
 gml_path    = ../../
 
 # compile options
-X10_FLAG	= -sourcepath ../../sandbox -d $(build_path)  -errors 5 -VERBOSE_CHECKS 
+X10_FLAG	= -sourcepath $(X10_HOME)/../x10.tests/tests/x10lib -d $(build_path)  -errors 5 -VERBOSE_CHECKS 
+
 
 # runtime settings
 runtime_list = mpi sock java

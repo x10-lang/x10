@@ -10,6 +10,7 @@
  */
 package logreg;
 
+import x10.matrix.ElemType;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
@@ -18,15 +19,15 @@ import x10.matrix.util.Debug;
  * Sequential implementation of logistic regression
  */
 public class SeqLogReg {
-	val C = 2;
-	val tol = 0.000001;
-	val maxIterations:Long;
-	val maxinneriter:Long;
-	
+        val C = 2;
+        val tol = 0.000001f;
+        val maxIterations:Long;
+        val maxinneriter:Long;
+        
     /** Matrix of training examples */
-	val X:DenseMatrix;
+        val X:DenseMatrix;
     /** Vector of training regression targets */
-	val y:Vector(X.M);
+        val y:Vector(X.M);
     /** Learned model weight vector, used for future predictions */
 	val w:Vector(X.N);
 	
@@ -58,7 +59,7 @@ public class SeqLogReg {
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
 		val logistic = Vector.make(X.M);
-		logistic.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
+		logistic.map(y, o, (y_i:ElemType, o_i:ElemType)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
 		val obj = 0.5 * w.dot(w) + C*logistic.sum();
 		
@@ -70,7 +71,7 @@ public class SeqLogReg {
         val logisticD = new Vector(logistic.M, (i:Long)=> {logistic(i)*(1.0-logistic(i))});
 
 		//delta = sqrt(sum(grad*grad))
-		var delta:Double = grad.norm();
+		var delta:ElemType = grad.norm();
 		
 		//# number of iterations
 		//iter = 0
@@ -82,9 +83,9 @@ public class SeqLogReg {
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxIterations);
 		//norm_r2 = sum(grad*grad)
-		var norm_r2:Double = grad.dot(grad);
+		var norm_r2:ElemType = grad.dot(grad);
 		//alpha = t(w) %*% w
-		var alpha:Double = w.dot(w);
+		var alpha:ElemType = w.dot(w);
 		// Add temp memory space
 		val s = Vector.make(X.N);
 		val r = Vector.make(X.N);
@@ -134,22 +135,22 @@ public class SeqLogReg {
  					val dtd = d.dot(d);
 // 					rad = sqrt(std*std + dtd*(delta2 - sts))
  					val rad = Math.sqrt(std*std+dtd*(delta2-sts));
- 					var tau:Double;
+ 					var tau:ElemType;
  					if(std >= 0) {
  						tau = (delta2 - sts)/(std + rad);
  					} else {
  						tau = (rad - std)/dtd;
  					}
 
-// 					s = s + castAsScalar(tau) * d
- 					s.scaleAdd(tau, d);
-// 					r = r - castAsScalar(tau) * Hd
- 					r.scaleAdd(-tau, Hd);
+//                                      s = s + castAsScalar(tau) * d
+                                        s.scaleAdd(tau, d);
+//                                      r = r - castAsScalar(tau) * Hd
+                                        r.scaleAdd(-tau, Hd);
 
-// 					#break
- 					shouldBreak = true;
- 					innerconverge = true;
- 				} 
+//                                      #break
+                                        shouldBreak = true;
+                                        innerconverge = true;
+                                } 
 
  				if (!shouldBreak) {
 // 					r = r - castAsScalar(alpha) * Hd
@@ -176,7 +177,7 @@ public class SeqLogReg {
 // 			onew = X %*% wnew
  			compute_XmultB(onew, wnew);
 // 			logisticnew = 1.0/(1.0 + exp(-y * o ))
-            logisticnew.map(y, o, (y_i:Double, o_i:Double)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
+            logisticnew.map(y, o, (y_i:ElemType, o_i:ElemType)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 // 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
  			val objnew = 0.5 * wnew.dot(wnew) + C * logisticnew.sum();
 
@@ -193,8 +194,8 @@ public class SeqLogReg {
  				compute_grad(grad, logisticnew);
  			} 
 
- 			iter = iter + 1;
- 			converge = (norm_r2 < (tol * tol)) | (iter > maxIterations);
+                        iter = iter + 1;
+                        converge = (norm_r2 < (tol * tol)) | (iter > maxIterations);
 
  			if (rho < eta0){
  				delta = Math.min(Math.max(alpha, sigma1) * snorm, sigma2 * delta );
@@ -224,7 +225,7 @@ public class SeqLogReg {
 	
 	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-        logistic.map(logistic, y, (x:Double, v:Double)=> {(x - 1.0) * v});
+        logistic.map(logistic, y, (x:ElemType, v:ElemType)=> {(x - 1.0) * v});
 		compute_tXmultB(grad, logistic);
 		grad.scale(C);
 		grad.cellAdd(w);

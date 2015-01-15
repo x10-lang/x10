@@ -40,7 +40,7 @@ import x10.util.resilient.ResilientStoreForApp;
  */
 public class PageRank implements ResilientIterativeApp {
     public val iterations:Long;
-    public val alpha:Double= 0.85;
+    public val alpha:ElemType= 0.85 as ElemType;
 
     /** Google Matrix or link structure */
     public val G:DistBlockMatrix{self.M==self.N};
@@ -59,7 +59,7 @@ public class PageRank implements ResilientIterativeApp {
     var iter:Long;
     
     private val chkpntIterations:Long;
-    private val nzd:Double;
+    private val nzd:Float;
     private var places:PlaceGroup;
 
     public def this(
@@ -67,7 +67,7 @@ public class PageRank implements ResilientIterativeApp {
             p:DupVector(g.N), 
             u:DistVector(g.N), 
             it:Long,
-            sparseDensity:Double,
+            sparseDensity:Float,
             chkpntIter:Long,
             places:PlaceGroup) {
         Debug.assure(DistGrid.isVertical(g.getGrid(), g.getMap()), 
@@ -84,7 +84,7 @@ public class PageRank implements ResilientIterativeApp {
         this.places = places;
     }
 
-    public static def make(gN:Long, nzd:Double, it:Long, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
+    public static def make(gN:Long, nzd:Float, it:Long, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
         //---- Distribution---
         val numRowPs = places.size();
         val numColPs = 1;
@@ -95,7 +95,7 @@ public class PageRank implements ResilientIterativeApp {
         return new PageRank(g, p, u, it, nzd, chkpntIter, places);
     } 
     
-    public def init(nzd:Double):void {
+    public def init(nzd:Float):void {
         G.initRandom();
         val normalization = 1.0 / (0.5 * nzd * G.N);
         G.scale(normalization);
@@ -118,8 +118,8 @@ public class PageRank implements ResilientIterativeApp {
     }
 
     public def printInfo() {
-        val nzc:Float =  G.getTotalNonZeroCount() as Float;
-        val nzd:Float =  nzc / (G.M * G.N as Float);
+        val nzc =  G.getTotalNonZeroCount() ;
+        val nzd =  nzc / (G.M * G.N);
         Console.OUT.printf("Input Matrix G:(%dx%d), partition:(%dx%d) blocks, ",
                 G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
         Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 

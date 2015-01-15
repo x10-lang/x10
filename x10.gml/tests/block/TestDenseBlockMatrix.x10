@@ -12,10 +12,14 @@
 import harness.x10Test;
 
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
 
 public class TestDenseBlockMatrix extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
@@ -81,9 +85,9 @@ public class TestDenseBlockMatrix extends x10Test {
 		if (!ret)
 			Console.OUT.println("--------Dense block matrix copy to/from test failed!--------");
 
-        dbm(1, 1) = dbm(2,2) = 10.0;
+		dbm(1, 1) = dbm(2,2) = ET(10.0);
 
-        if ((dbm(1,1)==dbm(2,2)) && (dbm(1,1)==10.0)) {
+        if ((dbm(1,1)==dbm(2,2)) && (dbm(1,1)==ET(10.0))) {
                 ret &= true;
         } else {
                 ret &= false;
@@ -97,9 +101,9 @@ public class TestDenseBlockMatrix extends x10Test {
 		Console.OUT.println("Dense block matrix scaling test");
 		val dm = DenseBlockMatrix.make(grid);
 		dm.initRandom();
-		val dm1  = dm * 2.5;
+		val dm1  = dm * ET(2.5);
 		val m = dm.toDense();
-		m.scale(2.5);
+		m.scale(ET(2.5));
 		
 		val ret = m.equals(dm1);
 		if (!ret)
@@ -111,9 +115,9 @@ public class TestDenseBlockMatrix extends x10Test {
 		Console.OUT.println("Dense block matrix add test");
 		val dm = DenseBlockMatrix.make(grid);
 		dm.initRandom();
-		val dm1 = dm * -1.0;
+		val dm1 = dm * (ET(-1.0));
 		val dm0 = dm + dm1;
-		val ret = dm0.equals(0.0);
+		val ret = dm0.equals(ET(0.0));
 		if (!ret)
 			Console.OUT.println("--------Dense block matrix Add: dm + dm*-1 test failed--------");
 		return ret;
@@ -158,8 +162,8 @@ public class TestDenseBlockMatrix extends x10Test {
 		a.initRandom();
 
 		val m = a.toDense();
-		val a1= a * 0.2;
-		val a2= 0.8 * a;
+		val a1= a * ET(0.2);
+		val a2= ET(0.8) * a;
 		var ret:Boolean = a.equals(a1+a2);
 		ret &= a.equals(m);
 

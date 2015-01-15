@@ -15,7 +15,7 @@ import x10.regionarray.Array;
 import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
-
+import x10.matrix.ElemType;
 /**
  * Block matrix multiply. Input block matrix must be partitioned in grid, which
  * allows array list index matches to its corresponding block id. 

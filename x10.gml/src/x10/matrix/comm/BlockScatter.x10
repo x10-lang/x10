@@ -15,6 +15,8 @@ import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.MatrixBlock;
 
 /**

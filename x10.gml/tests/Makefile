@@ -16,6 +16,11 @@ default		: help
 ###-----------------------------------------------
 test_all	: $(sub_dirs)
 
+test_all_sock	: 
+		for dir in $(sub_dirs); do \
+		$(MAKE) -C $$dir runall_sock; \
+		done
+
 $(sub_dirs)	:
 			$(MAKE) -C $@ runall
 
