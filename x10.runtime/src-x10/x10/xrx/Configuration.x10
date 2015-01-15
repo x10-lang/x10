@@ -20,9 +20,6 @@ final class Configuration {
     @Native("c++", "PLATFORM_MAX_THREADS")
     private static PLATFORM_MAX_THREADS: Int = Int.MAX_VALUE;
 
-    @Native("c++", "DEFAULT_STATIC_THREADS")
-    private static DEFAULT_STATIC_THREADS: Boolean = false;
-
     @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
     @Native("c++", "::x10::lang::RuntimeNatives::availableProcessors()")
     private static native def availableProcessors():Int;
@@ -49,7 +46,7 @@ final class Configuration {
 
     static def strict_finish():Boolean = envOrElse("X10_STRICT_FINISH", false);
 
-    static def static_threads():Boolean = envOrElse("X10_STATIC_THREADS", DEFAULT_STATIC_THREADS);
+    static def static_threads():Boolean = envOrElse("X10_STATIC_THREADS", false);
 
     static def warn_on_thread_creation():Boolean = envOrElse("X10_WARN_ON_THREAD_CREATION", false);
 
