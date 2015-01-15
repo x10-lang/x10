@@ -114,9 +114,12 @@ else
 ifeq ($(BLASLIB),OpenBLAS)
     # OpenBLAS
     OPENBLAS_LIB_PATH ?= /opt/OpenBLAS
-    GFORTRAN_LIB ?= /usr/local/lib
     ifndef DISABLE_BLAS
-        X10CXX_POSTARGS += -cxx-postarg -L$(OPENBLAS_LIB_PATH) -cxx-postarg -lopenblas -cxx-postarg -L$(GFORTRAN_LIB) -cxx-postarg -lgfortran
+        X10CXX_POSTARGS += -cxx-postarg -L$(OPENBLAS_LIB_PATH) -cxx-postarg -lopenblas
+        ifeq ($(shell uname -s),Darwin)
+            GFORTRAN_LIB ?= /usr/local/lib
+            X10CXX_POSTARGS += -cxx-postarg -L$(GFORTRAN_LIB) -cxx-postarg -lgfortran
+        endif
     endif
 else
 ifeq ($(BLASLIB),GotoBLAS2)
