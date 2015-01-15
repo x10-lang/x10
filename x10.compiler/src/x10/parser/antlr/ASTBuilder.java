@@ -27,61 +27,61 @@ import x10.parserGen.X10Parser;
 import x10.parserGen.X10Parser.AcceptContext;
 
 public class ASTBuilder implements polyglot.frontend.Parser {
-	
-	private final X10Parser p;
+
+    private final X10Parser p;
     private final X10Lexer lexer;
-    
-    private Compiler compiler;
+
     private X10CompilerOptions compilerOpts;
     private ErrorQueue eq;
     private TypeSystem ts;
     private NodeFactory nf;
     private FileSource srce;
-    
-	public ASTBuilder(Compiler c, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q){
-		compiler = c;
-		compilerOpts = opts;
-		ts = t;
-		nf = n;
-		srce = source;
-		eq = q;
-		
-		String fileName = source.toString();
-		ANTLRInputStream input;
-			try {
-				input = new ANTLRInputStream(new FileInputStream(fileName));
-			} catch (FileNotFoundException e) {
-				input = null;
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				input = null;
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			lexer = new X10Lexer(input);
-		    CommonTokenStream tokens = new CommonTokenStream(lexer);
-		    p = new X10Parser(tokens);
-		    p.removeErrorListeners();
-		    p.addErrorListener(new ParserErrorListener(compiler, fileName));
-	}
 
-	@Override
-	public Node parse() {
-		AcceptContext tree = p.accept();
-		if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
-			Future<JDialog> dialogHdl = tree.inspect(p);
-			try {
-				JDialog dialog = dialogHdl.get();
-				dialog.setTitle(srce.toString());
-				Utils.waitForClose(dialog);
-			} catch (Exception e) {
-				compiler.errorQueue().enqueue(ErrorInfo.WARNING, srce+": unable to display the parse tree.");
-			}
-		}
-		ParseTreeWalker walker = new ParseTreeWalker();
-		ASTListener builder = new ASTListener();
+    public ASTBuilder(X10CompilerOptions opts, TypeSystem t, NodeFactory n,
+            FileSource source, ErrorQueue q) {
+        compilerOpts = opts;
+        ts = t;
+        nf = n;
+        srce = source;
+        eq = q;
+
+        String fileName = source.toString();
+        ANTLRInputStream input;
+        try {
+            input = new ANTLRInputStream(new FileInputStream(fileName));
+        } catch (FileNotFoundException e) {
+            input = null;
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            input = null;
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        lexer = new X10Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        p = new X10Parser(tokens);
+        p.removeErrorListeners();
+        p.addErrorListener(new ParserErrorListener(eq, fileName));
+    }
+
+    @Override
+    public Node parse() {
+        AcceptContext tree = p.accept();
+        if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
+            Future<JDialog> dialogHdl = tree.inspect(p);
+            try {
+                JDialog dialog = dialogHdl.get();
+                dialog.setTitle(srce.toString());
+                Utils.waitForClose(dialog);
+            } catch (Exception e) {
+                eq.enqueue(ErrorInfo.WARNING, srce
+                        + ": unable to display the parse tree.");
+            }
+        }
+        ParseTreeWalker walker = new ParseTreeWalker();
+        ParseTreeListener builder = new ParseTreeListener();
         walker.walk(builder, tree);
-		return builder.get(tree);
-	}
+        return builder.get(tree);
+    }
 }

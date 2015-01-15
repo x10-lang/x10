@@ -191,7 +191,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     	try {
-    		return new ASTBuilder(compiler(), getOptions(), ts, nf, source, eq);
+            return new ASTBuilder(getOptions(), ts, nf, source, eq);
     	} catch(Exception e){
     		throw new IllegalStateException("Could not parse " + source.path());
     	}
