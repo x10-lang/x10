@@ -17,7 +17,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -231,47 +230,33 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   /**
-   * Initializes the place collections.
+   * Updates the place collections.
    *
-   * @param set
-   *          the set of live place ids in the global runtime.
+   * @param added
+   *          added places
+   * @param removed
+   *          removed places
    */
-  void initPlaces(Set<Integer> set) {
-    for (final int id : set) {
+  void updatePlaces(List<Integer> added, List<Integer> removed) {
+    for (final int id : added) {
       placeSet.add(new Place(id));
+    }
+    for (final int id : removed) {
+      placeSet.remove(new Place(id));
     }
     places = Collections
         .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
-  }
-
-  /**
-   * Notifies the runtime of a new place.
-   *
-   * @param place
-   *          the ID of the added place
-   */
-  void addPlace(int place) {
-    placeSet.add(new Place(place));
-    places = Collections
-        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
-  }
-
-  /**
-   * Notifies the runtime of a dead place.
-   *
-   * @param place
-   *          the ID of the removed place
-   */
-  void removePlace(int place) {
+    if (removed.isEmpty()) {
+      return;
+    }
     if (!resilient) {
       shutdown();
       return;
     }
-    placeSet.remove(new Place(place));
-    places = Collections
-        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
-    if (here == 0 && resilient) {
-      ResilientFinish.purge(place);
+    if (here == 0) {
+      for (final int id : removed) {
+        ResilientFinish.purge(id);
+      }
     }
   }
 

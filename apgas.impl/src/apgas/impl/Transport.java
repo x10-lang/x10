@@ -12,7 +12,10 @@
 package apgas.impl;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import apgas.NoSuchPlaceException;
@@ -22,9 +25,11 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.InitialMembershipEvent;
 import com.hazelcast.core.InitialMembershipListener;
+import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -34,10 +39,10 @@ import com.hazelcast.spi.ExecutionService;
  * The {@link Transport} class manages the Hazelcast cluster and implements
  * active messages.
  */
-final class Transport implements InitialMembershipListener {
-  private static String HERE = "_APGAS_HERE_";
-  private static String PLACES = "_APGAS_PLACES_";
-  private static String EXECUTOR = "_APGAS_EXECUTOR_";
+final class Transport implements com.hazelcast.core.ItemListener<Member>,
+    InitialMembershipListener {
+  private static String PLACES = "apgas:places";
+  private static String EXECUTOR = "apgas:executor";
 
   /**
    * The Hazelcast instance for this JVM.
@@ -57,7 +62,17 @@ final class Transport implements InitialMembershipListener {
   /**
    * The current members indexed by place ID.
    */
-  private final Map<Integer, Member> members = new ConcurrentHashMap<Integer, Member>();
+  private final Map<Integer, Member> map = new ConcurrentHashMap<Integer, Member>();
+
+  /**
+   * Past and present members indexed by place ID.
+   */
+  private final IList<Member> allMembers;
+
+  /**
+   * Current members.
+   */
+  private Set<Member> currentMembers;
 
   /**
    * The local member.
@@ -69,6 +84,10 @@ final class Transport implements InitialMembershipListener {
    */
   private String regMembershipListener;
 
+  /**
+   * Registration ID.
+   */
+  private String regItemListener;
   /**
    * Executor service for sending active messages.
    */
@@ -126,18 +145,27 @@ final class Transport implements InitialMembershipListener {
     }
 
     hazelcast = Hazelcast.newHazelcastInstance(config);
+    me = hazelcast.getCluster().getLocalMember();
+
+    allMembers = hazelcast.getList(PLACES);
+    allMembers.add(me);
+    int id = 0;
+    for (final Member member : allMembers) {
+      if (member.getUuid().equals(me.getUuid())) {
+        break;
+      }
+      ++id;
+    }
+    here = id;
 
     executor = hazelcast.getExecutorService(EXECUTOR);
-    here = (int) hazelcast.getAtomicLong(PLACES).getAndIncrement();
-    me = hazelcast.getCluster().getLocalMember();
-    places = here + 1;
   }
 
   /**
    * Starts monitoring cluster membership events.
    */
   void start() {
-    me.setIntAttribute(HERE, here);
+    regItemListener = allMembers.addItemListener(this, false);
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
   }
 
@@ -171,6 +199,7 @@ final class Transport implements InitialMembershipListener {
    */
   void shutdown() {
     hazelcast.getCluster().removeMembershipListener(regMembershipListener);
+    allMembers.removeItemListener(regItemListener);
     hazelcast.shutdown();
   }
 
@@ -213,7 +242,7 @@ final class Transport implements InitialMembershipListener {
     if (place == here) {
       f.run();
     } else {
-      final Member member = members.get(place);
+      final Member member = map.get(place);
       if (member == null) {
         throw new NoSuchPlaceException();
       }
@@ -221,49 +250,76 @@ final class Transport implements InitialMembershipListener {
     }
   }
 
-  @Override
-  public void init(InitialMembershipEvent event) {
-    for (final Member member : event.getMembers()) {
-      final Integer place = member.getIntAttribute(HERE);
-      if (place != null) {
-        // ignore members that have not yet specified their place ID
-        if (place >= places) {
-          places = place + 1;
-        }
-        members.put(place, member);
+  private boolean live(String uuid) {
+    for (final Member member : currentMembers) {
+      if (uuid.equals(member.getUuid())) {
+        return true;
       }
     }
-    runtime.initPlaces(members.keySet());
+    return false;
   }
 
-  @Override
-  public void memberAdded(MembershipEvent membershipEvent) {
-    // ignored since we wait for the memberAttributeEvent to get the place ID
-  }
-
-  @Override
-  public void memberRemoved(MembershipEvent membershipEvent) {
-    final Member member = membershipEvent.getMember();
-    final Integer place = member.getIntAttribute(HERE);
-    if (place != null) {
-      // System.err.println(here + " observing the removal of " + place);
-      members.remove(place);
-      runtime.removePlace(place);
-    }
-  }
-
-  @Override
-  public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-    if (!memberAttributeEvent.getKey().equals(HERE)) {
+  private synchronized void updatePlaces() {
+    if (currentMembers == null) {
       return;
     }
-    final Member member = memberAttributeEvent.getMember();
-    final int place = (int) memberAttributeEvent.getValue();
-    if (place >= places) {
-      places = place + 1;
+    final Iterator<Member> it = allMembers.iterator();
+    final ArrayList<Integer> added = new ArrayList<Integer>();
+    final ArrayList<Integer> removed = new ArrayList<Integer>();
+    int place = 0;
+    while (it.hasNext()) {
+      final Member member = it.next();
+      if (live(member.getUuid())) {
+        if (!map.containsKey(place)) {
+          added.add(place);
+          map.put(place, member);
+        }
+      } else {
+        if (map.containsKey(place)) {
+          removed.add(place);
+          map.remove(place);
+        }
+      }
+      ++place;
     }
-    // System.err.println(here + " observing the arrival of " + place);
-    members.put(place, member);
-    runtime.addPlace(place);
+    if (place > places) {
+      places = place;
+    }
+    runtime.updatePlaces(added, removed);
+  }
+
+  @Override
+  synchronized public void init(InitialMembershipEvent event) {
+    currentMembers = event.getMembers();
+    updatePlaces();
+  }
+
+  @Override
+  synchronized public void memberAdded(MembershipEvent membershipEvent) {
+    currentMembers = membershipEvent.getMembers();
+    updatePlaces();
+  }
+
+  @Override
+  synchronized public void memberRemoved(MembershipEvent membershipEvent) {
+    currentMembers = membershipEvent.getMembers();
+    updatePlaces();
+
+  }
+
+  @Override
+  synchronized public void memberAttributeChanged(
+      MemberAttributeEvent memberAttributeEvent) {
+    // unused
+  }
+
+  @Override
+  synchronized public void itemAdded(ItemEvent<Member> item) {
+    updatePlaces();
+  }
+
+  @Override
+  synchronized public void itemRemoved(ItemEvent<Member> item) {
+    // unused
   }
 }
