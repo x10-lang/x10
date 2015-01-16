@@ -399,8 +399,8 @@ typeArgumentList:
       type (',' type)*
     ;
 packageName returns [ParsedName ast]:
-      identifier
-    | packageName '.' identifier
+      identifier							#packageName0
+    | packageName '.' identifier            #packageName1
     ;
 expressionName:
       identifier
@@ -556,7 +556,7 @@ annotations:
 annotation:
       '@' namedTypeNoConstraints
     ;
-identifier:
+identifier returns [Id ast]: 
       IDENTIFIER
     ;
 block:
