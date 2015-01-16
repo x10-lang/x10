@@ -68,8 +68,6 @@ public class RunLinReg {
         val verify = opts("v");
         val print = opts("p");
         val iterations = opts("i", 2n);
-        val rowBlocks = opts("r", Place.numPlaces());
-        val colBlocks = opts("c", 1);
         val skipPlaces = opts("s", 0n);
 
         if (iterations<1 || nonzeroDensity<0.0f
@@ -90,6 +88,9 @@ public class RunLinReg {
         }
         val places = (skipPlaces==0n) ? Place.places() 
                                       : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+
+        val rowBlocks = opts("r", places.size());
+        val colBlocks = opts("c", 1);
 
         val X:DistBlockMatrix;
         val y:DistVector(X.M);

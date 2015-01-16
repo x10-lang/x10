@@ -60,8 +60,6 @@ public class RunPageRank {
         }
 
         val mG = opts("m", 100000);
-        val rowBlocks = opts("r", Place.numPlaces());
-        val colBlocks = opts("c", 1);
         val nonzeroDensity = opts("d", 0.001f);
         val iterations = opts("i", 20n);
         val verify = opts("v");
@@ -78,6 +76,9 @@ public class RunPageRank {
         else {
             val places = (skipPlaces==0n) ? Place.places() 
                                           : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+            val rowBlocks = opts("r", places.size());
+            val colBlocks = opts("c", 1);
+
             val paraPR = PageRank.make(mG, nonzeroDensity, iterations, rowBlocks, colBlocks, checkpointFreq, places);
             paraPR.init(nonzeroDensity);
 

@@ -34,7 +34,7 @@ HAMMER_FILE ?= ./hammer_iter.txt
 # runtime settings
 runtime_list = mpi sock java
 numplaces = 8
-test_args = -m 1000 -n 1000 --rowBlocks 1000 --colBlocks 1 --density 0.09 --iterations 30 --verify
+test_args = -m 1000 -n 1000 --density 0.09 --iterations 30 --verify
 
 ###################################################
 # Build rules

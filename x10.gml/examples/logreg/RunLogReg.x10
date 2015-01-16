@@ -55,25 +55,28 @@ public class RunLogReg {
 	
         val mX = opts("m", 10);
         val nX = opts("n", 10);
-        val rowBlocks = opts("r", Place.numPlaces());
-        val colBlocks = opts("c", 1);
-        val nonzeroDensity = opts("d", 0.5f);
-        val iterations = opts("i", 2n);
-        val verify = opts("v");
-        val print = opts("p");
         val skipPlaces = opts("s", 0n);
-        val checkpointFreq = opts("checkpointFreq", -1n);
-	
-        Console.OUT.println("X: rows:"+mX+" cols:"+nX
-			    +" density:"+nonzeroDensity+" iterations:"+iterations);
-	if ((mX<=0) ||(nX<=0) || skipPlaces < 0 || skipPlaces >= Place.numPlaces())
-	    Console.OUT.println("Error in settings");
-	else {
+
+        if ((mX<=0) ||(nX<=0) || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
+            Console.OUT.println("Error in settings");
+        } else {
             if (skipPlaces > 0)
                 Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
+
             val places = (skipPlaces==0n) ? Place.places() 
-		: PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
-	    
+                : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+
+            val rowBlocks = opts("r", places.size());
+            val colBlocks = opts("c", 1);
+            val nonzeroDensity = opts("d", 0.5f);
+            val iterations = opts("i", 2n);
+            val verify = opts("v");
+            val print = opts("p");
+            val checkpointFreq = opts("checkpointFreq", -1n);
+
+            Console.OUT.println("X: rows:"+mX+" cols:"+nX
+                +" density:"+nonzeroDensity+" iterations:"+iterations);
+
             val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places);
 	    
             var denX:DenseMatrix(mX,nX) = null;
@@ -106,7 +109,7 @@ public class RunLogReg {
 					Console.OUT.println("Verification passed.");
 				} else {
                     Console.OUT.println("Verification failed!");
-		}
+                }
 	    }
 	}
     }

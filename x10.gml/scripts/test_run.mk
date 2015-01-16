@@ -55,10 +55,10 @@ HAMMER_FILE ?=
 
 # run with two spare places, replace any failed place with a spare
 run_redundant	: java
-		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_RESILIENT_MODE=1 X10_PLACE_GROUP_RESTORE_MODE=1 X10_GML_HAMMER_FILE=$(HAMMER_FILE) X10_NPLACES=$(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(build_path):$(gml_lib) $(target) $(test_args) --skip 2 --checkpointFreq 2
+		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_RESILIENT_MODE=1 X10_PLACE_GROUP_RESTORE_MODE=1 X10_GML_HAMMER_FILE=$(HAMMER_FILE) X10_NPLACES=$(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(build_path):$(gml_lib):$(base_dir_elem)/lib $(target) $(test_args) --skip 2 --checkpointFreq 2
 
 run_elastic	: java
-		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_RESILIENT_MODE=12 X10_PLACE_GROUP_RESTORE_MODE=2 X10_GML_HAMMER_FILE=$(HAMMER_FILE) X10_NPLACES=$(numplaces) $(Xjvm) -DX10RT_DATASTORE=Hazelcast -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(build_path):$(gml_lib) $(target) $(test_args) --checkpointFreq 2
+		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_RESILIENT_MODE=12 X10_PLACE_GROUP_RESTORE_MODE=2 X10_GML_HAMMER_FILE=$(HAMMER_FILE) X10_NPLACES=$(numplaces) $(Xjvm) -DX10RT_DATASTORE=Hazelcast -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(build_path):$(gml_lib):$(base_dir_elem)/lib $(target) $(test_args) --checkpointFreq 2
 
 
 ##----- Run all tests in one transport or java backend
