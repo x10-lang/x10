@@ -22,6 +22,7 @@ import polyglot.ast.Import;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
+import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Compiler;
@@ -114,7 +115,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(this, tree);
-        return tree.ast;
+        SourceFile sf = tree.ast;
+        return sf.source(srce);
     }
     
     @Override
