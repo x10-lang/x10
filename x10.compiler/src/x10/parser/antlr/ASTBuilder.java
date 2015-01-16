@@ -24,7 +24,7 @@ import polyglot.util.ErrorQueue;
 import x10.X10CompilerOptions;
 import x10.parserGen.X10Lexer;
 import x10.parserGen.X10Parser;
-import x10.parserGen.X10Parser.AcceptContext;
+import x10.parserGen.X10Parser.CompilationUnitContext;
 
 public class ASTBuilder implements polyglot.frontend.Parser {
 
@@ -67,7 +67,7 @@ public class ASTBuilder implements polyglot.frontend.Parser {
 
     @Override
     public Node parse() {
-        AcceptContext tree = p.accept();
+        CompilationUnitContext tree = p.compilationUnit();
         if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
             Future<JDialog> dialogHdl = tree.inspect(p);
             try {
@@ -80,8 +80,8 @@ public class ASTBuilder implements polyglot.frontend.Parser {
             }
         }
         ParseTreeWalker walker = new ParseTreeWalker();
-        ParseTreeListener builder = new ParseTreeListener();
+        ParseTreeListener builder = new ParseTreeListener(nf);
         walker.walk(builder, tree);
-        return builder.get(tree);
+        return tree.ast;
     }
 }

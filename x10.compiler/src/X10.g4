@@ -2,15 +2,17 @@ grammar X10;
 
 @parser::header {
   package x10.parserGen;
-} 
+  
+  import polyglot.parse.*;
+  import polyglot.ast.*;
+  import x10.ast.*;
+}
 
 import X10_Lexer;
 
-
-accept:
-      compilationUnit    
+modifiersopt:
+        modifier*
     ;
-
 modifier:
       'abstract'
     | annotation
@@ -24,13 +26,16 @@ modifier:
     | 'transient'
     | 'clocked'
     ;
+methodModifiersopt:
+        methodModifier*
+    ;
 methodModifier:
       modifier
     | 'property'
     ;
 typeDefDeclaration:
-      modifier* 'type' identifier typeParameters? whereClause? '=' type ';'                                      #typeDef1
-    | modifier* 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'          #typeDef2
+      modifiersopt 'type' identifier typeParameters? whereClause? '=' type ';'                                      #typeDef1
+    | modifiersopt 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'          #typeDef2
     ;
 properties:
       '(' propertyList ')'
@@ -40,10 +45,10 @@ propertyList:
     | propertyList ',' property                      #propertyList2
     ;
 property:
-      annotations? identifier resultType
+      annotationsopt identifier resultType
     ;
 methodDeclaration:
-      methodModifier* 'def' identifier typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'def' identifier typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     | binaryOperatorDeclaration
     | prefixOperatorDeclaration
     | applyOperatorDeclaration
@@ -51,34 +56,34 @@ methodDeclaration:
     | conversionOperatorDeclaration
     ;
 binaryOperatorDeclaration:
-      methodModifier* 'operator' typeParameters? '(' formalParameter ')' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifier* 'operator' typeParameters? 'this' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifier* 'operator' typeParameters? '(' formalParameter ')' binOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifiersopt 'operator' typeParameters? 'this' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' binOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 prefixOperatorDeclaration:
-      methodModifier* 'operator' typeParameters? prefixOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifier* 'operator' typeParameters? prefixOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParameters? prefixOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+    | methodModifiersopt 'operator' typeParameters? prefixOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 applyOperatorDeclaration:
-      methodModifier* 'operator' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 setOperatorDeclaration:
-      methodModifier* 'operator' 'this' typeParameters? formalParameters '=' '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' 'this' typeParameters? formalParameters '=' '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 conversionOperatorDeclaration:
       explicitConversionOperatorDeclaration
     | implicitConversionOperatorDeclaration
     ;
 explicitConversionOperatorDeclaration:
-      methodModifier* 'operator' typeParameters? '(' formalParameter ')' 'as' type whereClause? oBSOLETE_Offers? throws_? methodBody
-    | methodModifier* 'operator' typeParameters? '(' formalParameter ')' 'as' '?' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' 'as' type whereClause? oBSOLETE_Offers? throws_? methodBody
+    | methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' 'as' '?' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 implicitConversionOperatorDeclaration:
-      methodModifier* 'operator' typeParameters? '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
     ;
 propertyMethodDeclaration:
-      methodModifier* identifier typeParameters? formalParameters whereClause? hasResultType? methodBody
-    | methodModifier* identifier whereClause? hasResultType? methodBody
+      methodModifiersopt identifier typeParameters? formalParameters whereClause? hasResultType? methodBody
+    | methodModifiersopt identifier whereClause? hasResultType? methodBody
     ;
 explicitConstructorInvocation:
       'this' typeArguments? '(' argumentList? ')' ';'
@@ -87,7 +92,7 @@ explicitConstructorInvocation:
     | primary '.' 'super' typeArguments? '(' argumentList? ')' ';'
     ;
 interfaceDeclaration:
-      modifier* 'interface' identifier typeParamsWithVariance? properties? whereClause? extendsInterfaces? interfaceBody
+      modifiersopt 'interface' identifier typeParamsWithVariance? properties? whereClause? extendsInterfaces? interfaceBody
     ;
 assignPropertyCall:
       'property' typeArguments? '(' argumentList? ')' ';'
@@ -164,13 +169,13 @@ whereClause:
 //       formalParameter (';' formalParameter)*
 //     ;
 classDeclaration:
-      modifier* 'class' identifier typeParamsWithVariance? properties? whereClause? superExtends? interfaces? classBody
+      modifiersopt 'class' identifier typeParamsWithVariance? properties? whereClause? superExtends? interfaces? classBody
     ;
 structDeclaration:
-      modifier* 'struct' identifier typeParamsWithVariance? properties? whereClause? interfaces? classBody
+      modifiersopt 'struct' identifier typeParamsWithVariance? properties? whereClause? interfaces? classBody
     ;
 constructorDeclaration:
-      modifier* 'def' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? constructorBody
+      modifiersopt 'def' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? constructorBody
     ;
 superExtends:
       'extends' classType
@@ -180,15 +185,15 @@ varKeyword:
     | 'var'
     ;
 fieldDeclaration:
-      modifier* varKeyword fieldDeclarators ';'
-    | modifier* fieldDeclarators ';'
+      modifiersopt varKeyword fieldDeclarators ';'
+    | modifiersopt fieldDeclarators ';'
     ;
 statement:
       annotationStatement
     | expressionStatement
     ;
 annotationStatement:
-      annotations? nonExpressionStatement
+      annotationsopt nonExpressionStatement
     ;
 nonExpressionStatement:
       block
@@ -251,10 +256,16 @@ switchStatement:
       'switch' '(' expression ')' switchBlock
     ;
 switchBlock:
-      '{' switchBlockStatementGroup* switchLabel* '}'
+      '{' switchBlockStatementGroupsopt switchLabelsopt '}'
+    ;
+switchBlockStatementGroupsopt:
+        switchBlockStatementGroup*
     ;
 switchBlockStatementGroup:
       switchLabel+ blockStatements
+    ;
+switchLabelsopt:
+        switchLabel*
     ;
 switchLabel:
       'case' constantExpression ':'
@@ -365,11 +376,11 @@ lastExpression:
     ;
 closureBody:
       expression
-    | annotations? '{' blockStatements? lastExpression '}'
-    | annotations? block
+    | annotationsopt '{' blockStatements? lastExpression '}'
+    | annotationsopt block
     ;
 atExpression:
-      annotations? 'at' '(' expression ')' closureBody
+      annotationsopt 'at' '(' expression ')' closureBody
     ;
 oBSOLETE_FinishExpression:
       'finish' '(' expression ')' block
@@ -387,7 +398,7 @@ typeArguments:
 typeArgumentList:
       type (',' type)*
     ;
-packageName:
+packageName returns [ParsedName ast]:
       identifier
     | packageName '.' identifier
     ;
@@ -407,23 +418,23 @@ fullyQualifiedName:
       identifier
     | fullyQualifiedName '.' identifier
     ;
-compilationUnit:
-      packageDeclaration? importDeclaration* typeDeclaration*
+compilationUnit returns [SourceFile ast]:
+      packageDeclaration? importDeclarationsopt typeDeclarationsopt
     ;
-packageDeclaration:
-      annotations? 'package' packageName ';'
+packageDeclaration returns [PackageNode ast]:
+      annotationsopt 'package' packageName ';'
     ;
-importDeclaration:
-      singleTypeImportDeclaration
-    | typeImportOnDemandDeclaration
+importDeclarationsopt returns [List<Import> ast]:
+        importDeclaration*
     ;
-singleTypeImportDeclaration:
-      'import' typeName ';'
+importDeclaration returns [Import ast]:
+      'import' typeName ';'                    #singleTypeImportDeclaration
+    | 'import' packageOrTypeName '.' '*' ';'   #typeImportOnDemandDeclaration
     ;
-typeImportOnDemandDeclaration:
-      'import' packageOrTypeName '.' '*' ';'
+typeDeclarationsopt returns [List<TopLevelDecl> ast]:
+        typeDeclaration*
     ;
-typeDeclaration:
+typeDeclaration returns [TopLevelDecl ast]:
       classDeclaration
     | structDeclaration
     | interfaceDeclaration
@@ -437,7 +448,10 @@ interfaceTypeList:
       type (',' type)*
     ;
 classBody:
-      '{' classMemberDeclaration* '}'
+      '{' classMemberDeclarationsopt '}'
+    ;
+classMemberDeclarationsopt:
+        classMemberDeclaration*
     ;
 classMemberDeclaration:
       interfaceMemberDeclaration
@@ -481,12 +495,12 @@ loopIndexDeclarator:
     | identifier '[' identifierList ']' hasResultType?
     ;
 loopIndex:
-      modifier* loopIndexDeclarator
-    | modifier* varKeyword loopIndexDeclarator
+      modifiersopt loopIndexDeclarator
+    | modifiersopt varKeyword loopIndexDeclarator
     ;
 formalParameter:
-      modifier* formalDeclarator
-    | modifier* varKeyword formalDeclarator
+      modifiersopt formalDeclarator
+    | modifiersopt varKeyword formalDeclarator
     | type
     ;
 oBSOLETE_Offers:
@@ -500,9 +514,9 @@ throwsList:
     ;
 methodBody:
       '=' lastExpression ';'
-    | '=' annotations? '{' blockStatements? lastExpression '}'
-    | '=' annotations? block
-    | annotations? block
+    | '=' annotationsopt '{' blockStatements? lastExpression '}'
+    | '=' annotationsopt block
+    | annotationsopt block
     | ';'
     ;
 constructorBody:
@@ -522,13 +536,19 @@ extendsInterfaces:
       'extends' type (',' type)*
     ;
 interfaceBody:
-      '{' interfaceMemberDeclaration* '}'
+      '{' interfaceMemberDeclarationsopt '}'
+    ;
+interfaceMemberDeclarationsopt:
+        interfaceMemberDeclaration*
     ;
 interfaceMemberDeclaration:
       methodDeclaration
     | propertyMethodDeclaration
     | fieldDeclaration
     | typeDeclaration
+    ;
+annotationsopt returns [List<AnnotationNode> ast]:
+      annotation*
     ;
 annotations:
       annotation+
@@ -578,9 +598,9 @@ localVariableDeclarationStatement:
       localVariableDeclaration ';'
     ;
 localVariableDeclaration:
-      modifier* varKeyword variableDeclarators
-    | modifier* variableDeclaratorsWithType
-    | modifier* varKeyword formalDeclarators
+      modifiersopt varKeyword variableDeclarators
+    | modifiersopt variableDeclaratorsWithType
+    | modifiersopt varKeyword formalDeclarators
     ;
 primary:
       'here'
