@@ -103,8 +103,6 @@ public class RunLogReg {
 		        Debug.flushln("Starting sequential logistic regression");
 				seq.run();
                 Debug.flushln("Verifying results against sequential version");
-                Console.OUT.println("prun.w " + prun.w);
-                Console.OUT.println("w " + w);
 				if (prun.w.equals(w)) {
 					Console.OUT.println("Verification passed.");
 				} else {

@@ -326,8 +326,8 @@ public class LogisticRegression implements ResilientIterativeApp {
         dup_w.local().copyTo(result);
     }
     
-    public def isFinished():Boolean{
-        return converge;
+    public def isFinished() {
+        return iter >= maxIterations;
     }
     
     public def checkpoint(store:ResilientStoreForApp):void {        
