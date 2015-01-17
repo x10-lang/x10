@@ -324,6 +324,10 @@ BinaryDigitOrUnderscore
     |   '_'
     ;
 
+BooleanLiteral:
+      'true'
+    | 'false'
+    ;
 
 CharacterLiteral
     :   '\'' NotQ '\''
