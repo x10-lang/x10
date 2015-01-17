@@ -466,25 +466,46 @@ public class DupVector(M:Long) implements Snapshottable {
      * Snapshot mechanism
      */
     private transient val DUMMY_KEY:Long = 8888L;
+
     /**
      * Create a snapshot for the DupVector by storing the current place's vector 
      * @return a snapshot for the DupVector data stored in a resilient store
      */
     public def makeSnapshot():DistObjectSnapshot {
-        val snapshot = DistObjectSnapshot.make();        
-        val data = dupV();
-        val placeIndex  = 0;
-        snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex, data.d));
+        val snapshot = DistObjectSnapshot.make();
+        val mode = System.getenv("X10_RESILIENT_STORE_MODE");
+        if (mode == null || mode.equals("0")){
+            val data = dupV();
+            val placeIndex = 0;
+            snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex, data.d));
+        } else {
+            finish ateach(Dist.makeUnique(places)) {
+                val data = dupV();
+                val placeIndex = places.indexOf(here);
+                snapshot.save(placeIndex, new VectorSnapshotInfo(placeIndex, data.d));
+            }
+        }
         return snapshot;
     }
 
     /**
      * Restore the DupVector data using the provided snapshot object 
-     * @param snapshot  a snapshot to restore the data from
+     * @param snapshot a snapshot from which to restore the data
      */
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
-        new Vector(dupSnapshotInfo.data).copyTo(dupV());
-        sync();
+        val mode = System.getenv("X10_RESILIENT_STORE_MODE");
+        if (mode == null || mode.equals("0")){
+            val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
+            new Vector(dupSnapshotInfo.data).copyTo(dupV());
+            sync();
+        } else {
+            finish ateach(Dist.makeUnique(places)) {
+                val segmentPlaceIndex = places.indexOf(here);
+                val storedVector = snapshot.load(segmentPlaceIndex) as VectorSnapshotInfo;
+                val srcRail = storedVector.data;
+                val dstRail = dupV().d;
+                Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
+            }
+        }
     }
 }
