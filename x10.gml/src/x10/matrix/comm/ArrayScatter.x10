@@ -40,7 +40,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * @param dst      target distributed arrays
      */
     public static def scatter(
-            src:Rail[Rail[ElemType]], 
+            src:Rail[Rail[ElemType]{self!=null}], 
             dst:DataArrayPLH) : void {
         val nb = Place.numPlaces();
         assert (nb==src.size) :
@@ -69,7 +69,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * Scatter single-row partitioning blocks from here to all places
      */
     public static def scatter(
-            src:Rail[ElemType], 
+            src:Rail[ElemType]{self!=null}, 
             dst:DataArrayPLH, 
             gp:Rail[Long]): void {
         assert gp.size == Place.numPlaces();
@@ -87,7 +87,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * Scatter single-row partitioning blocks from here to a place group
      */
     public static def scatter(
-            src:Rail[ElemType], 
+            src:Rail[ElemType]{self!=null}, 
             dst:DataArrayPLH, 
             gp:Rail[Long],
             places:PlaceGroup): void {
@@ -155,7 +155,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * @param szlist       list of sizes of blocks held at each place
      */
     public static def x10Scatter(
-            src:Rail[ElemType], 
+            src:Rail[ElemType]{self!=null}, 
             dst:DataArrayPLH, 
             szlist:Rail[Long]):void {
 
@@ -184,7 +184,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
      * @param places       scatter place group 
      */
     public static def x10Scatter(
-            src:Rail[ElemType], 
+            src:Rail[ElemType]{self!=null}, 
             dst:DataArrayPLH, 
             szlist:Rail[Long],
             places:PlaceGroup):void {

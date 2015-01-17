@@ -172,8 +172,8 @@ public class ArrayReduce extends ArrayRemoteCopy {
                     x10ReduceToHere(dat, tmp, datCnt, lfcnt, root, places, opFunc);
                 }
             }
-            val dstbuf = dat();
-            val rcvbuf = tmp();        
+            val dstbuf = dat() as Rail[ElemType]{self!=null};
+            val rcvbuf = tmp() as Rail[ElemType]{self!=null};
             x10Copy(dat, places(rtroot).id, 0, rcvbuf, 0, datCnt);
             opFunc(rcvbuf, dstbuf, datCnt);
         }    
@@ -306,7 +306,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
      */
     public static def reduceSum(
             dat:DataArrayPLH,
-            tmp:Rail[ElemType], datCnt:Long,
+            tmp:Rail[ElemType]{self!=null}, datCnt:Long,
             plist:Rail[Long]):void{
 
         val root = here.id();

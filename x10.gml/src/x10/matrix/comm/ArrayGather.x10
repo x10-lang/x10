@@ -41,7 +41,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather(
             src:DataArrayPLH, 
-            dst:Rail[Rail[ElemType]]) : void {
+            dst:Rail[Rail[ElemType]{self!=null}]) : void {
         
         val nb = Place.numPlaces();
         assert (nb==dst.size) :
@@ -77,7 +77,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather( 
             src:DataArrayPLH, 
-            dst:Rail[ElemType],
+            dst:Rail[ElemType]{self!=null},
             gp:Rail[Long]) : void {
 
         @Ifdef("MPI_COMMU") {
@@ -99,7 +99,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def gather( 
             src:DataArrayPLH, 
-            dst:Rail[ElemType],
+            dst:Rail[ElemType]{self!=null},
             gp:Rail[Long],
             places:PlaceGroup) : void {
         
@@ -167,7 +167,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def x10Gather(
             src:DataArrayPLH, 
-            dstbuf:Rail[ElemType],
+            dstbuf:Rail[ElemType]{self!=null},
             gp:Rail[Long]): void {
 
         x10Gather(src, dstbuf, gp, Place.places());        
@@ -183,7 +183,7 @@ public class ArrayGather extends ArrayRemoteCopy {
      */
     public static def x10Gather(
             src:DataArrayPLH, 
-            dstbuf:Rail[ElemType],
+            dstbuf:Rail[ElemType]{self!=null},
             gp:Rail[Long],
             places:PlaceGroup): void {
 

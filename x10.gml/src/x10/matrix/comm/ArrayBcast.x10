@@ -124,14 +124,14 @@ public class ArrayBcast extends ArrayRemoteCopy {
     protected static def binaryTreeCast(dmlist:DataArrayPLH, dataCnt:Long, pg:PlaceGroup, start:Long, end:Long): void {
         if (end < start) return;
         val src = dmlist();
-        val mid = start + (end-start) / 2;        
-
-        // Specify the remote buffer
+        assert dataCnt <= src.size;
         val srcbuf = new GlobalRail[ElemType](src as Rail[ElemType]{self!=null});
 
+        val mid = start + (end-start) / 2;        
         finish {
             at(pg(mid)) async {
                 val dstbuf = dmlist();
+                assert dataCnt <= dstbuf.size;
                 // remote get
                 finish Rail.asyncCopy[ElemType](srcbuf, 0, dstbuf, 0, dataCnt);     
           
@@ -149,7 +149,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
     public static def bcast(duplist:DataArrayPLH, offset:Long, datCnt:Long, plcList:Rail[Long]) {
         for (var i:Long=0; i<plcList.size; i++) {
             val pid = plcList(i);
-            copy(duplist(), offset, duplist, pid, offset, datCnt);
+            copy(duplist() as Rail[ElemType]{self!=null}, offset, duplist, pid, offset, datCnt);
         }
     }
 
@@ -236,17 +236,19 @@ public class ArrayBcast extends ArrayRemoteCopy {
 
         // Specify the remote buffer
         val srcca = smlist();
-        val idxbuf = srcca.index;
-        val valbuf = srcca.value;
-        val srcidx = new GlobalRail[Long  ](idxbuf as Rail[Long  ]{self!=null});
-        val srcval = new GlobalRail[ElemType](valbuf as Rail[ElemType]{self!=null});
+        assert dataCnt <= srcca.index.size : "dataCnt overruns srcca.index";
+        assert dataCnt <= srcca.value.size : "dataCnt overruns srcca.value";
+        val srcidx = new GlobalRail[Long    ](srcca.index);
+        val srcval = new GlobalRail[ElemType](srcca.value);
 
         finish { 
             at(pg(mid)) async {
                 //Need: smlist, srcidx, srcval, srcOff, colOff, colCnt and datasz
                 val dstca = smlist();
+                assert dataCnt <= dstca.index.size : "dataCnt overruns dstca.index";
+                assert dataCnt <= dstca.value.size : "dataCnt overruns dstca.value";
                 finish {
-                    Rail.asyncCopy[Long  ](srcidx, 0, dstca.index, 0, dataCnt);
+                    Rail.asyncCopy[Long    ](srcidx, 0, dstca.index, 0, dataCnt);
                     Rail.asyncCopy[ElemType](srcval, 0, dstca.value, 0, dataCnt);
                 }
             
