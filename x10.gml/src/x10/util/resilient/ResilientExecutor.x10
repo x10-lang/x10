@@ -6,9 +6,10 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014.
- *  (C) Copyright Sara Salem Hamouda 2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2015.
  */
+
 package x10.util.resilient;
 
 import x10.util.Timer;
@@ -21,7 +22,7 @@ public class ResilientExecutor {
     private var places:PlaceGroup;
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
-    private val VERBOSE = true;
+    private val VERBOSE = false;
 
     private var runTime:Long = 0;
     private var checkpointTime:Long = 0;
@@ -31,6 +32,8 @@ public class ResilientExecutor {
     private var stepExecTime:Long = 0;
     private var stepExecCount:Long = 0;
     private var hammer:PlaceHammer = null;
+    
+    private var restoreJustDone:Boolean = false;
     
     public def this(itersPerCheckpoint:Long, places:PlaceGroup) {
         this.places = places;
@@ -56,22 +59,13 @@ public class ResilientExecutor {
         if (isTimerHammerActive())
             hammer.startTimerHammer();
         
-        // Checkpoint before first iter
-        if (isResilient){            
-            val startFirstCheckpoint = Timer.milliTime();
-            app.checkpoint(store);
-            lastCheckpointIter = iter;
-            checkpointTime += (Timer.milliTime() - startFirstCheckpoint);
-            checkpointCount++;            
-        }
-
         while (!app.isFinished()) {
             try {
                 if (restoreRequired) {
                     if (lastCheckpointIter > -1) {
                         val startRestore = Timer.milliTime();
                         val newPG = PlaceGroupBuilder.createRestorePlaceGroup(places);
-                        if (VERBOSE) Console.OUT.println("restoring at iter " + lastCheckpointIter);
+                        Console.OUT.println("restoring at iter " + lastCheckpointIter);
 
                         if (isIterativeHammerActive()){
                             val tmpIter = iter;
@@ -90,6 +84,8 @@ public class ResilientExecutor {
                         restoreRequired = false;
                         restoreTime += (Timer.milliTime() - startRestore);
                         restoreCount++;
+                        
+                        restoreJustDone = true;
                     } else {
                         throw new UnsupportedOperationException("failure occurred at iter "
                             + iter + " but no valid checkpoint exists!");
@@ -101,33 +97,39 @@ public class ResilientExecutor {
                     async hammer.checkKillStep(tmpIter);
                 }
 
+                if (!restoreJustDone) {
+                    //take new checkpoint only if restore was not done in this iteration
+                    if (isResilient && (iter % itersPerCheckpoint) == 0) {
+                        if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
+                        try {
+                            val startCheckpoint = Timer.milliTime();
+                
+                            if (isIterativeHammerActive()) {
+                                val tmpIter = iter;
+                                async hammer.checkKillCheckpoint(tmpIter);
+                            }
+                
+                            app.checkpoint(store);
+                
+                            lastCheckpointIter = iter;
+                            checkpointTime += (Timer.milliTime() - startCheckpoint);
+                            checkpointCount++;
+                        } catch (ex:Exception) {
+                            processCheckpointException(ex);
+                            restoreRequired = true;
+                        }
+                    }
+                } else {
+                    restoreJustDone = false;
+                }
+
                 val startStep = Timer.milliTime();
                 app.step();
                 stepExecTime += (Timer.milliTime() - startStep);
                 stepExecCount++;
 
                 iter++;
-
-                if (isResilient && (iter % itersPerCheckpoint) == 0) {
-                    if (VERBOSE) Console.OUT.println("checkpointing at iter " + iter);
-                    try {
-                        val startCheckpoint = Timer.milliTime();
-                        
-                        if (isIterativeHammerActive()) {
-                            val tmpIter = iter;
-                            async hammer.checkKillCheckpoint(tmpIter);
-                        }
-                        
-                        app.checkpoint(store);
-                        
-                        lastCheckpointIter = iter;
-                        checkpointTime += (Timer.milliTime() - startCheckpoint);
-                        checkpointCount++;
-                    } catch (ex:Exception) {
-                        processCheckpointException(ex);
-                        restoreRequired = true;
-                    }
-                }
+                
             } catch (iterEx:Exception) {
                 processIterationException(iterEx);
                 restoreRequired = true;

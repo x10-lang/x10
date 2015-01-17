@@ -7,6 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2015.
  */
 
 package x10.matrix.distblock;
@@ -568,33 +569,63 @@ public class DistVector(M:Long) implements Snapshottable {
     
     private def restoreSnapshotElementByElement(snapshot:DistObjectSnapshot) {
         //val startTime = Timer.milliTime();
-        val segmentSizes = snapshotSegSize;
-        Console.OUT.println("OldSegments = " + segmentSizes.toString());
+        val newSegSize = segSize;
+        
         val newSegmentsOffsets = new Rail[Long](places.size());
         newSegmentsOffsets(0) = 0;
-        for (var i:Long = 1; i < places.size(); i++){
-            for (var j:Long = 0; j < i; j++){
-                newSegmentsOffsets(i) += segSize(j);
+        for (var i:Long = 1; i < places.size(); i++) {
+            for (var j:Long = 0; j < i; j++) {
+                newSegmentsOffsets(i) += newSegSize(j);
             }
         }
-        Console.OUT.println("NewSegments = " + segSize.toString());
-        Console.OUT.println("NewSegmentsOffset = " + newSegmentsOffsets.toString());
         
-        val cached = PlaceLocalHandle.make[Cell[VectorSnapshotInfo]](places, ()=>new Cell[VectorSnapshotInfo](null));    
-        val initFunc = (i:Long)=>{
-            val myPlaceSegmentOffset = newSegmentsOffsets(places.indexOf(here));
-            val loc = find(i+myPlaceSegmentOffset, segmentSizes);
-
-            val loadPlaceIndex = loc.first;
-            val offset = loc.second;
-            var cashedObj:VectorSnapshotInfo = cached()();            
-            if ( (cashedObj==null) || (cashedObj.placeIndex!=loadPlaceIndex))
-                cashedObj = snapshot.load(loadPlaceIndex) as VectorSnapshotInfo;
-            val data =cashedObj.data;
-            return data(offset);
-        };
-        init(initFunc);
-        PlaceLocalHandle.destroy(places, cached, (Place)=>true);      
+        val oldSegmentsOffsets = new Rail[Long](snapshotSegSize.size);
+        oldSegmentsOffsets(0) = 0;
+        for (var i:Long = 1; i < snapshotSegSize.size; i++) {
+            for (var j:Long = 0; j < i; j++) {
+                oldSegmentsOffsets(i) += snapshotSegSize(j);
+            }
+        }
+        
+        finish ateach(Dist.makeUnique(places)) {
+            val segmentPlaceIndex = places.indexOf(here);
+            val low = newSegmentsOffsets(segmentPlaceIndex);
+            val high = low + newSegSize(segmentPlaceIndex);
+            
+            var offset:Long = 0;
+            for (var i:Long = 0; i < snapshotSegSize.size; i++) {
+                val low_old = oldSegmentsOffsets(i);
+                val high_old = low_old + snapshotSegSize(i);
+                
+                var overlapFound:Boolean = false;
+                if (high_old > low && low_old < high) {
+                   //calculate the overlapping interval
+                   var startIndex:Long = low;
+                   var endIndex:Long = high;
+                   if (low_old > low)
+                       startIndex = low_old;
+                   if (high_old < high)
+                       endIndex = high_old;
+                   //load the old segment from resilient store
+                   var storedSegment:VectorSnapshotInfo = snapshot.load(i) as VectorSnapshotInfo;
+                   val srcRail = storedSegment.data;
+                   val dstRail = distV().d;
+                   
+                   val elemCount = endIndex - startIndex;
+             
+                   var srcOffset:Long = 0;
+                   if (low_old < low)
+                       srcOffset = low - low_old;
+                   
+                   Rail.copy(srcRail, srcOffset, dstRail, offset, elemCount);
+                   offset+= elemCount;
+                   
+                   overlapFound = true;
+                } else if (overlapFound) {
+                    break; // no more overlapping segments exist
+                }
+            }
+        }
         //Console.OUT.println("DistVector.RestoreTimeElementByElement["+(Timer.milliTime() - startTime)+"]");
     }
 }

@@ -183,7 +183,7 @@ public class LinearRegression implements ResilientIterativeApp {
         norm_r2 = lastCheckpointNorm;
         places = newPg;        
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
-        Console.OUT.println("Load Balance After Restore: ");
-        V.printLoadStatistics();
+        //Console.OUT.println("Load Balance After Restore: ");
+        //V.printLoadStatistics();
     }
 }

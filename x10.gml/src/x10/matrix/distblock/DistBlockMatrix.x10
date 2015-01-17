@@ -6,7 +6,8 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2015.
  */
 
 package x10.matrix.distblock;
@@ -28,7 +29,7 @@ import x10.matrix.comm.BlockGather;
 import x10.matrix.comm.BlockScatter;
 import x10.matrix.comm.BlockSetBcast;
 import x10.matrix.block.SparseBlock;
-
+import x10.matrix.builder.SparseCSCBuilder;
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.Snapshottable;
 import x10.util.resilient.BlockSetSnapshotInfo;
@@ -1065,8 +1066,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
         val oldGrid = snapshotGrid;
         val newGrid = getGrid();
-        if (!oldGrid.equals(newGrid))
-            restoreSnapshotElementByElement(snapshot);
+        if (!oldGrid.equals(newGrid)) {
+            if (isDistVertical())
+                restoreSnapshotSubBlocksVerticalDist(snapshot);
+            else
+                restoreSnapshotElementByElement(snapshot);
+        }
         else
             restoreSnapshotBlockByBlock(snapshot);
     }
@@ -1160,4 +1165,115 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         }
         //Console.OUT.println("DistBlockMatrix.RestoreTime["+(Timer.milliTime() - startTime)+"]");
     }
+
+    private def restoreSnapshotSubBlocksVerticalDist(snapshot:DistObjectSnapshot) {
+        val oldGrid = snapshotGrid;
+        val oldMap = snapshotMap;
+        val newGrid = getGrid();
+
+        val snapshotSegSize = oldGrid.rowBs;
+        val newSegSize = newGrid.rowBs;
+
+        val newSegmentsOffsets = new Rail[Long](newSegSize.size);
+        newSegmentsOffsets(0) = 0;
+        for (var i:Long = 1; i < newSegSize.size; i++) {
+            for (var j:Long = 0; j < i; j++) {
+                newSegmentsOffsets(i) += newSegSize(j);
+            }
+        }
+
+        val oldSegmentsOffsets = new Rail[Long](snapshotSegSize.size);
+        oldSegmentsOffsets(0) = 0;
+        for (var i:Long = 1; i < snapshotSegSize.size; i++) {
+            for (var j:Long = 0; j < i; j++) {
+                oldSegmentsOffsets(i) += snapshotSegSize(j);
+            }
+        }
+        val blockList = handleBS().blocklist;
+        val isSparse = blockList.size() == 0 || blockList.get(0).isSparse();
+
+        val cached = PlaceLocalHandle.make[HashMap[Long,BlockSetSnapshotInfo]](places, ()=>new HashMap[Long, BlockSetSnapshotInfo]());
+        finish ateach(p in Dist.makeUnique(places)) {
+            val newPlaceIndex:Long = places.indexOf(here);
+
+            val blks = handleBS();
+            val blkitr = blks.iterator();
+            var currentBlockIndex:Long = -1;
+
+            val tempBlocklist:ArrayList[MatrixBlock] = new ArrayList[MatrixBlock]();
+            while (blkitr.hasNext()) {
+                val newBlk = blkitr.next();
+                if (currentBlockIndex == -1) {
+                    currentBlockIndex = newGrid.getBlockId(newBlk.myRowId, newBlk.myColId);
+                } else {
+                    currentBlockIndex++;
+                }
+
+                val low = newBlk.rowOffset;
+                val high = low + newSegSize(currentBlockIndex);
+
+                var dstRowOffset:Long = 0;
+                for (var oldBlockId:Long = 0; oldBlockId < snapshotSegSize.size; oldBlockId++) {
+                    val low_old = oldSegmentsOffsets(oldBlockId);
+                    val high_old = low_old + snapshotSegSize(oldBlockId);
+
+                    var overlapFound:Boolean = false;
+                    if (high_old > low && low_old <high) {
+                        //calculate the overlapping interval
+                        var startRow:Long = low;  //absolute row number
+                        var endRow:Long = high;   //absolute row number
+                        if (low_old > low)
+                            startRow = low_old;
+                        if (high_old < high)
+                            endRow = high_old;
+
+                        val rowsCount = endRow - startRow;
+                        //load the old segment from resilient store
+                        val oldPlaceIndex = oldMap.findPlaceIndex(oldBlockId);
+                        val map = cached();
+                        var cashedBlockSetInfo:BlockSetSnapshotInfo = map.get(oldPlaceIndex);
+                        if (cashedBlockSetInfo == null) {
+                            cashedBlockSetInfo = snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo;
+                            map.put(oldPlaceIndex, cashedBlockSetInfo);
+                        }
+                        val blockSet = cashedBlockSetInfo.blockSet;
+                        val oldBlk = blockSet.find(oldBlockId);
+
+                        val oldBlockMatrix = oldBlk.getMatrix();
+                        val newBlockMatrix = newBlk.getMatrix();
+                        val srcColOffset = 0 ;
+                        val dstColOffset = 0 ;
+                        val colCnt = N;
+                        var srcRowOffset:Long = 0;
+                        if (low_old < low)
+                            srcRowOffset = low - low_old;
+                        if (!isSparse) {
+                            DenseMatrix.copySubset((oldBlockMatrix as DenseMatrix), srcRowOffset, srcColOffset, (newBlockMatrix as DenseMatrix), dstRowOffset, dstColOffset, rowsCount, colCnt);
+                        } else {
+                            val sparseBuilder = newBlk.getBuilder() as SparseCSCBuilder;
+                            for (var l:Long = 0; l < rowsCount ; l++) {
+                                for (var m:Long = 0; m <colCnt ; m++) {
+                                    val v = oldBlockMatrix(srcRowOffset+l,m);
+                                    if (MathTool.isZero(v)) continue;
+                                    sparseBuilder.append(dstRowOffset+l,m, v);
+                                }
+                            }
+                        }
+                        dstRowOffset+= rowsCount;
+                        overlapFound = true;
+                    } else if (overlapFound) {
+                        break; // no more overlapping segments exist
+                    }
+                }
+                if (isSparse)
+                    tempBlocklist.add(new SparseBlock(newBlk.myRowId, newBlk.myColId, newBlk.rowOffset, newBlk.colOffset, (newBlk.getBuilder() as SparseCSCBuilder).toSparseCSC()));
+            }
+            if (isSparse) {
+                handleBS().clear();
+                handleBS().blocklist.addAll(tempBlocklist);
+            }
+        }
+        PlaceLocalHandle.destroy(places, cached, (Place)=>true);
+    }
+
 }
