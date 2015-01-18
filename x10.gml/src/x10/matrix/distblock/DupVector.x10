@@ -23,6 +23,7 @@ import x10.matrix.util.Debug;
 
 import x10.matrix.comm.ArrayBcast;
 import x10.matrix.comm.ArrayReduce;
+import x10.matrix.comm.DataArrayPLH;
 
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.Snapshottable;
@@ -33,8 +34,8 @@ public type DupVector(v:DupVector)=DupVector{self==v};
 
 public class DupVector(M:Long) implements Snapshottable {
     public var dupV:PlaceLocalHandle[Vector];
-    private var dupData:PlaceLocalHandle[Rail[ElemType]];//Repackage vector.d
-    public  var tmpData:PlaceLocalHandle[Rail[ElemType]];
+    private var dupData:DataArrayPLH;//Repackage vector.d
+    public  var tmpData:DataArrayPLH;
     private transient var tmpReady:Boolean;
     /*
      * Time profiling
