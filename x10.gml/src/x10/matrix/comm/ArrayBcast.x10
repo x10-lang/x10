@@ -127,7 +127,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
         assert dataCnt <= src.size;
         val srcbuf = new GlobalRail[ElemType](src as Rail[ElemType]{self!=null});
 
-        val mid = (start+end+1) / 2 ;        
+        val mid = (start+end+1) / 2;        
         finish {
             if (pg(mid) != here) {
                 at(pg(mid)) async {
@@ -233,7 +233,6 @@ public class ArrayBcast extends ArrayRemoteCopy {
 
     protected static def binaryTreeCast(smlist:CompArrayPLH, dataCnt:Long, pg:PlaceGroup, start:Long, end:Long): void {        
         if (end < start) return;            
-        val mid = start + (end-start) / 2;    
 
         // Specify the remote buffer
         val srcca = smlist();
@@ -242,6 +241,7 @@ public class ArrayBcast extends ArrayRemoteCopy {
         val srcidx = new GlobalRail[Long    ](srcca.index);
         val srcval = new GlobalRail[ElemType](srcca.value);
 
+        val mid = (start+end+1) / 2;
         finish {
             if (pg(mid) != here) {
                 at(pg(mid)) async {
