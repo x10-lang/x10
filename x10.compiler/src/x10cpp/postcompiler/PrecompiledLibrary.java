@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10cpp.postcompiler;
@@ -34,13 +34,15 @@ import x10.ExtensionInfo;
  * main library properties file.  
  */
 public class PrecompiledLibrary extends PostCompileProperties {
+    public static final String SOURCE_JAR_PROPERTY = "X10LIB_SRC_JAR";
+
     public final String absolutePathToRoot;
     public final String sourceJar;
     
     public PrecompiledLibrary(String absPath, Properties p) {
         super (p);
         absolutePathToRoot = absPath;
-        sourceJar = p.getProperty("X10LIB_SRC_JAR");
+        sourceJar = p.getProperty(SOURCE_JAR_PROPERTY);
     }
 
     public void updateManifest(Set<String> manifest, ExtensionInfo ext) {
@@ -61,7 +63,7 @@ public class PrecompiledLibrary extends PostCompileProperties {
                 }
             }
         } catch (IOException e) {
-            ext.compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Unable to process sourceJar attribute of x10lib "+absolutePathToRoot);
+            ext.compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Unable to process x10lib property " + SOURCE_JAR_PROPERTY + ": " + absolutePathToRoot + File.separatorChar + sourceJar);
         }
     }
 
