@@ -953,7 +953,7 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
 	char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
-	if (nthreads && ithreads && checkBoolEnvVar(value) && state.numParallelContexts >= atoi(nthreads) && 0 == atoi(nthreads))
+	if (nthreads && ithreads && checkBoolEnvVar(value) && state.numParallelContexts >= atoi(nthreads) && 0 == atoi(ithreads))
 	{
 		state.numParallelContexts = atoi(nthreads); // use specified nthreads, not possible nthreads
 		// We have as many endpoints as we have X10_NTHREADS
