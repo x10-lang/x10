@@ -269,15 +269,18 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
         }
 
-        writeSerializationId(sid);
-                
         if (obj instanceof X10JavaSerializable) {
-             if (Runtime.TRACE_SER) {
+            writeSerializationId(sid);
+            if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
             }
             ((X10JavaSerializable)obj).$_serialize(this);
+        } else if (Runtime.USE_JAVA_SERIALIZATION && obj instanceof java.io.Serializable) {
+            writeSerializationId(JAVA_OBJECT_STREAM_ID);
+            writeUsingObjectOutputStream(obj); 
         } else {
             try {
+                writeSerializationId(sid);
                 SerializerThunk st = SerializerThunk.getSerializerThunk(objClass);
                 st.serializeObject(obj, objClass, this);
             } catch (SecurityException e) {
@@ -299,7 +302,6 @@ public final class X10JavaSerializer implements SerializationConstants {
                 e.printStackTrace();
                 throw new SerializationException(e);
             }
-
         }
     }
 

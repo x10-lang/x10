@@ -124,11 +124,6 @@ abstract class SerializerThunk {
             return new X10JavaSerializableSerializerThunk(clazz);
         }
 
-        if (Runtime.USE_JAVA_SERIALIZATION && java.io.Serializable.class.isAssignableFrom(clazz)) {
-            // Use default Java serialization for this class
-            return new DefaultJavaSerializationThunk(clazz);
-        }        
-        
         // We are going to serialize it via reflective access to its instance fields.
         Class<?> superclass = clazz.getSuperclass();
         SerializerThunk superThunk = null;
@@ -165,27 +160,6 @@ abstract class SerializerThunk {
         }
     }
     
-    /**
-     * A thunk to use default Java serialization.
-     */
-    private static class DefaultJavaSerializationThunk extends SerializerThunk {
- 
-        public DefaultJavaSerializationThunk(Class<?> clazz) {
-            super(null); // Java serialization logic will take care of the superclass as well
-        }
-
-        @Override
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("...starting serialization of object using Java serialization...");
-            }
-            xjs.writeUsingObjectOutputStream(obj);
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("...completed serialization of object using Java serialization...");
-            }
-        }
-    }
-
     private static class FieldBasedSerializerThunk extends SerializerThunk {
         protected final Field[] fields;
 

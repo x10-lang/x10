@@ -404,7 +404,9 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public Object readUsingObjectInputStream() throws IOException {
         ObjectInputStream ois = new ObjectInputStream(this.in);
         try {
-            return ois.readObject();
+            Object ans = ois.readObject();
+            record_reference(ans);
+            return ans;
         } catch (ClassNotFoundException e) {
             throw new SerializationException(e);
         }
