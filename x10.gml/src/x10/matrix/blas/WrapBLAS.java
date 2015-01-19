@@ -69,13 +69,12 @@ import x10.rtt.FloatType;
 public class WrapBLAS {
 
     static { 
-	String lib = "jblas";
-	java.util.Map<String,String> env = System.getenv();
-	String ext = env.get("GML_ELEM_TYPE");
-	if (ext != null) lib+= "_" + ext;
-	System.out.println("Loading " + lib);
-	
-	System.loadLibrary(lib);
+        String lib = "jblas";
+        String ext = System.getenv("GML_ELEM_TYPE");
+        if (ext != null) lib += "_" + ext;
+        System.out.println("Loading " + lib);
+
+        System.loadLibrary(lib);
     }
 
     static float getFloat(Object o) { return x10.core.Float.$unbox((x10.core.Float) o);}

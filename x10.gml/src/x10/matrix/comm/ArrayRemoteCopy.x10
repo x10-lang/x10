@@ -107,7 +107,7 @@ public class ArrayRemoteCopy {
         assert (srcOff+dataCnt) <= src.size;
         val gr = GlobalRail[ElemType](src);
         at(Place(dstpid)) {
-            val dst = dstplh();
+            val dst = dstplh() as Rail[ElemType]{self!=null};
             assert (dstOff+dataCnt) <= dst.size;
             finish Rail.asyncCopy[ElemType](gr, srcOff, dst, dstOff, dataCnt);
         }
