@@ -41,8 +41,9 @@ import com.hazelcast.spi.ExecutionService;
  */
 final class Transport implements com.hazelcast.core.ItemListener<Member>,
     InitialMembershipListener {
-  private static String PLACES = "apgas:places";
-  private static String EXECUTOR = "apgas:executor";
+  private static String APGAS = "apgas";
+  private static String PLACES = APGAS + ":places";
+  private static String EXECUTOR = APGAS + ":executor";
 
   /**
    * The Hazelcast instance for this JVM.
@@ -143,6 +144,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
             master.replaceFirst("127.0.0.1|localhost", localhost));
       }
     }
+    config.setInstanceName(APGAS);
 
     hazelcast = Hazelcast.newHazelcastInstance(config);
     me = hazelcast.getCluster().getLocalMember();
