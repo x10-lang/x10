@@ -23,15 +23,10 @@
 ###################################################
 x10src		= $(target).x10
 
-cgml_prop	= $(gml_path)/cgml.so.properties
 ###################################################
 ## Compiler settings
 ###################################################
 
-
-###################################################
-##### Dependent library setting Atlas BLAS lib
-###################################################
 
 ##----------------------------------
 
@@ -41,12 +36,12 @@ MPI_GML_LIB	= -classpath $(base_dir_elem)/native_mpi_gml_$(GML_ELEM_TYPE).jar -x
 ###################################################
 # X10 file build rules
 ################################################### 
-$(target)_mpi	: $(x10src) $(depend_src) $(gml_inc)
-		$(X10CXX)  -x10rt mpi $(MPI_GML_LIB) $(X10_FLAG) $(MPI_FLAG) $< -o $@_$(GML_ELEM_TYPE) \
+$(target)_mpi_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) $(gml_inc)
+		$(X10CXX)  -x10rt mpi $(MPI_GML_LIB) $(X10_FLAG) $(MPI_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###----------
-mpi		: $(target)_mpi
+mpi		: $(target)_mpi_$(GML_ELEM_TYPE)
 
 all_mpi	:
 		$(foreach src, $(target_list), $(MAKE) target=$(src) mpi; )
