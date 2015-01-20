@@ -4,7 +4,6 @@ src_path	=src
 lib_path	=lib
 build_path	=include
 # Output libs, properties, and tar files
-target		= native_gml
 gml_path        = .
 
 include scripts/system_setting.mk
@@ -225,9 +224,9 @@ clib : $(clib_src) chk_elem_type chk_dir
 	cp $(matrix_path)/blas/jni_blas_double.cc $(build_path_elem)/x10/matrix/blas
 	cp $(matrix_path)/blas/jni_blas_float.cc $(build_path_elem)/x10/matrix/blas
 	@echo "------------------ build lib for $(base_dir_elem) on $(HOSTNAME) -------------------"
-	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../$(base_dir_elem) -d ../$(build_path_elem) -o native_gml $(src) 
+	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../$(base_dir_elem) -d ../$(build_path_elem) -o $(target) $(src) 
 	@echo "-------- Packaging source files into jar for $(base_dir_elem) --------"
-	cd $(src_path) && $(JAR) -cf ../$(base_dir_elem)/lib/native_gml.jar $(src) $(mpi_wrap) # bundle mpi source
+	cd $(src_path) && $(JAR) -cf ../$(base_dir_elem)/lib/$(target).jar $(src) $(mpi_wrap) # bundle mpi source
 	@echo "------------ making properties file for $(target)_$(GML_ELEM_TYPE) ------------"
 	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(base_dir_elem)/$(target).properties
 
