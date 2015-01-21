@@ -60,26 +60,26 @@ final class Bag implements Serializable {
     if (s == 0) {
       return null;
     }
-    final Bag bag = new Bag(s);
+    final Bag b = new Bag(s);
     for (int i = 0; i < size; ++i) {
       final int p = upper[i] - lower[i];
       if (p >= 2) {
-        System.arraycopy(hash, i * 20, bag.hash, bag.size * 20, 20);
-        bag.depth[bag.size] = depth[i];
-        bag.upper[bag.size] = upper[i];
+        System.arraycopy(hash, i * 20, b.hash, b.size * 20, 20);
+        b.depth[b.size] = depth[i];
+        b.upper[b.size] = upper[i];
         upper[i] -= p / 2;
-        bag.lower[bag.size++] = upper[i];
+        b.lower[b.size++] = upper[i];
       }
     }
-    return bag;
+    return b;
   }
 
-  void merge(Bag bag) {
-    System.arraycopy(bag.hash, 0, hash, size * 20, bag.size * 20);
-    System.arraycopy(bag.depth, 0, depth, size, bag.size);
-    System.arraycopy(bag.lower, 0, lower, size, bag.size);
-    System.arraycopy(bag.upper, 0, upper, size, bag.size);
-    size += bag.size;
+  void merge(Bag b) {
+    System.arraycopy(b.hash, 0, hash, size * 20, b.size * 20);
+    System.arraycopy(b.depth, 0, depth, size, b.size);
+    System.arraycopy(b.lower, 0, lower, size, b.size);
+    System.arraycopy(b.upper, 0, upper, size, b.size);
+    size += b.size;
   }
 }
 
@@ -120,18 +120,16 @@ final class Worker {
     return null;
   }
 
-  void handle(Place place) {
+  synchronized void handle(Place p) {
     // p is dead, unblock if waiting on p
-    synchronized (this) {
-      if (state == place.id) {
-        // attempt to extract loot from store
-        final Checkpoint c = map.get(home);
-        if (c.bag != null) {
-          merge(c.bag);
-        }
-        state = -1;
-        notifyAll();
+    if (state == p.id) {
+      // attempt to extract loot from store
+      final Checkpoint c = map.get(home);
+      if (c.bag != null) {
+        merge(c.bag);
       }
+      state = -1;
+      notifyAll();
     }
   }
 
@@ -141,7 +139,9 @@ final class Worker {
 
   {
     GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
-      System.err.println(home + " observes that " + place + " failed!");
+      if (place.id > 0) {
+        System.err.println(home + " observes that " + place + " failed!");
+      }
       uts.handle(place);
     });
   }
@@ -248,6 +248,9 @@ final class Worker {
   }
 
   void lifelinesteal() {
+    if (places().size() == 1) {
+      return;
+    }
     try {
       asyncat(place((here().id + places().size() - 1) % places().size()),
           () -> {
@@ -299,8 +302,9 @@ final class Worker {
       }
     }
     try {
+      final Place h = home;
       uncountedasyncat(p, () -> {
-        uts.deal(null);
+        uts.deal(h, null);
       });
     } catch (final NoSuchPlaceException e) {
       // place is dead, nothing to do
@@ -319,20 +323,16 @@ final class Worker {
     run();
   }
 
-  void deal(Bag b) {
-    synchronized (this) {
-      if (state < 0) {
-        // victim is dead, ignore late distribution
-        return;
-      }
+  synchronized void deal(Place p, Bag b) {
+    if (state != p.id) {
+      // victim is dead, ignore late distribution
+      return;
     }
     if (b != null) {
       merge(b);
     }
-    synchronized (this) {
-      state = -1;
-      notifyAll();
-    }
+    state = -1;
+    notifyAll();
   }
 
   void transfer(Place p, Bag b) {
@@ -378,8 +378,9 @@ final class Worker {
         transfer(p, b);
       }
       try {
+        final Place h = home;
         uncountedasyncat(p, () -> {
-          uts.deal(b);
+          uts.deal(h, b);
         });
       } catch (final NoSuchPlaceException e) {
         // thief died, nothing to do
