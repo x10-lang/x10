@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -136,6 +137,7 @@ final class Worker {
   final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
   final IMap<Place, Checkpoint> map = hz.getMap("map");
   final Place home = here();
+  final int places = places().size();
 
   {
     GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
@@ -153,7 +155,7 @@ final class Worker {
   long count;
 
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
-  AtomicBoolean lifeline = new AtomicBoolean(home.id != places().size() - 1);
+  AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
   int state = -2; // -2: inactive, -1: running, p: stealing from p
 
   int digest() throws DigestException {
@@ -248,25 +250,24 @@ final class Worker {
   }
 
   void lifelinesteal() {
-    if (places().size() == 1) {
+    if (places == 1) {
       return;
     }
     try {
-      asyncat(place((here().id + places().size() - 1) % places().size()),
-          () -> {
-            uts.lifeline.set(true);
-          });
+      asyncat(place((here().id + places - 1) % places), () -> {
+        uts.lifeline.set(true);
+      });
     } catch (final NoSuchPlaceException e) {
       // TODO should go to next lifeline, but correct as is
     }
   }
 
   void steal() {
-    if (places().size() == 1) {
+    if (places == 1) {
       return;
     }
     final Place from = home;
-    int p = random.nextInt(places().size() - 1);
+    int p = random.nextInt(places - 1);
     if (p >= from.id) {
       p++;
     }
@@ -360,7 +361,7 @@ final class Worker {
     if (lifeline.get()) {
       final Bag b = bag.split();
       if (b != null) {
-        p = place((here().id + 1) % places().size());
+        p = place((here().id + 1) % places);
         lifeline.set(false);
         transfer(p, b);
         try {
@@ -432,9 +433,11 @@ final class UTS {
 
     long count = 0;
     // if places have died, process remaning nodes seqentially at place 0
-    for (final Checkpoint c : Worker.uts.map.values()) {
-      if (c.bag != null) {
-        count += Worker.uts.seq(c.bag);
+    for (final Map.Entry<Place, Checkpoint> e : Worker.uts.map.entrySet()) {
+      final Bag b = e.getValue().bag;
+      if (b != null && b.size != 0) {
+        System.err.println("Recovering " + e.getKey());
+        count += Worker.uts.seq(b);
       }
     }
 
