@@ -296,7 +296,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         srce = source;
         eq = q;
 
-        String fileName = source.name();
+        String fileName = source.path();
         ANTLRInputStream input;
         try {
             input = new ANTLRInputStream(new FileInputStream(fileName));
