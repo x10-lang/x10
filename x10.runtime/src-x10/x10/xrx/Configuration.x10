@@ -62,6 +62,12 @@ final class Configuration {
         return sysProp;
     }
 
+    static def silenceInternalWarnings():Boolean {
+        val envVar = envOrElse("X10_SILENCE_INTERNAL_WARNINGS", false);
+        val sysProp = sysPropOrElse("x10.SILENCE_INTERNAL_WARNINGS", envVar);
+        return sysProp;
+    }
+
     static def nthreads():Int {
         var v:Int = 0n;
         try {

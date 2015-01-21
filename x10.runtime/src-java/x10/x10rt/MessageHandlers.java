@@ -87,8 +87,10 @@ public class MessageHandlers {
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is done !");
     	} catch(Throwable ex){
-            System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-            ex.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                ex.printStackTrace();
+            }
     	}
     }
 
@@ -150,8 +152,10 @@ public class MessageHandlers {
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");
     	} catch(Exception ex){
-    		System.out.println("runSimpleAsyncAtReceive error !!!");
-    		ex.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("runSimpleAsyncAtReceive error !!!");
+                ex.printStackTrace();
+            }
     	}
     }
 }

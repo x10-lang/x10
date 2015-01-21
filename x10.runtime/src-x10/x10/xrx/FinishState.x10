@@ -405,14 +405,18 @@ abstract class FinishState {
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true; 
         public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
-            Runtime.println("Uncaught exception in uncounted activity");
-            t.printStackTrace();
+            if (!Configuration.silenceInternalWarnings()) {
+                Runtime.println("Uncaught exception in uncounted activity");
+                t.printStackTrace();
+            }
         }
         public def notifyActivityCreatedAndTerminated(srcPlace:Place) {}
         public def notifyActivityTermination() {}
         public def pushException(t:CheckedThrowable) {
-            Runtime.println("Uncaught exception in uncounted activity");
-            t.printStackTrace();
+            if (!Configuration.silenceInternalWarnings()) {
+                Runtime.println("Uncaught exception in uncounted activity");
+                t.printStackTrace();
+            }
         }
         public final def waitForFinish() { assert false; }
     }

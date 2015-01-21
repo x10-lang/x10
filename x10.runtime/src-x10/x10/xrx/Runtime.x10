@@ -733,8 +733,10 @@ public final class Runtime {
             try {
                 copiedBody();
             } catch (e:CheckedThrowable) {
-                println("WARNING: Ignoring uncaught exception in @Immediate async.");
-                e.printStackTrace();
+                if (!Configuration.silenceInternalWarnings()) {
+                    println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                    e.printStackTrace();
+                }
             }
         } else {
             x10rtSendMessage(place.id, body, prof, null);
@@ -913,7 +915,7 @@ public final class Runtime {
      */
     public static def runImmediateAt(dst:Place, cl:()=>void):void {
         val verbose = FinishResilient.verbose;
-        if (verbose>=1) {
+        if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
                 debug("DANGER: lowlevelAt called on @Immediate worker!");
                 new Exception().printStackTrace();
@@ -1169,7 +1171,7 @@ public final class Runtime {
 
     private static def evalImmediateAtImpl(dst:Place, cl:()=>Any):Any {
         val verbose = FinishResilient.verbose;
-        if (verbose>=1) {
+        if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
                 debug("DANGER: lowlevelAt called on @Immediate worker!");
                 new Exception().printStackTrace();

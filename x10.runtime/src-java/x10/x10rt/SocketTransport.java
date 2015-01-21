@@ -1145,8 +1145,10 @@ public class SocketTransport {
             VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
             actObj.$apply();
         } catch (Throwable e) {
-            System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-            e.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e.printStackTrace();
+            }
         }
     }
     

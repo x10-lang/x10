@@ -331,8 +331,10 @@ static void receive_async (const x10rt_msg_params *p) {
                 VoidFun_0_0::__apply(reinterpret_cast<VoidFun_0_0*>(body));
                 x10aux::dealloc(body);
             } catch (x10::lang::CheckedThrowable* e) {
-                printf("WARNING: Ignoring uncaught exception in @Immediate async.");
-                e->printStackTrace();
+                if (!x10::xrx::Configuration::silenceInternalWarnings()) {
+                    printf("WARNING: Ignoring uncaught exception in @Immediate async.");
+                    e->printStackTrace();
+                }
             }
         } break;
         case x10aux::CLOSURE_KIND_ASYNC_CLOSURE: {

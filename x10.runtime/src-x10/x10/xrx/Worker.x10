@@ -92,8 +92,10 @@ public final class Worker extends Thread implements Unserializable {
                 while (loop());
             }
         } catch (t:CheckedThrowable) {
-            Runtime.println("Uncaught exception in worker thread");
-            t.printStackTrace();
+            if (!Configuration.silenceInternalWarnings()) {
+                Runtime.println("Uncaught exception in worker thread");
+                t.printStackTrace();
+            }
         } finally {
             Runtime.pool.release(promoted);
             if (Runtime.pool.workers.multiplace && Runtime.NUM_IMMEDIATE_THREADS > 0) Runtime.x10rtUnblockProbe();

@@ -417,8 +417,10 @@ public abstract class Runtime implements VoidFun_0_0 {
                 System.out.println("Message sent for runAt " + body.getClass());
             }
 		} catch (Throwable e) {
-		    System.out.println("WARNING: Ignoring uncaught exception in sending of @Immediate async.");
-			e.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+		        System.out.println("WARNING: Ignoring uncaught exception in sending of @Immediate async.");
+			    e.printStackTrace();
+            }
 		}
 	}
 
