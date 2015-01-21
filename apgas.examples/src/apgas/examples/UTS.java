@@ -124,11 +124,6 @@ final class Worker {
   synchronized void handle(Place p) {
     // p is dead, unblock if waiting on p
     if (state == p.id) {
-      // attempt to extract loot from store
-      final Checkpoint c = map.get(home);
-      if (c.bag != null) {
-        merge(c.bag);
-      }
       state = -1;
       notifyAll();
     }
