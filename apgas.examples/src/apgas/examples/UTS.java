@@ -124,6 +124,11 @@ final class Worker {
   synchronized void handle(Place p) {
     // p is dead, unblock if waiting on p
     if (state == p.id) {
+      // attempt to extract loot from store
+      final Checkpoint c = map.get(home);
+      if (c.bag != null) {
+        merge(c.bag);
+      }
       state = -1;
       notifyAll();
     }
@@ -266,6 +271,10 @@ final class Worker {
     if (p >= from.id) {
       p++;
     }
+    if (!places().contains(place(p))) {
+      // TODO should try other place, but ok as is
+      return;
+    }
     synchronized (this) {
       state = p;
     }
@@ -275,7 +284,7 @@ final class Worker {
       });
     } catch (final NoSuchPlaceException e) {
       // pretend stealing failed
-      // TODO should retry, but ok as is
+      // TODO should try other place, but ok as is
       synchronized (this) {
         state = -1;
       }
