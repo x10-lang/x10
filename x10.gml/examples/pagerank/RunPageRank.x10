@@ -67,10 +67,8 @@ public class RunPageRank {
         val skipPlaces = opts("s", 0n);
         val checkpointFreq = opts("checkpointFreq", -1n);
 
-        Console.OUT.println("G: rows/cols: " + mG
-                           +" density:" + nonzeroDensity
-                           +" (non-zeros: "+ (nonzeroDensity*mG*mG) as Long
-                           + ") iterations:" + iterations);
+        Console.OUT.printf("G: rows/cols %d density: %.3f (non-zeros: %d) iterations: %d\n",
+                            mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
 		if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || skipPlaces < 0 || skipPlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
@@ -86,15 +84,15 @@ public class RunPageRank {
 
             var origP:Vector(mG) = null;
             if (verify) {
-                origP = paraPR.P.local().clone(); //for verification purpose
+                origP = paraPR.P.local().clone();
             }
 
 			val startTime = Timer.milliTime();
             val paraP = paraPR.run();
 			val totalTime = Timer.milliTime() - startTime;
 
-			Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, commu time: %8d ms, seq: %8d ms\n",
-					totalTime, paraPR.paraRunTime, paraPR.commTime, paraPR.seqTime); 
+			Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, seq: %8d ms, commu time: %8d ms\n",
+					totalTime, paraPR.paraRunTime, paraPR.seqTime, paraPR.commTime); 
             
             if (print) {
                 Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
