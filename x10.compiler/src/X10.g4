@@ -140,7 +140,7 @@ typeParamsWithVarianceopt returns [List<TypeParamNode> ast]:
       ('[' typeParamWithVarianceList ']')?
     ;
 typeParametersopt returns [List<TypeParamNode> ast]:
-      '[' typeParameterList ']'
+      ('[' typeParameterList ']')?
     ;
 formalParameters returns [List<Formal> ast]:
       '(' formalParameterList? ')'
