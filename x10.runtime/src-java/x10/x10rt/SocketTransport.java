@@ -255,12 +255,6 @@ public class SocketTransport {
     			return RETURNCODE.X10RT_ERR_INVALID.ordinal();
     		this.nplaces = 1;
     		this.myPlaceId = 0;
-    		if (localListenSocket != null) {
-    			try {
-    				if (DEBUG) System.err.println("Place "+myPlaceId+" closing local listen socket");
-					localListenSocket.close();
-				} catch (IOException e) {}
-    		}
     		return RETURNCODE.X10RT_ERR_OK.ordinal();
     	}
     	

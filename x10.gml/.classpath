@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="x10dt.X10_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" output="bin-java" path="src-java"/>
+	<classpathentry kind="src" path="x10-gen-src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
