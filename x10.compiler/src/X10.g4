@@ -3,6 +3,7 @@ grammar X10;
 @parser::header {
   package x10.parserGen;
   
+  import x10.parser.antlr.ASTBuilder.Modifier;
   import polyglot.parse.*;
   import polyglot.ast.*;
   import x10.ast.*;
@@ -10,97 +11,96 @@ grammar X10;
 
 import X10_Lexer;
 
-modifiersopt:
+modifiersopt returns [List<Modifier> ast]:
         modifier*
     ;
-modifier:
-      'abstract'
-    | annotation
-    | 'atomic'
-    | 'final'
-    | 'native'
-    | 'private'
-    | 'protected'
-    | 'public'
-    | 'static'
-    | 'transient'
-    | 'clocked'
+modifier returns [Modifier ast]:
+      'abstract'   #modifierAbstract
+    | annotation   #modifierAnnotation
+    | 'atomic'     #modifierAtomic
+    | 'final'      #modifierFinal
+    | 'native'     #modifierNative
+    | 'private'    #modifierPrivate
+    | 'protected'  #modifierProtected
+    | 'public'     #modifierPublic
+    | 'static'     #modifierStatic
+    | 'transient'  #modifierTransient
+    | 'clocked'    #modifierClocked
     ;
-methodModifiersopt:
+methodModifiersopt returns [List<Modifier> ast]:
         methodModifier*
     ;
-methodModifier:
-      modifier
-    | 'property'
+methodModifier returns [Modifier ast]:
+      modifier     #methodModifierModifier
+    | 'property'   #methodModifierProperty
     ;
 typeDefDeclaration returns [TypeDecl ast]:
-      modifiersopt 'type' identifier typeParameters? whereClause? '=' type ';'                                      #typeDef1
-    | modifiersopt 'type' identifier typeParameters? '(' formalParameterList ')' whereClause? '=' type ';'          #typeDef2
+      modifiersopt 'type' identifier typeParametersopt ('(' formalParameterList ')')? whereClauseopt '=' type ';'
     ;
-properties returns [List<PropertyDecl> ast]:
-      '(' property (',' property)* ')'
+propertiesopt returns [List<PropertyDecl> ast]:
+        ('(' property (',' property)* ')')?
     ;
 property returns [PropertyDecl ast]:
       annotationsopt identifier resultType
     ;
-methodDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'def' identifier typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | binaryOperatorDeclaration
-    | prefixOperatorDeclaration
-    | applyOperatorDeclaration
-    | setOperatorDeclaration
-    | conversionOperatorDeclaration
+methodDeclaration returns [ProcedureDecl ast]:
+      methodModifiersopt 'def' identifier typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    #methodDeclarationMethod
+    | binaryOperatorDeclaration        #methodDeclarationBinaryOp
+    | prefixOperatorDeclaration        #methodDeclarationPrefixOp
+    | applyOperatorDeclaration         #methodDeclarationApplyOp
+    | setOperatorDeclaration           #methodDeclarationSetOp
+    | conversionOperatorDeclaration    #methodDeclarationConversionOp
     ;
 binaryOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifiersopt 'operator' typeParameters? 'this' binOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' binOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #binaryOperatorDecl
+    | methodModifiersopt 'operator' typeParametersopt 'this' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody                          #binaryOperatorDeclThisLeft
+    | methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody                          #binaryOperatorDeclThisRight
     ;
 prefixOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' typeParameters? prefixOp '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
-    | methodModifiersopt 'operator' typeParameters? prefixOp 'this' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParametersopt prefixOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #prefixOperatorDecl
+    | methodModifiersopt 'operator' typeParametersopt prefixOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody                      #prefixOperatorDeclThis
     ;
 applyOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 setOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' 'this' typeParameters? formalParameters '=' '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' 'this' typeParametersopt formalParameters '=' '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 conversionOperatorDeclaration returns [MethodDecl ast]:
-      explicitConversionOperatorDeclaration
-    | implicitConversionOperatorDeclaration
+      explicitConversionOperatorDeclaration     #conversionOperatorDeclarationExplicit
+    | implicitConversionOperatorDeclaration     #conversionOperatorDeclarationImplicit
     ;
 explicitConversionOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' 'as' type whereClause? oBSOLETE_Offers? throws_? methodBody
-    | methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' 'as' '?' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' type whereClauseopt oBSOLETE_Offersopt throwsopt methodBody                     #explicitConversionOperatorDecl0
+    | methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' '?' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #explicitConversionOperatorDecl1
     ;
 implicitConversionOperatorDeclaration returns [MethodDecl ast]:
-      methodModifiersopt 'operator' typeParameters? '(' formalParameter ')' whereClause? oBSOLETE_Offers? throws_? hasResultType? methodBody
+      methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 propertyMethodDeclaration returns [MethodDecl ast]:
-      methodModifiersopt identifier typeParameters? formalParameters whereClause? hasResultType? methodBody
-    | methodModifiersopt identifier whereClause? hasResultType? methodBody
+      methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
+    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1
     ;
 explicitConstructorInvocation returns [ConstructorCall ast]:
-      'this' typeArguments? '(' argumentList? ')' ';'
-    | 'super' typeArguments? '(' argumentList? ')' ';'
-    | primary '.' 'this' typeArguments? '(' argumentList? ')' ';'
-    | primary '.' 'super' typeArguments? '(' argumentList? ')' ';'
+      'this' typeArgumentsopt '(' argumentListopt ')' ';'                  #explicitConstructorInvocationThis
+    | 'super' typeArgumentsopt '(' argumentListopt ')' ';'                 #explicitConstructorInvocationSuper
+    | primary '.' 'this' typeArgumentsopt '(' argumentListopt ')' ';'      #explicitConstructorInvocationPrimaryThis
+    | primary '.' 'super' typeArgumentsopt '(' argumentListopt ')' ';'     #explicitConstructorInvocationPrimarySuper
     ;
 interfaceDeclaration returns [ClassDecl ast]:
-      modifiersopt 'interface' identifier typeParamsWithVariance? properties? whereClause? extendsInterfaces? interfaceBody
+      modifiersopt 'interface' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt extendsInterfacesopt interfaceBody
     ;
 assignPropertyCall returns [Stmt ast]:
-      'property' typeArguments? '(' argumentList? ')' ';'
+      'property' typeArgumentsopt '(' argumentListopt ')' ';'
     ;
 type returns [TypeNode ast]:
-      functionType
-    | constrainedType
-    | void_
-    | type annotations
+      functionType         #typeFunctionType
+    | constrainedType      #typeConstrainedType
+    | void_                #typeVoid
+    | type annotations     #typeAnnotations
     ;
 functionType returns [TypeNode ast]:
-      typeParameters? '(' formalParameterList? ')' whereClause? oBSOLETE_Offers? '=>' type
+      typeParametersopt '(' formalParameterList? ')' whereClauseopt oBSOLETE_Offersopt '=>' type
     ;
 classType returns [TypeNode ast]:
       namedType
@@ -111,42 +111,42 @@ constrainedType returns [TypeNode ast]:
 void_ returns [CanonicalTypeNode ast]:
       'void'
     ;
-simpleNamedType returns [TypeNode ast]:
-      typeName
-    | primary '.' identifier
-    | simpleNamedType typeArguments? arguments? depParameters? '.' identifier
+simpleNamedType returns [AmbTypeNode ast]:
+      typeName                                                                       #simpleNamedType0
+    | primary '.' identifier                                                         #simpleNamedType1
+    | simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier    #simpleNamedType2
     ;
-parameterizedNamedType returns [TypeNode ast]:
-      simpleNamedType arguments
-    | simpleNamedType typeArguments
-    | simpleNamedType typeArguments arguments
+parameterizedNamedType returns [AmbMacroTypeNode ast]:
+      simpleNamedType arguments                  #parameterizedNamedType0
+    | simpleNamedType typeArguments              #parameterizedNamedType1
+    | simpleNamedType typeArguments arguments    #parameterizedNamedType2
     ;
 depNamedType returns [TypeNode ast]:
-      simpleNamedType depParameters
-    | parameterizedNamedType depParameters
+      simpleNamedType depParameters              #depNamedType0
+    | parameterizedNamedType depParameters       #depNamedType1
     ;
 namedTypeNoConstraints returns [TypeNode ast]:
-      simpleNamedType
-    | parameterizedNamedType
+      simpleNamedType                            #namedTypeNoConstraints0
+    | parameterizedNamedType                     #namedTypeNoConstraints1
     ;
 namedType returns [TypeNode ast]:
-      namedTypeNoConstraints
-    | depNamedType
+      namedTypeNoConstraints                     #namedType0
+    | depNamedType                               #namedType1
     ;
 depParameters returns [DepParameterExpr ast]:
-      '{' /* fUTURE_ExistentialList? */ constraintConjunction? '}'
+      '{' /* fUTURE_ExistentialList? */ constraintConjunctionopt '}'
     ;
-typeParamsWithVariance returns [List<TypeParamNode> ast]:
-      '[' typeParamWithVarianceList ']'
+typeParamsWithVarianceopt returns [List<TypeParamNode> ast]:
+      ('[' typeParamWithVarianceList ']')?
     ;
-typeParameters returns [List<TypeParamNode> ast]:
+typeParametersopt returns [List<TypeParamNode> ast]:
       '[' typeParameterList ']'
     ;
 formalParameters returns [List<Formal> ast]:
       '(' formalParameterList? ')'
     ;
-constraintConjunction returns [List<Expr> ast]:
-      expression (',' expression)*
+constraintConjunctionopt returns [List<Expr> ast]:
+      (expression (',' expression)*)?
     ;
 hasZeroConstraint returns [HasZeroTest ast]:
       type 'haszero'
@@ -155,66 +155,65 @@ isRefConstraint returns [IsRefTest ast]:
       type 'isref'
     ;
 subtypeConstraint returns [SubtypeTest ast]:
-      type '<:' type
-    | type ':>' type
+      t1=type '<:' t2=type     #subtypeConstraint0
+    | t1=type ':>' t2=type     #subtypeConstraint1
     ;
-whereClause returns [DepParameterExpr ast]:
-      depParameters
+whereClauseopt returns [DepParameterExpr ast]:
+      depParameters?
     ;
 // fUTURE_ExistentialList:
 //       formalParameter (';' formalParameter)*
 //     ;
 classDeclaration returns [ClassDecl ast]:
-      modifiersopt 'class' identifier typeParamsWithVariance? properties? whereClause? superExtends? interfaces? classBody
+      modifiersopt 'class' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt superExtendsopt interfacesopt classBody
     ;
 structDeclaration returns [ClassDecl ast]:
-      modifiersopt 'struct' identifier typeParamsWithVariance? properties? whereClause? interfaces? classBody
+      modifiersopt 'struct' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt interfacesopt classBody
     ;
 constructorDeclaration returns [ConstructorDecl ast]:
-      modifiersopt 'def' 'this' typeParameters? formalParameters whereClause? oBSOLETE_Offers? throws_? hasResultType? constructorBody
+      modifiersopt 'def' id='this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt constructorBody
     ;
-superExtends returns [TypeNode ast]:
-      'extends' classType
+superExtendsopt returns [TypeNode ast]:
+      ('extends' classType)?
     ;
-varKeyword returns [FlagsNode ast]:
-      'val'
-    | 'var'
+varKeyword returns [List<FlagsNode> ast]:
+      'val'     #varKeyword0
+    | 'var'     #varKeyword1
     ;
 fieldDeclaration returns [List<ClassMember> ast]:
-      modifiersopt varKeyword fieldDeclarators ';'
-    | modifiersopt fieldDeclarators ';'
+      modifiersopt varKeyword? fieldDeclarators ';'
     ;
 statement returns [Stmt ast]:
-      annotationStatement
-    | expressionStatement
+      annotationStatement     #statement0
+    | expressionStatement     #statement1
     ;
 annotationStatement returns [Stmt ast]:
       annotationsopt nonExpressionStatement
     ;
 nonExpressionStatement returns [Stmt ast]:
-      block
-    | emptyStatement
-    | assertStatement
-    | switchStatement
-    | doStatement
-    | breakStatement
-    | continueStatement
-    | returnStatement
-    | throwStatement
-    | tryStatement
-    | labeledStatement
-    | ifThenStatement
-    | ifThenElseStatement
-    | whileStatement
-    | forStatement
-    | asyncStatement
-    | atStatement
-    | atomicStatement
-    | whenStatement
-    | atEachStatement
-    | finishStatement
-    | assignPropertyCall
-    | oBSOLETE_OfferStatement
+      block                        #nonExpressionStatemen0
+    | emptyStatement               #nonExpressionStatemen1
+    | assertStatement              #nonExpressionStatemen2
+    | switchStatement              #nonExpressionStatemen3
+    | doStatement                  #nonExpressionStatemen4
+    | breakStatement               #nonExpressionStatemen5
+    | continueStatement            #nonExpressionStatemen6
+    | returnStatement              #nonExpressionStatemen7
+    | throwStatement               #nonExpressionStatemen8
+    | tryStatement                 #nonExpressionStatemen9
+    | labeledStatement             #nonExpressionStatemen10
+    | ifThenStatement              #nonExpressionStatemen11
+    | ifThenElseStatement          #nonExpressionStatemen12
+    | whileStatement               #nonExpressionStatemen13
+    | forStatement                 #nonExpressionStatemen14
+    | asyncStatement               #nonExpressionStatemen15
+    | atStatement                  #nonExpressionStatemen16
+    | atomicStatement              #nonExpressionStatemen17
+    | whenStatement                #nonExpressionStatemen18
+    | atEachStatement              #nonExpressionStatemen19
+    | finishStatement              #nonExpressionStatemen20
+    | assignPropertyCall           #nonExpressionStatemen21
+    | oBSOLETE_OfferStatement      #nonExpressionStatemen22
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -223,7 +222,7 @@ ifThenStatement returns [If ast]:
       'if' '(' expression ')' statement
     ;
 ifThenElseStatement returns [If ast]:
-      'if' '(' expression ')' statement 'else' statement
+      'if' '(' expression ')' s1=statement 'else' s2=statement
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -232,40 +231,39 @@ labeledStatement returns [Labeled ast]:
       identifier ':' loopStatement
     ;
 loopStatement returns [Stmt ast]:
-      forStatement
-    | whileStatement
-    | doStatement
-    | atEachStatement
+      forStatement        #loopStatement0
+    | whileStatement      #loopStatement1
+    | doStatement         #loopStatement2
+    | atEachStatement     #loopStatement3
     ;
 expressionStatement returns [Eval ast]:
-      statementExpression ';'
-    ;
-statementExpression returns [Expr ast]:
-      assignment
-    | conditionalExpression
+      expression ';'
     ;
 assertStatement returns [Assert ast]:
-      'assert' expression ';'
-    | 'assert' expression ':' expression ';'
+      'assert' expression ';'                         #assertStatement0
+    | 'assert' e1=expression ':' e2=expression ';'    #assertStatement1
     ;
 switchStatement returns [Switch ast]:
       'switch' '(' expression ')' switchBlock
     ;
-switchBlock returns [List<Stmt> ast]:
+switchBlock returns [List<SwitchElement> ast]:
       '{' switchBlockStatementGroupsopt switchLabelsopt '}'
     ;
-switchBlockStatementGroupsopt returns [List<Stmt> ast]:
+switchBlockStatementGroupsopt returns [List<SwitchElement> ast]:
         switchBlockStatementGroup*
     ;
 switchBlockStatementGroup returns [List<SwitchElement> ast]:
-      switchLabel+ blockStatements
+      switchLabels blockStatements
     ;
 switchLabelsopt returns [List<Case> ast]:
-        switchLabel*
+        switchLabels?
+    ;
+switchLabels returns [List<Case> ast]:
+        switchLabel+
     ;
 switchLabel returns [Case ast]:
-      'case' constantExpression ':'
-    | 'default' ':'
+      'case' constantExpression ':'    #switchLabel0
+    | 'default' ':'                    #switchLabel1
     ;
 whileStatement returns [While ast]:
       'while' '(' expression ')' statement
@@ -273,38 +271,38 @@ whileStatement returns [While ast]:
 doStatement returns [Do ast]:
       'do' statement 'while' '(' expression ')' ';'
     ;
-forStatement returns [For ast]:
-      basicForStatement
-    | enhancedForStatement
+forStatement returns [Loop ast]:
+      basicForStatement        #forStatement0
+    | enhancedForStatement     #forStatement1
     ;
 basicForStatement returns [For ast]:
-      'for' '(' forInit? ';' expression? ';' forUpdate? ')' statement
+      'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement
     ;
 forInit returns [List<ForInit> ast]:
-      statementExpressionList
-    | localVariableDeclaration
+      statementExpressionList     #forInit0
+    | localVariableDeclaration    #forInit1
     ;
 forUpdate returns [List<ForUpdate> ast]:
       statementExpressionList
     ;
-statementExpressionList returns [List<Eval> ast]:
-      statementExpression (',' statementExpression)*
+statementExpressionList returns [List<? extends Eval> ast]:
+      expression (',' expression)*
     ;
 breakStatement returns [Branch ast]:
-      'break' identifier? ';'
+      'break' identifieropt ';'
     ;
 continueStatement returns [Branch ast]:
-      'continue' identifier? ';'
+      'continue' identifieropt ';'
     ;
 returnStatement returns [Return ast]:
-      'return' expression? ';'
+      'return' expressionopt ';'
     ;
 throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
 tryStatement returns [Try ast]:
-      'try' block catches
-    | 'try' block catches? finallyBlock
+      'try' block catches                    #tryStatement0
+    | 'try' block catchesopt finallyBlock    #tryStatement1
     ;
 catches returns [List<Catch> ast]:
       catchClause+
@@ -315,12 +313,12 @@ catchClause returns [Catch ast]:
 finallyBlock returns [Block ast]:
       'finally' block
     ;
-clockedClause returns [List<Expr> ast]:
-      'clocked' arguments
+clockedClauseopt returns [List<Expr> ast]:
+      ('clocked' arguments)?
     ;
 asyncStatement returns [Async ast]:
-      'async' clockedClause? statement
-    | 'clocked' 'async' statement
+      'async' clockedClauseopt statement    #asyncStatement0
+    | 'clocked' 'async' statement           #asyncStatement1
     ;
 atStatement returns [AtStmt ast]:
       'at' '(' expression ')' statement
@@ -332,48 +330,48 @@ whenStatement returns [When ast]:
       'when' '(' expression ')' statement
     ;
 atEachStatement returns [X10Loop ast]:
-      'ateach' '(' loopIndex 'in' expression ')' clockedClause? statement
-    | 'ateach' '(' expression ')' statement
+      'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
+    | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
 enhancedForStatement returns [X10Loop ast]:
-      'for' '(' loopIndex 'in' expression ')' statement
-    | 'for' '(' expression ')' statement
+      'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
+    | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 finishStatement returns [Finish ast]:
-      'finish' statement
-    | 'clocked' 'finish' statement
+      'finish' statement                #finishStatement0
+    | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
-      primary
-    | expressionName
-    | castExpression 'as' type
+      primary                          #castExpression0
+    | expressionName                   #castExpression1
+    | castExpression 'as' type         #castExpression2
     ;
 typeParamWithVarianceList returns [List<TypeParamNode> ast]:
-      typeParameter
-    | oBSOLETE_TypeParamWithVariance
-    | typeParamWithVarianceList ',' typeParameter
-    | typeParamWithVarianceList ',' oBSOLETE_TypeParamWithVariance
+      typeParameter                                                     #typeParamWithVarianceList0
+    | oBSOLETE_TypeParamWithVariance                                    #typeParamWithVarianceList1
+    | typeParamWithVarianceList ',' typeParameter                       #typeParamWithVarianceList2
+    | typeParamWithVarianceList ',' oBSOLETE_TypeParamWithVariance      #typeParamWithVarianceList3
     ;
 typeParameterList returns [List<TypeParamNode> ast]:
       typeParameter (',' typeParameter)*
     ;
 oBSOLETE_TypeParamWithVariance returns [TypeParamNode ast]:
-      '+' typeParameter
-    | '-' typeParameter
+      '+' typeParameter     #oBSOLETE_TypeParamWithVariance0
+    | '-' typeParameter     #oBSOLETE_TypeParamWithVariance1
     ;
 typeParameter returns [TypeParamNode ast]:
       identifier
     ;
 closureExpression returns [Closure ast]:
-      formalParameters whereClause? hasResultType? oBSOLETE_Offers? '=>' closureBody
+      formalParameters whereClauseopt hasResultTypeopt oBSOLETE_Offersopt '=>' closureBody
     ;
 lastExpression returns [Return ast]:
       expression
     ;
 closureBody returns [Block ast]:
-      expression
-    | annotationsopt '{' blockStatements? lastExpression '}'
-    | annotationsopt block
+      expression                                               #closureBody0
+    | annotationsopt '{' blockStatements? lastExpression '}'   #closureBody1
+    | annotationsopt block                                     #closureBody2
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody
@@ -382,8 +380,8 @@ oBSOLETE_FinishExpression returns [FinishExpr ast]:
       'finish' '(' expression ')' block
     ;
 typeName returns [ParsedName ast]:
-      identifier
-    | typeName '.' identifier
+      identifier                #typeName0
+    | typeName '.' identifier   #typeName1
     ;
 className returns [ParsedName ast]:
       typeName
@@ -434,8 +432,8 @@ typeDeclaration returns [TopLevelDecl ast]:
     | typeDefDeclaration
     | ';'
     ;
-interfaces returns [List<TypeNode> ast]:
-      'implements' interfaceTypeList
+interfacesopt returns [List<TypeNode> ast]:
+      ('implements' interfaceTypeList)?
     ;
 interfaceTypeList returns [List<TypeNode> ast]:
       type (',' type)*
@@ -450,10 +448,10 @@ classMemberDeclaration returns [ClassMember ast]:
       interfaceMemberDeclaration
     | constructorDeclaration
     ;
-formalDeclarators returns [List<Object> ast]:
+formalDeclarators returns [List<Object[]> ast]:
       formalDeclarator (',' formalDeclarator)*
     ;
-fieldDeclarators returns [List<Object> ast]:
+fieldDeclarators returns [List<Object[]> ast]:
       fieldDeclarator (',' fieldDeclarator)*
     ;
 variableDeclaratorsWithType returns [List<Object[]> ast]:
@@ -475,7 +473,7 @@ variableInitializer returns [Expr ast]:
 resultType returns [TypeNode ast]:
       ':' type
     ;
-hasResultType returns [TypeNode astx]:
+hasResultType returns [TypeNode ast]:
       resultType
     | '<:' type
     ;
@@ -483,24 +481,24 @@ formalParameterList returns [List<Formal> ast]:
       formalParameter (',' formalParameter)*
     ;
 loopIndexDeclarator returns [Object[] ast]:
-      identifier hasResultType?
-    | '[' identifierList ']' hasResultType?
-    | identifier '[' identifierList ']' hasResultType?
+      identifier hasResultTypeopt
+    | '[' identifierList ']' hasResultTypeopt
+    | identifier '[' identifierList ']' hasResultTypeopt
     ;
-loopIndex returns [Formal ast]:
+loopIndex returns [X10Formal ast]:
       modifiersopt loopIndexDeclarator
     | modifiersopt varKeyword loopIndexDeclarator
     ;
-formalParameter returns [Formal ast]:
+formalParameter returns [X10Formal ast]:
       modifiersopt formalDeclarator
     | modifiersopt varKeyword formalDeclarator
     | type
     ;
-oBSOLETE_Offers returns [TypeNode ast]:
-      'offers' type
+oBSOLETE_Offersopt returns [TypeNode ast]:
+      ('offers' type)?
     ;
-throws_ returns [List<TypeNode> ast]:
-      'throws' type (',' type)*
+throwsopt returns [List<TypeNode> ast]:
+      ('throws' type (',' type)*)?
     ;
 methodBody returns [Block ast]:
       '=' lastExpression ';'
@@ -522,7 +520,7 @@ constructorBlock returns [Block ast]:
 arguments returns [List<Expr> ast]:
       '(' argumentList ')'
     ;
-extendsInterfaces returns [List<TypeNode> ast]:
+extendsInterfacesopt returns [List<TypeNode> ast]:
       'extends' type (',' type)*
     ;
 interfaceBody returns [ClassBody ast]:
@@ -546,7 +544,7 @@ annotations returns [List<AnnotationNode> ast]:
 annotation returns [AnnotationNode ast]:
       '@' namedTypeNoConstraints
     ;
-identifier returns [Id ast]: 
+identifier returns [Id ast]:
       IDENTIFIER
     ;
 block returns [Block ast]:
@@ -572,12 +570,12 @@ formalDeclarator returns [Object[] ast]:
     ;
 fieldDeclarator returns [Object[] ast]:
       identifier hasResultType
-    | identifier hasResultType? '=' variableInitializer
+    | identifier hasResultTypeopt '=' variableInitializer
     ;
 variableDeclarator returns [Object[] ast]:
-      identifier hasResultType? '=' variableInitializer
-    | '[' identifierList ']' hasResultType? '=' variableInitializer
-    | identifier '[' identifierList ']' hasResultType? '=' variableInitializer
+      identifier hasResultTypeopt '=' variableInitializer
+    | '[' identifierList ']' hasResultTypeopt '=' variableInitializer
+    | identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer
     ;
 variableDeclaratorWithType returns [Object[] ast]:
       identifier hasResultType '=' variableInitializer
@@ -594,29 +592,29 @@ localVariableDeclaration returns [List<LocalDecl> ast]:
     ;
 primary returns [Expr ast]:
       'here'
-    | '[' argumentList? ']'
+    | '[' argumentListopt ']'
     | literal
     | 'self'
     | 'this'
     | className '.' 'this'
     | '(' expression ')'
 //    | classInstanceCreationExpression
-    | 'new' typeName typeArguments? '(' argumentList? ')' classBody?
-    | primary '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
-    | fullyQualifiedName '.' 'new' identifier typeArguments? '(' argumentList? ')' classBody?
+    | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBody?
+    | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBody?
+    | fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBody?
 //    | fieldAccess
     | primary '.' identifier
     | 'super' '.' identifier
     | className '.' 'super' '.' identifier
 //    | methodInvocation
-    | methodName typeArguments? '(' argumentList? ')'
-    | primary '.' identifier typeArguments? '(' argumentList? ')'
-    | 'super' '.' identifier typeArguments? '(' argumentList? ')'
-    | className '.' 'super' '.' identifier typeArguments? '(' argumentList? ')'
-    | primary typeArguments? '(' argumentList? ')'
-    | className '.' 'operator' 'as' '[' type ']' typeArguments? '(' argumentList? ')'
-    | className '.' 'operator' '[' type ']' typeArguments? '(' argumentList? ')'
-//    | operatorPrefix typeArguments? '(' argumentList? ')'
+    | methodName typeArgumentsopt '(' argumentListopt ')'
+    | primary '.' identifier typeArgumentsopt '(' argumentListopt ')'
+    | 'super' '.' identifier typeArgumentsopt '(' argumentListopt ')'
+    | className '.' 'super' '.' identifier typeArgumentsopt '(' argumentListopt ')'
+    | primary typeArgumentsopt '(' argumentListopt ')'
+    | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
+    | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
+//    | operatorPrefix typeArgumentsopt '(' argumentListopt ')'
     | 'operator' binOp
     | fullyQualifiedName '.' 'operator' binOp
     | primary '.' 'operator' binOp
@@ -697,8 +695,8 @@ assignmentExpression returns [Expr ast]:
     ;
 assignment returns [Expr ast]:
       leftHandSide assignmentOperator assignmentExpression
-    | expressionName '(' argumentList? ')' assignmentOperator assignmentExpression
-    | primary '(' argumentList? ')' assignmentOperator assignmentExpression
+    | expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression
+    | primary '(' argumentListopt ')' assignmentOperator assignmentExpression
     ;
 leftHandSide returns [Expr ast]:
       expressionName
@@ -778,3 +776,31 @@ binOp returns [Binary.Operator ast]:
     | '><'
     ;
 
+
+hasResultTypeopt returns [TypeNode ast]:
+      hasResultType?
+    ;
+typeArgumentsopt returns [List<TypeNode> ast]:
+      typeArguments?
+    ;
+argumentListopt returns [List<Expr> ast]:
+      argumentList?
+    ;
+argumentsopt returns [List<Expr> ast]:
+      arguments?
+    ;
+identifieropt returns [Id ast]:
+      identifier?
+    ;
+forInitopt returns [List<ForInit> ast]:
+      forInit?
+    ;
+forUpdateopt returns [List<ForUpdate> ast]:
+      forUpdate?
+    ;
+expressionopt returns [Expr ast]:
+      expression?
+    ;
+catchesopt returns [List<Catch> ast]:
+      catches?
+    ;
