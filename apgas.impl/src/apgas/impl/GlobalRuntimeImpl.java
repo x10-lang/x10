@@ -24,6 +24,7 @@ import apgas.Configuration;
 import apgas.Constructs;
 import apgas.Fun;
 import apgas.GlobalRuntime;
+import apgas.Handler;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
@@ -84,6 +85,8 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    * Runtime, 2 shutting down the JVM).
    */
   int dying;
+
+  Handler handler;
 
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
@@ -258,6 +261,16 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         ResilientFinish.purge(id);
       }
     }
+    if (handler != null) {
+      for (final int id : removed) {
+        handler.handle(place(id));
+      }
+    }
+  }
+
+  @Override
+  public void setPlaceFailureHandler(Handler handler) {
+    this.handler = handler;
   }
 
   /**

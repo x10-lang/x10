@@ -71,6 +71,8 @@ public abstract class GlobalRuntime {
     }
   }
 
+  public abstract void setPlaceFailureHandler(Handler handler);
+
   /**
    * Shuts down the {@link GlobalRuntime} instance.
    */
