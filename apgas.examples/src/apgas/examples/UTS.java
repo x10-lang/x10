@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import apgas.Configuration;
 import apgas.GlobalRuntime;
+import apgas.NoSuchPlaceException;
 import apgas.Place;
 
 import com.hazelcast.core.Hazelcast;
@@ -119,9 +120,31 @@ final class Worker {
     return null;
   }
 
+  void handle(Place place) {
+    // p is dead, unblock if waiting on p
+    synchronized (this) {
+      if (state == place.id) {
+        // attempt to extract loot from store
+        final Checkpoint c = map.get(home);
+        if (c.bag != null) {
+          merge(c.bag);
+        }
+        state = -1;
+        notifyAll();
+      }
+    }
+  }
+
   final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
   final IMap<Place, Checkpoint> map = hz.getMap("map");
   final Place home = here();
+
+  {
+    GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
+      System.err.println(home + " observes that " + place + " failed!");
+      uts.handle(place);
+    });
+  }
 
   final Random random = new Random();
   final MessageDigest md = encoder();
@@ -225,9 +248,14 @@ final class Worker {
   }
 
   void lifelinesteal() {
-    asyncat(place((here().id + places().size() - 1) % places().size()), () -> {
-      uts.lifeline.set(true);
-    });
+    try {
+      asyncat(place((here().id + places().size() - 1) % places().size()),
+          () -> {
+            uts.lifeline.set(true);
+          });
+    } catch (final NoSuchPlaceException e) {
+      // TODO should go to next lifeline, but correct as is
+    }
   }
 
   void steal() {
@@ -242,9 +270,17 @@ final class Worker {
     synchronized (this) {
       state = p;
     }
-    uncountedasyncat(place(p), () -> {
-      uts.request(from);
-    });
+    try {
+      uncountedasyncat(place(p), () -> {
+        uts.request(from);
+      });
+    } catch (final NoSuchPlaceException e) {
+      // pretend stealing failed
+      // TODO should retry, but ok as is
+      synchronized (this) {
+        state = -1;
+      }
+    }
     synchronized (this) {
       while (state >= 0) {
         try {
@@ -262,9 +298,13 @@ final class Worker {
         return;
       }
     }
-    uncountedasyncat(p, () -> {
-      uts.deal(null);
-    });
+    try {
+      uncountedasyncat(p, () -> {
+        uts.deal(null);
+      });
+    } catch (final NoSuchPlaceException e) {
+      // place is dead, nothing to do
+    }
   }
 
   void merge(Bag b) {
@@ -280,6 +320,12 @@ final class Worker {
   }
 
   void deal(Bag b) {
+    synchronized (this) {
+      if (state < 0) {
+        // victim is dead, ignore late distribution
+        return;
+      }
+    }
     if (b != null) {
       merge(b);
     }
@@ -317,9 +363,13 @@ final class Worker {
         p = place((here().id + 1) % places().size());
         lifeline.set(false);
         transfer(p, b);
-        asyncat(p, () -> {
-          uts.lifelinedeal(b);
-        });
+        try {
+          asyncat(p, () -> {
+            uts.lifelinedeal(b);
+          });
+        } catch (final NoSuchPlaceException e) {
+          // thief died, nothing to do
+        }
       }
     }
     while ((p = thieves.poll()) != null) {
@@ -327,10 +377,26 @@ final class Worker {
       if (b != null) {
         transfer(p, b);
       }
-      uncountedasyncat(p, () -> {
-        uts.deal(b);
-      });
+      try {
+        uncountedasyncat(p, () -> {
+          uts.deal(b);
+        });
+      } catch (final NoSuchPlaceException e) {
+        // thief died, nothing to do
+      }
     }
+  }
+
+  long seq(Bag b) {
+    count = 0;
+    try {
+      bag = b;
+      while (bag.size > 0) {
+        expand();
+      }
+    } catch (final DigestException e) {
+    }
+    return count;
   }
 }
 
@@ -344,6 +410,7 @@ final class UTS {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
+    System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
     GlobalRuntime.getRuntime(); // force init
 
@@ -356,17 +423,28 @@ final class UTS {
 
     System.out.println("Starting...");
     long time = System.nanoTime();
+
     finish(() -> {
       Worker.uts.init(19, depth);
       Worker.uts.run();
     });
-    time = System.nanoTime() - time;
-    System.out.println("Finished.");
 
     long count = 0;
+    // if places have died, process remaning nodes seqentially at place 0
+    for (final Checkpoint c : Worker.uts.map.values()) {
+      if (c.bag != null) {
+        count += Worker.uts.seq(c.bag);
+      }
+    }
+
+    // collect all counts
     for (final Checkpoint c : Worker.uts.map.values()) {
       count += c.count;
     }
+
+    time = System.nanoTime() - time;
+    System.out.println("Finished.");
+
     System.out.println("Performance: " + count + "/"
         + sub("" + time / 1e9, 0, 6) + " = "
         + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
