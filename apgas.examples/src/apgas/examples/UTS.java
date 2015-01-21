@@ -19,9 +19,19 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import apgas.Configuration;
+import apgas.GlobalRuntime;
 import apgas.Place;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.TransactionalMap;
+import com.hazelcast.transaction.TransactionException;
+import com.hazelcast.transaction.TransactionalTask;
+import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class Bag implements Serializable {
   private static final long serialVersionUID = 2200935927036145803L;
@@ -32,8 +42,8 @@ final class Bag implements Serializable {
   final int[] upper;
   int size;
 
-  Bag(int n, int slack) {
-    hash = new byte[n * 20 + slack];
+  Bag(int n) {
+    hash = new byte[n * 20 + 4]; // slack for in-place SHA1 computation
     depth = new int[n];
     lower = new int[n];
     upper = new int[n];
@@ -49,7 +59,7 @@ final class Bag implements Serializable {
     if (s == 0) {
       return null;
     }
-    final Bag bag = new Bag(s, 0);
+    final Bag bag = new Bag(s);
     for (int i = 0; i < size; ++i) {
       final int p = upper[i] - lower[i];
       if (p >= 2) {
@@ -72,8 +82,34 @@ final class Bag implements Serializable {
   }
 }
 
-final class UTS {
-  static final UTS uts = new UTS();
+final class Checkpoint implements Serializable {
+  private static final long serialVersionUID = -7591718010712195252L;
+
+  final Bag bag;
+  final long count;
+
+  Checkpoint(long c) {
+    bag = null;
+    count = c;
+  }
+
+  Checkpoint(Bag b, long c) {
+    if (b.size == b.depth.length) {
+      bag = b;
+    } else {
+      bag = new Bag(b.size);
+      System.arraycopy(b.hash, 0, bag.hash, 0, b.size * 20);
+      System.arraycopy(b.depth, 0, bag.depth, 0, b.size);
+      System.arraycopy(b.lower, 0, bag.lower, 0, b.size);
+      System.arraycopy(b.upper, 0, bag.upper, 0, b.size);
+      bag.size = b.size;
+    }
+    count = c;
+  }
+}
+
+final class Worker {
+  static final Worker uts = new Worker();
 
   static MessageDigest encoder() {
     try {
@@ -83,15 +119,19 @@ final class UTS {
     return null;
   }
 
+  final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
+  final IMap<Place, Checkpoint> map = hz.getMap("map");
+  final Place home = here();
+
   final Random random = new Random();
   final MessageDigest md = encoder();
   final double den = Math.log(4.0 / (1.0 + 4.0)); // branching factor: 4.0
-  Bag bag = new Bag(4096, 4);
+  Bag bag = new Bag(4096);
   long count;
 
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
-  boolean lifeline = true;
-  int state; // 0: inactive, 1: running, 2: stealing
+  AtomicBoolean lifeline = new AtomicBoolean(home.id != places().size() - 1);
+  int state = -2; // -2: inactive, -1: running, p: stealing from p
 
   int digest() throws DigestException {
     if (bag.size >= bag.depth.length) {
@@ -119,6 +159,7 @@ final class UTS {
       bag.upper[0] = v;
       bag.size = 1;
     }
+    map.set(home, new Checkpoint(bag, count));
   }
 
   void expand() throws DigestException {
@@ -151,7 +192,7 @@ final class UTS {
   }
 
   void grow() {
-    final Bag b = new Bag(bag.depth.length * 2, 4);
+    final Bag b = new Bag(bag.depth.length * 2);
     System.arraycopy(bag.hash, 0, b.hash, 0, bag.size * 20);
     System.arraycopy(bag.depth, 0, b.depth, 0, bag.size);
     System.arraycopy(bag.lower, 0, b.lower, 0, bag.size);
@@ -163,7 +204,7 @@ final class UTS {
   void run() throws DigestException {
     System.err.println(here() + " starting");
     synchronized (this) {
-      state = 1;
+      state = -1;
     }
     while (bag.size > 0) {
       while (bag.size > 0) {
@@ -172,10 +213,11 @@ final class UTS {
         }
         distribute();
       }
+      map.set(home, new Checkpoint(count));
       steal();
     }
     synchronized (this) {
-      state = 0;
+      state = -2;
     }
     lifelinesteal();
     System.err.println(here() + " stopping");
@@ -184,7 +226,7 @@ final class UTS {
 
   void lifelinesteal() {
     asyncat(place((here().id + places().size() - 1) % places().size()), () -> {
-      uts.lifeline = true;
+      uts.lifeline.set(true);
     });
   }
 
@@ -192,19 +234,19 @@ final class UTS {
     if (places().size() == 1) {
       return;
     }
-    final Place h = here();
+    final Place from = home;
     int p = random.nextInt(places().size() - 1);
-    if (p >= h.id) {
+    if (p >= from.id) {
       p++;
     }
     synchronized (this) {
-      state = 2;
+      state = p;
     }
     uncountedasyncat(place(p), () -> {
-      uts.request(h);
+      uts.request(from);
     });
     synchronized (this) {
-      while (state >= 2) {
+      while (state >= 0) {
         try {
           wait();
         } catch (final InterruptedException e) {
@@ -213,14 +255,14 @@ final class UTS {
     }
   }
 
-  void request(Place h) {
+  void request(Place p) {
     synchronized (this) {
-      if (state == 1) {
-        thieves.add(h);
+      if (state == -1) {
+        thieves.add(p);
         return;
       }
     }
-    uncountedasyncat(h, () -> {
+    uncountedasyncat(p, () -> {
       uts.deal(null);
     });
   }
@@ -242,69 +284,91 @@ final class UTS {
       merge(b);
     }
     synchronized (this) {
-      state = 1;
+      state = -1;
       notifyAll();
     }
   }
 
+  void transfer(Place p, Bag b) {
+    try {
+      hz.executeTransaction(new TransactionalTask<Object>() {
+        @Override
+        public Object execute(TransactionalTaskContext context)
+            throws TransactionException {
+          final TransactionalMap<Place, Checkpoint> map = context.getMap("map");
+          map.set(home, new Checkpoint(bag, count));
+          final Checkpoint c = map.getForUpdate(p);
+          final long n = c == null ? 0 : c.count;
+          map.set(p, new Checkpoint(b, n));
+          return null;
+        }
+      });
+    } catch (final Throwable t) {
+      System.err.println("Exception in transaction!");
+      t.printStackTrace();
+    }
+  }
+
   void distribute() {
-    if (lifeline) {
+    Place p;
+    if (lifeline.get()) {
       final Bag b = bag.split();
       if (b != null) {
-        lifeline = false;
-        asyncat(place((here().id + 1) % places().size()), () -> {
+        p = place((here().id + 1) % places().size());
+        lifeline.set(false);
+        transfer(p, b);
+        asyncat(p, () -> {
           uts.lifelinedeal(b);
         });
       }
     }
-    Place p;
     while ((p = thieves.poll()) != null) {
       final Bag b = bag.split();
+      if (b != null) {
+        transfer(p, b);
+      }
       uncountedasyncat(p, () -> {
         uts.deal(b);
       });
     }
   }
+}
+
+final class UTS {
 
   static String sub(String str, int start, int end) {
     return str.substring(start, Math.min(end, str.length()));
-  }
-
-  static void print(long time, long count) {
-    System.out.println("Performance: " + count + "/"
-        + sub("" + time / 1e9, 0, 6) + " = "
-        + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
   }
 
   public static void main(String[] args) {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
-    finish(() -> {
-      asyncat(place(places().size() - 1), () -> {
-        uts.lifeline = false;
-      });
-    });
-    System.out.println("Starting...");
-    long time = System.nanoTime();
+    System.setProperty(Configuration.APGAS_RESILIENT, "true");
+    GlobalRuntime.getRuntime(); // force init
+
     int d = 13;
     try {
       d = Integer.parseInt(args[0]);
     } catch (final Exception e) {
     }
     final int depth = d;
+
+    System.out.println("Starting...");
+    long time = System.nanoTime();
     finish(() -> {
-      uts.init(19, depth);
-      uts.run();
+      Worker.uts.init(19, depth);
+      Worker.uts.run();
     });
-    long count = 0;
-    for (final Place place : places()) {
-      count += at(place, () -> {
-        return uts.count;
-      });
-    }
     time = System.nanoTime() - time;
     System.out.println("Finished.");
-    print(time, count);
+
+    long count = 0;
+    for (final Checkpoint c : Worker.uts.map.values()) {
+      count += c.count;
+    }
+    System.out.println("Performance: " + count + "/"
+        + sub("" + time / 1e9, 0, 6) + " = "
+        + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
   }
 }
