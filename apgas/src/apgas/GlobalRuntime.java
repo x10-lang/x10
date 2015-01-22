@@ -14,6 +14,7 @@ package apgas;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
@@ -71,7 +72,15 @@ public abstract class GlobalRuntime {
     }
   }
 
-  public abstract void setPlaceFailureHandler(Handler handler);
+  /**
+   * Registers a place failure handler.
+   * <p>
+   * The handler is invoked for each failed place.
+   *
+   * @param handler
+   *          the handler to register or null to deregister the current handler
+   */
+  public abstract void setPlaceFailureHandler(Consumer<Place> handler);
 
   /**
    * Shuts down the {@link GlobalRuntime} instance.

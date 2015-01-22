@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
  * Exceptions that are not serializable are automatically replaced by
  * {@link java.io.NotSerializableException} exceptions.
  */
-public class ExceptionalTask implements SerializableRunnable {
+final class ExceptionalTask implements SerializableRunnable {
   private static final long serialVersionUID = -4842601206169675750L;
 
   /**

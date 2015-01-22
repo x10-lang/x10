@@ -19,12 +19,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import apgas.Configuration;
 import apgas.Constructs;
 import apgas.Fun;
 import apgas.GlobalRuntime;
-import apgas.Handler;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
@@ -86,7 +86,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   int dying;
 
-  Handler handler;
+  /**
+   * The registered place failure handler.
+   */
+  Consumer<Place> handler;
 
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
@@ -257,19 +260,20 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       return;
     }
     if (here == 0) {
+      // TODO remove the here == 0 guard
       for (final int id : removed) {
         ResilientFinish.purge(id);
       }
     }
     if (handler != null) {
       for (final int id : removed) {
-        handler.handle(place(id));
+        handler.accept(place(id));
       }
     }
   }
 
   @Override
-  public void setPlaceFailureHandler(Handler handler) {
+  public void setPlaceFailureHandler(Consumer<Place> handler) {
     this.handler = handler;
   }
 

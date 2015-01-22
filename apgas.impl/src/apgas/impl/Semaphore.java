@@ -26,7 +26,7 @@ final class Semaphore extends java.util.concurrent.Semaphore {
    * @param permits
    *          the initial number of permits available
    */
-  public Semaphore(int permits) {
+  Semaphore(int permits) {
     super(permits);
   }
 
