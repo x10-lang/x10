@@ -42,8 +42,8 @@ import com.hazelcast.spi.ExecutionService;
 final class Transport implements com.hazelcast.core.ItemListener<Member>,
     InitialMembershipListener {
   private static String APGAS = "apgas";
-  private static String PLACES = APGAS + ":places";
-  private static String EXECUTOR = APGAS + ":executor";
+  private static String PLACES = "apgas:places";
+  private static String EXECUTOR = "apgas:executor";
 
   /**
    * The Hazelcast instance for this JVM.

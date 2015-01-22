@@ -31,7 +31,7 @@ final class ResilientFinish implements Finish, Serializable {
   private static final long serialVersionUID = -8238404708052769991L;
 
   private static final IMap<GlobalID, State> map = GlobalRuntimeImpl
-      .getRuntime().transport.<GlobalID, State> getMap("_APGAS_FINISH_");
+      .getRuntime().transport.<GlobalID, State> getMap("apgas:finish");
 
   GlobalID id;
   transient List<Throwable> exceptions;
@@ -351,7 +351,7 @@ final class ResilientFinish implements Finish, Serializable {
       } else {
         return true;
       }
-    } catch (final DeadPlaceError e) {
+    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
       return false;

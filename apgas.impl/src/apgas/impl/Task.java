@@ -133,7 +133,8 @@ final class Task implements SerializableRunnable {
       GlobalRuntimeImpl.getRuntime().transport.send(p.id, this);
     } catch (final Throwable e) {
       finish.unspawn(p.id);
-      if (GlobalRuntimeImpl.getRuntime().serializationException) {
+      if (GlobalRuntimeImpl.getRuntime().serializationException
+          || e instanceof NoSuchPlaceException) {
         throw e;
       } else {
         final StackTraceElement elm = new Exception().getStackTrace()[3];
@@ -186,11 +187,10 @@ final class Task implements SerializableRunnable {
       f = (Job) in.readObject();
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException) {
-        new ExceptionalTask(finish, e, GlobalRuntimeImpl.getRuntime().here)
-            .spawn();
+        finish.addSuppressed(e);
       } else {
         final StackTraceElement elm = e.getStackTrace()[0];
-        System.err.println("[APGAS] Failed to a receive remote async at place "
+        System.err.println("[APGAS] Failed to receive remote async at place "
             + GlobalRuntimeImpl.getRuntime().here + " (" + elm.getFileName()
             + ":" + elm.getLineNumber() + ")");
         System.err.println("[APGAS] Caused by: " + e);

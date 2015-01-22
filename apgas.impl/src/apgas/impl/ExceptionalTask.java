@@ -18,7 +18,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * The {@link ExceptionalTask} class is used to transport exceptions across
- * places.
+ * places in the non-resilient finish implementation.
  * <p>
  * Exceptions that are not serializable are automatically replaced by
  * {@link java.io.NotSerializableException} exceptions.
