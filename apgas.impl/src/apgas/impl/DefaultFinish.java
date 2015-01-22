@@ -111,7 +111,8 @@ final class DefaultFinish implements Finish, Serializable {
         counts = new int[GlobalRuntimeImpl.getRuntime().transport.places()];
         counts[here] = count;
         count = 1;
-      } else if (p >= counts.length) {
+      }
+      if (p >= counts.length) {
         resize(p + 1);
       }
       if (counts[p]++ == 0) {

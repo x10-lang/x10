@@ -25,8 +25,8 @@ import org.junit.Test;
 import apgas.Configuration;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
+import apgas.NoSuchPlaceException;
 import apgas.Place;
-import apgas.util.BadPlaceException;
 import apgas.util.GlobalRef;
 
 @SuppressWarnings("javadoc")
@@ -83,14 +83,14 @@ public class ApgasTest {
     }
   }
 
-  @Test(expected = BadPlaceException.class)
-  public void testBadPlaceException() {
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalArgumentException() {
     place(-1);
   }
 
-  @Test(expected = BadPlaceException.class)
+  @Test(expected = NoSuchPlaceException.class)
   public void testBadPlaceExceptionAsyncAt() {
-    asyncat(new Place(-1), () -> {
+    asyncat(new Place(places().size()), () -> {
     });
   }
 

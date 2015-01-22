@@ -34,6 +34,9 @@ public class Place implements Serializable, Comparable<Place> {
    *          the desired place ID
    */
   public Place(int id) {
+    if (id < 0) {
+      throw new IllegalArgumentException("Illegal place id: " + id);
+    }
     this.id = id;
   }
 
