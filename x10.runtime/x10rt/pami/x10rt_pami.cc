@@ -338,7 +338,7 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	pami_result_t status = PAMI_ERROR;
 
 	pami_dispatch_hint_t hints;
-	memset(&hints, 0, sizeof(pami_send_hint_t));
+	memset(&hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
@@ -681,7 +681,7 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_base   = NULL;
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = cookie;
 	parameters.events.local_fn      = cookie_free;
@@ -1169,7 +1169,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.data.iov_base   = p->msg;
 		parameters.data.iov_len    = p->len;
 		parameters.dest            = target;
-		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
+		memset(&parameters.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 
 		#ifdef DEBUG
 			fprintf(stderr, "(%u) send immediate\n", state.myPlaceId);
@@ -1196,7 +1196,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.send.header.iov_len  = sizeof(p->type);
 		parameters.send.data.iov_len    = p->len;
 		parameters.send.dest 			= target;
-		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.remote_fn     = NULL;
 
@@ -1297,7 +1297,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.data.iov_base   = p->msg;
 		parameters.data.iov_len    = p->len;
 		parameters.dest            = target;
-		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
+		memset(&parameters.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 
 		#ifdef DEBUG
 			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, p->type, p->len, len, buf);
@@ -1342,7 +1342,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.send.data.iov_base   = header->x10msg.msg;
 		parameters.send.data.iov_len    = header->x10msg.len;
 		parameters.send.dest 			= target;
-		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.cookie		= (void*)header;
 		parameters.events.local_fn		= free_header_data;
@@ -1413,7 +1413,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.send.data.iov_base   = header->x10msg.msg;
 	parameters.send.data.iov_len    = header->x10msg.len;
 	parameters.send.dest 			= target;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
@@ -1733,7 +1733,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	parameters.send.header.iov_len  = sizeof(cookie->teamIndex);
 	parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
 	parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
