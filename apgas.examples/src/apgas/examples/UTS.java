@@ -341,22 +341,27 @@ final class Worker {
   }
 
   void transfer(Place p, Bag b) {
-    try {
-      hz.executeTransaction(new TransactionalTask<Object>() {
-        @Override
-        public Object execute(TransactionalTaskContext context)
-            throws TransactionException {
-          final TransactionalMap<Place, Checkpoint> map = context.getMap("map");
-          map.set(home, new Checkpoint(bag, count));
-          final Checkpoint c = map.getForUpdate(p);
-          final long n = c == null ? 0 : c.count;
-          map.set(p, new Checkpoint(b, n));
-          return null;
-        }
-      });
-    } catch (final Throwable t) {
-      System.err.println("Exception in transaction!");
-      t.printStackTrace();
+    while (true) {
+      try {
+        hz.executeTransaction(new TransactionalTask<Object>() {
+          @Override
+          public Object execute(TransactionalTaskContext context)
+              throws TransactionException {
+            final TransactionalMap<Place, Checkpoint> map = context
+                .getMap("map");
+            map.set(home, new Checkpoint(bag, count));
+            final Checkpoint c = map.getForUpdate(p);
+            final long n = c == null ? 0 : c.count;
+            map.set(p, new Checkpoint(b, n));
+            return null;
+          }
+        });
+        return;
+      } catch (final Throwable t) {
+        System.err.println("Exception in transaction at " + home
+            + "... retrying");
+        t.printStackTrace();
+      }
     }
   }
 
