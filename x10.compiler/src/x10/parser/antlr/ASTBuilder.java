@@ -417,15 +417,15 @@ import x10.types.checker.Converter;
 
 public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot.frontend.Parser {
 
-    private X10Parser p;
-    private X10Lexer lexer;
+    protected X10Parser p;
+    protected X10Lexer lexer;
 
-    private X10CompilerOptions compilerOpts;
-    private ErrorQueue eq;
-    private ParserErrorListener err;
-    private TypeSystem ts;
-    private NodeFactory nf;
-    private FileSource srce;
+    protected X10CompilerOptions compilerOpts;
+    protected ErrorQueue eq;
+    protected ParserErrorListener err;
+    protected TypeSystem ts;
+    protected NodeFactory nf;
+    protected FileSource srce;
 
     public ASTBuilder(X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
         compilerOpts = opts;
@@ -477,7 +477,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     // Utility functions
 
     /** Returns the position of a given parse tree node. */
-    private Position pos(ParserRuleContext ctx) {
+    protected Position pos(ParserRuleContext ctx) {
         if (ctx.getStop() == null) {
             return new Position(null, srce.path(), ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
         } else {
@@ -3339,6 +3339,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         super.exitPrimary21(ctx);
     }
 
+<<<<<<< .mine
+=======
     @Override
     public void exitPrimary22(Primary22Context ctx) {
         // TODO Auto-generated method stub
@@ -3463,4 +3465,5 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
 
 
+>>>>>>> .r28900
 }

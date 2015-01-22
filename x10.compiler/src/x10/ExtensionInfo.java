@@ -100,6 +100,7 @@ import x10.extension.X10Ext;
 import x10.optimizations.Optimizer;
 import x10.parser.X10SemanticRules;
 import x10.parser.antlr.ASTBuilder;
+import x10.parser.antlr.ASTBuilderTop;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
@@ -191,7 +192,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
     	try {
-            return new ASTBuilder(getOptions(), ts, nf, source, eq);
+            return new ASTBuilderTop(getOptions(), ts, nf, source, eq);
     	} catch(Exception e){
     		throw new IllegalStateException("Could not parse " + source.path());
     	}

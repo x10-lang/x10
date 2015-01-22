@@ -625,20 +625,20 @@ primary returns [Expr ast]:
     | className '.' 'super' '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'       #primary39
     ;
 literal returns [Lit ast]:
-      IntLiteral
-    | LongLiteral
-    | ByteLiteral
-    | UnsignedByteLiteral
-    | ShortLiteral
-    | UnsignedShortLiteral
-    | UnsignedIntLiteral
-    | UnsignedLongLiteral
-    | FloatingPointLiteral
-    | DoubleLiteral
-    | BooleanLiteral
-    | CharacterLiteral
-    | StringLiteral
-    | 'null'
+      IntLiteral             #IntLiteral
+    | LongLiteral            #LongLiteral
+    | ByteLiteral			 #ByteLiteral
+    | UnsignedByteLiteral    #UnsignedByteLiteral
+    | ShortLiteral           #ShortLiteral
+    | UnsignedShortLiteral   #UnsignedShortLiteral
+    | UnsignedIntLiteral     #UnsignedIntLiteral
+    | UnsignedLongLiteral    #UnsignedLongLiteral
+    | FloatingPointLiteral   #FloatingPointLiteral
+    | DoubleLiteral          #DoubleLiteral
+    | BooleanLiteral         #BooleanLiteral
+    | CharacterLiteral       #CharacterLiteral
+    | StringLiteral          #StringLiteral
+    | 'null'				 #NullLiteral
     ;
 argumentList returns [List<Expr> ast]:
       expression (',' expression)*
