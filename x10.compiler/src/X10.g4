@@ -370,7 +370,7 @@ lastExpression returns [Return ast]:
     ;
 closureBody returns [Block ast]:
       expression                                               #closureBody0
-    | annotationsopt '{' blockStatements? lastExpression '}'   #closureBody1
+    | annotationsopt '{' blockStatementsopt lastExpression '}'   #closureBody1
     | annotationsopt block                                     #closureBody2
     ;
 atExpression returns [AtExpr ast]:
@@ -394,20 +394,20 @@ packageName returns [ParsedName ast]:
     | packageName '.' identifier            #packageName1
     ;
 expressionName returns [ParsedName ast]:
-      identifier
-    | fullyQualifiedName '.' identifier
+      identifier                            #expressionName0
+    | fullyQualifiedName '.' identifier     #expressionName1
     ;
 methodName returns [ParsedName ast]:
-      identifier
-    | fullyQualifiedName '.' identifier
+      identifier                            #methodName0
+    | fullyQualifiedName '.' identifier     #methodName1
     ;
 packageOrTypeName returns [ParsedName ast]:
-      identifier
-    | packageOrTypeName '.' identifier
+      identifier                            #packageOrTypeName0
+    | packageOrTypeName '.' identifier      #packageOrTypeName1
     ;
 fullyQualifiedName returns [ParsedName ast]:
-      identifier
-    | fullyQualifiedName '.' identifier
+      identifier                            #fullyQualifiedName0
+    | fullyQualifiedName '.' identifier     #fullyQualifiedName1
     ;
 compilationUnit returns [SourceFile ast]:
       packageDeclaration? importDeclarationsopt typeDeclarationsopt
@@ -419,24 +419,21 @@ importDeclarationsopt returns [List<Import> ast]:
         importDeclaration*
     ;
 importDeclaration returns [Import ast]:
-      'import' typeName ';'                    #singleTypeImportDeclaration
-    | 'import' packageOrTypeName '.' '*' ';'   #typeImportOnDemandDeclaration
+      'import' typeName ';'                    #importDeclaration0 // singleTypeImportDeclaration
+    | 'import' packageOrTypeName '.' '*' ';'   #importDeclaration1 // typeImportOnDemandDeclaration
     ;
 typeDeclarationsopt returns [List<TopLevelDecl> ast]:
         typeDeclaration*
     ;
 typeDeclaration returns [TopLevelDecl ast]:
-      classDeclaration
-    | structDeclaration
-    | interfaceDeclaration
-    | typeDefDeclaration
-    | ';'
+      classDeclaration         #typeDeclaration0
+    | structDeclaration        #typeDeclaration1
+    | interfaceDeclaration     #typeDeclaration2
+    | typeDefDeclaration       #typeDeclaration3
+    | ';'                      #typeDeclaration4
     ;
 interfacesopt returns [List<TypeNode> ast]:
-      ('implements' interfaceTypeList)?
-    ;
-interfaceTypeList returns [List<TypeNode> ast]:
-      type (',' type)*
+      ('implements' type (',' type)*)?
     ;
 classBody returns [ClassBody ast]:
       '{' classMemberDeclarationsopt '}'
@@ -444,9 +441,9 @@ classBody returns [ClassBody ast]:
 classMemberDeclarationsopt returns [List<ClassMember> ast]:
         classMemberDeclaration*
     ;
-classMemberDeclaration returns [ClassMember ast]:
-      interfaceMemberDeclaration
-    | constructorDeclaration
+classMemberDeclaration returns [List<ClassMember> ast]:
+      interfaceMemberDeclaration     #classMemberDeclaration0
+    | constructorDeclaration         #classMemberDeclaration1
     ;
 formalDeclarators returns [List<Object[]> ast]:
       formalDeclarator (',' formalDeclarator)*
@@ -460,13 +457,6 @@ variableDeclaratorsWithType returns [List<Object[]> ast]:
 variableDeclarators returns [List<Object[]> ast]:
       variableDeclarator (',' variableDeclarator)*
     ;
-homeVariableList returns [List<Node> ast]:
-      homeVariable (',' homeVariable)*
-    ;
-homeVariable returns [Node ast]:
-      identifier
-    | 'this'
-    ;
 variableInitializer returns [Expr ast]:
       expression
     ;
@@ -474,25 +464,25 @@ resultType returns [TypeNode ast]:
       ':' type
     ;
 hasResultType returns [TypeNode ast]:
-      resultType
-    | '<:' type
+      resultType     #hasResultType0
+    | '<:' type      #hasResultType1
     ;
 formalParameterList returns [List<Formal> ast]:
       formalParameter (',' formalParameter)*
     ;
 loopIndexDeclarator returns [Object[] ast]:
-      identifier hasResultTypeopt
-    | '[' identifierList ']' hasResultTypeopt
-    | identifier '[' identifierList ']' hasResultTypeopt
+      identifier hasResultTypeopt                             #loopIndexDeclarator0
+    | '[' identifierList ']' hasResultTypeopt                 #loopIndexDeclarator1
+    | identifier '[' identifierList ']' hasResultTypeopt      #loopIndexDeclarator2
     ;
 loopIndex returns [X10Formal ast]:
-      modifiersopt loopIndexDeclarator
-    | modifiersopt varKeyword loopIndexDeclarator
+      modifiersopt loopIndexDeclarator                #loopIndex0
+    | modifiersopt varKeyword loopIndexDeclarator     #loopIndex1
     ;
 formalParameter returns [X10Formal ast]:
-      modifiersopt formalDeclarator
-    | modifiersopt varKeyword formalDeclarator
-    | type
+      modifiersopt formalDeclarator                #formalParameter0
+    | modifiersopt varKeyword formalDeclarator     #formalParameter1
+    | type                                         #formalParameter2
     ;
 oBSOLETE_Offersopt returns [TypeNode ast]:
       ('offers' type)?
@@ -501,21 +491,19 @@ throwsopt returns [List<TypeNode> ast]:
       ('throws' type (',' type)*)?
     ;
 methodBody returns [Block ast]:
-      '=' lastExpression ';'
-    | '=' annotationsopt '{' blockStatements? lastExpression '}'
-    | '=' annotationsopt block
-    | annotationsopt block
-    | ';'
+      '=' lastExpression ';'                                         #methodBody0
+    | '=' annotationsopt '{' blockStatementsopt lastExpression '}'   #methodBody1
+    | '='? annotationsopt block                                      #methodBody2
+    | ';'                                                            #methodBody3
     ;
 constructorBody returns [Block ast]:
-      '=' constructorBlock
-    | constructorBlock
-    | '=' explicitConstructorInvocation
-    | '=' assignPropertyCall
-    | ';'
+      '='? constructorBlock                 #constructorBody0
+    | '=' explicitConstructorInvocation     #constructorBody1
+    | '=' assignPropertyCall                #constructorBody2
+    | ';'                                   #constructorBody3
     ;
 constructorBlock returns [Block ast]:
-      '{' explicitConstructorInvocation? blockStatements? '}'
+      '{' explicitConstructorInvocation? blockStatementsopt '}'
     ;
 arguments returns [List<Expr> ast]:
       '(' argumentList ')'
@@ -529,14 +517,14 @@ interfaceBody returns [ClassBody ast]:
 interfaceMemberDeclarationsopt returns [List<ClassMember> ast]:
         interfaceMemberDeclaration*
     ;
-interfaceMemberDeclaration returns [ClassMember ast]:
-      methodDeclaration
-    | propertyMethodDeclaration
-    | fieldDeclaration
-    | typeDeclaration
+interfaceMemberDeclaration returns [List<ClassMember> ast]:
+      methodDeclaration             #interfaceMemberDeclaration0
+    | propertyMethodDeclaration     #interfaceMemberDeclaration1
+    | fieldDeclaration              #interfaceMemberDeclaration2
+    | typeDeclaration               #interfaceMemberDeclaration3
     ;
 annotationsopt returns [List<AnnotationNode> ast]:
-      annotation*
+      annotations?
     ;
 annotations returns [List<AnnotationNode> ast]:
       annotation+
@@ -548,93 +536,93 @@ identifier returns [Id ast]:
       IDENTIFIER
     ;
 block returns [Block ast]:
-      '{' blockStatements? '}'
+      '{' blockStatementsopt '}'
     ;
 blockStatements returns [List<Stmt> ast]:
       blockInteriorStatement+
     ;
 blockInteriorStatement returns [List<Stmt> ast]:
-      localVariableDeclarationStatement
-    | classDeclaration
-    | structDeclaration
-    | typeDefDeclaration
-    | statement
+      localVariableDeclarationStatement     #blockInteriorStatement0
+    | classDeclaration                      #blockInteriorStatement1
+    | structDeclaration                     #blockInteriorStatement2
+    | typeDefDeclaration                    #blockInteriorStatement3
+    | statement                             #blockInteriorStatement4
     ;
 identifierList returns [List<Id> ast]:
       identifier (',' identifier)*
     ;
 formalDeclarator returns [Object[] ast]:
-      identifier resultType
-    | '[' identifierList ']' resultType
-    | identifier '[' identifierList ']' resultType
+      identifier resultType                            #formalDeclarator0
+    | '[' identifierList ']' resultType                #formalDeclarator1
+    | identifier '[' identifierList ']' resultType     #formalDeclarator2
     ;
 fieldDeclarator returns [Object[] ast]:
-      identifier hasResultType
-    | identifier hasResultTypeopt '=' variableInitializer
+      identifier hasResultType                              #fieldDeclarator0
+    | identifier hasResultTypeopt '=' variableInitializer   #fieldDeclarator1
     ;
 variableDeclarator returns [Object[] ast]:
-      identifier hasResultTypeopt '=' variableInitializer
-    | '[' identifierList ']' hasResultTypeopt '=' variableInitializer
-    | identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer
+      identifier hasResultTypeopt '=' variableInitializer                          #variableDeclarator0
+    | '[' identifierList ']' hasResultTypeopt '=' variableInitializer              #variableDeclarator1
+    | identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer   #variableDeclarator2
     ;
 variableDeclaratorWithType returns [Object[] ast]:
-      identifier hasResultType '=' variableInitializer
-    | '[' identifierList ']' hasResultType '=' variableInitializer
-    | identifier '[' identifierList ']' hasResultType '=' variableInitializer
+      identifier hasResultType '=' variableInitializer                             #variableDeclaratorWithType0
+    | '[' identifierList ']' hasResultType '=' variableInitializer                 #variableDeclaratorWithType1
+    | identifier '[' identifierList ']' hasResultType '=' variableInitializer      #variableDeclaratorWithType2
     ;
-localVariableDeclarationStatement returns [List<LocalDecl> ast]:
+localVariableDeclarationStatement returns [List<Stmt> ast]:
       localVariableDeclaration ';'
     ;
 localVariableDeclaration returns [List<LocalDecl> ast]:
-      modifiersopt varKeyword variableDeclarators
-    | modifiersopt variableDeclaratorsWithType
-    | modifiersopt varKeyword formalDeclarators
+      modifiersopt varKeyword variableDeclarators      #localVariableDeclaration0
+    | modifiersopt variableDeclaratorsWithType         #localVariableDeclaration1
+    | modifiersopt varKeyword formalDeclarators        #localVariableDeclaration2
     ;
 primary returns [Expr ast]:
-      'here'
-    | '[' argumentListopt ']'
-    | literal
-    | 'self'
-    | 'this'
-    | className '.' 'this'
-    | '(' expression ')'
-//    | classInstanceCreationExpression
-    | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBody?
-    | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBody?
-    | fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBody?
-//    | fieldAccess
-    | primary '.' identifier
-    | 'super' '.' identifier
-    | className '.' 'super' '.' identifier
-//    | methodInvocation
-    | methodName typeArgumentsopt '(' argumentListopt ')'
-    | primary '.' identifier typeArgumentsopt '(' argumentListopt ')'
-    | 'super' '.' identifier typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'super' '.' identifier typeArgumentsopt '(' argumentListopt ')'
-    | primary typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
-    | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'
-//    | operatorPrefix typeArgumentsopt '(' argumentListopt ')'
-    | 'operator' binOp
-    | fullyQualifiedName '.' 'operator' binOp
-    | primary '.' 'operator' binOp
-    | 'super' '.' 'operator' binOp
-    | className '.' 'super' '.' 'operator' binOp
-    | 'operator' '(' ')' binOp
-    | fullyQualifiedName '.' 'operator' '(' ')' binOp
-    | primary '.' 'operator' '(' ')' binOp
-    | 'super' '.' 'operator' '(' ')' binOp
-    | className '.' 'super' '.' 'operator' '(' ')' binOp
-    | 'operator' '(' ')'
-    | fullyQualifiedName '.' 'operator' '(' ')'
-    | primary '.' 'operator' '(' ')'
-    | 'super' '.' 'operator' '(' ')'
-    | className '.' 'super' '.' 'operator' '(' ')'
-    | 'operator' '(' ')' '='
-    | fullyQualifiedName '.' 'operator' '(' ')' '='
-    | primary '.' 'operator' '(' ')' '='
-    | 'super' '.' 'operator' '(' ')' '='
-    | className '.' 'super' '.' 'operator' '(' ')' '='
+      'here'                              #primary0
+    | '[' argumentListopt ']'             #primary1
+    | literal                             #primary2
+    | 'self'                              #primary3
+    | 'this'                              #primary4
+    | className '.' 'this'                #primary5
+    | '(' expression ')'                  #primary6
+    // classInstanceCreationExpression
+    | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt                             #primary7
+    | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt               #primary8
+    | fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt    #primary9
+    // fieldAccess
+    | primary '.' identifier                    #primary10
+    | s='super' '.' identifier                  #primary11
+    | className '.' s='super' '.' identifier    #primary12
+    // methodInvocation
+    | methodName typeArgumentsopt '(' argumentListopt ')'                                     #primary13
+    | primary '.' identifier typeArgumentsopt '(' argumentListopt ')'                         #primary14
+    | s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'                       #primary15
+    | className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'         #primary16
+    | primary typeArgumentsopt '(' argumentListopt ')'                                        #primary17
+    | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'     #primary18
+    | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'          #primary19
+    // operatorPrefix
+    | 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                                       #primary20
+    | fullyQualifiedName '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                #primary21
+    | primary '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                           #primary22
+    | 'super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                           #primary23
+    | className '.' 'super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'             #primary24
+    | 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                               #primary25
+    | fullyQualifiedName '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'        #primary26
+    | primary '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                   #primary27
+    | 'super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                   #primary28
+    | className '.' 'super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'     #primary29
+    | 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                                     #primary30
+    | fullyQualifiedName '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'              #primary31
+    | primary '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                         #primary32
+    | 'super' '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                         #primary33
+    | className '.' 'super' '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'           #primary34
+    | 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                                 #primary35
+    | fullyQualifiedName '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'          #primary36
+    | primary '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
+    | 'super' '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                     #primary38
+    | className '.' 'super' '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'       #primary39
     ;
 literal returns [Lit ast]:
       IntLiteral
@@ -803,4 +791,10 @@ expressionopt returns [Expr ast]:
     ;
 catchesopt returns [List<Catch> ast]:
       catches?
+    ;
+blockStatementsopt returns [List<Stmt> ast]:
+      blockStatements?
+    ;
+classBodyopt returns [ClassBody ast]:
+      classBody?
     ;

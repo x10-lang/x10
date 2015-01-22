@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
@@ -32,9 +33,11 @@ import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.ForInit;
@@ -42,6 +45,7 @@ import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Import;
+import polyglot.ast.IntLit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
@@ -59,10 +63,12 @@ import polyglot.frontend.Compiler;
 import polyglot.parse.ParsedName;
 import polyglot.types.Flags;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.X10CompilerOptions;
@@ -73,16 +79,22 @@ import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
 import x10.ast.PropertyDecl;
 import x10.ast.SettableAssign;
+import x10.ast.Tuple;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Binary_c;
+import x10.ast.X10Call;
 import x10.ast.X10Formal;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
-import x10.parser.X10SemanticRules.JPGPosition;
 import x10.parserGen.*;
+import x10.parserGen.X10Parser.AnnotationContext;
 import x10.parserGen.X10Parser.AnnotationStatementContext;
+import x10.parserGen.X10Parser.AnnotationsContext;
+import x10.parserGen.X10Parser.AnnotationsoptContext;
 import x10.parserGen.X10Parser.ApplyOperatorDeclarationContext;
+import x10.parserGen.X10Parser.ArgumentListContext;
+import x10.parserGen.X10Parser.ArgumentsContext;
 import x10.parserGen.X10Parser.AssertStatement0Context;
 import x10.parserGen.X10Parser.AssertStatement1Context;
 import x10.parserGen.X10Parser.AssignPropertyCallContext;
@@ -97,13 +109,26 @@ import x10.parserGen.X10Parser.BasicForStatementContext;
 import x10.parserGen.X10Parser.BinaryOperatorDeclContext;
 import x10.parserGen.X10Parser.BinaryOperatorDeclThisLeftContext;
 import x10.parserGen.X10Parser.BinaryOperatorDeclThisRightContext;
+import x10.parserGen.X10Parser.BlockContext;
+import x10.parserGen.X10Parser.BlockInteriorStatement0Context;
+import x10.parserGen.X10Parser.BlockInteriorStatement1Context;
+import x10.parserGen.X10Parser.BlockInteriorStatement2Context;
+import x10.parserGen.X10Parser.BlockInteriorStatement3Context;
+import x10.parserGen.X10Parser.BlockInteriorStatement4Context;
+import x10.parserGen.X10Parser.BlockInteriorStatementContext;
+import x10.parserGen.X10Parser.BlockStatementsContext;
 import x10.parserGen.X10Parser.BreakStatementContext;
 import x10.parserGen.X10Parser.CastExpression0Context;
 import x10.parserGen.X10Parser.CastExpression1Context;
 import x10.parserGen.X10Parser.CastExpression2Context;
 import x10.parserGen.X10Parser.CatchClauseContext;
 import x10.parserGen.X10Parser.CatchesContext;
+import x10.parserGen.X10Parser.ClassBodyContext;
 import x10.parserGen.X10Parser.ClassDeclarationContext;
+import x10.parserGen.X10Parser.ClassMemberDeclaration0Context;
+import x10.parserGen.X10Parser.ClassMemberDeclaration1Context;
+import x10.parserGen.X10Parser.ClassMemberDeclarationContext;
+import x10.parserGen.X10Parser.ClassMemberDeclarationsoptContext;
 import x10.parserGen.X10Parser.ClassNameContext;
 import x10.parserGen.X10Parser.ClassTypeContext;
 import x10.parserGen.X10Parser.ClockedClauseoptContext;
@@ -114,6 +139,11 @@ import x10.parserGen.X10Parser.ClosureExpressionContext;
 import x10.parserGen.X10Parser.CompilationUnitContext;
 import x10.parserGen.X10Parser.ConstrainedTypeContext;
 import x10.parserGen.X10Parser.ConstraintConjunctionoptContext;
+import x10.parserGen.X10Parser.ConstructorBlockContext;
+import x10.parserGen.X10Parser.ConstructorBody0Context;
+import x10.parserGen.X10Parser.ConstructorBody1Context;
+import x10.parserGen.X10Parser.ConstructorBody2Context;
+import x10.parserGen.X10Parser.ConstructorBody3Context;
 import x10.parserGen.X10Parser.ConstructorDeclarationContext;
 import x10.parserGen.X10Parser.ContinueStatementContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationExplicitContext;
@@ -132,8 +162,15 @@ import x10.parserGen.X10Parser.ExplicitConstructorInvocationThisContext;
 import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl0Context;
 import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl1Context;
 import x10.parserGen.X10Parser.ExpressionContext;
+import x10.parserGen.X10Parser.ExpressionName0Context;
+import x10.parserGen.X10Parser.ExpressionName1Context;
 import x10.parserGen.X10Parser.ExpressionStatementContext;
+import x10.parserGen.X10Parser.ExtendsInterfacesoptContext;
 import x10.parserGen.X10Parser.FieldDeclarationContext;
+import x10.parserGen.X10Parser.FieldDeclarator0Context;
+import x10.parserGen.X10Parser.FieldDeclarator1Context;
+import x10.parserGen.X10Parser.FieldDeclaratorContext;
+import x10.parserGen.X10Parser.FieldDeclaratorsContext;
 import x10.parserGen.X10Parser.FinallyBlockContext;
 import x10.parserGen.X10Parser.FinishStatement0Context;
 import x10.parserGen.X10Parser.FinishStatement1Context;
@@ -142,22 +179,60 @@ import x10.parserGen.X10Parser.ForInit1Context;
 import x10.parserGen.X10Parser.ForStatement0Context;
 import x10.parserGen.X10Parser.ForStatement1Context;
 import x10.parserGen.X10Parser.ForUpdateContext;
+import x10.parserGen.X10Parser.FormalDeclarator0Context;
+import x10.parserGen.X10Parser.FormalDeclarator1Context;
+import x10.parserGen.X10Parser.FormalDeclarator2Context;
+import x10.parserGen.X10Parser.FormalDeclaratorContext;
+import x10.parserGen.X10Parser.FormalDeclaratorsContext;
+import x10.parserGen.X10Parser.FormalParameter0Context;
+import x10.parserGen.X10Parser.FormalParameter1Context;
+import x10.parserGen.X10Parser.FormalParameter2Context;
+import x10.parserGen.X10Parser.FormalParameterContext;
+import x10.parserGen.X10Parser.FormalParameterListContext;
 import x10.parserGen.X10Parser.FormalParametersContext;
+import x10.parserGen.X10Parser.FullyQualifiedName0Context;
+import x10.parserGen.X10Parser.FullyQualifiedName1Context;
 import x10.parserGen.X10Parser.FunctionTypeContext;
+import x10.parserGen.X10Parser.HasResultType0Context;
+import x10.parserGen.X10Parser.HasResultType1Context;
+import x10.parserGen.X10Parser.HasResultTypeContext;
 import x10.parserGen.X10Parser.HasZeroConstraintContext;
+import x10.parserGen.X10Parser.IdentifierContext;
+import x10.parserGen.X10Parser.IdentifierListContext;
 import x10.parserGen.X10Parser.IfThenElseStatementContext;
 import x10.parserGen.X10Parser.IfThenStatementContext;
 import x10.parserGen.X10Parser.ImplicitConversionOperatorDeclarationContext;
+import x10.parserGen.X10Parser.ImportDeclaration0Context;
+import x10.parserGen.X10Parser.ImportDeclaration1Context;
 import x10.parserGen.X10Parser.ImportDeclarationContext;
 import x10.parserGen.X10Parser.ImportDeclarationsoptContext;
+import x10.parserGen.X10Parser.InterfaceBodyContext;
 import x10.parserGen.X10Parser.InterfaceDeclarationContext;
+import x10.parserGen.X10Parser.InterfaceMemberDeclaration0Context;
+import x10.parserGen.X10Parser.InterfaceMemberDeclaration1Context;
+import x10.parserGen.X10Parser.InterfaceMemberDeclaration2Context;
+import x10.parserGen.X10Parser.InterfaceMemberDeclaration3Context;
+import x10.parserGen.X10Parser.InterfacesoptContext;
 import x10.parserGen.X10Parser.IsRefConstraintContext;
 import x10.parserGen.X10Parser.LabeledStatementContext;
 import x10.parserGen.X10Parser.LastExpressionContext;
+import x10.parserGen.X10Parser.LocalVariableDeclaration0Context;
+import x10.parserGen.X10Parser.LocalVariableDeclaration1Context;
+import x10.parserGen.X10Parser.LocalVariableDeclaration2Context;
+import x10.parserGen.X10Parser.LocalVariableDeclarationStatementContext;
+import x10.parserGen.X10Parser.LoopIndex0Context;
+import x10.parserGen.X10Parser.LoopIndex1Context;
+import x10.parserGen.X10Parser.LoopIndexDeclarator0Context;
+import x10.parserGen.X10Parser.LoopIndexDeclarator1Context;
+import x10.parserGen.X10Parser.LoopIndexDeclarator2Context;
 import x10.parserGen.X10Parser.LoopStatement0Context;
 import x10.parserGen.X10Parser.LoopStatement1Context;
 import x10.parserGen.X10Parser.LoopStatement2Context;
 import x10.parserGen.X10Parser.LoopStatement3Context;
+import x10.parserGen.X10Parser.MethodBody0Context;
+import x10.parserGen.X10Parser.MethodBody1Context;
+import x10.parserGen.X10Parser.MethodBody2Context;
+import x10.parserGen.X10Parser.MethodBody3Context;
 import x10.parserGen.X10Parser.MethodDeclarationApplyOpContext;
 import x10.parserGen.X10Parser.MethodDeclarationBinaryOpContext;
 import x10.parserGen.X10Parser.MethodDeclarationConversionOpContext;
@@ -168,6 +243,8 @@ import x10.parserGen.X10Parser.MethodModifierContext;
 import x10.parserGen.X10Parser.MethodModifierModifierContext;
 import x10.parserGen.X10Parser.MethodModifierPropertyContext;
 import x10.parserGen.X10Parser.MethodModifiersoptContext;
+import x10.parserGen.X10Parser.MethodName0Context;
+import x10.parserGen.X10Parser.MethodName1Context;
 import x10.parserGen.X10Parser.ModifierAbstractContext;
 import x10.parserGen.X10Parser.ModifierAnnotationContext;
 import x10.parserGen.X10Parser.ModifierAtomicContext;
@@ -210,21 +287,65 @@ import x10.parserGen.X10Parser.NonExpressionStatemen8Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen9Context;
 import x10.parserGen.X10Parser.OBSOLETE_FinishExpressionContext;
 import x10.parserGen.X10Parser.OBSOLETE_OfferStatementContext;
+import x10.parserGen.X10Parser.OBSOLETE_OffersoptContext;
 import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance0Context;
 import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance1Context;
 import x10.parserGen.X10Parser.PackageDeclarationContext;
 import x10.parserGen.X10Parser.PackageName0Context;
 import x10.parserGen.X10Parser.PackageName1Context;
 import x10.parserGen.X10Parser.PackageNameContext;
+import x10.parserGen.X10Parser.PackageOrTypeName0Context;
+import x10.parserGen.X10Parser.PackageOrTypeName1Context;
 import x10.parserGen.X10Parser.ParameterizedNamedType0Context;
 import x10.parserGen.X10Parser.ParameterizedNamedType1Context;
 import x10.parserGen.X10Parser.ParameterizedNamedType2Context;
 import x10.parserGen.X10Parser.PrefixOperatorDeclContext;
 import x10.parserGen.X10Parser.PrefixOperatorDeclThisContext;
+import x10.parserGen.X10Parser.Primary0Context;
+import x10.parserGen.X10Parser.Primary10Context;
+import x10.parserGen.X10Parser.Primary11Context;
+import x10.parserGen.X10Parser.Primary12Context;
+import x10.parserGen.X10Parser.Primary13Context;
+import x10.parserGen.X10Parser.Primary14Context;
+import x10.parserGen.X10Parser.Primary15Context;
+import x10.parserGen.X10Parser.Primary16Context;
+import x10.parserGen.X10Parser.Primary17Context;
+import x10.parserGen.X10Parser.Primary18Context;
+import x10.parserGen.X10Parser.Primary19Context;
+import x10.parserGen.X10Parser.Primary1Context;
+import x10.parserGen.X10Parser.Primary20Context;
+import x10.parserGen.X10Parser.Primary21Context;
+import x10.parserGen.X10Parser.Primary22Context;
+import x10.parserGen.X10Parser.Primary23Context;
+import x10.parserGen.X10Parser.Primary24Context;
+import x10.parserGen.X10Parser.Primary25Context;
+import x10.parserGen.X10Parser.Primary26Context;
+import x10.parserGen.X10Parser.Primary27Context;
+import x10.parserGen.X10Parser.Primary28Context;
+import x10.parserGen.X10Parser.Primary29Context;
+import x10.parserGen.X10Parser.Primary2Context;
+import x10.parserGen.X10Parser.Primary30Context;
+import x10.parserGen.X10Parser.Primary31Context;
+import x10.parserGen.X10Parser.Primary32Context;
+import x10.parserGen.X10Parser.Primary33Context;
+import x10.parserGen.X10Parser.Primary34Context;
+import x10.parserGen.X10Parser.Primary35Context;
+import x10.parserGen.X10Parser.Primary36Context;
+import x10.parserGen.X10Parser.Primary37Context;
+import x10.parserGen.X10Parser.Primary38Context;
+import x10.parserGen.X10Parser.Primary39Context;
+import x10.parserGen.X10Parser.Primary3Context;
+import x10.parserGen.X10Parser.Primary4Context;
+import x10.parserGen.X10Parser.Primary5Context;
+import x10.parserGen.X10Parser.Primary6Context;
+import x10.parserGen.X10Parser.Primary7Context;
+import x10.parserGen.X10Parser.Primary8Context;
+import x10.parserGen.X10Parser.Primary9Context;
 import x10.parserGen.X10Parser.PropertiesoptContext;
 import x10.parserGen.X10Parser.PropertyContext;
 import x10.parserGen.X10Parser.PropertyMethodDecl0Context;
 import x10.parserGen.X10Parser.PropertyMethodDecl1Context;
+import x10.parserGen.X10Parser.ResultTypeContext;
 import x10.parserGen.X10Parser.ReturnStatementContext;
 import x10.parserGen.X10Parser.SetOperatorDeclarationContext;
 import x10.parserGen.X10Parser.SimpleNamedType0Context;
@@ -247,12 +368,18 @@ import x10.parserGen.X10Parser.SwitchLabelsContext;
 import x10.parserGen.X10Parser.SwitchLabelsoptContext;
 import x10.parserGen.X10Parser.SwitchStatementContext;
 import x10.parserGen.X10Parser.ThrowStatementContext;
+import x10.parserGen.X10Parser.ThrowsoptContext;
 import x10.parserGen.X10Parser.TryStatement0Context;
 import x10.parserGen.X10Parser.TryStatement1Context;
 import x10.parserGen.X10Parser.TypeAnnotationsContext;
 import x10.parserGen.X10Parser.TypeArgumentsContext;
 import x10.parserGen.X10Parser.TypeConstrainedTypeContext;
 import x10.parserGen.X10Parser.TypeContext;
+import x10.parserGen.X10Parser.TypeDeclaration0Context;
+import x10.parserGen.X10Parser.TypeDeclaration1Context;
+import x10.parserGen.X10Parser.TypeDeclaration2Context;
+import x10.parserGen.X10Parser.TypeDeclaration3Context;
+import x10.parserGen.X10Parser.TypeDeclaration4Context;
 import x10.parserGen.X10Parser.TypeDeclarationContext;
 import x10.parserGen.X10Parser.TypeDeclarationsoptContext;
 import x10.parserGen.X10Parser.TypeDefDeclarationContext;
@@ -270,6 +397,17 @@ import x10.parserGen.X10Parser.TypeParamsWithVarianceoptContext;
 import x10.parserGen.X10Parser.TypeVoidContext;
 import x10.parserGen.X10Parser.VarKeyword0Context;
 import x10.parserGen.X10Parser.VarKeyword1Context;
+import x10.parserGen.X10Parser.VariableDeclarator0Context;
+import x10.parserGen.X10Parser.VariableDeclarator1Context;
+import x10.parserGen.X10Parser.VariableDeclarator2Context;
+import x10.parserGen.X10Parser.VariableDeclaratorContext;
+import x10.parserGen.X10Parser.VariableDeclaratorWithType0Context;
+import x10.parserGen.X10Parser.VariableDeclaratorWithType1Context;
+import x10.parserGen.X10Parser.VariableDeclaratorWithType2Context;
+import x10.parserGen.X10Parser.VariableDeclaratorWithTypeContext;
+import x10.parserGen.X10Parser.VariableDeclaratorsContext;
+import x10.parserGen.X10Parser.VariableDeclaratorsWithTypeContext;
+import x10.parserGen.X10Parser.VariableInitializerContext;
 import x10.parserGen.X10Parser.Void_Context;
 import x10.parserGen.X10Parser.WhenStatementContext;
 import x10.parserGen.X10Parser.WhereClauseoptContext;
@@ -375,6 +513,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         if ((!clean_filename.equals(idname)) && clean_filename.equalsIgnoreCase(idname))
             err.syntaxError("This type name does not match the name of the containing file: " + filename.substring(slash + 1), identifier.position());
     }
+
 
     // Temporary classes used to wrap modifiers.
 
@@ -723,15 +862,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
         for (ImportDeclarationContext importDeclaration : ctx.importDeclaration()) {
             l.add(importDeclaration.ast);
-        }
-        ctx.ast = l;
-    }
-
-    @Override
-    public void exitTypeDeclarationsopt(TypeDeclarationsoptContext ctx) {
-        List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
-        for (TypeDeclarationContext typeDecl : ctx.typeDeclaration()) {
-            l.add(typeDecl.ast);
         }
         ctx.ast = l;
     }
@@ -2034,7 +2164,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitAtEachStatement0(AtEachStatement0Context ctx) {
-        X10Formal LoopIndex = ctx.loopIndex().ast;
+        Formal LoopIndex = ctx.loopIndex().ast;
         Expr Expression = ctx.expression().ast;
         List<Expr> ClockedClauseopt = ctx.clockedClauseopt().ast;
         Stmt Statement = ctx.statement().ast;
@@ -2060,7 +2190,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitEnhancedForStatement0(EnhancedForStatement0Context ctx) {
-        X10Formal LoopIndex = ctx.loopIndex().ast;
+        Formal LoopIndex = ctx.loopIndex().ast;
         Expr Expression = ctx.expression().ast;
         Stmt Statement = ctx.statement().ast;
         FlagsNode fn = LoopIndex.flags();
@@ -2200,7 +2330,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitClosureBody1(ClosureBody1Context ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        List<Stmt> BlockStatementsopt = ctx.blockStatements().ast;
+        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
         Stmt LastExpression = ctx.lastExpression().ast;
         List<Stmt> l = new ArrayList<Stmt>();
         l.addAll(BlockStatementsopt);
@@ -2274,36 +2404,1048 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageName().ast, ctx.identifier().ast);
     }
 
+    @Override
+    public void exitExpressionName0(ExpressionName0Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitExpressionName1(ExpressionName1Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitMethodName0(MethodName0Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitMethodName1(MethodName1Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitPackageOrTypeName0(PackageOrTypeName0Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitPackageOrTypeName1(PackageOrTypeName1Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageOrTypeName().ast, ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitFullyQualifiedName0(FullyQualifiedName0Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitFullyQualifiedName1(FullyQualifiedName1Context ctx) {
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+    }
+
+    @Override
+    public void exitImportDeclaration0(ImportDeclaration0Context ctx) {
+        ParsedName TypeName = ctx.typeName().ast;
+        ctx.ast = nf.Import(pos(ctx), Import.CLASS, QName.make(TypeName.toString()));
+    }
+
+    @Override
+    public void exitImportDeclaration1(ImportDeclaration1Context ctx) {
+        ParsedName PackageOrTypeName = ctx.packageOrTypeName().ast;
+        ctx.ast = nf.Import(pos(ctx), Import.PACKAGE, QName.make(PackageOrTypeName.toString()));
+    }
+
+    @Override
+    public void exitTypeDeclarationsopt(TypeDeclarationsoptContext ctx) {
+        List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
+        for (TypeDeclarationContext typeDecl : ctx.typeDeclaration()) {
+            l.add(typeDecl.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitTypeDeclaration0(TypeDeclaration0Context ctx) {
+        ctx.ast = ctx.classDeclaration().ast;
+    }
+
+    @Override
+    public void exitTypeDeclaration1(TypeDeclaration1Context ctx) {
+        ctx.ast = ctx.structDeclaration().ast;
+    }
+
+    @Override
+    public void exitTypeDeclaration2(TypeDeclaration2Context ctx) {
+        ctx.ast = ctx.interfaceDeclaration().ast;
+    }
+
+    @Override
+    public void exitTypeDeclaration3(TypeDeclaration3Context ctx) {
+        ctx.ast = ctx.typeDefDeclaration().ast;
+    }
+
+    @Override
+    public void exitTypeDeclaration4(TypeDeclaration4Context ctx) {
+        ctx.ast = null;
+    }
+
+    @Override
+    public void exitInterfacesopt(InterfacesoptContext ctx) {
+        List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+        for (TypeContext Type : ctx.type()) {
+            l.add(Type.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitClassBody(ClassBodyContext ctx) {
+        List<ClassMember> ClassMemberDeclarationsopt = ctx.classMemberDeclarationsopt().ast;
+        ctx.ast = nf.ClassBody(pos(ctx), ClassMemberDeclarationsopt);
+    }
+
+    @Override
+    public void exitClassMemberDeclarationsopt(ClassMemberDeclarationsoptContext ctx) {
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        for (ClassMemberDeclarationContext ClassMember : ctx.classMemberDeclaration()) {
+            l.addAll(ClassMember.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitClassMemberDeclaration0(ClassMemberDeclaration0Context ctx) {
+        ctx.ast = ctx.interfaceMemberDeclaration().ast;
+    }
+
+    @Override
+    public void exitClassMemberDeclaration1(ClassMemberDeclaration1Context ctx) {
+        ConstructorDecl ConstructorDeclaration = ctx.constructorDeclaration().ast;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        l.add(ConstructorDeclaration);
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitFormalDeclarators(FormalDeclaratorsContext ctx) {
+        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+        for (FormalDeclaratorContext FormalDeclarator : ctx.formalDeclarator()) {
+            l.add(FormalDeclarator.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitFieldDeclarators(FieldDeclaratorsContext ctx) {
+        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+        for (FieldDeclaratorContext FieldDeclarator : ctx.fieldDeclarator()) {
+            l.add(FieldDeclarator.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitVariableDeclaratorsWithType(VariableDeclaratorsWithTypeContext ctx) {
+        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+        for (VariableDeclaratorWithTypeContext VariableDeclaratorWithType : ctx.variableDeclaratorWithType()) {
+            l.add(VariableDeclaratorWithType.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitVariableDeclarators(VariableDeclaratorsContext ctx) {
+        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+        for (VariableDeclaratorContext VariableDeclarator : ctx.variableDeclarator()) {
+            l.add(VariableDeclarator.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitVariableInitializer(VariableInitializerContext ctx) {
+        ctx.ast = ctx.expression().ast;
+    }
+
+    @Override
+    public void exitResultType(ResultTypeContext ctx) {
+        ctx.ast = ctx.type().ast;
+    }
+
+    @Override
+    public void exitHasResultType0(HasResultType0Context ctx) {
+        TypeNode Type = ctx.resultType().ast;
+        ctx.ast = Type;
+    }
+
+    @Override
+    public void exitHasResultType1(HasResultType1Context ctx) {
+        TypeNode Type = ctx.type().ast;
+        ctx.ast = nf.HasType(Type);
+    }
+
+    @Override
+    public void exitFormalParameterList(FormalParameterListContext ctx) {
+        List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+        for (FormalParameterContext FormalParameter : ctx.formalParameter()) {
+            l.add(FormalParameter.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitLoopIndexDeclarator0(LoopIndexDeclarator0Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = Collections.<Id> emptyList();
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
+    }
+
+    @Override
+    public void exitLoopIndexDeclarator1(LoopIndexDeclarator1Context ctx) {
+        Id Identifier = null;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
+    }
+
+    @Override
+    public void exitLoopIndexDeclarator2(LoopIndexDeclarator2Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
+    }
+
+    TypeNode explodedType(Position p) {
+        // exploded formals/locals are either Int or T (when exploding Array[T]).
+        // nf.TypeNodeFromQualifiedName(p,QName.make("x10.lang.Int"));
+        return nf.UnknownTypeNode(p);
+
+    }
+
+    List<Formal> createExplodedFormals(List<Id> exploded) {
+        List<Formal> explodedFormals = new ArrayList<Formal>();
+        for (Id id : exploded) {
+            // exploded formals are always final (VAL)
+            explodedFormals.add(nf.Formal(id.position(), nf.FlagsNode(id.position(), Flags.FINAL), explodedType(id.position()), id));
+        }
+        return explodedFormals;
+    }
+
+    @Override
+    public void exitLoopIndex0(LoopIndex0Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        Object[] LoopIndexDeclarator = ctx.loopIndexDeclarator().ast;
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        X10Formal f;
+        FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
+        Object[] o = LoopIndexDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        boolean unnamed = name == null;
+        if (name == null)
+            name = nf.Id(pos, Name.makeFresh());
+        @SuppressWarnings("unchecked")
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null)
+            type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
+        f = nf.X10Formal(pos(ctx), fn, type, name, explodedFormals, unnamed);
+        f = (X10Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
+        ctx.ast = f;
+    }
+
+    @Override
+    public void exitLoopIndex1(LoopIndex1Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
+        Object[] LoopIndexDeclarator = ctx.loopIndexDeclarator().ast;
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        X10Formal f;
+        FlagsNode fn = extractFlags(modifiers, VarKeyword);
+        Object[] o = LoopIndexDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        boolean unnamed = name == null;
+        if (name == null)
+            name = nf.Id(pos, Name.makeFresh());
+        @SuppressWarnings("unchecked")
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null)
+            type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
+        f = nf.X10Formal(pos(ctx), fn, type, name, explodedFormals, unnamed);
+        f = (X10Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
+        ctx.ast = f;
+    }
+
+    @Override
+    public void exitFormalParameter0(FormalParameter0Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        Object[] FormalDeclarator = ctx.formalDeclarator().ast;
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        X10Formal f;
+        FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
+        Object[] o = FormalDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        boolean unnamed = name == null;
+        if (name == null)
+            name = nf.Id(pos.markCompilerGenerated(), Name.makeFresh());
+        @SuppressWarnings("unchecked")
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null)
+            type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
+        Expr init = (Expr) o[5];
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
+        f = nf.X10Formal(pos(ctx), fn, type, name, explodedFormals, unnamed);
+        f = (X10Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
+        ctx.ast = f;
+    }
+
+    @Override
+    public void exitFormalParameter1(FormalParameter1Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
+        Object[] FormalDeclarator = ctx.formalDeclarator().ast;
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        X10Formal f;
+        FlagsNode fn = extractFlags(modifiers, VarKeyword);
+        Object[] o = FormalDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        boolean unnamed = name == null;
+        if (name == null)
+            name = nf.Id(pos.markCompilerGenerated(), Name.makeFresh());
+        @SuppressWarnings("unchecked")
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null)
+            type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
+        Expr init = (Expr) o[5];
+        List<Formal> explodedFormals = createExplodedFormals(exploded);
+        f = nf.X10Formal(pos(ctx), fn, type, name, explodedFormals, unnamed);
+        f = (X10Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
+        ctx.ast = f;
+    }
+
+    @Override
+    public void exitFormalParameter2(FormalParameter2Context ctx) {
+        TypeNode Type = ctx.type().ast;
+        X10Formal f;
+        FlagsNode fn = nf.FlagsNode(pos(ctx).markCompilerGenerated(), Flags.FINAL);
+        Id name = nf.Id(pos(ctx).markCompilerGenerated(), Name.makeFresh("id"));
+        List<Formal> explodedFormals = Collections.<Formal> emptyList();
+        boolean unnamed = true;
+        f = nf.X10Formal(pos(ctx).markCompilerGenerated(), fn, Type, name, explodedFormals, unnamed);
+        ctx.ast = f;
+    }
+
+    @Override
+    public void exitOBSOLETE_Offersopt(OBSOLETE_OffersoptContext ctx) {
+        TypeNode Type = ctx.type() == null ? null : ctx.type().ast;
+        ctx.ast = Type;
+    }
+
+    @Override
+    public void exitThrowsopt(ThrowsoptContext ctx) {
+        List<TypeNode> throwsList = new ArrayList<TypeNode>();
+        for (TypeContext type : ctx.type()) {
+            throwsList.add(type.ast);
+        }
+        ctx.ast = throwsList;
+    }
+
+    @Override
+    public void exitMethodBody0(MethodBody0Context ctx) {
+        Stmt LastExpression = ctx.lastExpression().ast;
+        ctx.ast = nf.Block(pos(ctx), LastExpression);
+    }
+
+    @Override
+    public void exitMethodBody1(MethodBody1Context ctx) {
+        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
+        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
+        Stmt LastExpression = ctx.lastExpression().ast;
+        List<Stmt> l = new ArrayList<Stmt>();
+        l.addAll(BlockStatementsopt);
+        l.add(LastExpression);
+        ctx.ast = (Block) ((X10Ext) nf.Block(pos(ctx), l).ext()).annotations(Annotationsopt);
+    }
+
+    @Override
+    public void exitMethodBody2(MethodBody2Context ctx) {
+        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
+        Block Block = ctx.block().ast;
+        ctx.ast = (Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos(ctx));
+    }
+
+    @Override
+    public void exitMethodBody3(MethodBody3Context ctx) {
+        ctx.ast = null;
+    }
+
+    @Override
+    public void exitConstructorBody0(ConstructorBody0Context ctx) {
+        Block ConstructorBlock = ctx.constructorBlock().ast;
+        ctx.ast = ConstructorBlock;
+    }
+
+    @Override
+    public void exitConstructorBody1(ConstructorBody1Context ctx) {
+        ConstructorCall ExplicitConstructorInvocation = ctx.explicitConstructorInvocation().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(ExplicitConstructorInvocation);
+        ctx.ast = nf.Block(pos(ctx), l);
+    }
+
+    @Override
+    public void exitConstructorBody2(ConstructorBody2Context ctx) {
+        Stmt AssignPropertyCall = ctx.assignPropertyCall().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(AssignPropertyCall);
+        ctx.ast = nf.Block(pos(ctx), l);
+    }
+
+    @Override
+    public void exitConstructorBody3(ConstructorBody3Context ctx) {
+        ctx.ast = null;
+    }
+
+    @Override
+    public void exitConstructorBlock(ConstructorBlockContext ctx) {
+        Stmt ExplicitConstructorInvocationopt = ctx.explicitConstructorInvocation() == null ? null : ctx.explicitConstructorInvocation().ast;
+        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        if (ExplicitConstructorInvocationopt != null) {
+            l.add(ExplicitConstructorInvocationopt);
+        }
+        l.addAll(BlockStatementsopt);
+        ctx.ast = nf.Block(pos(ctx), l);
+    }
+
+    @Override
+    public void exitArguments(ArgumentsContext ctx) {
+        ctx.ast = ctx.argumentList().ast;
+    }
+
+    @Override
+    public void exitExtendsInterfacesopt(ExtendsInterfacesoptContext ctx) {
+        List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+        for (TypeContext type : ctx.type()) {
+            l.add(type.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitInterfaceBody(InterfaceBodyContext ctx) {
+        List<ClassMember> InterfaceMemberDeclarationsopt = ctx.interfaceMemberDeclarationsopt().ast;
+        ctx.ast = nf.ClassBody(pos(ctx), InterfaceMemberDeclarationsopt);
+    }
+
+    @Override
+    public void exitInterfaceMemberDeclaration0(InterfaceMemberDeclaration0Context ctx) {
+        ClassMember MethodDeclaration = ctx.methodDeclaration().ast;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        l.add(MethodDeclaration);
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitInterfaceMemberDeclaration1(InterfaceMemberDeclaration1Context ctx) {
+        ClassMember PropertyMethodDeclaration = ctx.propertyMethodDeclaration().ast;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        l.add(PropertyMethodDeclaration);
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitInterfaceMemberDeclaration2(InterfaceMemberDeclaration2Context ctx) {
+        List<ClassMember> FieldDeclaration = ctx.fieldDeclaration().ast;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        l.addAll(FieldDeclaration);
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitInterfaceMemberDeclaration3(InterfaceMemberDeclaration3Context ctx) {
+        ClassMember TypeDeclaration = (ClassMember) ctx.typeDeclaration().ast;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        if (TypeDeclaration != null) {
+            l.add(TypeDeclaration);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitAnnotationsopt(AnnotationsoptContext ctx) {
+        List<AnnotationNode> l;
+        if (ctx.annotations() == null) {
+            l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
+        } else {
+            l = ctx.annotations().ast;
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitAnnotations(AnnotationsContext ctx) {
+        List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
+        for (AnnotationContext annotation : ctx.annotation()) {
+            l.add(annotation.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitAnnotation(AnnotationContext ctx) {
+        TypeNode NamedTypeNoConstraints = ctx.namedTypeNoConstraints().ast;
+        ctx.ast = nf.AnnotationNode(pos(ctx), NamedTypeNoConstraints);
+    }
+
+    @Override
+    public void exitIdentifier(IdentifierContext ctx) {
+        // TODO Auto-generated method stub
+        super.exitIdentifier(ctx);
+    }
+
+    @Override
+    public void exitBlock(BlockContext ctx) {
+        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
+        ctx.ast = nf.Block(pos(ctx), BlockStatementsopt);
+    }
+
+    @Override
+    public void exitBlockStatements(BlockStatementsContext ctx) {
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        for (BlockInteriorStatementContext blockInteriorStatement : ctx.blockInteriorStatement()) {
+            l.addAll(blockInteriorStatement.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitBlockInteriorStatement0(BlockInteriorStatement0Context ctx) {
+        ctx.ast = ctx.localVariableDeclarationStatement().ast;
+    }
+
+    @Override
+    public void exitBlockInteriorStatement1(BlockInteriorStatement1Context ctx) {
+        ClassDecl ClassDeclaration = ctx.classDeclaration().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(nf.LocalClassDecl(pos(ctx), ClassDeclaration));
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitBlockInteriorStatement2(BlockInteriorStatement2Context ctx) {
+        ClassDecl StructDeclaration = ctx.structDeclaration().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(nf.LocalClassDecl(pos(ctx), StructDeclaration));
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitBlockInteriorStatement3(BlockInteriorStatement3Context ctx) {
+        TypeDecl TypeDefDeclaration = ctx.typeDefDeclaration().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(nf.LocalTypeDef(pos(ctx), TypeDefDeclaration));
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitBlockInteriorStatement4(BlockInteriorStatement4Context ctx) {
+        Stmt Statement = ctx.statement().ast;
+        List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        l.add(Statement);
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitIdentifierList(IdentifierListContext ctx) {
+        List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
+        for (IdentifierContext identifier : ctx.identifier()) {
+            l.add(identifier.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitFormalDeclarator0(FormalDeclarator0Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = Collections.<Id> emptyList();
+        TypeNode ResultType = ctx.resultType().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
+    }
+
+    @Override
+    public void exitFormalDeclarator1(FormalDeclarator1Context ctx) {
+        Id Identifier = null;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode ResultType = ctx.resultType().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
+    }
+
+    @Override
+    public void exitFormalDeclarator2(FormalDeclarator2Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode ResultType = ctx.resultType().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
+    }
+
+    @Override
+    public void exitFieldDeclarator0(FieldDeclarator0Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        TypeNode HasResultTypeopt = (TypeNode) ctx.hasResultType().ast;
+        Expr VariableInitializer = null;
+        ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitFieldDeclarator1(FieldDeclarator1Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        TypeNode HasResultTypeopt = (TypeNode) ctx.hasResultTypeopt().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclarator0(VariableDeclarator0Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = Collections.<Id> emptyList();
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclarator1(VariableDeclarator1Context ctx) {
+        Id Identifier = null;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclarator2(VariableDeclarator2Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclaratorWithType0(VariableDeclaratorWithType0Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = Collections.<Id> emptyList();
+        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclaratorWithType1(VariableDeclaratorWithType1Context ctx) {
+        Id Identifier = null;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @Override
+    public void exitVariableDeclaratorWithType2(VariableDeclaratorWithType2Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<Id> IdentifierList = ctx.identifierList().ast;
+        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
+        Expr VariableInitializer = ctx.variableInitializer().ast;
+        ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void exitLocalVariableDeclarationStatement(LocalVariableDeclarationStatementContext ctx) {
+        // Check if this cast if correct
+        ctx.ast = (List<Stmt>) ((Object) ctx.localVariableDeclaration().ast);
+    }
+
+    List<LocalDecl> localVariableDeclaration(List<Modifier> Modifiersopt, List<FlagsNode> VarKeyword, List<Object[]> VariableDeclarators) {
+        List<Node> modifiers = checkVariableModifiers(Modifiersopt);
+        FlagsNode fn = VarKeyword == null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeyword);
+        List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
+        for (Object[] o : VariableDeclarators) {
+            Position pos = (Position) o[0];
+            Position compilerGen = pos.markCompilerGenerated();
+            Id name = (Id) o[1];
+            if (name == null)
+                name = nf.Id(pos, Name.makeFresh());
+            @SuppressWarnings("unchecked")
+            List<Id> exploded = (List<Id>) o[2];
+            DepParameterExpr guard = (DepParameterExpr) o[3];
+            TypeNode type = (TypeNode) o[4];
+            if (type == null)
+                type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
+            Expr init = (Expr) o[5];
+            LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
+            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
+            int index = 0;
+            l.add(ld);
+            if (exploded.size() > 0 && init == null) {
+                err.syntaxError("An exploded point must have an initializer.", pos);
+            }
+            FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
+            for (Id id : exploded) {
+                TypeNode tni = init == null ? nf.CanonicalTypeNode(compilerGen, ts.Int()) : // we infer the type of the exploded components, however if there is no init, then we
+                                                                                            // just assume Int to avoid cascading errors.
+                        explodedType(id.position()); // UnknownType
+                l.add(nf.LocalDecl(id.position(), efn, tni, id,
+                        init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name), Collections.<Expr> singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
+                index++;
+            }
+        }
+        return l;
+    }
+
+    @Override
+    public void exitLocalVariableDeclaration0(LocalVariableDeclaration0Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
+        List<Object[]> VariableDeclarators = ctx.variableDeclarators().ast;
+        ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
+    }
+
+    @Override
+    public void exitLocalVariableDeclaration1(LocalVariableDeclaration1Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<FlagsNode> VarKeyword = null;
+        List<Object[]> VariableDeclarators = ctx.variableDeclaratorsWithType().ast;
+        ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
+    }
+
+    @Override
+    public void exitLocalVariableDeclaration2(LocalVariableDeclaration2Context ctx) {
+        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
+        List<Object[]> VariableDeclarators = ctx.formalDeclarators().ast;
+        ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
+    }
+
+    @Override
+    public void exitPrimary0(Primary0Context ctx) {
+        ctx.ast = nf.Here(pos(ctx));
+    }
+
+    @Override
+    public void exitPrimary1(Primary1Context ctx) {
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Tuple tuple = nf.Tuple(pos(ctx), ArgumentListopt);
+        ctx.ast = tuple;
+    }
+
+    @Override
+    public void exitPrimary2(Primary2Context ctx) {
+        ctx.ast = ctx.literal().ast;
+    }
+
+    @Override
+    public void exitPrimary3(Primary3Context ctx) {
+        ctx.ast = nf.Self(pos(ctx));
+    }
+
+    @Override
+    public void exitPrimary4(Primary4Context ctx) {
+        ctx.ast = nf.This(pos(ctx));
+    }
+
+    @Override
+    public void exitPrimary5(Primary5Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        ctx.ast = nf.This(pos(ctx), ClassName.toType());
+    }
+
+    @Override
+    public void exitPrimary6(Primary6Context ctx) {
+        Expr Expression = ctx.expression().ast;
+        ctx.ast = nf.ParExpr(pos(ctx), Expression);
+    }
+
+    @Override
+    public void exitPrimary7(Primary7Context ctx) {
+        ParsedName TypeName = ctx.typeName().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        if (ClassBodyopt == null) {
+            ctx.ast = nf.X10New(pos(ctx), TypeName.toType(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            ctx.ast = nf.X10New(pos(ctx), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt);
+        }
+    }
+
+    @Override
+    public void exitPrimary8(Primary8Context ctx) {
+        Expr Primary = ctx.primary().ast;
+        Id Identifier = ctx.identifier().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        ParsedName b = new ParsedName(nf, ts, pos(ctx), Identifier);
+        if (ClassBodyopt == null) {
+            ctx.ast = nf.X10New(pos(ctx), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            ctx.ast = nf.X10New(pos(ctx), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt);
+        }
+    }
+
+    @Override
+    public void exitPrimary9(Primary9Context ctx) {
+        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        Id Identifier = ctx.identifier().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        ParsedName b = new ParsedName(nf, ts, pos(ctx), Identifier);
+        if (ClassBodyopt == null) {
+            ctx.ast = nf.X10New(pos(ctx), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            ctx.ast = nf.X10New(pos(ctx), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt);
+        }
+    }
+
+    @Override
+    public void exitPrimary10(Primary10Context ctx) {
+        Expr Primary = ctx.primary().ast;
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
+    }
+
+    @Override
+    public void exitPrimary11(Primary11Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
+    }
+
+    @Override
+    public void exitPrimary12(Primary12Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier);
+    }
+
+    @Override
+    public void exitPrimary13(Primary13Context ctx) {
+        ParsedName MethodName = ctx.methodName().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
+    }
+
+    @Override
+    public void exitPrimary14(Primary14Context ctx) {
+        Expr Primary = ctx.primary().ast;
+        Id Identifier = ctx.identifier().ast;
+        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = nf.X10Call(pos(ctx), Primary, Identifier, TypeArguments, ArgumentListopt);
+    }
+
+    @Override
+    public void exitPrimary15(Primary15Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s)), Identifier, TypeArguments, ArgumentListopt);
+    }
+
+    @Override
+    public void exitPrimary16(Primary16Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        Id Identifier = ctx.identifier().ast;
+        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
+    }
+
+    @Override
+    public void exitPrimary17(Primary17Context ctx) {
+        Expr Primary = ctx.primary().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        if (Primary instanceof Field) {
+            Field f = (Field) Primary;
+            ctx.ast = nf.X10Call(pos(ctx), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else if (Primary instanceof AmbExpr) {
+            AmbExpr f = (AmbExpr) Primary;
+            ctx.ast = nf.X10Call(pos(ctx), null, f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            ctx.ast = nf.ClosureCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
+        }
+    }
+
+    @Override
+    public void exitPrimary18(Primary18Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        TypeNode Type = ctx.type().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Name opName = Converter.operator_as;
+        ctx.ast = nf.X10ConversionCall(pos(ctx), ClassName.toType(), nf.Id(pos(ctx.type()), opName), Type, TypeArgumentsopt, ArgumentListopt);
+    }
+
+    @Override
+    public void exitPrimary19(Primary19Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        TypeNode Type = ctx.type().ast;
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Name opName = Converter.implicit_operator_as;
+        ctx.ast = nf.X10ConversionCall(pos(ctx), ClassName.toType(), nf.Id(pos(ctx.type()), opName), Type, TypeArgumentsopt, ArgumentListopt);
+    }
 
 
+    private X10Call prefixOperatorInvocation(Position pos, Expr OperatorPrefix, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt) {
+        if (OperatorPrefix instanceof Field) {
+            Field f = (Field) OperatorPrefix;
+            return nf.X10Call(pos, f.target(), f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else if (OperatorPrefix instanceof AmbExpr) {
+            AmbExpr f = (AmbExpr) OperatorPrefix;
+            return nf.X10Call(pos, null, f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            throw new InternalCompilerError("Invalid operator prefix", OperatorPrefix.position());
+        }
+    }
 
+    @Override
+    public void exitPrimary20(Primary20Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary20(ctx);
+    }
 
+    @Override
+    public void exitPrimary21(Primary21Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary21(ctx);
+    }
 
+    @Override
+    public void exitPrimary22(Primary22Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary22(ctx);
+    }
 
+    @Override
+    public void exitPrimary23(Primary23Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary23(ctx);
+    }
 
+    @Override
+    public void exitPrimary24(Primary24Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary24(ctx);
+    }
 
+    @Override
+    public void exitPrimary25(Primary25Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary25(ctx);
+    }
 
+    @Override
+    public void exitPrimary26(Primary26Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary26(ctx);
+    }
 
+    @Override
+    public void exitPrimary27(Primary27Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary27(ctx);
+    }
 
+    @Override
+    public void exitPrimary28(Primary28Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary28(ctx);
+    }
 
+    @Override
+    public void exitPrimary29(Primary29Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary29(ctx);
+    }
 
+    @Override
+    public void exitPrimary30(Primary30Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary30(ctx);
+    }
 
+    @Override
+    public void exitPrimary31(Primary31Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary31(ctx);
+    }
 
+    @Override
+    public void exitPrimary32(Primary32Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary32(ctx);
+    }
 
+    @Override
+    public void exitPrimary33(Primary33Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary33(ctx);
+    }
 
+    @Override
+    public void exitPrimary34(Primary34Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary34(ctx);
+    }
 
+    @Override
+    public void exitPrimary35(Primary35Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary35(ctx);
+    }
 
+    @Override
+    public void exitPrimary36(Primary36Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary36(ctx);
+    }
 
+    @Override
+    public void exitPrimary37(Primary37Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary37(ctx);
+    }
 
+    @Override
+    public void exitPrimary38(Primary38Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary38(ctx);
+    }
 
-
-
-
-
-
-
-
-
+    @Override
+    public void exitPrimary39(Primary39Context ctx) {
+        // TODO Auto-generated method stub
+        super.exitPrimary39(ctx);
+    }
 
 
 
