@@ -21,6 +21,7 @@ import apgas.util.GlobalID;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
@@ -307,7 +308,7 @@ final class ResilientFinish implements Finish, Serializable {
           }
         });
       }
-    } catch (final DeadPlaceError e) {
+    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
     }
