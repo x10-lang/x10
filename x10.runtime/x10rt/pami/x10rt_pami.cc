@@ -178,6 +178,21 @@ static void team_create_dispatch (pami_context_t context, void* cookie, const vo
 
 
 /*
+ * Encapsulate malloc, to allow for different alignment on different machines
+ */
+void * x10rt_malloc(size_t n)
+{
+#if defined(__bgq__)
+    void *ptr;
+    size_t alignment = 32; // 128 might be better since that ensures every heap allocation starts on a L2 cache-line boundary
+    posix_memalign(&ptr, alignment, n);
+    return ptr;
+#else
+    return malloc(n);
+#endif
+}
+
+/*
  * Encapsulate PAMI_Context_advance calls to work around observed difference in 
  *  return code behavior on BG/Q
  */
@@ -264,13 +279,13 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 		team->algorithm[PAMI_XFER_ALLTOALL] = PAMI_ALGORITHM_NULL;
 		state.a2achunks = userChoice?atoi(userChoice):1; // default to 1 chunk
 		// initialize random order array
-		state.stepOrder = (pami_task_t *)malloc(state.numPlaces*sizeof(pami_task_t));
+		state.stepOrder = (pami_task_t *)x10rt_malloc(state.numPlaces*sizeof(pami_task_t));
 		if (state.stepOrder == NULL) error("Unable to allocate memory for internal alltoall step order");
 		srand(state.myPlaceId);
-		for (int i=0; i<state.numPlaces; i++)
+		for (uint32_t i=0; i<state.numPlaces; i++)
 			state.stepOrder[i] = i;
 		// shuffle values around the array randomly
-		for (int i=state.numPlaces-1; i>0; --i) {
+		for (uint32_t i=state.numPlaces-1; i>0; --i) {
 			int j=rand()%(i+1);
 			int tmp = state.stepOrder[j];
 			state.stepOrder[j] = state.stepOrder[i];
@@ -306,7 +321,7 @@ unsigned expandTeams(unsigned numNewTeams)
 		void* oldTeams = state.teams;
 		int oldSize = (state.lastTeamIndex+1)*sizeof(x10rt_pami_team);
 		int newSize = (state.lastTeamIndex+1+numNewTeams)*sizeof(x10rt_pami_team);
-		void* newTeams = malloc(newSize);
+		void* newTeams = x10rt_malloc(newSize);
 		if (newTeams == NULL) error("Unable to allocate memory to add more teams");
 		memcpy(newTeams, oldTeams, oldSize);
 		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
@@ -507,12 +522,12 @@ static void local_msg_dispatch (
 {
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
 	{
-		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
+		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)x10rt_malloc(sizeof(struct x10rt_msg_params));
 		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
 		hdr->dest_endpoint = 0; // TODO endpoints
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
-		hdr->msg = malloc(pipe_size);
+		hdr->msg = x10rt_malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
 		hdr->type = *((x10rt_msg_type*)header_addr);
 		#ifdef DEBUG
@@ -594,7 +609,7 @@ static void local_put_dispatch (
 		error("non-immediate put dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
 	if (localParameters == NULL) error("Unable to allocate memory for a local_put_dispatch header");
 	struct x10rt_pami_header_data* incomingParameters = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->x10msg.dest_place = state.myPlaceId;
@@ -604,8 +619,8 @@ static void local_put_dispatch (
 	localParameters->x10msg.len = pipe_size;
 	if (pipe_size > 0)
 	{
-		localParameters->x10msg.msg = malloc(pipe_size);
-		if (localParameters->x10msg.msg == NULL) error("Unable to malloc a buffer to hold incoming PUT data");
+		localParameters->x10msg.msg = x10rt_malloc(pipe_size);
+		if (localParameters->x10msg.msg == NULL) error("Unable to allocate a buffer to hold incoming PUT data");
 		memcpy(localParameters->x10msg.msg, pipe_addr, pipe_size); // save the message for later
 	}
 	else
@@ -701,7 +716,7 @@ static void local_get_dispatch (
 		error("non-immediate get dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	x10rt_msg_params* localParameters = (x10rt_msg_params*) malloc(sizeof(x10rt_msg_params));
+	x10rt_msg_params* localParameters = (x10rt_msg_params*) x10rt_malloc(sizeof(x10rt_msg_params));
 	if (localParameters == NULL) error("Unable to allocate memory for a local_get_dispatch header");
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->dest_place = state.myPlaceId;
@@ -856,7 +871,7 @@ static void team_create_dispatch (
 
 	// save the members of the new team
 	state.teams[newTeamId].size = pipe_size/(sizeof(uint32_t));
-	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
+	state.teams[newTeamId].places = (pami_task_t*)x10rt_malloc(pipe_size);
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
 
 	if (recv)
@@ -866,7 +881,7 @@ static void team_create_dispatch (
 		#endif
 
 		recv->local_fn = team_create_dispatch_part2;
-		recv->cookie   = malloc(sizeof(uint32_t));
+		recv->cookie   = x10rt_malloc(sizeof(uint32_t));
 		memcpy(recv->cookie, &newTeamId, sizeof(uint32_t));
 		recv->type     = PAMI_TYPE_BYTE;
 		recv->addr     = state.teams[newTeamId].places;
@@ -960,7 +975,7 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	{
 		state.numParallelContexts = atoi(nthreads); // use specified nthreads, not possible nthreads
 		// We have as many endpoints as we have X10_NTHREADS
-		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
+		state.context = (pami_context_t*)x10rt_malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
 		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
 		if (state.numParallelContexts == 1)
@@ -980,7 +995,7 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	{
 		// We have multiple threads sharing a single endpoint/context
 		state.numParallelContexts = 0;
-		state.context = (pami_context_t*)malloc(sizeof(pami_context_t));
+		state.context = (pami_context_t*)x10rt_malloc(sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u initializing 1 context to be used by all non-static worker threads\n", state.myPlaceId);
@@ -1020,7 +1035,7 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 
 	// create the world geometry
 	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
-	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
+	state.teams = (x10rt_pami_team*)x10rt_malloc(sizeof(x10rt_pami_team));
 	if (state.teams == NULL) error("Unable to allocate memory for teams data");
 	state.lastTeamIndex = 0;
 	state.teams[0].size = state.numPlaces;
@@ -1222,10 +1237,10 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		}
 		else
 		{
-			x10rt_buffered_data *bd = (x10rt_buffered_data *)malloc(sizeof(x10rt_buffered_data));
-			bd->header = malloc(sizeof(p->type));
+			x10rt_buffered_data *bd = (x10rt_buffered_data *)x10rt_malloc(sizeof(x10rt_buffered_data));
+			bd->header = x10rt_malloc(sizeof(p->type));
 			memcpy(bd->header, &p->type, sizeof(p->type));
-			bd->data = malloc(p->len);
+			bd->data = x10rt_malloc(p->len);
 			memcpy(bd->data, p->msg, p->len);
 
 			parameters.send.header.iov_base = bd->header;
@@ -1304,11 +1319,11 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	}
 	else
 	{
-		struct x10rt_pami_header_data *header = (struct x10rt_pami_header_data *)malloc(sizeof(struct x10rt_pami_header_data));
+		struct x10rt_pami_header_data *header = (struct x10rt_pami_header_data *)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
 		if (header == NULL) error("Unable to allocate memory for a PUT header");
 		if (p->len > 0)
 		{
-			header->x10msg.msg = malloc(p->len);
+			header->x10msg.msg = x10rt_malloc(p->len);
 			if (header->x10msg.msg == NULL) error("Unable to allocate memory for a PUT header message");
 			memcpy(header->x10msg.msg, p->msg, p->len);
 		}
@@ -1367,8 +1382,8 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-	// note: this malloc gets freed when the response comes in
-	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	// note: this allocation gets freed when the response comes in
+	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
 	if (header == NULL) error("Unable to allocate memory for a send_get header");
 	header->data_len = len;
 	header->data_ptr = buf;
@@ -1379,8 +1394,8 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	// save the msg data for the notifier
 	if (p->len > 0)
 	{
-		header->x10msg.msg = malloc(p->len);
-		if (header->x10msg.msg == NULL) error("Unable to malloc msg space for a GET");
+		header->x10msg.msg = x10rt_malloc(p->len);
+		if (header->x10msg.msg == NULL) error("Unable to allocate msg space for a GET");
 		memcpy(header->x10msg.msg, p->msg, p->len);
 	}
 	else
@@ -1702,11 +1717,11 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	// create a definition for the new team
 	uint32_t newTeamId = expandTeams(1)+1;
 	state.teams[newTeamId].size = placec;
-	state.teams[newTeamId].places = (pami_task_t*)malloc(placec*sizeof(pami_task_t));
+	state.teams[newTeamId].places = (pami_task_t*)x10rt_malloc(placec*sizeof(pami_task_t));
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in x10rt_net_team_new");
 	memcpy(state.teams[newTeamId].places, placev, placec*sizeof(pami_task_t));
 
-	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
+	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)x10rt_malloc(sizeof(x10rt_pami_team_create));
 	if (cookie == NULL) error("Unable to allocate memory for a team_new header");
 	cookie->cb2 = ch;
 	cookie->arg = arg;
@@ -1798,7 +1813,7 @@ static void split_stage2 (pami_context_t   context,
 	// save the members of the team that matches my color.  Skip the other teams
 	unsigned myNewTeamIndex = expandTeams(numNewTeams)+cbd->colors[cbd->parent_role]+1;
 	state.teams[myNewTeamIndex].size = myNewTeamSize;
-	state.teams[myNewTeamIndex].places = (pami_task_t*)malloc(myNewTeamSize*sizeof(pami_task_t));
+	state.teams[myNewTeamIndex].places = (pami_task_t*)x10rt_malloc(myNewTeamSize*sizeof(pami_task_t));
 	if (state.teams[myNewTeamIndex].places == NULL) error("Unable to allocate memory to hold the team member list");
 	int index = 0;
 	for (unsigned i=0; i<parentTeamSize; i++)
@@ -1844,7 +1859,7 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	#endif
 	unsigned parentTeamSize = x10rt_net_team_sz(parent);
 	// allocate a buffer to hold the color for each place
-	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * parentTeamSize);
+	x10rt_place *colors = (x10rt_place*) x10rt_malloc(sizeof(x10rt_place) * parentTeamSize);
 	if (colors == NULL) error("Unable to allocate memory for the team colors buffer");
 	colors[parent_role] = color;
 
@@ -1861,7 +1876,7 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	}
 
 	// Issue the collective
-	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)malloc(sizeof(x10rt_pami_team_create));
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)x10rt_malloc(sizeof(x10rt_pami_team_create));
 	if (cbd == NULL) error("Unable to allocate memory for a team split structure");
 	cbd->cb2 = ch;
 	cbd->arg = arg;
@@ -1892,7 +1907,7 @@ void x10rt_net_team_del (x10rt_team team, x10rt_place role,
 	pami_result_t status = PAMI_ERROR;
 	pami_context_t context;
 
-	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)malloc(sizeof(x10rt_pami_team_destroy));
+	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)x10rt_malloc(sizeof(x10rt_pami_team_destroy));
 	ptd->teamid = team;
 	ptd->arg = arg;
 	ptd->tch = ch;
@@ -1948,7 +1963,7 @@ static void internal_alltoall_complete (pami_context_t   context,
 	#endif
 	// Done!  block on a barrier, followed by the original x10-level callback
 
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
 	tcb->tcb = cbd->tch;
 	tcb->arg = cbd->arg;
@@ -2005,7 +2020,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	}
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2042,7 +2057,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	#endif
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a broadcast callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2087,7 +2102,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	}
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a scatter callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2146,7 +2161,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u, role %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, role, team, el*count/state.a2achunks);
 		#endif
-		x10rt_pami_internal_alltoall *tcb = (x10rt_pami_internal_alltoall *)malloc(sizeof(x10rt_pami_internal_alltoall));
+		x10rt_pami_internal_alltoall *tcb = (x10rt_pami_internal_alltoall *)x10rt_malloc(sizeof(x10rt_pami_internal_alltoall));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
 		tcb->tch = ch;
 		tcb->arg = arg;
@@ -2180,7 +2195,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	else
 	{
 		// Issue the PAMI collective
-		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
 		tcb->tcb = ch;
 		tcb->arg = arg;
@@ -2230,7 +2245,7 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	}
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a reduce callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2285,7 +2300,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	}
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a allreduce callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
