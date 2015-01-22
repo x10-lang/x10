@@ -3339,8 +3339,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         super.exitPrimary21(ctx);
     }
 
-<<<<<<< .mine
-=======
     @Override
     public void exitPrimary22(Primary22Context ctx) {
         // TODO Auto-generated method stub
@@ -3465,5 +3463,5 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
 
 
->>>>>>> .r28900
+
 }
