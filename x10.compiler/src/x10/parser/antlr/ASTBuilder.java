@@ -2049,6 +2049,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
+    public void exitSwitchLabels(SwitchLabelsContext ctx) {
+        List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
+        for (SwitchLabelContext switchLabel : ctx.switchLabel()) {
+            l.add(switchLabel.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
     public void exitWhileStatement(WhileStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
         Stmt Statement = ctx.statement().ast;
@@ -4143,32 +4152,5 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             ctx.ast = ctx.formalParameterList().ast;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -79,7 +79,7 @@ implicitConversionOperatorDeclaration returns [MethodDecl ast]:
     ;
 propertyMethodDeclaration returns [MethodDecl ast]:
       methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
-    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1
+    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1 // This case cannot occur. It corresponds to a field declaration.
     ;
 explicitConstructorInvocation returns [ConstructorCall ast]:
       'this' typeArgumentsopt '(' argumentListopt ')' ';'                  #explicitConstructorInvocationThis
@@ -519,8 +519,8 @@ interfaceMemberDeclarationsopt returns [List<ClassMember> ast]:
     ;
 interfaceMemberDeclaration returns [List<ClassMember> ast]:
       methodDeclaration             #interfaceMemberDeclaration0
-    | propertyMethodDeclaration     #interfaceMemberDeclaration1
     | fieldDeclaration              #interfaceMemberDeclaration2
+    | propertyMethodDeclaration     #interfaceMemberDeclaration1
     | typeDeclaration               #interfaceMemberDeclaration3
     ;
 annotationsopt returns [List<AnnotationNode> ast]:
@@ -640,7 +640,7 @@ literal returns [Lit ast]:
     | StringLiteral          #StringLiteral
     | 'null'                 #NullLiteral
     ;
-booleanLiteral:
+booleanLiteral returns [BooleanLit ast]:
       'true'
     | 'false'
     ;

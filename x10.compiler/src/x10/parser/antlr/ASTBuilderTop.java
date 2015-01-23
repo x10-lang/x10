@@ -72,6 +72,7 @@ import x10.parserGen.X10Parser.BinOp6Context;
 import x10.parserGen.X10Parser.BinOp7Context;
 import x10.parserGen.X10Parser.BinOp8Context;
 import x10.parserGen.X10Parser.BinOp9Context;
+import x10.parserGen.X10Parser.BooleanLiteralContext;
 import x10.parserGen.X10Parser.ByteLiteralContext;
 import x10.parserGen.X10Parser.CharacterLiteralContext;
 import x10.parserGen.X10Parser.DoubleLiteralContext;
@@ -225,7 +226,7 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
         }
     }
 	
-	private polyglot.lex.BooleanLiteral boolean_lit(LiteralContext ctx)
+    private polyglot.lex.BooleanLiteral boolean_lit(BooleanLiteralContext ctx)
     {
         return new BooleanLiteral(pos(ctx), ctx.start.getType()==X10Lexer.TRUE, ctx.start.getType());
     }
@@ -415,10 +416,15 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
 	
 	@Override
     public void exitLiteral10(Literal10Context ctx) {
-		ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
+        ctx.ast = ctx.booleanLiteral().ast;
 	}
 	
-	@Override
+    @Override
+    public void exitBooleanLiteral(BooleanLiteralContext ctx) {
+        ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
+    }
+
+    @Override
 	public void exitCharacterLiteral(CharacterLiteralContext ctx){
 		ctx.ast = nf.CharLit(pos(ctx), char_lit(ctx).getValue().charValue());
 	}
