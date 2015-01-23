@@ -27,7 +27,6 @@ import apgas.Fun;
 import apgas.GlobalRuntime;
 import apgas.Job;
 import apgas.MultipleException;
-import apgas.NoSuchPlaceException;
 import apgas.Place;
 import apgas.util.GlobalID;
 
@@ -346,35 +345,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public void uncountedasyncat(Place p, Job f) {
-    try {
-      transport
-          .send(
-              p.id,
-              () -> {
-                try {
-                  f.run();
-                } catch (final Throwable e) {
-                  System.err
-                      .println("[APGAS] Uncaught exception in uncounted async at body");
-                  System.err.println("[APGAS] Caused by: " + e);
-                  System.err.println("[APGAS] Ignoring...");
-                }
-              });
-      // TODO log errors in deserialization of f
-    } catch (final Throwable e) {
-      if (GlobalRuntimeImpl.getRuntime().serializationException
-          || e instanceof NoSuchPlaceException) {
-        throw e;
-      } else {
-        final StackTraceElement elm = new Exception().getStackTrace()[2];
-        System.err
-            .println("[APGAS] Failed to spawn an uncounted async at place "
-                + p.id + " (" + elm.getFileName() + ":" + elm.getLineNumber()
-                + ")");
-        System.err.println("[APGAS] Caused by: " + e.getCause());
-        System.err.println("[APGAS] Ignoring...");
-      }
-    }
+    new UncountedTask(f).uncountedasyncat(p);
   }
 
   @Override
