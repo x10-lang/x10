@@ -153,6 +153,7 @@ final class Worker {
   final double den = Math.log(4.0 / (1.0 + 4.0)); // branching factor: 4.0
   Bag bag = new Bag(4096);
   long count;
+  long transfers;
 
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
   AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
@@ -341,6 +342,7 @@ final class Worker {
   }
 
   void transfer(Place p, Bag b) {
+    transfers++;
     while (true) {
       try {
         hz.executeTransaction(new TransactionalTask<Object>() {
@@ -441,6 +443,11 @@ final class UTS {
     });
 
     long count = 0;
+    // collect all counts
+    for (final Checkpoint c : Worker.uts.map.values()) {
+      count += c.count;
+    }
+
     // if places have died, process remaning nodes seqentially at place 0
     for (final Map.Entry<Place, Checkpoint> e : Worker.uts.map.entrySet()) {
       final Bag b = e.getValue().bag;
@@ -450,16 +457,20 @@ final class UTS {
       }
     }
 
-    // collect all counts
-    for (final Checkpoint c : Worker.uts.map.values()) {
-      count += c.count;
-    }
-
     time = System.nanoTime() - time;
     System.out.println("Finished.");
 
+    long transfers = 0;
+    // collect all counts
+    for (final Place p : places()) {
+      transfers += at(p, () -> {
+        return Worker.uts.transfers;
+      });
+    }
+
     System.out.println("Performance: " + count + "/"
         + sub("" + time / 1e9, 0, 6) + " = "
-        + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
+        + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s using "
+        + transfers + " transactions");
   }
 }
