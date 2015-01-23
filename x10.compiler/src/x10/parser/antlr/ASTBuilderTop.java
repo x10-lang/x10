@@ -6,8 +6,10 @@ import polyglot.ast.IntLit.Kind;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.FileSource;
 import polyglot.lex.BooleanLiteral;
+import polyglot.lex.CharacterLiteral;
 import polyglot.lex.DoubleLiteral;
 import polyglot.lex.FloatLiteral;
+import polyglot.lex.StringLiteral;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
@@ -18,13 +20,16 @@ import x10.parserGen.X10Lexer;
 import x10.parserGen.X10Listener;
 import x10.parserGen.X10Parser.BooleanLiteralContext;
 import x10.parserGen.X10Parser.ByteLiteralContext;
+import x10.parserGen.X10Parser.CharacterLiteralContext;
 import x10.parserGen.X10Parser.DoubleLiteralContext;
 import x10.parserGen.X10Parser.FloatingPointLiteralContext;
 import x10.parserGen.X10Parser.IdentifierContext;
 import x10.parserGen.X10Parser.IntLiteralContext;
 import x10.parserGen.X10Parser.LiteralContext;
 import x10.parserGen.X10Parser.LongLiteralContext;
+import x10.parserGen.X10Parser.NullLiteralContext;
 import x10.parserGen.X10Parser.ShortLiteralContext;
+import x10.parserGen.X10Parser.StringLiteralContext;
 import x10.parserGen.X10Parser.UnsignedByteLiteralContext;
 import x10.parserGen.X10Parser.UnsignedIntLiteralContext;
 import x10.parserGen.X10Parser.UnsignedLongLiteralContext;
@@ -162,6 +167,128 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
         return new BooleanLiteral(pos(ctx), ctx.start.getType()==X10Lexer.TRUE, ctx.start.getType());
     }
 	
+	private polyglot.lex.CharacterLiteral char_lit(LiteralContext ctx)
+    {
+        char x;
+        String s = ctx.getText();
+        if (s.charAt(1) == '\\') {
+            switch(s.charAt(2)) {
+                case 'u':
+                    x = (char) parseLong(s.substring(3, s.length() - 1), 16, pos(ctx));
+                    break;
+                case 'b':
+                    x = '\b';
+                    break;
+                case 't':
+                    x = '\t';
+                    break;
+                case 'n':
+                    x = '\n';
+                    break;
+                case 'f':
+                    x = '\f';
+                    break;
+                case 'r':
+                    x = '\r';
+                    break;
+                case '\"':
+                    x = '\"';
+                    break;
+                case '\'':
+                    x = '\'';
+                    break;
+                case '\\':
+                    x = '\\';
+                    break;
+                default:
+                    x = (char) parseLong(s.substring(2, s.length() - 1), 8, pos(ctx));
+                    if (x > 255) {
+                       // unrecoverableSyntaxError = true;
+                        eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+                                "Illegal character literal " + s, pos(ctx));
+                    }
+            }
+        }
+        else {
+            assert(s.length() == 3);
+            x = s.charAt(1);
+        }
+
+        return new CharacterLiteral(pos(ctx), x, X10Parsersym.TK_CharacterLiteral);
+    }
+	
+	 private polyglot.lex.StringLiteral string_lit(LiteralContext ctx)
+	    {
+	        String s = ctx.getText();
+	        char x[] = new char[s.length()];
+	        int j = 1,
+	                k = 0;
+	        while(j < s.length() - 1) {
+	            if (s.charAt(j) != '\\')
+	                x[k++] = s.charAt(j++);
+	            else {
+	                switch(s.charAt(j + 1)) {
+	                    case 'u':
+	                        x[k++] = (char) parseLong(s.substring(j + 2, j + 6), 16, pos(ctx));
+	                        j += 6;
+	                        break;
+	                    case 'b':
+	                        x[k++] = '\b';
+	                        j += 2;
+	                        break;
+	                    case 't':
+	                        x[k++] = '\t';
+	                        j += 2;
+	                        break;
+	                    case 'n':
+	                        x[k++] = '\n';
+	                        j += 2;
+	                        break;
+	                    case 'f':
+	                        x[k++] = '\f';
+	                        j += 2;
+	                        break;
+	                    case 'r':
+	                        x[k++] = '\r';
+	                        j += 2;
+	                        break;
+	                    case '\"':
+	                        x[k++] = '\"';
+	                        j += 2;
+	                        break;
+	                    case '\'':
+	                        x[k++] = '\'';
+	                        j += 2;
+	                        break;
+	                    case '`':
+	                        x[k++] = '`';
+	                        j += 2;
+	                        break;
+	                    case '\\':
+	                        x[k++] = '\\';
+	                        j += 2;
+	                        break;
+	                    default:
+	                    {
+	                        int n = j + 1;
+	                        for (int l = 0; l < 3 && Character.isDigit(s.charAt(n)); l++)
+	                            n++;
+	                        char c = (char) parseLong(s.substring(j + 1, n), 8, pos(ctx));
+	                        if (c > 255) {
+	                            //unrecoverableSyntaxError = true;
+	                            eq.enqueue(ErrorInfo.LEXICAL_ERROR,
+	                                    "Illegal character (" + s.substring(j, n) + ") in string literal " + s, pos(ctx));
+	                        }
+	                        x[k++] = c;
+	                        j = n;
+	                    }
+	                }
+	            }
+	        }
+
+	        return new StringLiteral(pos(ctx), new String(x, 0, k), X10Parsersym.TK_StringLiteral);
+	    }
+	
 	private IntLit getIntLit(LiteralContext ctx, Kind k){
 		return nf.IntLit(pos(ctx), k, parseLong(ctx.getText(), pos(ctx)));
 	}
@@ -227,4 +354,20 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
 	public void exitBooleanLiteral(BooleanLiteralContext ctx){
 		ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
 	}
+	
+	@Override
+	public void exitCharacterLiteral(CharacterLiteralContext ctx){
+		ctx.ast = nf.CharLit(pos(ctx), char_lit(ctx).getValue().charValue());
+	}
+	
+	@Override
+	public void exitStringLiteral(StringLiteralContext ctx){
+		ctx.ast = nf.StringLit(pos(ctx), string_lit(ctx).getValue());
+	}
+	
+	@Override
+	public void exitNullLiteral(NullLiteralContext ctx){
+		ctx.ast = nf.NullLit(pos(ctx));
+	}
+	
 }

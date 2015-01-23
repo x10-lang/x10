@@ -204,12 +204,17 @@ FloatingPointLiteral:
     | Digits ExponentPart FloatingTypeSuffix
     | Digits ExponentPart? FloatingTypeSuffix
     ;
+
+fragment
 ExponentPart:
       ('e'|'E') ('+'|'-')? Digits
     ;
+    
+fragment
 FloatingTypeSuffix:
       'f' |  'F'
     ;
+    
 DoubleLiteral:
       Digits '.' Digits? ExponentPart DoubleTypeSuffix?
     | Digits '.' Digits? DoubleTypeSuffix
@@ -218,6 +223,8 @@ DoubleLiteral:
     | Digits ExponentPart DoubleTypeSuffix?
     | Digits ExponentPart? DoubleTypeSuffix
     ;
+    
+fragment    
 DoubleTypeSuffix:
       'd' | 'D'
     ;
