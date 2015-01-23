@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -61,9 +62,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   final Place home;
 
   /**
-   * The scheduler for this global runtime instance.
+   * The pool for this global runtime instance.
    */
-  final Scheduler scheduler;
+  final ForkJoinPool pool;
 
   /**
    * The mutable set of places in this global runtime instance.
@@ -128,7 +129,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         InetAddress.getLocalHost().getHostAddress());
 
     // initialize scheduler and transport
-    scheduler = new Scheduler(threads);
+    pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
     transport = new Transport(this, master, localhost, compact);
 
     // initialize here
@@ -218,9 +219,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         throw t;
       }
     }
-
-    // start scheduler
-    scheduler.start();
   }
 
   /**
@@ -288,7 +286,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
       dying = 1;
     }
-    scheduler.shutdown();
+    pool.shutdown();
     transport.shutdown();
   }
 

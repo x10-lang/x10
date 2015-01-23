@@ -315,17 +315,17 @@ final class ResilientFinish implements Finish, Serializable {
   }
 
   @Override
-  public boolean waiting() {
+  public boolean isReleasable() {
     final State state = map.get(id);
     if (state == null) {
       System.exit(42);
     }
     if (state.count > 0 || state.cids != null && !state.cids.isEmpty()) {
-      return true;
+      return false;
     }
     exceptions = state.exceptions;
     map.delete(id);
-    return false;
+    return true;
   }
 
   // alternate waiting implementation
@@ -359,7 +359,7 @@ final class ResilientFinish implements Finish, Serializable {
   }
 
   @Override
-  public void await() {
+  public boolean block() {
     final String reg = map.addEntryListener(
         new EntryListener<GlobalID, State>() {
 
@@ -394,7 +394,7 @@ final class ResilientFinish implements Finish, Serializable {
           }
         }, id, true);
     synchronized (this) {
-      while (waiting()) {
+      while (!isReleasable()) {
         try {
           wait(1000);
         } catch (final InterruptedException e) {
@@ -402,6 +402,7 @@ final class ResilientFinish implements Finish, Serializable {
       }
     }
     map.removeEntryListener(reg);
+    return true;
   }
 
   @Override

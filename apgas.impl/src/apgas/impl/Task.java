@@ -14,6 +14,9 @@ package apgas.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveAction;
 
 import apgas.Job;
 import apgas.NoSuchPlaceException;
@@ -26,7 +29,7 @@ import apgas.Place;
  * This class implements task serialization and handles errors in the
  * serialization process.
  */
-final class Task implements SerializableRunnable {
+final class Task extends RecursiveAction implements SerializableRunnable {
   private static final long serialVersionUID = 5288338719050788305L;
 
   /**
@@ -74,11 +77,10 @@ final class Task implements SerializableRunnable {
 
   /**
    * Runs the task and notify the task's finish upon termination.
-   *
-   * @param worker
-   *          the worker thread running the task (cannot be null)
    */
-  void run(Worker worker) {
+  @Override
+  protected void compute() {
+    final Worker worker = (Worker) Thread.currentThread();
     worker.task = this;
     try {
       f.run();
@@ -98,11 +100,22 @@ final class Task implements SerializableRunnable {
   void finish(Worker worker) {
     if (worker == null) {
       async(worker);
-      finish.await();
+      try {
+        ForkJoinPool.managedBlock(finish);
+      } catch (final InterruptedException e) {
+      }
     } else {
       final Task savedTask = worker.task;
-      run(worker);
-      worker.help(finish);
+      compute();
+      Task t;
+      while (!finish.isReleasable()
+          && (t = (Task) ForkJoinTask.pollNextLocalTask()) != null) {
+        t.compute();
+      }
+      try {
+        ForkJoinPool.managedBlock(finish);
+      } catch (final InterruptedException e) {
+      }
       worker.task = savedTask;
     }
   }
@@ -115,7 +128,11 @@ final class Task implements SerializableRunnable {
    */
   void async(Worker worker) {
     finish.submit(parent);
-    GlobalRuntimeImpl.getRuntime().scheduler.submit(worker, this);
+    if (worker == null) {
+      GlobalRuntimeImpl.getRuntime().pool.execute((RecursiveAction) this);
+    } else {
+      fork();
+    }
   }
 
   /**

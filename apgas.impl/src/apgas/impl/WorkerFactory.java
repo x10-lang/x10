@@ -15,21 +15,13 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 
 /**
- * The {@link Worker} class implements a worker thread.
+ * The {@link WorkerFactory} class implements a thread factory for the thread
+ * pool.
  */
-final class Worker extends ForkJoinWorkerThread {
-  /**
-   * Instantiates a Worker operating in the given pool.
-   *
-   * @param pool
-   *          the pool this worker works in
-   */
-  protected Worker(ForkJoinPool pool) {
-    super(pool);
-  }
+final class WorkerFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
 
-  /**
-   * The current task.
-   */
-  Task task;
+  @Override
+  public ForkJoinWorkerThread newThread(ForkJoinPool pool) {
+    return new Worker(pool);
+  }
 }

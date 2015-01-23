@@ -1,11 +1,12 @@
 package apgas.impl;
 
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * The {@link Finish} interface.
  */
-interface Finish {
+interface Finish extends ForkJoinPool.ManagedBlocker {
   /**
    * Returns the home place of this {@link Finish} instance.
    *
@@ -53,21 +54,11 @@ interface Finish {
    */
   void addSuppressed(Throwable exception);
 
-  /**
-   * Returns true if the code and tasks in the finish scope have completed.
-   * <p>
-   * This method is intentionally not synchronized.
-   *
-   * @return true if terminated
-   */
-  boolean waiting();
+  @Override
+  boolean isReleasable();
 
-  /**
-   * Waits for the termination of the code and tasks in scope of the finish.
-   * <p>
-   * Blocks the calling thread.
-   */
-  void await();
+  @Override
+  boolean block();
 
   /**
    * Returns the list of exceptions collected by this finish object.

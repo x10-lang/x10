@@ -220,8 +220,8 @@ final class DefaultFinish implements Finish, Serializable {
   }
 
   @Override
-  public boolean waiting() {
-    return count != 0;
+  public boolean isReleasable() {
+    return count == 0;
   }
 
   @Override
@@ -230,13 +230,14 @@ final class DefaultFinish implements Finish, Serializable {
   }
 
   @Override
-  public synchronized void await() {
+  public synchronized boolean block() {
     while (count != 0) {
       try {
         wait();
       } catch (final InterruptedException e) {
       }
     }
+    return count == 0;
   }
 
   /**
