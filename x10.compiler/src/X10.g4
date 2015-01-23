@@ -627,7 +627,7 @@ primary returns [Expr ast]:
 literal returns [Lit ast]:
       IntLiteral             #IntLiteral
     | LongLiteral            #LongLiteral
-    | ByteLiteral			 #ByteLiteral
+    | ByteLiteral            #ByteLiteral
     | UnsignedByteLiteral    #UnsignedByteLiteral
     | ShortLiteral           #ShortLiteral
     | UnsignedShortLiteral   #UnsignedShortLiteral
@@ -635,10 +635,14 @@ literal returns [Lit ast]:
     | UnsignedLongLiteral    #UnsignedLongLiteral
     | FloatingPointLiteral   #FloatingPointLiteral
     | DoubleLiteral          #DoubleLiteral
-    | BooleanLiteral         #BooleanLiteral
+    | booleanLiteral         #Literal10
     | CharacterLiteral       #CharacterLiteral
     | StringLiteral          #StringLiteral
-    | 'null'				 #NullLiteral
+    | 'null'                 #NullLiteral
+    ;
+booleanLiteral:
+      'true'
+    | 'false'
     ;
 argumentList returns [List<Expr> ast]:
       expression (',' expression)*

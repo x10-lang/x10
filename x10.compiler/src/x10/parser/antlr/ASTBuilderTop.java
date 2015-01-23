@@ -72,13 +72,13 @@ import x10.parserGen.X10Parser.BinOp6Context;
 import x10.parserGen.X10Parser.BinOp7Context;
 import x10.parserGen.X10Parser.BinOp8Context;
 import x10.parserGen.X10Parser.BinOp9Context;
-import x10.parserGen.X10Parser.BooleanLiteralContext;
 import x10.parserGen.X10Parser.ByteLiteralContext;
 import x10.parserGen.X10Parser.CharacterLiteralContext;
 import x10.parserGen.X10Parser.DoubleLiteralContext;
 import x10.parserGen.X10Parser.FloatingPointLiteralContext;
 import x10.parserGen.X10Parser.IdentifierContext;
 import x10.parserGen.X10Parser.IntLiteralContext;
+import x10.parserGen.X10Parser.Literal10Context;
 import x10.parserGen.X10Parser.LiteralContext;
 import x10.parserGen.X10Parser.LongLiteralContext;
 import x10.parserGen.X10Parser.NullLiteralContext;
@@ -414,7 +414,7 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
 	}
 	
 	@Override
-	public void exitBooleanLiteral(BooleanLiteralContext ctx){
+    public void exitLiteral10(Literal10Context ctx) {
 		ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
 	}
 	
