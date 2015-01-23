@@ -1,9 +1,12 @@
 package x10.parser.antlr;
 
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
 import polyglot.ast.FloatLit;
 import polyglot.ast.IntLit;
 import polyglot.ast.IntLit.Kind;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Unary;
 import polyglot.frontend.FileSource;
 import polyglot.lex.BooleanLiteral;
 import polyglot.lex.CharacterLiteral;
@@ -18,6 +21,57 @@ import x10.X10CompilerOptions;
 import x10.parser.X10Parsersym;
 import x10.parserGen.X10Lexer;
 import x10.parserGen.X10Listener;
+import x10.parserGen.X10Parser.AssignmentOperator0Context;
+import x10.parserGen.X10Parser.AssignmentOperator10Context;
+import x10.parserGen.X10Parser.AssignmentOperator11Context;
+import x10.parserGen.X10Parser.AssignmentOperator12Context;
+import x10.parserGen.X10Parser.AssignmentOperator13Context;
+import x10.parserGen.X10Parser.AssignmentOperator14Context;
+import x10.parserGen.X10Parser.AssignmentOperator15Context;
+import x10.parserGen.X10Parser.AssignmentOperator16Context;
+import x10.parserGen.X10Parser.AssignmentOperator17Context;
+import x10.parserGen.X10Parser.AssignmentOperator18Context;
+import x10.parserGen.X10Parser.AssignmentOperator19Context;
+import x10.parserGen.X10Parser.AssignmentOperator1Context;
+import x10.parserGen.X10Parser.AssignmentOperator20Context;
+import x10.parserGen.X10Parser.AssignmentOperator2Context;
+import x10.parserGen.X10Parser.AssignmentOperator3Context;
+import x10.parserGen.X10Parser.AssignmentOperator4Context;
+import x10.parserGen.X10Parser.AssignmentOperator5Context;
+import x10.parserGen.X10Parser.AssignmentOperator6Context;
+import x10.parserGen.X10Parser.AssignmentOperator7Context;
+import x10.parserGen.X10Parser.AssignmentOperator8Context;
+import x10.parserGen.X10Parser.AssignmentOperator9Context;
+import x10.parserGen.X10Parser.BinOp0Context;
+import x10.parserGen.X10Parser.BinOp10Context;
+import x10.parserGen.X10Parser.BinOp11Context;
+import x10.parserGen.X10Parser.BinOp12Context;
+import x10.parserGen.X10Parser.BinOp13Context;
+import x10.parserGen.X10Parser.BinOp14Context;
+import x10.parserGen.X10Parser.BinOp15Context;
+import x10.parserGen.X10Parser.BinOp16Context;
+import x10.parserGen.X10Parser.BinOp17Context;
+import x10.parserGen.X10Parser.BinOp18Context;
+import x10.parserGen.X10Parser.BinOp19Context;
+import x10.parserGen.X10Parser.BinOp1Context;
+import x10.parserGen.X10Parser.BinOp20Context;
+import x10.parserGen.X10Parser.BinOp21Context;
+import x10.parserGen.X10Parser.BinOp22Context;
+import x10.parserGen.X10Parser.BinOp23Context;
+import x10.parserGen.X10Parser.BinOp24Context;
+import x10.parserGen.X10Parser.BinOp25Context;
+import x10.parserGen.X10Parser.BinOp26Context;
+import x10.parserGen.X10Parser.BinOp27Context;
+import x10.parserGen.X10Parser.BinOp28Context;
+import x10.parserGen.X10Parser.BinOp29Context;
+import x10.parserGen.X10Parser.BinOp2Context;
+import x10.parserGen.X10Parser.BinOp3Context;
+import x10.parserGen.X10Parser.BinOp4Context;
+import x10.parserGen.X10Parser.BinOp5Context;
+import x10.parserGen.X10Parser.BinOp6Context;
+import x10.parserGen.X10Parser.BinOp7Context;
+import x10.parserGen.X10Parser.BinOp8Context;
+import x10.parserGen.X10Parser.BinOp9Context;
 import x10.parserGen.X10Parser.BooleanLiteralContext;
 import x10.parserGen.X10Parser.ByteLiteralContext;
 import x10.parserGen.X10Parser.CharacterLiteralContext;
@@ -28,6 +82,16 @@ import x10.parserGen.X10Parser.IntLiteralContext;
 import x10.parserGen.X10Parser.LiteralContext;
 import x10.parserGen.X10Parser.LongLiteralContext;
 import x10.parserGen.X10Parser.NullLiteralContext;
+import x10.parserGen.X10Parser.PrefixOp0Context;
+import x10.parserGen.X10Parser.PrefixOp1Context;
+import x10.parserGen.X10Parser.PrefixOp2Context;
+import x10.parserGen.X10Parser.PrefixOp3Context;
+import x10.parserGen.X10Parser.PrefixOp4Context;
+import x10.parserGen.X10Parser.PrefixOp5Context;
+import x10.parserGen.X10Parser.PrefixOp6Context;
+import x10.parserGen.X10Parser.PrefixOp7Context;
+import x10.parserGen.X10Parser.PrefixOp8Context;
+import x10.parserGen.X10Parser.PrefixOp9Context;
 import x10.parserGen.X10Parser.ShortLiteralContext;
 import x10.parserGen.X10Parser.StringLiteralContext;
 import x10.parserGen.X10Parser.UnsignedByteLiteralContext;
@@ -163,7 +227,6 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
 	
 	private polyglot.lex.BooleanLiteral boolean_lit(LiteralContext ctx)
     {
-		 
         return new BooleanLiteral(pos(ctx), ctx.start.getType()==X10Lexer.TRUE, ctx.start.getType());
     }
 	
@@ -369,5 +432,311 @@ public class ASTBuilderTop extends ASTBuilder implements X10Listener, polyglot.f
 	public void exitNullLiteral(NullLiteralContext ctx){
 		ctx.ast = nf.NullLit(pos(ctx));
 	}
+	
+	@Override
+	public void exitAssignmentOperator0(AssignmentOperator0Context ctx){
+		ctx.ast = Assign.ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator1(AssignmentOperator1Context ctx){
+		ctx.ast = Assign.MUL_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator2(AssignmentOperator2Context ctx){
+		ctx.ast = Assign.DIV_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator3(AssignmentOperator3Context ctx){
+		ctx.ast = Assign.MOD_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator4(AssignmentOperator4Context ctx){
+		ctx.ast = Assign.ADD_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator5(AssignmentOperator5Context ctx){
+		ctx.ast = Assign.SUB_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator6(AssignmentOperator6Context ctx){
+		ctx.ast = Assign.SHL_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator7(AssignmentOperator7Context ctx){
+		ctx.ast = Assign.SHR_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator8(AssignmentOperator8Context ctx){
+		ctx.ast = Assign.USHR_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator9(AssignmentOperator9Context ctx){
+		ctx.ast = Assign.BIT_AND_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator10(AssignmentOperator10Context ctx){
+		ctx.ast = Assign.BIT_XOR_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator11(AssignmentOperator11Context ctx){
+		ctx.ast = Assign.BIT_OR_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator12(AssignmentOperator12Context ctx){
+		ctx.ast = Assign.DOT_DOT_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator13(AssignmentOperator13Context ctx){
+		ctx.ast = Assign.ARROW_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator14(AssignmentOperator14Context ctx){
+		ctx.ast = Assign.LARROW_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator15(AssignmentOperator15Context ctx){
+		ctx.ast = Assign.FUNNEL_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator16(AssignmentOperator16Context ctx){
+		ctx.ast = Assign.LFUNNEL_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator17(AssignmentOperator17Context ctx){
+		ctx.ast = Assign.STARSTAR_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator18(AssignmentOperator18Context ctx){
+		ctx.ast = Assign.DIAMOND_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator19(AssignmentOperator19Context ctx){
+		ctx.ast = Assign.BOWTIE_ASSIGN;
+	}
+	
+	@Override
+	public void exitAssignmentOperator20(AssignmentOperator20Context ctx){
+		ctx.ast = Assign.TWIDDLE_ASSIGN;
+	}
+	
+	@Override
+	public void exitPrefixOp0(PrefixOp0Context ctx){
+		ctx.ast = Unary.POS;
+	}
+	
+	@Override
+	public void exitPrefixOp1(PrefixOp1Context ctx){
+		ctx.ast = Unary.NEG;
+	}
+	
+	@Override
+	public void exitPrefixOp2(PrefixOp2Context ctx){
+		ctx.ast = Unary.NOT;
+	}
+	
+	@Override
+	public void exitPrefixOp3(PrefixOp3Context ctx){
+		ctx.ast = Unary.BIT_NOT;
+	}
+	
+	@Override
+	public void exitPrefixOp4(PrefixOp4Context ctx){
+		ctx.ast = Unary.CARET;
+	}
+	
+	@Override
+	public void exitPrefixOp5(PrefixOp5Context ctx){
+		ctx.ast = Unary.BAR;
+	}
+	
+	@Override
+	public void exitPrefixOp6(PrefixOp6Context ctx){
+		ctx.ast = Unary.AMPERSAND;
+	}
+	
+	@Override
+	public void exitPrefixOp7(PrefixOp7Context ctx){
+		ctx.ast = Unary.STAR;
+	}
+	
+	@Override
+	public void exitPrefixOp8(PrefixOp8Context ctx){
+		ctx.ast = Unary.SLASH;
+	}
+	
+	@Override
+	public void exitPrefixOp9(PrefixOp9Context ctx){
+		ctx.ast = Unary.PERCENT;
+	}
+	
+	@Override
+	public void exitBinOp0(BinOp0Context ctx){
+		ctx.ast = Binary.ADD;
+	}
+	
+	@Override
+	public void exitBinOp1(BinOp1Context ctx){
+		ctx.ast = Binary.SUB;
+	}
+	
+	@Override
+	public void exitBinOp2(BinOp2Context ctx){
+		ctx.ast = Binary.MUL;
+	}
+	
+	@Override
+	public void exitBinOp3(BinOp3Context ctx){
+		ctx.ast = Binary.DIV;
+	}
+	
+	@Override
+	public void exitBinOp4(BinOp4Context ctx){
+		ctx.ast = Binary.MOD;
+	}
+	
+	@Override
+	public void exitBinOp5(BinOp5Context ctx){
+		ctx.ast = Binary.BIT_AND;
+	}
+	
+	@Override
+	public void exitBinOp6(BinOp6Context ctx){
+		ctx.ast = Binary.BIT_OR;
+	}
+	
+	@Override
+	public void exitBinOp7(BinOp7Context ctx){
+		ctx.ast = Binary.BIT_XOR;
+	}
+	
+	@Override
+	public void exitBinOp8(BinOp8Context ctx){
+		ctx.ast = Binary.COND_AND;
+	}
+	
+	@Override
+	public void exitBinOp9(BinOp9Context ctx){
+		ctx.ast = Binary.COND_OR;
+	}
+	
+	@Override
+	public void exitBinOp10(BinOp10Context ctx){
+		ctx.ast = Binary.SHL;
+	}
+	
+	@Override
+	public void exitBinOp11(BinOp11Context ctx){
+		ctx.ast = Binary.SHR;
+	}
+	
+	@Override
+	public void exitBinOp12(BinOp12Context ctx){
+		ctx.ast = Binary.USHR;
+	}
+	
+	@Override
+	public void exitBinOp13(BinOp13Context ctx){
+		ctx.ast = Binary.GE;
+	}
+	
+	@Override
+	public void exitBinOp14(BinOp14Context ctx){
+		ctx.ast = Binary.LE;
+	}
+	
+	@Override
+	public void exitBinOp15(BinOp15Context ctx){
+		ctx.ast = Binary.GT;
+	}
+	
+	@Override
+	public void exitBinOp16(BinOp16Context ctx){
+		ctx.ast = Binary.LT;
+	}
+	
+	@Override
+	public void exitBinOp17(BinOp17Context ctx){
+		ctx.ast = Binary.EQ;
+	}
+	
+	@Override
+	public void exitBinOp18(BinOp18Context ctx){
+		ctx.ast = Binary.NE;
+	}
+	
+	@Override
+	public void exitBinOp19(BinOp19Context ctx){
+		ctx.ast = Binary.DOT_DOT;
+	}
+	
+	@Override
+	public void exitBinOp20(BinOp20Context ctx){
+		ctx.ast = Binary.ARROW;
+	}
+	
+	@Override
+	public void exitBinOp21(BinOp21Context ctx){
+		ctx.ast = Binary.LARROW;
+	}
+	
+	@Override
+	public void exitBinOp22(BinOp22Context ctx){
+		ctx.ast = Binary.FUNNEL;
+	}
+	
+	@Override
+	public void exitBinOp23(BinOp23Context ctx){
+		ctx.ast = Binary.LFUNNEL;
+	}
+	
+	@Override
+	public void exitBinOp24(BinOp24Context ctx){
+		ctx.ast = Binary.STARSTAR;
+	}
+	
+	@Override
+	public void exitBinOp25(BinOp25Context ctx){
+		ctx.ast = Binary.TWIDDLE;
+	}
+	
+	@Override
+	public void exitBinOp26(BinOp26Context ctx){
+		ctx.ast = Binary.NTWIDDLE;
+	}
+	
+	@Override
+	public void exitBinOp27(BinOp27Context ctx){
+		ctx.ast = Binary.BANG;
+	}
+	
+	@Override
+	public void exitBinOp28(BinOp28Context ctx){
+		ctx.ast = Binary.DIAMOND;
+	}
+	
+	@Override
+	public void exitBinOp29(BinOp29Context ctx){
+		ctx.ast = Binary.BOWTIE;
+	}
+
 	
 }

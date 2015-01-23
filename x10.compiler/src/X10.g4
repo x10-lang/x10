@@ -691,27 +691,27 @@ leftHandSide returns [Expr ast]:
     | fieldAccess         #leftHandSide1
     ;
 assignmentOperator returns [Assign.Operator ast]:
-      '='
-    | '*='
-    | '/='
-    | '%='
-    | '+='
-    | '-='
-    | '<<='
-    | '>>='
-    | '>>>='
-    | '&='
-    | '^='
-    | '|='
-    | '..='
-    | '->='
-    | '<-='
-    | '-<='
-    | '>-='
-    | '**='
-    | '<>='
-    | '><='
-    | '~='
+      '='    #assignmentOperator0
+    | '*='   #assignmentOperator1
+    | '/='   #assignmentOperator2
+    | '%='   #assignmentOperator3
+    | '+='   #assignmentOperator4
+    | '-='   #assignmentOperator5
+    | '<<='  #assignmentOperator6
+    | '>>='  #assignmentOperator7
+    | '>>>=' #assignmentOperator8
+    | '&='   #assignmentOperator9
+    | '^='   #assignmentOperator10
+    | '|='   #assignmentOperator11
+    | '..='  #assignmentOperator12
+    | '->='  #assignmentOperator13
+    | '<-='  #assignmentOperator14
+    | '-<='  #assignmentOperator15
+    | '>-='  #assignmentOperator16
+    | '**='  #assignmentOperator17
+    | '<>='  #assignmentOperator18
+    | '><='  #assignmentOperator19
+    | '~='   #assignmentOperator20
     ;
 expression returns [Expr ast]:
       assignmentExpression
@@ -720,48 +720,48 @@ constantExpression returns [Expr ast]:
       expression
     ;
 prefixOp returns [Unary.Operator ast]:
-      '+'
-    | '-'
-    | '!'
-    | '~'
-    | '^'
-    | '|'
-    | '&'
-    | '*'
-    | '/'
-    | '%'
+      '+'  #prefixOp0
+    | '-'  #prefixOp1
+    | '!'  #prefixOp2
+    | '~'  #prefixOp3
+    | '^'  #prefixOp4
+    | '|'  #prefixOp5
+    | '&'  #prefixOp6
+    | '*'  #prefixOp7
+    | '/'  #prefixOp8
+    | '%'  #prefixOp9
     ;
 binOp returns [Binary.Operator ast]:
-      '+'
-    | '-'
-    | '*'
-    | '/'
-    | '%'
-    | '&'
-    | '|'
-    | '^'
-    | '&&'
-    | '||'
-    | '<<'
-    | '>>'
-    | '>>>'
-    | '>='
-    | '<='
-    | '>'
-    | '<'
-    | '=='
-    | '!='
-    | '..'
-    | '->'
-    | '<-'
-    | '-<'
-    | '>-'
-    | '**'
-    | '~'
-    | '!~'
-    | '!'
-    | '<>'
-    | '><'
+      '+'  #binOp0
+    | '-'  #binOp1
+    | '*'  #binOp2
+    | '/'  #binOp3
+    | '%'  #binOp4
+    | '&'  #binOp5
+    | '|'  #binOp6
+    | '^'  #binOp7
+    | '&&' #binOp8
+    | '||' #binOp9
+    | '<<' #binOp10
+    | '>>' #binOp11
+    | '>>>' #binOp12
+    | '>=' #binOp13
+    | '<=' #binOp14
+    | '>'  #binOp15
+    | '<'  #binOp16
+    | '==' #binOp17
+    | '!=' #binOp18
+    | '..' #binOp19
+    | '->' #binOp20
+    | '<-' #binOp21
+    | '-<' #binOp22
+    | '>-' #binOp23
+    | '**' #binOp24
+    | '~'  #binOp25
+    | '!~' #binOp26
+    | '!'  #binOp27
+    | '<>' #binOp28
+    | '><' #binOp29
     ;
 parenthesisOp:
        '(' ')'
