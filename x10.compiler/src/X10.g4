@@ -606,23 +606,23 @@ primary returns [Expr ast]:
     | 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                                       #primary20
     | fullyQualifiedName '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                #primary21
     | primary '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                           #primary22
-    | 'super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                           #primary23
-    | className '.' 'super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'             #primary24
+    | s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'                         #primary23
+    | className '.' s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'           #primary24
     | 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                               #primary25
     | fullyQualifiedName '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'        #primary26
     | primary '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                   #primary27
-    | 'super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                   #primary28
-    | className '.' 'super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'     #primary29
-    | 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                                     #primary30
-    | fullyQualifiedName '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'              #primary31
-    | primary '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                         #primary32
-    | 'super' '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'                         #primary33
-    | className '.' 'super' '.' 'operator' '(' ')' typeArgumentsopt '(' argumentListopt ')'           #primary34
-    | 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                                 #primary35
-    | fullyQualifiedName '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'          #primary36
-    | primary '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
-    | 'super' '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'                     #primary38
-    | className '.' 'super' '.' 'operator' '(' ')' '=' typeArgumentsopt '(' argumentListopt ')'       #primary39
+    | s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'                 #primary28
+    | className '.' s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'   #primary29
+    | 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'                                     #primary30
+    | fullyQualifiedName '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'              #primary31
+    | primary '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'                         #primary32
+    | s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'                       #primary33
+    | className '.' s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'         #primary34
+    | 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                                 #primary35
+    | fullyQualifiedName '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'          #primary36
+    | primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
+    | s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                   #primary38
+    | className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'     #primary39
     ;
 literal returns [Lit ast]:
       IntLiteral             #IntLiteral
@@ -644,51 +644,51 @@ argumentList returns [List<Expr> ast]:
       expression (',' expression)*
     ;
 fieldAccess returns [Field ast]:
-      primary '.' identifier
-    | 'super' '.' identifier
-    | className '.' 'super' '.' identifier
+      primary '.' identifier                   #fieldAccess0
+    | s='super' '.' identifier                 #fieldAccess1
+    | className '.' s='super' '.' identifier   #fieldAccess2
     ;
 conditionalExpression returns [Expr ast]:
-      castExpression
-    | conditionalExpression ('++'|'--')
-    | annotations conditionalExpression
-    | ('+'|'-'|'++'|'--') conditionalExpression
-    | ('~'|'!'|'^'|'|'|'&'|'*'|'/'|'%') conditionalExpression
-    | conditionalExpression '..' conditionalExpression
-    | conditionalExpression ('*'|'/'|'%'|'**') conditionalExpression
-    | conditionalExpression ('+'|'-') conditionalExpression
-    | hasZeroConstraint
-    | isRefConstraint
-    | subtypeConstraint
-    | conditionalExpression ('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') conditionalExpression
-    | conditionalExpression 'instanceof' type
-    | conditionalExpression ('<'|'>'|'<='|'>=') conditionalExpression
-    | conditionalExpression ('=='|'!=') conditionalExpression
-    | type '==' type // Danger some type equalities can be capture by the previous rule
-    | conditionalExpression ('~'|'!~') conditionalExpression
-    | conditionalExpression '&' conditionalExpression
-    | conditionalExpression '^' conditionalExpression
-    | conditionalExpression '|' conditionalExpression
-    | conditionalExpression '&&' conditionalExpression
-    | conditionalExpression '||' conditionalExpression
-    | closureExpression
-    | atExpression
-    | oBSOLETE_FinishExpression
-    | conditionalExpression '?' conditionalExpression ':' conditionalExpression
+      castExpression                                                            #conditionalExpression0
+    | conditionalExpression op=('++'|'--')                                      #conditionalExpression1
+    | annotations conditionalExpression                                         #conditionalExpression2
+    | op=('+'|'-'|'++'|'--') conditionalExpression                              #conditionalExpression3
+    | op=('~'|'!'|'^'|'|'|'&'|'*'|'/'|'%') conditionalExpression                #conditionalExpression4
+    | e1=conditionalExpression '..' e2=conditionalExpression                    #conditionalExpression5
+    | e1=conditionalExpression op=('*'|'/'|'%'|'**') e2=conditionalExpression   #conditionalExpression6
+    | e1=conditionalExpression op=('+'|'-') e2=conditionalExpression            #conditionalExpression7
+    | hasZeroConstraint                                                         #conditionalExpression8
+    | isRefConstraint                                                           #conditionalExpression9
+    | subtypeConstraint                                                         #conditionalExpression10
+    | e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression   #conditionalExpression11
+    | conditionalExpression 'instanceof' type                                   #conditionalExpression12
+    | e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression  #conditionalExpression13
+    | e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression          #conditionalExpression14
+    | t1=type '==' t2=type                                                      #conditionalExpression15 // Danger some type equalities can be capture by the previous rule
+    | e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression           #conditionalExpression16
+    | e1=conditionalExpression '&' e2=conditionalExpression                     #conditionalExpression17
+    | e1=conditionalExpression '^' e2=conditionalExpression                     #conditionalExpression18
+    | e1=conditionalExpression '|' e2=conditionalExpression                     #conditionalExpression19
+    | e1=conditionalExpression '&&' e2=conditionalExpression                    #conditionalExpression20
+    | e1=conditionalExpression '||' e2=conditionalExpression                    #conditionalExpression21
+    | closureExpression                                                         #conditionalExpression22
+    | atExpression                                                              #conditionalExpression23
+    | oBSOLETE_FinishExpression                                                 #conditionalExpression24
+    | e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression   #conditionalExpression25
     ;
 
 assignmentExpression returns [Expr ast]:
-      assignment
-    | conditionalExpression
+      assignment                #assignmentExpression0
+    | conditionalExpression     #assignmentExpression1
     ;
 assignment returns [Expr ast]:
-      leftHandSide assignmentOperator assignmentExpression
-    | expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression
-    | primary '(' argumentListopt ')' assignmentOperator assignmentExpression
+      leftHandSide assignmentOperator assignmentExpression                             #assignment0
+    | expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression   #assignment1
+    | primary '(' argumentListopt ')' assignmentOperator assignmentExpression          #assignment2
     ;
 leftHandSide returns [Expr ast]:
-      expressionName
-    | fieldAccess
+      expressionName      #leftHandSide0
+    | fieldAccess         #leftHandSide1
     ;
 assignmentOperator returns [Assign.Operator ast]:
       '='
@@ -763,7 +763,9 @@ binOp returns [Binary.Operator ast]:
     | '<>'
     | '><'
     ;
-
+parenthesisOp:
+       '(' ')'
+    ;
 
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?

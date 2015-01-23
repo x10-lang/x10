@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Case;
@@ -58,6 +59,7 @@ import polyglot.ast.SwitchElement;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.Unary.Operator;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Compiler;
 import polyglot.parse.ParsedName;
@@ -71,6 +73,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import sun.reflect.generics.tree.TypeArgument;
 import x10.X10CompilerOptions;
 import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
@@ -98,6 +101,11 @@ import x10.parserGen.X10Parser.ArgumentsContext;
 import x10.parserGen.X10Parser.AssertStatement0Context;
 import x10.parserGen.X10Parser.AssertStatement1Context;
 import x10.parserGen.X10Parser.AssignPropertyCallContext;
+import x10.parserGen.X10Parser.Assignment0Context;
+import x10.parserGen.X10Parser.Assignment1Context;
+import x10.parserGen.X10Parser.Assignment2Context;
+import x10.parserGen.X10Parser.AssignmentExpression0Context;
+import x10.parserGen.X10Parser.AssignmentExpression1Context;
 import x10.parserGen.X10Parser.AsyncStatement0Context;
 import x10.parserGen.X10Parser.AsyncStatement1Context;
 import x10.parserGen.X10Parser.AtEachStatement0Context;
@@ -137,6 +145,33 @@ import x10.parserGen.X10Parser.ClosureBody1Context;
 import x10.parserGen.X10Parser.ClosureBody2Context;
 import x10.parserGen.X10Parser.ClosureExpressionContext;
 import x10.parserGen.X10Parser.CompilationUnitContext;
+import x10.parserGen.X10Parser.ConditionalExpression0Context;
+import x10.parserGen.X10Parser.ConditionalExpression10Context;
+import x10.parserGen.X10Parser.ConditionalExpression11Context;
+import x10.parserGen.X10Parser.ConditionalExpression12Context;
+import x10.parserGen.X10Parser.ConditionalExpression13Context;
+import x10.parserGen.X10Parser.ConditionalExpression14Context;
+import x10.parserGen.X10Parser.ConditionalExpression15Context;
+import x10.parserGen.X10Parser.ConditionalExpression16Context;
+import x10.parserGen.X10Parser.ConditionalExpression17Context;
+import x10.parserGen.X10Parser.ConditionalExpression18Context;
+import x10.parserGen.X10Parser.ConditionalExpression19Context;
+import x10.parserGen.X10Parser.ConditionalExpression1Context;
+import x10.parserGen.X10Parser.ConditionalExpression20Context;
+import x10.parserGen.X10Parser.ConditionalExpression21Context;
+import x10.parserGen.X10Parser.ConditionalExpression22Context;
+import x10.parserGen.X10Parser.ConditionalExpression23Context;
+import x10.parserGen.X10Parser.ConditionalExpression24Context;
+import x10.parserGen.X10Parser.ConditionalExpression25Context;
+import x10.parserGen.X10Parser.ConditionalExpression2Context;
+import x10.parserGen.X10Parser.ConditionalExpression3Context;
+import x10.parserGen.X10Parser.ConditionalExpression4Context;
+import x10.parserGen.X10Parser.ConditionalExpression5Context;
+import x10.parserGen.X10Parser.ConditionalExpression6Context;
+import x10.parserGen.X10Parser.ConditionalExpression7Context;
+import x10.parserGen.X10Parser.ConditionalExpression8Context;
+import x10.parserGen.X10Parser.ConditionalExpression9Context;
+import x10.parserGen.X10Parser.ConstantExpressionContext;
 import x10.parserGen.X10Parser.ConstrainedTypeContext;
 import x10.parserGen.X10Parser.ConstraintConjunctionoptContext;
 import x10.parserGen.X10Parser.ConstructorBlockContext;
@@ -166,6 +201,9 @@ import x10.parserGen.X10Parser.ExpressionName0Context;
 import x10.parserGen.X10Parser.ExpressionName1Context;
 import x10.parserGen.X10Parser.ExpressionStatementContext;
 import x10.parserGen.X10Parser.ExtendsInterfacesoptContext;
+import x10.parserGen.X10Parser.FieldAccess0Context;
+import x10.parserGen.X10Parser.FieldAccess1Context;
+import x10.parserGen.X10Parser.FieldAccess2Context;
 import x10.parserGen.X10Parser.FieldDeclarationContext;
 import x10.parserGen.X10Parser.FieldDeclarator0Context;
 import x10.parserGen.X10Parser.FieldDeclarator1Context;
@@ -196,6 +234,7 @@ import x10.parserGen.X10Parser.FunctionTypeContext;
 import x10.parserGen.X10Parser.HasResultType0Context;
 import x10.parserGen.X10Parser.HasResultType1Context;
 import x10.parserGen.X10Parser.HasResultTypeContext;
+import x10.parserGen.X10Parser.HasResultTypeoptContext;
 import x10.parserGen.X10Parser.HasZeroConstraintContext;
 import x10.parserGen.X10Parser.IdentifierContext;
 import x10.parserGen.X10Parser.IdentifierListContext;
@@ -373,6 +412,7 @@ import x10.parserGen.X10Parser.TryStatement0Context;
 import x10.parserGen.X10Parser.TryStatement1Context;
 import x10.parserGen.X10Parser.TypeAnnotationsContext;
 import x10.parserGen.X10Parser.TypeArgumentsContext;
+import x10.parserGen.X10Parser.TypeArgumentsoptContext;
 import x10.parserGen.X10Parser.TypeConstrainedTypeContext;
 import x10.parserGen.X10Parser.TypeContext;
 import x10.parserGen.X10Parser.TypeDeclaration0Context;
@@ -3329,123 +3369,676 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitPrimary20(Primary20Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary20(ctx);
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary21(Primary21Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary21(ctx);
+        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary22(Primary22Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary22(ctx);
+        Expr Primary = ctx.primary().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary23(Primary23Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary23(ctx);
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary24(Primary24Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary24(ctx);
+        ParsedName ClassName = ctx.className().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary25(Primary25Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary25(ctx);
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary26(Primary26Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary26(ctx);
+        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary27(Primary27Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary27(ctx);
+        Expr Primary = ctx.primary().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary28(Primary28Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary28(ctx);
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary29(Primary29Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary29(ctx);
+        ParsedName ClassName = ctx.className().ast;
+        Binary.Operator BinOp = ctx.binOp().ast;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
+            opName = Name.make("invalid operator");
+        }
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary30(Primary30Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary30(ctx);
+        Name opName = ClosureCall.APPLY;
+        Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary31(Primary31Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary31(ctx);
+        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        Name opName = ClosureCall.APPLY;
+        Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary32(Primary32Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary32(ctx);
+        Expr Primary = ctx.primary().ast;
+        Name opName = ClosureCall.APPLY;
+        Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary33(Primary33Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary33(ctx);
+        Name opName = ClosureCall.APPLY;
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary34(Primary34Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary34(ctx);
+        ParsedName ClassName = ctx.className().ast;
+        Name opName = ClosureCall.APPLY;
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary35(Primary35Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary35(ctx);
+        Name opName = SettableAssign.SET;
+        Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary36(Primary36Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary36(ctx);
+        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        Name opName = SettableAssign.SET;
+        Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary37(Primary37Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary37(ctx);
+        Expr Primary = ctx.primary().ast;
+        Name opName = SettableAssign.SET;
+        Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary38(Primary38Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary38(ctx);
+        Name opName = SettableAssign.SET;
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     @Override
     public void exitPrimary39(Primary39Context ctx) {
-        // TODO Auto-generated method stub
-        super.exitPrimary39(ctx);
+        ParsedName ClassName = ctx.className().ast;
+        Name opName = SettableAssign.SET;
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
+
+    @Override
+    public void exitArgumentList(ArgumentListContext ctx) {
+        List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        for (ExpressionContext e : ctx.expression()) {
+            l.add(e.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
+    public void exitFieldAccess0(FieldAccess0Context ctx) {
+        Expr Primary = ctx.primary().ast;
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
+    }
+
+    @Override
+    public void exitFieldAccess1(FieldAccess1Context ctx) {
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
+    }
+
+    @Override
+    public void exitFieldAccess2(FieldAccess2Context ctx) {
+        ParsedName ClassName = ctx.className().ast;
+        Id Identifier = ctx.identifier().ast;
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier);
+    }
+
+    @Override
+    public void exitConditionalExpression0(ConditionalExpression0Context ctx) {
+        ctx.ast = ctx.castExpression().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression1(ConditionalExpression1Context ctx) {
+        Expr PostfixExpression = ctx.conditionalExpression().ast;
+        Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.PLUS_PLUS:
+            op = Unary.POST_INC;
+            break;
+        case X10Parser.MINUS_MINUS:
+            op = Unary.POST_DEC;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Unary(pos(ctx), PostfixExpression, op);
+    }
+
+    @Override
+    public void exitConditionalExpression2(ConditionalExpression2Context ctx) {
+        List<AnnotationNode> Annotations = ctx.annotations().ast;
+        Expr UnannotatedUnaryExpression = ctx.conditionalExpression().ast;
+        Expr e = UnannotatedUnaryExpression;
+        e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
+        ctx.ast = (Expr) e.position(pos(ctx));
+    }
+
+    @Override
+    public void exitConditionalExpression3(ConditionalExpression3Context ctx) {
+        Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
+        Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.PLUS:
+            op = Unary.POS;
+            break;
+        case X10Parser.MINUS:
+            op = Unary.NEG;
+            break;
+        case X10Parser.PLUS_PLUS:
+            op = Unary.PRE_INC;
+            break;
+        case X10Parser.MINUS_MINUS:
+            op = Unary.PRE_DEC;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
+    }
+
+    @Override
+    public void exitConditionalExpression4(ConditionalExpression4Context ctx) {
+        Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
+        Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.TWIDDLE:
+            op = Unary.BIT_NOT;
+            break;
+        case X10Parser.NOT:
+            op = Unary.NOT;
+            break;
+        case X10Parser.XOR:
+            op = Unary.CARET;
+            break;
+        case X10Parser.OR:
+            op = Unary.BAR;
+            break;
+        case X10Parser.AND:
+            op = Unary.AMPERSAND;
+            break;
+        case X10Parser.MULTIPLY:
+            op = Unary.STAR;
+            break;
+        case X10Parser.DIVIDE:
+            op = Unary.SLASH;
+            break;
+        case X10Parser.REMAINDER:
+            op = Unary.SLASH;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
+    }
+
+    @Override
+    public void exitConditionalExpression5(ConditionalExpression5Context ctx) {
+        Expr RangeExpression = ctx.e1.ast;
+        Expr UnaryExpression = ctx.e2.ast;
+        Expr regionCall = nf.Binary(pos(ctx), RangeExpression, Binary.DOT_DOT, UnaryExpression);
+        ctx.ast = regionCall;
+    }
+
+    @Override
+    public void exitConditionalExpression6(ConditionalExpression6Context ctx) {
+        Expr MultiplicativeExpression = ctx.e1.ast;
+        Expr RangeExpression = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.MULTIPLY:
+            op = Binary.MUL;
+            break;
+        case X10Parser.DIVIDE:
+            op = Binary.DIV;
+            break;
+        case X10Parser.REMAINDER:
+            op = Binary.MOD;
+            break;
+        case X10Parser.STARSTAR:
+            op = Binary.STARSTAR;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Binary(pos(ctx), MultiplicativeExpression, op, RangeExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression7(ConditionalExpression7Context ctx) {
+        Expr AdditiveExpression = ctx.e1.ast;
+        Expr MultiplicativeExpression = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.PLUS:
+            op = Binary.ADD;
+            break;
+        case X10Parser.MINUS:
+            op = Binary.SUB;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Binary(pos(ctx), AdditiveExpression, op, MultiplicativeExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression8(ConditionalExpression8Context ctx) {
+        ctx.ast = ctx.hasZeroConstraint().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression9(ConditionalExpression9Context ctx) {
+        ctx.ast = ctx.isRefConstraint().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression10(ConditionalExpression10Context ctx) {
+        ctx.ast = ctx.subtypeConstraint().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression11(ConditionalExpression11Context ctx) {
+        Expr expr1 = ctx.e1.ast;
+        Expr expr2 = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.LEFT_SHIFT:
+            op = Binary.SHL;
+            break;
+        case X10Parser.RIGHT_SHIFT:
+            op = Binary.SHR;
+            break;
+        case X10Parser.UNSIGNED_RIGHT_SHIFT:
+            op = Binary.USHR;
+            break;
+        case X10Parser.ARROW:
+            op = Binary.ARROW;
+            break;
+        case X10Parser.LARROW:
+            op = Binary.LARROW;
+            break;
+        case X10Parser.FUNNEL:
+            op = Binary.FUNNEL;
+            break;
+        case X10Parser.LFUNNEL:
+            op = Binary.LFUNNEL;
+            break;
+        case X10Parser.NOT:
+            op = Binary.BANG;
+            break;
+        case X10Parser.DIAMOND:
+            op = Binary.DIAMOND;
+            break;
+        case X10Parser.BOWTIE:
+            op = Binary.DIAMOND;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        Expr call = nf.Binary(pos(ctx), expr1, op, expr2);
+        ctx.ast = call;
+    }
+
+    @Override
+    public void exitConditionalExpression12(ConditionalExpression12Context ctx) {
+        Expr RelationalExpression = ctx.conditionalExpression().ast;
+        TypeNode Type = ctx.type().ast;
+        ctx.ast = nf.Instanceof(pos(ctx), RelationalExpression, Type);
+    }
+
+    @Override
+    public void exitConditionalExpression13(ConditionalExpression13Context ctx) {
+        Expr RelationalExpression = ctx.e1.ast;
+        Expr ShiftExpression = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.LESS:
+            op = Binary.LT;
+            break;
+        case X10Parser.GREATER:
+            op = Binary.GT;
+            break;
+        case X10Parser.LESS_EQUAL:
+            op = Binary.LE;
+            break;
+        case X10Parser.GREATER_EQUAL:
+            op = Binary.GE;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Binary(pos(ctx), RelationalExpression, op, ShiftExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression14(ConditionalExpression14Context ctx) {
+        Expr EqualityExpression = ctx.e1.ast;
+        Expr RelationalExpression = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.EQUAL_EQUAL:
+            op = Binary.EQ;
+            break;
+        case X10Parser.NOT_EQUAL:
+            op = Binary.NE;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression15(ConditionalExpression15Context ctx) {
+        TypeNode t1 = ctx.t1.ast;
+        TypeNode t2 = ctx.t2.ast;
+        ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
+    }
+
+    @Override
+    public void exitConditionalExpression16(ConditionalExpression16Context ctx) {
+        Expr EqualityExpression = ctx.e1.ast;
+        Expr RelationalExpression = ctx.e2.ast;
+        polyglot.ast.Binary.Operator op;
+        switch (ctx.op.getType()) {
+        case X10Parser.TWIDDLE:
+            op = Binary.TWIDDLE;
+            break;
+        case X10Parser.NTWIDDLE:
+            op = Binary.NTWIDDLE;
+            break;
+        default:
+            op = null;
+            assert false;
+        }
+        ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression17(ConditionalExpression17Context ctx) {
+        Expr AndExpression = ctx.e1.ast;
+        Expr EqualityExpression = ctx.e2.ast;
+        ctx.ast = nf.Binary(pos(ctx), AndExpression, Binary.BIT_AND, EqualityExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression18(ConditionalExpression18Context ctx) {
+        Expr ExclusiveOrExpression = ctx.e1.ast;
+        Expr AndExpression = ctx.e2.ast;
+        ctx.ast = nf.Binary(pos(ctx), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression19(ConditionalExpression19Context ctx) {
+        Expr InclusiveOrExpression = ctx.e1.ast;
+        Expr ExclusiveOrExpression = ctx.e2.ast;
+        ctx.ast = nf.Binary(pos(ctx), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression20(ConditionalExpression20Context ctx) {
+        Expr ConditionalAndExpression = ctx.e1.ast;
+        Expr InclusiveOrExpression = ctx.e2.ast;
+        ctx.ast = nf.Binary(pos(ctx), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression21(ConditionalExpression21Context ctx) {
+        Expr ConditionalOrExpression = ctx.e1.ast;
+        Expr ConditionalAndExpression = ctx.e2.ast;
+        ctx.ast = nf.Binary(pos(ctx), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression);
+    }
+
+    @Override
+    public void exitConditionalExpression22(ConditionalExpression22Context ctx) {
+        ctx.ast = ctx.closureExpression().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression23(ConditionalExpression23Context ctx) {
+        ctx.ast = ctx.atExpression().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression24(ConditionalExpression24Context ctx) {
+        ctx.ast = ctx.oBSOLETE_FinishExpression().ast;
+    }
+
+    @Override
+    public void exitConditionalExpression25(ConditionalExpression25Context ctx) {
+        Expr ConditionalOrExpression = ctx.e1.ast;
+        Expr Expression = ctx.e2.ast;
+        Expr ConditionalExpression = ctx.e3.ast;
+        ctx.ast = nf.Conditional(pos(ctx), ConditionalOrExpression, Expression, ConditionalExpression);
+    }
+
+    @Override
+    public void exitAssignmentExpression0(AssignmentExpression0Context ctx) {
+        ctx.ast = ctx.assignment().ast;
+    }
+
+    @Override
+    public void exitAssignmentExpression1(AssignmentExpression1Context ctx) {
+        ctx.ast = ctx.conditionalExpression().ast;
+    }
+
+    @Override
+    public void exitAssignment0(Assignment0Context ctx) {
+        Expr LeftHandSide = ctx.leftHandSide().ast;
+        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
+        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        ctx.ast = nf.Assign(pos(ctx), LeftHandSide, AssignmentOperator, AssignmentExpression);
+    }
+
+    @Override
+    public void exitAssignment1(Assignment1Context ctx) {
+        ParsedName e1 = ctx.expressionName().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
+        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        ctx.ast = nf.SettableAssign(pos(ctx), e1.toExpr(), ArgumentListopt, AssignmentOperator, AssignmentExpression);
+    }
+
+    @Override
+    public void exitAssignment2(Assignment2Context ctx) {
+        Expr e1 = ctx.primary().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
+        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        ctx.ast = nf.SettableAssign(pos(ctx), e1, ArgumentListopt, AssignmentOperator, AssignmentExpression);
+    }
+
+    @Override
+    public void exitExpression(ExpressionContext ctx) {
+        ctx.ast = ctx.assignmentExpression().ast;
+    }
+
+    @Override
+    public void exitConstantExpression(ConstantExpressionContext ctx) {
+        ctx.ast = ctx.expression().ast;
+    }
+
+    @Override
+    public void exitHasResultTypeopt(HasResultTypeoptContext ctx) {
+        ctx.ast = ctx.hasResultType() == null ? null : ctx.hasResultType().ast;
+    }
+
+    @Override
+    public void exitTypeArgumentsopt(TypeArgumentsoptContext ctx) {
+        if (ctx.typeArguments() == null) {
+            ctx.ast = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+        } else {
+            ctx.ast = ctx.typeArguments().ast;
+        }
+    }
+
+
+
+
 
 
 
