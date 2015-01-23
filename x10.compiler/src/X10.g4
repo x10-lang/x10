@@ -678,7 +678,7 @@ conditionalExpression returns [Expr ast]:
     | closureExpression                                                         #conditionalExpression22
     | atExpression                                                              #conditionalExpression23
     | oBSOLETE_FinishExpression                                                 #conditionalExpression24
-    | e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression   #conditionalExpression25
+    | <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression   #conditionalExpression25
     ;
 
 assignmentExpression returns [Expr ast]:
