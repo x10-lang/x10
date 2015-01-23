@@ -97,7 +97,9 @@ import x10.parserGen.X10Parser.AnnotationsContext;
 import x10.parserGen.X10Parser.AnnotationsoptContext;
 import x10.parserGen.X10Parser.ApplyOperatorDeclarationContext;
 import x10.parserGen.X10Parser.ArgumentListContext;
+import x10.parserGen.X10Parser.ArgumentListoptContext;
 import x10.parserGen.X10Parser.ArgumentsContext;
+import x10.parserGen.X10Parser.ArgumentsoptContext;
 import x10.parserGen.X10Parser.AssertStatement0Context;
 import x10.parserGen.X10Parser.AssertStatement1Context;
 import x10.parserGen.X10Parser.AssignPropertyCallContext;
@@ -125,13 +127,16 @@ import x10.parserGen.X10Parser.BlockInteriorStatement3Context;
 import x10.parserGen.X10Parser.BlockInteriorStatement4Context;
 import x10.parserGen.X10Parser.BlockInteriorStatementContext;
 import x10.parserGen.X10Parser.BlockStatementsContext;
+import x10.parserGen.X10Parser.BlockStatementsoptContext;
 import x10.parserGen.X10Parser.BreakStatementContext;
 import x10.parserGen.X10Parser.CastExpression0Context;
 import x10.parserGen.X10Parser.CastExpression1Context;
 import x10.parserGen.X10Parser.CastExpression2Context;
 import x10.parserGen.X10Parser.CatchClauseContext;
 import x10.parserGen.X10Parser.CatchesContext;
+import x10.parserGen.X10Parser.CatchesoptContext;
 import x10.parserGen.X10Parser.ClassBodyContext;
+import x10.parserGen.X10Parser.ClassBodyoptContext;
 import x10.parserGen.X10Parser.ClassDeclarationContext;
 import x10.parserGen.X10Parser.ClassMemberDeclaration0Context;
 import x10.parserGen.X10Parser.ClassMemberDeclaration1Context;
@@ -200,6 +205,7 @@ import x10.parserGen.X10Parser.ExpressionContext;
 import x10.parserGen.X10Parser.ExpressionName0Context;
 import x10.parserGen.X10Parser.ExpressionName1Context;
 import x10.parserGen.X10Parser.ExpressionStatementContext;
+import x10.parserGen.X10Parser.ExpressionoptContext;
 import x10.parserGen.X10Parser.ExtendsInterfacesoptContext;
 import x10.parserGen.X10Parser.FieldAccess0Context;
 import x10.parserGen.X10Parser.FieldAccess1Context;
@@ -214,9 +220,11 @@ import x10.parserGen.X10Parser.FinishStatement0Context;
 import x10.parserGen.X10Parser.FinishStatement1Context;
 import x10.parserGen.X10Parser.ForInit0Context;
 import x10.parserGen.X10Parser.ForInit1Context;
+import x10.parserGen.X10Parser.ForInitoptContext;
 import x10.parserGen.X10Parser.ForStatement0Context;
 import x10.parserGen.X10Parser.ForStatement1Context;
 import x10.parserGen.X10Parser.ForUpdateContext;
+import x10.parserGen.X10Parser.ForUpdateoptContext;
 import x10.parserGen.X10Parser.FormalDeclarator0Context;
 import x10.parserGen.X10Parser.FormalDeclarator1Context;
 import x10.parserGen.X10Parser.FormalDeclarator2Context;
@@ -227,6 +235,7 @@ import x10.parserGen.X10Parser.FormalParameter1Context;
 import x10.parserGen.X10Parser.FormalParameter2Context;
 import x10.parserGen.X10Parser.FormalParameterContext;
 import x10.parserGen.X10Parser.FormalParameterListContext;
+import x10.parserGen.X10Parser.FormalParameterListoptContext;
 import x10.parserGen.X10Parser.FormalParametersContext;
 import x10.parserGen.X10Parser.FullyQualifiedName0Context;
 import x10.parserGen.X10Parser.FullyQualifiedName1Context;
@@ -238,6 +247,7 @@ import x10.parserGen.X10Parser.HasResultTypeoptContext;
 import x10.parserGen.X10Parser.HasZeroConstraintContext;
 import x10.parserGen.X10Parser.IdentifierContext;
 import x10.parserGen.X10Parser.IdentifierListContext;
+import x10.parserGen.X10Parser.IdentifieroptContext;
 import x10.parserGen.X10Parser.IfThenElseStatementContext;
 import x10.parserGen.X10Parser.IfThenStatementContext;
 import x10.parserGen.X10Parser.ImplicitConversionOperatorDeclarationContext;
@@ -251,10 +261,14 @@ import x10.parserGen.X10Parser.InterfaceMemberDeclaration0Context;
 import x10.parserGen.X10Parser.InterfaceMemberDeclaration1Context;
 import x10.parserGen.X10Parser.InterfaceMemberDeclaration2Context;
 import x10.parserGen.X10Parser.InterfaceMemberDeclaration3Context;
+import x10.parserGen.X10Parser.InterfaceMemberDeclarationContext;
+import x10.parserGen.X10Parser.InterfaceMemberDeclarationsoptContext;
 import x10.parserGen.X10Parser.InterfacesoptContext;
 import x10.parserGen.X10Parser.IsRefConstraintContext;
 import x10.parserGen.X10Parser.LabeledStatementContext;
 import x10.parserGen.X10Parser.LastExpressionContext;
+import x10.parserGen.X10Parser.LeftHandSide0Context;
+import x10.parserGen.X10Parser.LeftHandSide1Context;
 import x10.parserGen.X10Parser.LocalVariableDeclaration0Context;
 import x10.parserGen.X10Parser.LocalVariableDeclaration1Context;
 import x10.parserGen.X10Parser.LocalVariableDeclaration2Context;
@@ -1480,7 +1494,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitFunctionType(FunctionTypeContext ctx) {
         List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameterListopt = ctx.formalParameterList().ast;
+        List<Formal> FormalParameterListopt = ctx.formalParameterListopt().ast;
         DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
         TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
         TypeNode Type = ctx.type().ast;
@@ -1623,7 +1637,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitFormalParameters(FormalParametersContext ctx) {
-        ctx.ast = ctx.formalParameterList().ast;
+        ctx.ast = ctx.formalParameterListopt().ast;
     }
 
     @Override
@@ -2894,6 +2908,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
+    public void exitInterfaceMemberDeclarationsopt(InterfaceMemberDeclarationsoptContext ctx) {
+        TypedList<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        for (InterfaceMemberDeclarationContext decl : ctx.interfaceMemberDeclaration()) {
+            l.addAll(decl.ast);
+        }
+        ctx.ast = l;
+    }
+
+    @Override
     public void exitInterfaceMemberDeclaration0(InterfaceMemberDeclaration0Context ctx) {
         ClassMember MethodDeclaration = ctx.methodDeclaration().ast;
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
@@ -2953,11 +2976,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AnnotationNode(pos(ctx), NamedTypeNoConstraints);
     }
 
-    @Override
-    public void exitIdentifier(IdentifierContext ctx) {
-        // TODO Auto-generated method stub
-        super.exitIdentifier(ctx);
-    }
+
 
     @Override
     public void exitBlock(BlockContext ctx) {
@@ -4013,6 +4032,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
+    public void exitLeftHandSide0(LeftHandSide0Context ctx) {
+        ParsedName ExpressionName = ctx.expressionName().ast;
+        ctx.ast = ExpressionName.toExpr();
+    }
+
+    @Override
+    public void exitLeftHandSide1(LeftHandSide1Context ctx) {
+        ctx.ast = ctx.fieldAccess().ast;
+    }
+
+    @Override
     public void exitExpression(ExpressionContext ctx) {
         ctx.ast = ctx.assignmentExpression().ast;
     }
@@ -4035,6 +4065,90 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             ctx.ast = ctx.typeArguments().ast;
         }
     }
+
+    @Override
+    public void exitArgumentListopt(ArgumentListoptContext ctx) {
+        if (ctx.argumentList() == null) {
+            ctx.ast = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        } else {
+            ctx.ast = ctx.argumentList().ast;
+        }
+    }
+
+    @Override
+    public void exitArgumentsopt(ArgumentsoptContext ctx) {
+        if (ctx.arguments() == null) {
+            ctx.ast = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        } else {
+            ctx.ast = ctx.arguments().ast;
+        }
+    }
+
+    @Override
+    public void exitIdentifieropt(IdentifieroptContext ctx) {
+        ctx.ast = ctx.identifier() == null ? null : ctx.identifier().ast;
+    }
+
+    @Override
+    public void exitForInitopt(ForInitoptContext ctx) {
+        if (ctx.forInit() == null) {
+            ctx.ast = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
+        } else {
+            ctx.ast = ctx.forInit().ast;
+        }
+    }
+
+    @Override
+    public void exitForUpdateopt(ForUpdateoptContext ctx) {
+        if (ctx.forUpdate() == null) {
+            ctx.ast = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
+        } else {
+            ctx.ast = ctx.forUpdate().ast;
+        }
+    }
+
+    @Override
+    public void exitExpressionopt(ExpressionoptContext ctx) {
+        ctx.ast = ctx.expression() == null ? null : ctx.expression().ast;
+    }
+
+    @Override
+    public void exitCatchesopt(CatchesoptContext ctx) {
+        if (ctx.catches() == null) {
+            ctx.ast = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
+        } else {
+            ctx.ast = ctx.catches().ast;
+        }
+    }
+
+    @Override
+    public void exitBlockStatementsopt(BlockStatementsoptContext ctx) {
+        if (ctx.blockStatements() == null) {
+            ctx.ast = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+        } else {
+            ctx.ast = ctx.blockStatements().ast;
+        }
+    }
+
+    @Override
+    public void exitClassBodyopt(ClassBodyoptContext ctx) {
+        ctx.ast = ctx.classBody() == null ? null : ctx.classBody().ast;
+    }
+
+    @Override
+    public void exitFormalParameterListopt(FormalParameterListoptContext ctx) {
+        if (ctx.formalParameterList() == null) {
+            ctx.ast = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+        } else {
+            ctx.ast = ctx.formalParameterList().ast;
+        }
+    }
+
+
+
+
+
+
 
 
 

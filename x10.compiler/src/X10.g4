@@ -100,7 +100,7 @@ type returns [TypeNode ast]:
     | type annotations     #typeAnnotations
     ;
 functionType returns [TypeNode ast]:
-      typeParametersopt '(' formalParameterList? ')' whereClauseopt oBSOLETE_Offersopt '=>' type
+      typeParametersopt '(' formalParameterListopt ')' whereClauseopt oBSOLETE_Offersopt '=>' type
     ;
 classType returns [TypeNode ast]:
       namedType
@@ -143,7 +143,7 @@ typeParametersopt returns [List<TypeParamNode> ast]:
       ('[' typeParameterList ']')?
     ;
 formalParameters returns [List<Formal> ast]:
-      '(' formalParameterList? ')'
+      '(' formalParameterListopt ')'
     ;
 constraintConjunctionopt returns [List<Expr> ast]:
       (expression (',' expression)*)?
@@ -509,7 +509,7 @@ arguments returns [List<Expr> ast]:
       '(' argumentList ')'
     ;
 extendsInterfacesopt returns [List<TypeNode> ast]:
-      'extends' type (',' type)*
+      ('extends' type (',' type)*)?
     ;
 interfaceBody returns [ClassBody ast]:
       '{' interfaceMemberDeclarationsopt '}'
@@ -799,4 +799,7 @@ blockStatementsopt returns [List<Stmt> ast]:
     ;
 classBodyopt returns [ClassBody ast]:
       classBody?
+    ;
+formalParameterListopt returns [List<Formal> ast]:
+        formalParameterList?
     ;
