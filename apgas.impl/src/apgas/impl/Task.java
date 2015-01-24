@@ -110,7 +110,12 @@ final class Task extends RecursiveAction implements SerializableRunnable {
       Task t;
       while (!finish.isReleasable()
           && (t = (Task) ForkJoinTask.pollNextLocalTask()) != null) {
-        t.compute();
+        if (finish == t.finish) {
+          t.compute();
+        } else {
+          t.fork();
+          break;
+        }
       }
       try {
         ForkJoinPool.managedBlock(finish);
