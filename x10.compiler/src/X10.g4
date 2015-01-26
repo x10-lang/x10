@@ -278,11 +278,11 @@ forStatement returns [Loop ast]:
 basicForStatement returns [For ast]:
       'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement
     ;
-forInit returns [List<ForInit> ast]:
+forInit returns [List<? extends ForInit> ast]:
       statementExpressionList     #forInit0
     | localVariableDeclaration    #forInit1
     ;
-forUpdate returns [List<ForUpdate> ast]:
+forUpdate returns [List<? extends ForUpdate> ast]:
       statementExpressionList
     ;
 statementExpressionList returns [List<? extends Eval> ast]:
@@ -668,7 +668,7 @@ conditionalExpression returns [Expr ast]:
     | conditionalExpression 'instanceof' type                                   #conditionalExpression12
     | e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression  #conditionalExpression13
     | e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression          #conditionalExpression14
-    | t1=type '==' t2=type                                                      #conditionalExpression15 // Danger some type equalities can be capture by the previous rule
+ //   | t1=type '==' t2=type                                                      #conditionalExpression15 // Danger some type equalities can be capture by the previous rule
     | e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression           #conditionalExpression16
     | e1=conditionalExpression '&' e2=conditionalExpression                     #conditionalExpression17
     | e1=conditionalExpression '^' e2=conditionalExpression                     #conditionalExpression18
@@ -679,6 +679,7 @@ conditionalExpression returns [Expr ast]:
     | atExpression                                                              #conditionalExpression23
     | oBSOLETE_FinishExpression                                                 #conditionalExpression24
     | <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression   #conditionalExpression25
+    | type                                                                      #conditionalExpression26
     ;
 
 assignmentExpression returns [Expr ast]:
