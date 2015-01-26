@@ -42,7 +42,7 @@ all	:
 
 ###
 clean	::
-		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_pami
+		rm -rf $(build_path) $(target)_sock_$(GML_ELEM_TYPE) $(target)_pami_$(GML_ELEM_TYPE)
 
 clean_all:: 
 		rm -rf $(build_path)

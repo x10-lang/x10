@@ -49,10 +49,10 @@ all_mpi	:
 ###---------
 
 clean	::
-		rm -f $(target)_mpi
+		rm -f $(target)_mpi_$(GML_ELEM_TYPE)
 
 clean_all ::
-		$(foreach f, $(target_list), rm -f $(f)_mpi; )
+		$(foreach f, $(target_list), rm -f $(f)_mpi_$(GML_ELEM_TYPE); )
 
 ###-----------
 help	::
