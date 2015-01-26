@@ -13,6 +13,7 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.concurrent.RecursiveAction;
 
 import apgas.Job;
 import apgas.NoSuchPlaceException;
@@ -25,7 +26,8 @@ import apgas.Place;
  * This class implements task serialization and handles errors in the
  * serialization process.
  */
-final class UncountedTask implements SerializableRunnable {
+final class UncountedTask extends RecursiveAction implements
+    SerializableRunnable {
   private static final long serialVersionUID = 5031683857632950143L;
 
   /**
@@ -48,8 +50,12 @@ final class UncountedTask implements SerializableRunnable {
    */
   @Override
   public void run() {
+    GlobalRuntimeImpl.getRuntime().pool.execute((RecursiveAction) this);
+  }
+
+  @Override
+  protected void compute() {
     try {
-      // TODO submit the task to the pool?
       f.run();
     } catch (final Throwable t) {
       System.err.println("[APGAS] Uncaught exception in uncounted task");
