@@ -1487,7 +1487,9 @@ x10rt_error x10rt_net_probe()
 		if (status == PAMI_ERROR) error ("Problem advancing the current context");
 
 		if (myContext == state.context[0] && state.pendingContextOpen) {
-			fprintf(stderr, "Thread 0 opening a new context at index %i\n", state.numValidContexts);
+			#ifdef DEBUG
+				fprintf(stderr, "Thread 0 opening a new context at index %i\n", state.numValidContexts);
+			#endif
 			// this thread is responsible for opening new contexts for others, and some other thread wants one
 			pthread_mutex_lock(&state.stateLock);
 			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[state.numValidContexts], 1)) != PAMI_SUCCESS)
