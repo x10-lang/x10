@@ -45,7 +45,7 @@ import apgas.util.GlobalID;
  * <p>
  * The finish body counts as one local task.
  */
-final class DefaultFinish implements Finish, Serializable {
+final class DefaultFinish implements Serializable, Finish {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**

@@ -18,7 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 
-import apgas.Fun;
+import apgas.SerializableCallable;
 import apgas.Place;
 
 /**
@@ -80,7 +80,7 @@ public class GlobalRef<T> implements Serializable {
    * @param initializer
    *          the function to evaluate to initialize the objects
    */
-  public GlobalRef(Collection<? extends Place> places, Fun<T> initializer) {
+  public GlobalRef(Collection<? extends Place> places, SerializableCallable<T> initializer) {
     id = new GlobalID();
     this.places = places;
     finish(() -> {

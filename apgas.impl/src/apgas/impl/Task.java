@@ -21,6 +21,7 @@ import java.util.concurrent.RecursiveAction;
 import apgas.Job;
 import apgas.NoSuchPlaceException;
 import apgas.Place;
+import apgas.SerializableJob;
 
 /**
  * The {@link Task} class represents an APGAS task.
@@ -180,7 +181,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
     out.writeObject(f);
   }
 
-  private static final Job NULL = () -> {
+  private static final SerializableJob NULL = () -> {
   };
 
   /**
@@ -202,7 +203,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
     finish = (Finish) in.readObject();
     parent = in.readInt();
     try {
-      f = (Job) in.readObject();
+      f = (SerializableJob) in.readObject();
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException) {
         finish.addSuppressed(e);

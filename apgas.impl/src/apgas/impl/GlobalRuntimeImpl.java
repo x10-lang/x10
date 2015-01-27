@@ -24,11 +24,12 @@ import java.util.function.Consumer;
 
 import apgas.Configuration;
 import apgas.Constructs;
-import apgas.Fun;
+import apgas.SerializableCallable;
 import apgas.GlobalRuntime;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
+import apgas.SerializableJob;
 import apgas.util.GlobalID;
 
 /**
@@ -329,7 +330,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void asyncat(Place p, Job f) {
+  public void asyncat(Place p, SerializableJob f) {
     final Worker worker = currentWorker();
     final Finish finish;
     if (worker == null) {
@@ -342,18 +343,18 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void uncountedasyncat(Place p, Job f) {
+  public void uncountedasyncat(Place p, SerializableJob f) {
     new UncountedTask(f).uncountedasyncat(p);
   }
 
   @Override
-  public void at(Place p, Job f) {
+  public void at(Place p, SerializableJob f) {
     Constructs.finish(() -> Constructs.asyncat(p, f));
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T at(Place p, Fun<T> f) {
+  public <T> T at(Place p, SerializableCallable<T> f) {
     final GlobalID id = new GlobalID();
     final Place home = here();
     Constructs.finish(() -> Constructs.asyncat(p, () -> {

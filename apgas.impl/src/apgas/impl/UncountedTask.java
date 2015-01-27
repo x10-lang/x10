@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.concurrent.RecursiveAction;
 
-import apgas.Job;
+import apgas.SerializableJob;
 import apgas.NoSuchPlaceException;
 import apgas.Place;
 
@@ -33,7 +33,7 @@ final class UncountedTask extends RecursiveAction implements
   /**
    * The function to run.
    */
-  private Job f;
+  private SerializableJob f;
 
   /**
    * Constructs a new {@link UncountedTask}.
@@ -41,7 +41,7 @@ final class UncountedTask extends RecursiveAction implements
    * @param f
    *          the function to run
    */
-  UncountedTask(Job f) {
+  UncountedTask(SerializableJob f) {
     this.f = f;
   }
 
@@ -93,7 +93,7 @@ final class UncountedTask extends RecursiveAction implements
     }
   }
 
-  private static final Job NULL = () -> {
+  private static final SerializableJob NULL = () -> {
   };
 
   /**
@@ -112,7 +112,7 @@ final class UncountedTask extends RecursiveAction implements
   private void readObject(ObjectInputStream in) throws IOException,
       ClassNotFoundException {
     try {
-      f = (Job) in.readObject();
+      f = (SerializableJob) in.readObject();
     } catch (final Throwable e) {
       final StackTraceElement elm = e.getStackTrace()[0];
       System.err

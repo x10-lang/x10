@@ -61,7 +61,7 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void asyncat(Place p, Job f) {
+  public static void asyncat(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().asyncat(p, f);
   }
 
@@ -76,7 +76,7 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void uncountedasyncat(Place p, Job f) {
+  public static void uncountedasyncat(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().uncountedasyncat(p, f);
   }
 
@@ -91,7 +91,7 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void at(Place p, Job f) {
+  public static void at(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().at(p, f);
   }
 
@@ -107,7 +107,7 @@ public final class Constructs {
    *          the function to run
    * @return the result
    */
-  public static <T> T at(Place p, Fun<T> f) {
+  public static <T> T at(Place p, SerializableCallable<T> f) {
     return GlobalRuntime.getRuntime().at(p, f);
   }
 

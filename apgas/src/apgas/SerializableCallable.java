@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
  *          the type of the result
  */
 @FunctionalInterface
-public interface Fun<T> extends Callable<T>, Serializable {
+public interface SerializableCallable<T> extends Serializable, Callable<T> {
   @Override
   public T call() throws Exception;
 }

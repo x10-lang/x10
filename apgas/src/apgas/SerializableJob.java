@@ -11,18 +11,15 @@
 
 package apgas;
 
+import java.io.Serializable;
+
 /**
- * A functional interface with no arguments and no return value.
+ * A serializable functional interface with no arguments and no return value.
  * <p>
  * The functional method is {@link #run()}.
  */
 @FunctionalInterface
-public interface Job {
-  /**
-   * Runs the function or throws an exception if unable to do so.
-   *
-   * @throws Exception
-   *           if unable to run the function
-   */
+public interface SerializableJob extends Serializable, Job {
+  @Override
   public void run() throws Exception;
 }

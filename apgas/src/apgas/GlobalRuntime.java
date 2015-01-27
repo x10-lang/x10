@@ -120,7 +120,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void asyncat(Place p, Job f);
+  protected abstract void asyncat(Place p, SerializableJob f);
 
   /**
    * Submits an uncounted task to the global runtime to be run at {@link Place}
@@ -133,7 +133,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void uncountedasyncat(Place p, Job f);
+  protected abstract void uncountedasyncat(Place p, SerializableJob f);
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
@@ -146,7 +146,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void at(Place p, Job f);
+  protected abstract void at(Place p, SerializableJob f);
 
   /**
    * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
@@ -160,7 +160,7 @@ public abstract class GlobalRuntime {
    *          the function to run
    * @return the result
    */
-  protected abstract <T> T at(Place p, Fun<T> f);
+  protected abstract <T> T at(Place p, SerializableCallable<T> f);
 
   /**
    * Returns the current {@link Place}.

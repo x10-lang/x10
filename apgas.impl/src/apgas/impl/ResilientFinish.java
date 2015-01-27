@@ -27,7 +27,7 @@ import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
 
 @SuppressWarnings({ "javadoc", "serial" })
-final class ResilientFinish implements Finish, Serializable {
+final class ResilientFinish implements Serializable, Finish {
   private static final long serialVersionUID = -8238404708052769991L;
 
   private static final IMap<GlobalID, State> map = GlobalRuntimeImpl
