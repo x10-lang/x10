@@ -406,7 +406,7 @@
         <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} @${xrx.filelist}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c @'${xrx.filelist}'" />
+            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx8192M ${x10c.optimize} ${x10c.experimental} ${x10c.eliminate_dead_variables} ${x10c.copy_propagation} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c @'${xrx.filelist}'" />
         </exec>
 	<delete file="${xrx.filelist}" quiet="true"/>
     </target>
