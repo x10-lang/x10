@@ -11,6 +11,7 @@
 
 package apgas;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -160,7 +161,8 @@ public abstract class GlobalRuntime {
    *          the function to run
    * @return the result
    */
-  protected abstract <T> T at(Place p, SerializableCallable<T> f);
+  protected abstract <T extends Serializable> T at(Place p,
+      SerializableCallable<T> f);
 
   /**
    * Returns the current {@link Place}.

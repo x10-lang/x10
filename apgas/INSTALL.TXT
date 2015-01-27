@@ -1,52 +1,9 @@
-For support in Eclipse 4.4.0, please install the "Lambda Deserialization Patch" in Eclipse from archive lambda-update-site.zip.
+For support in Eclipse 4.4.1, please install the "Lambda Support Patch" in Eclipse from archive lambda-update-site.zip.
 
-The patch addresses two issues in the org.eclipse.jdt.core_3.10.0.v20140604-1726 plugin.
+The patch addresses two issues in the org.eclipse.jdt.core plugin with lambda serialization.
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=442416
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418
 
-The source code for the patch is:
-
-diff --git a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java b/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java
-index 74de2bd..652648b 100644
---- a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java
-+++ b/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ClassFile.java
-@@ -874,6 +874,7 @@ public class ClassFile implements TypeConstants, TypeIds {
- 		
- 		// add synthetic methods infos
- 		int emittedSyntheticsCount = 0;
-+		SyntheticMethodBinding deserializeLambdaMethod = null;
- 		boolean continueScanningSynthetics = true;
- 		while (continueScanningSynthetics) {
- 			continueScanningSynthetics = false;
-@@ -934,14 +935,16 @@ public class ClassFile implements TypeConstants, TypeIds {
- 							addSyntheticFactoryMethod(syntheticMethod);
- 							break;	
- 						case SyntheticMethodBinding.DeserializeLambda:
--							// TODO [andy] do we need to do this after the loop to ensure it is done last?
--							addSyntheticDeserializeLambda(syntheticMethod,this.referenceBinding.syntheticMethods()); 
-+							deserializeLambdaMethod = syntheticMethod; // delay processing
- 							break;
- 					}
- 				}
- 				emittedSyntheticsCount = currentSyntheticsCount;
- 			}
- 		}
-+		if (deserializeLambdaMethod != null) {
-+			addSyntheticDeserializeLambda(deserializeLambdaMethod,this.referenceBinding.syntheticMethods()); 
-+		}
- 	}
- 
- 	public void addSyntheticArrayConstructor(SyntheticMethodBinding methodBinding) {
-diff --git a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/codegen/CodeStream.java b/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/codegen/CodeStream.java
-index 7afddcf..2ae0406 100644
---- a/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/codegen/CodeStream.java
-+++ b/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/codegen/CodeStream.java
-@@ -2707,7 +2707,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
- 		SyntheticArgumentBinding[] outerLocalVariables = lambdaEx.outerLocalVariables;
- 		for (int p=0,max=outerLocalVariables.length;p<max;p++) {
- 			aload_0();
--			loadInt(p);
-+			loadInt(index);
- 			invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName, 
- 					ConstantPool.GetCapturedArg, ConstantPool.GetCapturedArgSignature);
- 			TypeBinding varType = outerLocalVariables[p].type;
+The patch implements additional compiler checks:
+- warning: a serializable lambda captures this,
+- error: a serializable lambda captures a non-serializable variable (including this).

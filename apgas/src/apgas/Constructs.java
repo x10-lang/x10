@@ -11,6 +11,7 @@
 
 package apgas;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -107,7 +108,7 @@ public final class Constructs {
    *          the function to run
    * @return the result
    */
-  public static <T> T at(Place p, SerializableCallable<T> f) {
+  public static <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
     return GlobalRuntime.getRuntime().at(p, f);
   }
 

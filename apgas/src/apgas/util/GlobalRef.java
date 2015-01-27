@@ -18,8 +18,8 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 
-import apgas.SerializableCallable;
 import apgas.Place;
+import apgas.SerializableCallable;
 
 /**
  * The {@link GlobalRef} class implements APGAS global references using
@@ -80,10 +80,12 @@ public class GlobalRef<T> implements Serializable {
    * @param initializer
    *          the function to evaluate to initialize the objects
    */
-  public GlobalRef(Collection<? extends Place> places, SerializableCallable<T> initializer) {
+  public GlobalRef(Collection<? extends Place> places,
+      SerializableCallable<T> initializer) {
     id = new GlobalID();
     this.places = places;
     finish(() -> {
+      final GlobalID id = this.id;
       for (final Place p : places) {
         asyncat(p, () -> {
           id.putHere(initializer.call());
@@ -119,6 +121,7 @@ public class GlobalRef<T> implements Serializable {
     if (places == null) {
       id.removeHere();
     } else {
+      final GlobalID id = this.id;
       finish(() -> {
         for (final Place p : places) {
           asyncat(p, () -> {
