@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix.util;
@@ -23,25 +23,19 @@ import x10.matrix.ElemType;
 public class RandTool {
 	private static val tool:RandTool = new RandTool();
 
-	val randomGen = new Random(here.id());
+	private var randomGen:Random = new Random(here.id());
 
 	/**
 	 * Return the static Random type variable used to generate random values
 	 * in integer and double.
 	 */
-	public static def getRandGen(): Random {
-		tool.reSeed();
-		return tool.randomGen;
+	public static def getRandGen():Random {
+        return tool.reSeed(tool.randomGen.nextLong() + here.id());
 	}
 	
-	public static def reSeed(seed:Long): Random {
-		tool.randomGen.init(seed);
+	public static def reSeed(seed:Long):Random {
+		tool.randomGen = new Random(seed);
 		return tool.randomGen;
-	}
-
-	private def reSeed() : void{
-		val seed = tool.randomGen.nextLong() + here.id();// + Timer.milliTime();
-		tool.randomGen.init(seed);
 	}
 
 	/**
