@@ -424,7 +424,7 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
  */
 pami_context_t getPAMIContext(bool waitForNonNull)
 {
-	if (state.numValidContexts == 1) // no lookup needed when multiplexing on a single context
+	if (state.maxAllowedContexts == 1) // no lookup needed when multiplexing on a single context
 		return state.context[0];
 
 	// get the context associated with this thread
@@ -467,8 +467,7 @@ pami_context_t getPAMIContext(bool waitForNonNull)
 			#endif
 			// set the flag that we want a new context to be opened
 			pthread_mutex_lock(&state.stateLock);
-			if (!state.pendingContextOpen)
-				state.pendingContextOpen = true;
+			state.pendingContextOpen = true;
 			pthread_mutex_unlock(&state.stateLock);
 		}
 		sched_yield();
@@ -1001,6 +1000,7 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	state.numPlaces = configuration[1].value.intval;
 	state.maxAllowedContexts = configuration[2].value.intval;
 	state.numValidContexts = 1; // we will pre-allocate the first context and associate it with this thread
+	state.spareContextIndex = -1;
 
 	// determine the level of parallelism within a place we can support
 	// the strategy is to open up a new context for each new thread
@@ -1480,37 +1480,39 @@ x10rt_error x10rt_net_probe()
 	// TODO - return proper error codes upon failure, in place of calling the error() method.
 	pami_result_t status = PAMI_ERROR;
 	pami_context_t myContext = getPAMIContext(false);
-	if (isContextExclusive(myContext))
-	{
-		do { status = x10rt_PAMI_Context_advance(myContext, 1);
-		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-		if (status == PAMI_ERROR) error ("Problem advancing the current context");
+	if (myContext != PAMI_CONTEXT_NULL) {
+		if (isContextExclusive(myContext))
+		{
+			do { status = x10rt_PAMI_Context_advance(myContext, 1);
+			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+			if (status == PAMI_ERROR) error ("Problem advancing the current context");
 
-		if (myContext == state.context[0] && state.pendingContextOpen) {
-			#ifdef DEBUG
-				fprintf(stderr, "Thread 0 opening a new context at index %i\n", state.numValidContexts);
-			#endif
-			// this thread is responsible for opening new contexts for others, and some other thread wants one
-			pthread_mutex_lock(&state.stateLock);
-			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[state.numValidContexts], 1)) != PAMI_SUCCESS)
-				error("Unable to initialize the PAMI context: %i\n", status);
-			state.spareContextIndex = state.numValidContexts;
-			state.numValidContexts++;
-			state.pendingContextOpen = false;
-			pthread_mutex_unlock(&state.stateLock);
+			if (myContext == state.context[0] && state.pendingContextOpen) {
+				#ifdef DEBUG
+					fprintf(stderr, "Thread 0 opening a new context at index %i\n", state.numValidContexts);
+				#endif
+				// this thread is responsible for opening new contexts for others, and some other thread wants one
+				pthread_mutex_lock(&state.stateLock);
+				if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[state.numValidContexts], 1)) != PAMI_SUCCESS)
+					error("Unable to initialize the PAMI context: %i\n", status);
+				state.spareContextIndex = state.numValidContexts;
+				state.numValidContexts++;
+				state.pendingContextOpen = false;
+				pthread_mutex_unlock(&state.stateLock);
+			}
 		}
-	}
-	else
-	{
-		status = PAMI_Context_trylock(myContext);
-		if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
-		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
+		else
+		{
+			status = PAMI_Context_trylock(myContext);
+			if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
+			if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 
-		do { status = x10rt_PAMI_Context_advance(myContext, 1);
-		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-		if (status == PAMI_ERROR) error ("Problem advancing the context");
+			do { status = x10rt_PAMI_Context_advance(myContext, 1);
+			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+			if (status == PAMI_ERROR) error ("Problem advancing the context");
 
-		if (PAMI_Context_unlock(myContext) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
+			if (PAMI_Context_unlock(myContext) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
+		}
 	}
 	return X10RT_ERR_OK;
 }
