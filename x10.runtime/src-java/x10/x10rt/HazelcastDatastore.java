@@ -55,4 +55,8 @@ public class HazelcastDatastore {
 	void shutdown() {
 		hazelcast.shutdown();
 	}
+
+	HazelcastInstance getHazelcastInstance() {
+		return hazelcast;
+	}
 }
