@@ -318,7 +318,7 @@ final class ResilientFinish implements Finish, Serializable {
   public boolean isReleasable() {
     final State state = map.get(id);
     if (state == null) {
-      System.exit(42);
+      return true;
     }
     if (state.count > 0 || state.cids != null && !state.cids.isEmpty()) {
       return false;
