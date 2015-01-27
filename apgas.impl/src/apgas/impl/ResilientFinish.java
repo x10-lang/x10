@@ -328,36 +328,6 @@ final class ResilientFinish implements Finish, Serializable {
     return true;
   }
 
-  // alternate waiting implementation
-  public boolean _waiting() {
-    try {
-      final State state = (State) map.executeOnKey(id,
-          new AbstractEntryProcessor<GlobalID, State>() {
-            @Override
-            public State process(Map.Entry<GlobalID, State> entry) {
-              final State state = entry.getValue();
-              if (state.count > 0 || state.cids != null
-                  && !state.cids.isEmpty()) {
-                return null;
-              } else {
-                entry.setValue(null);
-                return state;
-              }
-            }
-          });
-      if (state != null) {
-        exceptions = state.exceptions;
-        return false;
-      } else {
-        return true;
-      }
-    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
-      // this place is dead for the world
-      System.exit(42);
-      return false;
-    }
-  }
-
   @Override
   public boolean block() {
     final String reg = map.addEntryListener(
