@@ -12,6 +12,7 @@
 package apgas.impl;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -24,11 +25,11 @@ import java.util.function.Consumer;
 
 import apgas.Configuration;
 import apgas.Constructs;
-import apgas.SerializableCallable;
 import apgas.GlobalRuntime;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
+import apgas.SerializableCallable;
 import apgas.SerializableJob;
 import apgas.util.GlobalID;
 
@@ -354,7 +355,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T at(Place p, SerializableCallable<T> f) {
+  public <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
     final GlobalID id = new GlobalID();
     final Place home = here();
     Constructs.finish(() -> Constructs.asyncat(p, () -> {

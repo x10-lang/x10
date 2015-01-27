@@ -115,7 +115,7 @@ public class ApgasTest {
     }));
   }
 
-  public int fib(int n) {
+  public static int fib(int n) {
     if (n < 2) {
       return n;
     }
