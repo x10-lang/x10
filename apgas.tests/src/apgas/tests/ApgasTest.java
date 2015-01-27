@@ -132,6 +132,7 @@ public class ApgasTest {
     assertEquals(fib(10), 55);
   }
 
+  @SuppressWarnings("serial")
   @Test(expected = RuntimeException.class)
   public void testSerializationException() throws Throwable {
     try {
@@ -152,6 +153,7 @@ public class ApgasTest {
     }
   }
 
+  @SuppressWarnings("serial")
   @Test(expected = NotSerializableException.class)
   public void testDeserializationException() throws Throwable {
     final Object obj = new Foo();
