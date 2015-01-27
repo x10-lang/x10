@@ -4,6 +4,6 @@ The patch addresses two issues in the org.eclipse.jdt.core plugin with lambda se
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=442416
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418
 
-The patch implements additional compiler checks:
-- warning: a serializable lambda captures this,
-- error: a serializable lambda captures a non-serializable variable (including this).
+The patch implements additional compiler warnings when:
+- a serializable lambda captures this,
+- a serializable lambda captures a non-serializable variable (including this).
