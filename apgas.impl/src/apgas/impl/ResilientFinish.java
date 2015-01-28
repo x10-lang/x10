@@ -33,7 +33,7 @@ final class ResilientFinish implements Serializable, Finish {
   private static final IMap<GlobalID, State> map = GlobalRuntimeImpl
       .getRuntime().transport.<GlobalID, State> getMap("apgas:finish");
 
-  GlobalID id;
+  final GlobalID id;
   transient List<Throwable> exceptions;
 
   static final class State implements Serializable {
@@ -47,8 +47,7 @@ final class ResilientFinish implements Serializable, Finish {
     int counts[][]; // TODO dynamic array
     List<Throwable> exceptions;
 
-    State(GlobalID pid, int p, int places) {
-      final int here = GlobalRuntimeImpl.getRuntime().here;
+    State(GlobalID pid, int here, int p, int places) {
       this.pid = pid;
       counts = new int[places][places];
       counts[here][p] = 1;
@@ -59,36 +58,33 @@ final class ResilientFinish implements Serializable, Finish {
   ResilientFinish(ResilientFinish parent, int p) {
     id = new GlobalID();
     final GlobalID pid = parent == null ? null : parent.id;
-    map.set(id, new State(pid, p, 100)); // TODO fix size
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    if (pid != null) {
-      propagate(pid, new AbstractEntryProcessor<GlobalID, State>() {
-        @Override
-        public GlobalID process(Map.Entry<GlobalID, State> entry) {
-          final State state = entry.getValue();
-          if (state == null || state.deads != null
-              && state.deads.contains(here)) {
-            // parent finish thinks this place is dead, exit
-            throw new DeadPlaceError();
-          }
-          if (state.dids == null || !state.dids.contains(id)) {
-            if (state.cids == null) {
-              state.cids = new ArrayList<GlobalID>();
-            }
-            state.cids.add(id);
-          }
-          entry.setValue(state);
-          return null;
-        }
-      });
+    map.set(id, new State(pid, here, p, 100)); // TODO fix size
+    if (pid == null) {
+      return;
     }
+    executeOnKey(pid, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // parent finish thinks this place is dead, exit
+        throw new DeadPlaceError();
+      }
+      if (state.dids == null || !state.dids.contains(id)) {
+        if (state.cids == null) {
+          state.cids = new ArrayList<GlobalID>();
+        }
+        state.cids.add(id);
+      }
+      entry.setValue(state);
+      return null;
+    });
   }
 
   static State filter(GlobalID id, State state) {
     if (state.count > 0 || state.cids != null && !state.cids.isEmpty()
         || state.deads == null || !state.deads.contains(id.home.id)) {
       // state is still useful:
-      // finish in incomplete or we need to preserve its exceptions
+      // finish is incomplete or we need to preserve its exceptions
       return state;
     } else {
       // finish is complete and place of finish has died, remove entry
@@ -106,35 +102,32 @@ final class ResilientFinish implements Serializable, Finish {
 
   static void purge(int p) {
     for (final GlobalID id : map.keySet()) {
-      propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-        @Override
-        public GlobalID process(Map.Entry<GlobalID, State> entry) {
-          final State state = entry.getValue();
-          if (state == null) {
-            // entry has been removed already, ignore
-            return null;
-          }
-          if (state.deads == null) {
-            state.deads = new ArrayList<Integer>();
-          }
-          if (state.deads.contains(p)) {
-            // death of p has already been processed
-            return null;
-          }
-          state.deads.add(p);
-          for (int i = 0; i < state.counts.length; i++) {
-            if (state.counts[p][i] != 0) {
-              state.count--;
-            }
-            state.counts[p][i] = 0;
-            if (state.counts[i][p] != 0) {
-              state.count--;
-            }
-            state.counts[i][p] = 0;
-          }
-          entry.setValue(filter(id, state));
-          return next(state);
+      executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+        final State state = entry.getValue();
+        if (state == null) {
+          // entry has been removed already, ignore
+          return null;
         }
+        if (state.deads == null) {
+          state.deads = new ArrayList<Integer>();
+        }
+        if (state.deads.contains(p)) {
+          // death of p has already been processed
+          return null;
+        }
+        state.deads.add(p);
+        for (int i = 0; i < state.counts.length; i++) {
+          if (state.counts[p][i] != 0) {
+            state.count--;
+          }
+          state.counts[p][i] = 0;
+          if (state.counts[i][p] != 0) {
+            state.count--;
+          }
+          state.counts[i][p] = 0;
+        }
+        entry.setValue(filter(id, state));
+        return next(state);
       });
     }
   }
@@ -146,168 +139,156 @@ final class ResilientFinish implements Serializable, Finish {
       // task originated here, no transit stage
       return;
     }
-    propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-      @Override
-      public GlobalID process(Map.Entry<GlobalID, State> entry) {
-        final State state = entry.getValue();
-        if (state == null || state.deads != null && state.deads.contains(here)) {
-          // finish thinks this place is dead, exit
-          throw new DeadPlaceError();
-        }
-        if (state.deads != null && state.deads.contains(p)) {
-          // source place has died, refuse task but keep place alive
-          throw new NoSuchPlaceException();
-        }
-        if (state.counts[p][here] == 0) {
-          state.count++;
-        }
-        if (state.counts[p][here] == 1) {
-          state.count--;
-        }
-        state.counts[p][here]--;
-        if (state.counts[here][here] == 0) {
-          state.count++;
-        }
-        if (state.counts[here][here] == -1) {
-          state.count--;
-        }
-        state.counts[here][here]++;
-        entry.setValue(filter(id, state));
-        return next(state);
+    executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
       }
+      if (state.deads != null && state.deads.contains(p)) {
+        // source place has died, refuse task but keep place alive
+        throw new NoSuchPlaceException();
+      }
+      if (state.counts[p][here]-- == 0) {
+        state.count++;
+      }
+      if (state.counts[p][here] == 0) {
+        state.count--;
+      }
+      if (state.counts[here][here]++ == 0) {
+        state.count++;
+      }
+      if (state.counts[here][here] == 0) {
+        state.count--;
+      }
+      entry.setValue(filter(id, state));
+      return next(state);
     });
   }
 
   @Override
   public void spawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-      @Override
-      public GlobalID process(Map.Entry<GlobalID, State> entry) {
-        final State state = entry.getValue();
-        if (state == null || state.deads != null && state.deads.contains(here)) {
-          // finish thinks this place is dead, exit
-          throw new DeadPlaceError();
-        }
-        if (state.deads != null && state.deads.contains(p)) {
-          // destination place has died, reject task
-          throw new NoSuchPlaceException();
-        }
-        if (state.counts[here][p] == 0) {
-          state.count++;
-        }
-        if (state.counts[here][p] == -1) {
-          state.count--;
-        }
-        state.counts[here][p]++;
-        entry.setValue(filter(id, state));
-        return next(state);
+    executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
       }
+      if (state.deads != null && state.deads.contains(p)) {
+        // destination place has died, reject task
+        throw new NoSuchPlaceException();
+      }
+      if (state.counts[here][p]++ == 0) {
+        state.count++;
+      }
+      if (state.counts[here][p] == 0) {
+        state.count--;
+      }
+      entry.setValue(filter(id, state));
+      return next(state);
     });
   }
 
   @Override
   public void unspawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-      @Override
-      public GlobalID process(Map.Entry<GlobalID, State> entry) {
-        final State state = entry.getValue();
-        if (state == null || state.deads != null && state.deads.contains(here)) {
-          // finish thinks this place is dead, exit
-          throw new DeadPlaceError();
-        }
-        if (state.deads != null && state.deads.contains(p)) {
-          // destination place has died, reject task
-          throw new NoSuchPlaceException();
-        }
-        if (state.counts[here][p] == 0) {
-          state.count++;
-        }
-        if (state.counts[here][p]-- == 1) {
-          state.count--;
-        }
-        state.counts[here][p]--;
-        entry.setValue(filter(id, state));
-        return next(state);
+    executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
       }
+      if (state.deads != null && state.deads.contains(p)) {
+        // destination place has died, reject task
+        throw new NoSuchPlaceException();
+      }
+      if (state.counts[here][p]-- == 0) {
+        state.count++;
+      }
+      if (state.counts[here][p] == 0) {
+        state.count--;
+      }
+      entry.setValue(filter(id, state));
+      return next(state);
     });
   }
 
   @Override
   public void tell() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-      @Override
-      public GlobalID process(Map.Entry<GlobalID, State> entry) {
-        final State state = entry.getValue();
-        if (state == null || state.deads != null && state.deads.contains(here)) {
-          // finish thinks this place is dead, exit
-          throw new DeadPlaceError();
-        }
-        if (state.counts[here][here] == 0) {
-          state.count++;
-        }
-        if (state.counts[here][here] == 1) {
-          state.count--;
-        }
-        state.counts[here][here]--;
-        entry.setValue(filter(id, state));
-        return next(state);
+    executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
       }
+      if (state.counts[here][here]-- == 0) {
+        state.count++;
+      }
+      if (state.counts[here][here] == 0) {
+        state.count--;
+      }
+      entry.setValue(filter(id, state));
+      return next(state);
     });
   }
 
   @Override
   public void addSuppressed(Throwable exception) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    propagate(id, new AbstractEntryProcessor<GlobalID, State>() {
-      @Override
-      public GlobalID process(Map.Entry<GlobalID, State> entry) {
-        final State state = entry.getValue();
-        if (state == null || state.deads != null && state.deads.contains(here)) {
-          // finish thinks this place is dead, exit
-          throw new DeadPlaceError();
-        }
-        if (state.exceptions == null) {
-          state.exceptions = new ArrayList<Throwable>();
-        }
-        state.exceptions.add(exception);
-        entry.setValue(state);
-        return null;
+    executeOnKey(id, (Map.Entry<GlobalID, State> entry) -> {
+      final State state = entry.getValue();
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
       }
+      if (state.exceptions == null) {
+        state.exceptions = new ArrayList<Throwable>();
+      }
+      state.exceptions.add(exception);
+      entry.setValue(state);
+      return null;
     });
   }
 
-  static void propagate(GlobalID id,
-      AbstractEntryProcessor<GlobalID, State> entryProcessor) {
+  @FunctionalInterface
+  interface Processor extends Serializable {
+    GlobalID process(Map.Entry<GlobalID, State> entry);
+  }
+
+  static void executeOnKey(GlobalID id, Processor f) {
     try {
-      final GlobalID pid = (GlobalID) map.executeOnKey(id, entryProcessor);
-      if (pid != null) {
-        propagate(pid, new AbstractEntryProcessor<GlobalID, State>() {
-          @Override
-          public GlobalID process(Map.Entry<GlobalID, State> entry) {
-            final State state = entry.getValue();
-            if (state == null) {
-              // parent has been purged already
-              // stop propagating termination
-              return null;
+      final GlobalID pid = (GlobalID) map.executeOnKey(id,
+          new AbstractEntryProcessor<GlobalID, State>() {
+            @Override
+            public GlobalID process(Map.Entry<GlobalID, State> entry) {
+              return f.process(entry);
             }
-            if (state.cids != null && state.cids.contains(id)) {
-              state.cids.remove(id);
-            } else {
-              if (state.dids == null) {
-                state.dids = new ArrayList<GlobalID>();
-              }
-              if (!state.dids.contains(id)) {
-                state.dids.add(id);
-              }
-            }
-            entry.setValue(filter(pid, state));
-            return next(state);
-          }
-        });
+          });
+      if (pid == null) {
+        return;
       }
+      executeOnKey(pid, (Map.Entry<GlobalID, State> entry) -> {
+        final State state = entry.getValue();
+        if (state == null) {
+          // parent has been purged already
+          // stop propagating termination
+          return null;
+        }
+        if (state.cids != null && state.cids.contains(id)) {
+          state.cids.remove(id);
+        } else {
+          if (state.dids == null) {
+            state.dids = new ArrayList<GlobalID>();
+          }
+          if (!state.dids.contains(id)) {
+            state.dids.add(id);
+          }
+        }
+        entry.setValue(filter(pid, state));
+        return next(state);
+      });
     } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
@@ -362,7 +343,7 @@ final class ResilientFinish implements Serializable, Finish {
           @Override
           public void mapCleared(MapEvent event) {
           }
-        }, id, true);
+        }, id, false);
     synchronized (this) {
       while (!isReleasable()) {
         try {
