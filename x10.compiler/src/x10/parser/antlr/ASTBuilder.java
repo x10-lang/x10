@@ -187,16 +187,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     /** Returns the position of a given parse tree node. */
     protected Position pos(ParserRuleContext ctx) {
-        if (ctx.getStop() == null) {
-            return new Position(null, srce.path(), ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
-        } else {
-            return new Position(null, srce.path(), ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine());
-        }
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        int offset = ctx.getStart().getStartIndex();
+        int endLine = ctx.getStop() == null ? ctx.getStart().getLine() : ctx.getStop().getLine();
+        int endColumn = ctx.getStop() == null ? ctx.getStart().getCharPositionInLine() : ctx.getStop().getCharPositionInLine();
+        int endOffset = ctx.getStop() == null ? ctx.getStart().getStopIndex() : ctx.getStop().getStopIndex();
+        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
     /** Returns the position of a given token. */
     private Position pos(Token t) {
-        return new Position(null, srce.path(), t.getLine(), t.getCharPositionInLine());
+        int line = t.getLine();
+        int column = t.getCharPositionInLine();
+        int offset = t.getStartIndex();
+        int endLine = t.getLine();
+        int endColumn = t.getCharPositionInLine();
+        int endOffset = t.getStopIndex();
+        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
     private String comment(Position pos) {
@@ -628,8 +636,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
                 radix = 8;
                 start_index = 0;
             }
-        }
- else {
+        } else {
             radix = 10;
             start_index = 0;
         }
@@ -649,8 +656,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             int end_index = (s.charAt(s.length() - 1) == 'f' || s.charAt(s.length() - 1) == 'F' ? s.length() - 1 : s.length());
             float x = Float.parseFloat(s.substring(0, end_index));
             return new FloatLiteral(pos(ctx), x, X10Parsersym.TK_FloatingPointLiteral); // TODO: check this!!
-        }
- catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             // unrecoverableSyntaxError = true;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
             return null;
@@ -663,8 +669,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             int end_index = (s.charAt(s.length() - 1) == 'd' || s.charAt(s.length() - 1) == 'D' ? s.length() - 1 : s.length());
             double x = Double.parseDouble(s.substring(0, end_index));
             return new DoubleLiteral(pos(ctx), x, X10Parsersym.TK_DoubleLiteral); // TODO: Check this!!
-        }
- catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             // unrecoverableSyntaxError = true;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
             return null;
@@ -785,10 +790,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
                 }
                 }
             }
-            }
+        }
 
         return new StringLiteral(pos(ctx), new String(x, 0, k), X10Parsersym.TK_StringLiteral);
-        }
+    }
 
     private IntLit getIntLit(LiteralContext ctx, Kind k) {
         return nf.IntLit(pos(ctx), k, parseLong(ctx.getText(), pos(ctx)));
@@ -1965,7 +1970,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @SuppressWarnings("unchecked")
     @Override
     public void exitForInit0(ForInit0Context ctx) {
-        ctx.ast = (List<ForInit>) ctx.statementExpressionList().ast;
+        ctx.ast = (List<ForInit>) ((Object) ctx.statementExpressionList().ast);
     }
 
     @Override
@@ -1979,7 +1984,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdate(ForUpdateContext ctx) {
-        ctx.ast = (List<ForUpdate>) ctx.statementExpressionList().ast;
+        ctx.ast = (List<ForUpdate>) ((Object) ctx.statementExpressionList().ast);
     }
 
     @Override
