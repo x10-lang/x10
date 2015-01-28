@@ -40,6 +40,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.FloatLit;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
@@ -58,8 +59,14 @@ import polyglot.ast.SwitchElement;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ast.IntLit.Kind;
 import polyglot.ast.Unary.Operator;
 import polyglot.frontend.FileSource;
+import polyglot.lex.BooleanLiteral;
+import polyglot.lex.CharacterLiteral;
+import polyglot.lex.DoubleLiteral;
+import polyglot.lex.FloatLiteral;
+import polyglot.lex.StringLiteral;
 import polyglot.parse.ParsedName;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -87,374 +94,9 @@ import x10.ast.X10Call;
 import x10.ast.X10Formal;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
+import x10.parser.X10Parsersym;
 import x10.parserGen.*;
-import x10.parserGen.X10Parser.AnnotationContext;
-import x10.parserGen.X10Parser.AnnotationStatementContext;
-import x10.parserGen.X10Parser.AnnotationsContext;
-import x10.parserGen.X10Parser.AnnotationsoptContext;
-import x10.parserGen.X10Parser.ApplyOperatorDeclarationContext;
-import x10.parserGen.X10Parser.ArgumentListContext;
-import x10.parserGen.X10Parser.ArgumentListoptContext;
-import x10.parserGen.X10Parser.ArgumentsContext;
-import x10.parserGen.X10Parser.ArgumentsoptContext;
-import x10.parserGen.X10Parser.AssertStatement0Context;
-import x10.parserGen.X10Parser.AssertStatement1Context;
-import x10.parserGen.X10Parser.AssignPropertyCallContext;
-import x10.parserGen.X10Parser.Assignment0Context;
-import x10.parserGen.X10Parser.Assignment1Context;
-import x10.parserGen.X10Parser.Assignment2Context;
-import x10.parserGen.X10Parser.AssignmentExpression0Context;
-import x10.parserGen.X10Parser.AssignmentExpression1Context;
-import x10.parserGen.X10Parser.AsyncStatement0Context;
-import x10.parserGen.X10Parser.AsyncStatement1Context;
-import x10.parserGen.X10Parser.AtEachStatement0Context;
-import x10.parserGen.X10Parser.AtEachStatement1Context;
-import x10.parserGen.X10Parser.AtExpressionContext;
-import x10.parserGen.X10Parser.AtStatementContext;
-import x10.parserGen.X10Parser.AtomicStatementContext;
-import x10.parserGen.X10Parser.BasicForStatementContext;
-import x10.parserGen.X10Parser.BinaryOperatorDeclContext;
-import x10.parserGen.X10Parser.BinaryOperatorDeclThisLeftContext;
-import x10.parserGen.X10Parser.BinaryOperatorDeclThisRightContext;
-import x10.parserGen.X10Parser.BlockContext;
-import x10.parserGen.X10Parser.BlockInteriorStatement0Context;
-import x10.parserGen.X10Parser.BlockInteriorStatement1Context;
-import x10.parserGen.X10Parser.BlockInteriorStatement2Context;
-import x10.parserGen.X10Parser.BlockInteriorStatement3Context;
-import x10.parserGen.X10Parser.BlockInteriorStatement4Context;
-import x10.parserGen.X10Parser.BlockInteriorStatementContext;
-import x10.parserGen.X10Parser.BlockStatementsContext;
-import x10.parserGen.X10Parser.BlockStatementsoptContext;
-import x10.parserGen.X10Parser.BreakStatementContext;
-import x10.parserGen.X10Parser.CastExpression0Context;
-import x10.parserGen.X10Parser.CastExpression1Context;
-import x10.parserGen.X10Parser.CastExpression2Context;
-import x10.parserGen.X10Parser.CatchClauseContext;
-import x10.parserGen.X10Parser.CatchesContext;
-import x10.parserGen.X10Parser.CatchesoptContext;
-import x10.parserGen.X10Parser.ClassBodyContext;
-import x10.parserGen.X10Parser.ClassBodyoptContext;
-import x10.parserGen.X10Parser.ClassDeclarationContext;
-import x10.parserGen.X10Parser.ClassMemberDeclaration0Context;
-import x10.parserGen.X10Parser.ClassMemberDeclaration1Context;
-import x10.parserGen.X10Parser.ClassMemberDeclarationContext;
-import x10.parserGen.X10Parser.ClassMemberDeclarationsoptContext;
-import x10.parserGen.X10Parser.ClassNameContext;
-import x10.parserGen.X10Parser.ClassTypeContext;
-import x10.parserGen.X10Parser.ClockedClauseoptContext;
-import x10.parserGen.X10Parser.ClosureBody0Context;
-import x10.parserGen.X10Parser.ClosureBody1Context;
-import x10.parserGen.X10Parser.ClosureBody2Context;
-import x10.parserGen.X10Parser.ClosureExpressionContext;
-import x10.parserGen.X10Parser.CompilationUnitContext;
-import x10.parserGen.X10Parser.ConditionalExpression0Context;
-import x10.parserGen.X10Parser.ConditionalExpression10Context;
-import x10.parserGen.X10Parser.ConditionalExpression11Context;
-import x10.parserGen.X10Parser.ConditionalExpression12Context;
-import x10.parserGen.X10Parser.ConditionalExpression13Context;
-import x10.parserGen.X10Parser.ConditionalExpression14Context;
-import x10.parserGen.X10Parser.ConditionalExpression16Context;
-import x10.parserGen.X10Parser.ConditionalExpression17Context;
-import x10.parserGen.X10Parser.ConditionalExpression18Context;
-import x10.parserGen.X10Parser.ConditionalExpression19Context;
-import x10.parserGen.X10Parser.ConditionalExpression1Context;
-import x10.parserGen.X10Parser.ConditionalExpression20Context;
-import x10.parserGen.X10Parser.ConditionalExpression21Context;
-import x10.parserGen.X10Parser.ConditionalExpression22Context;
-import x10.parserGen.X10Parser.ConditionalExpression23Context;
-import x10.parserGen.X10Parser.ConditionalExpression24Context;
-import x10.parserGen.X10Parser.ConditionalExpression25Context;
-import x10.parserGen.X10Parser.ConditionalExpression26Context;
-import x10.parserGen.X10Parser.ConditionalExpression2Context;
-import x10.parserGen.X10Parser.ConditionalExpression3Context;
-import x10.parserGen.X10Parser.ConditionalExpression4Context;
-import x10.parserGen.X10Parser.ConditionalExpression5Context;
-import x10.parserGen.X10Parser.ConditionalExpression6Context;
-import x10.parserGen.X10Parser.ConditionalExpression7Context;
-import x10.parserGen.X10Parser.ConditionalExpression8Context;
-import x10.parserGen.X10Parser.ConditionalExpression9Context;
-import x10.parserGen.X10Parser.ConstantExpressionContext;
-import x10.parserGen.X10Parser.ConstrainedTypeContext;
-import x10.parserGen.X10Parser.ConstraintConjunctionoptContext;
-import x10.parserGen.X10Parser.ConstructorBlockContext;
-import x10.parserGen.X10Parser.ConstructorBody0Context;
-import x10.parserGen.X10Parser.ConstructorBody1Context;
-import x10.parserGen.X10Parser.ConstructorBody2Context;
-import x10.parserGen.X10Parser.ConstructorBody3Context;
-import x10.parserGen.X10Parser.ConstructorDeclarationContext;
-import x10.parserGen.X10Parser.ContinueStatementContext;
-import x10.parserGen.X10Parser.ConversionOperatorDeclarationExplicitContext;
-import x10.parserGen.X10Parser.ConversionOperatorDeclarationImplicitContext;
-import x10.parserGen.X10Parser.DepNamedTypeContext;
-import x10.parserGen.X10Parser.DepParametersContext;
-import x10.parserGen.X10Parser.DoStatementContext;
-import x10.parserGen.X10Parser.EmptyStatementContext;
-import x10.parserGen.X10Parser.EnhancedForStatement0Context;
-import x10.parserGen.X10Parser.EnhancedForStatement1Context;
-import x10.parserGen.X10Parser.ExplicitConstructorInvocationPrimarySuperContext;
-import x10.parserGen.X10Parser.ExplicitConstructorInvocationPrimaryThisContext;
-import x10.parserGen.X10Parser.ExplicitConstructorInvocationSuperContext;
-import x10.parserGen.X10Parser.ExplicitConstructorInvocationThisContext;
-import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl0Context;
-import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl1Context;
-import x10.parserGen.X10Parser.ExpressionContext;
-import x10.parserGen.X10Parser.ExpressionName0Context;
-import x10.parserGen.X10Parser.ExpressionName1Context;
-import x10.parserGen.X10Parser.ExpressionStatementContext;
-import x10.parserGen.X10Parser.ExpressionoptContext;
-import x10.parserGen.X10Parser.ExtendsInterfacesoptContext;
-import x10.parserGen.X10Parser.FieldAccess0Context;
-import x10.parserGen.X10Parser.FieldAccess1Context;
-import x10.parserGen.X10Parser.FieldAccess2Context;
-import x10.parserGen.X10Parser.FieldDeclarationContext;
-import x10.parserGen.X10Parser.FieldDeclarator0Context;
-import x10.parserGen.X10Parser.FieldDeclarator1Context;
-import x10.parserGen.X10Parser.FieldDeclaratorContext;
-import x10.parserGen.X10Parser.FieldDeclaratorsContext;
-import x10.parserGen.X10Parser.FinallyBlockContext;
-import x10.parserGen.X10Parser.FinishStatement0Context;
-import x10.parserGen.X10Parser.FinishStatement1Context;
-import x10.parserGen.X10Parser.ForInit0Context;
-import x10.parserGen.X10Parser.ForInit1Context;
-import x10.parserGen.X10Parser.ForInitoptContext;
-import x10.parserGen.X10Parser.ForStatement0Context;
-import x10.parserGen.X10Parser.ForStatement1Context;
-import x10.parserGen.X10Parser.ForUpdateContext;
-import x10.parserGen.X10Parser.ForUpdateoptContext;
-import x10.parserGen.X10Parser.FormalDeclarator0Context;
-import x10.parserGen.X10Parser.FormalDeclarator1Context;
-import x10.parserGen.X10Parser.FormalDeclarator2Context;
-import x10.parserGen.X10Parser.FormalDeclaratorContext;
-import x10.parserGen.X10Parser.FormalDeclaratorsContext;
-import x10.parserGen.X10Parser.FormalParameter0Context;
-import x10.parserGen.X10Parser.FormalParameter1Context;
-import x10.parserGen.X10Parser.FormalParameter2Context;
-import x10.parserGen.X10Parser.FormalParameterContext;
-import x10.parserGen.X10Parser.FormalParameterListContext;
-import x10.parserGen.X10Parser.FormalParameterListoptContext;
-import x10.parserGen.X10Parser.FormalParametersContext;
-import x10.parserGen.X10Parser.FullyQualifiedName0Context;
-import x10.parserGen.X10Parser.FullyQualifiedName1Context;
-import x10.parserGen.X10Parser.FunctionTypeContext;
-import x10.parserGen.X10Parser.HasResultType0Context;
-import x10.parserGen.X10Parser.HasResultType1Context;
-import x10.parserGen.X10Parser.HasResultTypeoptContext;
-import x10.parserGen.X10Parser.HasZeroConstraintContext;
-import x10.parserGen.X10Parser.IdentifierContext;
-import x10.parserGen.X10Parser.IdentifierListContext;
-import x10.parserGen.X10Parser.IdentifieroptContext;
-import x10.parserGen.X10Parser.IfThenStatementContext;
-import x10.parserGen.X10Parser.ImplicitConversionOperatorDeclarationContext;
-import x10.parserGen.X10Parser.ImportDeclaration0Context;
-import x10.parserGen.X10Parser.ImportDeclaration1Context;
-import x10.parserGen.X10Parser.ImportDeclarationContext;
-import x10.parserGen.X10Parser.ImportDeclarationsoptContext;
-import x10.parserGen.X10Parser.InterfaceBodyContext;
-import x10.parserGen.X10Parser.InterfaceDeclarationContext;
-import x10.parserGen.X10Parser.InterfaceMemberDeclaration0Context;
-import x10.parserGen.X10Parser.InterfaceMemberDeclaration1Context;
-import x10.parserGen.X10Parser.InterfaceMemberDeclaration2Context;
-import x10.parserGen.X10Parser.InterfaceMemberDeclaration3Context;
-import x10.parserGen.X10Parser.InterfaceMemberDeclarationContext;
-import x10.parserGen.X10Parser.InterfaceMemberDeclarationsoptContext;
-import x10.parserGen.X10Parser.InterfacesoptContext;
-import x10.parserGen.X10Parser.IsRefConstraintContext;
-import x10.parserGen.X10Parser.LabeledStatementContext;
-import x10.parserGen.X10Parser.LastExpressionContext;
-import x10.parserGen.X10Parser.LeftHandSide0Context;
-import x10.parserGen.X10Parser.LeftHandSide1Context;
-import x10.parserGen.X10Parser.LocalVariableDeclaration0Context;
-import x10.parserGen.X10Parser.LocalVariableDeclaration1Context;
-import x10.parserGen.X10Parser.LocalVariableDeclaration2Context;
-import x10.parserGen.X10Parser.LocalVariableDeclarationStatementContext;
-import x10.parserGen.X10Parser.LoopIndex0Context;
-import x10.parserGen.X10Parser.LoopIndex1Context;
-import x10.parserGen.X10Parser.LoopIndexDeclarator0Context;
-import x10.parserGen.X10Parser.LoopIndexDeclarator1Context;
-import x10.parserGen.X10Parser.LoopIndexDeclarator2Context;
-import x10.parserGen.X10Parser.LoopStatement0Context;
-import x10.parserGen.X10Parser.LoopStatement1Context;
-import x10.parserGen.X10Parser.LoopStatement2Context;
-import x10.parserGen.X10Parser.LoopStatement3Context;
-import x10.parserGen.X10Parser.MethodBody0Context;
-import x10.parserGen.X10Parser.MethodBody1Context;
-import x10.parserGen.X10Parser.MethodBody2Context;
-import x10.parserGen.X10Parser.MethodBody3Context;
-import x10.parserGen.X10Parser.MethodDeclarationApplyOpContext;
-import x10.parserGen.X10Parser.MethodDeclarationBinaryOpContext;
-import x10.parserGen.X10Parser.MethodDeclarationConversionOpContext;
-import x10.parserGen.X10Parser.MethodDeclarationMethodContext;
-import x10.parserGen.X10Parser.MethodDeclarationPrefixOpContext;
-import x10.parserGen.X10Parser.MethodDeclarationSetOpContext;
-import x10.parserGen.X10Parser.MethodModifierContext;
-import x10.parserGen.X10Parser.MethodModifierModifierContext;
-import x10.parserGen.X10Parser.MethodModifierPropertyContext;
-import x10.parserGen.X10Parser.MethodModifiersoptContext;
-import x10.parserGen.X10Parser.MethodName0Context;
-import x10.parserGen.X10Parser.MethodName1Context;
-import x10.parserGen.X10Parser.ModifierAbstractContext;
-import x10.parserGen.X10Parser.ModifierAnnotationContext;
-import x10.parserGen.X10Parser.ModifierAtomicContext;
-import x10.parserGen.X10Parser.ModifierClockedContext;
-import x10.parserGen.X10Parser.ModifierContext;
-import x10.parserGen.X10Parser.ModifierFinalContext;
-import x10.parserGen.X10Parser.ModifierNativeContext;
-import x10.parserGen.X10Parser.ModifierPrivateContext;
-import x10.parserGen.X10Parser.ModifierProtectedContext;
-import x10.parserGen.X10Parser.ModifierPublicContext;
-import x10.parserGen.X10Parser.ModifierStaticContext;
-import x10.parserGen.X10Parser.ModifierTransientContext;
-import x10.parserGen.X10Parser.ModifiersoptContext;
-import x10.parserGen.X10Parser.NamedType0Context;
-import x10.parserGen.X10Parser.NamedType1Context;
-import x10.parserGen.X10Parser.NamedTypeNoConstraintsContext;
-import x10.parserGen.X10Parser.NonExpressionStatemen0Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen10Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen11Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen13Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen14Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen15Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen16Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen17Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen18Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen19Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen1Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen20Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen21Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen22Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen2Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen3Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen4Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen5Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen6Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen7Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen8Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen9Context;
-import x10.parserGen.X10Parser.OBSOLETE_FinishExpressionContext;
-import x10.parserGen.X10Parser.OBSOLETE_OfferStatementContext;
-import x10.parserGen.X10Parser.OBSOLETE_OffersoptContext;
-import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance0Context;
-import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance1Context;
-import x10.parserGen.X10Parser.PackageDeclarationContext;
-import x10.parserGen.X10Parser.PackageName0Context;
-import x10.parserGen.X10Parser.PackageName1Context;
-import x10.parserGen.X10Parser.PackageOrTypeName0Context;
-import x10.parserGen.X10Parser.PackageOrTypeName1Context;
-import x10.parserGen.X10Parser.ParameterizedNamedTypeContext;
-import x10.parserGen.X10Parser.PrefixOperatorDeclContext;
-import x10.parserGen.X10Parser.PrefixOperatorDeclThisContext;
-import x10.parserGen.X10Parser.Primary0Context;
-import x10.parserGen.X10Parser.Primary10Context;
-import x10.parserGen.X10Parser.Primary11Context;
-import x10.parserGen.X10Parser.Primary12Context;
-import x10.parserGen.X10Parser.Primary13Context;
-import x10.parserGen.X10Parser.Primary14Context;
-import x10.parserGen.X10Parser.Primary15Context;
-import x10.parserGen.X10Parser.Primary16Context;
-import x10.parserGen.X10Parser.Primary17Context;
-import x10.parserGen.X10Parser.Primary18Context;
-import x10.parserGen.X10Parser.Primary19Context;
-import x10.parserGen.X10Parser.Primary1Context;
-import x10.parserGen.X10Parser.Primary20Context;
-import x10.parserGen.X10Parser.Primary21Context;
-import x10.parserGen.X10Parser.Primary22Context;
-import x10.parserGen.X10Parser.Primary23Context;
-import x10.parserGen.X10Parser.Primary24Context;
-import x10.parserGen.X10Parser.Primary25Context;
-import x10.parserGen.X10Parser.Primary26Context;
-import x10.parserGen.X10Parser.Primary27Context;
-import x10.parserGen.X10Parser.Primary28Context;
-import x10.parserGen.X10Parser.Primary29Context;
-import x10.parserGen.X10Parser.Primary2Context;
-import x10.parserGen.X10Parser.Primary30Context;
-import x10.parserGen.X10Parser.Primary31Context;
-import x10.parserGen.X10Parser.Primary32Context;
-import x10.parserGen.X10Parser.Primary33Context;
-import x10.parserGen.X10Parser.Primary34Context;
-import x10.parserGen.X10Parser.Primary35Context;
-import x10.parserGen.X10Parser.Primary36Context;
-import x10.parserGen.X10Parser.Primary37Context;
-import x10.parserGen.X10Parser.Primary38Context;
-import x10.parserGen.X10Parser.Primary39Context;
-import x10.parserGen.X10Parser.Primary3Context;
-import x10.parserGen.X10Parser.Primary4Context;
-import x10.parserGen.X10Parser.Primary5Context;
-import x10.parserGen.X10Parser.Primary6Context;
-import x10.parserGen.X10Parser.Primary7Context;
-import x10.parserGen.X10Parser.Primary8Context;
-import x10.parserGen.X10Parser.Primary9Context;
-import x10.parserGen.X10Parser.PropertiesoptContext;
-import x10.parserGen.X10Parser.PropertyContext;
-import x10.parserGen.X10Parser.PropertyMethodDecl0Context;
-import x10.parserGen.X10Parser.PropertyMethodDecl1Context;
-import x10.parserGen.X10Parser.ResultTypeContext;
-import x10.parserGen.X10Parser.ReturnStatementContext;
-import x10.parserGen.X10Parser.SetOperatorDeclarationContext;
-import x10.parserGen.X10Parser.SimpleNamedType0Context;
-import x10.parserGen.X10Parser.SimpleNamedType1Context;
-import x10.parserGen.X10Parser.SimpleNamedType2Context;
-import x10.parserGen.X10Parser.Statement0Context;
-import x10.parserGen.X10Parser.Statement1Context;
-import x10.parserGen.X10Parser.StatementExpressionListContext;
-import x10.parserGen.X10Parser.StructDeclarationContext;
-import x10.parserGen.X10Parser.SubtypeConstraint0Context;
-import x10.parserGen.X10Parser.SubtypeConstraint1Context;
-import x10.parserGen.X10Parser.SuperExtendsoptContext;
-import x10.parserGen.X10Parser.SwitchBlockContext;
-import x10.parserGen.X10Parser.SwitchBlockStatementGroupContext;
-import x10.parserGen.X10Parser.SwitchBlockStatementGroupsoptContext;
-import x10.parserGen.X10Parser.SwitchLabel0Context;
-import x10.parserGen.X10Parser.SwitchLabel1Context;
-import x10.parserGen.X10Parser.SwitchLabelContext;
-import x10.parserGen.X10Parser.SwitchLabelsContext;
-import x10.parserGen.X10Parser.SwitchLabelsoptContext;
-import x10.parserGen.X10Parser.SwitchStatementContext;
-import x10.parserGen.X10Parser.ThrowStatementContext;
-import x10.parserGen.X10Parser.ThrowsoptContext;
-import x10.parserGen.X10Parser.TryStatement0Context;
-import x10.parserGen.X10Parser.TryStatement1Context;
-import x10.parserGen.X10Parser.TypeAnnotationsContext;
-import x10.parserGen.X10Parser.TypeArgumentsContext;
-import x10.parserGen.X10Parser.TypeArgumentsoptContext;
-import x10.parserGen.X10Parser.TypeConstrainedTypeContext;
-import x10.parserGen.X10Parser.TypeContext;
-import x10.parserGen.X10Parser.TypeDeclaration0Context;
-import x10.parserGen.X10Parser.TypeDeclaration1Context;
-import x10.parserGen.X10Parser.TypeDeclaration2Context;
-import x10.parserGen.X10Parser.TypeDeclaration3Context;
-import x10.parserGen.X10Parser.TypeDeclaration4Context;
-import x10.parserGen.X10Parser.TypeDeclarationContext;
-import x10.parserGen.X10Parser.TypeDeclarationsoptContext;
-import x10.parserGen.X10Parser.TypeDefDeclarationContext;
-import x10.parserGen.X10Parser.TypeFunctionTypeContext;
-import x10.parserGen.X10Parser.TypeName0Context;
-import x10.parserGen.X10Parser.TypeName1Context;
-import x10.parserGen.X10Parser.TypeParamWithVarianceList0Context;
-import x10.parserGen.X10Parser.TypeParamWithVarianceList1Context;
-import x10.parserGen.X10Parser.TypeParamWithVarianceList2Context;
-import x10.parserGen.X10Parser.TypeParamWithVarianceList3Context;
-import x10.parserGen.X10Parser.TypeParameterContext;
-import x10.parserGen.X10Parser.TypeParameterListContext;
-import x10.parserGen.X10Parser.TypeParametersoptContext;
-import x10.parserGen.X10Parser.TypeParamsWithVarianceoptContext;
-import x10.parserGen.X10Parser.TypeVoidContext;
-import x10.parserGen.X10Parser.VarKeyword0Context;
-import x10.parserGen.X10Parser.VarKeyword1Context;
-import x10.parserGen.X10Parser.VariableDeclarator0Context;
-import x10.parserGen.X10Parser.VariableDeclarator1Context;
-import x10.parserGen.X10Parser.VariableDeclarator2Context;
-import x10.parserGen.X10Parser.VariableDeclaratorContext;
-import x10.parserGen.X10Parser.VariableDeclaratorWithType0Context;
-import x10.parserGen.X10Parser.VariableDeclaratorWithType1Context;
-import x10.parserGen.X10Parser.VariableDeclaratorWithType2Context;
-import x10.parserGen.X10Parser.VariableDeclaratorWithTypeContext;
-import x10.parserGen.X10Parser.VariableDeclaratorsContext;
-import x10.parserGen.X10Parser.VariableDeclaratorsWithTypeContext;
-import x10.parserGen.X10Parser.VariableInitializerContext;
-import x10.parserGen.X10Parser.Void_Context;
-import x10.parserGen.X10Parser.WhenStatementContext;
-import x10.parserGen.X10Parser.WhereClauseoptContext;
-import x10.parserGen.X10Parser.WhileStatementContext;
+import x10.parserGen.X10Parser.*;
 import x10.types.ParameterType;
 import x10.types.checker.Converter;
 
@@ -502,14 +144,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     private CompilationUnitContext getParseTree() {
-        // return p.compilationUnit();
+        // Two stage parsing
         CompilationUnitContext tree = null;
         p.getInterpreter().setPredictionMode(PredictionMode.SLL);
         p.removeErrorListeners();
         p.setErrorHandler(new BailErrorStrategy());
         try {
+            // First stage
             tree = p.compilationUnit();
         } catch (Exception ex) {
+            // Second stage
             tokens.reset();
             p.reset();
             p.addErrorListener(err);
@@ -907,6 +551,249 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         return nf.FlagsNode(pos == null ? Position.COMPILER_GENERATED : pos, xf);
     }
+
+
+    // Lexer utility functions
+
+    private long parseLong(String s, int radix, Position pos) {
+        long x = 0L;
+
+        s = s.toLowerCase();
+
+        boolean reportedError = false;
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.charAt(i);
+
+            if (c < '0' || c > '9') {
+                c = c - 'a' + 10;
+            } else {
+                c = c - '0';
+            }
+
+            if (c >= radix) {
+                if (!reportedError) {
+                    err.syntaxError("Invalid digit: '" + s.charAt(i) + "'", pos);
+                    reportedError = true;
+                }
+            }
+
+            x *= radix;
+            x += c;
+        }
+
+        return x;
+    }
+
+    private long parseLong(String s, Position pos) {
+        int radix;
+        int start_index;
+        int end_index;
+
+        end_index = s.length();
+
+        boolean isUnsigned = false;
+        boolean isLong = true;
+        long min = Long.MIN_VALUE;
+        while (end_index > 0) {
+            char lastCh = s.charAt(end_index - 1);
+            if (lastCh == 'u' || lastCh == 'U')
+                isUnsigned = true;
+            // todo: long need special treatment cause we have overflows
+            // for signed values that start with 0, we need to make them negative if they are above max value
+            if (lastCh == 'n' || lastCh == 'N') {
+                isLong = false;
+                min = Integer.MIN_VALUE;
+            }
+            if (lastCh == 'y' || lastCh == 'Y') {
+                isLong = false;
+                min = Byte.MIN_VALUE;
+            }
+            if (lastCh == 's' || lastCh == 'S') {
+                isLong = false;
+                min = Short.MIN_VALUE;
+            }
+            if (lastCh != 'y' && lastCh != 'Y' && lastCh != 's' && lastCh != 'S' && lastCh != 'l' && lastCh != 'L' && lastCh != 'n' && lastCh != 'N' && lastCh != 'u'
+                    && lastCh != 'U') {
+                break;
+            }
+            end_index--;
+        }
+        long max = -min;
+
+        if (s.charAt(0) == '0') {
+            if (s.length() > 1 && (s.charAt(1) == 'x' || s.charAt(1) == 'X')) {
+                radix = 16;
+                start_index = 2;
+            } else {
+                radix = 8;
+                start_index = 0;
+            }
+        }
+ else {
+            radix = 10;
+            start_index = 0;
+        }
+
+        final long res = parseLong(s.substring(start_index, end_index), radix, pos);
+        if (!isUnsigned && !isLong && radix != 10 && res >= max) {
+            // need to make this value negative
+            // e.g., 0xffUY == 255, 0xffY== 255-256 = -1 , 0xfeYU==254, 0xfeY== 254-256 = -2
+            return res + min * 2;
+        }
+        return res;
+    }
+
+    private polyglot.lex.FloatLiteral float_lit(LiteralContext ctx) {
+        String s = ctx.getText();
+        try {
+            int end_index = (s.charAt(s.length() - 1) == 'f' || s.charAt(s.length() - 1) == 'F' ? s.length() - 1 : s.length());
+            float x = Float.parseFloat(s.substring(0, end_index));
+            return new FloatLiteral(pos(ctx), x, X10Parsersym.TK_FloatingPointLiteral); // TODO: check this!!
+        }
+ catch (NumberFormatException e) {
+            // unrecoverableSyntaxError = true;
+            eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
+            return null;
+        }
+    }
+
+    private polyglot.lex.DoubleLiteral double_lit(LiteralContext ctx) {
+        String s = ctx.getText();
+        try {
+            int end_index = (s.charAt(s.length() - 1) == 'd' || s.charAt(s.length() - 1) == 'D' ? s.length() - 1 : s.length());
+            double x = Double.parseDouble(s.substring(0, end_index));
+            return new DoubleLiteral(pos(ctx), x, X10Parsersym.TK_DoubleLiteral); // TODO: Check this!!
+        }
+ catch (NumberFormatException e) {
+            // unrecoverableSyntaxError = true;
+            eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
+            return null;
+        }
+    }
+
+    private polyglot.lex.BooleanLiteral boolean_lit(BooleanLiteralContext ctx) {
+        return new BooleanLiteral(pos(ctx), ctx.start.getType() == X10Lexer.TRUE, ctx.start.getType());
+    }
+
+    private polyglot.lex.CharacterLiteral char_lit(LiteralContext ctx) {
+        char x;
+        String s = ctx.getText();
+        if (s.charAt(1) == '\\') {
+            switch (s.charAt(2)) {
+            case 'u':
+                x = (char) parseLong(s.substring(3, s.length() - 1), 16, pos(ctx));
+                break;
+            case 'b':
+                x = '\b';
+                break;
+            case 't':
+                x = '\t';
+                break;
+            case 'n':
+                x = '\n';
+                break;
+            case 'f':
+                x = '\f';
+                break;
+            case 'r':
+                x = '\r';
+                break;
+            case '\"':
+                x = '\"';
+                break;
+            case '\'':
+                x = '\'';
+                break;
+            case '\\':
+                x = '\\';
+                break;
+            default:
+                x = (char) parseLong(s.substring(2, s.length() - 1), 8, pos(ctx));
+                if (x > 255) {
+                    // unrecoverableSyntaxError = true;
+                    eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal character literal " + s, pos(ctx));
+                }
+            }
+        } else {
+            assert (s.length() == 3);
+            x = s.charAt(1);
+        }
+
+        return new CharacterLiteral(pos(ctx), x, X10Parsersym.TK_CharacterLiteral);
+    }
+
+    private polyglot.lex.StringLiteral string_lit(LiteralContext ctx) {
+        String s = ctx.getText();
+        char x[] = new char[s.length()];
+        int j = 1, k = 0;
+        while (j < s.length() - 1) {
+            if (s.charAt(j) != '\\')
+                x[k++] = s.charAt(j++);
+            else {
+                switch (s.charAt(j + 1)) {
+                case 'u':
+                    x[k++] = (char) parseLong(s.substring(j + 2, j + 6), 16, pos(ctx));
+                    j += 6;
+                    break;
+                case 'b':
+                    x[k++] = '\b';
+                    j += 2;
+                    break;
+                case 't':
+                    x[k++] = '\t';
+                    j += 2;
+                    break;
+                case 'n':
+                    x[k++] = '\n';
+                    j += 2;
+                    break;
+                case 'f':
+                    x[k++] = '\f';
+                    j += 2;
+                    break;
+                case 'r':
+                    x[k++] = '\r';
+                    j += 2;
+                    break;
+                case '\"':
+                    x[k++] = '\"';
+                    j += 2;
+                    break;
+                case '\'':
+                    x[k++] = '\'';
+                    j += 2;
+                    break;
+                case '`':
+                    x[k++] = '`';
+                    j += 2;
+                    break;
+                case '\\':
+                    x[k++] = '\\';
+                    j += 2;
+                    break;
+                default: {
+                    int n = j + 1;
+                    for (int l = 0; l < 3 && Character.isDigit(s.charAt(n)); l++)
+                        n++;
+                    char c = (char) parseLong(s.substring(j + 1, n), 8, pos(ctx));
+                    if (c > 255) {
+                        // unrecoverableSyntaxError = true;
+                        eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal character (" + s.substring(j, n) + ") in string literal " + s, pos(ctx));
+                    }
+                    x[k++] = c;
+                    j = n;
+                }
+                }
+            }
+            }
+
+        return new StringLiteral(pos(ctx), new String(x, 0, k), X10Parsersym.TK_StringLiteral);
+        }
+
+    private IntLit getIntLit(LiteralContext ctx, Kind k) {
+        return nf.IntLit(pos(ctx), k, parseLong(ctx.getText(), pos(ctx)));
+    }
+
 
     // Grammar actions
 
@@ -2970,6 +2857,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AnnotationNode(pos(ctx), NamedTypeNoConstraints);
     }
 
+    @Override
+    public void exitIdentifier(IdentifierContext ctx) {
+        ctx.ast = nf.Id(pos(ctx), ctx.start.getText());
+    }
 
 
     @Override
@@ -3622,6 +3513,84 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+
+    @Override
+    public void exitIntLiteral(IntLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.INT);
+    }
+
+    @Override
+    public void exitLongLiteral(LongLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.LONG);
+    }
+
+    @Override
+    public void exitByteLiteral(ByteLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.BYTE);
+    }
+
+    @Override
+    public void exitUnsignedByteLiteral(UnsignedByteLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.UBYTE);
+    }
+
+    @Override
+    public void exitShortLiteral(ShortLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.SHORT);
+    }
+
+    @Override
+    public void exitUnsignedShortLiteral(UnsignedShortLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.USHORT);
+    }
+
+    @Override
+    public void exitUnsignedIntLiteral(UnsignedIntLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.UINT);
+    }
+
+    @Override
+    public void exitUnsignedLongLiteral(UnsignedLongLiteralContext ctx) {
+        ctx.ast = getIntLit(ctx, IntLit.ULONG);
+    }
+
+    @Override
+    public void exitFloatingPointLiteral(FloatingPointLiteralContext ctx) {
+        polyglot.lex.FloatLiteral a = float_lit(ctx);
+        ctx.ast = nf.FloatLit(pos(ctx), FloatLit.FLOAT, a.getValue().floatValue());
+    }
+
+    @Override
+    public void exitDoubleLiteral(DoubleLiteralContext ctx) {
+        polyglot.lex.DoubleLiteral a = double_lit(ctx);
+        ctx.ast = nf.FloatLit(pos(ctx), FloatLit.DOUBLE, a.getValue().doubleValue());
+    }
+
+    @Override
+    public void exitLiteral10(Literal10Context ctx) {
+        ctx.ast = ctx.booleanLiteral().ast;
+    }
+
+    @Override
+    public void exitBooleanLiteral(BooleanLiteralContext ctx) {
+        ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
+    }
+
+    @Override
+    public void exitCharacterLiteral(CharacterLiteralContext ctx) {
+        ctx.ast = nf.CharLit(pos(ctx), char_lit(ctx).getValue().charValue());
+    }
+
+    @Override
+    public void exitStringLiteral(StringLiteralContext ctx) {
+        ctx.ast = nf.StringLit(pos(ctx), string_lit(ctx).getValue());
+    }
+
+    @Override
+    public void exitNullLiteral(NullLiteralContext ctx) {
+        ctx.ast = nf.NullLit(pos(ctx));
+    }
+
     @Override
     public void exitArgumentList(ArgumentListContext ctx) {
         List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
@@ -4114,6 +4083,311 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitConstantExpression(ConstantExpressionContext ctx) {
         ctx.ast = ctx.expression().ast;
+    }
+
+    @Override
+    public void exitAssignmentOperator0(AssignmentOperator0Context ctx) {
+        ctx.ast = Assign.ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator1(AssignmentOperator1Context ctx) {
+        ctx.ast = Assign.MUL_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator2(AssignmentOperator2Context ctx) {
+        ctx.ast = Assign.DIV_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator3(AssignmentOperator3Context ctx) {
+        ctx.ast = Assign.MOD_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator4(AssignmentOperator4Context ctx) {
+        ctx.ast = Assign.ADD_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator5(AssignmentOperator5Context ctx) {
+        ctx.ast = Assign.SUB_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator6(AssignmentOperator6Context ctx) {
+        ctx.ast = Assign.SHL_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator7(AssignmentOperator7Context ctx) {
+        ctx.ast = Assign.SHR_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator8(AssignmentOperator8Context ctx) {
+        ctx.ast = Assign.USHR_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator9(AssignmentOperator9Context ctx) {
+        ctx.ast = Assign.BIT_AND_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator10(AssignmentOperator10Context ctx) {
+        ctx.ast = Assign.BIT_XOR_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator11(AssignmentOperator11Context ctx) {
+        ctx.ast = Assign.BIT_OR_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator12(AssignmentOperator12Context ctx) {
+        ctx.ast = Assign.DOT_DOT_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator13(AssignmentOperator13Context ctx) {
+        ctx.ast = Assign.ARROW_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator14(AssignmentOperator14Context ctx) {
+        ctx.ast = Assign.LARROW_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator15(AssignmentOperator15Context ctx) {
+        ctx.ast = Assign.FUNNEL_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator16(AssignmentOperator16Context ctx) {
+        ctx.ast = Assign.LFUNNEL_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator17(AssignmentOperator17Context ctx) {
+        ctx.ast = Assign.STARSTAR_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator18(AssignmentOperator18Context ctx) {
+        ctx.ast = Assign.DIAMOND_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator19(AssignmentOperator19Context ctx) {
+        ctx.ast = Assign.BOWTIE_ASSIGN;
+    }
+
+    @Override
+    public void exitAssignmentOperator20(AssignmentOperator20Context ctx) {
+        ctx.ast = Assign.TWIDDLE_ASSIGN;
+    }
+
+    @Override
+    public void exitPrefixOp0(PrefixOp0Context ctx) {
+        ctx.ast = Unary.POS;
+    }
+
+    @Override
+    public void exitPrefixOp1(PrefixOp1Context ctx) {
+        ctx.ast = Unary.NEG;
+    }
+
+    @Override
+    public void exitPrefixOp2(PrefixOp2Context ctx) {
+        ctx.ast = Unary.NOT;
+    }
+
+    @Override
+    public void exitPrefixOp3(PrefixOp3Context ctx) {
+        ctx.ast = Unary.BIT_NOT;
+    }
+
+    @Override
+    public void exitPrefixOp4(PrefixOp4Context ctx) {
+        ctx.ast = Unary.CARET;
+    }
+
+    @Override
+    public void exitPrefixOp5(PrefixOp5Context ctx) {
+        ctx.ast = Unary.BAR;
+    }
+
+    @Override
+    public void exitPrefixOp6(PrefixOp6Context ctx) {
+        ctx.ast = Unary.AMPERSAND;
+    }
+
+    @Override
+    public void exitPrefixOp7(PrefixOp7Context ctx) {
+        ctx.ast = Unary.STAR;
+    }
+
+    @Override
+    public void exitPrefixOp8(PrefixOp8Context ctx) {
+        ctx.ast = Unary.SLASH;
+    }
+
+    @Override
+    public void exitPrefixOp9(PrefixOp9Context ctx) {
+        ctx.ast = Unary.PERCENT;
+    }
+
+    @Override
+    public void exitBinOp0(BinOp0Context ctx) {
+        ctx.ast = Binary.ADD;
+    }
+
+    @Override
+    public void exitBinOp1(BinOp1Context ctx) {
+        ctx.ast = Binary.SUB;
+    }
+
+    @Override
+    public void exitBinOp2(BinOp2Context ctx) {
+        ctx.ast = Binary.MUL;
+    }
+
+    @Override
+    public void exitBinOp3(BinOp3Context ctx) {
+        ctx.ast = Binary.DIV;
+    }
+
+    @Override
+    public void exitBinOp4(BinOp4Context ctx) {
+        ctx.ast = Binary.MOD;
+    }
+
+    @Override
+    public void exitBinOp5(BinOp5Context ctx) {
+        ctx.ast = Binary.BIT_AND;
+    }
+
+    @Override
+    public void exitBinOp6(BinOp6Context ctx) {
+        ctx.ast = Binary.BIT_OR;
+    }
+
+    @Override
+    public void exitBinOp7(BinOp7Context ctx) {
+        ctx.ast = Binary.BIT_XOR;
+    }
+
+    @Override
+    public void exitBinOp8(BinOp8Context ctx) {
+        ctx.ast = Binary.COND_AND;
+    }
+
+    @Override
+    public void exitBinOp9(BinOp9Context ctx) {
+        ctx.ast = Binary.COND_OR;
+    }
+
+    @Override
+    public void exitBinOp10(BinOp10Context ctx) {
+        ctx.ast = Binary.SHL;
+    }
+
+    @Override
+    public void exitBinOp11(BinOp11Context ctx) {
+        ctx.ast = Binary.SHR;
+    }
+
+    @Override
+    public void exitBinOp12(BinOp12Context ctx) {
+        ctx.ast = Binary.USHR;
+    }
+
+    @Override
+    public void exitBinOp13(BinOp13Context ctx) {
+        ctx.ast = Binary.GE;
+    }
+
+    @Override
+    public void exitBinOp14(BinOp14Context ctx) {
+        ctx.ast = Binary.LE;
+    }
+
+    @Override
+    public void exitBinOp15(BinOp15Context ctx) {
+        ctx.ast = Binary.GT;
+    }
+
+    @Override
+    public void exitBinOp16(BinOp16Context ctx) {
+        ctx.ast = Binary.LT;
+    }
+
+    @Override
+    public void exitBinOp17(BinOp17Context ctx) {
+        ctx.ast = Binary.EQ;
+    }
+
+    @Override
+    public void exitBinOp18(BinOp18Context ctx) {
+        ctx.ast = Binary.NE;
+    }
+
+    @Override
+    public void exitBinOp19(BinOp19Context ctx) {
+        ctx.ast = Binary.DOT_DOT;
+    }
+
+    @Override
+    public void exitBinOp20(BinOp20Context ctx) {
+        ctx.ast = Binary.ARROW;
+    }
+
+    @Override
+    public void exitBinOp21(BinOp21Context ctx) {
+        ctx.ast = Binary.LARROW;
+    }
+
+    @Override
+    public void exitBinOp22(BinOp22Context ctx) {
+        ctx.ast = Binary.FUNNEL;
+    }
+
+    @Override
+    public void exitBinOp23(BinOp23Context ctx) {
+        ctx.ast = Binary.LFUNNEL;
+    }
+
+    @Override
+    public void exitBinOp24(BinOp24Context ctx) {
+        ctx.ast = Binary.STARSTAR;
+    }
+
+    @Override
+    public void exitBinOp25(BinOp25Context ctx) {
+        ctx.ast = Binary.TWIDDLE;
+    }
+
+    @Override
+    public void exitBinOp26(BinOp26Context ctx) {
+        ctx.ast = Binary.NTWIDDLE;
+    }
+
+    @Override
+    public void exitBinOp27(BinOp27Context ctx) {
+        ctx.ast = Binary.BANG;
+    }
+
+    @Override
+    public void exitBinOp28(BinOp28Context ctx) {
+        ctx.ast = Binary.DIAMOND;
+    }
+
+    @Override
+    public void exitBinOp29(BinOp29Context ctx) {
+        ctx.ast = Binary.BOWTIE;
     }
 
     @Override

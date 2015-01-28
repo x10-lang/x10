@@ -687,6 +687,12 @@ leftHandSide returns [Expr ast]:
       expressionName      #leftHandSide0
     | fieldAccess         #leftHandSide1
     ;
+expression returns [Expr ast]:
+      assignmentExpression
+    ;
+constantExpression returns [Expr ast]:
+      expression
+    ;
 assignmentOperator returns [Assign.Operator ast]:
       '='    #assignmentOperator0
     | '*='   #assignmentOperator1
@@ -709,12 +715,6 @@ assignmentOperator returns [Assign.Operator ast]:
     | '<>='  #assignmentOperator18
     | '><='  #assignmentOperator19
     | '~='   #assignmentOperator20
-    ;
-expression returns [Expr ast]:
-      assignmentExpression
-    ;
-constantExpression returns [Expr ast]:
-      expression
     ;
 prefixOp returns [Unary.Operator ast]:
       '+'  #prefixOp0
