@@ -173,8 +173,9 @@ final class DefaultFinish implements Serializable, Finish {
       --counts[here];
       if (--count == 0) {
         final int _counts[] = counts;
+        final DefaultFinish that = this;
         GlobalRuntimeImpl.getRuntime().transport.send(id.home.id,
-            () -> update(_counts));
+            () -> that.update(_counts));
         Arrays.fill(counts, 0);
       }
     }
