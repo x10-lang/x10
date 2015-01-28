@@ -8,20 +8,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.swing.JDialog;
 
-import lpg.runtime.IToken;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.misc.Utils;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import polyglot.ast.AmbExpr;
@@ -61,7 +60,6 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary.Operator;
 import polyglot.frontend.FileSource;
-import polyglot.frontend.Compiler;
 import polyglot.parse.ParsedName;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -73,7 +71,6 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import sun.reflect.generics.tree.TypeArgument;
 import x10.X10CompilerOptions;
 import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
@@ -150,10 +147,12 @@ import x10.parserGen.X10Parser.ClosureBody1Context;
 import x10.parserGen.X10Parser.ClosureBody2Context;
 import x10.parserGen.X10Parser.ClosureExpressionContext;
 import x10.parserGen.X10Parser.CompilationUnitContext;
+import x10.parserGen.X10Parser.ConditionalExpression0Context;
 import x10.parserGen.X10Parser.ConditionalExpression10Context;
 import x10.parserGen.X10Parser.ConditionalExpression11Context;
 import x10.parserGen.X10Parser.ConditionalExpression12Context;
 import x10.parserGen.X10Parser.ConditionalExpression13Context;
+import x10.parserGen.X10Parser.ConditionalExpression14Context;
 import x10.parserGen.X10Parser.ConditionalExpression16Context;
 import x10.parserGen.X10Parser.ConditionalExpression17Context;
 import x10.parserGen.X10Parser.ConditionalExpression18Context;
@@ -174,8 +173,6 @@ import x10.parserGen.X10Parser.ConditionalExpression6Context;
 import x10.parserGen.X10Parser.ConditionalExpression7Context;
 import x10.parserGen.X10Parser.ConditionalExpression8Context;
 import x10.parserGen.X10Parser.ConditionalExpression9Context;
-import x10.parserGen.X10Parser.ConditionalExpression0Context;
-import x10.parserGen.X10Parser.ConditionalExpression14Context;
 import x10.parserGen.X10Parser.ConstantExpressionContext;
 import x10.parserGen.X10Parser.ConstrainedTypeContext;
 import x10.parserGen.X10Parser.ConstraintConjunctionoptContext;
@@ -188,8 +185,7 @@ import x10.parserGen.X10Parser.ConstructorDeclarationContext;
 import x10.parserGen.X10Parser.ContinueStatementContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationExplicitContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationImplicitContext;
-import x10.parserGen.X10Parser.DepNamedType0Context;
-import x10.parserGen.X10Parser.DepNamedType1Context;
+import x10.parserGen.X10Parser.DepNamedTypeContext;
 import x10.parserGen.X10Parser.DepParametersContext;
 import x10.parserGen.X10Parser.DoStatementContext;
 import x10.parserGen.X10Parser.EmptyStatementContext;
@@ -242,13 +238,11 @@ import x10.parserGen.X10Parser.FullyQualifiedName1Context;
 import x10.parserGen.X10Parser.FunctionTypeContext;
 import x10.parserGen.X10Parser.HasResultType0Context;
 import x10.parserGen.X10Parser.HasResultType1Context;
-import x10.parserGen.X10Parser.HasResultTypeContext;
 import x10.parserGen.X10Parser.HasResultTypeoptContext;
 import x10.parserGen.X10Parser.HasZeroConstraintContext;
 import x10.parserGen.X10Parser.IdentifierContext;
 import x10.parserGen.X10Parser.IdentifierListContext;
 import x10.parserGen.X10Parser.IdentifieroptContext;
-import x10.parserGen.X10Parser.IfThenElseStatementContext;
 import x10.parserGen.X10Parser.IfThenStatementContext;
 import x10.parserGen.X10Parser.ImplicitConversionOperatorDeclarationContext;
 import x10.parserGen.X10Parser.ImportDeclaration0Context;
@@ -313,12 +307,10 @@ import x10.parserGen.X10Parser.ModifierTransientContext;
 import x10.parserGen.X10Parser.ModifiersoptContext;
 import x10.parserGen.X10Parser.NamedType0Context;
 import x10.parserGen.X10Parser.NamedType1Context;
-import x10.parserGen.X10Parser.NamedTypeNoConstraints0Context;
-import x10.parserGen.X10Parser.NamedTypeNoConstraints1Context;
+import x10.parserGen.X10Parser.NamedTypeNoConstraintsContext;
 import x10.parserGen.X10Parser.NonExpressionStatemen0Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen10Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen11Context;
-import x10.parserGen.X10Parser.NonExpressionStatemen12Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen13Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen14Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen15Context;
@@ -346,12 +338,9 @@ import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance1Context;
 import x10.parserGen.X10Parser.PackageDeclarationContext;
 import x10.parserGen.X10Parser.PackageName0Context;
 import x10.parserGen.X10Parser.PackageName1Context;
-import x10.parserGen.X10Parser.PackageNameContext;
 import x10.parserGen.X10Parser.PackageOrTypeName0Context;
 import x10.parserGen.X10Parser.PackageOrTypeName1Context;
-import x10.parserGen.X10Parser.ParameterizedNamedType0Context;
-import x10.parserGen.X10Parser.ParameterizedNamedType1Context;
-import x10.parserGen.X10Parser.ParameterizedNamedType2Context;
+import x10.parserGen.X10Parser.ParameterizedNamedTypeContext;
 import x10.parserGen.X10Parser.PrefixOperatorDeclContext;
 import x10.parserGen.X10Parser.PrefixOperatorDeclThisContext;
 import x10.parserGen.X10Parser.Primary0Context;
@@ -473,10 +462,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     protected X10Parser p;
     protected X10Lexer lexer;
+    CommonTokenStream tokens;
 
     protected X10CompilerOptions compilerOpts;
     protected ErrorQueue eq;
     protected ParserErrorListener err;
+    protected DefaultErrorStrategy errorStrategy;
     protected TypeSystem ts;
     protected NodeFactory nf;
     protected FileSource srce;
@@ -493,10 +484,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         try {
             input = new ANTLRInputStream(new FileInputStream(fileName));
             lexer = new X10Lexer(input);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            tokens = new CommonTokenStream(lexer);
             p = new X10Parser(tokens);
             p.removeErrorListeners();
             err = new ParserErrorListener(eq, fileName);
+            errorStrategy = new DefaultErrorStrategy();
             p.addErrorListener(err);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
@@ -509,9 +501,28 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    private CompilationUnitContext getParseTree() {
+        // return p.compilationUnit();
+        CompilationUnitContext tree = null;
+        p.getInterpreter().setPredictionMode(PredictionMode.SLL);
+        p.removeErrorListeners();
+        p.setErrorHandler(new BailErrorStrategy());
+        try {
+            tree = p.compilationUnit();
+        } catch (Exception ex) {
+            tokens.reset();
+            p.reset();
+            p.addErrorListener(err);
+            p.setErrorHandler(errorStrategy);
+            p.getInterpreter().setPredictionMode(PredictionMode.LL);
+            tree = p.compilationUnit();
+        }
+        return tree;
+    }
+
     @Override
     public Node parse() {
-        CompilationUnitContext tree = p.compilationUnit();
+        CompilationUnitContext tree = getParseTree();
         if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
             Future<JDialog> dialogHdl = tree.inspect(p);
             try {
@@ -1546,57 +1557,37 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
-    public void exitParameterizedNamedType0(ParameterizedNamedType0Context ctx) {
+    public void exitParameterizedNamedType(ParameterizedNamedTypeContext ctx) {
         AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
-        TypedList<TypeNode> typeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
-        List<Expr> Arguments = ctx.arguments().ast;
-        AmbMacroTypeNode type = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), typeArguments, Arguments);
-        ctx.ast = type;
+        if (ctx.typeArguments() == null && ctx.arguments() == null) {
+            ctx.ast = SimpleNamedType;
+        } else {
+            List<TypeNode> typeArguments = ctx.typeArguments() == null ? new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false) : ctx.typeArguments().ast;
+            List<Expr> Arguments = ctx.arguments() == null ? new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false) : ctx.arguments().ast;
+            AmbMacroTypeNode type = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), typeArguments, Arguments);
+            ctx.ast = type;
+        }
     }
 
     @Override
-    public void exitParameterizedNamedType1(ParameterizedNamedType1Context ctx) {
-        AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
-        List<TypeNode> TypeArguments = ctx.typeArguments().ast;
-        TypedList<Expr> Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-        AmbMacroTypeNode type = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments);
-        ctx.ast = type;
+    public void exitDepNamedType(DepNamedTypeContext ctx) {
+        if (ctx.parameterizedNamedType().ast instanceof AmbMacroTypeNode) {
+            AmbMacroTypeNode ParameterizedNamedType = (AmbMacroTypeNode) ctx.parameterizedNamedType().ast;
+            DepParameterExpr DepParameters = ctx.depParameters().ast;
+            TypeNode type = nf.AmbDepTypeNode(pos(ctx), ParameterizedNamedType, DepParameters);
+            ctx.ast = type;
+        } else {
+            AmbTypeNode SimpleNamedType = ctx.parameterizedNamedType().ast;
+            TypedList<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            TypedList<Expr> Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            DepParameterExpr DepParameters = ctx.depParameters().ast;
+            TypeNode type = nf.AmbDepTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments, DepParameters);
+            ctx.ast = type;
+        }
     }
 
     @Override
-    public void exitParameterizedNamedType2(ParameterizedNamedType2Context ctx) {
-        AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
-        List<TypeNode> TypeArguments = ctx.typeArguments().ast;
-        List<Expr> Arguments = ctx.arguments().ast;
-        AmbMacroTypeNode type = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments);
-        ctx.ast = type;
-    }
-
-    @Override
-    public void exitDepNamedType0(DepNamedType0Context ctx) {
-        AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
-        TypedList<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
-        TypedList<Expr> Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-        DepParameterExpr DepParameters = ctx.depParameters().ast;
-        TypeNode type = nf.AmbDepTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments, DepParameters);
-        ctx.ast = type;
-    }
-
-    @Override
-    public void exitDepNamedType1(DepNamedType1Context ctx) {
-        AmbMacroTypeNode ParameterizedNamedType = ctx.parameterizedNamedType().ast;
-        DepParameterExpr DepParameters = ctx.depParameters().ast;
-        TypeNode type = nf.AmbDepTypeNode(pos(ctx), ParameterizedNamedType, DepParameters);
-        ctx.ast = type;
-    }
-
-    @Override
-    public void exitNamedTypeNoConstraints0(NamedTypeNoConstraints0Context ctx) {
-        ctx.ast = ctx.simpleNamedType().ast;
-    }
-
-    @Override
-    public void exitNamedTypeNoConstraints1(NamedTypeNoConstraints1Context ctx) {
+    public void exitNamedTypeNoConstraints(NamedTypeNoConstraintsContext ctx) {
         ctx.ast = ctx.parameterizedNamedType().ast;
     }
 
@@ -1868,11 +1859,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
-    public void exitNonExpressionStatemen12(NonExpressionStatemen12Context ctx) {
-        ctx.ast = ctx.ifThenElseStatement().ast;
-    }
-
-    @Override
     public void exitNonExpressionStatemen13(NonExpressionStatemen13Context ctx) {
         ctx.ast = ctx.whileStatement().ast;
     }
@@ -1931,16 +1917,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitIfThenStatement(IfThenStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
-        ctx.ast = nf.If(pos(ctx), Expression, Statement);
-    }
-
-    @Override
-    public void exitIfThenElseStatement(IfThenElseStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
         Stmt s1 = ctx.s1.ast;
-        Stmt s2 = ctx.s2.ast;
-        ctx.ast = nf.If(pos(ctx), Expression, s1, s2);
+        if (ctx.s2 == null) {
+            ctx.ast = nf.If(pos(ctx), Expression, s1);
+        } else {
+            Stmt s2 = ctx.s2.ast;
+            ctx.ast = nf.If(pos(ctx), Expression, s1, s2);
+        }
     }
 
     @Override
@@ -2083,9 +2066,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitBasicForStatement(BasicForStatementContext ctx) {
-        List<ForInit> ForInitopt = ctx.forInitopt().ast;
+        @SuppressWarnings("unchecked")
+        List<ForInit> ForInitopt = (List<ForInit>) ctx.forInitopt().ast;
         Expr Expressionopt = ctx.expressionopt().ast;
-        List<ForUpdate> ForUpdateopt = ctx.forUpdateopt().ast;
+        @SuppressWarnings("unchecked")
+        List<ForUpdate> ForUpdateopt = (List<ForUpdate>) ctx.forUpdateopt().ast;
         Stmt Statement = ctx.statement().ast;
         ctx.ast = nf.For(pos(ctx), ForInitopt, Expressionopt, ForUpdateopt, Statement);
     }
@@ -3933,21 +3918,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         TypeContext t2ctx = isType(ctx.e2);
         if (t1ctx == null && t2ctx == null || ctx.op.getType() != X10Parser.EQUAL_EQUAL) {
             // Comparison between expressions
-        Expr EqualityExpression = ctx.e1.ast;
-        Expr RelationalExpression = ctx.e2.ast;
-        polyglot.ast.Binary.Operator op;
-        switch (ctx.op.getType()) {
-        case X10Parser.EQUAL_EQUAL:
-            op = Binary.EQ;
-            break;
-        case X10Parser.NOT_EQUAL:
-            op = Binary.NE;
-            break;
-        default:
-            op = null;
-            assert false;
-        }
-        ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
+            Expr EqualityExpression = ctx.e1.ast;
+            Expr RelationalExpression = ctx.e2.ast;
+            polyglot.ast.Binary.Operator op;
+            switch (ctx.op.getType()) {
+            case X10Parser.EQUAL_EQUAL:
+                op = Binary.EQ;
+                break;
+            case X10Parser.NOT_EQUAL:
+                op = Binary.NE;
+                break;
+            default:
+                op = null;
+                assert false;
+            }
+            ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
         } else {
             // Comparison between types
             TypeNode t1 = t1ctx.ast;
@@ -4066,13 +4051,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     @Override
-     public void exitConditionalExpression26(ConditionalExpression26Context ctx) {
+    public void exitConditionalExpression26(ConditionalExpression26Context ctx) {
         if (isEquality(ctx.getParent())) {
             ctx.ast = null;
         } else {
             err.syntaxError("A type is not allowed as an expression", pos(ctx));
         }
-     }
+    }
 
     @Override
     public void exitAssignmentExpression0(AssignmentExpression0Context ctx) {
@@ -4168,6 +4153,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ctx.identifier() == null ? null : ctx.identifier().ast;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void exitForInitopt(ForInitoptContext ctx) {
         if (ctx.forInit() == null) {
@@ -4177,6 +4163,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdateopt(ForUpdateoptContext ctx) {
         if (ctx.forUpdate() == null) {

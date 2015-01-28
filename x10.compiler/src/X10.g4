@@ -116,22 +116,18 @@ simpleNamedType returns [AmbTypeNode ast]:
     | primary '.' identifier                                                         #simpleNamedType1
     | simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier    #simpleNamedType2
     ;
-parameterizedNamedType returns [AmbMacroTypeNode ast]:
-      simpleNamedType arguments                  #parameterizedNamedType0
-    | simpleNamedType typeArguments              #parameterizedNamedType1
-    | simpleNamedType typeArguments arguments    #parameterizedNamedType2
+parameterizedNamedType returns [AmbTypeNode ast]:
+      simpleNamedType typeArguments? arguments?
     ;
 depNamedType returns [TypeNode ast]:
-      simpleNamedType depParameters              #depNamedType0
-    | parameterizedNamedType depParameters       #depNamedType1
+      parameterizedNamedType depParameters
     ;
 namedTypeNoConstraints returns [TypeNode ast]:
-      simpleNamedType                            #namedTypeNoConstraints0
-    | parameterizedNamedType                     #namedTypeNoConstraints1
+      parameterizedNamedType
     ;
 namedType returns [TypeNode ast]:
-      namedTypeNoConstraints                     #namedType0
-    | depNamedType                               #namedType1
+      depNamedType                               #namedType1
+    | namedTypeNoConstraints                     #namedType0
     ;
 depParameters returns [DepParameterExpr ast]:
       '{' /* fUTURE_ExistentialList? */ constraintConjunctionopt '}'
@@ -203,7 +199,6 @@ nonExpressionStatement returns [Stmt ast]:
     | tryStatement                 #nonExpressionStatemen9
     | labeledStatement             #nonExpressionStatemen10
     | ifThenStatement              #nonExpressionStatemen11
-    | ifThenElseStatement          #nonExpressionStatemen12
     | whileStatement               #nonExpressionStatemen13
     | forStatement                 #nonExpressionStatemen14
     | asyncStatement               #nonExpressionStatemen15
@@ -219,10 +214,7 @@ oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
     ;
 ifThenStatement returns [If ast]:
-      'if' '(' expression ')' statement
-    ;
-ifThenElseStatement returns [If ast]:
-      'if' '(' expression ')' s1=statement 'else' s2=statement
+      'if' '(' expression ')' s1=statement ('else' s2=statement)?
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -787,10 +779,10 @@ argumentsopt returns [List<Expr> ast]:
 identifieropt returns [Id ast]:
       identifier?
     ;
-forInitopt returns [List<ForInit> ast]:
+forInitopt returns [List<? extends ForInit> ast]:
       forInit?
     ;
-forUpdateopt returns [List<ForUpdate> ast]:
+forUpdateopt returns [List<? extends ForUpdate> ast]:
       forUpdate?
     ;
 expressionopt returns [Expr ast]:
