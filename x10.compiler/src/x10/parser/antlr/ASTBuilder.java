@@ -114,7 +114,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected NodeFactory nf;
     protected FileSource srce;
 
-    public ASTBuilder(X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
+    public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
         compilerOpts = opts;
         ts = t;
         nf = n;
@@ -122,25 +122,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         eq = q;
 
         String fileName = source.path();
-        ANTLRInputStream input;
-        try {
-            input = new ANTLRInputStream(new FileInputStream(fileName));
-            lexer = new X10Lexer(input);
-            tokens = new CommonTokenStream(lexer);
-            p = new X10Parser(tokens);
-            p.removeErrorListeners();
-            err = new ParserErrorListener(eq, fileName);
-            errorStrategy = new DefaultErrorStrategy();
-            p.addErrorListener(err);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-
-        } catch (IOException e) {
-            input = null;
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        lexer = new X10Lexer(inputStream);
+        tokens = new CommonTokenStream(lexer);
+        p = new X10Parser(tokens);
+        p.removeErrorListeners();
+        err = new ParserErrorListener(eq, fileName);
+        errorStrategy = new DefaultErrorStrategy();
+        p.addErrorListener(err);
     }
 
     private CompilationUnitContext getParseTree() {
@@ -804,10 +792,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     @Override
     public void exitCompilationUnit(CompilationUnitContext ctx) {
-        List<Import> importDeclarationsopt = ctx.importDeclarationsopt().ast == null ? new TypedList<Import>(new LinkedList<Import>(), Import.class, false) : ctx
-                .importDeclarationsopt().ast;
-        List<TopLevelDecl> typeDeclarationsopt = ctx.typeDeclarationsopt().ast == null ? new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false)
-                : ctx.typeDeclarationsopt().ast;
+        List<Import> importDeclarationsopt = ctx.importDeclarationsopt().ast;
+        List<TopLevelDecl> typeDeclarationsopt = ctx.typeDeclarationsopt().ast;
 
         PackageNode packageDeclaration = ctx.packageDeclaration() == null ? null : ctx.packageDeclaration().ast;
         ctx.ast = nf.SourceFile(pos(ctx), packageDeclaration, importDeclarationsopt, typeDeclarationsopt);
