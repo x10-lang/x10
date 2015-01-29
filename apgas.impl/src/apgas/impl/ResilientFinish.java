@@ -11,7 +11,10 @@
 
 package apgas.impl;
 
+import java.io.IOException;
 import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +48,7 @@ final class ResilientFinish implements Serializable, Finish {
     List<GlobalID> cids; // children
     List<GlobalID> dids; // dead children
     int counts[][]; // TODO dynamic array
-    List<Throwable> exceptions;
+    List<SerializableThrowable> exceptions;
 
     State(GlobalID pid, int here, int p, int places) {
       this.pid = pid;
@@ -206,28 +209,49 @@ final class ResilientFinish implements Serializable, Finish {
     });
   }
 
+  static final class SerializableThrowable implements Serializable {
+    Throwable t;
+
+    SerializableThrowable(Throwable t) {
+      this.t = t;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+      final NotSerializableException e = new NotSerializableException(t
+          .getClass().getCanonicalName());
+      e.setStackTrace(t.getStackTrace());
+      out.writeObject(e);
+      try {
+        out.writeObject(t);
+      } catch (final Throwable t) {
+      }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException,
+        ClassNotFoundException {
+      t = (Throwable) in.readObject();
+      try {
+        t = (Throwable) in.readObject();
+      } catch (final Throwable e) {
+      }
+    }
+  }
+
   @Override
   public void addSuppressed(Throwable exception) {
-    try {
-      final int here = GlobalRuntimeImpl.getRuntime().here;
-      executeOnKey(
-          id,
-          (State state) -> {
-            if (state == null || state.deads != null
-                && state.deads.contains(here)) {
-              // finish thinks this place is dead, exit
-              throw new DeadPlaceError();
-            }
-            if (state.exceptions == null) {
-              state.exceptions = new ArrayList<Throwable>();
-            }
-            state.exceptions.add(exception);
-            return state;
-          });
-    } catch (final Throwable e) {
-      addSuppressed(new NotSerializableException(exception.getClass()
-          .getCanonicalName()));
-    }
+    final int here = GlobalRuntimeImpl.getRuntime().here;
+    final SerializableThrowable t = new SerializableThrowable(exception);
+    executeOnKey(id, (State state) -> {
+      if (state == null || state.deads != null && state.deads.contains(here)) {
+        // finish thinks this place is dead, exit
+        throw new DeadPlaceError();
+      }
+      if (state.exceptions == null) {
+        state.exceptions = new ArrayList<SerializableThrowable>();
+      }
+      state.exceptions.add(t);
+      return state;
+    });
   }
 
   @FunctionalInterface
@@ -363,10 +387,11 @@ final class ResilientFinish implements Serializable, Finish {
   @SuppressWarnings("unchecked")
   public List<Throwable> exceptions() {
     try {
-      return (List<Throwable>) map.executeOnKey(id,
-          new AbstractEntryProcessor<GlobalID, State>() {
+      final List<SerializableThrowable> exceptions = (List<SerializableThrowable>) map
+          .executeOnKey(id, new AbstractEntryProcessor<GlobalID, State>() {
             @Override
-            public List<Throwable> process(Map.Entry<GlobalID, State> entry) {
+            public List<SerializableThrowable> process(
+                Map.Entry<GlobalID, State> entry) {
               final State state = entry.getValue();
               if (state == null) {
                 throw new DeadPlaceError();
@@ -375,6 +400,14 @@ final class ResilientFinish implements Serializable, Finish {
               return state.exceptions;
             }
           });
+      if (exceptions == null) {
+        return null;
+      }
+      final List<Throwable> list = new ArrayList<Throwable>();
+      for (final SerializableThrowable t : exceptions) {
+        list.add(t.t);
+      }
+      return list;
     } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
