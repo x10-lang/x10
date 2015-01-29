@@ -21,7 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import apgas.NoSuchPlaceException;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.ExecutorConfig;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -42,8 +45,9 @@ import com.hazelcast.spi.ExecutionService;
 final class Transport implements com.hazelcast.core.ItemListener<Member>,
     InitialMembershipListener {
   private static String APGAS = "apgas";
-  private static String PLACES = "apgas:places";
-  private static String EXECUTOR = "apgas:executor";
+  private static String APGAS_PLACES = "apgas:places";
+  private static String APGAS_EXECUTOR = "apgas:executor";
+  private static String APGAS_FINISH = "apgas:finish";
 
   /**
    * The Hazelcast instance for this JVM.
@@ -123,13 +127,16 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
       config.setProperty("hazelcast.operation.generic.thread.count", "2");
       config.setProperty("hazelcast.io.thread.count", "2");
       config.setProperty("hazelcast.event.thread.count", "2");
-      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+      config.addExecutorConfig(new ExecutorConfig(
           ExecutionService.ASYNC_EXECUTOR, 2));
-      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+      config.addExecutorConfig(new ExecutorConfig(
           ExecutionService.SYSTEM_EXECUTOR, 2));
-      config.addExecutorConfig(new com.hazelcast.config.ExecutorConfig(
+      config.addExecutorConfig(new ExecutorConfig(
           ExecutionService.SCHEDULED_EXECUTOR, 2));
     }
+
+    config.addMapConfig(new MapConfig(APGAS_FINISH)
+        .setInMemoryFormat(InMemoryFormat.OBJECT));
 
     // join config
     final JoinConfig join = config.getNetworkConfig().getJoin();
@@ -149,7 +156,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
     hazelcast = Hazelcast.newHazelcastInstance(config);
     me = hazelcast.getCluster().getLocalMember();
 
-    allMembers = hazelcast.getList(PLACES);
+    allMembers = hazelcast.getList(APGAS_PLACES);
     allMembers.add(me);
     int id = 0;
     for (final Member member : allMembers) {
@@ -160,7 +167,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
     }
     here = id;
 
-    executor = hazelcast.getExecutorService(EXECUTOR);
+    executor = hazelcast.getExecutorService(APGAS_EXECUTOR);
   }
 
   /**
