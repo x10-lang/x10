@@ -99,7 +99,7 @@ XRX_REL_SRCS  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name managed -p
 XRX_SRCS = $(subst ../src-x10/,, $(XRX_REL_SRCS))
 
 #enable asserts, do not look in jar for x10 files
-X10CPPFLAGS += -STATIC_CHECKS -J-Xmx512M -J-ea -rtdev -commandlineonly
+X10CPPFLAGS += -STATIC_CHECKS -J-Xmx1024M -J-ea -rtdev -commandlineonly
 
 # Generate .cc and .h files for all the X10 classes defined in the above
 # .x10 files.  Rebuilding occurs if the x10 compiler is updated or if any of the
