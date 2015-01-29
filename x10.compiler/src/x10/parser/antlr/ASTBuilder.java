@@ -189,9 +189,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int line = t.getLine();
         int column = t.getCharPositionInLine();
         int offset = t.getStartIndex();
-        int endLine = t.getLine();
-        int endColumn = t.getCharPositionInLine();
+        int endLine = line;
         int endOffset = t.getStopIndex();
+        int endColumn = column + endOffset - offset;
+        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
+    }
+
+    /** Returns the position going from {@code ctx} to {@code t}. */
+    protected Position pos(ParserRuleContext ctx, Token t) {
+        int line = ctx.getStart().getLine();
+        int column = ctx.getStart().getCharPositionInLine();
+        int offset = ctx.getStart().getStartIndex();
+        int endLine = t.getLine();
+        int endOffset = t.getStopIndex();
+        int endColumn = t.getCharPositionInLine() + endOffset - t.getStartIndex();
         return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
@@ -3176,7 +3187,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimary12(Primary12Context ctx) {
         ParsedName ClassName = ctx.className().ast;
         Id Identifier = ctx.identifier().ast;
-        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier);
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
     @Override
@@ -3210,7 +3221,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Id Identifier = ctx.identifier().ast;
         List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
+        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
     }
 
     @Override
@@ -3329,7 +3340,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
-        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
@@ -3402,7 +3413,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
-        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
@@ -3450,7 +3461,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimary34(Primary34Context ctx) {
         ParsedName ClassName = ctx.className().ast;
         Name opName = ClosureCall.APPLY;
-        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
@@ -3498,7 +3509,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimary39(Primary39Context ctx) {
         ParsedName ClassName = ctx.className().ast;
         Name opName = SettableAssign.SET;
-        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
@@ -3608,7 +3619,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitFieldAccess2(FieldAccess2Context ctx) {
         ParsedName ClassName = ctx.className().ast;
         Id Identifier = ctx.identifier().ast;
-        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s), ClassName.toType()), Identifier);
+        ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
     @Override
