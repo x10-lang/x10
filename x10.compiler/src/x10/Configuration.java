@@ -114,6 +114,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean VERBOSE = false;
     private static final String VERBOSE_desc = "Print details for various warnings that might be interested to the programmer.";
 
+    public boolean ANTLR_PARSER = true;
+    private static final String ANTLR_PARSER_desc = "Use the ANTLR parser instead of the LPG parser.";
+
     public boolean DISPLAY_PARSE_TREE = false;
     private static final String DISPLAY_PARSE_TREE_desc = "Open a dialog box that displays the parse tree.";
 
