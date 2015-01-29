@@ -11,6 +11,7 @@
 
 package apgas.impl;
 
+import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,6 @@ final class ResilientFinish implements Serializable, Finish {
       .getRuntime().transport.<GlobalID, State> getMap("apgas:finish");
 
   final GlobalID id;
-  transient List<Throwable> exceptions;
 
   static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
@@ -60,7 +60,10 @@ final class ResilientFinish implements Serializable, Finish {
     this.id = id;
     final GlobalID pid = parent == null ? null : parent.id;
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    map.set(id, new State(pid, here, p, 100)); // TODO fix size
+    // map.set(id, new State(pid, here, p, 100));
+    executeOnKey(id, (State state) -> {
+      return new State(pid, here, p, 100); // TODO fix size
+      });
     if (pid == null) {
       return;
     }
@@ -205,18 +208,26 @@ final class ResilientFinish implements Serializable, Finish {
 
   @Override
   public void addSuppressed(Throwable exception) {
-    final int here = GlobalRuntimeImpl.getRuntime().here;
-    executeOnKey(id, (State state) -> {
-      if (state == null || state.deads != null && state.deads.contains(here)) {
-        // finish thinks this place is dead, exit
-        throw new DeadPlaceError();
-      }
-      if (state.exceptions == null) {
-        state.exceptions = new ArrayList<Throwable>();
-      }
-      state.exceptions.add(exception);
-      return state;
-    });
+    try {
+      final int here = GlobalRuntimeImpl.getRuntime().here;
+      executeOnKey(
+          id,
+          (State state) -> {
+            if (state == null || state.deads != null
+                && state.deads.contains(here)) {
+              // finish thinks this place is dead, exit
+              throw new DeadPlaceError();
+            }
+            if (state.exceptions == null) {
+              state.exceptions = new ArrayList<Throwable>();
+            }
+            state.exceptions.add(exception);
+            return state;
+          });
+    } catch (final Throwable e) {
+      addSuppressed(new NotSerializableException(exception.getClass()
+          .getCanonicalName()));
+    }
   }
 
   @FunctionalInterface
@@ -281,16 +292,24 @@ final class ResilientFinish implements Serializable, Finish {
 
   @Override
   public boolean isReleasable() {
-    final State state = map.get(id);
-    if (state == null) {
-      return true;
+    try {
+      return (boolean) map.executeOnKey(id,
+          new AbstractEntryProcessor<GlobalID, State>(false) {
+            @Override
+            public Boolean process(Map.Entry<GlobalID, State> entry) {
+              final State state = entry.getValue();
+              if (state == null) {
+                throw new DeadPlaceError();
+              }
+              return state.count == 0
+                  && (state.cids == null || state.cids.isEmpty());
+            }
+          });
+    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
+      // this place is dead for the world
+      System.exit(42);
+      throw e;
     }
-    if (state.count > 0 || state.cids != null && !state.cids.isEmpty()) {
-      return false;
-    }
-    exceptions = state.exceptions;
-    map.delete(id);
-    return true;
   }
 
   @Override
@@ -341,8 +360,26 @@ final class ResilientFinish implements Serializable, Finish {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<Throwable> exceptions() {
-    return exceptions;
+    try {
+      return (List<Throwable>) map.executeOnKey(id,
+          new AbstractEntryProcessor<GlobalID, State>() {
+            @Override
+            public List<Throwable> process(Map.Entry<GlobalID, State> entry) {
+              final State state = entry.getValue();
+              if (state == null) {
+                throw new DeadPlaceError();
+              }
+              entry.setValue(null);
+              return state.exceptions;
+            }
+          });
+    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
+      // this place is dead for the world
+      System.exit(42);
+      throw e;
+    }
   }
 
   @Override
