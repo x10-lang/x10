@@ -102,6 +102,7 @@ import x10.extension.X10Ext;
 //import x10.finish.table.CallTableKey;
 //import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
+import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
 import x10.parser.antlr.ASTBuilder;
 import x10.plugin.CompilerPlugin;
