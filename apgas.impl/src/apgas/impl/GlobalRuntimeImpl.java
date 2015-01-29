@@ -312,8 +312,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final Finish finish = newFinish(worker == null ? null : worker.task.finish,
         here);
     new Task(finish, f, here).finish(worker);
-    if (finish.exceptions() != null) {
-      throw new MultipleException(finish.exceptions());
+    final List<Throwable> exceptions = finish.exceptions();
+    if (exceptions != null) {
+      throw new MultipleException(exceptions);
     }
   }
 
