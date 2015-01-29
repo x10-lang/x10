@@ -11,17 +11,9 @@
 
 package apgas.impl;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 /**
  * The {@link ExceptionalTask} class is used to transport exceptions across
- * places in the non-resilient finish implementation.
- * <p>
- * Exceptions that are not serializable are automatically replaced by
- * {@link java.io.NotSerializableException} exceptions.
+ * places in the default finish implementation.
  */
 final class ExceptionalTask implements SerializableRunnable {
   private static final long serialVersionUID = -4842601206169675750L;
@@ -34,7 +26,7 @@ final class ExceptionalTask implements SerializableRunnable {
   /**
    * The exception to transport to the root finish object.
    */
-  Throwable t;
+  SerializableThrowable t;
 
   /**
    * The place of the parent task.
@@ -53,7 +45,7 @@ final class ExceptionalTask implements SerializableRunnable {
    */
   ExceptionalTask(Finish finish, Throwable t, int parent) {
     this.finish = finish;
-    this.t = t;
+    this.t = new SerializableThrowable(t);
     this.parent = parent;
   }
 
@@ -65,32 +57,8 @@ final class ExceptionalTask implements SerializableRunnable {
   @Override
   public void run() {
     finish.submit(parent);
-    finish.addSuppressed(t);
+    finish.addSuppressed(t.t);
     finish.tell();
-  }
-
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    out.writeObject(finish);
-    out.writeInt(parent);
-    final NotSerializableException e = new NotSerializableException(t
-        .getClass().getCanonicalName());
-    e.setStackTrace(t.getStackTrace());
-    out.writeObject(e);
-    try {
-      out.writeObject(t);
-    } catch (final Throwable t) {
-    }
-  }
-
-  private void readObject(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
-    finish = (Finish) in.readObject();
-    parent = in.readInt();
-    t = (Throwable) in.readObject();
-    try {
-      t = (Throwable) in.readObject();
-    } catch (final Throwable e) {
-    }
   }
 
   /**

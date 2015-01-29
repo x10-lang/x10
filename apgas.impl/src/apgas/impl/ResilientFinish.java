@@ -11,10 +11,6 @@
 
 package apgas.impl;
 
-import java.io.IOException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -207,34 +203,6 @@ final class ResilientFinish implements Serializable, Finish {
       }
       return state;
     });
-  }
-
-  static final class SerializableThrowable implements Serializable {
-    Throwable t;
-
-    SerializableThrowable(Throwable t) {
-      this.t = t;
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-      final NotSerializableException e = new NotSerializableException(t
-          .getClass().getCanonicalName());
-      e.setStackTrace(t.getStackTrace());
-      out.writeObject(e);
-      try {
-        out.writeObject(t);
-      } catch (final Throwable t) {
-      }
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException,
-        ClassNotFoundException {
-      t = (Throwable) in.readObject();
-      try {
-        t = (Throwable) in.readObject();
-      } catch (final Throwable e) {
-      }
-    }
   }
 
   @Override
