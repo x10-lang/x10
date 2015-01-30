@@ -26,6 +26,7 @@ import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
+import com.hazelcast.query.Predicate;
 
 @SuppressWarnings({ "javadoc", "serial" })
 final class ResilientFinish implements Serializable, Finish {
@@ -36,9 +37,6 @@ final class ResilientFinish implements Serializable, Finish {
 
   final GlobalID id;
 
-  static final class Counts implements Serializable {
-  }
-
   static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
 
@@ -47,12 +45,16 @@ final class ResilientFinish implements Serializable, Finish {
     List<GlobalID> cids; // children
     List<GlobalID> dids; // dead children
     List<SerializableThrowable> exceptions;
-    final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
+    final Map<Long, Integer> counts = new HashMap<Long, Integer>();
     int count; // non-zero counts
     int max; // max place encountered
 
+    static long index(int p, int q) {
+      return (((long) p) << 32) + q;
+    }
+
     void clear(int p, int q) {
-      final Integer v = counts.remove((p << 16) + q);
+      final Integer v = counts.remove(index(p, q));
       count += (v == null ? 0 : (v == 0 ? 0 : -1));
     }
 
@@ -63,8 +65,8 @@ final class ResilientFinish implements Serializable, Finish {
       if (q > max) {
         max = q;
       }
-      final int v = counts.getOrDefault((p << 16) + q, 0);
-      counts.put((p << 16) + q, v + 1);
+      final int v = counts.getOrDefault(index(p, q), 0);
+      counts.put(index(p, q), v + 1);
       count += (v == 0 ? 1 : (v == -1 ? -1 : 0));
     }
 
@@ -75,15 +77,15 @@ final class ResilientFinish implements Serializable, Finish {
       if (q > max) {
         max = q;
       }
-      final int v = counts.getOrDefault((p << 16) + q, 0);
-      counts.put((p << 16) + q, v - 1);
+      final int v = counts.getOrDefault(index(p, q), 0);
+      counts.put(index(p, q), v - 1);
       count += (v == 0 ? 1 : (v == 1 ? -1 : 0));
     }
 
     State(GlobalID pid, int p, int q) {
       max = p > q ? p : q;
       this.pid = pid;
-      counts.put((p << 16) + q, 1);
+      counts.put(index(p, q), 1);
       count = 1;
     }
   }
@@ -116,7 +118,12 @@ final class ResilientFinish implements Serializable, Finish {
   }
 
   static void purge(int p) {
-    for (final GlobalID id : map.keySet()) {
+    final int here = GlobalRuntimeImpl.getRuntime().here;
+    // only process finish states for the current place and the dead place
+    final Predicate<GlobalID, State> predicate = entry -> {
+      return entry.getKey().home.id == here || entry.getKey().home.id == p;
+    };
+    for (final GlobalID id : map.keySet(predicate)) {
       executeOnKey(id, (State state) -> {
         if (state == null) {
           // entry has been removed already, ignore
