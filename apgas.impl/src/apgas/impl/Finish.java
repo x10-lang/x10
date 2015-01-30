@@ -61,9 +61,9 @@ interface Finish extends ForkJoinPool.ManagedBlocker {
   boolean block();
 
   /**
-   * Returns the list of exceptions collected by this finish object.
+   * Must be called exactly once upon completion of the finish.
    *
-   * @return the collected exceptions
+   * @return the exceptions collected by the finish
    */
   List<Throwable> exceptions();
 }
