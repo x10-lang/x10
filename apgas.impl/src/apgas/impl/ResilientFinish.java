@@ -14,8 +14,10 @@ package apgas.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import apgas.NoSuchPlaceException;
 import apgas.util.GlobalID;
@@ -40,10 +42,10 @@ final class ResilientFinish implements Serializable, Finish {
   static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
 
-    List<Integer> deads; // places that have died during the finish
+    Set<Integer> deads; // places that have died during the finish
     final GlobalID pid; // parent
-    List<GlobalID> cids; // children
-    List<GlobalID> dids; // dead children
+    Set<GlobalID> cids; // children
+    Set<GlobalID> dids; // dead children
     List<SerializableThrowable> exceptions;
     final Map<Long, Integer> counts = new HashMap<Long, Integer>();
     int count; // non-zero counts
@@ -96,20 +98,20 @@ final class ResilientFinish implements Serializable, Finish {
     final GlobalID pid = parent == null ? null : parent.id;
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // map.set(id, new State(pid, here, p));
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       return new State(pid, here, p);
     });
     if (pid == null) {
       return;
     }
-    executeOnKey(pid, (State state) -> {
+    executeOnKey(pid, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // parent finish thinks this place is dead, exit
         throw new DeadPlaceError();
       }
       if (state.dids == null || !state.dids.contains(id)) {
         if (state.cids == null) {
-          state.cids = new ArrayList<GlobalID>();
+          state.cids = new HashSet<GlobalID>();
         }
         state.cids.add(id);
       }
@@ -124,13 +126,13 @@ final class ResilientFinish implements Serializable, Finish {
       return entry.getKey().home.id == here || entry.getKey().home.id == p;
     };
     for (final GlobalID id : map.keySet(predicate)) {
-      executeOnKey(id, (State state) -> {
+      executeOnKey(id, state -> {
         if (state == null) {
           // entry has been removed already, ignore
           return null;
         }
         if (state.deads == null) {
-          state.deads = new ArrayList<Integer>();
+          state.deads = new HashSet<Integer>();
         }
         if (state.deads.contains(p)) {
           // death of p has already been processed
@@ -153,7 +155,7 @@ final class ResilientFinish implements Serializable, Finish {
       // task originated here, no transit stage
       return;
     }
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -171,7 +173,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void spawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -188,7 +190,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void unspawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -205,7 +207,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void tell() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -219,7 +221,7 @@ final class ResilientFinish implements Serializable, Finish {
   public void addSuppressed(Throwable exception) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     final SerializableThrowable t = new SerializableThrowable(exception);
-    executeOnKey(id, (State state) -> {
+    executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -268,7 +270,7 @@ final class ResilientFinish implements Serializable, Finish {
       if (pid == null) {
         return;
       }
-      executeOnKey(pid, (State state) -> {
+      executeOnKey(pid, state -> {
         if (state == null) {
           // parent has been purged already
           // stop propagating termination
@@ -278,7 +280,7 @@ final class ResilientFinish implements Serializable, Finish {
           state.cids.remove(id);
         } else {
           if (state.dids == null) {
-            state.dids = new ArrayList<GlobalID>();
+            state.dids = new HashSet<GlobalID>();
           }
           if (!state.dids.contains(id)) {
             state.dids.add(id);
