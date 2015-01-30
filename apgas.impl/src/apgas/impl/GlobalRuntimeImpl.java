@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -259,17 +260,26 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       shutdown();
       return;
     }
-    if (here == 0) {
-      // TODO remove the here == 0 guard
-      for (final int id : removed) {
-        ResilientFinish.purge(id);
+    final Consumer<Place> handler = this.handler;
+    final int here = this.here;
+    pool.execute(new RecursiveAction() {
+      private static final long serialVersionUID = 1052937749744648347L;
+
+      @Override
+      public void compute() {
+        if (here == 0) {
+          // TODO remove the here == 0 guard
+          for (final int id : removed) {
+            ResilientFinish.purge(id);
+          }
+        }
+        if (handler != null) {
+          for (final int id : removed) {
+            handler.accept(new Place(id));
+          }
+        }
       }
-    }
-    if (handler != null) {
-      for (final int id : removed) {
-        handler.accept(place(id));
-      }
-    }
+    });
   }
 
   @Override
