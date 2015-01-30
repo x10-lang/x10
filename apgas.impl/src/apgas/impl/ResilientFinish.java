@@ -13,6 +13,7 @@ package apgas.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,21 +36,54 @@ final class ResilientFinish implements Serializable, Finish {
 
   final GlobalID id;
 
+  static final class Counts implements Serializable {
+  }
+
   static final class State implements Serializable {
     private static final long serialVersionUID = 4155719029376056951L;
 
     List<Integer> deads; // places that have died during the finish
-    int count;
     final GlobalID pid; // parent
     List<GlobalID> cids; // children
     List<GlobalID> dids; // dead children
-    int counts[][]; // TODO dynamic array
     List<SerializableThrowable> exceptions;
+    final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
+    int count; // non-zero counts
+    int max; // max place encountered
 
-    State(GlobalID pid, int here, int p, int places) {
+    void clear(int p, int q) {
+      final Integer v = counts.remove((p << 16) + q);
+      count += (v == null ? 0 : (v == 0 ? 0 : -1));
+    }
+
+    void incr(int p, int q) {
+      if (p > max) {
+        max = p;
+      }
+      if (q > max) {
+        max = q;
+      }
+      final int v = counts.getOrDefault((p << 16) + q, 0);
+      counts.put((p << 16) + q, v + 1);
+      count += (v == 0 ? 1 : (v == -1 ? -1 : 0));
+    }
+
+    void decr(int p, int q) {
+      if (p > max) {
+        max = p;
+      }
+      if (q > max) {
+        max = q;
+      }
+      final int v = counts.getOrDefault((p << 16) + q, 0);
+      counts.put((p << 16) + q, v - 1);
+      count += (v == 0 ? 1 : (v == 1 ? -1 : 0));
+    }
+
+    State(GlobalID pid, int p, int q) {
+      max = p > q ? p : q;
       this.pid = pid;
-      counts = new int[places][places];
-      counts[here][p] = 1;
+      counts.put((p << 16) + q, 1);
       count = 1;
     }
   }
@@ -59,10 +93,10 @@ final class ResilientFinish implements Serializable, Finish {
     this.id = id;
     final GlobalID pid = parent == null ? null : parent.id;
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    // map.set(id, new State(pid, here, p, 100));
+    // map.set(id, new State(pid, here, p));
     executeOnKey(id, (State state) -> {
-      return new State(pid, here, p, 100); // TODO fix size
-      });
+      return new State(pid, here, p);
+    });
     if (pid == null) {
       return;
     }
@@ -96,15 +130,9 @@ final class ResilientFinish implements Serializable, Finish {
           return null;
         }
         state.deads.add(p);
-        for (int i = 0; i < state.counts.length; i++) {
-          if (state.counts[p][i] != 0) {
-            state.count--;
-          }
-          state.counts[p][i] = 0;
-          if (state.counts[i][p] != 0) {
-            state.count--;
-          }
-          state.counts[i][p] = 0;
+        for (int i = 0; i <= state.max; i++) {
+          state.clear(p, i);
+          state.clear(i, p);
         }
         return state;
       });
@@ -127,18 +155,8 @@ final class ResilientFinish implements Serializable, Finish {
         // source place has died, refuse task but keep place alive
         throw new NoSuchPlaceException();
       }
-      if (state.counts[p][here]-- == 0) {
-        state.count++;
-      }
-      if (state.counts[p][here] == 0) {
-        state.count--;
-      }
-      if (state.counts[here][here]++ == 0) {
-        state.count++;
-      }
-      if (state.counts[here][here] == 0) {
-        state.count--;
-      }
+      state.decr(p, here);
+      state.incr(here, here);
       return state;
     });
   }
@@ -155,12 +173,7 @@ final class ResilientFinish implements Serializable, Finish {
         // destination place has died, reject task
         throw new NoSuchPlaceException();
       }
-      if (state.counts[here][p]++ == 0) {
-        state.count++;
-      }
-      if (state.counts[here][p] == 0) {
-        state.count--;
-      }
+      state.incr(here, p);
       return state;
     });
   }
@@ -177,12 +190,7 @@ final class ResilientFinish implements Serializable, Finish {
         // destination place has died, reject task
         throw new NoSuchPlaceException();
       }
-      if (state.counts[here][p]-- == 0) {
-        state.count++;
-      }
-      if (state.counts[here][p] == 0) {
-        state.count--;
-      }
+      state.decr(here, p);
       return state;
     });
   }
@@ -195,12 +203,7 @@ final class ResilientFinish implements Serializable, Finish {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
       }
-      if (state.counts[here][here]-- == 0) {
-        state.count++;
-      }
-      if (state.counts[here][here] == 0) {
-        state.count--;
-      }
+      state.decr(here, here);
       return state;
     });
   }
