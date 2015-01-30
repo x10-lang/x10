@@ -261,17 +261,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       return;
     }
     final Consumer<Place> handler = this.handler;
-    final int here = this.here;
     pool.execute(new RecursiveAction() {
       private static final long serialVersionUID = 1052937749744648347L;
 
       @Override
       public void compute() {
-        if (here == 0) {
-          // TODO remove the here == 0 guard
-          for (final int id : removed) {
-            ResilientFinish.purge(id);
-          }
+        for (final int id : removed) {
+          ResilientFinish.purge(id);
         }
         if (handler != null) {
           for (final int id : removed) {
