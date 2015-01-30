@@ -49,6 +49,8 @@ void x10aux::initialize_xrx() {
     x10::xrx::Runtime::FMGL(STATIC_THREADS__do_init)();
     x10::xrx::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
     x10::xrx::Runtime::FMGL(BUSY_WAITING__do_init)();
+    x10::xrx::Runtime::FMGL(CANCELLABLE__do_init)();
+    x10::xrx::Runtime::FMGL(RESILIENT_MODE__do_init)();
     x10::util::Team::FMGL(WORLD__do_init)();
 //    x10::lang::Place::FMGL(places__do_init)();
 //    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
