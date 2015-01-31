@@ -30,7 +30,7 @@ import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.query.Predicate;
 
-@SuppressWarnings({ "javadoc", "serial" })
+@SuppressWarnings("javadoc")
 final class ResilientFinish implements Serializable, Finish {
   private static final long serialVersionUID = -8238404708052769991L;
 
@@ -243,6 +243,8 @@ final class ResilientFinish implements Serializable, Finish {
     try {
       final GlobalID pid = (GlobalID) map.executeOnKey(id,
           new AbstractEntryProcessor<GlobalID, State>() {
+            private static final long serialVersionUID = 6777775768226692449L;
+
             @Override
             public GlobalID process(Map.Entry<GlobalID, State> entry) {
               final State state = f.process(entry.getValue());
@@ -299,6 +301,8 @@ final class ResilientFinish implements Serializable, Finish {
     try {
       return (boolean) map.executeOnKey(id,
           new AbstractEntryProcessor<GlobalID, State>(false) {
+            private static final long serialVersionUID = -7314315521004813385L;
+
             @Override
             public Boolean process(Map.Entry<GlobalID, State> entry) {
               final State state = entry.getValue();
@@ -369,6 +373,8 @@ final class ResilientFinish implements Serializable, Finish {
     try {
       final List<SerializableThrowable> exceptions = (List<SerializableThrowable>) map
           .executeOnKey(id, new AbstractEntryProcessor<GlobalID, State>() {
+            private static final long serialVersionUID = -6913737556384372242L;
+
             @Override
             public List<SerializableThrowable> process(
                 Map.Entry<GlobalID, State> entry) {
