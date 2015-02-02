@@ -58,7 +58,7 @@ final class ExceptionalTask implements SerializableRunnable {
   public void run() {
     finish.submit(parent);
     finish.addSuppressed(t.t);
-    finish.tell();
+    finish.tell(parent);
   }
 
   /**

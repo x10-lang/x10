@@ -43,8 +43,11 @@ interface Finish extends ForkJoinPool.ManagedBlocker {
 
   /**
    * Must be called once a task has completed its execution.
+   *
+   * @param p
+   *          the place of the parent task
    */
-  void tell();
+  void tell(int p);
 
   /**
    * Reports an uncaught exception to this finish object.

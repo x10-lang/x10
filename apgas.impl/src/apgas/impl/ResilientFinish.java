@@ -205,7 +205,7 @@ final class ResilientFinish implements Serializable, Finish {
   }
 
   @Override
-  public void tell() {
+  public void tell(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     executeOnKey(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
