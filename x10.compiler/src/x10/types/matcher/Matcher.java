@@ -412,20 +412,26 @@ public class Matcher {
 
 		boolean inferGuard = false;
 		ProcedureDef procDef = null;
-		if (opts.x10_config.CONSTRAINT_INFERENCE) {
-			if (context2.currentCode() != null) { // FIXME check why it can be null
-				if (context2.currentCode() instanceof ProcedureDef) {
-					procDef = (ProcedureDef) context2.currentCode();
-					inferGuard = procDef.inferGuard();
-				}
-				else if (context2.currentCode() instanceof InitializerDef) {
-					// FIXME check if we have some thing to do
-				}
-				else {
-					assert false: "context2.currentCode().getClass() = " + context2.currentCode().getClass();
-				}
-			}
-		}
+                if (opts.x10_config.CONSTRAINT_INFERENCE) {
+                        if (context2.currentCode() != null) { // FIXME check why it can be null
+                                if (context2.currentCode() instanceof ProcedureDef) {
+                                        procDef = (ProcedureDef) context2.currentCode();
+                                        inferGuard = procDef.inferGuard();
+                                }
+                                else if (context2.currentCode() instanceof InitializerDef) {
+                                        // FIXME check if we have some thing to do
+                                }
+                                else if (context2.currentCode() instanceof X10ClassDef) {
+                                        // FIXME try to understand why this example goes into this branch
+                                        //          public class A[Value] {Value haszero}  {
+                                        //                  var value:Value;
+                                        //          }
+                                }
+                                else {
+                                        assert false: context2.currentCode().position() + "context2.currentCode().getClass() = " + context2.currentCode().getClass();
+                                }
+                        }
+                }
 
 		if ( query != null) {
 			if (! query.consistent())
