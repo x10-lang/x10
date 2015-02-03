@@ -63,9 +63,11 @@ final class ExceptionalTask implements SerializableRunnable {
 
   /**
    * Spawns this {@link ExceptionalTask} instance.
+   *
+   * @param p
+   *          the place ID of the finish
    */
-  void spawn() {
-    final int p = finish.home();
+  void spawn(int p) {
     finish.spawn(p);
     GlobalRuntimeImpl.getRuntime().transport.send(p, this);
   }

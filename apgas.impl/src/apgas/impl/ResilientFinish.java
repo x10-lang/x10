@@ -400,9 +400,4 @@ final class ResilientFinish implements Serializable, Finish {
       throw e;
     }
   }
-
-  @Override
-  public int home() {
-    return id.home.id;
-  }
 }

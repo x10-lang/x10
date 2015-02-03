@@ -216,7 +216,7 @@ final class DefaultFinish implements Serializable, Finish {
       exceptions.add(exception);
     } else {
       // remote finish
-      new ExceptionalTask(this, exception, here).spawn();
+      new ExceptionalTask(this, exception, here).spawn(id.home.id);
     }
   }
 
@@ -291,10 +291,5 @@ final class DefaultFinish implements Serializable, Finish {
       }
     }
     return me;
-  }
-
-  @Override
-  public int home() {
-    return id == null ? GlobalRuntimeImpl.getRuntime().here : id.home.id;
   }
 }

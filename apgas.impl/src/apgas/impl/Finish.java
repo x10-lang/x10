@@ -8,13 +8,6 @@ import java.util.concurrent.ForkJoinPool;
  */
 interface Finish extends ForkJoinPool.ManagedBlocker {
   /**
-   * Returns the home place of this {@link Finish} instance.
-   *
-   * @return the finish place
-   */
-  int home();
-
-  /**
    * Must be called before a task is enqueued for execution (local task or
    * incoming remote task).
    *
