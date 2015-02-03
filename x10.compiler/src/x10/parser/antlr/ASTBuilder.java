@@ -651,28 +651,28 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     private polyglot.lex.FloatLiteral float_lit(LiteralContext ctx) {
         String s = ctx.getText();
+        float x;
         try {
             int end_index = (s.charAt(s.length() - 1) == 'f' || s.charAt(s.length() - 1) == 'F' ? s.length() - 1 : s.length());
-            float x = Float.parseFloat(s.substring(0, end_index));
-            return new FloatLiteral(pos(ctx), x, X10Parsersym.TK_FloatingPointLiteral); // TODO: check this!!
+            x = Float.parseFloat(s.substring(0, end_index));
         } catch (NumberFormatException e) {
-            // unrecoverableSyntaxError = true;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
-            return null;
+            x = Float.NaN;
         }
+        return new FloatLiteral(pos(ctx), x, X10Parsersym.TK_FloatingPointLiteral); // TODO: check this!!
     }
 
     private polyglot.lex.DoubleLiteral double_lit(LiteralContext ctx) {
         String s = ctx.getText();
+        double x;
         try {
             int end_index = (s.charAt(s.length() - 1) == 'd' || s.charAt(s.length() - 1) == 'D' ? s.length() - 1 : s.length());
-            double x = Double.parseDouble(s.substring(0, end_index));
-            return new DoubleLiteral(pos(ctx), x, X10Parsersym.TK_DoubleLiteral); // TODO: Check this!!
+            x = Double.parseDouble(s.substring(0, end_index));
         } catch (NumberFormatException e) {
-            // unrecoverableSyntaxError = true;
+            x = Double.NaN;
             eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal float literal \"" + s + "\"", pos(ctx));
-            return null;
         }
+        return new DoubleLiteral(pos(ctx), x, X10Parsersym.TK_DoubleLiteral); // TODO: Check this!!
     }
 
     private polyglot.lex.BooleanLiteral boolean_lit(BooleanLiteralContext ctx) {
@@ -714,8 +714,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             default:
                 x = (char) parseLong(s.substring(2, s.length() - 1), 8, pos(ctx));
                 if (x > 255) {
-                    // unrecoverableSyntaxError = true;
                     eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal character literal " + s, pos(ctx));
+                    x = s.charAt(2);
                 }
             }
         } else {
@@ -781,7 +781,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
                         n++;
                     char c = (char) parseLong(s.substring(j + 1, n), 8, pos(ctx));
                     if (c > 255) {
-                        // unrecoverableSyntaxError = true;
                         eq.enqueue(ErrorInfo.LEXICAL_ERROR, "Illegal character (" + s.substring(j, n) + ") in string literal " + s, pos(ctx));
                     }
                     x[k++] = c;
@@ -801,34 +800,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     // Grammar actions
 
-    @Override
-    public void exitCompilationUnit(CompilationUnitContext ctx) {
-        List<Import> importDeclarationsopt = ctx.importDeclarationsopt().ast;
-        List<TopLevelDecl> typeDeclarationsopt = ctx.typeDeclarationsopt().ast;
 
-        PackageNode packageDeclaration = ctx.packageDeclaration() == null ? null : ctx.packageDeclaration().ast;
-        ctx.ast = nf.SourceFile(pos(ctx), packageDeclaration, importDeclarationsopt, typeDeclarationsopt);
-
-    }
-
-    @Override
-    public void exitImportDeclarationsopt(ImportDeclarationsoptContext ctx) {
-        List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
-        for (ImportDeclarationContext importDeclaration : ctx.importDeclaration()) {
-            l.add(importDeclaration.ast);
-        }
-        ctx.ast = l;
-    }
-
-    @Override
-    public void exitPackageDeclaration(PackageDeclarationContext ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        ParsedName PackageName = ctx.packageName().ast;
-        PackageNode pn = PackageName.toPackage();
-        pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
-        ctx.ast = pn;
-    }
-
+    /** Production: modifiersopt ::= modifier*    (#modifiersopt) */
     @Override
     public void exitModifiersopt(ModifiersoptContext ctx) {
         List<Modifier> l = new LinkedList<Modifier>();
@@ -838,61 +811,73 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
-    @Override
-    public void exitModifierAnnotation(ModifierAnnotationContext ctx) {
-        ctx.ast = new AnnotationModifier(ctx.annotation().ast);
-    }
-
-    @Override
-    public void exitModifierPrivate(ModifierPrivateContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PRIVATE);
-    }
-
-    @Override
-    public void exitModifierNative(ModifierNativeContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.NATIVE);
-    }
-
-    @Override
-    public void exitModifierTransient(ModifierTransientContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.TRANSIENT);
-    }
-
-    @Override
-    public void exitModifierClocked(ModifierClockedContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.CLOCKED);
-    }
-
-    @Override
-    public void exitModifierFinal(ModifierFinalContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.FINAL);
-    }
-
+    /** Production: modifier ::= 'abstract'    (#modifierAbstract) */
     @Override
     public void exitModifierAbstract(ModifierAbstractContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
     }
 
+    /** Production: modifier ::= annotation    (#modifierAnnotation) */
+    @Override
+    public void exitModifierAnnotation(ModifierAnnotationContext ctx) {
+        ctx.ast = new AnnotationModifier(ctx.annotation().ast);
+    }
+
+    /** Production: modifier ::= 'atomic'    (#modifierAtomic) */
     @Override
     public void exitModifierAtomic(ModifierAtomicContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.ATOMIC);
     }
 
+    /** Production: modifier ::= 'final'    (#modifierFinal) */
     @Override
-    public void exitModifierStatic(ModifierStaticContext ctx) {
-        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.STATIC);
+    public void exitModifierFinal(ModifierFinalContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.FINAL);
     }
 
+    /** Production: modifier ::= 'native'    (#modifierNative) */
+    @Override
+    public void exitModifierNative(ModifierNativeContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.NATIVE);
+    }
+
+    /** Production: modifier ::= 'private'    (#modifierPrivate) */
+    @Override
+    public void exitModifierPrivate(ModifierPrivateContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PRIVATE);
+    }
+
+    /** Production: modifier ::= 'protected'    (#modifierProtected) */
     @Override
     public void exitModifierProtected(ModifierProtectedContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PROTECTED);
     }
 
+    /** Production: modifier ::= 'public'    (#modifierPublic) */
     @Override
     public void exitModifierPublic(ModifierPublicContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PUBLIC);
     }
 
+    /** Production: modifier ::= 'static'    (#modifierStatic) */
+    @Override
+    public void exitModifierStatic(ModifierStaticContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.STATIC);
+    }
+
+    /** Production: modifier ::= 'transient'    (#modifierTransient) */
+    @Override
+    public void exitModifierTransient(ModifierTransientContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.TRANSIENT);
+    }
+
+    /** Production: modifier ::= 'clocked'    (#modifierClocked) */
+    @Override
+    public void exitModifierClocked(ModifierClockedContext ctx) {
+        ctx.ast = new FlagModifier(pos(ctx), FlagModifier.CLOCKED);
+    }
+
+    /** Production: methodModifiersopt ::= methodModifier*    (#methodModifiersopt) */
     @Override
     public void exitMethodModifiersopt(MethodModifiersoptContext ctx) {
         List<Modifier> l = new LinkedList<Modifier>();
@@ -902,16 +887,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: methodModifier ::= modifier    (#methodModifierModifier) */
     @Override
     public void exitMethodModifierModifier(MethodModifierModifierContext ctx) {
         ctx.ast = ctx.modifier().ast;
     }
 
+    /** Production: methodModifier ::= 'property'    (#methodModifierProperty) */
     @Override
     public void exitMethodModifierProperty(MethodModifierPropertyContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PROPERTY);
     }
 
+    /** Production: typeDefDeclaration ::= modifiersopt 'type' identifier typeParametersopt ('(' formalParameterList ')')? whereClauseopt '=' type ';'    (#typeDefDeclaration) */
     @Override
     public void exitTypeDefDeclaration(TypeDefDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -937,6 +925,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
+    /** Production: propertiesopt ::= ('(' property (',' property)* ')')?    (#propertiesopt) */
     @Override
     public void exitPropertiesopt(PropertiesoptContext ctx) {
         List<PropertyDecl> l = new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false);
@@ -946,6 +935,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: property ::= annotationsopt identifier resultType    (#property) */
     @Override
     public void exitProperty(PropertyContext ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -957,26 +947,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    @Override
-    public void exitMethodDeclarationSetOp(MethodDeclarationSetOpContext ctx) {
-        ctx.ast = ctx.setOperatorDeclaration().ast;
-    }
-
-    @Override
-    public void exitMethodDeclarationConversionOp(MethodDeclarationConversionOpContext ctx) {
-        ctx.ast = ctx.conversionOperatorDeclaration().ast;
-    }
-
-    @Override
-    public void exitMethodDeclarationBinaryOp(MethodDeclarationBinaryOpContext ctx) {
-        ctx.ast = ctx.binaryOperatorDeclaration().ast;
-    }
-
-    @Override
-    public void exitMethodDeclarationApplyOp(MethodDeclarationApplyOpContext ctx) {
-        ctx.ast = ctx.applyOperatorDeclaration().ast;
-    }
-
+    /** Production: methodDeclaration ::= methodModifiersopt 'def' identifier typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#methodDeclarationMethod) */
     @Override
     public void exitMethodDeclarationMethod(MethodDeclarationMethodContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -996,11 +967,37 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = pd;
     }
 
+    /** Production: methodDeclaration ::= binaryOperatorDeclaration    (#methodDeclarationBinaryOp) */
+    @Override
+    public void exitMethodDeclarationBinaryOp(MethodDeclarationBinaryOpContext ctx) {
+        ctx.ast = ctx.binaryOperatorDeclaration().ast;
+    }
+
+    /** Production: methodDeclaration ::= prefixOperatorDeclaration    (#methodDeclarationPrefixOp) */
     @Override
     public void exitMethodDeclarationPrefixOp(MethodDeclarationPrefixOpContext ctx) {
         ctx.ast = ctx.prefixOperatorDeclaration().ast;
     }
 
+    /** Production: methodDeclaration ::= applyOperatorDeclaration    (#methodDeclarationApplyOp) */
+    @Override
+    public void exitMethodDeclarationApplyOp(MethodDeclarationApplyOpContext ctx) {
+        ctx.ast = ctx.applyOperatorDeclaration().ast;
+    }
+
+    /** Production: methodDeclaration ::= setOperatorDeclaration    (#methodDeclarationSetOp) */
+    @Override
+    public void exitMethodDeclarationSetOp(MethodDeclarationSetOpContext ctx) {
+        ctx.ast = ctx.setOperatorDeclaration().ast;
+    }
+
+    /** Production: methodDeclaration ::= conversionOperatorDeclaration    (#methodDeclarationConversionOp) */
+    @Override
+    public void exitMethodDeclarationConversionOp(MethodDeclarationConversionOpContext ctx) {
+        ctx.ast = ctx.conversionOperatorDeclaration().ast;
+    }
+
+    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDecl) */
     @Override
     public void exitBinaryOperatorDecl(BinaryOperatorDeclContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1031,6 +1028,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt 'this' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDeclThisLeft) */
     @Override
     public void exitBinaryOperatorDeclThisLeft(BinaryOperatorDeclThisLeftContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1060,6 +1058,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDeclThisRight) */
     @Override
     public void exitBinaryOperatorDeclThisRight(BinaryOperatorDeclThisRightContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1090,6 +1089,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#prefixOperatorDecl) */
     @Override
     public void exitPrefixOperatorDecl(PrefixOperatorDeclContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1119,6 +1119,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#prefixOperatorDeclThis) */
     @Override
     public void exitPrefixOperatorDeclThis(PrefixOperatorDeclThisContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1147,6 +1148,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: applyOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#applyOperatorDeclaration) */
     @Override
     public void exitApplyOperatorDeclaration(ApplyOperatorDeclarationContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1170,6 +1172,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: setOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters '=' '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#setOperatorDeclaration) */
     @Override
     public void exitSetOperatorDeclaration(SetOperatorDeclarationContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1195,16 +1198,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: conversionOperatorDeclaration ::= explicitConversionOperatorDeclaration    (#conversionOperatorDeclarationExplicit) */
     @Override
     public void exitConversionOperatorDeclarationExplicit(ConversionOperatorDeclarationExplicitContext ctx) {
         ctx.ast = ctx.explicitConversionOperatorDeclaration().ast;
     }
 
+    /** Production: conversionOperatorDeclaration ::= implicitConversionOperatorDeclaration    (#conversionOperatorDeclarationImplicit) */
     @Override
     public void exitConversionOperatorDeclarationImplicit(ConversionOperatorDeclarationImplicitContext ctx) {
         ctx.ast = ctx.implicitConversionOperatorDeclaration().ast;
     }
 
+    /** Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' type whereClauseopt oBSOLETE_Offersopt throwsopt methodBody    (#explicitConversionOperatorDecl0) */
     @Override
     public void exitExplicitConversionOperatorDecl0(ExplicitConversionOperatorDecl0Context ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1227,6 +1233,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' '?' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#explicitConversionOperatorDecl1) */
     @Override
     public void exitExplicitConversionOperatorDecl1(ExplicitConversionOperatorDecl1Context ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1250,6 +1257,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: implicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#implicitConversionOperatorDeclaration) */
     @Override
     public void exitImplicitConversionOperatorDeclaration(ImplicitConversionOperatorDeclarationContext ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1274,6 +1282,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody    (#propertyMethodDecl0) */
     @Override
     public void exitPropertyMethodDecl0(PropertyMethodDecl0Context ctx) {
         List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
@@ -1291,6 +1300,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody    (#propertyMethodDecl1) */
     @Override
     public void exitPropertyMethodDecl1(PropertyMethodDecl1Context ctx) {
         err.syntaxError("This syntax is no longer supported. You must supply the property method formals, and if there are none, you can use an empty parenthesis '()'.", pos(ctx));
@@ -1307,6 +1317,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
+    /** Production: explicitConstructorInvocation ::= 'this' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationThis) */
     @Override
     public void exitExplicitConstructorInvocationThis(ExplicitConstructorInvocationThisContext ctx) {
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
@@ -1314,6 +1325,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10ThisCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: explicitConstructorInvocation ::= 'super' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationSuper) */
+    @Override
+    public void exitExplicitConstructorInvocationSuper(ExplicitConstructorInvocationSuperContext ctx) {
+        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
+        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ctx.ast = nf.X10SuperCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
+    }
+
+    /** Production: explicitConstructorInvocation ::= primary '.' 'this' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationPrimaryThis) */
     @Override
     public void exitExplicitConstructorInvocationPrimaryThis(ExplicitConstructorInvocationPrimaryThisContext ctx) {
         Expr Primary = ctx.primary().ast;
@@ -1322,13 +1342,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10ThisCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
     }
 
-    @Override
-    public void exitExplicitConstructorInvocationSuper(ExplicitConstructorInvocationSuperContext ctx) {
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        ctx.ast = nf.X10SuperCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
-    }
-
+    /** Production: explicitConstructorInvocation ::= primary '.' 'super' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationPrimarySuper) */
     @Override
     public void exitExplicitConstructorInvocationPrimarySuper(ExplicitConstructorInvocationPrimarySuperContext ctx) {
         Expr Primary = ctx.primary().ast;
@@ -1337,6 +1351,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10SuperCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: interfaceDeclaration ::= modifiersopt 'interface' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt extendsInterfacesopt interfaceBody    (#interfaceDeclaration) */
     @Override
     public void exitInterfaceDeclaration(InterfaceDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -1360,6 +1375,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
+    /** Production: assignPropertyCall ::= 'property' typeArgumentsopt '(' argumentListopt ')' ';'    (#assignPropertyCall) */
     @Override
     public void exitAssignPropertyCall(AssignPropertyCallContext ctx) {
         List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
@@ -1367,21 +1383,25 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AssignPropertyCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: type ::= functionType    (#typeFunctionType) */
     @Override
     public void exitTypeFunctionType(TypeFunctionTypeContext ctx) {
         ctx.ast = ctx.functionType().ast;
     }
 
+    /** Production: type ::= constrainedType    (#typeConstrainedType) */
     @Override
     public void exitTypeConstrainedType(TypeConstrainedTypeContext ctx) {
         ctx.ast = ctx.constrainedType().ast;
     }
 
+    /** Production: type ::= void_    (#typeVoid) */
     @Override
     public void exitTypeVoid(TypeVoidContext ctx) {
         ctx.ast = ctx.void_().ast;
     }
 
+    /** Production: type ::= type annotations    (#typeAnnotations) */
     @Override
     public void exitTypeAnnotations(TypeAnnotationsContext ctx) {
         TypeNode Type = ctx.type().ast;
@@ -1391,6 +1411,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (TypeNode) tn.position(pos(ctx));
     }
 
+    /** Production: functionType ::= typeParametersopt '(' formalParameterListopt ')' whereClauseopt oBSOLETE_Offersopt '=>' type    (#functionType) */
     @Override
     public void exitFunctionType(FunctionTypeContext ctx) {
         List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
@@ -1401,27 +1422,32 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.FunctionTypeNode(pos(ctx), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type, OBSOLETE_Offersopt);
     }
 
+    /** Production: classType ::= namedType    (#classType) */
     @Override
     public void exitClassType(ClassTypeContext ctx) {
         ctx.ast = ctx.namedType().ast;
     }
 
+    /** Production: constrainedType ::= namedType    (#constrainedType) */
     @Override
     public void exitConstrainedType(ConstrainedTypeContext ctx) {
         ctx.ast = ctx.namedType().ast;
     }
 
+    /** Production: void_ ::= 'void'    (#void_) */
     @Override
     public void exitVoid_(Void_Context ctx) {
         ctx.ast = nf.CanonicalTypeNode(pos(ctx), ts.Void());
     }
 
+    /** Production: simpleNamedType ::= typeName    (#simpleNamedType0) */
     @Override
     public void exitSimpleNamedType0(SimpleNamedType0Context ctx) {
         ParsedName TypeName = ctx.typeName().ast;
         ctx.ast = (AmbTypeNode) TypeName.toType();
     }
 
+    /** Production: simpleNamedType ::= primary '.' identifier    (#simpleNamedType1) */
     @Override
     public void exitSimpleNamedType1(SimpleNamedType1Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -1429,6 +1455,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AmbTypeNode(pos(ctx), Primary, Identifier);
     }
 
+    /** Production: simpleNamedType ::= simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier    (#simpleNamedType2) */
     @Override
     public void exitSimpleNamedType2(SimpleNamedType2Context ctx) {
         AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
@@ -1445,6 +1472,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AmbTypeNode(pos(ctx), qualifier, Identifier);
     }
 
+    /** Production: parameterizedNamedType ::= simpleNamedType typeArguments? arguments?    (#parameterizedNamedType) */
     @Override
     public void exitParameterizedNamedType(ParameterizedNamedTypeContext ctx) {
         AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
@@ -1458,6 +1486,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: depNamedType ::= parameterizedNamedType depParameters    (#depNamedType) */
     @Override
     public void exitDepNamedType(DepNamedTypeContext ctx) {
         if (ctx.parameterizedNamedType().ast instanceof AmbMacroTypeNode) {
@@ -1475,21 +1504,25 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: namedTypeNoConstraints ::= parameterizedNamedType    (#namedTypeNoConstraints) */
     @Override
     public void exitNamedTypeNoConstraints(NamedTypeNoConstraintsContext ctx) {
         ctx.ast = ctx.parameterizedNamedType().ast;
     }
 
-    @Override
-    public void exitNamedType0(NamedType0Context ctx) {
-        ctx.ast = ctx.namedTypeNoConstraints().ast;
-    }
-
+    /** Production: namedType ::= depNamedType    (#namedType1) */
     @Override
     public void exitNamedType1(NamedType1Context ctx) {
         ctx.ast = ctx.depNamedType().ast;
     }
 
+    /** Production: namedType ::= namedTypeNoConstraints    (#namedType0) */
+    @Override
+    public void exitNamedType0(NamedType0Context ctx) {
+        ctx.ast = ctx.namedTypeNoConstraints().ast;
+    }
+
+    /** Production: depParameters ::= '{' /* fUTURE_ExistentialList? */ constraintConjunctionopt '}'    (#depParameters) */
     @Override
     public void exitDepParameters(DepParametersContext ctx) {
         List<Formal> FUTURE_ExistentialListopt = new ArrayList<Formal>();
@@ -1497,6 +1530,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.DepParameterExpr(pos(ctx), FUTURE_ExistentialListopt, ConstraintConjunctionopt);
     }
 
+    /** Production: typeParamsWithVarianceopt ::= ('[' typeParamWithVarianceList ']')?    (#typeParamsWithVarianceopt) */
     @Override
     public void exitTypeParamsWithVarianceopt(TypeParamsWithVarianceoptContext ctx) {
         if (ctx.typeParamWithVarianceList() == null) {
@@ -1506,6 +1540,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: typeParametersopt ::= ('[' typeParameterList ']')?    (#typeParametersopt) */
     @Override
     public void exitTypeParametersopt(TypeParametersoptContext ctx) {
         if (ctx.typeParameterList() == null) {
@@ -1515,11 +1550,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: formalParameters ::= '(' formalParameterListopt ')'    (#formalParameters) */
     @Override
     public void exitFormalParameters(FormalParametersContext ctx) {
         ctx.ast = ctx.formalParameterListopt().ast;
     }
 
+    /** Production: constraintConjunctionopt ::= (expression (',' expression)*)?    (#constraintConjunctionopt) */
     @Override
     public void exitConstraintConjunctionopt(ConstraintConjunctionoptContext ctx) {
         List<Expr> l = new ArrayList<Expr>();
@@ -1529,18 +1566,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: hasZeroConstraint ::= type 'haszero'    (#hasZeroConstraint) */
     @Override
     public void exitHasZeroConstraint(HasZeroConstraintContext ctx) {
         TypeNode t1 = ctx.type().ast;
         ctx.ast = nf.HasZeroTest(pos(ctx), t1);
     }
 
+    /** Production: isRefConstraint ::= type 'isref'    (#isRefConstraint) */
     @Override
     public void exitIsRefConstraint(IsRefConstraintContext ctx) {
         TypeNode t1 = ctx.type().ast;
         ctx.ast = nf.IsRefTest(pos(ctx), t1);
     }
 
+    /** Production: subtypeConstraint ::= t1=type '<:' t2=type    (#subtypeConstraint0) */
     @Override
     public void exitSubtypeConstraint0(SubtypeConstraint0Context ctx) {
         TypeNode t1 = ctx.t1.ast;
@@ -1548,6 +1588,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, false);
     }
 
+    /** Production: subtypeConstraint ::= t1=type ':>' t2=type    (#subtypeConstraint1) */
     @Override
     public void exitSubtypeConstraint1(SubtypeConstraint1Context ctx) {
         TypeNode t1 = ctx.t1.ast;
@@ -1555,6 +1596,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.SubtypeTest(pos(ctx), t2, t1, false);
     }
 
+    /** Production: whereClauseopt ::= depParameters?    (#whereClauseopt) */
     @Override
     public void exitWhereClauseopt(WhereClauseoptContext ctx) {
         if (ctx.depParameters() == null) {
@@ -1565,6 +1607,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: classDeclaration ::= modifiersopt 'class' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt superExtendsopt interfacesopt classBody    (#classDeclaration) */
     @Override
     public void exitClassDeclaration(ClassDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -1587,6 +1630,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
+    /** Production: structDeclaration ::= modifiersopt 'struct' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt interfacesopt classBody    (#structDeclaration) */
     @Override
     public void exitStructDeclaration(StructDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -1606,6 +1650,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
+    /** Production: constructorDeclaration ::= modifiersopt 'def' id='this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt constructorBody    (#constructorDeclaration) */
     @Override
     public void exitConstructorDeclaration(ConstructorDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -1623,6 +1668,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
+    /** Production: superExtendsopt ::= ('extends' classType)?    (#superExtendsopt) */
     @Override
     public void exitSuperExtendsopt(SuperExtendsoptContext ctx) {
         if (ctx.classType() == null) {
@@ -1632,16 +1678,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: varKeyword ::= 'val'    (#varKeyword0) */
     @Override
     public void exitVarKeyword0(VarKeyword0Context ctx) {
         ctx.ast = Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.FINAL));
     }
 
+    /** Production: varKeyword ::= 'var'    (#varKeyword1) */
     @Override
     public void exitVarKeyword1(VarKeyword1Context ctx) {
         ctx.ast = Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.NONE));
     }
 
+    /** Production: fieldDeclaration ::= modifiersopt varKeyword? fieldDeclarators ';'    (#fieldDeclaration) */
     @Override
     public void exitFieldDeclaration(FieldDeclarationContext ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -1667,16 +1716,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: statement ::= annotationStatement    (#statement0) */
     @Override
     public void exitStatement0(Statement0Context ctx) {
         ctx.ast = ctx.annotationStatement().ast;
     }
 
+    /** Production: statement ::= expressionStatement    (#statement1) */
     @Override
     public void exitStatement1(Statement1Context ctx) {
         ctx.ast = ctx.expressionStatement().ast;
     }
 
+    /** Production: annotationStatement ::= annotationsopt nonExpressionStatement    (#annotationStatement) */
     @Override
     public void exitAnnotationStatement(AnnotationStatementContext ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -1687,122 +1739,146 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (Stmt) NonExpressionStatement.position(pos(ctx));
     }
 
+    /** Production: nonExpressionStatement ::= block    (#nonExpressionStatemen0) */
     @Override
     public void exitNonExpressionStatemen0(NonExpressionStatemen0Context ctx) {
         ctx.ast = ctx.block().ast;
     }
 
+    /** Production: nonExpressionStatement ::= emptyStatement    (#nonExpressionStatemen1) */
     @Override
     public void exitNonExpressionStatemen1(NonExpressionStatemen1Context ctx) {
         ctx.ast = ctx.emptyStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= assertStatement    (#nonExpressionStatemen2) */
     @Override
     public void exitNonExpressionStatemen2(NonExpressionStatemen2Context ctx) {
         ctx.ast = ctx.assertStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= switchStatement    (#nonExpressionStatemen3) */
     @Override
     public void exitNonExpressionStatemen3(NonExpressionStatemen3Context ctx) {
         ctx.ast = ctx.switchStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= doStatement    (#nonExpressionStatemen4) */
     @Override
     public void exitNonExpressionStatemen4(NonExpressionStatemen4Context ctx) {
         ctx.ast = ctx.doStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= breakStatement    (#nonExpressionStatemen5) */
     @Override
     public void exitNonExpressionStatemen5(NonExpressionStatemen5Context ctx) {
         ctx.ast = ctx.breakStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= continueStatement    (#nonExpressionStatemen6) */
     @Override
     public void exitNonExpressionStatemen6(NonExpressionStatemen6Context ctx) {
         ctx.ast = ctx.continueStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= returnStatement    (#nonExpressionStatemen7) */
     @Override
     public void exitNonExpressionStatemen7(NonExpressionStatemen7Context ctx) {
         ctx.ast = ctx.returnStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= throwStatement    (#nonExpressionStatemen8) */
     @Override
     public void exitNonExpressionStatemen8(NonExpressionStatemen8Context ctx) {
         ctx.ast = ctx.throwStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= tryStatement    (#nonExpressionStatemen9) */
     @Override
     public void exitNonExpressionStatemen9(NonExpressionStatemen9Context ctx) {
         ctx.ast = ctx.tryStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= labeledStatement    (#nonExpressionStatemen10) */
     @Override
     public void exitNonExpressionStatemen10(NonExpressionStatemen10Context ctx) {
         ctx.ast = ctx.labeledStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= ifThenStatement    (#nonExpressionStatemen11) */
     @Override
     public void exitNonExpressionStatemen11(NonExpressionStatemen11Context ctx) {
         ctx.ast = ctx.ifThenStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= whileStatement    (#nonExpressionStatemen13) */
     @Override
     public void exitNonExpressionStatemen13(NonExpressionStatemen13Context ctx) {
         ctx.ast = ctx.whileStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= forStatement    (#nonExpressionStatemen14) */
     @Override
     public void exitNonExpressionStatemen14(NonExpressionStatemen14Context ctx) {
         ctx.ast = ctx.forStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= asyncStatement    (#nonExpressionStatemen15) */
     @Override
     public void exitNonExpressionStatemen15(NonExpressionStatemen15Context ctx) {
         ctx.ast = ctx.asyncStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= atStatement    (#nonExpressionStatemen16) */
     @Override
     public void exitNonExpressionStatemen16(NonExpressionStatemen16Context ctx) {
         ctx.ast = ctx.atStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= atomicStatement    (#nonExpressionStatemen17) */
     @Override
     public void exitNonExpressionStatemen17(NonExpressionStatemen17Context ctx) {
         ctx.ast = ctx.atomicStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= whenStatement    (#nonExpressionStatemen18) */
     @Override
     public void exitNonExpressionStatemen18(NonExpressionStatemen18Context ctx) {
         ctx.ast = ctx.whenStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= atEachStatement    (#nonExpressionStatemen19) */
     @Override
     public void exitNonExpressionStatemen19(NonExpressionStatemen19Context ctx) {
         ctx.ast = ctx.atEachStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= finishStatement    (#nonExpressionStatemen20) */
     @Override
     public void exitNonExpressionStatemen20(NonExpressionStatemen20Context ctx) {
         ctx.ast = ctx.finishStatement().ast;
     }
 
+    /** Production: nonExpressionStatement ::= assignPropertyCall    (#nonExpressionStatemen21) */
     @Override
     public void exitNonExpressionStatemen21(NonExpressionStatemen21Context ctx) {
         ctx.ast = ctx.assignPropertyCall().ast;
     }
 
+    /** Production: nonExpressionStatement ::= oBSOLETE_OfferStatement    (#nonExpressionStatemen22) */
     @Override
     public void exitNonExpressionStatemen22(NonExpressionStatemen22Context ctx) {
         ctx.ast = ctx.oBSOLETE_OfferStatement().ast;
     }
 
+    /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';'    (#oBSOLETE_OfferStatement) */
     @Override
     public void exitOBSOLETE_OfferStatement(OBSOLETE_OfferStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
         ctx.ast = nf.Offer(pos(ctx), Expression);
     }
 
+    /** Production: ifThenStatement ::= 'if' '(' expression ')' s1=statement ('else' s2=statement)?    (#ifThenStatement) */
     @Override
     public void exitIfThenStatement(IfThenStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -1815,11 +1891,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: emptyStatement ::= ';'    (#emptyStatement) */
     @Override
     public void exitEmptyStatement(EmptyStatementContext ctx) {
         ctx.ast = nf.Empty(pos(ctx));
     }
 
+    /** Production: labeledStatement ::= identifier ':' loopStatement    (#labeledStatement) */
     @Override
     public void exitLabeledStatement(LabeledStatementContext ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -1827,38 +1905,45 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Labeled(pos(ctx), Identifier, LoopStatement);
     }
 
+    /** Production: loopStatement ::= forStatement    (#loopStatement0) */
     @Override
     public void exitLoopStatement0(LoopStatement0Context ctx) {
         ctx.ast = ctx.forStatement().ast;
     }
 
+    /** Production: loopStatement ::= whileStatement    (#loopStatement1) */
     @Override
     public void exitLoopStatement1(LoopStatement1Context ctx) {
         ctx.ast = ctx.whileStatement().ast;
     }
 
+    /** Production: loopStatement ::= doStatement    (#loopStatement2) */
     @Override
     public void exitLoopStatement2(LoopStatement2Context ctx) {
         ctx.ast = ctx.doStatement().ast;
     }
 
+    /** Production: loopStatement ::= atEachStatement    (#loopStatement3) */
     @Override
     public void exitLoopStatement3(LoopStatement3Context ctx) {
         ctx.ast = ctx.atEachStatement().ast;
     }
 
+    /** Production: expressionStatement ::= expression ';'    (#expressionStatement) */
     @Override
     public void exitExpressionStatement(ExpressionStatementContext ctx) {
         Expr StatementExpression = ctx.expression().ast;
         ctx.ast = nf.Eval(pos(ctx), StatementExpression);
     }
 
+    /** Production: assertStatement ::= 'assert' expression ';'    (#assertStatement0) */
     @Override
     public void exitAssertStatement0(AssertStatement0Context ctx) {
         Expr Expression = ctx.expression().ast;
         ctx.ast = nf.Assert(pos(ctx), Expression);
     }
 
+    /** Production: assertStatement ::= 'assert' e1=expression ':' e2=expression ';'    (#assertStatement1) */
     @Override
     public void exitAssertStatement1(AssertStatement1Context ctx) {
         Expr expr1 = ctx.e1.ast;
@@ -1866,6 +1951,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Assert(pos(ctx), expr1, expr2);
     }
 
+    /** Production: switchStatement ::= 'switch' '(' expression ')' switchBlock    (#switchStatement) */
     @Override
     public void exitSwitchStatement(SwitchStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -1873,6 +1959,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Switch(pos(ctx), Expression, SwitchBlock);
     }
 
+    /** Production: switchBlock ::= '{' switchBlockStatementGroupsopt switchLabelsopt '}'    (#switchBlock) */
     @Override
     public void exitSwitchBlock(SwitchBlockContext ctx) {
         List<SwitchElement> SwitchBlockStatementGroupsopt = ctx.switchBlockStatementGroupsopt().ast;
@@ -1881,6 +1968,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = SwitchBlockStatementGroupsopt;
     }
 
+    /** Production: switchBlockStatementGroupsopt ::= switchBlockStatementGroup*    (#switchBlockStatementGroupsopt) */
+    @Override
+    public void exitSwitchBlockStatementGroupsopt(SwitchBlockStatementGroupsoptContext ctx) {
+        List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
+        for (SwitchBlockStatementGroupContext e : ctx.switchBlockStatementGroup()) {
+            l.addAll(e.ast);
+        }
+        ctx.ast = l;
+    }
+
+    /** Production: switchBlockStatementGroup ::= switchLabels blockStatements    (#switchBlockStatementGroup) */
     @Override
     public void exitSwitchBlockStatementGroup(SwitchBlockStatementGroupContext ctx) {
         List<Case> SwitchLabels = ctx.switchLabels().ast;
@@ -1891,26 +1989,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
-    @Override
-    public void exitSwitchBlockStatementGroupsopt(SwitchBlockStatementGroupsoptContext ctx) {
-        List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
-        for (SwitchBlockStatementGroupContext e : ctx.switchBlockStatementGroup()) {
-            l.addAll(e.ast);
-        }
-        ctx.ast = l;
-    }
-
-    @Override
-    public void exitSwitchLabel0(SwitchLabel0Context ctx) {
-        Expr ConstantExpression = ctx.constantExpression().ast;
-        ctx.ast = nf.Case(pos(ctx), ConstantExpression);
-    }
-
-    @Override
-    public void exitSwitchLabel1(SwitchLabel1Context ctx) {
-        ctx.ast = nf.Default(pos(ctx));
-    }
-
+    /** Production: switchLabelsopt ::= switchLabels?    (#switchLabelsopt) */
     @Override
     public void exitSwitchLabelsopt(SwitchLabelsoptContext ctx) {
         if (ctx.switchLabels() == null) {
@@ -1920,6 +1999,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: switchLabels ::= switchLabel+    (#switchLabels) */
     @Override
     public void exitSwitchLabels(SwitchLabelsContext ctx) {
         List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
@@ -1929,6 +2009,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: switchLabel ::= 'case' constantExpression ':'    (#switchLabel0) */
+    @Override
+    public void exitSwitchLabel0(SwitchLabel0Context ctx) {
+        Expr ConstantExpression = ctx.constantExpression().ast;
+        ctx.ast = nf.Case(pos(ctx), ConstantExpression);
+    }
+
+    /** Production: switchLabel ::= 'default' ':'    (#switchLabel1) */
+    @Override
+    public void exitSwitchLabel1(SwitchLabel1Context ctx) {
+        ctx.ast = nf.Default(pos(ctx));
+    }
+
+    /** Production: whileStatement ::= 'while' '(' expression ')' statement    (#whileStatement) */
     @Override
     public void exitWhileStatement(WhileStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -1936,6 +2030,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.While(pos(ctx), Expression, Statement);
     }
 
+    /** Production: doStatement ::= 'do' statement 'while' '(' expression ')' ';'    (#doStatement) */
     @Override
     public void exitDoStatement(DoStatementContext ctx) {
         Stmt Statement = ctx.statement().ast;
@@ -1943,16 +2038,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Do(pos(ctx), Statement, Expression);
     }
 
+    /** Production: forStatement ::= basicForStatement    (#forStatement0) */
     @Override
     public void exitForStatement0(ForStatement0Context ctx) {
         ctx.ast = ctx.basicForStatement().ast;
     }
 
+    /** Production: forStatement ::= enhancedForStatement    (#forStatement1) */
     @Override
     public void exitForStatement1(ForStatement1Context ctx) {
         ctx.ast = ctx.enhancedForStatement().ast;
     }
 
+    /** Production: basicForStatement ::= 'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement    (#basicForStatement) */
     @Override
     public void exitBasicForStatement(BasicForStatementContext ctx) {
         @SuppressWarnings("unchecked")
@@ -1964,12 +2062,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.For(pos(ctx), ForInitopt, Expressionopt, ForUpdateopt, Statement);
     }
 
+    /** Production: forInit ::= statementExpressionList    (#forInit0) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForInit0(ForInit0Context ctx) {
         ctx.ast = (List<ForInit>) ((Object) ctx.statementExpressionList().ast);
     }
 
+    /** Production: forInit ::= localVariableDeclaration    (#forInit1) */
     @Override
     public void exitForInit1(ForInit1Context ctx) {
         List<LocalDecl> LocalVariableDeclaration = ctx.localVariableDeclaration().ast;
@@ -1978,12 +2078,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: forUpdate ::= statementExpressionList    (#forUpdate) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdate(ForUpdateContext ctx) {
         ctx.ast = (List<ForUpdate>) ((Object) ctx.statementExpressionList().ast);
     }
 
+    /** Production: statementExpressionList ::= expression (',' expression)*    (#statementExpressionList) */
     @Override
     public void exitStatementExpressionList(StatementExpressionListContext ctx) {
         List<Eval> l = new TypedList<Eval>(new LinkedList<Eval>(), Eval.class, false);
@@ -1993,30 +2095,35 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: breakStatement ::= 'break' identifieropt ';'    (#breakStatement) */
     @Override
     public void exitBreakStatement(BreakStatementContext ctx) {
         Id Identifieropt = ctx.identifieropt().ast;
         ctx.ast = nf.Break(pos(ctx), Identifieropt);
     }
 
+    /** Production: continueStatement ::= 'continue' identifieropt ';'    (#continueStatement) */
     @Override
     public void exitContinueStatement(ContinueStatementContext ctx) {
         Id Identifieropt = ctx.identifieropt().ast;
         ctx.ast = nf.Continue(pos(ctx), Identifieropt);
     }
 
+    /** Production: returnStatement ::= 'return' expressionopt ';'    (#returnStatement) */
     @Override
     public void exitReturnStatement(ReturnStatementContext ctx) {
         Expr Expressionopt = ctx.expressionopt().ast;
         ctx.ast = nf.Return(pos(ctx), Expressionopt);
     }
 
+    /** Production: throwStatement ::= 'throw' expression ';'    (#throwStatement) */
     @Override
     public void exitThrowStatement(ThrowStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
         ctx.ast = nf.Throw(pos(ctx), Expression);
     }
 
+    /** Production: tryStatement ::= 'try' block catches    (#tryStatement0) */
     @Override
     public void exitTryStatement0(TryStatement0Context ctx) {
         Block Block = ctx.block().ast;
@@ -2024,6 +2131,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Try(pos(ctx), Block, Catches);
     }
 
+    /** Production: tryStatement ::= 'try' block catchesopt finallyBlock    (#tryStatement1) */
     @Override
     public void exitTryStatement1(TryStatement1Context ctx) {
         Block Block = ctx.block().ast;
@@ -2032,6 +2140,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Try(pos(ctx), Block, Catchesopt, Finally);
     }
 
+    /** Production: catches ::= catchClause+    (#catches) */
     @Override
     public void exitCatches(CatchesContext ctx) {
         List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
@@ -2041,6 +2150,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: catchClause ::= 'catch' '(' formalParameter ')' block    (#catchClause) */
     @Override
     public void exitCatchClause(CatchClauseContext ctx) {
         X10Formal FormalParameter = ctx.formalParameter().ast;
@@ -2048,12 +2158,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Catch(pos(ctx), FormalParameter, Block);
     }
 
+    /** Production: finallyBlock ::= 'finally' block    (#finallyBlock) */
     @Override
     public void exitFinallyBlock(FinallyBlockContext ctx) {
         Block Block = ctx.block().ast;
         ctx.ast = Block;
     }
 
+    /** Production: clockedClauseopt ::= ('clocked' arguments)?    (#clockedClauseopt) */
     @Override
     public void exitClockedClauseopt(ClockedClauseoptContext ctx) {
         List<Expr> Arguments;
@@ -2065,6 +2177,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = Arguments;
     }
 
+    /** Production: asyncStatement ::= 'async' clockedClauseopt statement    (#asyncStatement0) */
     @Override
     public void exitAsyncStatement0(AsyncStatement0Context ctx) {
         List<Expr> ClockedClauseopt = ctx.clockedClauseopt().ast;
@@ -2072,12 +2185,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Async(pos(ctx), ClockedClauseopt, Statement);
     }
 
+    /** Production: asyncStatement ::= 'clocked' 'async' statement    (#asyncStatement1) */
     @Override
     public void exitAsyncStatement1(AsyncStatement1Context ctx) {
         Stmt Statement = ctx.statement().ast;
         ctx.ast = nf.Async(pos(ctx), Statement, true);
     }
 
+    /** Production: atStatement ::= 'at' '(' expression ')' statement    (#atStatement) */
     @Override
     public void exitAtStatement(AtStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -2085,6 +2200,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AtStmt(pos(ctx), Expression, Statement);
     }
 
+    /** Production: atomicStatement ::= 'atomic' statement    (#atomicStatement) */
     @Override
     public void exitAtomicStatement(AtomicStatementContext ctx) {
         Stmt Statement = ctx.statement().ast;
@@ -2092,6 +2208,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Atomic(pos(ctx), nf.Here(pos(ctx)), Statement);
     }
 
+    /** Production: whenStatement ::= 'when' '(' expression ')' statement    (#whenStatement) */
     @Override
     public void exitWhenStatement(WhenStatementContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -2099,6 +2216,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.When(pos(ctx), Expression, Statement);
     }
 
+    /** Production: atEachStatement ::= 'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement    (#atEachStatement0) */
     @Override
     public void exitAtEachStatement0(AtEachStatement0Context ctx) {
         Formal LoopIndex = ctx.loopIndex().ast;
@@ -2114,6 +2232,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
     }
 
+    /** Production: atEachStatement ::= 'ateach' '(' expression ')' statement    (#atEachStatement1) */
     @Override
     public void exitAtEachStatement1(AtEachStatement1Context ctx) {
         Expr Expression = ctx.expression().ast;
@@ -2125,6 +2244,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
     }
 
+    /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement    (#enhancedForStatement0) */
     @Override
     public void exitEnhancedForStatement0(EnhancedForStatement0Context ctx) {
         Formal LoopIndex = ctx.loopIndex().ast;
@@ -2139,6 +2259,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
+    /** Production: enhancedForStatement ::= 'for' '(' expression ')' statement    (#enhancedForStatement1) */
     @Override
     public void exitEnhancedForStatement1(EnhancedForStatement1Context ctx) {
         Expr Expression = ctx.expression().ast;
@@ -2149,29 +2270,34 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
+    /** Production: finishStatement ::= 'finish' statement    (#finishStatement0) */
     @Override
     public void exitFinishStatement0(FinishStatement0Context ctx) {
         Stmt Statement = ctx.statement().ast;
         ctx.ast = nf.Finish(pos(ctx), Statement, false);
     }
 
+    /** Production: finishStatement ::= 'clocked' 'finish' statement    (#finishStatement1) */
     @Override
     public void exitFinishStatement1(FinishStatement1Context ctx) {
         Stmt Statement = ctx.statement().ast;
         ctx.ast = nf.Finish(pos(ctx), Statement, true);
     }
 
+    /** Production: castExpression ::= primary    (#castExpression0) */
     @Override
     public void exitCastExpression0(CastExpression0Context ctx) {
         ctx.ast = ctx.primary().ast;
     }
 
+    /** Production: castExpression ::= expressionName    (#castExpression1) */
     @Override
     public void exitCastExpression1(CastExpression1Context ctx) {
         ParsedName ExpressionName = ctx.expressionName().ast;
         ctx.ast = ExpressionName.toExpr();
     }
 
+    /** Production: castExpression ::= castExpression 'as' type    (#castExpression2) */
     @Override
     public void exitCastExpression2(CastExpression2Context ctx) {
         Expr CastExpression = ctx.castExpression().ast;
@@ -2179,6 +2305,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10Cast(pos(ctx), Type, CastExpression);
     }
 
+    /** Production: typeParamWithVarianceList ::= typeParameter    (#typeParamWithVarianceList0) */
     @Override
     public void exitTypeParamWithVarianceList0(TypeParamWithVarianceList0Context ctx) {
         TypeParamNode TypeParameter = ctx.typeParameter().ast;
@@ -2187,6 +2314,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: typeParamWithVarianceList ::= oBSOLETE_TypeParamWithVariance    (#typeParamWithVarianceList1) */
     @Override
     public void exitTypeParamWithVarianceList1(TypeParamWithVarianceList1Context ctx) {
         TypeParamNode OBSOLETE_TypeParamWithVariance = ctx.oBSOLETE_TypeParamWithVariance().ast;
@@ -2195,6 +2323,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' typeParameter    (#typeParamWithVarianceList2) */
     @Override
     public void exitTypeParamWithVarianceList2(TypeParamWithVarianceList2Context ctx) {
         List<TypeParamNode> TypeParamWithVarianceList = ctx.typeParamWithVarianceList().ast;
@@ -2203,6 +2332,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = TypeParamWithVarianceList;
     }
 
+    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' oBSOLETE_TypeParamWithVariance    (#typeParamWithVarianceList3) */
     @Override
     public void exitTypeParamWithVarianceList3(TypeParamWithVarianceList3Context ctx) {
         List<TypeParamNode> TypeParamWithVarianceList = ctx.typeParamWithVarianceList().ast;
@@ -2211,6 +2341,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = TypeParamWithVarianceList;
     }
 
+    /** Production: typeParameterList ::= typeParameter (',' typeParameter)*    (#typeParameterList) */
     @Override
     public void exitTypeParameterList(TypeParameterListContext ctx) {
         List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
@@ -2220,6 +2351,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: oBSOLETE_TypeParamWithVariance ::= '+' typeParameter    (#oBSOLETE_TypeParamWithVariance0) */
     @Override
     public void exitOBSOLETE_TypeParamWithVariance0(OBSOLETE_TypeParamWithVariance0Context ctx) {
         TypeParamNode TypeParameter = ctx.typeParameter().ast;
@@ -2227,6 +2359,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (TypeParamNode) TypeParameter.variance(ParameterType.Variance.COVARIANT).position(pos(ctx));
     }
 
+    /** Production: oBSOLETE_TypeParamWithVariance ::= '-' typeParameter    (#oBSOLETE_TypeParamWithVariance1) */
     @Override
     public void exitOBSOLETE_TypeParamWithVariance1(OBSOLETE_TypeParamWithVariance1Context ctx) {
         TypeParamNode TypeParameter = ctx.typeParameter().ast;
@@ -2234,6 +2367,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (TypeParamNode) TypeParameter.variance(ParameterType.Variance.CONTRAVARIANT).position(pos(ctx));
     }
 
+    /** Production: typeParameter ::= identifier    (#typeParameter) */
     @Override
     public void exitTypeParameter(TypeParameterContext ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2241,6 +2375,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
 
+    /** Production: closureExpression ::= formalParameters whereClauseopt hasResultTypeopt oBSOLETE_Offersopt '=>' closureBody    (#closureExpression) */
     @Override
     public void exitClosureExpression(ClosureExpressionContext ctx) {
         List<Formal> FormalParameters = ctx.formalParameters().ast;
@@ -2252,18 +2387,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Closure(pos(ctx), FormalParameters, WhereClauseopt, HasResultType, ClosureBody);
     }
 
+    /** Production: lastExpression ::= expression    (#lastExpression) */
     @Override
     public void exitLastExpression(LastExpressionContext ctx) {
         Expr Expression = ctx.expression().ast;
         ctx.ast = nf.X10Return(pos(ctx), Expression, true);
     }
 
+    /** Production: closureBody ::= expression    (#closureBody0) */
     @Override
     public void exitClosureBody0(ClosureBody0Context ctx) {
         Expr ConditionalExpression = ctx.expression().ast;
         ctx.ast = nf.Block(pos(ctx), nf.X10Return(pos(ctx), ConditionalExpression, true));
     }
 
+    /** Production: closureBody ::= annotationsopt '{' blockStatementsopt lastExpression '}'    (#closureBody1) */
     @Override
     public void exitClosureBody1(ClosureBody1Context ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -2277,6 +2415,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = b;
     }
 
+    /** Production: closureBody ::= annotationsopt block    (#closureBody2) */
     @Override
     public void exitClosureBody2(ClosureBody2Context ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -2286,6 +2425,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (polyglot.ast.Block) b.position(pos(ctx));
     }
 
+    /** Production: atExpression ::= annotationsopt 'at' '(' expression ')' closureBody    (#atExpression) */
     @Override
     public void exitAtExpression(AtExpressionContext ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -2296,6 +2436,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = r;
     }
 
+    /** Production: oBSOLETE_FinishExpression ::= 'finish' '(' expression ')' block    (#oBSOLETE_FinishExpression) */
     @Override
     public void exitOBSOLETE_FinishExpression(OBSOLETE_FinishExpressionContext ctx) {
         Expr Expression = ctx.expression().ast;
@@ -2303,12 +2444,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.FinishExpr(pos(ctx), Expression, Block);
     }
 
+    /** Production: typeName ::= identifier    (#typeName0) */
     @Override
     public void exitTypeName0(TypeName0Context ctx) {
         Id Identifier = ctx.identifier().ast;
         ctx.ast = new ParsedName(nf, ts, pos(ctx), Identifier);
     }
 
+    /** Production: typeName ::= typeName '.' identifier    (#typeName1) */
     @Override
     public void exitTypeName1(TypeName1Context ctx) {
         ParsedName TypeName = ctx.typeName().ast;
@@ -2317,11 +2460,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new ParsedName(nf, ts, pos(ctx), TypeName, Identifier);
     }
 
+    /** Production: className ::= typeName    (#className) */
     @Override
     public void exitClassName(ClassNameContext ctx) {
         ctx.ast = ctx.typeName().ast;
     }
 
+    /** Production: typeArguments ::= '[' type (',' type)* ']'    (#typeArguments) */
     @Override
     public void exitTypeArguments(TypeArgumentsContext ctx) {
         List<TypeNode> l = new ArrayList<TypeNode>();
@@ -2331,68 +2476,111 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: packageName ::= identifier    (#packageName0) */
     @Override
     public void exitPackageName0(PackageName0Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
     }
 
+    /** Production: packageName ::= packageName '.' identifier    (#packageName1) */
     @Override
     public void exitPackageName1(PackageName1Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageName().ast, ctx.identifier().ast);
     }
 
+    /** Production: expressionName ::= identifier    (#expressionName0) */
     @Override
     public void exitExpressionName0(ExpressionName0Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
     }
 
+    /** Production: expressionName ::= fullyQualifiedName '.' identifier    (#expressionName1) */
     @Override
     public void exitExpressionName1(ExpressionName1Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
     }
 
+    /** Production: methodName ::= identifier    (#methodName0) */
     @Override
     public void exitMethodName0(MethodName0Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
     }
 
+    /** Production: methodName ::= fullyQualifiedName '.' identifier    (#methodName1) */
     @Override
     public void exitMethodName1(MethodName1Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
     }
 
+    /** Production: packageOrTypeName ::= identifier    (#packageOrTypeName0) */
     @Override
     public void exitPackageOrTypeName0(PackageOrTypeName0Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
     }
 
+    /** Production: packageOrTypeName ::= packageOrTypeName '.' identifier    (#packageOrTypeName1) */
     @Override
     public void exitPackageOrTypeName1(PackageOrTypeName1Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageOrTypeName().ast, ctx.identifier().ast);
     }
 
+    /** Production: fullyQualifiedName ::= identifier    (#fullyQualifiedName0) */
     @Override
     public void exitFullyQualifiedName0(FullyQualifiedName0Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
     }
 
+    /** Production: fullyQualifiedName ::= fullyQualifiedName '.' identifier    (#fullyQualifiedName1) */
     @Override
     public void exitFullyQualifiedName1(FullyQualifiedName1Context ctx) {
         ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
     }
 
+    /** Production: compilationUnit ::= packageDeclaration? importDeclarationsopt typeDeclarationsopt    (#compilationUnit) */
+    @Override
+    public void exitCompilationUnit(CompilationUnitContext ctx) {
+        List<Import> importDeclarationsopt = ctx.importDeclarationsopt().ast;
+        List<TopLevelDecl> typeDeclarationsopt = ctx.typeDeclarationsopt().ast;
+
+        PackageNode packageDeclaration = ctx.packageDeclaration() == null ? null : ctx.packageDeclaration().ast;
+        ctx.ast = nf.SourceFile(pos(ctx), packageDeclaration, importDeclarationsopt, typeDeclarationsopt);
+
+    }
+
+    /** Production: packageDeclaration ::= annotationsopt 'package' packageName ';'    (#packageDeclaration) */
+    @Override
+    public void exitPackageDeclaration(PackageDeclarationContext ctx) {
+        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
+        ParsedName PackageName = ctx.packageName().ast;
+        PackageNode pn = PackageName.toPackage();
+        pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
+        ctx.ast = pn;
+    }
+
+    /** Production: importDeclarationsopt ::= importDeclaration*    (#importDeclarationsopt) */
+    @Override
+    public void exitImportDeclarationsopt(ImportDeclarationsoptContext ctx) {
+        List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
+        for (ImportDeclarationContext importDeclaration : ctx.importDeclaration()) {
+            l.add(importDeclaration.ast);
+        }
+        ctx.ast = l;
+    }
+    /** Production: importDeclaration ::= 'import' typeName ';'    (#importDeclaration0) */
     @Override
     public void exitImportDeclaration0(ImportDeclaration0Context ctx) {
         ParsedName TypeName = ctx.typeName().ast;
         ctx.ast = nf.Import(pos(ctx), Import.CLASS, QName.make(TypeName.toString()));
     }
 
+    /** Production: importDeclaration ::= 'import' packageOrTypeName '.' '*' ';'    (#importDeclaration1) */
     @Override
     public void exitImportDeclaration1(ImportDeclaration1Context ctx) {
         ParsedName PackageOrTypeName = ctx.packageOrTypeName().ast;
         ctx.ast = nf.Import(pos(ctx), Import.PACKAGE, QName.make(PackageOrTypeName.toString()));
     }
 
+    /** Production: typeDeclarationsopt ::= typeDeclaration*    (#typeDeclarationsopt) */
     @Override
     public void exitTypeDeclarationsopt(TypeDeclarationsoptContext ctx) {
         List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
@@ -2402,11 +2590,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: typeDeclaration ::= classDeclaration    (#typeDeclaration0) */
     @Override
     public void exitTypeDeclaration0(TypeDeclaration0Context ctx) {
         ctx.ast = ctx.classDeclaration().ast;
     }
 
+    /** Production: typeDeclaration ::= structDeclaration    (#typeDeclaration1) */
     @Override
     public void exitTypeDeclaration1(TypeDeclaration1Context ctx) {
         ctx.ast = ctx.structDeclaration().ast;
@@ -2417,16 +2607,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ctx.interfaceDeclaration().ast;
     }
 
+    /** Production: typeDeclaration ::= interfaceDeclaration  (#typeDeclaration3) */
     @Override
     public void exitTypeDeclaration3(TypeDeclaration3Context ctx) {
         ctx.ast = ctx.typeDefDeclaration().ast;
     }
 
+    /** Production: typeDeclaration ::= ';'    (#typeDeclaration4) */
     @Override
     public void exitTypeDeclaration4(TypeDeclaration4Context ctx) {
         ctx.ast = null;
     }
 
+    /** Production: interfacesopt ::= ('implements' type (',' type)*)?    (#interfacesopt) */
     @Override
     public void exitInterfacesopt(InterfacesoptContext ctx) {
         List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
@@ -2436,12 +2629,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: classBody ::= '{' classMemberDeclarationsopt '}'    (#classBody) */
     @Override
     public void exitClassBody(ClassBodyContext ctx) {
         List<ClassMember> ClassMemberDeclarationsopt = ctx.classMemberDeclarationsopt().ast;
         ctx.ast = nf.ClassBody(pos(ctx), ClassMemberDeclarationsopt);
     }
 
+    /** Production: classMemberDeclarationsopt ::= classMemberDeclaration*    (#classMemberDeclarationsopt) */
     @Override
     public void exitClassMemberDeclarationsopt(ClassMemberDeclarationsoptContext ctx) {
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
@@ -2451,11 +2646,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: classMemberDeclaration ::= interfaceMemberDeclaration    (#classMemberDeclaration0) */
     @Override
     public void exitClassMemberDeclaration0(ClassMemberDeclaration0Context ctx) {
         ctx.ast = ctx.interfaceMemberDeclaration().ast;
     }
 
+    /** Production: classMemberDeclaration ::= constructorDeclaration    (#classMemberDeclaration1) */
     @Override
     public void exitClassMemberDeclaration1(ClassMemberDeclaration1Context ctx) {
         ConstructorDecl ConstructorDeclaration = ctx.constructorDeclaration().ast;
@@ -2464,6 +2661,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: formalDeclarators ::= formalDeclarator (',' formalDeclarator)*    (#formalDeclarators) */
     @Override
     public void exitFormalDeclarators(FormalDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
@@ -2473,6 +2671,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: fieldDeclarators ::= fieldDeclarator (',' fieldDeclarator)*    (#fieldDeclarators) */
     @Override
     public void exitFieldDeclarators(FieldDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
@@ -2482,6 +2681,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: variableDeclaratorsWithType ::= variableDeclaratorWithType (',' variableDeclaratorWithType)*    (#variableDeclaratorsWithType) */
     @Override
     public void exitVariableDeclaratorsWithType(VariableDeclaratorsWithTypeContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
@@ -2491,6 +2691,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: variableDeclarators ::= variableDeclarator (',' variableDeclarator)*    (#variableDeclarators) */
     @Override
     public void exitVariableDeclarators(VariableDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
@@ -2500,28 +2701,33 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: variableInitializer ::= expression    (#variableInitializer) */
     @Override
     public void exitVariableInitializer(VariableInitializerContext ctx) {
         ctx.ast = ctx.expression().ast;
     }
 
+    /** Production: resultType ::= ':' type    (#resultType) */
     @Override
     public void exitResultType(ResultTypeContext ctx) {
         ctx.ast = ctx.type().ast;
     }
 
+    /** Production: hasResultType ::= resultType    (#hasResultType0) */
     @Override
     public void exitHasResultType0(HasResultType0Context ctx) {
         TypeNode Type = ctx.resultType().ast;
         ctx.ast = Type;
     }
 
+    /** Production: hasResultType ::= '<:' type    (#hasResultType1) */
     @Override
     public void exitHasResultType1(HasResultType1Context ctx) {
         TypeNode Type = ctx.type().ast;
         ctx.ast = nf.HasType(Type);
     }
 
+    /** Production: formalParameterList ::= formalParameter (',' formalParameter)*    (#formalParameterList) */
     @Override
     public void exitFormalParameterList(FormalParameterListContext ctx) {
         List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
@@ -2531,6 +2737,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: loopIndexDeclarator ::= identifier hasResultTypeopt    (#loopIndexDeclarator0) */
     @Override
     public void exitLoopIndexDeclarator0(LoopIndexDeclarator0Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2539,6 +2746,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
     }
 
+    /** Production: loopIndexDeclarator ::= '[' identifierList ']' hasResultTypeopt    (#loopIndexDeclarator1) */
     @Override
     public void exitLoopIndexDeclarator1(LoopIndexDeclarator1Context ctx) {
         Id Identifier = null;
@@ -2547,6 +2755,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
     }
 
+    /** Production: loopIndexDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt    (#loopIndexDeclarator2) */
     @Override
     public void exitLoopIndexDeclarator2(LoopIndexDeclarator2Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2571,6 +2780,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return explodedFormals;
     }
 
+    /** Production: loopIndex ::= modifiersopt loopIndexDeclarator    (#loopIndex0) */
     @Override
     public void exitLoopIndex0(LoopIndex0Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -2596,6 +2806,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
+    /** Production: loopIndex ::= modifiersopt varKeyword loopIndexDeclarator    (#loopIndex1) */
     @Override
     public void exitLoopIndex1(LoopIndex1Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -2622,6 +2833,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
+    /** Production: formalParameter ::= modifiersopt formalDeclarator    (#formalParameter0) */
     @Override
     public void exitFormalParameter0(FormalParameter0Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -2648,6 +2860,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
+    /** Production: formalParameter ::= modifiersopt varKeyword formalDeclarator    (#formalParameter1) */
     @Override
     public void exitFormalParameter1(FormalParameter1Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -2675,6 +2888,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
+    /** Production: formalParameter ::= type    (#formalParameter2) */
     @Override
     public void exitFormalParameter2(FormalParameter2Context ctx) {
         TypeNode Type = ctx.type().ast;
@@ -2687,12 +2901,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
+    /** Production: oBSOLETE_Offersopt ::= ('offers' type)?    (#oBSOLETE_Offersopt) */
     @Override
     public void exitOBSOLETE_Offersopt(OBSOLETE_OffersoptContext ctx) {
         TypeNode Type = ctx.type() == null ? null : ctx.type().ast;
         ctx.ast = Type;
     }
 
+    /** Production: throwsopt ::= ('throws' type (',' type)*)?    (#throwsopt) */
     @Override
     public void exitThrowsopt(ThrowsoptContext ctx) {
         List<TypeNode> throwsList = new ArrayList<TypeNode>();
@@ -2702,12 +2918,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = throwsList;
     }
 
+    /** Production: methodBody ::= '=' lastExpression ';'    (#methodBody0) */
     @Override
     public void exitMethodBody0(MethodBody0Context ctx) {
         Stmt LastExpression = ctx.lastExpression().ast;
         ctx.ast = nf.Block(pos(ctx), LastExpression);
     }
 
+    /** Production: methodBody ::= '=' annotationsopt '{' blockStatementsopt lastExpression '}'    (#methodBody1) */
     @Override
     public void exitMethodBody1(MethodBody1Context ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -2719,6 +2937,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (Block) ((X10Ext) nf.Block(pos(ctx), l).ext()).annotations(Annotationsopt);
     }
 
+    /** Production: methodBody ::= '='? annotationsopt block    (#methodBody2) */
     @Override
     public void exitMethodBody2(MethodBody2Context ctx) {
         List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
@@ -2726,17 +2945,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos(ctx));
     }
 
+    /** Production: methodBody ::= ';'    (#methodBody3) */
     @Override
     public void exitMethodBody3(MethodBody3Context ctx) {
         ctx.ast = null;
     }
 
+    /** Production: constructorBody ::= '='? constructorBlock    (#constructorBody0) */
     @Override
     public void exitConstructorBody0(ConstructorBody0Context ctx) {
         Block ConstructorBlock = ctx.constructorBlock().ast;
         ctx.ast = ConstructorBlock;
     }
 
+    /** Production: constructorBody ::= '=' explicitConstructorInvocation    (#constructorBody1) */
     @Override
     public void exitConstructorBody1(ConstructorBody1Context ctx) {
         ConstructorCall ExplicitConstructorInvocation = ctx.explicitConstructorInvocation().ast;
@@ -2745,6 +2967,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
+    /** Production: constructorBody ::= '=' assignPropertyCall    (#constructorBody2) */
     @Override
     public void exitConstructorBody2(ConstructorBody2Context ctx) {
         Stmt AssignPropertyCall = ctx.assignPropertyCall().ast;
@@ -2753,11 +2976,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
+    /** Production: constructorBody ::= ';'    (#constructorBody3) */
     @Override
     public void exitConstructorBody3(ConstructorBody3Context ctx) {
         ctx.ast = null;
     }
 
+    /** Production: constructorBlock ::= '{' explicitConstructorInvocation? blockStatementsopt '}'    (#constructorBlock) */
     @Override
     public void exitConstructorBlock(ConstructorBlockContext ctx) {
         Stmt ExplicitConstructorInvocationopt = ctx.explicitConstructorInvocation() == null ? null : ctx.explicitConstructorInvocation().ast;
@@ -2770,11 +2995,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
+    /** Production: arguments ::= '(' argumentList ')'    (#arguments) */
     @Override
     public void exitArguments(ArgumentsContext ctx) {
         ctx.ast = ctx.argumentList().ast;
     }
 
+    /** Production: extendsInterfacesopt ::= ('extends' type (',' type)*)?    (#extendsInterfacesopt) */
     @Override
     public void exitExtendsInterfacesopt(ExtendsInterfacesoptContext ctx) {
         List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
@@ -2784,12 +3011,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: interfaceBody ::= '{' interfaceMemberDeclarationsopt '}'    (#interfaceBody) */
     @Override
     public void exitInterfaceBody(InterfaceBodyContext ctx) {
         List<ClassMember> InterfaceMemberDeclarationsopt = ctx.interfaceMemberDeclarationsopt().ast;
         ctx.ast = nf.ClassBody(pos(ctx), InterfaceMemberDeclarationsopt);
     }
 
+    /** Production: interfaceMemberDeclarationsopt ::= interfaceMemberDeclaration*    (#interfaceMemberDeclarationsopt) */
     @Override
     public void exitInterfaceMemberDeclarationsopt(InterfaceMemberDeclarationsoptContext ctx) {
         TypedList<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
@@ -2799,6 +3028,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: interfaceMemberDeclaration ::= methodDeclaration    (#interfaceMemberDeclaration0) */
     @Override
     public void exitInterfaceMemberDeclaration0(InterfaceMemberDeclaration0Context ctx) {
         ClassMember MethodDeclaration = ctx.methodDeclaration().ast;
@@ -2807,6 +3037,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: interfaceMemberDeclaration ::= fieldDeclaration    (#interfaceMemberDeclaration2) */
     @Override
     public void exitInterfaceMemberDeclaration1(InterfaceMemberDeclaration1Context ctx) {
         ClassMember PropertyMethodDeclaration = ctx.propertyMethodDeclaration().ast;
@@ -2815,6 +3046,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: interfaceMemberDeclaration ::= propertyMethodDeclaration    (#interfaceMemberDeclaration1) */
     @Override
     public void exitInterfaceMemberDeclaration2(InterfaceMemberDeclaration2Context ctx) {
         List<ClassMember> FieldDeclaration = ctx.fieldDeclaration().ast;
@@ -2823,6 +3055,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: interfaceMemberDeclaration ::= typeDeclaration    (#interfaceMemberDeclaration3) */
     @Override
     public void exitInterfaceMemberDeclaration3(InterfaceMemberDeclaration3Context ctx) {
         ClassMember TypeDeclaration = (ClassMember) ctx.typeDeclaration().ast;
@@ -2833,6 +3066,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: annotationsopt ::= annotations?    (#annotationsopt) */
     @Override
     public void exitAnnotationsopt(AnnotationsoptContext ctx) {
         List<AnnotationNode> l;
@@ -2844,6 +3078,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: annotations ::= annotation+    (#annotations) */
     @Override
     public void exitAnnotations(AnnotationsContext ctx) {
         List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
@@ -2853,24 +3088,28 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: annotation ::= '@' namedTypeNoConstraints    (#annotation) */
     @Override
     public void exitAnnotation(AnnotationContext ctx) {
         TypeNode NamedTypeNoConstraints = ctx.namedTypeNoConstraints().ast;
         ctx.ast = nf.AnnotationNode(pos(ctx), NamedTypeNoConstraints);
     }
 
+    /** Production: identifier ::= IDENTIFIER    (#identifier) */
     @Override
     public void exitIdentifier(IdentifierContext ctx) {
         ctx.ast = nf.Id(pos(ctx), ctx.start.getText());
     }
 
 
+    /** Production: block ::= '{' blockStatementsopt '}'    (#block) */
     @Override
     public void exitBlock(BlockContext ctx) {
         List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
         ctx.ast = nf.Block(pos(ctx), BlockStatementsopt);
     }
 
+    /** Production: blockStatements ::= blockInteriorStatement+    (#blockStatements) */
     @Override
     public void exitBlockStatements(BlockStatementsContext ctx) {
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
@@ -2880,11 +3119,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: blockInteriorStatement ::= localVariableDeclarationStatement    (#blockInteriorStatement0) */
     @Override
     public void exitBlockInteriorStatement0(BlockInteriorStatement0Context ctx) {
         ctx.ast = ctx.localVariableDeclarationStatement().ast;
     }
 
+    /** Production: blockInteriorStatement ::= classDeclaration    (#blockInteriorStatement1) */
     @Override
     public void exitBlockInteriorStatement1(BlockInteriorStatement1Context ctx) {
         ClassDecl ClassDeclaration = ctx.classDeclaration().ast;
@@ -2893,6 +3134,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: blockInteriorStatement ::= structDeclaration    (#blockInteriorStatement2) */
     @Override
     public void exitBlockInteriorStatement2(BlockInteriorStatement2Context ctx) {
         ClassDecl StructDeclaration = ctx.structDeclaration().ast;
@@ -2901,6 +3143,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: blockInteriorStatement ::= typeDefDeclaration    (#blockInteriorStatement3) */
     @Override
     public void exitBlockInteriorStatement3(BlockInteriorStatement3Context ctx) {
         TypeDecl TypeDefDeclaration = ctx.typeDefDeclaration().ast;
@@ -2909,6 +3152,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: blockInteriorStatement ::= statement    (#blockInteriorStatement4) */
     @Override
     public void exitBlockInteriorStatement4(BlockInteriorStatement4Context ctx) {
         Stmt Statement = ctx.statement().ast;
@@ -2917,6 +3161,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: identifierList ::= identifier (',' identifier)*    (#identifierList) */
     @Override
     public void exitIdentifierList(IdentifierListContext ctx) {
         List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
@@ -2926,6 +3171,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: formalDeclarator ::= identifier resultType    (#formalDeclarator0) */
     @Override
     public void exitFormalDeclarator0(FormalDeclarator0Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2934,6 +3180,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
+    /** Production: formalDeclarator ::= '[' identifierList ']' resultType    (#formalDeclarator1) */
     @Override
     public void exitFormalDeclarator1(FormalDeclarator1Context ctx) {
         Id Identifier = null;
@@ -2942,6 +3189,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
+    /** Production: formalDeclarator ::= identifier '[' identifierList ']' resultType    (#formalDeclarator2) */
     @Override
     public void exitFormalDeclarator2(FormalDeclarator2Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2950,6 +3198,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
+    /** Production: fieldDeclarator ::= identifier hasResultType    (#fieldDeclarator0) */
     @Override
     public void exitFieldDeclarator0(FieldDeclarator0Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2958,6 +3207,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: fieldDeclarator ::= identifier hasResultTypeopt '=' variableInitializer    (#fieldDeclarator1) */
     @Override
     public void exitFieldDeclarator1(FieldDeclarator1Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2966,6 +3216,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclarator ::= identifier hasResultTypeopt '=' variableInitializer    (#variableDeclarator0) */
     @Override
     public void exitVariableDeclarator0(VariableDeclarator0Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2975,6 +3226,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclarator ::= '[' identifierList ']' hasResultTypeopt '=' variableInitializer    (#variableDeclarator1) */
     @Override
     public void exitVariableDeclarator1(VariableDeclarator1Context ctx) {
         Id Identifier = null;
@@ -2984,6 +3236,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer    (#variableDeclarator2) */
     @Override
     public void exitVariableDeclarator2(VariableDeclarator2Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -2993,6 +3246,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclaratorWithType ::= identifier hasResultType '=' variableInitializer    (#variableDeclaratorWithType0) */
     @Override
     public void exitVariableDeclaratorWithType0(VariableDeclaratorWithType0Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -3002,6 +3256,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclaratorWithType ::= '[' identifierList ']' hasResultType '=' variableInitializer    (#variableDeclaratorWithType1) */
     @Override
     public void exitVariableDeclaratorWithType1(VariableDeclaratorWithType1Context ctx) {
         Id Identifier = null;
@@ -3011,6 +3266,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: variableDeclaratorWithType ::= identifier '[' identifierList ']' hasResultType '=' variableInitializer    (#variableDeclaratorWithType2) */
     @Override
     public void exitVariableDeclaratorWithType2(VariableDeclaratorWithType2Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -3020,6 +3276,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
+    /** Production: localVariableDeclarationStatement ::= localVariableDeclaration ';'    (#localVariableDeclarationStatement) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitLocalVariableDeclarationStatement(LocalVariableDeclarationStatementContext ctx) {
@@ -3064,6 +3321,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return l;
     }
 
+    /** Production: localVariableDeclaration ::= modifiersopt varKeyword variableDeclarators    (#localVariableDeclaration0) */
     @Override
     public void exitLocalVariableDeclaration0(LocalVariableDeclaration0Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -3072,6 +3330,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
+    /** Production: localVariableDeclaration ::= modifiersopt variableDeclaratorsWithType    (#localVariableDeclaration1) */
     @Override
     public void exitLocalVariableDeclaration1(LocalVariableDeclaration1Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -3080,6 +3339,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
+    /** Production: localVariableDeclaration ::= modifiersopt varKeyword formalDeclarators    (#localVariableDeclaration2) */
     @Override
     public void exitLocalVariableDeclaration2(LocalVariableDeclaration2Context ctx) {
         List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
@@ -3088,11 +3348,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
+    /** Production: primary ::= 'here'    (#primary0) */
     @Override
     public void exitPrimary0(Primary0Context ctx) {
         ctx.ast = nf.Here(pos(ctx));
     }
 
+    /** Production: primary ::= '[' argumentListopt ']'    (#primary1) */
     @Override
     public void exitPrimary1(Primary1Context ctx) {
         List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
@@ -3100,33 +3362,39 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = tuple;
     }
 
+    /** Production: primary ::= literal    (#primary2) */
     @Override
     public void exitPrimary2(Primary2Context ctx) {
         ctx.ast = ctx.literal().ast;
     }
 
+    /** Production: primary ::= 'self'    (#primary3) */
     @Override
     public void exitPrimary3(Primary3Context ctx) {
         ctx.ast = nf.Self(pos(ctx));
     }
 
+    /** Production: primary ::= 'this'    (#primary4) */
     @Override
     public void exitPrimary4(Primary4Context ctx) {
         ctx.ast = nf.This(pos(ctx));
     }
 
+    /** Production: primary ::= className '.' 'this'    (#primary5) */
     @Override
     public void exitPrimary5(Primary5Context ctx) {
         ParsedName ClassName = ctx.className().ast;
         ctx.ast = nf.This(pos(ctx), ClassName.toType());
     }
 
+    /** Production: primary ::= '(' expression ')'    (#primary6) */
     @Override
     public void exitPrimary6(Primary6Context ctx) {
         Expr Expression = ctx.expression().ast;
         ctx.ast = nf.ParExpr(pos(ctx), Expression);
     }
 
+    /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary7) */
     @Override
     public void exitPrimary7(Primary7Context ctx) {
         ParsedName TypeName = ctx.typeName().ast;
@@ -3140,6 +3408,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: primary ::= primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary8) */
     @Override
     public void exitPrimary8(Primary8Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3155,6 +3424,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: primary ::= fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary9) */
     @Override
     public void exitPrimary9(Primary9Context ctx) {
         ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
@@ -3170,6 +3440,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: primary ::= primary '.' identifier    (#primary10) */
     @Override
     public void exitPrimary10(Primary10Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3177,12 +3448,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
     }
 
+    /** Production: primary ::= s='super' '.' identifier    (#primary11) */
     @Override
     public void exitPrimary11(Primary11Context ctx) {
         Id Identifier = ctx.identifier().ast;
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' identifier    (#primary12) */
     @Override
     public void exitPrimary12(Primary12Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3190,6 +3463,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
+    /** Production: primary ::= methodName typeArgumentsopt '(' argumentListopt ')'    (#primary13) */
     @Override
     public void exitPrimary13(Primary13Context ctx) {
         ParsedName MethodName = ctx.methodName().ast;
@@ -3198,6 +3472,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary14) */
     @Override
     public void exitPrimary14(Primary14Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3207,6 +3482,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10Call(pos(ctx), Primary, Identifier, TypeArguments, ArgumentListopt);
     }
 
+    /** Production: primary ::= s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary15) */
     @Override
     public void exitPrimary15(Primary15Context ctx) {
         Id Identifier = ctx.identifier().ast;
@@ -3215,6 +3491,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s)), Identifier, TypeArguments, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary16) */
     @Override
     public void exitPrimary16(Primary16Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3224,6 +3501,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary typeArgumentsopt '(' argumentListopt ')'    (#primary17) */
     @Override
     public void exitPrimary17(Primary17Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3240,6 +3518,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: primary ::= className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'    (#primary18) */
     @Override
     public void exitPrimary18(Primary18Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3250,6 +3529,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.X10ConversionCall(pos(ctx), ClassName.toType(), nf.Id(pos(ctx.type()), opName), Type, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'    (#primary19) */
     @Override
     public void exitPrimary19(Primary19Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3273,6 +3553,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: primary ::= 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary20) */
     @Override
     public void exitPrimary20(Primary20Context ctx) {
         Binary.Operator BinOp = ctx.binOp().ast;
@@ -3287,6 +3568,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary21) */
     @Override
     public void exitPrimary21(Primary21Context ctx) {
         ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
@@ -3302,6 +3584,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary22) */
     @Override
     public void exitPrimary22(Primary22Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3317,6 +3600,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary23) */
     @Override
     public void exitPrimary23(Primary23Context ctx) {
         Binary.Operator BinOp = ctx.binOp().ast;
@@ -3331,6 +3615,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary24) */
     @Override
     public void exitPrimary24(Primary24Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3346,6 +3631,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary25) */
     @Override
     public void exitPrimary25(Primary25Context ctx) {
         Binary.Operator BinOp = ctx.binOp().ast;
@@ -3360,6 +3646,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary26) */
     @Override
     public void exitPrimary26(Primary26Context ctx) {
         ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
@@ -3375,6 +3662,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary27) */
     @Override
     public void exitPrimary27(Primary27Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3390,6 +3678,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary28) */
     @Override
     public void exitPrimary28(Primary28Context ctx) {
         Binary.Operator BinOp = ctx.binOp().ast;
@@ -3404,6 +3693,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary29) */
     @Override
     public void exitPrimary29(Primary29Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3419,6 +3709,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary30) */
     @Override
     public void exitPrimary30(Primary30Context ctx) {
         Name opName = ClosureCall.APPLY;
@@ -3428,6 +3719,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary31) */
     @Override
     public void exitPrimary31(Primary31Context ctx) {
         ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
@@ -3438,6 +3730,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary32) */
     @Override
     public void exitPrimary32(Primary32Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3448,6 +3741,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary33) */
     @Override
     public void exitPrimary33(Primary33Context ctx) {
         Name opName = ClosureCall.APPLY;
@@ -3457,6 +3751,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary34) */
     @Override
     public void exitPrimary34(Primary34Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3467,6 +3762,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary35) */
     @Override
     public void exitPrimary35(Primary35Context ctx) {
         Name opName = SettableAssign.SET;
@@ -3476,6 +3772,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary36) */
     @Override
     public void exitPrimary36(Primary36Context ctx) {
         ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
@@ -3486,6 +3783,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary37) */
     @Override
     public void exitPrimary37(Primary37Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3496,6 +3794,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary38) */
     @Override
     public void exitPrimary38(Primary38Context ctx) {
         Name opName = SettableAssign.SET;
@@ -3505,6 +3804,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary39) */
     @Override
     public void exitPrimary39(Primary39Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3516,83 +3816,100 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
 
+    /** Production: literal ::= IntLiteral    (#IntLiteral) */
     @Override
     public void exitIntLiteral(IntLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.INT);
     }
 
+    /** Production: literal ::= LongLiteral    (#LongLiteral) */
     @Override
     public void exitLongLiteral(LongLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.LONG);
     }
 
+    /** Production: literal ::= ByteLiteral    (#ByteLiteral) */
     @Override
     public void exitByteLiteral(ByteLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.BYTE);
     }
 
+    /** Production: literal ::= UnsignedByteLiteral    (#UnsignedByteLiteral) */
     @Override
     public void exitUnsignedByteLiteral(UnsignedByteLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.UBYTE);
     }
 
+    /** Production: literal ::= ShortLiteral    (#ShortLiteral) */
     @Override
     public void exitShortLiteral(ShortLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.SHORT);
     }
 
+    /** Production: literal ::= UnsignedShortLiteral    (#UnsignedShortLiteral) */
     @Override
     public void exitUnsignedShortLiteral(UnsignedShortLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.USHORT);
     }
 
+    /** Production: literal ::= UnsignedIntLiteral    (#UnsignedIntLiteral) */
     @Override
     public void exitUnsignedIntLiteral(UnsignedIntLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.UINT);
     }
 
+    /** Production: literal ::= UnsignedLongLiteral    (#UnsignedLongLiteral) */
     @Override
     public void exitUnsignedLongLiteral(UnsignedLongLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.ULONG);
     }
 
+    /** Production: literal ::= FloatingPointLiteral    (#FloatingPointLiteral) */
     @Override
     public void exitFloatingPointLiteral(FloatingPointLiteralContext ctx) {
         polyglot.lex.FloatLiteral a = float_lit(ctx);
         ctx.ast = nf.FloatLit(pos(ctx), FloatLit.FLOAT, a.getValue().floatValue());
     }
 
+    /** Production: literal ::= DoubleLiteral    (#DoubleLiteral) */
     @Override
     public void exitDoubleLiteral(DoubleLiteralContext ctx) {
         polyglot.lex.DoubleLiteral a = double_lit(ctx);
         ctx.ast = nf.FloatLit(pos(ctx), FloatLit.DOUBLE, a.getValue().doubleValue());
     }
 
+    /** Production: literal ::= booleanLiteral    (#Literal10) */
     @Override
     public void exitLiteral10(Literal10Context ctx) {
         ctx.ast = ctx.booleanLiteral().ast;
     }
 
-    @Override
-    public void exitBooleanLiteral(BooleanLiteralContext ctx) {
-        ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
-    }
 
+    /** Production: literal ::= CharacterLiteral    (#CharacterLiteral) */
     @Override
     public void exitCharacterLiteral(CharacterLiteralContext ctx) {
         ctx.ast = nf.CharLit(pos(ctx), char_lit(ctx).getValue().charValue());
     }
 
+    /** Production: literal ::= StringLiteral    (#StringLiteral) */
     @Override
     public void exitStringLiteral(StringLiteralContext ctx) {
         ctx.ast = nf.StringLit(pos(ctx), string_lit(ctx).getValue());
     }
 
+    /** Production: literal ::= 'null'    (#NullLiteral) */
     @Override
     public void exitNullLiteral(NullLiteralContext ctx) {
         ctx.ast = nf.NullLit(pos(ctx));
     }
 
+    /** Production: booleanLiteral ::= 'true' | 'false'   (#booleanLiteral) */
+    @Override
+    public void exitBooleanLiteral(BooleanLiteralContext ctx) {
+        ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
+    }
+
+    /** Production: argumentList ::= expression (',' expression)*    (#argumentList) */
     @Override
     public void exitArgumentList(ArgumentListContext ctx) {
         List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
@@ -3602,6 +3919,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
+    /** Production: fieldAccess ::= primary '.' identifier    (#fieldAccess0) */
     @Override
     public void exitFieldAccess0(FieldAccess0Context ctx) {
         Expr Primary = ctx.primary().ast;
@@ -3609,12 +3927,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
     }
 
+    /** Production: fieldAccess ::= s='super' '.' identifier    (#fieldAccess1) */
     @Override
     public void exitFieldAccess1(FieldAccess1Context ctx) {
         Id Identifier = ctx.identifier().ast;
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
     }
 
+    /** Production: fieldAccess ::= className '.' s='super' '.' identifier    (#fieldAccess2) */
     @Override
     public void exitFieldAccess2(FieldAccess2Context ctx) {
         ParsedName ClassName = ctx.className().ast;
@@ -3622,11 +3942,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
+    /** Production: conditionalExpression ::= castExpression    (#conditionalExpression0) */
     @Override
     public void exitConditionalExpression0(ConditionalExpression0Context ctx) {
         ctx.ast = ctx.castExpression().ast;
     }
 
+    /** Production: conditionalExpression ::= conditionalExpression op=('++'|'--')    (#conditionalExpression1) */
     @Override
     public void exitConditionalExpression1(ConditionalExpression1Context ctx) {
         Expr PostfixExpression = ctx.conditionalExpression().ast;
@@ -3645,6 +3967,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), PostfixExpression, op);
     }
 
+    /** Production: conditionalExpression ::= annotations conditionalExpression    (#conditionalExpression2) */
     @Override
     public void exitConditionalExpression2(ConditionalExpression2Context ctx) {
         List<AnnotationNode> Annotations = ctx.annotations().ast;
@@ -3654,6 +3977,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = (Expr) e.position(pos(ctx));
     }
 
+    /** Production: conditionalExpression ::= op=('+'|'-'|'++'|'--') conditionalExpression    (#conditionalExpression3) */
     @Override
     public void exitConditionalExpression3(ConditionalExpression3Context ctx) {
         Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
@@ -3678,6 +4002,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
     }
 
+    /** Production: conditionalExpression ::= op=('~'|'!'|'^'|'|'|'&'|'*'|'/'|'%') conditionalExpression    (#conditionalExpression4) */
     @Override
     public void exitConditionalExpression4(ConditionalExpression4Context ctx) {
         Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
@@ -3714,6 +4039,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '..' e2=conditionalExpression    (#conditionalExpression5) */
     @Override
     public void exitConditionalExpression5(ConditionalExpression5Context ctx) {
         Expr RangeExpression = ctx.e1.ast;
@@ -3722,6 +4048,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = regionCall;
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('*'|'/'|'%'|'**') e2=conditionalExpression    (#conditionalExpression6) */
     @Override
     public void exitConditionalExpression6(ConditionalExpression6Context ctx) {
         Expr MultiplicativeExpression = ctx.e1.ast;
@@ -3747,6 +4074,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), MultiplicativeExpression, op, RangeExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('+'|'-') e2=conditionalExpression    (#conditionalExpression7) */
     @Override
     public void exitConditionalExpression7(ConditionalExpression7Context ctx) {
         Expr AdditiveExpression = ctx.e1.ast;
@@ -3766,21 +4094,25 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), AdditiveExpression, op, MultiplicativeExpression);
     }
 
+    /** Production: conditionalExpression ::= hasZeroConstraint    (#conditionalExpression8) */
     @Override
     public void exitConditionalExpression8(ConditionalExpression8Context ctx) {
         ctx.ast = ctx.hasZeroConstraint().ast;
     }
 
+    /** Production: conditionalExpression ::= isRefConstraint    (#conditionalExpression9) */
     @Override
     public void exitConditionalExpression9(ConditionalExpression9Context ctx) {
         ctx.ast = ctx.isRefConstraint().ast;
     }
 
+    /** Production: conditionalExpression ::= subtypeConstraint    (#conditionalExpression10) */
     @Override
     public void exitConditionalExpression10(ConditionalExpression10Context ctx) {
         ctx.ast = ctx.subtypeConstraint().ast;
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression    (#conditionalExpression11) */
     @Override
     public void exitConditionalExpression11(ConditionalExpression11Context ctx) {
         Expr expr1 = ctx.e1.ast;
@@ -3825,6 +4157,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = call;
     }
 
+    /** Production: conditionalExpression ::= conditionalExpression 'instanceof' type    (#conditionalExpression12) */
     @Override
     public void exitConditionalExpression12(ConditionalExpression12Context ctx) {
         Expr RelationalExpression = ctx.conditionalExpression().ast;
@@ -3832,6 +4165,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Instanceof(pos(ctx), RelationalExpression, Type);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression    (#conditionalExpression13) */
     @Override
     public void exitConditionalExpression13(ConditionalExpression13Context ctx) {
         Expr RelationalExpression = ctx.e1.ast;
@@ -3883,6 +4217,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression    (#conditionalExpression14) */
     @Override
     public void exitConditionalExpression14(ConditionalExpression14Context ctx) {
         TypeContext t1ctx = isType(ctx.e1);
@@ -3919,6 +4254,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     // ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
     // }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression    (#conditionalExpression16) */
     @Override
     public void exitConditionalExpression16(ConditionalExpression16Context ctx) {
         Expr EqualityExpression = ctx.e1.ast;
@@ -3938,6 +4274,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '&' e2=conditionalExpression    (#conditionalExpression17) */
     @Override
     public void exitConditionalExpression17(ConditionalExpression17Context ctx) {
         Expr AndExpression = ctx.e1.ast;
@@ -3945,6 +4282,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), AndExpression, Binary.BIT_AND, EqualityExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '^' e2=conditionalExpression    (#conditionalExpression18) */
     @Override
     public void exitConditionalExpression18(ConditionalExpression18Context ctx) {
         Expr ExclusiveOrExpression = ctx.e1.ast;
@@ -3952,6 +4290,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '|' e2=conditionalExpression    (#conditionalExpression19) */
     @Override
     public void exitConditionalExpression19(ConditionalExpression19Context ctx) {
         Expr InclusiveOrExpression = ctx.e1.ast;
@@ -3959,6 +4298,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '&&' e2=conditionalExpression    (#conditionalExpression20) */
     @Override
     public void exitConditionalExpression20(ConditionalExpression20Context ctx) {
         Expr ConditionalAndExpression = ctx.e1.ast;
@@ -3966,6 +4306,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression);
     }
 
+    /** Production: conditionalExpression ::= e1=conditionalExpression '||' e2=conditionalExpression    (#conditionalExpression21) */
     @Override
     public void exitConditionalExpression21(ConditionalExpression21Context ctx) {
         Expr ConditionalOrExpression = ctx.e1.ast;
@@ -3973,21 +4314,25 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression);
     }
 
+    /** Production: conditionalExpression ::= closureExpression    (#conditionalExpression22) */
     @Override
     public void exitConditionalExpression22(ConditionalExpression22Context ctx) {
         ctx.ast = ctx.closureExpression().ast;
     }
 
+    /** Production: conditionalExpression ::= atExpression    (#conditionalExpression23) */
     @Override
     public void exitConditionalExpression23(ConditionalExpression23Context ctx) {
         ctx.ast = ctx.atExpression().ast;
     }
 
+    /** Production: conditionalExpression ::= oBSOLETE_FinishExpression    (#conditionalExpression24) */
     @Override
     public void exitConditionalExpression24(ConditionalExpression24Context ctx) {
         ctx.ast = ctx.oBSOLETE_FinishExpression().ast;
     }
 
+    /** Production: conditionalExpression ::= <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression    (#conditionalExpression25) */
     @Override
     public void exitConditionalExpression25(ConditionalExpression25Context ctx) {
         Expr ConditionalOrExpression = ctx.e1.ast;
@@ -4021,6 +4366,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return false;
     }
 
+    /** Production: conditionalExpression ::= type    (#conditionalExpression26) */
     @Override
     public void exitConditionalExpression26(ConditionalExpression26Context ctx) {
         if (isEquality(ctx.getParent())) {
@@ -4030,16 +4376,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: assignmentExpression ::= assignment    (#assignmentExpression0) */
     @Override
     public void exitAssignmentExpression0(AssignmentExpression0Context ctx) {
         ctx.ast = ctx.assignment().ast;
     }
 
+    /** Production: assignmentExpression ::= conditionalExpression    (#assignmentExpression1) */
     @Override
     public void exitAssignmentExpression1(AssignmentExpression1Context ctx) {
         ctx.ast = ctx.conditionalExpression().ast;
     }
 
+    /** Production: assignment ::= leftHandSide assignmentOperator assignmentExpression    (#assignment0) */
     @Override
     public void exitAssignment0(Assignment0Context ctx) {
         Expr LeftHandSide = ctx.leftHandSide().ast;
@@ -4048,6 +4397,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Assign(pos(ctx), LeftHandSide, AssignmentOperator, AssignmentExpression);
     }
 
+    /** Production: assignment ::= expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression    (#assignment1) */
     @Override
     public void exitAssignment1(Assignment1Context ctx) {
         ParsedName e1 = ctx.expressionName().ast;
@@ -4057,6 +4407,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.SettableAssign(pos(ctx), e1.toExpr(), ArgumentListopt, AssignmentOperator, AssignmentExpression);
     }
 
+    /** Production: assignment ::= primary '(' argumentListopt ')' assignmentOperator assignmentExpression    (#assignment2) */
     @Override
     public void exitAssignment2(Assignment2Context ctx) {
         Expr e1 = ctx.primary().ast;
@@ -4066,337 +4417,404 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.SettableAssign(pos(ctx), e1, ArgumentListopt, AssignmentOperator, AssignmentExpression);
     }
 
+    /** Production: leftHandSide ::= expressionName    (#leftHandSide0) */
     @Override
     public void exitLeftHandSide0(LeftHandSide0Context ctx) {
         ParsedName ExpressionName = ctx.expressionName().ast;
         ctx.ast = ExpressionName.toExpr();
     }
 
+    /** Production: leftHandSide ::= fieldAccess    (#leftHandSide1) */
     @Override
     public void exitLeftHandSide1(LeftHandSide1Context ctx) {
         ctx.ast = ctx.fieldAccess().ast;
     }
 
+    /** Production: expression ::= assignmentExpression    (#expression) */
     @Override
     public void exitExpression(ExpressionContext ctx) {
         ctx.ast = ctx.assignmentExpression().ast;
     }
 
+    /** Production: constantExpression ::= expression    (#constantExpression) */
     @Override
     public void exitConstantExpression(ConstantExpressionContext ctx) {
         ctx.ast = ctx.expression().ast;
     }
 
+    /** Production: assignmentOperator ::= '='    (#assignmentOperator0) */
     @Override
     public void exitAssignmentOperator0(AssignmentOperator0Context ctx) {
         ctx.ast = Assign.ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '*='    (#assignmentOperator1) */
     @Override
     public void exitAssignmentOperator1(AssignmentOperator1Context ctx) {
         ctx.ast = Assign.MUL_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '/='    (#assignmentOperator2) */
     @Override
     public void exitAssignmentOperator2(AssignmentOperator2Context ctx) {
         ctx.ast = Assign.DIV_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '%='    (#assignmentOperator3) */
     @Override
     public void exitAssignmentOperator3(AssignmentOperator3Context ctx) {
         ctx.ast = Assign.MOD_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '+='    (#assignmentOperator4) */
     @Override
     public void exitAssignmentOperator4(AssignmentOperator4Context ctx) {
         ctx.ast = Assign.ADD_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '-='    (#assignmentOperator5) */
     @Override
     public void exitAssignmentOperator5(AssignmentOperator5Context ctx) {
         ctx.ast = Assign.SUB_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '<<='    (#assignmentOperator6) */
     @Override
     public void exitAssignmentOperator6(AssignmentOperator6Context ctx) {
         ctx.ast = Assign.SHL_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '>>='    (#assignmentOperator7) */
     @Override
     public void exitAssignmentOperator7(AssignmentOperator7Context ctx) {
         ctx.ast = Assign.SHR_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '>>>='    (#assignmentOperator8) */
     @Override
     public void exitAssignmentOperator8(AssignmentOperator8Context ctx) {
         ctx.ast = Assign.USHR_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '&='    (#assignmentOperator9) */
     @Override
     public void exitAssignmentOperator9(AssignmentOperator9Context ctx) {
         ctx.ast = Assign.BIT_AND_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '^='    (#assignmentOperator10) */
     @Override
     public void exitAssignmentOperator10(AssignmentOperator10Context ctx) {
         ctx.ast = Assign.BIT_XOR_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '|='    (#assignmentOperator11) */
     @Override
     public void exitAssignmentOperator11(AssignmentOperator11Context ctx) {
         ctx.ast = Assign.BIT_OR_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '..='    (#assignmentOperator12) */
     @Override
     public void exitAssignmentOperator12(AssignmentOperator12Context ctx) {
         ctx.ast = Assign.DOT_DOT_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '->='    (#assignmentOperator13) */
     @Override
     public void exitAssignmentOperator13(AssignmentOperator13Context ctx) {
         ctx.ast = Assign.ARROW_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '<-='    (#assignmentOperator14) */
     @Override
     public void exitAssignmentOperator14(AssignmentOperator14Context ctx) {
         ctx.ast = Assign.LARROW_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '-<='    (#assignmentOperator15) */
     @Override
     public void exitAssignmentOperator15(AssignmentOperator15Context ctx) {
         ctx.ast = Assign.FUNNEL_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '>-='    (#assignmentOperator16) */
     @Override
     public void exitAssignmentOperator16(AssignmentOperator16Context ctx) {
         ctx.ast = Assign.LFUNNEL_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '**='    (#assignmentOperator17) */
     @Override
     public void exitAssignmentOperator17(AssignmentOperator17Context ctx) {
         ctx.ast = Assign.STARSTAR_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '<>='    (#assignmentOperator18) */
     @Override
     public void exitAssignmentOperator18(AssignmentOperator18Context ctx) {
         ctx.ast = Assign.DIAMOND_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '><='    (#assignmentOperator19) */
     @Override
     public void exitAssignmentOperator19(AssignmentOperator19Context ctx) {
         ctx.ast = Assign.BOWTIE_ASSIGN;
     }
 
+    /** Production: assignmentOperator ::= '~='    (#assignmentOperator20) */
     @Override
     public void exitAssignmentOperator20(AssignmentOperator20Context ctx) {
         ctx.ast = Assign.TWIDDLE_ASSIGN;
     }
 
+    /** Production: prefixOp ::= '+'    (#prefixOp0) */
     @Override
     public void exitPrefixOp0(PrefixOp0Context ctx) {
         ctx.ast = Unary.POS;
     }
 
+    /** Production: prefixOp ::= '-'    (#prefixOp1) */
     @Override
     public void exitPrefixOp1(PrefixOp1Context ctx) {
         ctx.ast = Unary.NEG;
     }
 
+    /** Production: prefixOp ::= '!'    (#prefixOp2) */
     @Override
     public void exitPrefixOp2(PrefixOp2Context ctx) {
         ctx.ast = Unary.NOT;
     }
 
+    /** Production: prefixOp ::= '~'    (#prefixOp3) */
     @Override
     public void exitPrefixOp3(PrefixOp3Context ctx) {
         ctx.ast = Unary.BIT_NOT;
     }
 
+    /** Production: prefixOp ::= '^'    (#prefixOp4) */
     @Override
     public void exitPrefixOp4(PrefixOp4Context ctx) {
         ctx.ast = Unary.CARET;
     }
 
+    /** Production: prefixOp ::= '|'    (#prefixOp5) */
     @Override
     public void exitPrefixOp5(PrefixOp5Context ctx) {
         ctx.ast = Unary.BAR;
     }
 
+    /** Production: prefixOp ::= '&'    (#prefixOp6) */
     @Override
     public void exitPrefixOp6(PrefixOp6Context ctx) {
         ctx.ast = Unary.AMPERSAND;
     }
 
+    /** Production: prefixOp ::= '*'    (#prefixOp7) */
     @Override
     public void exitPrefixOp7(PrefixOp7Context ctx) {
         ctx.ast = Unary.STAR;
     }
 
+    /** Production: prefixOp ::= '/'    (#prefixOp8) */
     @Override
     public void exitPrefixOp8(PrefixOp8Context ctx) {
         ctx.ast = Unary.SLASH;
     }
 
+    /** Production: prefixOp ::= '%'    (#prefixOp9) */
     @Override
     public void exitPrefixOp9(PrefixOp9Context ctx) {
         ctx.ast = Unary.PERCENT;
     }
 
+    /** Production: binOp ::= '+'    (#binOp0) */
     @Override
     public void exitBinOp0(BinOp0Context ctx) {
         ctx.ast = Binary.ADD;
     }
 
+    /** Production: binOp ::= '-'    (#binOp1) */
     @Override
     public void exitBinOp1(BinOp1Context ctx) {
         ctx.ast = Binary.SUB;
     }
 
+    /** Production: binOp ::= '*'    (#binOp2) */
     @Override
     public void exitBinOp2(BinOp2Context ctx) {
         ctx.ast = Binary.MUL;
     }
 
+    /** Production: binOp ::= '/'    (#binOp3) */
     @Override
     public void exitBinOp3(BinOp3Context ctx) {
         ctx.ast = Binary.DIV;
     }
 
+    /** Production: binOp ::= '%'    (#binOp4) */
     @Override
     public void exitBinOp4(BinOp4Context ctx) {
         ctx.ast = Binary.MOD;
     }
 
+    /** Production: binOp ::= '&'    (#binOp5) */
     @Override
     public void exitBinOp5(BinOp5Context ctx) {
         ctx.ast = Binary.BIT_AND;
     }
 
+    /** Production: binOp ::= '|'    (#binOp6) */
     @Override
     public void exitBinOp6(BinOp6Context ctx) {
         ctx.ast = Binary.BIT_OR;
     }
 
+    /** Production: binOp ::= '^'    (#binOp7) */
     @Override
     public void exitBinOp7(BinOp7Context ctx) {
         ctx.ast = Binary.BIT_XOR;
     }
 
+    /** Production: binOp ::= '&&'    (#binOp8) */
     @Override
     public void exitBinOp8(BinOp8Context ctx) {
         ctx.ast = Binary.COND_AND;
     }
 
+    /** Production: binOp ::= '||'    (#binOp9) */
     @Override
     public void exitBinOp9(BinOp9Context ctx) {
         ctx.ast = Binary.COND_OR;
     }
 
+    /** Production: binOp ::= '<<'    (#binOp10) */
     @Override
     public void exitBinOp10(BinOp10Context ctx) {
         ctx.ast = Binary.SHL;
     }
 
+    /** Production: binOp ::= '>>'    (#binOp11) */
     @Override
     public void exitBinOp11(BinOp11Context ctx) {
         ctx.ast = Binary.SHR;
     }
 
+    /** Production: binOp ::= '>>>'    (#binOp12) */
     @Override
     public void exitBinOp12(BinOp12Context ctx) {
         ctx.ast = Binary.USHR;
     }
 
+    /** Production: binOp ::= '>='    (#binOp13) */
     @Override
     public void exitBinOp13(BinOp13Context ctx) {
         ctx.ast = Binary.GE;
     }
 
+    /** Production: binOp ::= '<='    (#binOp14) */
     @Override
     public void exitBinOp14(BinOp14Context ctx) {
         ctx.ast = Binary.LE;
     }
 
+    /** Production: binOp ::= '>'    (#binOp15) */
     @Override
     public void exitBinOp15(BinOp15Context ctx) {
         ctx.ast = Binary.GT;
     }
 
+    /** Production: binOp ::= '<'    (#binOp16) */
     @Override
     public void exitBinOp16(BinOp16Context ctx) {
         ctx.ast = Binary.LT;
     }
 
+    /** Production: binOp ::= '=='    (#binOp17) */
     @Override
     public void exitBinOp17(BinOp17Context ctx) {
         ctx.ast = Binary.EQ;
     }
 
+    /** Production: binOp ::= '!='    (#binOp18) */
     @Override
     public void exitBinOp18(BinOp18Context ctx) {
         ctx.ast = Binary.NE;
     }
 
+    /** Production: binOp ::= '..'    (#binOp19) */
     @Override
     public void exitBinOp19(BinOp19Context ctx) {
         ctx.ast = Binary.DOT_DOT;
     }
 
+    /** Production: binOp ::= '->'    (#binOp20) */
     @Override
     public void exitBinOp20(BinOp20Context ctx) {
         ctx.ast = Binary.ARROW;
     }
 
+    /** Production: binOp ::= '<-'    (#binOp21) */
     @Override
     public void exitBinOp21(BinOp21Context ctx) {
         ctx.ast = Binary.LARROW;
     }
 
+    /** Production: binOp ::= '-<'    (#binOp22) */
     @Override
     public void exitBinOp22(BinOp22Context ctx) {
         ctx.ast = Binary.FUNNEL;
     }
 
+    /** Production: binOp ::= '>-'    (#binOp23) */
     @Override
     public void exitBinOp23(BinOp23Context ctx) {
         ctx.ast = Binary.LFUNNEL;
     }
 
+    /** Production: binOp ::= '**'    (#binOp24) */
     @Override
     public void exitBinOp24(BinOp24Context ctx) {
         ctx.ast = Binary.STARSTAR;
     }
 
+    /** Production: binOp ::= '~'    (#binOp25) */
     @Override
     public void exitBinOp25(BinOp25Context ctx) {
         ctx.ast = Binary.TWIDDLE;
     }
 
+    /** Production: binOp ::= '!~'    (#binOp26) */
     @Override
     public void exitBinOp26(BinOp26Context ctx) {
         ctx.ast = Binary.NTWIDDLE;
     }
 
+    /** Production: binOp ::= '!'    (#binOp27) */
     @Override
     public void exitBinOp27(BinOp27Context ctx) {
         ctx.ast = Binary.BANG;
     }
 
+    /** Production: binOp ::= '<>'    (#binOp28) */
     @Override
     public void exitBinOp28(BinOp28Context ctx) {
         ctx.ast = Binary.DIAMOND;
     }
 
+    /** Production: binOp ::= '><'    (#binOp29) */
     @Override
     public void exitBinOp29(BinOp29Context ctx) {
         ctx.ast = Binary.BOWTIE;
     }
 
+    /** Production: hasResultTypeopt ::= hasResultType?    (#hasResultTypeopt) */
     @Override
     public void exitHasResultTypeopt(HasResultTypeoptContext ctx) {
         ctx.ast = ctx.hasResultType() == null ? null : ctx.hasResultType().ast;
     }
 
+    /** Production: typeArgumentsopt ::= typeArguments?    (#typeArgumentsopt) */
     @Override
     public void exitTypeArgumentsopt(TypeArgumentsoptContext ctx) {
         if (ctx.typeArguments() == null) {
@@ -4406,6 +4824,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: argumentListopt ::= argumentList?    (#argumentListopt) */
     @Override
     public void exitArgumentListopt(ArgumentListoptContext ctx) {
         if (ctx.argumentList() == null) {
@@ -4415,6 +4834,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: argumentsopt ::= arguments?    (#argumentsopt) */
     @Override
     public void exitArgumentsopt(ArgumentsoptContext ctx) {
         if (ctx.arguments() == null) {
@@ -4424,11 +4844,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: identifieropt ::= identifier?    (#identifieropt) */
     @Override
     public void exitIdentifieropt(IdentifieroptContext ctx) {
         ctx.ast = ctx.identifier() == null ? null : ctx.identifier().ast;
     }
 
+    /** Production: forInitopt ::= forInit?    (#forInitopt) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForInitopt(ForInitoptContext ctx) {
@@ -4439,6 +4861,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: forUpdateopt ::= forUpdate?    (#forUpdateopt) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdateopt(ForUpdateoptContext ctx) {
@@ -4449,11 +4872,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: expressionopt ::= expression?    (#expressionopt) */
     @Override
     public void exitExpressionopt(ExpressionoptContext ctx) {
         ctx.ast = ctx.expression() == null ? null : ctx.expression().ast;
     }
 
+    /** Production: catchesopt ::= catches?    (#catchesopt) */
     @Override
     public void exitCatchesopt(CatchesoptContext ctx) {
         if (ctx.catches() == null) {
@@ -4463,6 +4888,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: blockStatementsopt ::= blockStatements?    (#blockStatementsopt) */
     @Override
     public void exitBlockStatementsopt(BlockStatementsoptContext ctx) {
         if (ctx.blockStatements() == null) {
@@ -4472,11 +4898,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    /** Production: classBodyopt ::= classBody?    (#classBodyopt) */
     @Override
     public void exitClassBodyopt(ClassBodyoptContext ctx) {
         ctx.ast = ctx.classBody() == null ? null : ctx.classBody().ast;
     }
 
+    /** Production: formalParameterListopt ::= formalParameterList?    (#formalParameterListopt) */
     @Override
     public void exitFormalParameterListopt(FormalParameterListoptContext ctx) {
         if (ctx.formalParameterList() == null) {

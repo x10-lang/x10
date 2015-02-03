@@ -16,7 +16,6 @@ public class ParserErrorListener extends BaseErrorListener implements
 
     private ErrorQueue eq;
     private String file;
-    private boolean unrecoverableSyntaxError = false;
 
     public ParserErrorListener(ErrorQueue q, String f) {
         super();
@@ -29,16 +28,11 @@ public class ParserErrorListener extends BaseErrorListener implements
             Object offendingSymbol, int line, int charPositionInLine,
             String msg, RecognitionException e) {
         Position pos = new Position(null, file, line, charPositionInLine);
-
         syntaxError(msg, pos);
     }
 
     public void syntaxError(String msg, Position pos) {
-        syntaxError(msg, pos, false);
-    }
-
-    public void syntaxError(String msg, Position pos, boolean unrecoverable) {
-        unrecoverableSyntaxError = unrecoverable;
         eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
     }
+
 }
