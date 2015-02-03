@@ -334,7 +334,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final Worker worker = currentWorker();
     final Finish finish;
     if (worker == null) {
-      finish = factory.make(null, here);
+      finish = NullFinish.SINGLETON;
     } else {
       finish = worker.task.finish;
       finish.spawn(here);
@@ -347,7 +347,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final Worker worker = currentWorker();
     final Finish finish;
     if (worker == null) {
-      finish = factory.make(null, p.id);
+      finish = NullFinish.SINGLETON;
     } else {
       finish = worker.task.finish;
       finish.spawn(p.id);
