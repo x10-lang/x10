@@ -81,12 +81,10 @@ final class DefaultFinish implements Serializable, Finish {
 
   /**
    * Constructs a finish instance.
-   *
-   * @param p
-   *          the place ID of the main task
    */
-  DefaultFinish(int p) {
-    spawn(p);
+  DefaultFinish() {
+    final int here = GlobalRuntimeImpl.getRuntime().here;
+    spawn(here);
   }
 
   @Override

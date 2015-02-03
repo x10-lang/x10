@@ -84,22 +84,22 @@ final class ResilientFinish implements Serializable, Finish {
       count += (v == 0 ? 1 : (v == 1 ? -1 : 0));
     }
 
-    State(GlobalID pid, int p, int q) {
-      max = p > q ? p : q;
+    State(GlobalID pid, int p) {
+      max = p;
       this.pid = pid;
-      counts.put(index(p, q), 1);
+      counts.put(index(p, p), 1);
       count = 1;
     }
   }
 
-  ResilientFinish(ResilientFinish parent, int p) {
+  ResilientFinish(ResilientFinish parent) {
     final GlobalID id = new GlobalID();
     this.id = id;
     final GlobalID pid = parent == null ? null : parent.id;
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // map.set(id, new State(pid, here, p));
     executeOnKey(id, state -> {
-      return new State(pid, here, p);
+      return new State(pid, here);
     });
     if (pid == null) {
       return;

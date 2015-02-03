@@ -16,7 +16,7 @@ package apgas.impl;
  */
 final class ResilientFinishFactory extends FinishFactory {
   @Override
-  ResilientFinish make(Finish parent, int p) {
-    return new ResilientFinish((ResilientFinish) parent, p);
+  ResilientFinish make(Finish parent) {
+    return new ResilientFinish((ResilientFinish) parent);
   }
 }

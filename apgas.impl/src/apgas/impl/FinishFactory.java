@@ -21,9 +21,7 @@ abstract class FinishFactory {
    *
    * @param parent
    *          the parent finish object or null if root finish
-   * @param p
-   *          the place of the root task of the finish
    * @return the {@link Finish} instance
    */
-  abstract Finish make(Finish parent, int p);
+  abstract Finish make(Finish parent);
 }

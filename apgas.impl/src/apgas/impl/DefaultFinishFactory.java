@@ -16,7 +16,7 @@ package apgas.impl;
  */
 final class DefaultFinishFactory extends FinishFactory {
   @Override
-  DefaultFinish make(Finish parent, int p) {
-    return new DefaultFinish(p);
+  DefaultFinish make(Finish parent) {
+    return new DefaultFinish();
   }
 }

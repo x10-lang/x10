@@ -321,7 +321,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   public void finish(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = factory.make(worker == null ? null
-        : worker.task.finish, here);
+        : worker.task.finish);
     new Task(finish, f, here).finish(worker);
     final List<Throwable> exceptions = finish.exceptions();
     if (exceptions != null) {
