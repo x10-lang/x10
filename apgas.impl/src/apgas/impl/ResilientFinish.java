@@ -92,10 +92,11 @@ final class ResilientFinish implements Serializable, Finish {
     }
   }
 
-  ResilientFinish(ResilientFinish parent) {
+  ResilientFinish(Finish parent) {
     final GlobalID id = new GlobalID();
     this.id = id;
-    final GlobalID pid = parent == null ? null : parent.id;
+    final GlobalID pid = parent instanceof ResilientFinish ? ((ResilientFinish) parent).id
+        : null;
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // map.set(id, new State(pid, here, p));
     executeOnKey(id, state -> {
