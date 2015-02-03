@@ -50,6 +50,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   final boolean resilient;
 
   /**
+   * The finish factory.
+   */
+  final FinishFactory factory;
+
+  /**
    * The transport for this global runtime instance.
    */
   final Transport transport;
@@ -127,6 +132,20 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
+    FinishFactory f;
+    try {
+      f = (FinishFactory) Class.forName(
+          System.getProperty(Configuration.APGAS_FINISH,
+              resilient ? "apgas.impl.ResilientFinishFactory"
+                  : "apgas.impl.DefaultFinishFactory")).newInstance();
+    } catch (InstantiationException | IllegalAccessException
+        | ClassNotFoundException e) {
+      System.err.println("[APGAS] Unable to instantiate finish factory: "
+          + System.getProperty(Configuration.APGAS_FINISH)
+          + ". Using default factory.");
+      f = resilient ? new ResilientFinishFactory() : new DefaultFinishFactory();
+    }
+    factory = f;
     final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
     final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
         InetAddress.getLocalHost().getHostAddress());
@@ -298,25 +317,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
-  /**
-   * Constructs a new finish instance.
-   *
-   * @param parent
-   *          the parent finish or null
-   * @param place
-   *          the place ID of the main task
-   * @return the finish instance
-   */
-  Finish newFinish(Finish parent, int place) {
-    return resilient ? new ResilientFinish((ResilientFinish) parent, place)
-        : new DefaultFinish(place);
-  }
-
   @Override
   public void finish(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = newFinish(worker == null ? null : worker.task.finish,
-        here);
+    final Finish finish = factory.make(worker == null ? null
+        : worker.task.finish, here);
     new Task(finish, f, here).finish(worker);
     final List<Throwable> exceptions = finish.exceptions();
     if (exceptions != null) {
@@ -329,7 +334,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final Worker worker = currentWorker();
     final Finish finish;
     if (worker == null) {
-      finish = newFinish(null, here);
+      finish = factory.make(null, here);
     } else {
       finish = worker.task.finish;
       finish.spawn(here);
@@ -342,7 +347,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final Worker worker = currentWorker();
     final Finish finish;
     if (worker == null) {
-      finish = newFinish(null, p.id);
+      finish = factory.make(null, p.id);
     } else {
       finish = worker.task.finish;
       finish.spawn(p.id);

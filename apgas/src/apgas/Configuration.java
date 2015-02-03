@@ -89,4 +89,9 @@ public final class Configuration {
    * Turns on resiliency.
    */
   public static final String APGAS_RESILIENT = "apgas.resilient";
+
+  /**
+   * Name of the finish implementation class to instantiate (String property).
+   */
+  public static final String APGAS_FINISH = "apgas.finish";
 }
