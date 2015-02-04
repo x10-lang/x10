@@ -728,8 +728,8 @@ public class SocketTransport {
 								String linkString = new String(linkdata, UTF8);
 								X10RT.initDataStore(linkString);
 							}
-							else 
-								System.err.println("Unknown message type: "+msgType);
+							else
+								throw new IOException("Read in a corrupted message type: "+msgType);
 						}
 					}
 					catch (IOException e) {
