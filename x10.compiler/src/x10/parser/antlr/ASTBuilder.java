@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.misc.Utils;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import polyglot.ast.AmbExpr;
@@ -172,7 +173,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     // Utility functions
-
+    
     /** Returns the position of a given parse tree node. */
     protected Position pos(ParserRuleContext ctx) {
         int line = ctx.getStart().getLine();
@@ -181,7 +182,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = ctx.getStop() == null ? ctx.getStart().getLine() : ctx.getStop().getLine();
         int endColumn = ctx.getStop() == null ? ctx.getStart().getCharPositionInLine() : ctx.getStop().getCharPositionInLine();
         int endOffset = ctx.getStop() == null ? ctx.getStart().getStopIndex() : ctx.getStop().getStopIndex();
-        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
     /** Returns the position of a given token. */
@@ -192,7 +193,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = line;
         int endOffset = t.getStopIndex();
         int endColumn = column + endOffset - offset;
-        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
     /** Returns the position going from {@code ctx} to {@code t}. */
@@ -203,7 +204,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = t.getLine();
         int endOffset = t.getStopIndex();
         int endColumn = t.getCharPositionInLine() + endOffset - t.getStartIndex();
-        return new Position(null, srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
     }
 
     private String comment(Position pos) {
@@ -230,6 +231,30 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             err.syntaxError("This type name does not match the name of the containing file: " + filename.substring(slash + 1), identifier.position());
     }
 
+
+    // Check that the argument is not null are build a dummy node of the correct type.
+
+    private Id errorId(Position p) {
+        return (Id) nf.Id(p, "*").error(true);
+        
+    }
+
+    private Expr errorExpression(Position p) {
+        return (Expr) nf.NullLit(p).error(true);
+    }
+    private TypeNode check(Position p, TypeNode ast) {
+        if (ast == null) {
+            return (TypeNode) nf.AmbTypeNode(p, nf.Id(p, "Any")).error(true);
+        } 
+        return ast;
+    }
+
+    private List<ClassMember> check(Position p, List<ClassMember> ast) {
+        if (ast == null) {
+            return new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        }
+        return ast;
+    }
 
     // Temporary classes used to wrap modifiers.
 
@@ -1522,7 +1547,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ctx.namedTypeNoConstraints().ast;
     }
 
-    /** Production: depParameters ::= '{' /* fUTURE_ExistentialList? */ constraintConjunctionopt '}'    (#depParameters) */
+    /** Production: depParameters ::= '{' constraintConjunctionopt '}' (#depParameters) */
     @Override
     public void exitDepParameters(DepParametersContext ctx) {
         List<Formal> FUTURE_ExistentialListopt = new ArrayList<Formal>();
@@ -2641,7 +2666,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitClassMemberDeclarationsopt(ClassMemberDeclarationsoptContext ctx) {
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         for (ClassMemberDeclarationContext ClassMember : ctx.classMemberDeclaration()) {
-            l.addAll(ClassMember.ast);
+            l.addAll(check(pos(ClassMember), ClassMember.ast));
         }
         ctx.ast = l;
     }
@@ -2891,7 +2916,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: formalParameter ::= type    (#formalParameter2) */
     @Override
     public void exitFormalParameter2(FormalParameter2Context ctx) {
-        TypeNode Type = ctx.type().ast;
+        TypeNode Type = check(pos(ctx.type()), ctx.type().ast);
         X10Formal f;
         FlagsNode fn = nf.FlagsNode(pos(ctx).markCompilerGenerated(), Flags.FINAL);
         Id name = nf.Id(pos(ctx).markCompilerGenerated(), Name.makeFresh("id"));
@@ -4191,6 +4216,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), RelationalExpression, op, ShiftExpression);
     }
 
+    /** Test if the given context corresponds to at type. If this is the case, the TypeContext is returned, otherwise, null is returned. */
     private static TypeContext isType(ParserRuleContext ctx) {
         if (ctx instanceof ConditionalExpression26Context) {
             return ((ConditionalExpression26Context) ctx).type();
@@ -4217,6 +4243,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
 
+    /** Convert an expression that should be a variable into a type. */
+    private TypeNode toTypeNode(Expr e) {
+        assert (e instanceof AmbExpr);
+        return nf.AmbTypeNode(e.position(), ((AmbExpr) e).name());
+    }
+
     /** Production: conditionalExpression ::= e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression    (#conditionalExpression14) */
     @Override
     public void exitConditionalExpression14(ConditionalExpression14Context ctx) {
@@ -4241,8 +4273,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
         } else {
             // Comparison between types
-            TypeNode t1 = t1ctx.ast;
-            TypeNode t2 = t2ctx.ast;
+            TypeNode t1 = t1ctx == null ? toTypeNode(ctx.e1.ast) : t1ctx.ast;
+            TypeNode t2 = t2ctx == null ? toTypeNode(ctx.e2.ast) : t2ctx.ast;
             ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
         }
     }
@@ -4373,6 +4405,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             ctx.ast = null;
         } else {
             err.syntaxError("A type is not allowed as an expression", pos(ctx));
+            ctx.ast = errorExpression(pos(ctx));
         }
     }
 

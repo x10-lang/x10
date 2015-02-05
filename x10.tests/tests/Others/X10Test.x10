@@ -1,10 +1,3 @@
-/*
-public class X10Test {
-  def f() {
-    this.;
-  }
-  
-  def g() {}
+struct S1 { }
 
-}
-*/
+// public class X10Test  { }
