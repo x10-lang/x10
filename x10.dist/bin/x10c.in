@@ -14,6 +14,8 @@ if [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
 elif [ "$X10RT_PAMI_IS_DEFAULT" = "true" ]; then
     x10rt_impl="pami"
+elif [ "$CROSS_COMPILE_MODULES" = "true" ]; then
+    x10rt_impl="mpi"
 else
     x10rt_impl="sockets"
 fi
