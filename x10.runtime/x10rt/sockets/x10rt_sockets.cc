@@ -643,7 +643,6 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
      *
      * On OSX (and presumably BSD) one can use OPT_NOSIGPIPE when creating the socket.
      * On Linux, one can use MSG_NOSIGNAL in the send() call.
-     * On AIX, neither of these options are available
      *
      * So we choose to catch SIGPIPE on all platforms.
      */

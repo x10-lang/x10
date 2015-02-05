@@ -31,14 +31,14 @@ namespace x10 {
             static String* toString(x10_float value);
             static x10_float parseFloat(String* s);
             static x10_boolean isNaN(x10_float value) {
-#if defined(_AIX) || defined(__FCC_VERSION)
+#if defined(__FCC_VERSION)
 				return isnan(value);
 #else
 				return std::isnan(value);
 #endif
             }
             static x10_boolean isInfinite(x10_float value) {
-#if defined(_AIX) || defined(__FCC_VERSION)
+#if defined(__FCC_VERSION)
 				return isinf(value);
 #else
 				return std::isinf(value);

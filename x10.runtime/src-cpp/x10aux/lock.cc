@@ -73,36 +73,7 @@ bool x10aux::reentrant_lock::tryLock() {
 
 // get lock count
 int x10aux::reentrant_lock::getHoldCount() {
-    // hack, until we find someway to do this reliably
-    #ifdef _AIX
-    #ifdef __64BIT__
-        /**
-         * typdef struct { long __mt_word[8]; } pthread_mutext_t;
-         * 3rd element [index 2] contains basic lock status
-         * 8th element [index 7] contains multiple of (UINT_MAX+1)
-         * times number of additional recursive locks
-         */
-        if (__lock.__mt_word[2]) {
-            long multiple = UINT_MAX;
-            multiple += 1;
-            int rlocks = (__lock.__mt_word[7])/multiple;
-            return (rlocks + 1);
-        }
-        return 0;
-    #else /* !__64BIT__ */
-        /**
-         * typedef struct { int __mt_word[13]; } pthread_mutex_t;
-         * 5th element [index 4] contains basic lock status
-         * 9th element [index 8] contains additional recursive locks
-         */
-        if (__lock.__mt_word[4]) {
-            return (__lock.__mt_word[8] + 1);
-        }
-        return 0;
-    #endif /* __64BIT__ */
-    #else /* !_AIX */
-        return -1;
-    #endif /* _AIX */
+    return -1;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

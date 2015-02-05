@@ -14,15 +14,9 @@
 #########################
 
 # compiler selection: gcc or xlc
-# if not user-specified, default to xlC on AIX and g++ everywhere else
-ifndef USE_GCC
-  ifndef USE_XLC
-    ifeq ($(shell uname -s),AIX)
-      export USE_XLC=1
-    else
-      export USE_GCC=1
-    endif
-  endif
+# if not user-specified, default g++
+ifndef USE_XLC
+  export USE_GCC=1
 endif
 
 AR ?= ar
@@ -93,11 +87,6 @@ ifdef JAVA_HOME
     jarch=$(shell uname -m)
   endif
 
-  ifeq ($(shell uname -s),AIX)
-    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
-# -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)
-  else
   ifeq ($(shell uname -s),Linux)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/linux
     ifeq ($(jarch),x86_64)
@@ -133,7 +122,6 @@ ifdef JAVA_HOME
       jarch=amd64
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  endif
   endif
   endif
   endif
@@ -210,11 +198,7 @@ ifndef CROSS_COMPILE_BLUEGENE
     else
       override CXX = xlC_r
     endif
-    ifeq ($(shell uname -s),AIX)
-      override MPICXX = mpCC_r
-    else
-      override MPICXX = mpCC
-    endif
+    override MPICXX = mpCC
     override SHLINK = $(CXX)
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
@@ -232,65 +216,34 @@ ifndef CROSS_COMPILE_BLUEGENE
 
   endif
 
-  ifeq ($(shell uname -s),AIX)
+  MPICXX ?= mpicxx
+
+  ifeq ($(shell uname -s),Linux)
     ifdef USE_GCC
-      export X10RT_PLATFORM=aix_gcc
-      override CXXFLAGS += -maix64
+      override CXXFLAGS += -pthread
       ifndef X10_STATIC_LIB
-        override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-G -Wl,-lptools_ptr
+        override CXXFLAGS_SHARED += -shared -fPIC
+        override LDFLAGS_SHARED += -lrt
       endif
-      override LDFLAGS += -Wl,-brtl,-lpthreads
-      export X10RT_TEST_LDFLAGS = -Wl,-L"$(X10_HOME)"/x10.runtime/x10rt/lib
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
     ifdef USE_XLC
-      export X10RT_PLATFORM=aix_xlc
-      override CXXFLAGS += -qrtti=all
+      override CXXFLAGS += -qpic
       ifndef X10_STATIC_LIB
-        override CXXFLAGS_SHARED += -qpic=large
-        override LDFLAGS_SHARED += -bnoentry -G -bbigtoc -lpthreads -lm -lptools_ptr
+        override CXXFLAGS_SHARED += -qmkshrobj
       endif
-      override LDFLAGS += -brtl
-      ifeq ($(AR),ar) # use AIX default ar
-        AR = /usr/bin/ar
-      endif
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
-
-    # FIXME
-    ifndef USE_32BIT
-      ARFLAGS := -X64 $(ARFLAGS)
+    ifdef USE_64BIT
+      override CXXFLAGS += -m64
+      override XRX_PROPS_CXXFLAGS += -m64
+    endif
+    ifeq ($(shell uname -m),x86_64)
+      export X10RT_PLATFORM=linux_x86_64
     else
-      ARFLAGS := -X32 $(ARFLAGS)
-    endif
-
-  else
-    MPICXX ?= mpicxx
-
-    ifeq ($(shell uname -s),Linux)
+    ifeq ($(shell uname -m),ppc64)
       ifdef USE_GCC
-        override CXXFLAGS += -pthread
-        ifndef X10_STATIC_LIB
-          override CXXFLAGS_SHARED += -shared -fPIC
-          override LDFLAGS_SHARED += -lrt
-        endif
-        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
-      endif
-      ifdef USE_XLC
-        override CXXFLAGS += -qpic
-        ifndef X10_STATIC_LIB
-          override CXXFLAGS_SHARED += -qmkshrobj
-        endif
-        export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
-      endif
-      ifdef USE_64BIT
-        override CXXFLAGS += -m64
-        override XRX_PROPS_CXXFLAGS += -m64
-      endif
-      ifeq ($(shell uname -m),x86_64)
-        export X10RT_PLATFORM=linux_x86_64
-      else
-      ifeq ($(shell uname -m),ppc64)
-        ifdef USE_GCC
-	  export X10RT_PLATFORM=linux_ppc_64_gcc
+       export X10RT_PLATFORM=linux_ppc_64_gcc
         endif
         ifdef USE_XLC
 	  export X10RT_PLATFORM=linux_ppc_64_xlc
@@ -370,7 +323,6 @@ ifndef CROSS_COMPILE_BLUEGENE
       ifeq ($(shell uname -m),amd64)
         export X10RT_PLATFORM=freebsd_amd64
       endif
-    endif
     endif
     endif
     endif

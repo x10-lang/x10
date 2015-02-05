@@ -57,12 +57,7 @@ ifdef ENABLE_X10RT_CUDA
 endif
 
 # avoid a lot of repetition in the */*.mk scripts
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-        LINKER_PROG=$(SHLINK)
-else
-        LINKER_PROG=$(CXX)
-endif
-
+LINKER_PROG=$(CXX)
 
 default: all
 

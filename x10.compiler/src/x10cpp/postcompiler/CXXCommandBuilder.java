@@ -64,20 +64,6 @@ public class CXXCommandBuilder {
                 // ignore all other settings; mpicxx/mpCC win ties, and also
                 // prevent sanity checking because they will be a wrapper on an unknown compiler
                 // So, if things don't match, the user will just find out via link time errors.
-            } else {
-                // If we're compiling for AIX, then we try to prevent mixing of g++ and xlC compiled
-                // code because they do not have binary compatible ABIs on AIX.
-                if (getPlatform().contains("aix")) {
-                    for (PrecompiledLibrary pcl: options.x10libs) {
-                        String pc2 = pcl.props.getProperty("X10LIB_CXX");
-                        if (pc2 != null) {
-                            if (pc != null && !pc2.equals(pc)) {
-                                throw new InternalCompilerError("Conflicting postcompilers. Both "+pc+" and "+pc2+" requested");
-                            }
-                            pc = pc2;
-                        } 
-                    }
-                }
             }
             cxxCompiler = pc == null ? "g++" : pc;
         }
@@ -383,8 +369,6 @@ public class CXXCommandBuilder {
             cbb = new Cygwin_CXXCommandBuilder();
         } else if (platform.startsWith("linux_")) {
         	cbb = new Linux_CXXCommandBuilder();
-        } else if (platform.startsWith("aix_")) {
-        	cbb = new AIX_CXXCommandBuilder();
         } else if (platform.startsWith("sunos")) {
         	cbb = new SunOS_CXXCommandBuilder();
         } else if (platform.startsWith("macosx_") || platform.startsWith("darwin")) {

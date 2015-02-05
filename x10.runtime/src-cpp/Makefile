@@ -214,17 +214,10 @@ $(XRX_ARCHIVE): $(GEN_DIR)/all-o-generated $(ALL_MANUAL_OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) $(ALL_MANUAL_OBJECTS)
 else
 $(XRX_ARCHIVE): $(GEN_DIR)/all-o-generated $(ALL_MANUAL_OBJECTS)
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
-	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) \
-            $(ALL_MANUAL_OBJECTS) \
-	    $(XRX_DEP_LIBS)
-else
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ \
-	    $(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) \
-            $(ALL_MANUAL_OBJECTS) \
-	    $(XRX_DEP_LIBS)
-endif
+	$(shell sed -e's@^\(.*\)\.cc$$@\1.o@' $(GEN_DIR)/all-cpp-generated) \
+	$(ALL_MANUAL_OBJECTS) \
+	$(XRX_DEP_LIBS)
 endif
 
 # The dummy files are needed to avoid rebuilds so must not be removed as

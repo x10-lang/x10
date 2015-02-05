@@ -30,5 +30,5 @@ import x10.io.Unserializable;
 
     public native def unlock():void;
 
-    public native def getHoldCount():Int; // only supported on some platforms
+    public native def getHoldCount():Int; // only supported on Managed X10. Always returns -1 on NativeX10
 }

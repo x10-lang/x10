@@ -105,7 +105,6 @@ import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
 import x10cpp.debug.LineNumberMap;
-import x10cpp.postcompiler.AIX_CXXCommandBuilder;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.postcompiler.Cygwin_CXXCommandBuilder;
 import x10cpp.postcompiler.Linux_CXXCommandBuilder;

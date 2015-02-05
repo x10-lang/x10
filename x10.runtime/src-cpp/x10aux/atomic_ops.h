@@ -80,44 +80,24 @@ namespace x10aux {
 
         static inline x10_int ppc_compareAndSet32(x10_int oldValue, volatile x10_int *address, x10_int newValue) {
             x10_int result;
-#if defined(_AIX)
-            /* On AIX gcc uses the aix assembler for inline assembly so can't use labels */
-            asm("lwarx %0,0,%2\n\t"      /* Load and reserve address into result */
-                "cmpw %0,%4\n\t"         /* Compare old value with current */
-                "bne- $+12\n\t"          /* oldvalue changed -- bail */
-                "stwcx. %3,0,%2\n\t"     /* Store new value -- or set flags if no longer reserved */
-                "bne- $-16\n\t"          /* lost reservation -- retry */
-                "" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#else
             asm("0: lwarx %0,0,%2\n\t"   /* Load and reserve address into result */
                 "cmpw %0,%4\n\t"         /* Compare old value with current */
                 "bne- 1f\n\t"            /* oldvalue changed -- bail */
                 "stwcx. %3,0,%2\n\t"     /* Store new value -- or set flags if no longer reserved */
                 "bne- 0b\n\t"            /* lost reservation -- retry */
                 "1:" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#endif
             return result;
         }
 
 #if defined(_LP64)
         static inline x10_long ppc_compareAndSet64(x10_long oldValue, volatile x10_long *address, x10_long newValue) {
             x10_long result;
-#if defined(_AIX)
-            /* On AIX gcc uses the aix assembler for inline assembly so can't use labels */
-            asm("ldarx %0,0,%2\n\t"     /* Load and reserve address into result */
-                "cmpd %0,%4\n\t"        /* Compare old value with current */
-                "bne- $+12\n\t"         /* oldvalue changed -- bail */
-                "stdcx. %3,0,%2\n\t"    /* Store new value -- or set flags if no longer reserved */
-                "bne- $-16\n\t"         /* lost reservation -- retry */
-                "" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#else
             asm("0: ldarx %0,0,%2\n\t"  /* Load and reserve address into result */
                 "cmpd %0,%4\n\t"        /* Compare old value with current */
                 "bne- 1f\n\t"           /* oldvalue changed -- bail */
                 "stdcx. %3,0,%2\n\t"    /* Store new value -- or set flags if no longer reserved */
                 "bne- 0b\n\t"           /* lost reservation -- retry */
                 "1:" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#endif
             return result;
         }
 #endif

@@ -15,10 +15,6 @@ ifdef JAVA_HOME
     jarch=$(shell uname -m)
   endif
 
-  ifeq ($(shell uname -s),AIX)
-    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/aix
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm
-  else
   ifeq ($(shell uname -s),Linux)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/linux
     ifeq ($(jarch),x86_64)
@@ -50,7 +46,6 @@ ifdef JAVA_HOME
       jarch=amd64
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  endif
   endif
   endif
   endif

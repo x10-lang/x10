@@ -19,11 +19,6 @@
 #include <x10aux/throw.h>
 #include <x10/lang/OutOfMemoryError.h>
 
-#ifdef _AIX
-#include <sys/vminfo.h>
-#endif
-
-
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
@@ -230,12 +225,6 @@ static void ensure_init_congruent (size_t req_size) {
         }
         fclose(f);
 
-        #elif defined(__aix)
-
-        page = 16 * 1024 * 1024; // 16MB
-
-        #else
-
         fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset "ENV_CONGRUENT_HUGE".\n");
         abort();
 
@@ -272,15 +261,12 @@ static void ensure_init_congruent (size_t req_size) {
     if (x10aux::congruent_huge) {
 
         // huge pages are useful for performance, e.g. due to reducing TLB misses
-        // they are non-standard, currently aix and linux are supported.
+        // they are non-standard, currently only linux is supported.
 
         // we are assuming that huge pages (being very special) are going to always occupy the same virtual address space
 
         #if defined(__linux__) && !defined(SHM_HUGETLB)
             fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset "ENV_CONGRUENT_HUGE".\n");
-            abort();
-        #elif defined(_AIX) && !defined(SHM_PAGESIZE)
-            fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset "ENV_CONGRUENT_HUGE".\n");
             abort();
         #else
             // ok let's go
@@ -297,16 +283,6 @@ static void ensure_init_congruent (size_t req_size) {
                 perror("congruent shmget");
                 abort();
             }
-
-            #ifdef __aix
-            // on AIX we ask for pages of a particular size
-            struct shmid_ds shm_buf = { 0 };
-            shm_buf.shm_pagesize = page;
-            if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-                fprintf(stderr, "Could not get 16M pages\n");
-                abort();
-            }
-            #endif
 
             char *base_addr_ = x10aux::get_congruent_base();
             // Test different addresses by overriding with X10_CONGRUENT_BASE environment variable (takes decimal and hex)
@@ -334,7 +310,7 @@ static void ensure_init_congruent (size_t req_size) {
         // we're not using huge pages, however we still need an address that is consistent across all places
         // so we use mmap with a fixed address
 
-        #if !defined(_AIX) && !defined(__linux__) && !defined(__APPLE__)
+        #if !defined(__linux__) && !defined(__APPLE__)
 
             // in particular, cygwin can fall in this trap
             // other platforms have yet to be investigated for possible support
@@ -471,10 +447,6 @@ void *x10aux::alloc_internal_huge(size_t size) {
 	}
 	fclose(f);
 
-	#elif defined(__aix)
-
-	page = 16 * 1024 * 1024; // 16MB
-
 	#else
 
 	fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset "ENV_CONGRUENT_HUGE".\n");
@@ -496,9 +468,6 @@ void *x10aux::alloc_internal_huge(size_t size) {
 	#if defined(__linux__) && !defined(SHM_HUGETLB)
 		fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset "ENV_CONGRUENT_HUGE".\n");
 		abort();
-	#elif defined(_AIX) && !defined(SHM_PAGESIZE)
-		fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset "ENV_CONGRUENT_HUGE".\n");
-		abort();
 	#else
 		// ok let's go
 		int shmflag = 0;
@@ -513,16 +482,6 @@ void *x10aux::alloc_internal_huge(size_t size) {
 			perror("shmget");
 			abort();
 		}
-
-		#ifdef __aix
-		// on AIX we ask for pages of a particular size
-		struct shmid_ds shm_buf = { 0 };
-		shm_buf.shm_pagesize = page;
-		if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-			fprintf(stderr, "Could not get 16M pages\n");
-			abort();
-		}
-		#endif
 
 		obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
 		shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)

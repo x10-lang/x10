@@ -86,10 +86,6 @@ case "$UNAME" in
 	  SKIP_DEBUG_BUILD=1
       fi
       ;;
-  AIX,*,powerpc) 
-      X10_PLATFORM='aix_ppc'
-      SKIP_DEBUG_BUILD=1
-      ;;
   Darwin,*,i*86) 
       X10_PLATFORM='macosx_x86'
       export USE_32BIT=true

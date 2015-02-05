@@ -626,25 +626,6 @@
             </if>
             <if>
               <conditions>
-                <os family="unix" name="aix"/>
-              </conditions>
-              <then>
-                <echo message="Configuring BDWGC for aix"/>
-                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-                  <env key="OBJECT_MODE" value="32_64" />
-                  <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
-                  <env key="CXXFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
-                  <arg value="${bdwgc.dir}/src/configure" />
-                  <arg value="-enable-threads=aix" />
-                  <arg value="--enable-large-config" />
-                  <!-- TODO: <arg value="- - enable-parallel-mark" /> -->
-                  <!-- TODO: <arg value="-enable-thread-local-alloc" /> -->
-                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
-                </exec>
-              </then>
-            </if>
-            <if>
-              <conditions>
                 <os family="windows"/>
               </conditions>
               <then>
