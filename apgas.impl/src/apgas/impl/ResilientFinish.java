@@ -309,6 +309,7 @@ final class ResilientFinish implements Serializable, Finish {
 
   @Override
   public boolean isReleasable() {
+    final int here = GlobalRuntimeImpl.getRuntime().here;
     try {
       return (boolean) map.executeOnKey(id,
           new AbstractEntryProcessor<GlobalID, State>(false) {
@@ -317,7 +318,9 @@ final class ResilientFinish implements Serializable, Finish {
             @Override
             public Boolean process(Map.Entry<GlobalID, State> entry) {
               final State state = entry.getValue();
-              if (state == null) {
+              if (state == null || state.deads != null
+                  && state.deads.contains(here)) {
+                // parent finish thinks this place is dead, exit
                 throw new DeadPlaceError();
               }
               return state.count == 0
@@ -381,6 +384,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   @SuppressWarnings("unchecked")
   public List<Throwable> exceptions() {
+    final int here = GlobalRuntimeImpl.getRuntime().here;
     try {
       final List<SerializableThrowable> exceptions = (List<SerializableThrowable>) map
           .executeOnKey(id, new AbstractEntryProcessor<GlobalID, State>() {
@@ -390,7 +394,9 @@ final class ResilientFinish implements Serializable, Finish {
             public List<SerializableThrowable> process(
                 Map.Entry<GlobalID, State> entry) {
               final State state = entry.getValue();
-              if (state == null) {
+              if (state == null || state.deads != null
+                  && state.deads.contains(here)) {
+                // parent finish thinks this place is dead, exit
                 throw new DeadPlaceError();
               }
               entry.setValue(null);
