@@ -52,7 +52,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * The finish factory.
    */
-  final FinishFactory factory;
+  final Finish.Factory factory;
 
   /**
    * The transport for this global runtime instance.
@@ -132,20 +132,25 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
-    FinishFactory f;
-    try {
-      f = (FinishFactory) Class.forName(
-          System.getProperty(Configuration.APGAS_FINISH,
-              resilient ? "apgas.impl.ResilientFinishFactory"
-                  : "apgas.impl.DefaultFinishFactory")).newInstance();
-    } catch (InstantiationException | IllegalAccessException
-        | ClassNotFoundException e) {
-      System.err.println("[APGAS] Unable to instantiate finish factory: "
-          + System.getProperty(Configuration.APGAS_FINISH)
-          + ". Using default factory.");
-      f = resilient ? new ResilientFinishFactory() : new DefaultFinishFactory();
+    Finish.Factory factory = null;
+    final String finishConfig = System.getProperty(Configuration.APGAS_FINISH);
+    if (finishConfig != null) {
+      final String className = finishConfig + "$Factory";
+      try {
+        factory = (Finish.Factory) Class.forName(className).newInstance();
+      } catch (InstantiationException | IllegalAccessException
+          | ExceptionInInitializerError | ClassNotFoundException
+          | NoClassDefFoundError | ClassCastException e) {
+        System.err.println("[APGAS] Unable to instantiate finish factory: "
+            + className + ". Using default factory.");
+      }
     }
-    factory = f;
+    if (factory == null) {
+      this.factory = resilient ? new ResilientFinish.Factory()
+          : new DefaultFinish.Factory();
+    } else {
+      this.factory = factory;
+    }
     final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
     final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
         InetAddress.getLocalHost().getHostAddress());
@@ -202,6 +207,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
           command.add("-D" + Configuration.APGAS_COMPACT + "=true");
           command.add("-XX:CICompilerCount=3");
           command.add("-XX:ParallelGCThreads=2");
+        }
+        if (factory != null) {
+          command.add("-D" + Configuration.APGAS_FINISH + "=" + finishConfig);
         }
         command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
         command.add("-D" + Configuration.APGAS_DAEMON + "=true");

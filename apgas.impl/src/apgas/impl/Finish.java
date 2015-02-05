@@ -7,6 +7,21 @@ import java.util.concurrent.ForkJoinPool;
  * The {@link Finish} interface.
  */
 interface Finish extends ForkJoinPool.ManagedBlocker {
+
+  /**
+   * The abstract {@link Factory} class is the template of all finish factories.
+   */
+  abstract class Factory {
+    /**
+     * Makes a new {@link Finish} instance.
+     *
+     * @param parent
+     *          the parent finish object
+     * @return the {@link Finish} instance
+     */
+    abstract Finish make(Finish parent);
+  }
+
   /**
    * Must be called before a task is enqueued for execution (local task or
    * incoming remote task).

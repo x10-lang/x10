@@ -34,6 +34,16 @@ import com.hazelcast.query.Predicate;
 final class ResilientFinish implements Serializable, Finish {
   private static final long serialVersionUID = -8238404708052769991L;
 
+  /**
+   * A factory producing {@link ResilientFinish} instances.
+   */
+  static class Factory extends Finish.Factory {
+    @Override
+    ResilientFinish make(Finish parent) {
+      return new ResilientFinish(parent);
+    }
+  }
+
   private static final IMap<GlobalID, State> map = GlobalRuntimeImpl
       .getRuntime().transport.<GlobalID, State> getMap("apgas:finish");
 

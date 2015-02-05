@@ -49,6 +49,16 @@ final class DefaultFinish implements Serializable, Finish {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**
+   * A factory producing {@link DefaultFinish} instances.
+   */
+  static class Factory extends Finish.Factory {
+    @Override
+    DefaultFinish make(Finish parent) {
+      return new DefaultFinish();
+    }
+  }
+
+  /**
    * The {@link GlobalID} instance for this finish construct.
    * <p>
    * Null until the finish object is first serialized.
