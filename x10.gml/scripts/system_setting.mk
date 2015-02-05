@@ -33,20 +33,12 @@ ifdef JAVA_HOME
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   else
-  ifeq ($(shell uname -s),SunOS)
-    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
-    ifeq ($(jarch),x86_64)
-      jarch=amd64
-    endif
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  else
   ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  endif
   endif
   endif
   endif

@@ -26,10 +26,6 @@ LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/DebugHelper.o sockets/Launcher.o
 
 EXECUTABLES += sockets/X10Launcher
 
-ifeq ($(X10RT_PLATFORM), sunos)
-  SOLARIS_LDLIBS += -lresolv -lnsl -lsocket -lrt
-endif
-
 MOV_LDFLAGS_SOCKETS = $(MOV_LDFLAGS) $(SOLARIS_LDLIBS)
 MOV_LDLIBS_SOCKETS = $(MOV_LDLIBS) $(SOLARIS_LDLIBS)
 SO_LDFLAGS_SOCKETS = $(SO_LDFLAGS)

@@ -109,20 +109,12 @@ ifdef JAVA_HOME
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
   else
-  ifeq ($(shell uname -s),SunOS)
-    JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/solaris
-    ifeq ($(jarch),x86_64)
-      jarch=amd64
-    endif
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  else
   ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
-  endif
   endif
   endif
   endif
@@ -305,15 +297,6 @@ ifndef CROSS_COMPILE_BLUEGENE
       # Warning: Order matters!  The "-o" has to be at the end.
       ARFLAGS = -static -o
     else
-    ifeq ($(shell uname -s),SunOS)
-      export X10RT_PLATFORM=sunos
-      ifndef X10_STATIC_LIB
-        override CXXFLAGS_SHARED += -shared -fPIC
-        override LDFLAGS_SHARED += -lresolv -lnsl -lsocket -lrt
-      endif
-      override LDFLAGS += -lresolv -lnsl -lsocket -lrt
-      export X10RT_TEST_LDFLAGS = -lrt
-    else
     ifeq ($(shell uname -s),FreeBSD)
       override CXXFLAGS += -pthread
       ifndef X10_STATIC_LIB
@@ -323,7 +306,6 @@ ifndef CROSS_COMPILE_BLUEGENE
       ifeq ($(shell uname -m),amd64)
         export X10RT_PLATFORM=freebsd_amd64
       endif
-    endif
     endif
     endif
     endif

@@ -37,9 +37,6 @@ endif
 override XRX_PROPS_LDLIBS += -lm -lpthread
 
 # -lrt
-ifeq ($(X10RT_PLATFORM),sunos)
-  override XRX_PROPS_LDLIBS += -lrt
-endif
 ifeq ($(shell uname -s),Linux)
   override XRX_PROPS_LDLIBS += -lrt
 endif

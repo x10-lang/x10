@@ -369,8 +369,6 @@ public class CXXCommandBuilder {
             cbb = new Cygwin_CXXCommandBuilder();
         } else if (platform.startsWith("linux_")) {
         	cbb = new Linux_CXXCommandBuilder();
-        } else if (platform.startsWith("sunos")) {
-        	cbb = new SunOS_CXXCommandBuilder();
         } else if (platform.startsWith("macosx_") || platform.startsWith("darwin")) {
         	cbb = new MacOSX_CXXCommandBuilder();
         } else if (platform.startsWith("freebsd_")) {
