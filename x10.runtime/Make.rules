@@ -13,16 +13,14 @@
 # User-servicable Parts #
 #########################
 
-# compiler selection: gcc or xlc
-# if not user-specified, default g++
-ifndef USE_XLC
-  export USE_GCC=1
-endif
-
 AR ?= ar
 
 LIBPREFIX := lib
-LIBSUFFIX := .so
+ifdef X10_STATIC_LIB
+  LIBSUFFIX := .a
+else
+  LIBSUFFIX := .so
+endif
 
 __m_have_abspath:=$(abspath /)
 ifndef __m_have_abspath
@@ -121,55 +119,122 @@ ifdef JAVA_HOME
   endif
 endif
 
-ifndef NO_VAR_OVERRIDE
+######################
+### First, various cross-compilation environments
+######################
 
-ifdef ENABLE_CROSS_COMPILE_BGQ
-  export X10RT_PLATFORM=bgq
-  export CROSS_COMPILE_BLUEGENE=true
-  export CROSS_COMPILE_ANY=true
-  export BGQ_FLOOR ?= /bgsys/driver/ppcfloor
-  export X10_STATIC_LIB=1
-  export DISABLE_JAVA_RUNTIME=1
-  
-  ifdef USE_GCC
-    export X10RT_PLATFORM=bgq_gcc
-    override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/gcc/mpicxx
-    override CXX=/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
-    override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc
-    override AR =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-ar
+ifdef ENABLE_CROSS_COMPILE_ANY
+  # FX10 (K computer)
+  ifdef ENABLE_CROSS_COMPILE_FX10
+    export X10RT_PLATFORM=fx10
+    export CROSS_COMPILE_FX10=true
+    export CROSS_COMPILE_ANY=true
+    ifndef TARGET_JAVA_HOME
+      export X10_STATIC_LIB=1
+      export DISABLE_JAVA_RUNTIME=1
+      LIBSUFFIX := .a
+    endif
+
+    override CXX = FCCpx
+    override CC = fccpx
+    override CFLAGS = -Xg -w
+    override CXXFLAGS = -Xg -w -Wp,--special_module_id 
+    override LD = fccpx
+    override CXX_NO_WARNING=true
+    override CXX_WARNING_FLAGS = 
+    override MPICXX= mpiFCCpx -Xg
     ifndef X10_STATIC_LIB
-      override CXXFLAGS_SHARED += -shared -fPIC
+      override CXXFLAGS_SHARED = -shared -fPIC
       export X10RT_TEST_LDFLAGS = -dynamic -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
     endif
     ifdef OPTIMIZE
-      override CXXFLAGS += -O2 -finline-functions
+      override CFLAGS += -Kfast
+      override CXXFLAGS += -Kfast
     endif
-    # uniformly force -mminimal-toc since it appears the linker doesn't detect toc overflow
-    override CXXFLAGS += -mminimal-toc
-    override XRX_PROPS_CXXFLAGS += -mminimal-toc
+    override X10CPPFLAGS += -FLATTEN_EXPRESSIONS
+    override CXXFLAGS += -g
+    ifdef TARGET_JAVA_HOME
+      jarch = s64fx
+      override JNI_LIBS = -L"$(TARGET_JAVA_HOME)"/jre/lib/$(jarch)/server
+    endif
   endif
-  ifdef USE_XLC
-    export X10RT_PLATFORM=bgq_xlc
-    # have to override CXX, but let user specify CUSTOM_XLC if they
-    # need something other than just xlC_r to be used as CXX
-    ifdef CUSTOM_XLC
-      override CXX = $(CUSTOM_XLC)
-      override CC = $(CUSTOM_XLC)
-    else
-      override CXX = bgxlC_r
-      override CC = bgxlC_r     
+
+  # BlueGene/Q
+  ifdef ENABLE_CROSS_COMPILE_BGQ
+    export X10RT_PLATFORM=bgq
+    export CROSS_COMPILE_BLUEGENE=true
+    export CROSS_COMPILE_ANY=true
+    export BGQ_FLOOR ?= /bgsys/driver/ppcfloor
+    export X10_STATIC_LIB=1
+    export DISABLE_JAVA_RUNTIME=1
+    LIBSUFFIX := .a
+
+    # if not user-specified, default g++
+    ifndef USE_XLC
+      export USE_GCC=1
     endif
-    override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/xl/mpixlcxx_r
-    ifdef OPTIMIZE
-      override CXXFLAGS += -O3 -qinline -qhot -qsimd=auto -qtune=qp -qarch=qp
+    ifdef USE_GCC
+      export X10RT_PLATFORM=bgq_gcc
+      override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/gcc/mpicxx
+      override CXX=/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++
+      override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc
+      override AR =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-ar
+      ifndef X10_STATIC_LIB
+        override CXXFLAGS_SHARED += -shared -fPIC
+        export X10RT_TEST_LDFLAGS = -dynamic -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+      endif
+      ifdef OPTIMIZE
+        override CXXFLAGS += -O2 -finline-functions
+      endif
+      # uniformly force -mminimal-toc since it appears the linker doesn't detect toc overflow
+      override CXXFLAGS += -mminimal-toc
+      override XRX_PROPS_CXXFLAGS += -mminimal-toc
     endif
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
-    override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+    ifdef USE_XLC
+      export X10RT_PLATFORM=bgq_xlc
+      # have to override CXX, but let user specify CUSTOM_XLC if they
+      # need something other than just xlC_r to be used as CXX
+      ifdef CUSTOM_XLC
+        override CXX = $(CUSTOM_XLC)
+        override CC = $(CUSTOM_XLC)
+      else
+        override CXX = bgxlC_r
+        override CC = bgxlC_r     
+      endif
+      override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/xl/mpixlcxx_r
+      ifdef OPTIMIZE
+        override CXXFLAGS += -O3 -qinline -qhot -qsimd=auto -qtune=qp -qarch=qp
+      endif
+      override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
+      override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+    endif
   endif
-endif
 
+  # Modules system for picking the compiler (eg like NERSC)
+  ifdef ENABLE_CROSS_COMPILE_MODULES
+    export X10RT_PLATFORM=mpi
+    export CROSS_COMPILE_ANY=true
+    export X10_STATIC_LIB=1
+    export DISABLE_JAVA_RUNTIME=1
+    LIBSUFFIX := .a
+    
+    override CXX=CC
+    override CC=cc
+    override MPICXX=CC
+  endif  
 
-ifndef CROSS_COMPILE_BLUEGENE
+endif 
+
+######################
+### Second, not cross-compiling
+######################
+
+ifndef ENABLE_CROSS_COMPILE_ANY
+  # if not user-specified, default g++
+  ifndef USE_XLC
+    export USE_GCC=1
+  endif
+
   # platform independent compiler flags and commands
   ifdef USE_GCC
     # CXX defaults to g++, so leave it alone (in case user overrides)
@@ -311,45 +376,3 @@ ifndef CROSS_COMPILE_BLUEGENE
     endif
   endif
 endif
-
-ifdef X10_STATIC_LIB
-  LIBPREFIX := lib
-  LIBSUFFIX := .a
-endif
-
-endif
-
-ifdef ENABLE_CROSS_COMPILE_FX10
-  export X10RT_PLATFORM=fx10
-  export CROSS_COMPILE_FX10=true
-  export CROSS_COMPILE_ANY=true
-  ifndef TARGET_JAVA_HOME
-    export X10_STATIC_LIB=1
-    export DISABLE_JAVA_RUNTIME=1
-    LIBSUFFIX := .a
-  endif
-
-  override CXX = FCCpx
-  override CC = fccpx
-  override CFLAGS = -Xg -w
-  override CXXFLAGS = -Xg -w -Wp,--special_module_id 
-  override LD = fccpx
-  override CXX_NO_WARNING=true
-  override CXX_WARNING_FLAGS = 
-  override MPICXX= mpiFCCpx -Xg
-  ifndef X10_STATIC_LIB
-    override CXXFLAGS_SHARED = -shared -fPIC
-    export X10RT_TEST_LDFLAGS = -dynamic -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
-  endif
-  ifdef OPTIMIZE
-    override CFLAGS += -Kfast
-    override CXXFLAGS += -Kfast
-  endif
-  override X10CPPFLAGS += -FLATTEN_EXPRESSIONS
-  override CXXFLAGS += -g
-  ifdef TARGET_JAVA_HOME
-    jarch = s64fx
-    override JNI_LIBS = -L"$(TARGET_JAVA_HOME)"/jre/lib/$(jarch)/server
-  endif
-endif
-

@@ -50,6 +50,7 @@
     <property name="bash.exe" value="bash"/>
     <property name="CROSS_COMPILE_BGQ" value="false" />
     <property name="CROSS_COMPILE_FX10" value="false" />
+    <property name="CROSS_COMPILE_MODULES" value="false" />
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PAMI_IS_DEFAULT" value="false" />
@@ -631,6 +632,7 @@ LOG_JAR='${log.jar}'
 LOGGING_PROPERTIES='${logging.properties}'
 CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 CROSS_COMPILE_FX10='${CROSS_COMPILE_FX10}'
+CROSS_COMPILE_MODULES='${CROSS_COMPILE_MODULES}'
 X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
 
 </echo>

@@ -98,15 +98,16 @@
     </condition>
 
     <condition property="x10rt.jnibindings.disabled">
-        <or>
-            <istrue value="${CROSS_COMPILE_BGQ}" />
-            <and>
-		       <istrue value="${CROSS_COMPILE_FX10}" />
-		       <not>
-		 		 <isset property="env.TARGET_JAVA_HOME"/>
-		       </not>
-		     </and>
-        </or>
+      <or>
+        <istrue value="${CROSS_COMPILE_BGQ}" />
+        <istrue value="${CROSS_COMPILE_MODULES}" />
+        <and>
+	  <istrue value="${CROSS_COMPILE_FX10}" />
+	  <not>
+	    <isset property="env.TARGET_JAVA_HOME"/>
+	  </not>
+	</and>
+      </or>
     </condition>
 
     <!-- darwin architectures -->
@@ -147,6 +148,7 @@
         <or>
             <istrue value="${X10RT_MPI}" />
             <istrue value="${CROSS_COMPILE_BGQ}" />
+            <istrue value="${CROSS_COMPILE_MODULES}" />
         </or>
     </condition>
     <condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
@@ -161,11 +163,21 @@
     <condition property="cppmake.gcc_symbols" value="ENABLE_GCC_SYMBOLS=1" else="DISABLE_GCC_SYMBOLS=1">
         <istrue value="${GCC_SYMBOLS}" />
     </condition>
+    <condition property="cppmake.cross_compile_any" value="ENABLE_CROSS_COMPILE_ANY=1" else="DISABLE_CROSS_COMPILE_ANY=1">
+      <or>
+        <istrue value="${CROSS_COMPILE_BGQ}" />
+        <istrue value="${CROSS_COMPILE_FX10}" />
+        <istrue value="${CROSS_COMPILE_MODULES}" />
+      </or>
+    </condition>
     <condition property="cppmake.cross_compile_bgq" value="ENABLE_CROSS_COMPILE_BGQ=1" else="DISABLE_CROSS_COMPILE_BGQ=1">
         <istrue value="${CROSS_COMPILE_BGQ}" />
     </condition>
     <condition property="cppmake.cross_compile_fx10" value="ENABLE_CROSS_COMPILE_FX10=1" else="DISABLE_CROSS_COMPILE_FX10=1">
         <istrue value="${CROSS_COMPILE_FX10}" />
+    </condition>
+    <condition property="cppmake.cross_compile_modules" value="ENABLE_CROSS_COMPILE_MODULES=1" else="DISABLE_CROSS_COMPILE_MODULES=1">
+        <istrue value="${CROSS_COMPILE_MODULES}" />
     </condition>
     <condition property="cppmake.homogeneous" value="HOMOGENEOUS=1" else="DUMMY_ARG=1">
         <istrue value="${HOMOGENEOUS}" />
@@ -205,8 +217,10 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j1" />
             <arg value="clean"/>
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
     <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
@@ -225,8 +239,10 @@
             <arg value="${cppmake.x10rt_mpi}" />
             <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
 
@@ -242,8 +258,10 @@
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
     <target name="dist-java" depends="jar,dist-stdlibprops">
@@ -265,8 +283,10 @@
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
     <target name="dist-cpp-no-x10rt" depends="build-cpp,available-procs">
@@ -280,8 +300,10 @@
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
     <target name="dist-stdlibprops" depends="init">
@@ -294,8 +316,10 @@
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -456,8 +480,10 @@
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
 
@@ -473,8 +499,10 @@
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
 
@@ -493,8 +521,10 @@
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_any}" />
             <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
+            <arg value="${cppmake.cross_compile_modules}" />
         </exec>
     </target>
 
