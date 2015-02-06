@@ -42,11 +42,18 @@ class ResilientFinish implements Serializable, Finish {
   protected GlobalID id;
 
   /**
-   * An empty constructor for subclassing.
+   * Allocates but does not construct a resilient finish instance (for lazy
+   * initialization).
    */
   protected ResilientFinish() {
   }
 
+  /**
+   * Constructs a resilient finish instance.
+   *
+   * @param parent
+   *          the parent finish instance
+   */
   private ResilientFinish(Finish parent) {
     init(parent);
   }

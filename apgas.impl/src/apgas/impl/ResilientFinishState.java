@@ -196,6 +196,7 @@ final class ResilientFinishState implements Serializable {
           return null;
         }
         state.deads.add(p);
+        // TODO synthesize DeadPlaceException
         for (int i = 0; i <= state.max; i++) {
           state.clear(p, i);
           state.clear(i, p);
