@@ -45,8 +45,10 @@ ifeq ($(shell uname -s),FreeBSD)
 endif
 
 # -ldl
-ifneq ($(shell uname -s),FreeBSD)
-  override XRX_PROPS_LDLIBS += -ldl
+ifndef X10_STATIC_LIB
+  ifneq ($(shell uname -s),FreeBSD)
+    override XRX_PROPS_LDLIBS += -ldl
+  endif
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -I$(GEN_DIR)
