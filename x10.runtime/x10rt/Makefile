@@ -70,11 +70,13 @@ ifdef ENABLE_X10RT_PAMI
 endif
 
 ifndef CROSS_COMPILE_BLUEGENE
+ifndef CROSS_COMPILE_MODULES
   include standalone/standalone.mk
   include sockets/sockets.mk
   ifdef JNI_INCLUDES
     include jni/jni.mk
   endif
+endif
 endif
 
 install: $(LIBS) $(PROPERTIES)
