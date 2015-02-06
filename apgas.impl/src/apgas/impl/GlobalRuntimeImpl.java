@@ -294,7 +294,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       @Override
       public void compute() {
         for (final int id : removed) {
-          ResilientFinish.purge(id);
+          ResilientFinishState.purge(id);
         }
         if (handler != null) {
           for (final int id : removed) {
