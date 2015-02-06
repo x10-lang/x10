@@ -65,16 +65,6 @@ final class WrappedDistPlaceRestricted extends Dist {
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
-    public def offset(pt:Point(rank)):Long {
-        if (here == filter) {
-            return base.offset(pt);
-       } else {
-            throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
-        }
-    }
-
-    public def maxOffset():Long = base.maxOffset();
-
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(this, r); 
     }

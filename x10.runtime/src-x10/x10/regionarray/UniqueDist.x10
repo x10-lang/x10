@@ -79,22 +79,6 @@ final class UniqueDist extends Dist/*(1)*/ {
 
     public operator this(i0:Long){rank==1}:Place = pg(i0);
 
-    public def offset(pt:Point(rank)):Long {
-        if (CompilerFlags.checkBounds() && !(pt(0n) >= 0 && pt(0n) < pg.numPlaces())) {
-            raiseBoundsError(pt);
-        }
-        if (CompilerFlags.checkPlace() && pt(0n) != (pg.indexOf(here) as Long)) raisePlaceError(pt);
-        return 0;
-    }
-
-    public def offset(i0:Long){rank==1}:Long {
-        if (CompilerFlags.checkBounds() && !(i0 >= 0 && i0 < numPlaces())) {
-            raiseBoundsError(i0);
-        }
-        if (CompilerFlags.checkPlace() && i0 != (pg.indexOf(here) as Long)) raisePlaceError(i0);
-        return 0;
-    }
-
     // replicated from superclass to workaround xlC bug with using & itables
     // This code is completely unreachable
     public operator this(i0:Long, i1:Long){rank==2}:Place {
@@ -112,8 +96,6 @@ final class UniqueDist extends Dist/*(1)*/ {
     public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place {
        throw new UnsupportedOperationException("operator(i0:Long,i1:Long,i2:Long,i3:Long)");
     }
-
-    public def maxOffset():Long = 0;
 
     public def restriction(r:Region(rank)):Dist(rank) {
 	return new WrappedDistRegionRestricted(this, r);
