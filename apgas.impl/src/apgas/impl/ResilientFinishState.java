@@ -20,36 +20,98 @@ import java.util.Set;
 
 import apgas.util.GlobalID;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.query.Predicate;
 
-@SuppressWarnings("javadoc")
+/**
+ * The {@link ResilientFinishState} class defines the entry associated with a
+ * finish object in the resilient store.
+ *
+ */
 final class ResilientFinishState implements Serializable {
   private static final long serialVersionUID = 756668504413905415L;
 
-  static final IMap<GlobalID, ResilientFinishState> map = GlobalRuntimeImpl
+  /**
+   * The resilient map from finish IDs to finish states.
+   */
+  private static final IMap<GlobalID, ResilientFinishState> map = GlobalRuntimeImpl
       .getRuntime().transport
       .<GlobalID, ResilientFinishState> getMap("apgas:finish");
 
-  Set<Integer> deads; // places that have died during the finish
-  final GlobalID pid; // parent
-  Set<GlobalID> cids; // children
-  Set<GlobalID> dids; // dead children
-  List<SerializableThrowable> exceptions;
-  final Map<Long, Integer> counts = new HashMap<Long, Integer>();
-  int max; // max place encountered
+  /**
+   * The set of places that have died during this finish execution.
+   */
+  Set<Integer> deads;
 
-  static long index(int p, int q) {
+  /**
+   * The ID of the parent resilient finish object if any.
+   */
+  final GlobalID pid;
+
+  /**
+   * The IDs of the live immediatly nested finish objects.
+   */
+  Set<GlobalID> cids;
+
+  /**
+   * The IDs of the dead immediatly nested finish objects.
+   */
+  Set<GlobalID> dids;
+
+  /**
+   * The exceptions reported to this finish so far.
+   */
+  List<SerializableThrowable> exceptions;
+
+  /**
+   * The task counts.
+   */
+  final Map<Long, Integer> counts = new HashMap<Long, Integer>();
+
+  /**
+   * The largest place ID encountered so far.
+   */
+  int max;
+
+  /**
+   * Computes the index of the (p, q) counter.
+   *
+   * @param p
+   *          source place ID
+   * @param q
+   *          destination place ID
+   * @return the computed index
+   */
+  private static long index(int p, int q) {
     return (((long) p) << 32) + q;
   }
 
+  /**
+   * Clears (p, q) counter.
+   *
+   * @param p
+   *          source place ID
+   * @param q
+   *          destination place ID
+   */
   void clear(int p, int q) {
     counts.remove(index(p, q));
   }
 
-  void add(long index, int delta) {
+  /**
+   * Update counter by delta
+   *
+   * @param index
+   *          the index of the counter
+   * @param delta
+   *          the delta
+   */
+  private void add(long index, int delta) {
     final int v = counts.getOrDefault(index, 0) + delta;
     if (v == 0) {
       counts.remove(index);
@@ -58,6 +120,14 @@ final class ResilientFinishState implements Serializable {
     }
   }
 
+  /**
+   * Increments (p, q) counter.
+   *
+   * @param p
+   *          source place ID
+   * @param q
+   *          destination place ID
+   */
   void incr(int p, int q) {
     if (p > max) {
       max = p;
@@ -68,6 +138,14 @@ final class ResilientFinishState implements Serializable {
     add(index(p, q), 1);
   }
 
+  /**
+   * Decrements (p, q) counter.
+   *
+   * @param p
+   *          source place ID
+   * @param q
+   *          destination place ID
+   */
   void decr(int p, int q) {
     if (p > max) {
       max = p;
@@ -78,12 +156,26 @@ final class ResilientFinishState implements Serializable {
     add(index(p, q), -1);
   }
 
+  /**
+   * Constructs a resilient finish state.
+   *
+   * @param pid
+   *          the ID of the parent resilient finish if any
+   * @param p
+   *          the place ID of the finish
+   */
   ResilientFinishState(GlobalID pid, int p) {
     max = p;
     this.pid = pid;
     counts.put(index(p, p), 1);
   }
 
+  /**
+   * Updates the finish states when a place dies.
+   *
+   * @param p
+   *          the dead place ID
+   */
   static void purge(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // only process finish states for the current place and the dead place
@@ -91,7 +183,7 @@ final class ResilientFinishState implements Serializable {
       return entry.getKey().home.id == here || entry.getKey().home.id == p;
     };
     for (final GlobalID id : map.keySet(predicate)) {
-      executeOnKey(id, state -> {
+      update(id, state -> {
         if (state == null) {
           // entry has been removed already, ignore
           return null;
@@ -113,66 +205,201 @@ final class ResilientFinishState implements Serializable {
     }
   }
 
+  /**
+   * A function to process finish states.
+   */
   @FunctionalInterface
   static interface Processor extends Serializable {
+    /**
+     * The function.
+     *
+     * @param state
+     *          the state to process
+     * @return the updated state or null
+     */
     ResilientFinishState process(ResilientFinishState state);
   }
 
-  static void executeOnKey(GlobalID id, Processor f) {
+  /**
+   * Updates a resilient finish state.
+   *
+   * @param id
+   *          the finish state ID to update
+   * @param processor
+   *          the function to apply
+   */
+  static void update(GlobalID id, Processor processor) {
+    final GlobalID pid = execute(
+        id,
+        entry -> {
+          final ResilientFinishState state = processor.process(entry.getValue());
+          if (state == null) {
+            return null;
+          }
+          if (state.counts.size() > 0 || state.cids != null
+              && !state.cids.isEmpty() || state.deads == null
+              || !state.deads.contains(id.home.id)) {
+            // state is still useful:
+            // finish is incomplete or we need to preserve its exceptions
+            entry.setValue(state);
+          } else {
+            // finish is complete and place of finish has died, remove entry
+            entry.setValue(null);
+          }
+          if (state.counts.size() > 0 || state.cids != null
+              && !state.cids.isEmpty()) {
+            return null;
+          } else {
+            return state.pid;
+          }
+        });
+    if (pid == null) {
+      return;
+    }
+    update(pid, state -> {
+      if (state == null) {
+        // parent has been purged already
+        // stop propagating termination
+        return null;
+      }
+      if (state.cids != null && state.cids.contains(id)) {
+        state.cids.remove(id);
+      } else {
+        if (state.dids == null) {
+          state.dids = new HashSet<GlobalID>();
+        }
+        if (!state.dids.contains(id)) {
+          state.dids.add(id);
+        }
+      }
+      return state;
+    });
+  }
+
+  /**
+   * An entry processor.
+   *
+   * @param <T>
+   *          the return type of the processor
+   */
+  @FunctionalInterface
+  static interface EntryProcessor<T> extends Serializable {
+    /**
+     * The function.
+     *
+     * @param entry
+     *          the entry to process
+     * @return the result
+     */
+    T process(Map.Entry<GlobalID, ResilientFinishState> entry);
+  }
+
+  /**
+   * Apply an entry processor to an entry.
+   *
+   * @param <T>
+   *          the return type of the processor
+   * @param id
+   *          the ID of the entry
+   * @param processor
+   *          the processor
+   * @return the result
+   */
+  static <T> T execute(GlobalID id, EntryProcessor<T> processor) {
+    return execute(id, true, processor);
+  }
+
+  /**
+   * Apply an entry processor to an entry.
+   *
+   * @param <T>
+   *          the return type of the processor
+   * @param id
+   *          the ID of the entry
+   * @param applyOnBackup
+   *          whether to apply the processor on backup entries
+   * @param processor
+   *          the processor
+   * @return the result
+   */
+  @SuppressWarnings("unchecked")
+  static <T> T execute(GlobalID id, boolean applyOnBackup,
+      EntryProcessor<T> processor) {
     try {
-      final GlobalID pid = (GlobalID) map.executeOnKey(id,
-          new AbstractEntryProcessor<GlobalID, ResilientFinishState>() {
-            private static final long serialVersionUID = 6777775768226692449L;
+      return (T) map.executeOnKey(id,
+          new AbstractEntryProcessor<GlobalID, ResilientFinishState>(
+              applyOnBackup) {
+            private static final long serialVersionUID = -8787905766218374656L;
 
             @Override
-            public GlobalID process(
-                Map.Entry<GlobalID, ResilientFinishState> entry) {
-              final ResilientFinishState state = f.process(entry.getValue());
-              if (state == null) {
-                return null;
-              }
-              if (state.counts.size() > 0 || state.cids != null
-                  && !state.cids.isEmpty() || state.deads == null
-                  || !state.deads.contains(id.home.id)) {
-                // state is still useful:
-                // finish is incomplete or we need to preserve its exceptions
-                entry.setValue(state);
-              } else {
-                // finish is complete and place of finish has died, remove entry
-                entry.setValue(null);
-              }
-              if (state.counts.size() > 0 || state.cids != null
-                  && !state.cids.isEmpty()) {
-                return null;
-              } else {
-                return state.pid;
-              }
+            public T process(Map.Entry<GlobalID, ResilientFinishState> entry) {
+              return processor.process(entry);
             }
           });
-      if (pid == null) {
-        return;
-      }
-      executeOnKey(pid, state -> {
-        if (state == null) {
-          // parent has been purged already
-          // stop propagating termination
-          return null;
-        }
-        if (state.cids != null && state.cids.contains(id)) {
-          state.cids.remove(id);
-        } else {
-          if (state.dids == null) {
-            state.dids = new HashSet<GlobalID>();
-          }
-          if (!state.dids.contains(id)) {
-            state.dids.add(id);
-          }
-        }
-        return state;
-      });
     } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
+      throw e;
     }
+  }
+
+  /**
+   * Registers a resilient store listener.
+   * <p>
+   * The finish instance is notified when its entry is updated or removed from
+   * the resilient store.
+   *
+   * @param finish
+   *          the finish instance to register
+   * @return the unique id of the registration
+   */
+  static String addListener(ResilientFinish finish) {
+    return ResilientFinishState.map.addEntryListener(
+        new EntryListener<GlobalID, ResilientFinishState>() {
+
+          @Override
+          public void entryAdded(
+              EntryEvent<GlobalID, ResilientFinishState> event) {
+          }
+
+          @Override
+          public void entryRemoved(
+              EntryEvent<GlobalID, ResilientFinishState> event) {
+            synchronized (finish) {
+              finish.notifyAll();
+            }
+          }
+
+          @Override
+          public void entryUpdated(
+              EntryEvent<GlobalID, ResilientFinishState> event) {
+            synchronized (finish) {
+              finish.notifyAll();
+            }
+          }
+
+          @Override
+          public void entryEvicted(
+              EntryEvent<GlobalID, ResilientFinishState> event) {
+          }
+
+          @Override
+          public void mapEvicted(MapEvent event) {
+          }
+
+          @Override
+          public void mapCleared(MapEvent event) {
+          }
+        }, finish.id, false);
+  }
+
+  /**
+   * Deregisters a listener.
+   *
+   * @param registration
+   *          the unique id of the registration
+   */
+  static void removeListener(String registration) {
+    map.removeEntryListener(registration);
   }
 }

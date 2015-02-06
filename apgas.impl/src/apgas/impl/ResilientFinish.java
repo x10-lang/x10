@@ -15,19 +15,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import apgas.NoSuchPlaceException;
 import apgas.util.GlobalID;
 
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.MapEvent;
-import com.hazelcast.map.AbstractEntryProcessor;
-
-@SuppressWarnings("javadoc")
-final class ResilientFinish implements Serializable, Finish {
+/**
+ * The {@link ResilientFinish} class implements a finish construct resilient to
+ * place failure.
+ */
+class ResilientFinish implements Serializable, Finish {
   private static final long serialVersionUID = -8238404708052769991L;
 
   /**
@@ -40,22 +36,41 @@ final class ResilientFinish implements Serializable, Finish {
     }
   }
 
-  final GlobalID id;
+  /**
+   * The unique id of this finish instance.
+   */
+  protected GlobalID id;
 
-  ResilientFinish(Finish parent) {
+  /**
+   * An empty constructor for subclassing.
+   */
+  protected ResilientFinish() {
+  }
+
+  private ResilientFinish(Finish parent) {
+    init(parent);
+  }
+
+  /**
+   * Does the buld of the finish construction.
+   *
+   * @param parent
+   *          the parent finish instance
+   */
+  protected void init(Finish parent) {
     final GlobalID id = new GlobalID();
     this.id = id;
     final GlobalID pid = parent instanceof ResilientFinish ? ((ResilientFinish) parent).id
         : null;
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // map.set(id, new ResilientFinishState(pid, here, p));
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       return new ResilientFinishState(pid, here);
     });
     if (pid == null) {
       return;
     }
-    ResilientFinishState.executeOnKey(pid, state -> {
+    ResilientFinishState.update(pid, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // parent finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -77,7 +92,7 @@ final class ResilientFinish implements Serializable, Finish {
       // task originated here, no transit stage
       return;
     }
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -95,7 +110,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void spawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -112,7 +127,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void unspawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -129,7 +144,7 @@ final class ResilientFinish implements Serializable, Finish {
   @Override
   public void tell(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -143,7 +158,7 @@ final class ResilientFinish implements Serializable, Finish {
   public void addSuppressed(Throwable exception) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     final SerializableThrowable t = new SerializableThrowable(exception);
-    ResilientFinishState.executeOnKey(id, state -> {
+    ResilientFinishState.update(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
@@ -158,118 +173,63 @@ final class ResilientFinish implements Serializable, Finish {
 
   @Override
   public boolean isReleasable() {
-    final int here = GlobalRuntimeImpl.getRuntime().here;
-    try {
-      return (boolean) ResilientFinishState.map.executeOnKey(id,
-          new AbstractEntryProcessor<GlobalID, ResilientFinishState>(false) {
-            private static final long serialVersionUID = -7314315521004813385L;
+    return isDone();
+  }
 
-            @Override
-            public Boolean process(
-                Map.Entry<GlobalID, ResilientFinishState> entry) {
-              final ResilientFinishState state = entry.getValue();
-              if (state == null || state.deads != null
-                  && state.deads.contains(here)) {
-                // parent finish thinks this place is dead, exit
-                throw new DeadPlaceError();
-              }
-              return state.counts.size() == 0
-                  && (state.cids == null || state.cids.isEmpty());
-            }
-          });
-    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
-      // this place is dead for the world
-      System.exit(42);
-      throw e;
-    }
+  private boolean isDone() {
+    final int here = GlobalRuntimeImpl.getRuntime().here;
+    return ResilientFinishState.execute(id,
+        false, // no need to apply on backup
+        entry -> {
+          final ResilientFinishState state = entry.getValue();
+          if (state == null || state.deads != null
+              && state.deads.contains(here)) {
+            // parent finish thinks this place is dead, exit
+            throw new DeadPlaceError();
+          }
+          return state.counts.size() == 0
+              && (state.cids == null || state.cids.isEmpty());
+        });
   }
 
   @Override
   public boolean block() {
-    final String reg = ResilientFinishState.map.addEntryListener(
-        new EntryListener<GlobalID, ResilientFinishState>() {
-
-          @Override
-          public void entryAdded(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-          }
-
-          @Override
-          public void entryRemoved(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-            synchronized (ResilientFinish.this) {
-              ResilientFinish.this.notifyAll();
-            }
-          }
-
-          @Override
-          public void entryUpdated(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-            synchronized (ResilientFinish.this) {
-              ResilientFinish.this.notifyAll();
-            }
-          }
-
-          @Override
-          public void entryEvicted(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-          }
-
-          @Override
-          public void mapEvicted(MapEvent event) {
-          }
-
-          @Override
-          public void mapCleared(MapEvent event) {
-          }
-        }, id, false);
+    final String reg = ResilientFinishState.addListener(this);
     synchronized (this) {
-      while (!isReleasable()) {
+      while (!isDone()) {
         try {
           wait(1000);
         } catch (final InterruptedException e) {
         }
       }
     }
-    ResilientFinishState.map.removeEntryListener(reg);
+    ResilientFinishState.removeListener(reg);
     return true;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public List<Throwable> exceptions() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    try {
-      final List<SerializableThrowable> exceptions = (List<SerializableThrowable>) ResilientFinishState.map
-          .executeOnKey(id,
-              new AbstractEntryProcessor<GlobalID, ResilientFinishState>() {
-                private static final long serialVersionUID = -6913737556384372242L;
-
-                @Override
-                public List<SerializableThrowable> process(
-                    Map.Entry<GlobalID, ResilientFinishState> entry) {
-                  final ResilientFinishState state = entry.getValue();
-                  if (state == null || state.deads != null
-                      && state.deads.contains(here)) {
-                    // parent finish thinks this place is dead, exit
-                    throw new DeadPlaceError();
-                  }
-                  entry.setValue(null);
-                  return state.exceptions;
-                }
-              });
-      if (exceptions == null) {
-        return null;
-      }
-      final List<Throwable> list = new ArrayList<Throwable>();
-      for (final SerializableThrowable t : exceptions) {
-        list.add(t.t);
-      }
-      return list;
-    } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
-      // this place is dead for the world
-      System.exit(42);
-      throw e;
+    final List<SerializableThrowable> exceptions = ResilientFinishState
+        .execute(
+            id,
+            entry -> {
+              final ResilientFinishState state = entry.getValue();
+              if (state == null || state.deads != null
+                  && state.deads.contains(here)) {
+                // parent finish thinks this place is dead, exit
+                throw new DeadPlaceError();
+              }
+              entry.setValue(null);
+              return state.exceptions;
+            });
+    if (exceptions == null) {
+      return null;
     }
+    final List<Throwable> list = new ArrayList<Throwable>();
+    for (final SerializableThrowable t : exceptions) {
+      list.add(t.t);
+    }
+    return list;
   }
 }
