@@ -12,6 +12,9 @@
 import harness.x10Test;
 import x10.util.Team;
 
+// SKIP_NATIVE_X10 : XTENLANG-3419 X10 implementation of Team.allToAll
+// SKIP_MANAGED_X10 : XTENLANG-3419 X10 implementation of Team.allToAll
+
 /**
  * Unit tests for all-to-all functionality of Team
  */
