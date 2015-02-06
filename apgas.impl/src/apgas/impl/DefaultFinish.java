@@ -229,7 +229,7 @@ final class DefaultFinish implements Serializable, Finish {
   }
 
   @Override
-  public boolean isReleasable() {
+  public synchronized boolean isReleasable() {
     return count == 0;
   }
 
