@@ -35,4 +35,20 @@ public class MultipleException extends RuntimeException {
       addSuppressed(t);
     }
   }
+
+  /**
+   * Returns true if every suppressed exception is a DeadPlaceException.
+   *
+   * @return true if every suppressed exception is a DeadPlaceException
+   */
+  public boolean isDeadPlaceException() {
+    for (final Throwable t : getSuppressed()) {
+      if (t instanceof DeadPlaceException || t instanceof MultipleException
+          && ((MultipleException) t).isDeadPlaceException()) {
+        continue;
+      }
+      return false;
+    }
+    return true;
+  }
 }

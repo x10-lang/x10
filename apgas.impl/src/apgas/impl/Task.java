@@ -18,8 +18,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
+import apgas.DeadPlaceException;
 import apgas.Job;
-import apgas.NoSuchPlaceException;
 import apgas.Place;
 import apgas.SerializableJob;
 
@@ -71,7 +71,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
   public void run() {
     try {
       async(null);
-    } catch (final NoSuchPlaceException e) {
+    } catch (final DeadPlaceException e) {
       // source place has died while task was in transit, discard
     }
   }
@@ -153,7 +153,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
     } catch (final Throwable e) {
       finish.unspawn(p.id);
       if (GlobalRuntimeImpl.getRuntime().serializationException
-          || e instanceof NoSuchPlaceException) {
+          || e instanceof DeadPlaceException) {
         throw e;
       } else {
         final StackTraceElement elm = new Exception().getStackTrace()[3];

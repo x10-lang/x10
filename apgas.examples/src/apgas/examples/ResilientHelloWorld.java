@@ -17,25 +17,9 @@ import java.util.Collection;
 
 import apgas.Configuration;
 import apgas.MultipleException;
-import apgas.NoSuchPlaceException;
 import apgas.Place;
 
 final class ResilientHelloWorld {
-  public static boolean bad(Throwable e) {
-    if (e instanceof NoSuchPlaceException) {
-      return false;
-    }
-    if (e instanceof MultipleException) {
-      for (final Throwable t : e.getSuppressed()) {
-        if (bad(t)) {
-          return true;
-        }
-      }
-      return false;
-    }
-    return true;
-  }
-
   public static void main(String[] args) {
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
     System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
@@ -60,11 +44,11 @@ final class ResilientHelloWorld {
                     + here()))));
           }
         });
-      } catch (final MultipleException | NoSuchPlaceException e) {
-        if (bad(e)) {
+      } catch (final MultipleException e) {
+        if (!e.isDeadPlaceException()) {
           e.printStackTrace();
         } else {
-          System.err.println(ii + ": Ignoring NoSuchPlaceException");
+          System.err.println(ii + ": Ignoring DeadPlaceException");
         }
         try {
           Thread.sleep(2000);

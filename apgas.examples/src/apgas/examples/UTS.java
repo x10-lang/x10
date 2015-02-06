@@ -24,7 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import apgas.Configuration;
 import apgas.GlobalRuntime;
-import apgas.NoSuchPlaceException;
+import apgas.MultipleException;
+import apgas.DeadPlaceException;
 import apgas.Place;
 
 import com.hazelcast.core.Hazelcast;
@@ -258,7 +259,7 @@ final class Worker {
       asyncat(place((here().id + places - 1) % places), () -> {
         uts.lifeline.set(true);
       });
-    } catch (final NoSuchPlaceException e) {
+    } catch (final DeadPlaceException e) {
       // TODO should go to next lifeline, but correct as is
     }
   }
@@ -283,7 +284,7 @@ final class Worker {
       uncountedasyncat(place(p), () -> {
         uts.request(from);
       });
-    } catch (final NoSuchPlaceException e) {
+    } catch (final DeadPlaceException e) {
       // pretend stealing failed
       // TODO should try other place, but ok as is
       synchronized (this) {
@@ -312,7 +313,7 @@ final class Worker {
       uncountedasyncat(p, () -> {
         uts.deal(h, null);
       });
-    } catch (final NoSuchPlaceException e) {
+    } catch (final DeadPlaceException e) {
       // place is dead, nothing to do
     }
   }
@@ -379,7 +380,7 @@ final class Worker {
           asyncat(p, () -> {
             uts.lifelinedeal(b);
           });
-        } catch (final NoSuchPlaceException e) {
+        } catch (final DeadPlaceException e) {
           // thief died, nothing to do
         }
       }
@@ -394,7 +395,7 @@ final class Worker {
         uncountedasyncat(p, () -> {
           uts.deal(h, b);
         });
-      } catch (final NoSuchPlaceException e) {
+      } catch (final DeadPlaceException e) {
         // thief died, nothing to do
       }
     }
@@ -437,10 +438,16 @@ final class UTS {
     System.out.println("Starting...");
     long time = System.nanoTime();
 
-    finish(() -> {
-      Worker.uts.init(19, depth);
-      Worker.uts.run();
-    });
+    try {
+      finish(() -> {
+        Worker.uts.init(19, depth);
+        Worker.uts.run();
+      });
+    } catch (final MultipleException e) {
+      if (!e.isDeadPlaceException()) {
+        throw e;
+      }
+    }
 
     long count = 0;
     // collect all counts

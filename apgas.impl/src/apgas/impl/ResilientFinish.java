@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import apgas.NoSuchPlaceException;
+import apgas.DeadPlaceException;
+import apgas.Place;
 import apgas.util.GlobalID;
 
 /**
@@ -106,7 +107,7 @@ class ResilientFinish implements Serializable, Finish {
       }
       if (state.deads != null && state.deads.contains(p)) {
         // source place has died, refuse task but keep place alive
-        throw new NoSuchPlaceException();
+        throw new DeadPlaceException(new Place(p));
       }
       state.decr(p, here);
       state.incr(here, here);
@@ -124,7 +125,7 @@ class ResilientFinish implements Serializable, Finish {
       }
       if (state.deads != null && state.deads.contains(p)) {
         // destination place has died, reject task
-        throw new NoSuchPlaceException();
+        throw new DeadPlaceException(new Place(p));
       }
       state.incr(here, p);
       return state;
@@ -141,7 +142,7 @@ class ResilientFinish implements Serializable, Finish {
       }
       if (state.deads != null && state.deads.contains(p)) {
         // destination place has died, reject task
-        throw new NoSuchPlaceException();
+        throw new DeadPlaceException(new Place(p));
       }
       state.decr(here, p);
       return state;

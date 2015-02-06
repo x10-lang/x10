@@ -12,12 +12,15 @@
 package apgas.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import apgas.DeadPlaceException;
+import apgas.Place;
 import apgas.util.GlobalID;
 
 import com.hazelcast.core.EntryEvent;
@@ -196,10 +199,17 @@ final class ResilientFinishState implements Serializable {
           return null;
         }
         state.deads.add(p);
-        // TODO synthesize DeadPlaceException
+        final int count = state.counts.size();
         for (int i = 0; i <= state.max; i++) {
           state.clear(p, i);
           state.clear(i, p);
+        }
+        if (state.counts.size() < count) {
+          if (state.exceptions == null) {
+            state.exceptions = new ArrayList<SerializableThrowable>();
+          }
+          state.exceptions.add(new SerializableThrowable(
+              new DeadPlaceException(new Place(p))));
         }
         return state;
       });

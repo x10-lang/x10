@@ -18,7 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import apgas.NoSuchPlaceException;
+import apgas.DeadPlaceException;
+import apgas.Place;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.ExecutorConfig;
@@ -244,7 +245,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
    *          the requested place of execution
    * @param f
    *          the function to execute
-   * @throws NoSuchPlaceException
+   * @throws DeadPlaceException
    *           if the cluster does not contain this place
    */
   void send(int place, SerializableRunnable f) {
@@ -253,7 +254,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
     } else {
       final Member member = map.get(place);
       if (member == null) {
-        throw new NoSuchPlaceException();
+        throw new DeadPlaceException(new Place(place));
       }
       executor.executeOnMember(f, member);
     }

@@ -16,7 +16,7 @@ import java.io.ObjectInputStream;
 import java.util.concurrent.RecursiveAction;
 
 import apgas.SerializableJob;
-import apgas.NoSuchPlaceException;
+import apgas.DeadPlaceException;
 import apgas.Place;
 
 /**
@@ -79,7 +79,7 @@ final class UncountedTask extends RecursiveAction implements
       GlobalRuntimeImpl.getRuntime().transport.send(p.id, this);
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException
-          || e instanceof NoSuchPlaceException) {
+          || e instanceof DeadPlaceException) {
         throw e;
       } else {
         final StackTraceElement elm = new Exception().getStackTrace()[3];

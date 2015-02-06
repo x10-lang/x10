@@ -25,7 +25,7 @@ import org.junit.Test;
 import apgas.Configuration;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
-import apgas.NoSuchPlaceException;
+import apgas.DeadPlaceException;
 import apgas.Place;
 import apgas.util.GlobalRef;
 
@@ -88,7 +88,7 @@ public class ApgasTest {
     place(-1);
   }
 
-  @Test(expected = NoSuchPlaceException.class)
+  @Test(expected = DeadPlaceException.class)
   public void testBadPlaceExceptionAsyncAt() {
     asyncat(new Place(places().size()), () -> {
     });
