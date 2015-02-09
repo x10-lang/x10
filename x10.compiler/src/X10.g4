@@ -428,10 +428,7 @@ interfacesopt returns [List<TypeNode> ast]:
       ('implements' type (',' type)*)?
     ;
 classBody returns [ClassBody ast]:
-      '{' classMemberDeclarationsopt '}'
-    ;
-classMemberDeclarationsopt returns [List<ClassMember> ast]:
-        classMemberDeclaration*
+      '{' classMemberDeclaration* '}'
     ;
 classMemberDeclaration returns [List<ClassMember> ast]:
       interfaceMemberDeclaration     #classMemberDeclaration0

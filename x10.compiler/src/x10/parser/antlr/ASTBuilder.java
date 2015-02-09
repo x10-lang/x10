@@ -3,6 +3,7 @@ package x10.parser.antlr;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.Character.UnicodeScript;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.antlr.v4.runtime.DiagnosticErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
@@ -26,9 +28,13 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.Assert;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
+import polyglot.ast.Branch;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
@@ -36,32 +42,44 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Do;
+import polyglot.ast.Empty;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.FloatLit;
+import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.If;
 import polyglot.ast.Import;
 import polyglot.ast.IntLit;
+import polyglot.ast.Labeled;
+import polyglot.ast.Lit;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Loop;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
+import polyglot.ast.Switch;
 import polyglot.ast.SwitchElement;
+import polyglot.ast.Throw;
 import polyglot.ast.TopLevelDecl;
+import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.IntLit.Kind;
 import polyglot.ast.Unary.Operator;
+import polyglot.ast.While;
 import polyglot.frontend.FileSource;
 import polyglot.lex.BooleanLiteral;
 import polyglot.lex.CharacterLiteral;
@@ -72,6 +90,7 @@ import polyglot.parse.ParsedName;
 import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
@@ -82,17 +101,29 @@ import polyglot.util.TypedList;
 import x10.X10CompilerOptions;
 import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
+import x10.ast.Async;
 import x10.ast.AtExpr;
+import x10.ast.AtStmt;
+import x10.ast.Atomic;
+import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
+import x10.ast.Finish;
+import x10.ast.FinishExpr;
+import x10.ast.HasZeroTest;
+import x10.ast.IsRefTest;
+import x10.ast.Offer;
 import x10.ast.PropertyDecl;
 import x10.ast.SettableAssign;
+import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
+import x10.ast.When;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Formal;
+import x10.ast.X10Loop;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
 import x10.parser.X10Parsersym;
@@ -173,7 +204,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     // Utility functions
-    
+
     /** Returns the position of a given parse tree node. */
     protected Position pos(ParserRuleContext ctx) {
         int line = ctx.getStart().getLine();
@@ -232,29 +263,2020 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
 
-    // Check that the argument is not null are build a dummy node of the correct type.
+    // Build dummy node in case of errors
 
     private Id errorId(Position p) {
         return (Id) nf.Id(p, "*").error(true);
-        
+
     }
 
-    private Expr errorExpression(Position p) {
+    private ParsedName errorParsedName(Position p) {
+        return new ParsedName(nf, ts, p, errorId(p));
+    }
+
+    private Expr errorExpr(Position p) {
         return (Expr) nf.NullLit(p).error(true);
     }
-    private TypeNode check(Position p, TypeNode ast) {
-        if (ast == null) {
-            return (TypeNode) nf.AmbTypeNode(p, nf.Id(p, "Any")).error(true);
-        } 
-        return ast;
+
+    private Stmt errorStmt(Position p) {
+        return (Stmt) nf.Empty(p).error(true);
     }
 
-    private List<ClassMember> check(Position p, List<ClassMember> ast) {
-        if (ast == null) {
-            return new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        }
-        return ast;
+    private Block errorBlock(Position p) {
+        return (Block) nf.Block(p).error(true);
     }
+
+    private X10Formal errorFormal(Position p) {
+        return (X10Formal) nf.Formal(p, null, errorTypeNode(p), errorId(p)).error(true);
+    }
+
+    private AmbTypeNode errorAmbTypeNode(Position p) {
+        return (AmbTypeNode) nf.AmbTypeNode(p, nf.Id(p, "Any")).error(true);
+    }
+
+    private TypeNode errorTypeNode(Position p) {
+        return errorAmbTypeNode(p);
+    }
+
+    private TypeDecl errorTypeDecl(Position p) {
+        return (TypeDecl) nf.TypeDecl(p, null, errorId(p), null, null, null, null).error(true);
+    }
+
+    private TypeParamNode errorTypeParamNode(Position p) {
+        return (TypeParamNode) nf.TypeParamNode(p, errorId(p)).error(true);
+    }
+
+    private ClassDecl errorClassDecl (Position p) {
+        return (ClassDecl) nf.ClassDecl(p, null, errorId(p), errorTypeNode(p), new ArrayList<TypeNode>(), errorClassBody(p)).error(true);
+    }
+
+    private ClassBody errorClassBody(Position p) {
+        return (ClassBody) nf.ClassBody(p, new ArrayList<ClassMember>()).error(true);
+    }
+    private DepParameterExpr errorDepParameterExpr(Position p) {
+        return (DepParameterExpr) nf.DepParameterExpr(p, new ArrayList<Expr>());
+    }
+
+    private MethodDecl errorMethodDecl(Position p) {
+        return (MethodDecl) nf.MethodDecl(p, null, errorTypeNode(p), errorId(p), new ArrayList<Formal>(), errorBlock(p)).error(true);
+    }
+
+
+    // Access to the ast field
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Modifier>} is returned.
+     */
+    private List<Modifier> ast(ModifiersoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Modifier> l = new TypedList<Modifier>(new LinkedList<Modifier>(), Modifier.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Modifier} is returned.
+     */
+    private Modifier ast(ModifierContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Modifier>} is returned.
+     */
+    private List<Modifier> ast(MethodModifiersoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Modifier> l = new TypedList<Modifier>(new LinkedList<Modifier>(), Modifier.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Modifier} is returned.
+     */
+    private Modifier ast(MethodModifierContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeDecl} is returned.
+     */
+    private TypeDecl ast(TypeDefDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<PropertyDecl>} is returned.
+     */
+    private List<PropertyDecl> ast(PropertiesoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<PropertyDecl> l = new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code PropertyDecl} is returned.
+     */
+    private PropertyDecl ast(PropertyContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            PropertyDecl n = nf.PropertyDecl(p, null, errorTypeNode(p), errorId(p));
+            return (PropertyDecl) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ProcedureDecl} is returned.
+     */
+    private ProcedureDecl ast(MethodDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(BinaryOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(PrefixOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(ApplyOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(SetOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(ConversionOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(ExplicitConversionOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(ImplicitConversionOperatorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private MethodDecl ast(PropertyMethodDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ConstructorCall} is returned.
+     */
+    private ConstructorCall ast(ExplicitConstructorInvocationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            ConstructorCall n = nf.ConstructorCall(p, ConstructorCall.THIS, new ArrayList<Expr>());
+            return (ConstructorCall) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
+     */
+    private ClassDecl ast(InterfaceDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorClassDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(AssignPropertyCallContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(TypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(FunctionTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(ClassTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(ConstrainedTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code CanonicalTypeNode} is returned.
+     */
+    private CanonicalTypeNode ast(Void_Context ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            CanonicalTypeNode n = nf.CanonicalTypeNode(pos(ctx), ts.Void());
+            return (CanonicalTypeNode) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
+     */
+    private AmbTypeNode ast(SimpleNamedTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorAmbTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
+     */
+    private AmbTypeNode ast(ParameterizedNamedTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorAmbTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(DepNamedTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(NamedTypeNoConstraintsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(NamedTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code DepParameterExpr} is returned.
+     */
+    private DepParameterExpr ast(DepParametersContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorDepParameterExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
+     */
+    private List<TypeParamNode> ast(TypeParamsWithVarianceoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
+     */
+    private List<TypeParamNode> ast(TypeParametersoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
+     */
+    private List<Formal> ast(FormalParametersContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ConstraintConjunctionoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code HasZeroTest} is returned.
+     */
+    private HasZeroTest ast(HasZeroConstraintContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            HasZeroTest n = nf.HasZeroTest(p, errorTypeNode(p));
+            return (HasZeroTest) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code IsRefTest} is returned.
+     */
+    private IsRefTest ast(IsRefConstraintContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            IsRefTest n = nf.IsRefTest(p, errorTypeNode(p));
+            return (IsRefTest) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code SubtypeTest} is returned.
+     */
+    private SubtypeTest ast(SubtypeConstraintContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            SubtypeTest n = nf.SubtypeTest(pos(ctx), errorTypeNode(p), errorTypeNode(p), false);
+            return (SubtypeTest) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code DepParameterExpr} is returned ({@code ctx.ast} can be null).
+     */
+    private DepParameterExpr ast(WhereClauseoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorDepParameterExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
+     */
+    private ClassDecl ast(ClassDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorClassDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
+     */
+    private ClassDecl ast(StructDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorClassDecl(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ConstructorDecl} is returned.
+     */
+    private ConstructorDecl ast(ConstructorDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            ConstructorDecl n = nf.ConstructorDecl(p, null, errorId(p), new ArrayList<Formal>(), errorBlock(p));
+            return (ConstructorDecl) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
+     */
+    private TypeNode ast(SuperExtendsoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code List<FlagsNode>} is returned ({@code ctx.ast} can be null).
+     */
+    private List<FlagsNode> ast(VarKeywordContext ctx) {
+        if (ctx == null) {
+            List<FlagsNode> l = new TypedList<FlagsNode>(new LinkedList<FlagsNode>(), FlagsNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
+     */
+    private List<ClassMember> ast(FieldDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(StatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(AnnotationStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(NonExpressionStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Offer} is returned.
+     */
+    private Offer ast(OBSOLETE_OfferStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Offer n = nf.Offer(p, errorExpr(p));
+            return (Offer) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code If} is returned.
+     */
+    private If ast(IfThenStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            If n = nf.If(p, errorExpr(p), errorStmt(p));
+            return (If) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Empty} is returned.
+     */
+    private Empty ast(EmptyStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Empty n = nf.Empty(p);
+            return (Empty) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Labeled} is returned.
+     */
+    private Labeled ast(LabeledStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Labeled n = nf.Labeled(p, errorId(p), errorStmt(p));
+            return (Labeled) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(LoopStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Eval} is returned.
+     */
+    private Eval ast(ExpressionStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Eval n = nf.Eval(p, errorExpr(p));
+            return (Eval) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Assert} is returned.
+     */
+    private Assert ast(AssertStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Assert n = nf.Assert(p, errorExpr(p));
+            return (Assert) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Switch} is returned.
+     */
+    private Switch ast(SwitchStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Switch n = nf.Switch(p, errorExpr(p), new ArrayList<SwitchElement>());
+            return (Switch) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
+     */
+    private List<SwitchElement> ast(SwitchBlockContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
+     */
+    private List<SwitchElement> ast(SwitchBlockStatementGroupsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
+     */
+    private List<SwitchElement> ast(SwitchBlockStatementGroupContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Case>} is returned.
+     */
+    private List<Case> ast(SwitchLabelsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Case>} is returned.
+     */
+    private List<Case> ast(SwitchLabelsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Case} is returned.
+     */
+    private Case ast(SwitchLabelContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Case n = nf.Case(p, errorExpr(p));
+            return (Case) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code While} is returned.
+     */
+    private While ast(WhileStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            While n = nf.While(p, errorExpr(p), errorStmt(p));
+            return (While) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Do} is returned.
+     */
+    private Do ast(DoStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Do n = nf.Do(p, errorStmt(p), errorExpr(p));
+            return (Do) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Loop} is returned.
+     */
+    private Loop ast(ForStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Loop n = nf.Do(p, errorStmt(p), errorExpr(p));
+            return (Loop) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code For} is returned.
+     */
+    private For ast(BasicForStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            For n = nf.For(p, new ArrayList<ForInit>(), errorExpr(p), new ArrayList<ForUpdate>(), errorStmt(p));
+            return (For) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForInit>} is returned.
+     */
+    private List<? extends ForInit> ast(ForInitContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<? extends ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForUpdate>} is returned.
+     */
+    private List<? extends ForUpdate> ast(ForUpdateContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<? extends ForUpdate> l = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends Eval>} is returned.
+     */
+    private List<? extends Eval> ast(StatementExpressionListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<? extends Eval> l = new TypedList<Eval>(new LinkedList<Eval>(), Eval.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Branch} is returned.
+     */
+    private Branch ast(BreakStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Branch n = nf.Break(p);
+            return (Branch) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Branch} is returned.
+     */
+    private Branch ast(ContinueStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Branch n = nf.Continue(p);
+            return (Branch) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Return} is returned.
+     */
+    private Return ast(ReturnStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Return n = nf.Return(p);
+            return (Return) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Throw} is returned.
+     */
+    private Throw ast(ThrowStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Throw n = nf.Throw(p, errorExpr(p));
+            return (Throw) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Try} is returned.
+     */
+    private Try ast(TryStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Try n = nf.Try(p, errorBlock(p), new ArrayList<Catch>());
+            return (Try) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Catch>} is returned.
+     */
+    private List<Catch> ast(CatchesContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Catch} is returned.
+     */
+    private Catch ast(CatchClauseContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Catch n = nf.Catch(p, errorFormal(p), errorBlock(p));
+            return (Catch) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
+     */
+    private Block ast(FinallyBlockContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ClockedClauseoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Async} is returned.
+     */
+    private Async ast(AsyncStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Async n = nf.Async(p, errorStmt(p), false);
+            return (Async) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AtStmt} is returned.
+     */
+    private AtStmt ast(AtStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            AtStmt n = nf.AtStmt(p, errorExpr(p), errorStmt(p));
+            return (AtStmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Atomic} is returned.
+     */
+    private Atomic ast(AtomicStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Atomic n = nf.Atomic(p, errorExpr(p), errorStmt(p));
+            return (Atomic) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code When} is returned.
+     */
+    private When ast(WhenStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            When n = nf.When(p, errorExpr(p), errorStmt(p));
+            return (When) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Loop} is returned.
+     */
+    private X10Loop ast(AtEachStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            X10Loop n = nf.AtEach(p, errorFormal(p), errorExpr(p), errorStmt(p));
+            return (X10Loop) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Loop} is returned.
+     */
+    private X10Loop ast(EnhancedForStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            X10Loop n = nf.ForLoop(p, errorFormal(p), errorExpr(p), errorStmt(p));
+            return (X10Loop) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Finish} is returned.
+     */
+    private Finish ast(FinishStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Finish n = nf.Finish(p, errorStmt(p), false);
+            return (Finish) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(CastExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
+     */
+    private List<TypeParamNode> ast(TypeParamWithVarianceListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
+     */
+    private List<TypeParamNode> ast(TypeParameterListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeParamNode} is returned.
+     */
+    private TypeParamNode ast(OBSOLETE_TypeParamWithVarianceContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeParamNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeParamNode} is returned.
+     */
+    private TypeParamNode ast(TypeParameterContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeParamNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Closure} is returned.
+     */
+    private Closure ast(ClosureExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Closure n = nf.Closure(p, new ArrayList<Formal>(), errorDepParameterExpr(p), errorTypeNode(p), errorBlock(p));
+            return (Closure) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Return} is returned.
+     */
+    private Return ast(LastExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Return n = nf.Return(p);
+            return (Return) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
+     */
+    private Block ast(ClosureBodyContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AtExpr} is returned.
+     */
+    private AtExpr ast(AtExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            AtExpr n = nf.AtExpr(p, errorExpr(p), errorBlock(p));
+            return (AtExpr) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code FinishExpr} is returned.
+     */
+    private FinishExpr ast(OBSOLETE_FinishExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            FinishExpr n = nf.FinishExpr(p, errorExpr(p), errorStmt(p));
+            return (FinishExpr) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(TypeNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(ClassNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
+     */
+    private List<TypeNode> ast(TypeArgumentsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(PackageNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(ExpressionNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(MethodNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(PackageOrTypeNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
+     */
+    private ParsedName ast(FullyQualifiedNameContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorParsedName(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code SourceFile} is returned.
+     */
+    private SourceFile ast(CompilationUnitContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            SourceFile n = nf.SourceFile(p, new ArrayList<TopLevelDecl>());
+            return (SourceFile) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code PackageNode} is returned.
+     */
+    private PackageNode ast(PackageDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            PackageNode n = nf.PackageNode(p, null);
+            return (PackageNode) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Import>} is returned.
+     */
+    private List<Import> ast(ImportDeclarationsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Import} is returned.
+     */
+    private Import ast(ImportDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Import n = nf.Import(p, Import.CLASS, QName.make("*"));
+            return (Import) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TopLevelDecl>} is returned.
+     */
+    private List<TopLevelDecl> ast(TypeDeclarationsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TopLevelDecl} is returned ({@code ctx.ast} can be null).
+     */
+    private TopLevelDecl ast(TypeDeclarationContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            TopLevelDecl n = errorTypeDecl(p);
+            return (TopLevelDecl) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
+     */
+    private List<TypeNode> ast(InterfacesoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassBody} is returned.
+     */
+    private ClassBody ast(ClassBodyContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            ClassBody n = nf.ClassBody(p, new ArrayList<ClassMember>());
+            return (ClassBody) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
+     */
+    private List<ClassMember> ast(ClassMemberDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
+     */
+    private List<Object[]> ast(FormalDeclaratorsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
+     */
+    private List<Object[]> ast(FieldDeclaratorsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
+     */
+    private List<Object[]> ast(VariableDeclaratorsWithTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
+     */
+    private List<Object[]> ast(VariableDeclaratorsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(VariableInitializerContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(ResultTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
+     */
+    private TypeNode ast(HasResultTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
+     */
+    private List<Formal> ast(FormalParameterListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
+     */
+    private Object[] ast(LoopIndexDeclaratorContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, null, null };
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Formal} is returned.
+     */
+    private X10Formal ast(LoopIndexContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorFormal(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Formal} is returned.
+     */
+    private X10Formal ast(FormalParameterContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorFormal(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
+     */
+    private TypeNode ast(OBSOLETE_OffersoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
+     */
+    private List<TypeNode> ast(ThrowsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Block} is returned ({@code ctx.ast} can be null).
+     */
+    private Block ast(MethodBodyContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Block} is returned ({@code ctx.ast} can be null).
+     */
+    private Block ast(ConstructorBodyContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
+     */
+    private Block ast(ConstructorBlockContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ArgumentsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
+     */
+    private List<TypeNode> ast(ExtendsInterfacesoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassBody} is returned.
+     */
+    private ClassBody ast(InterfaceBodyContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorClassBody(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
+     */
+    private List<ClassMember> ast(InterfaceMemberDeclarationsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
+     */
+    private List<ClassMember> ast(InterfaceMemberDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<AnnotationNode>} is returned.
+     */
+    private List<AnnotationNode> ast(AnnotationsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<AnnotationNode>} is returned.
+     */
+    private List<AnnotationNode> ast(AnnotationsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AnnotationNode} is returned.
+     */
+    private AnnotationNode ast(AnnotationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            AnnotationNode n = nf.AnnotationNode(p, errorTypeNode(p));
+            return (AnnotationNode) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Id} is returned.
+     */
+    private Id ast(IdentifierContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorId(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
+     */
+    private Block ast(BlockContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
+     */
+    private List<Stmt> ast(BlockStatementsContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
+     */
+    private List<Stmt> ast(BlockInteriorStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Id>} is returned.
+     */
+    private List<Id> ast(IdentifierListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
+     */
+    private Object[] ast(FormalDeclaratorContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), null };
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
+     */
+    private Object[] ast(FieldDeclaratorContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorExpr(p) };
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
+     */
+    private Object[] ast(VariableDeclaratorContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
+     */
+    private Object[] ast(VariableDeclaratorWithTypeContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
+            return n;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
+     */
+    private List<Stmt> ast(LocalVariableDeclarationStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<LocalDecl>} is returned.
+     */
+    private List<LocalDecl> ast(LocalVariableDeclarationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(PrimaryContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Lit} is returned.
+     */
+    private Lit ast(LiteralContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Lit n = nf.NullLit(p);
+            return (Lit) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code BooleanLit} is returned.
+     */
+    private BooleanLit ast(BooleanLiteralContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            BooleanLit n = nf.BooleanLit(p, false);
+            return (BooleanLit) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ArgumentListContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Field} is returned.
+     */
+    private Field ast(FieldAccessContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Field n = nf.Field(p, null, errorId(p));
+            return (Field) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(ConditionalExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(AssignmentExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(AssignmentContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(LeftHandSideContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Assign} is returned.
+     */
+    private Assign.Operator ast(AssignmentOperatorContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return Assign.ASSIGN;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(ExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private Expr ast(ConstantExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Unary} is returned.
+     */
+    private Unary.Operator ast(PrefixOpContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return Unary.POS;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Binary} is returned.
+     */
+    private Binary.Operator ast(BinOpContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return Binary.EQ;
+        }
+        return ctx.ast;
+    }
+
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
+     */
+    private TypeNode ast(HasResultTypeoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorTypeNode(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
+     */
+    private List<TypeNode> ast(TypeArgumentsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ArgumentListoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
+     */
+    private List<Expr> ast(ArgumentsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Id} is returned ({@code ctx.ast} can be null).
+     */
+    private Id ast(IdentifieroptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorId(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForInit>} is returned.
+     */
+    private List<? extends ForInit> ast(ForInitoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<? extends ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForUpdate>} is returned.
+     */
+    private List<? extends ForUpdate> ast(ForUpdateoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<? extends ForUpdate> l = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Expr} is returned ({@code ctx.ast} can be null).
+     */
+    private Expr ast(ExpressionoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Catch>} is returned.
+     */
+    private List<Catch> ast(CatchesoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
+     */
+    private List<Stmt> ast(BlockStatementsoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code ClassBody} is returned ({@code ctx.ast} can be null).
+     */
+    private ClassBody ast(ClassBodyoptContext ctx) {
+        if (ctx == null) {
+            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorClassBody(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
+     */
+    private List<Formal> ast(FormalParameterListoptContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+            return l;
+        }
+        return ctx.ast;
+    }
+
+
+
 
     // Temporary classes used to wrap modifiers.
 
@@ -826,113 +2848,113 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     // Grammar actions
 
 
-    /** Production: modifiersopt ::= modifier*    (#modifiersopt) */
+    /** Production: modifiersopt ::= modifier* (#modifiersopt) */
     @Override
     public void exitModifiersopt(ModifiersoptContext ctx) {
         List<Modifier> l = new LinkedList<Modifier>();
         for (ModifierContext m : ctx.modifier()) {
-            l.add(m.ast);
+            l.add(ast(m));
         }
         ctx.ast = l;
     }
 
-    /** Production: modifier ::= 'abstract'    (#modifierAbstract) */
+    /** Production: modifier ::= 'abstract' (#modifierAbstract) */
     @Override
     public void exitModifierAbstract(ModifierAbstractContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
     }
 
-    /** Production: modifier ::= annotation    (#modifierAnnotation) */
+    /** Production: modifier ::= annotation (#modifierAnnotation) */
     @Override
     public void exitModifierAnnotation(ModifierAnnotationContext ctx) {
-        ctx.ast = new AnnotationModifier(ctx.annotation().ast);
+        ctx.ast = new AnnotationModifier(ast(ctx.annotation()));
     }
 
-    /** Production: modifier ::= 'atomic'    (#modifierAtomic) */
+    /** Production: modifier ::= 'atomic' (#modifierAtomic) */
     @Override
     public void exitModifierAtomic(ModifierAtomicContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.ATOMIC);
     }
 
-    /** Production: modifier ::= 'final'    (#modifierFinal) */
+    /** Production: modifier ::= 'final' (#modifierFinal) */
     @Override
     public void exitModifierFinal(ModifierFinalContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.FINAL);
     }
 
-    /** Production: modifier ::= 'native'    (#modifierNative) */
+    /** Production: modifier ::= 'native' (#modifierNative) */
     @Override
     public void exitModifierNative(ModifierNativeContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.NATIVE);
     }
 
-    /** Production: modifier ::= 'private'    (#modifierPrivate) */
+    /** Production: modifier ::= 'private' (#modifierPrivate) */
     @Override
     public void exitModifierPrivate(ModifierPrivateContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PRIVATE);
     }
 
-    /** Production: modifier ::= 'protected'    (#modifierProtected) */
+    /** Production: modifier ::= 'protected' (#modifierProtected) */
     @Override
     public void exitModifierProtected(ModifierProtectedContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PROTECTED);
     }
 
-    /** Production: modifier ::= 'public'    (#modifierPublic) */
+    /** Production: modifier ::= 'public' (#modifierPublic) */
     @Override
     public void exitModifierPublic(ModifierPublicContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PUBLIC);
     }
 
-    /** Production: modifier ::= 'static'    (#modifierStatic) */
+    /** Production: modifier ::= 'static' (#modifierStatic) */
     @Override
     public void exitModifierStatic(ModifierStaticContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.STATIC);
     }
 
-    /** Production: modifier ::= 'transient'    (#modifierTransient) */
+    /** Production: modifier ::= 'transient' (#modifierTransient) */
     @Override
     public void exitModifierTransient(ModifierTransientContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.TRANSIENT);
     }
 
-    /** Production: modifier ::= 'clocked'    (#modifierClocked) */
+    /** Production: modifier ::= 'clocked' (#modifierClocked) */
     @Override
     public void exitModifierClocked(ModifierClockedContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.CLOCKED);
     }
 
-    /** Production: methodModifiersopt ::= methodModifier*    (#methodModifiersopt) */
+    /** Production: methodModifiersopt ::= methodModifier* (#methodModifiersopt) */
     @Override
     public void exitMethodModifiersopt(MethodModifiersoptContext ctx) {
         List<Modifier> l = new LinkedList<Modifier>();
         for (MethodModifierContext m : ctx.methodModifier()) {
-            l.add(m.ast);
+            l.add(ast(m));
         }
         ctx.ast = l;
     }
 
-    /** Production: methodModifier ::= modifier    (#methodModifierModifier) */
+    /** Production: methodModifier ::= modifier (#methodModifierModifier) */
     @Override
     public void exitMethodModifierModifier(MethodModifierModifierContext ctx) {
-        ctx.ast = ctx.modifier().ast;
+        ctx.ast = ast(ctx.modifier());
     }
 
-    /** Production: methodModifier ::= 'property'    (#methodModifierProperty) */
+    /** Production: methodModifier ::= 'property' (#methodModifierProperty) */
     @Override
     public void exitMethodModifierProperty(MethodModifierPropertyContext ctx) {
         ctx.ast = new FlagModifier(pos(ctx), FlagModifier.PROPERTY);
     }
 
-    /** Production: typeDefDeclaration ::= modifiersopt 'type' identifier typeParametersopt ('(' formalParameterList ')')? whereClauseopt '=' type ';'    (#typeDefDeclaration) */
+    /** Production: typeDefDeclaration ::= modifiersopt 'type' identifier typeParametersopt ('(' formalParameterList ')')? whereClauseopt '=' type ';' (#typeDefDeclaration) */
     @Override
     public void exitTypeDefDeclaration(TypeDefDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameterList = ctx.formalParameterList() == null ? new ArrayList<Formal>() : ctx.formalParameterList().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode Type = ctx.type().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameterList = ctx.formalParameterList() == null ? new ArrayList<Formal>() : ast(ctx.formalParameterList());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode Type = ast(ctx.type());
         List<Node> modifiers = checkTypeDefModifiers(Modifiersopt);
         FlagsNode f = extractFlags(modifiers);
         List<AnnotationNode> annotations = extractAnnotations(modifiers);
@@ -950,40 +2972,43 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    /** Production: propertiesopt ::= ('(' property (',' property)* ')')?    (#propertiesopt) */
+    /** Production: propertiesopt ::= ('(' property (',' property)* ')')? (#propertiesopt) */
     @Override
     public void exitPropertiesopt(PropertiesoptContext ctx) {
         List<PropertyDecl> l = new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false);
         for (PropertyContext e : ctx.property()) {
-            l.add(e.ast);
+            l.add(ast(e));
         }
         ctx.ast = l;
     }
 
-    /** Production: property ::= annotationsopt identifier resultType    (#property) */
+    /** Production: property ::= annotationsopt identifier resultType (#property) */
     @Override
     public void exitProperty(PropertyContext ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        TypeNode ResultType = ctx.resultType().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        Id Identifier = ast(ctx.identifier());
+        TypeNode ResultType = ast(ctx.resultType());
         List<AnnotationNode> annotations = extractAnnotations(Annotationsopt);
         PropertyDecl cd = nf.PropertyDecl(pos(ctx), nf.FlagsNode(pos(ctx), Flags.PUBLIC.Final()), ResultType, Identifier);
         cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
         ctx.ast = cd;
     }
 
-    /** Production: methodDeclaration ::= methodModifiersopt 'def' identifier typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#methodDeclarationMethod) */
+    /**
+     * Production: methodDeclaration ::= methodModifiersopt 'def' identifier typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt
+     * methodBody (#methodDeclarationMethod)
+     */
     @Override
     public void exitMethodDeclarationMethod(MethodDeclarationMethodContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> Throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> Throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
         ProcedureDecl pd = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
@@ -992,49 +3017,52 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = pd;
     }
 
-    /** Production: methodDeclaration ::= binaryOperatorDeclaration    (#methodDeclarationBinaryOp) */
+    /** Production: methodDeclaration ::= binaryOperatorDeclaration (#methodDeclarationBinaryOp) */
     @Override
     public void exitMethodDeclarationBinaryOp(MethodDeclarationBinaryOpContext ctx) {
-        ctx.ast = ctx.binaryOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.binaryOperatorDeclaration());
     }
 
-    /** Production: methodDeclaration ::= prefixOperatorDeclaration    (#methodDeclarationPrefixOp) */
+    /** Production: methodDeclaration ::= prefixOperatorDeclaration (#methodDeclarationPrefixOp) */
     @Override
     public void exitMethodDeclarationPrefixOp(MethodDeclarationPrefixOpContext ctx) {
-        ctx.ast = ctx.prefixOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.prefixOperatorDeclaration());
     }
 
-    /** Production: methodDeclaration ::= applyOperatorDeclaration    (#methodDeclarationApplyOp) */
+    /** Production: methodDeclaration ::= applyOperatorDeclaration (#methodDeclarationApplyOp) */
     @Override
     public void exitMethodDeclarationApplyOp(MethodDeclarationApplyOpContext ctx) {
-        ctx.ast = ctx.applyOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.applyOperatorDeclaration());
     }
 
-    /** Production: methodDeclaration ::= setOperatorDeclaration    (#methodDeclarationSetOp) */
+    /** Production: methodDeclaration ::= setOperatorDeclaration (#methodDeclarationSetOp) */
     @Override
     public void exitMethodDeclarationSetOp(MethodDeclarationSetOpContext ctx) {
-        ctx.ast = ctx.setOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.setOperatorDeclaration());
     }
 
-    /** Production: methodDeclaration ::= conversionOperatorDeclaration    (#methodDeclarationConversionOp) */
+    /** Production: methodDeclaration ::= conversionOperatorDeclaration (#methodDeclarationConversionOp) */
     @Override
     public void exitMethodDeclarationConversionOp(MethodDeclarationConversionOpContext ctx) {
-        ctx.ast = ctx.conversionOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.conversionOperatorDeclaration());
     }
 
-    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDecl) */
+    /**
+     * Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt
+     * oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody (#binaryOperatorDecl)
+     */
     @Override
     public void exitBinaryOperatorDecl(BinaryOperatorDeclContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        X10Formal fp1 = ctx.fp1.ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
-        X10Formal fp2 = ctx.fp2.ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        X10Formal fp1 = ast(ctx.fp1);
+        Binary.Operator BinOp = ast(ctx.binOp());
+        X10Formal fp2 = ast(ctx.fp2);
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
@@ -1053,18 +3081,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt 'this' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDeclThisLeft) */
+    /**
+     * Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt 'this' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt
+     * throwsopt hasResultTypeopt methodBody (#binaryOperatorDeclThisLeft)
+     */
     @Override
     public void exitBinaryOperatorDeclThisLeft(BinaryOperatorDeclThisLeftContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
-        X10Formal fp2 = ctx.fp2.ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        Binary.Operator BinOp = ast(ctx.binOp());
+        X10Formal fp2 = ast(ctx.fp2);
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
@@ -1083,18 +3114,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#binaryOperatorDeclThisRight) */
+    /**
+     * Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp 'this' whereClauseopt oBSOLETE_Offersopt
+     * throwsopt hasResultTypeopt methodBody (#binaryOperatorDeclThisRight)
+     */
     @Override
     public void exitBinaryOperatorDeclThisRight(BinaryOperatorDeclThisRightContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        X10Formal fp1 = ctx.fp1.ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        X10Formal fp1 = ast(ctx.fp1);
+        Binary.Operator BinOp = ast(ctx.binOp());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
@@ -1114,18 +3148,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#prefixOperatorDecl) */
+    /**
+     * Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt
+     * hasResultTypeopt methodBody (#prefixOperatorDecl)
+     */
     @Override
     public void exitPrefixOperatorDecl(PrefixOperatorDeclContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        Unary.Operator PrefixOp = ctx.prefixOp().ast;
-        X10Formal fp2 = ctx.formalParameter().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        Unary.Operator PrefixOp = ast(ctx.prefixOp());
+        X10Formal fp2 = ast(ctx.formalParameter());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Unary_c.unaryMethodName(PrefixOp);
         if (opName == null) {
@@ -1144,17 +3181,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#prefixOperatorDeclThis) */
+    /**
+     * Production: prefixOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt prefixOp 'this' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt
+     * methodBody (#prefixOperatorDeclThis)
+     */
     @Override
     public void exitPrefixOperatorDeclThis(PrefixOperatorDeclThisContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        Unary.Operator PrefixOp = ctx.prefixOp().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        Unary.Operator PrefixOp = ast(ctx.prefixOp());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Unary_c.unaryMethodName(PrefixOp);
         if (opName == null) {
@@ -1173,17 +3213,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: applyOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#applyOperatorDeclaration) */
+    /**
+     * Production: applyOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt
+     * methodBody (#applyOperatorDeclaration)
+     */
     @Override
     public void exitApplyOperatorDeclaration(ApplyOperatorDeclarationContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
@@ -1197,18 +3240,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: setOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters '=' '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#setOperatorDeclaration) */
+    /**
+     * Production: setOperatorDeclaration ::= methodModifiersopt 'operator' 'this' typeParametersopt formalParameters '=' '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt
+     * throwsopt hasResultTypeopt methodBody (#setOperatorDeclaration)
+     */
     @Override
     public void exitSetOperatorDeclaration(SetOperatorDeclarationContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        X10Formal fp2 = ctx.formalParameter().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        X10Formal fp2 = ast(ctx.formalParameter());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
@@ -1223,29 +3269,32 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: conversionOperatorDeclaration ::= explicitConversionOperatorDeclaration    (#conversionOperatorDeclarationExplicit) */
+    /** Production: conversionOperatorDeclaration ::= explicitConversionOperatorDeclaration (#conversionOperatorDeclarationExplicit) */
     @Override
     public void exitConversionOperatorDeclarationExplicit(ConversionOperatorDeclarationExplicitContext ctx) {
-        ctx.ast = ctx.explicitConversionOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.explicitConversionOperatorDeclaration());
     }
 
-    /** Production: conversionOperatorDeclaration ::= implicitConversionOperatorDeclaration    (#conversionOperatorDeclarationImplicit) */
+    /** Production: conversionOperatorDeclaration ::= implicitConversionOperatorDeclaration (#conversionOperatorDeclarationImplicit) */
     @Override
     public void exitConversionOperatorDeclarationImplicit(ConversionOperatorDeclarationImplicitContext ctx) {
-        ctx.ast = ctx.implicitConversionOperatorDeclaration().ast;
+        ctx.ast = ast(ctx.implicitConversionOperatorDeclaration());
     }
 
-    /** Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' type whereClauseopt oBSOLETE_Offersopt throwsopt methodBody    (#explicitConversionOperatorDecl0) */
+    /**
+     * Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' type whereClauseopt oBSOLETE_Offersopt
+     * throwsopt methodBody (#explicitConversionOperatorDecl0)
+     */
     @Override
     public void exitExplicitConversionOperatorDecl0(ExplicitConversionOperatorDecl0Context ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        X10Formal fp1 = ctx.formalParameter().ast;
-        TypeNode Type = ctx.type().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        X10Formal fp1 = ast(ctx.formalParameter());
+        TypeNode Type = ast(ctx.type());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), Type, nf.Id(pos(ctx), Converter.operator_as), TypeParametersopt,
                 Collections.<Formal> singletonList(fp1), WhereClauseopt, OBSOLETE_Offersopt, throwsopt, MethodBody);
@@ -1258,17 +3307,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' '?' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#explicitConversionOperatorDecl1) */
+    /**
+     * Production: explicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' 'as' '?' whereClauseopt oBSOLETE_Offersopt
+     * throwsopt hasResultTypeopt methodBody (#explicitConversionOperatorDecl1)
+     */
     @Override
     public void exitExplicitConversionOperatorDecl1(ExplicitConversionOperatorDecl1Context ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        X10Formal fp1 = ctx.formalParameter().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        X10Formal fp1 = ast(ctx.formalParameter());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
@@ -1282,17 +3334,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: implicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody    (#implicitConversionOperatorDeclaration) */
+    /**
+     * Production: implicitConversionOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt
+     * hasResultTypeopt methodBody (#implicitConversionOperatorDeclaration)
+     */
     @Override
     public void exitImplicitConversionOperatorDeclaration(ImplicitConversionOperatorDeclarationContext ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        X10Formal fp1 = ctx.formalParameter().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> throwsopt = ctx.throwsopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        X10Formal fp1 = ast(ctx.formalParameter());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> throwsopt = ast(ctx.throwsopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
@@ -1307,16 +3362,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody    (#propertyMethodDecl0) */
+    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody (#propertyMethodDecl0) */
     @Override
     public void exitPropertyMethodDecl0(PropertyMethodDecl0Context ctx) {
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers, Flags.PROPERTY), HasResultTypeopt == null ? nf.UnknownTypeNode(pos(ctx).markCompilerGenerated())
                 : HasResultTypeopt, Identifier, TypeParametersopt, FormalParameters, WhereClauseopt, null, // offersOpt
@@ -1325,15 +3380,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody    (#propertyMethodDecl1) */
+    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody (#propertyMethodDecl1) */
     @Override
     public void exitPropertyMethodDecl1(PropertyMethodDecl1Context ctx) {
         err.syntaxError("This syntax is no longer supported. You must supply the property method formals, and if there are none, you can use an empty parenthesis '()'.", pos(ctx));
-        List<Modifier> MethodModifiersopt = ctx.methodModifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        Block MethodBody = ctx.methodBody().ast;
+        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        Block MethodBody = ast(ctx.methodBody());
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers, Flags.PROPERTY), HasResultTypeopt == null ? nf.UnknownTypeNode(pos(ctx).markCompilerGenerated())
                 : HasResultTypeopt, Identifier, Collections.<TypeParamNode> emptyList(), Collections.<Formal> emptyList(), WhereClauseopt, null, // offersOpt
@@ -1342,50 +3397,53 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: explicitConstructorInvocation ::= 'this' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationThis) */
+    /** Production: explicitConstructorInvocation ::= 'this' typeArgumentsopt '(' argumentListopt ')' ';' (#explicitConstructorInvocationThis) */
     @Override
     public void exitExplicitConstructorInvocationThis(ExplicitConstructorInvocationThisContext ctx) {
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10ThisCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: explicitConstructorInvocation ::= 'super' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationSuper) */
+    /** Production: explicitConstructorInvocation ::= 'super' typeArgumentsopt '(' argumentListopt ')' ';' (#explicitConstructorInvocationSuper) */
     @Override
     public void exitExplicitConstructorInvocationSuper(ExplicitConstructorInvocationSuperContext ctx) {
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10SuperCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: explicitConstructorInvocation ::= primary '.' 'this' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationPrimaryThis) */
+    /** Production: explicitConstructorInvocation ::= primary '.' 'this' typeArgumentsopt '(' argumentListopt ')' ';' (#explicitConstructorInvocationPrimaryThis) */
     @Override
     public void exitExplicitConstructorInvocationPrimaryThis(ExplicitConstructorInvocationPrimaryThisContext ctx) {
-        Expr Primary = ctx.primary().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Expr Primary = ast(ctx.primary());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10ThisCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: explicitConstructorInvocation ::= primary '.' 'super' typeArgumentsopt '(' argumentListopt ')' ';'    (#explicitConstructorInvocationPrimarySuper) */
+    /** Production: explicitConstructorInvocation ::= primary '.' 'super' typeArgumentsopt '(' argumentListopt ')' ';' (#explicitConstructorInvocationPrimarySuper) */
     @Override
     public void exitExplicitConstructorInvocationPrimarySuper(ExplicitConstructorInvocationPrimarySuperContext ctx) {
-        Expr Primary = ctx.primary().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Expr Primary = ast(ctx.primary());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10SuperCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: interfaceDeclaration ::= modifiersopt 'interface' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt extendsInterfacesopt interfaceBody    (#interfaceDeclaration) */
+    /**
+     * Production: interfaceDeclaration ::= modifiersopt 'interface' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt extendsInterfacesopt interfaceBody
+     * (#interfaceDeclaration)
+     */
     @Override
     public void exitInterfaceDeclaration(InterfaceDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParamsWithVarianceopt = ctx.typeParamsWithVarianceopt().ast;
-        List<PropertyDecl> Propertiesopt = ctx.propertiesopt().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        List<TypeNode> ExtendsInterfacesopt = ctx.extendsInterfacesopt().ast;
-        ClassBody InterfaceBody = ctx.interfaceBody().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParamsWithVarianceopt = ast(ctx.typeParamsWithVarianceopt());
+        List<PropertyDecl> Propertiesopt = ast(ctx.propertiesopt());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        List<TypeNode> ExtendsInterfacesopt = ast(ctx.extendsInterfacesopt());
+        ClassBody InterfaceBody = ast(ctx.interfaceBody());
         List<Node> modifiers = checkInterfaceModifiers(Modifiersopt);
         checkTypeName(Identifier);
         List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -1400,249 +3458,252 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    /** Production: assignPropertyCall ::= 'property' typeArgumentsopt '(' argumentListopt ')' ';'    (#assignPropertyCall) */
+    /** Production: assignPropertyCall ::= 'property' typeArgumentsopt '(' argumentListopt ')' ';' (#assignPropertyCall) */
     @Override
     public void exitAssignPropertyCall(AssignPropertyCallContext ctx) {
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.AssignPropertyCall(pos(ctx), TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: type ::= functionType    (#typeFunctionType) */
+    /** Production: type ::= functionType (#typeFunctionType) */
     @Override
     public void exitTypeFunctionType(TypeFunctionTypeContext ctx) {
-        ctx.ast = ctx.functionType().ast;
+        ctx.ast = ast(ctx.functionType());
     }
 
-    /** Production: type ::= constrainedType    (#typeConstrainedType) */
+    /** Production: type ::= constrainedType (#typeConstrainedType) */
     @Override
     public void exitTypeConstrainedType(TypeConstrainedTypeContext ctx) {
-        ctx.ast = ctx.constrainedType().ast;
+        ctx.ast = ast(ctx.constrainedType());
     }
 
-    /** Production: type ::= void_    (#typeVoid) */
+    /** Production: type ::= void_ (#typeVoid) */
     @Override
     public void exitTypeVoid(TypeVoidContext ctx) {
-        ctx.ast = ctx.void_().ast;
+        ctx.ast = ast(ctx.void_());
     }
 
-    /** Production: type ::= type annotations    (#typeAnnotations) */
+    /** Production: type ::= type annotations (#typeAnnotations) */
     @Override
     public void exitTypeAnnotations(TypeAnnotationsContext ctx) {
-        TypeNode Type = ctx.type().ast;
-        List<AnnotationNode> Annotations = ctx.annotations().ast;
+        TypeNode Type = ast(ctx.type());
+        List<AnnotationNode> Annotations = ast(ctx.annotations());
         TypeNode tn = Type;
         tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
         ctx.ast = (TypeNode) tn.position(pos(ctx));
     }
 
-    /** Production: functionType ::= typeParametersopt '(' formalParameterListopt ')' whereClauseopt oBSOLETE_Offersopt '=>' type    (#functionType) */
+    /** Production: functionType ::= typeParametersopt '(' formalParameterListopt ')' whereClauseopt oBSOLETE_Offersopt '=>' type (#functionType) */
     @Override
     public void exitFunctionType(FunctionTypeContext ctx) {
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameterListopt = ctx.formalParameterListopt().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        TypeNode Type = ctx.type().ast;
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameterListopt = ast(ctx.formalParameterListopt());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        TypeNode Type = ast(ctx.type());
         ctx.ast = nf.FunctionTypeNode(pos(ctx), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type, OBSOLETE_Offersopt);
     }
 
-    /** Production: classType ::= namedType    (#classType) */
+    /** Production: classType ::= namedType (#classType) */
     @Override
     public void exitClassType(ClassTypeContext ctx) {
-        ctx.ast = ctx.namedType().ast;
+        ctx.ast = ast(ctx.namedType());
     }
 
-    /** Production: constrainedType ::= namedType    (#constrainedType) */
+    /** Production: constrainedType ::= namedType (#constrainedType) */
     @Override
     public void exitConstrainedType(ConstrainedTypeContext ctx) {
-        ctx.ast = ctx.namedType().ast;
+        ctx.ast = ast(ctx.namedType());
     }
 
-    /** Production: void_ ::= 'void'    (#void_) */
+    /** Production: void_ ::= 'void' (#void_) */
     @Override
     public void exitVoid_(Void_Context ctx) {
         ctx.ast = nf.CanonicalTypeNode(pos(ctx), ts.Void());
     }
 
-    /** Production: simpleNamedType ::= typeName    (#simpleNamedType0) */
+    /** Production: simpleNamedType ::= typeName (#simpleNamedType0) */
     @Override
     public void exitSimpleNamedType0(SimpleNamedType0Context ctx) {
-        ParsedName TypeName = ctx.typeName().ast;
+        ParsedName TypeName = ast(ctx.typeName());
         ctx.ast = (AmbTypeNode) TypeName.toType();
     }
 
-    /** Production: simpleNamedType ::= primary '.' identifier    (#simpleNamedType1) */
+    /** Production: simpleNamedType ::= primary '.' identifier (#simpleNamedType1) */
     @Override
     public void exitSimpleNamedType1(SimpleNamedType1Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Id Identifier = ctx.identifier().ast;
+        Expr Primary = ast(ctx.primary());
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.AmbTypeNode(pos(ctx), Primary, Identifier);
     }
 
-    /** Production: simpleNamedType ::= simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier    (#simpleNamedType2) */
+    /** Production: simpleNamedType ::= simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier (#simpleNamedType2) */
     @Override
     public void exitSimpleNamedType2(SimpleNamedType2Context ctx) {
-        AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
-        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
-        List<Expr> Arguments = ctx.argumentsopt().ast;
+        AmbTypeNode SimpleNamedType = ast(ctx.simpleNamedType());
+        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
+        List<Expr> Arguments = ast(ctx.argumentsopt());
         TypeNode qualifier;
         if (ctx.depParameters() == null) {
             qualifier = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments);
         } else {
-            DepParameterExpr DepParameters = ctx.depParameters().ast;
+            DepParameterExpr DepParameters = ast(ctx.depParameters());
             qualifier = nf.AmbDepTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments, DepParameters);
         }
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.AmbTypeNode(pos(ctx), qualifier, Identifier);
     }
 
-    /** Production: parameterizedNamedType ::= simpleNamedType typeArguments? arguments?    (#parameterizedNamedType) */
+    /** Production: parameterizedNamedType ::= simpleNamedType typeArguments? arguments? (#parameterizedNamedType) */
     @Override
     public void exitParameterizedNamedType(ParameterizedNamedTypeContext ctx) {
-        AmbTypeNode SimpleNamedType = ctx.simpleNamedType().ast;
+        AmbTypeNode SimpleNamedType = ast(ctx.simpleNamedType());
         if (ctx.typeArguments() == null && ctx.arguments() == null) {
             ctx.ast = SimpleNamedType;
         } else {
-            List<TypeNode> typeArguments = ctx.typeArguments() == null ? new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false) : ctx.typeArguments().ast;
-            List<Expr> Arguments = ctx.arguments() == null ? new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false) : ctx.arguments().ast;
+            List<TypeNode> typeArguments = ctx.typeArguments() == null ? new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false) : ast(ctx.typeArguments());
+            List<Expr> Arguments = ctx.arguments() == null ? new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false) : ast(ctx.arguments());
             AmbMacroTypeNode type = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), typeArguments, Arguments);
             ctx.ast = type;
         }
     }
 
-    /** Production: depNamedType ::= parameterizedNamedType depParameters    (#depNamedType) */
+    /** Production: depNamedType ::= parameterizedNamedType depParameters (#depNamedType) */
     @Override
     public void exitDepNamedType(DepNamedTypeContext ctx) {
-        if (ctx.parameterizedNamedType().ast instanceof AmbMacroTypeNode) {
-            AmbMacroTypeNode ParameterizedNamedType = (AmbMacroTypeNode) ctx.parameterizedNamedType().ast;
-            DepParameterExpr DepParameters = ctx.depParameters().ast;
+        if (ast(ctx.parameterizedNamedType()) instanceof AmbMacroTypeNode) {
+            AmbMacroTypeNode ParameterizedNamedType = (AmbMacroTypeNode) ast(ctx.parameterizedNamedType());
+            DepParameterExpr DepParameters = ast(ctx.depParameters());
             TypeNode type = nf.AmbDepTypeNode(pos(ctx), ParameterizedNamedType, DepParameters);
             ctx.ast = type;
         } else {
-            AmbTypeNode SimpleNamedType = ctx.parameterizedNamedType().ast;
+            AmbTypeNode SimpleNamedType = ast(ctx.parameterizedNamedType());
             TypedList<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             TypedList<Expr> Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-            DepParameterExpr DepParameters = ctx.depParameters().ast;
+            DepParameterExpr DepParameters = ast(ctx.depParameters());
             TypeNode type = nf.AmbDepTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments, DepParameters);
             ctx.ast = type;
         }
     }
 
-    /** Production: namedTypeNoConstraints ::= parameterizedNamedType    (#namedTypeNoConstraints) */
+    /** Production: namedTypeNoConstraints ::= parameterizedNamedType (#namedTypeNoConstraints) */
     @Override
     public void exitNamedTypeNoConstraints(NamedTypeNoConstraintsContext ctx) {
-        ctx.ast = ctx.parameterizedNamedType().ast;
+        ctx.ast = ast(ctx.parameterizedNamedType());
     }
 
-    /** Production: namedType ::= depNamedType    (#namedType1) */
+    /** Production: namedType ::= depNamedType (#namedType1) */
     @Override
     public void exitNamedType1(NamedType1Context ctx) {
-        ctx.ast = ctx.depNamedType().ast;
+        ctx.ast = ast(ctx.depNamedType());
     }
 
-    /** Production: namedType ::= namedTypeNoConstraints    (#namedType0) */
+    /** Production: namedType ::= namedTypeNoConstraints (#namedType0) */
     @Override
     public void exitNamedType0(NamedType0Context ctx) {
-        ctx.ast = ctx.namedTypeNoConstraints().ast;
+        ctx.ast = ast(ctx.namedTypeNoConstraints());
     }
 
     /** Production: depParameters ::= '{' constraintConjunctionopt '}' (#depParameters) */
     @Override
     public void exitDepParameters(DepParametersContext ctx) {
         List<Formal> FUTURE_ExistentialListopt = new ArrayList<Formal>();
-        List<Expr> ConstraintConjunctionopt = ctx.constraintConjunctionopt().ast;
+        List<Expr> ConstraintConjunctionopt = ast(ctx.constraintConjunctionopt());
         ctx.ast = nf.DepParameterExpr(pos(ctx), FUTURE_ExistentialListopt, ConstraintConjunctionopt);
     }
 
-    /** Production: typeParamsWithVarianceopt ::= ('[' typeParamWithVarianceList ']')?    (#typeParamsWithVarianceopt) */
+    /** Production: typeParamsWithVarianceopt ::= ('[' typeParamWithVarianceList ']')? (#typeParamsWithVarianceopt) */
     @Override
     public void exitTypeParamsWithVarianceopt(TypeParamsWithVarianceoptContext ctx) {
         if (ctx.typeParamWithVarianceList() == null) {
             ctx.ast = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
         } else {
-            ctx.ast = ctx.typeParamWithVarianceList().ast;
+            ctx.ast = ast(ctx.typeParamWithVarianceList());
         }
     }
 
-    /** Production: typeParametersopt ::= ('[' typeParameterList ']')?    (#typeParametersopt) */
+    /** Production: typeParametersopt ::= ('[' typeParameterList ']')? (#typeParametersopt) */
     @Override
     public void exitTypeParametersopt(TypeParametersoptContext ctx) {
         if (ctx.typeParameterList() == null) {
             ctx.ast = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
         } else {
-            ctx.ast = ctx.typeParameterList().ast;
+            ctx.ast = ast(ctx.typeParameterList());
         }
     }
 
-    /** Production: formalParameters ::= '(' formalParameterListopt ')'    (#formalParameters) */
+    /** Production: formalParameters ::= '(' formalParameterListopt ')' (#formalParameters) */
     @Override
     public void exitFormalParameters(FormalParametersContext ctx) {
-        ctx.ast = ctx.formalParameterListopt().ast;
+        ctx.ast = ast(ctx.formalParameterListopt());
     }
 
-    /** Production: constraintConjunctionopt ::= (expression (',' expression)*)?    (#constraintConjunctionopt) */
+    /** Production: constraintConjunctionopt ::= (expression (',' expression)*)? (#constraintConjunctionopt) */
     @Override
     public void exitConstraintConjunctionopt(ConstraintConjunctionoptContext ctx) {
         List<Expr> l = new ArrayList<Expr>();
         for (ExpressionContext e : ctx.expression()) {
-            l.add(e.ast);
+            l.add(ast(e));
         }
         ctx.ast = l;
     }
 
-    /** Production: hasZeroConstraint ::= type 'haszero'    (#hasZeroConstraint) */
+    /** Production: hasZeroConstraint ::= type 'haszero' (#hasZeroConstraint) */
     @Override
     public void exitHasZeroConstraint(HasZeroConstraintContext ctx) {
-        TypeNode t1 = ctx.type().ast;
+        TypeNode t1 = ast(ctx.type());
         ctx.ast = nf.HasZeroTest(pos(ctx), t1);
     }
 
-    /** Production: isRefConstraint ::= type 'isref'    (#isRefConstraint) */
+    /** Production: isRefConstraint ::= type 'isref' (#isRefConstraint) */
     @Override
     public void exitIsRefConstraint(IsRefConstraintContext ctx) {
-        TypeNode t1 = ctx.type().ast;
+        TypeNode t1 = ast(ctx.type());
         ctx.ast = nf.IsRefTest(pos(ctx), t1);
     }
 
-    /** Production: subtypeConstraint ::= t1=type '<:' t2=type    (#subtypeConstraint0) */
+    /** Production: subtypeConstraint ::= t1=type '<:' t2=type (#subtypeConstraint0) */
     @Override
     public void exitSubtypeConstraint0(SubtypeConstraint0Context ctx) {
-        TypeNode t1 = ctx.t1.ast;
-        TypeNode t2 = ctx.t2.ast;
+        TypeNode t1 = ast(ctx.t1);
+        TypeNode t2 = ast(ctx.t2);
         ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, false);
     }
 
-    /** Production: subtypeConstraint ::= t1=type ':>' t2=type    (#subtypeConstraint1) */
+    /** Production: subtypeConstraint ::= t1=type ':>' t2=type (#subtypeConstraint1) */
     @Override
     public void exitSubtypeConstraint1(SubtypeConstraint1Context ctx) {
-        TypeNode t1 = ctx.t1.ast;
-        TypeNode t2 = ctx.t2.ast;
+        TypeNode t1 = ast(ctx.t1);
+        TypeNode t2 = ast(ctx.t2);
         ctx.ast = nf.SubtypeTest(pos(ctx), t2, t1, false);
     }
 
-    /** Production: whereClauseopt ::= depParameters?    (#whereClauseopt) */
+    /** Production: whereClauseopt ::= depParameters? (#whereClauseopt) */
     @Override
     public void exitWhereClauseopt(WhereClauseoptContext ctx) {
         if (ctx.depParameters() == null) {
             ctx.ast = null;
         } else {
-            DepParameterExpr DepParameters = ctx.depParameters().ast;
+            DepParameterExpr DepParameters = ast(ctx.depParameters());
             ctx.ast = DepParameters;
         }
     }
 
-    /** Production: classDeclaration ::= modifiersopt 'class' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt superExtendsopt interfacesopt classBody    (#classDeclaration) */
+    /**
+     * Production: classDeclaration ::= modifiersopt 'class' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt superExtendsopt interfacesopt classBody
+     * (#classDeclaration)
+     */
     @Override
     public void exitClassDeclaration(ClassDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParamsWithVarianceopt = ctx.typeParamsWithVarianceopt().ast;
-        List<PropertyDecl> Propertiesopt = ctx.propertiesopt().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode Superopt = ctx.superExtendsopt().ast;
-        List<TypeNode> Interfacesopt = ctx.interfacesopt().ast;
-        ClassBody ClassBody = ctx.classBody().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParamsWithVarianceopt = ast(ctx.typeParamsWithVarianceopt());
+        List<PropertyDecl> Propertiesopt = ast(ctx.propertiesopt());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode Superopt = ast(ctx.superExtendsopt());
+        List<TypeNode> Interfacesopt = ast(ctx.interfacesopt());
+        ClassBody ClassBody = ast(ctx.classBody());
         List<Node> modifiers = checkClassModifiers(Modifiersopt);
         checkTypeName(Identifier);
         List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -1655,16 +3716,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    /** Production: structDeclaration ::= modifiersopt 'struct' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt interfacesopt classBody    (#structDeclaration) */
+    /** Production: structDeclaration ::= modifiersopt 'struct' identifier typeParamsWithVarianceopt propertiesopt whereClauseopt interfacesopt classBody (#structDeclaration) */
     @Override
     public void exitStructDeclaration(StructDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeParamNode> TypeParamsWithVarianceopt = ctx.typeParamsWithVarianceopt().ast;
-        List<PropertyDecl> Propertiesopt = ctx.propertiesopt().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        List<TypeNode> Interfacesopt = ctx.interfacesopt().ast;
-        ClassBody ClassBody = ctx.classBody().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeParamNode> TypeParamsWithVarianceopt = ast(ctx.typeParamsWithVarianceopt());
+        List<PropertyDecl> Propertiesopt = ast(ctx.propertiesopt());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        List<TypeNode> Interfacesopt = ast(ctx.interfacesopt());
+        ClassBody ClassBody = ast(ctx.classBody());
         List<Node> modifiers = checkClassModifiers(Modifiersopt);
         checkTypeName(Identifier);
         List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
@@ -1675,17 +3736,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    /** Production: constructorDeclaration ::= modifiersopt 'def' id='this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt constructorBody    (#constructorDeclaration) */
+    /**
+     * Production: constructorDeclaration ::= modifiersopt 'def' id='this' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt
+     * constructorBody (#constructorDeclaration)
+     */
     @Override
     public void exitConstructorDeclaration(ConstructorDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<TypeParamNode> TypeParametersopt = ctx.typeParametersopt().ast;
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        List<TypeNode> Throwsopt = ctx.throwsopt().ast;
-        Block ConstructorBody = ctx.constructorBody().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        List<TypeNode> Throwsopt = ast(ctx.throwsopt());
+        Block ConstructorBody = ast(ctx.constructorBody());
         List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
         ConstructorDecl cd = nf.X10ConstructorDecl(pos(ctx), extractFlags(modifiers), nf.Id(pos(ctx.id), TypeSystem.CONSTRUCTOR_NAME), HasResultTypeopt, TypeParametersopt,
                 FormalParameters, WhereClauseopt, OBSOLETE_Offersopt, Throwsopt, ConstructorBody);
@@ -1693,561 +3757,563 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = cd;
     }
 
-    /** Production: superExtendsopt ::= ('extends' classType)?    (#superExtendsopt) */
+    /** Production: superExtendsopt ::= ('extends' classType)? (#superExtendsopt) */
     @Override
     public void exitSuperExtendsopt(SuperExtendsoptContext ctx) {
         if (ctx.classType() == null) {
             ctx.ast = null;
         } else {
-            ctx.ast = ctx.classType().ast;
+            ctx.ast = ast(ctx.classType());
         }
     }
 
-    /** Production: varKeyword ::= 'val'    (#varKeyword0) */
+    /** Production: varKeyword ::= 'val' (#varKeyword0) */
     @Override
     public void exitVarKeyword0(VarKeyword0Context ctx) {
         ctx.ast = Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.FINAL));
     }
 
-    /** Production: varKeyword ::= 'var'    (#varKeyword1) */
+    /** Production: varKeyword ::= 'var' (#varKeyword1) */
     @Override
     public void exitVarKeyword1(VarKeyword1Context ctx) {
         ctx.ast = Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.NONE));
     }
 
-    /** Production: fieldDeclaration ::= modifiersopt varKeyword? fieldDeclarators ';'    (#fieldDeclaration) */
+    /** Production: fieldDeclaration ::= modifiersopt varKeyword? fieldDeclarators ';' (#fieldDeclaration) */
     @Override
     public void exitFieldDeclaration(FieldDeclarationContext ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<FlagsNode> FieldKeyword = ctx.varKeyword() == null ? Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.FINAL)) : ctx.varKeyword().ast;
-        List<Object[]> FieldDeclarators = ctx.fieldDeclarators().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<FlagsNode> FieldKeyword = ctx.varKeyword() == null ? Collections.singletonList(nf.FlagsNode(pos(ctx), Flags.FINAL)) : ast(ctx.varKeyword());
+        List<Object[]> FieldDeclarators = ast(ctx.fieldDeclarators());
         List<Node> modifiers = checkFieldModifiers(Modifiersopt);
         FlagsNode fn = extractFlags(modifiers, FieldKeyword);
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         for (Object[] o : FieldDeclarators) {
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            if (name == null)
-                name = nf.Id(pos, Name.makeFresh());
-            TypeNode type = (TypeNode) o[3];
-            if (type == null)
-                type = nf.UnknownTypeNode(name.position().markCompilerGenerated());
-            Expr init = (Expr) o[4];
-            FieldDecl fd = nf.FieldDecl(pos, fn, type, name, init);
-            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
-            fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(pos(ctx))); // TODO
-            l.add(fd);
+            if (o != null) {
+                Position pos = (Position) o[0];
+                Id name = (Id) o[1];
+                if (name == null)
+                    name = nf.Id(pos, Name.makeFresh());
+                TypeNode type = (TypeNode) o[3];
+                if (type == null)
+                    type = nf.UnknownTypeNode(name.position().markCompilerGenerated());
+                Expr init = (Expr) o[4];
+                FieldDecl fd = nf.FieldDecl(pos, fn, type, name, init);
+                fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
+                fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(pos(ctx))); // TODO
+                l.add(fd);
+            }
         }
         ctx.ast = l;
     }
 
-    /** Production: statement ::= annotationStatement    (#statement0) */
+    /** Production: statement ::= annotationStatement (#statement0) */
     @Override
     public void exitStatement0(Statement0Context ctx) {
-        ctx.ast = ctx.annotationStatement().ast;
+        ctx.ast = ast(ctx.annotationStatement());
     }
 
-    /** Production: statement ::= expressionStatement    (#statement1) */
+    /** Production: statement ::= expressionStatement (#statement1) */
     @Override
     public void exitStatement1(Statement1Context ctx) {
-        ctx.ast = ctx.expressionStatement().ast;
+        ctx.ast = ast(ctx.expressionStatement());
     }
 
-    /** Production: annotationStatement ::= annotationsopt nonExpressionStatement    (#annotationStatement) */
+    /** Production: annotationStatement ::= annotationsopt nonExpressionStatement (#annotationStatement) */
     @Override
     public void exitAnnotationStatement(AnnotationStatementContext ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        Stmt NonExpressionStatement = ctx.nonExpressionStatement().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        Stmt NonExpressionStatement = ast(ctx.nonExpressionStatement());
         if (NonExpressionStatement.ext() instanceof X10Ext) {
             NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations(Annotationsopt);
         }
         ctx.ast = (Stmt) NonExpressionStatement.position(pos(ctx));
     }
 
-    /** Production: nonExpressionStatement ::= block    (#nonExpressionStatemen0) */
+    /** Production: nonExpressionStatement ::= block (#nonExpressionStatemen0) */
     @Override
     public void exitNonExpressionStatemen0(NonExpressionStatemen0Context ctx) {
-        ctx.ast = ctx.block().ast;
+        ctx.ast = ast(ctx.block());
     }
 
-    /** Production: nonExpressionStatement ::= emptyStatement    (#nonExpressionStatemen1) */
+    /** Production: nonExpressionStatement ::= emptyStatement (#nonExpressionStatemen1) */
     @Override
     public void exitNonExpressionStatemen1(NonExpressionStatemen1Context ctx) {
-        ctx.ast = ctx.emptyStatement().ast;
+        ctx.ast = ast(ctx.emptyStatement());
     }
 
-    /** Production: nonExpressionStatement ::= assertStatement    (#nonExpressionStatemen2) */
+    /** Production: nonExpressionStatement ::= assertStatement (#nonExpressionStatemen2) */
     @Override
     public void exitNonExpressionStatemen2(NonExpressionStatemen2Context ctx) {
-        ctx.ast = ctx.assertStatement().ast;
+        ctx.ast = ast(ctx.assertStatement());
     }
 
-    /** Production: nonExpressionStatement ::= switchStatement    (#nonExpressionStatemen3) */
+    /** Production: nonExpressionStatement ::= switchStatement (#nonExpressionStatemen3) */
     @Override
     public void exitNonExpressionStatemen3(NonExpressionStatemen3Context ctx) {
-        ctx.ast = ctx.switchStatement().ast;
+        ctx.ast = ast(ctx.switchStatement());
     }
 
-    /** Production: nonExpressionStatement ::= doStatement    (#nonExpressionStatemen4) */
+    /** Production: nonExpressionStatement ::= doStatement (#nonExpressionStatemen4) */
     @Override
     public void exitNonExpressionStatemen4(NonExpressionStatemen4Context ctx) {
-        ctx.ast = ctx.doStatement().ast;
+        ctx.ast = ast(ctx.doStatement());
     }
 
-    /** Production: nonExpressionStatement ::= breakStatement    (#nonExpressionStatemen5) */
+    /** Production: nonExpressionStatement ::= breakStatement (#nonExpressionStatemen5) */
     @Override
     public void exitNonExpressionStatemen5(NonExpressionStatemen5Context ctx) {
-        ctx.ast = ctx.breakStatement().ast;
+        ctx.ast = ast(ctx.breakStatement());
     }
 
-    /** Production: nonExpressionStatement ::= continueStatement    (#nonExpressionStatemen6) */
+    /** Production: nonExpressionStatement ::= continueStatement (#nonExpressionStatemen6) */
     @Override
     public void exitNonExpressionStatemen6(NonExpressionStatemen6Context ctx) {
-        ctx.ast = ctx.continueStatement().ast;
+        ctx.ast = ast(ctx.continueStatement());
     }
 
-    /** Production: nonExpressionStatement ::= returnStatement    (#nonExpressionStatemen7) */
+    /** Production: nonExpressionStatement ::= returnStatement (#nonExpressionStatemen7) */
     @Override
     public void exitNonExpressionStatemen7(NonExpressionStatemen7Context ctx) {
-        ctx.ast = ctx.returnStatement().ast;
+        ctx.ast = ast(ctx.returnStatement());
     }
 
-    /** Production: nonExpressionStatement ::= throwStatement    (#nonExpressionStatemen8) */
+    /** Production: nonExpressionStatement ::= throwStatement (#nonExpressionStatemen8) */
     @Override
     public void exitNonExpressionStatemen8(NonExpressionStatemen8Context ctx) {
-        ctx.ast = ctx.throwStatement().ast;
+        ctx.ast = ast(ctx.throwStatement());
     }
 
-    /** Production: nonExpressionStatement ::= tryStatement    (#nonExpressionStatemen9) */
+    /** Production: nonExpressionStatement ::= tryStatement (#nonExpressionStatemen9) */
     @Override
     public void exitNonExpressionStatemen9(NonExpressionStatemen9Context ctx) {
-        ctx.ast = ctx.tryStatement().ast;
+        ctx.ast = ast(ctx.tryStatement());
     }
 
-    /** Production: nonExpressionStatement ::= labeledStatement    (#nonExpressionStatemen10) */
+    /** Production: nonExpressionStatement ::= labeledStatement (#nonExpressionStatemen10) */
     @Override
     public void exitNonExpressionStatemen10(NonExpressionStatemen10Context ctx) {
-        ctx.ast = ctx.labeledStatement().ast;
+        ctx.ast = ast(ctx.labeledStatement());
     }
 
-    /** Production: nonExpressionStatement ::= ifThenStatement    (#nonExpressionStatemen11) */
+    /** Production: nonExpressionStatement ::= ifThenStatement (#nonExpressionStatemen11) */
     @Override
     public void exitNonExpressionStatemen11(NonExpressionStatemen11Context ctx) {
-        ctx.ast = ctx.ifThenStatement().ast;
+        ctx.ast = ast(ctx.ifThenStatement());
     }
 
-    /** Production: nonExpressionStatement ::= whileStatement    (#nonExpressionStatemen13) */
+    /** Production: nonExpressionStatement ::= whileStatement (#nonExpressionStatemen13) */
     @Override
     public void exitNonExpressionStatemen13(NonExpressionStatemen13Context ctx) {
-        ctx.ast = ctx.whileStatement().ast;
+        ctx.ast = ast(ctx.whileStatement());
     }
 
-    /** Production: nonExpressionStatement ::= forStatement    (#nonExpressionStatemen14) */
+    /** Production: nonExpressionStatement ::= forStatement (#nonExpressionStatemen14) */
     @Override
     public void exitNonExpressionStatemen14(NonExpressionStatemen14Context ctx) {
-        ctx.ast = ctx.forStatement().ast;
+        ctx.ast = ast(ctx.forStatement());
     }
 
-    /** Production: nonExpressionStatement ::= asyncStatement    (#nonExpressionStatemen15) */
+    /** Production: nonExpressionStatement ::= asyncStatement (#nonExpressionStatemen15) */
     @Override
     public void exitNonExpressionStatemen15(NonExpressionStatemen15Context ctx) {
-        ctx.ast = ctx.asyncStatement().ast;
+        ctx.ast = ast(ctx.asyncStatement());
     }
 
-    /** Production: nonExpressionStatement ::= atStatement    (#nonExpressionStatemen16) */
+    /** Production: nonExpressionStatement ::= atStatement (#nonExpressionStatemen16) */
     @Override
     public void exitNonExpressionStatemen16(NonExpressionStatemen16Context ctx) {
-        ctx.ast = ctx.atStatement().ast;
+        ctx.ast = ast(ctx.atStatement());
     }
 
-    /** Production: nonExpressionStatement ::= atomicStatement    (#nonExpressionStatemen17) */
+    /** Production: nonExpressionStatement ::= atomicStatement (#nonExpressionStatemen17) */
     @Override
     public void exitNonExpressionStatemen17(NonExpressionStatemen17Context ctx) {
-        ctx.ast = ctx.atomicStatement().ast;
+        ctx.ast = ast(ctx.atomicStatement());
     }
 
-    /** Production: nonExpressionStatement ::= whenStatement    (#nonExpressionStatemen18) */
+    /** Production: nonExpressionStatement ::= whenStatement (#nonExpressionStatemen18) */
     @Override
     public void exitNonExpressionStatemen18(NonExpressionStatemen18Context ctx) {
-        ctx.ast = ctx.whenStatement().ast;
+        ctx.ast = ast(ctx.whenStatement());
     }
 
-    /** Production: nonExpressionStatement ::= atEachStatement    (#nonExpressionStatemen19) */
+    /** Production: nonExpressionStatement ::= atEachStatement (#nonExpressionStatemen19) */
     @Override
     public void exitNonExpressionStatemen19(NonExpressionStatemen19Context ctx) {
-        ctx.ast = ctx.atEachStatement().ast;
+        ctx.ast = ast(ctx.atEachStatement());
     }
 
-    /** Production: nonExpressionStatement ::= finishStatement    (#nonExpressionStatemen20) */
+    /** Production: nonExpressionStatement ::= finishStatement (#nonExpressionStatemen20) */
     @Override
     public void exitNonExpressionStatemen20(NonExpressionStatemen20Context ctx) {
-        ctx.ast = ctx.finishStatement().ast;
+        ctx.ast = ast(ctx.finishStatement());
     }
 
-    /** Production: nonExpressionStatement ::= assignPropertyCall    (#nonExpressionStatemen21) */
+    /** Production: nonExpressionStatement ::= assignPropertyCall (#nonExpressionStatemen21) */
     @Override
     public void exitNonExpressionStatemen21(NonExpressionStatemen21Context ctx) {
-        ctx.ast = ctx.assignPropertyCall().ast;
+        ctx.ast = ast(ctx.assignPropertyCall());
     }
 
-    /** Production: nonExpressionStatement ::= oBSOLETE_OfferStatement    (#nonExpressionStatemen22) */
+    /** Production: nonExpressionStatement ::= oBSOLETE_OfferStatement (#nonExpressionStatemen22) */
     @Override
     public void exitNonExpressionStatemen22(NonExpressionStatemen22Context ctx) {
-        ctx.ast = ctx.oBSOLETE_OfferStatement().ast;
+        ctx.ast = ast(ctx.oBSOLETE_OfferStatement());
     }
 
-    /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';'    (#oBSOLETE_OfferStatement) */
+    /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';' (#oBSOLETE_OfferStatement) */
     @Override
     public void exitOBSOLETE_OfferStatement(OBSOLETE_OfferStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.Offer(pos(ctx), Expression);
     }
 
-    /** Production: ifThenStatement ::= 'if' '(' expression ')' s1=statement ('else' s2=statement)?    (#ifThenStatement) */
+    /** Production: ifThenStatement ::= 'if' '(' expression ')' s1=statement ('else' s2=statement)? (#ifThenStatement) */
     @Override
     public void exitIfThenStatement(IfThenStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt s1 = ctx.s1.ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt s1 = ast(ctx.s1);
         if (ctx.s2 == null) {
             ctx.ast = nf.If(pos(ctx), Expression, s1);
         } else {
-            Stmt s2 = ctx.s2.ast;
+            Stmt s2 = ast(ctx.s2);
             ctx.ast = nf.If(pos(ctx), Expression, s1, s2);
         }
     }
 
-    /** Production: emptyStatement ::= ';'    (#emptyStatement) */
+    /** Production: emptyStatement ::= ';' (#emptyStatement) */
     @Override
     public void exitEmptyStatement(EmptyStatementContext ctx) {
         ctx.ast = nf.Empty(pos(ctx));
     }
 
-    /** Production: labeledStatement ::= identifier ':' loopStatement    (#labeledStatement) */
+    /** Production: labeledStatement ::= identifier ':' loopStatement (#labeledStatement) */
     @Override
     public void exitLabeledStatement(LabeledStatementContext ctx) {
-        Id Identifier = ctx.identifier().ast;
-        Stmt LoopStatement = ctx.loopStatement().ast;
+        Id Identifier = ast(ctx.identifier());
+        Stmt LoopStatement = ast(ctx.loopStatement());
         ctx.ast = nf.Labeled(pos(ctx), Identifier, LoopStatement);
     }
 
-    /** Production: loopStatement ::= forStatement    (#loopStatement0) */
+    /** Production: loopStatement ::= forStatement (#loopStatement0) */
     @Override
     public void exitLoopStatement0(LoopStatement0Context ctx) {
-        ctx.ast = ctx.forStatement().ast;
+        ctx.ast = ast(ctx.forStatement());
     }
 
-    /** Production: loopStatement ::= whileStatement    (#loopStatement1) */
+    /** Production: loopStatement ::= whileStatement (#loopStatement1) */
     @Override
     public void exitLoopStatement1(LoopStatement1Context ctx) {
-        ctx.ast = ctx.whileStatement().ast;
+        ctx.ast = ast(ctx.whileStatement());
     }
 
-    /** Production: loopStatement ::= doStatement    (#loopStatement2) */
+    /** Production: loopStatement ::= doStatement (#loopStatement2) */
     @Override
     public void exitLoopStatement2(LoopStatement2Context ctx) {
-        ctx.ast = ctx.doStatement().ast;
+        ctx.ast = ast(ctx.doStatement());
     }
 
-    /** Production: loopStatement ::= atEachStatement    (#loopStatement3) */
+    /** Production: loopStatement ::= atEachStatement (#loopStatement3) */
     @Override
     public void exitLoopStatement3(LoopStatement3Context ctx) {
-        ctx.ast = ctx.atEachStatement().ast;
+        ctx.ast = ast(ctx.atEachStatement());
     }
 
-    /** Production: expressionStatement ::= expression ';'    (#expressionStatement) */
+    /** Production: expressionStatement ::= expression ';' (#expressionStatement) */
     @Override
     public void exitExpressionStatement(ExpressionStatementContext ctx) {
-        Expr StatementExpression = ctx.expression().ast;
+        Expr StatementExpression = ast(ctx.expression());
         ctx.ast = nf.Eval(pos(ctx), StatementExpression);
     }
 
-    /** Production: assertStatement ::= 'assert' expression ';'    (#assertStatement0) */
+    /** Production: assertStatement ::= 'assert' expression ';' (#assertStatement0) */
     @Override
     public void exitAssertStatement0(AssertStatement0Context ctx) {
-        Expr Expression = ctx.expression().ast;
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.Assert(pos(ctx), Expression);
     }
 
-    /** Production: assertStatement ::= 'assert' e1=expression ':' e2=expression ';'    (#assertStatement1) */
+    /** Production: assertStatement ::= 'assert' e1=expression ':' e2=expression ';' (#assertStatement1) */
     @Override
     public void exitAssertStatement1(AssertStatement1Context ctx) {
-        Expr expr1 = ctx.e1.ast;
-        Expr expr2 = ctx.e2.ast;
+        Expr expr1 = ast(ctx.e1);
+        Expr expr2 = ast(ctx.e2);
         ctx.ast = nf.Assert(pos(ctx), expr1, expr2);
     }
 
-    /** Production: switchStatement ::= 'switch' '(' expression ')' switchBlock    (#switchStatement) */
+    /** Production: switchStatement ::= 'switch' '(' expression ')' switchBlock (#switchStatement) */
     @Override
     public void exitSwitchStatement(SwitchStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        List<SwitchElement> SwitchBlock = ctx.switchBlock().ast;
+        Expr Expression = ast(ctx.expression());
+        List<SwitchElement> SwitchBlock = ast(ctx.switchBlock());
         ctx.ast = nf.Switch(pos(ctx), Expression, SwitchBlock);
     }
 
-    /** Production: switchBlock ::= '{' switchBlockStatementGroupsopt switchLabelsopt '}'    (#switchBlock) */
+    /** Production: switchBlock ::= '{' switchBlockStatementGroupsopt switchLabelsopt '}' (#switchBlock) */
     @Override
     public void exitSwitchBlock(SwitchBlockContext ctx) {
-        List<SwitchElement> SwitchBlockStatementGroupsopt = ctx.switchBlockStatementGroupsopt().ast;
-        List<Case> SwitchLabelsopt = ctx.switchLabelsopt().ast;
+        List<SwitchElement> SwitchBlockStatementGroupsopt = ast(ctx.switchBlockStatementGroupsopt());
+        List<Case> SwitchLabelsopt = ast(ctx.switchLabelsopt());
         SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
         ctx.ast = SwitchBlockStatementGroupsopt;
     }
 
-    /** Production: switchBlockStatementGroupsopt ::= switchBlockStatementGroup*    (#switchBlockStatementGroupsopt) */
+    /** Production: switchBlockStatementGroupsopt ::= switchBlockStatementGroup* (#switchBlockStatementGroupsopt) */
     @Override
     public void exitSwitchBlockStatementGroupsopt(SwitchBlockStatementGroupsoptContext ctx) {
         List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
         for (SwitchBlockStatementGroupContext e : ctx.switchBlockStatementGroup()) {
-            l.addAll(e.ast);
+            l.addAll(ast(e));
         }
         ctx.ast = l;
     }
 
-    /** Production: switchBlockStatementGroup ::= switchLabels blockStatements    (#switchBlockStatementGroup) */
+    /** Production: switchBlockStatementGroup ::= switchLabels blockStatements (#switchBlockStatementGroup) */
     @Override
     public void exitSwitchBlockStatementGroup(SwitchBlockStatementGroupContext ctx) {
-        List<Case> SwitchLabels = ctx.switchLabels().ast;
-        List<Stmt> BlockStatements = ctx.blockStatements().ast;
+        List<Case> SwitchLabels = ast(ctx.switchLabels());
+        List<Stmt> BlockStatements = ast(ctx.blockStatements());
         List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
         l.addAll(SwitchLabels);
         l.add(nf.SwitchBlock(pos(ctx), BlockStatements));
         ctx.ast = l;
     }
 
-    /** Production: switchLabelsopt ::= switchLabels?    (#switchLabelsopt) */
+    /** Production: switchLabelsopt ::= switchLabels? (#switchLabelsopt) */
     @Override
     public void exitSwitchLabelsopt(SwitchLabelsoptContext ctx) {
         if (ctx.switchLabels() == null) {
             ctx.ast = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
         } else {
-            ctx.ast = ctx.switchLabels().ast;
+            ctx.ast = ast(ctx.switchLabels());
         }
     }
 
-    /** Production: switchLabels ::= switchLabel+    (#switchLabels) */
+    /** Production: switchLabels ::= switchLabel+ (#switchLabels) */
     @Override
     public void exitSwitchLabels(SwitchLabelsContext ctx) {
         List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
         for (SwitchLabelContext switchLabel : ctx.switchLabel()) {
-            l.add(switchLabel.ast);
+            l.add(ast(switchLabel));
         }
         ctx.ast = l;
     }
 
-    /** Production: switchLabel ::= 'case' constantExpression ':'    (#switchLabel0) */
+    /** Production: switchLabel ::= 'case' constantExpression ':' (#switchLabel0) */
     @Override
     public void exitSwitchLabel0(SwitchLabel0Context ctx) {
-        Expr ConstantExpression = ctx.constantExpression().ast;
+        Expr ConstantExpression = ast(ctx.constantExpression());
         ctx.ast = nf.Case(pos(ctx), ConstantExpression);
     }
 
-    /** Production: switchLabel ::= 'default' ':'    (#switchLabel1) */
+    /** Production: switchLabel ::= 'default' ':' (#switchLabel1) */
     @Override
     public void exitSwitchLabel1(SwitchLabel1Context ctx) {
         ctx.ast = nf.Default(pos(ctx));
     }
 
-    /** Production: whileStatement ::= 'while' '(' expression ')' statement    (#whileStatement) */
+    /** Production: whileStatement ::= 'while' '(' expression ')' statement (#whileStatement) */
     @Override
     public void exitWhileStatement(WhileStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.While(pos(ctx), Expression, Statement);
     }
 
-    /** Production: doStatement ::= 'do' statement 'while' '(' expression ')' ';'    (#doStatement) */
+    /** Production: doStatement ::= 'do' statement 'while' '(' expression ')' ';' (#doStatement) */
     @Override
     public void exitDoStatement(DoStatementContext ctx) {
-        Stmt Statement = ctx.statement().ast;
-        Expr Expression = ctx.expression().ast;
+        Stmt Statement = ast(ctx.statement());
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.Do(pos(ctx), Statement, Expression);
     }
 
-    /** Production: forStatement ::= basicForStatement    (#forStatement0) */
+    /** Production: forStatement ::= basicForStatement (#forStatement0) */
     @Override
     public void exitForStatement0(ForStatement0Context ctx) {
-        ctx.ast = ctx.basicForStatement().ast;
+        ctx.ast = ast(ctx.basicForStatement());
     }
 
-    /** Production: forStatement ::= enhancedForStatement    (#forStatement1) */
+    /** Production: forStatement ::= enhancedForStatement (#forStatement1) */
     @Override
     public void exitForStatement1(ForStatement1Context ctx) {
-        ctx.ast = ctx.enhancedForStatement().ast;
+        ctx.ast = ast(ctx.enhancedForStatement());
     }
 
-    /** Production: basicForStatement ::= 'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement    (#basicForStatement) */
+    /** Production: basicForStatement ::= 'for' '(' forInitopt ';' expressionopt ';' forUpdateopt ')' statement (#basicForStatement) */
     @Override
     public void exitBasicForStatement(BasicForStatementContext ctx) {
         @SuppressWarnings("unchecked")
-        List<ForInit> ForInitopt = (List<ForInit>) ctx.forInitopt().ast;
-        Expr Expressionopt = ctx.expressionopt().ast;
+        List<ForInit> ForInitopt = (List<ForInit>) ast(ctx.forInitopt());
+        Expr Expressionopt = ast(ctx.expressionopt());
         @SuppressWarnings("unchecked")
-        List<ForUpdate> ForUpdateopt = (List<ForUpdate>) ctx.forUpdateopt().ast;
-        Stmt Statement = ctx.statement().ast;
+        List<ForUpdate> ForUpdateopt = (List<ForUpdate>) ast(ctx.forUpdateopt());
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.For(pos(ctx), ForInitopt, Expressionopt, ForUpdateopt, Statement);
     }
 
-    /** Production: forInit ::= statementExpressionList    (#forInit0) */
+    /** Production: forInit ::= statementExpressionList (#forInit0) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForInit0(ForInit0Context ctx) {
-        ctx.ast = (List<ForInit>) ((Object) ctx.statementExpressionList().ast);
+        ctx.ast = (List<ForInit>) ((Object) ast(ctx.statementExpressionList()));
     }
 
-    /** Production: forInit ::= localVariableDeclaration    (#forInit1) */
+    /** Production: forInit ::= localVariableDeclaration (#forInit1) */
     @Override
     public void exitForInit1(ForInit1Context ctx) {
-        List<LocalDecl> LocalVariableDeclaration = ctx.localVariableDeclaration().ast;
+        List<LocalDecl> LocalVariableDeclaration = ast(ctx.localVariableDeclaration());
         List<ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
         l.addAll(LocalVariableDeclaration);
         ctx.ast = l;
     }
 
-    /** Production: forUpdate ::= statementExpressionList    (#forUpdate) */
+    /** Production: forUpdate ::= statementExpressionList (#forUpdate) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdate(ForUpdateContext ctx) {
-        ctx.ast = (List<ForUpdate>) ((Object) ctx.statementExpressionList().ast);
+        ctx.ast = (List<ForUpdate>) ((Object) ast(ctx.statementExpressionList()));
     }
 
-    /** Production: statementExpressionList ::= expression (',' expression)*    (#statementExpressionList) */
+    /** Production: statementExpressionList ::= expression (',' expression)* (#statementExpressionList) */
     @Override
     public void exitStatementExpressionList(StatementExpressionListContext ctx) {
         List<Eval> l = new TypedList<Eval>(new LinkedList<Eval>(), Eval.class, false);
         for (ExpressionContext e : ctx.expression()) {
-            l.add(nf.Eval(pos(e), e.ast));
+            l.add(nf.Eval(pos(e), ast(e)));
         }
         ctx.ast = l;
     }
 
-    /** Production: breakStatement ::= 'break' identifieropt ';'    (#breakStatement) */
+    /** Production: breakStatement ::= 'break' identifieropt ';' (#breakStatement) */
     @Override
     public void exitBreakStatement(BreakStatementContext ctx) {
-        Id Identifieropt = ctx.identifieropt().ast;
+        Id Identifieropt = ast(ctx.identifieropt());
         ctx.ast = nf.Break(pos(ctx), Identifieropt);
     }
 
-    /** Production: continueStatement ::= 'continue' identifieropt ';'    (#continueStatement) */
+    /** Production: continueStatement ::= 'continue' identifieropt ';' (#continueStatement) */
     @Override
     public void exitContinueStatement(ContinueStatementContext ctx) {
-        Id Identifieropt = ctx.identifieropt().ast;
+        Id Identifieropt = ast(ctx.identifieropt());
         ctx.ast = nf.Continue(pos(ctx), Identifieropt);
     }
 
-    /** Production: returnStatement ::= 'return' expressionopt ';'    (#returnStatement) */
+    /** Production: returnStatement ::= 'return' expressionopt ';' (#returnStatement) */
     @Override
     public void exitReturnStatement(ReturnStatementContext ctx) {
-        Expr Expressionopt = ctx.expressionopt().ast;
+        Expr Expressionopt = ast(ctx.expressionopt());
         ctx.ast = nf.Return(pos(ctx), Expressionopt);
     }
 
-    /** Production: throwStatement ::= 'throw' expression ';'    (#throwStatement) */
+    /** Production: throwStatement ::= 'throw' expression ';' (#throwStatement) */
     @Override
     public void exitThrowStatement(ThrowStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.Throw(pos(ctx), Expression);
     }
 
-    /** Production: tryStatement ::= 'try' block catches    (#tryStatement0) */
+    /** Production: tryStatement ::= 'try' block catches (#tryStatement0) */
     @Override
     public void exitTryStatement0(TryStatement0Context ctx) {
-        Block Block = ctx.block().ast;
-        List<Catch> Catches = ctx.catches().ast;
+        Block Block = ast(ctx.block());
+        List<Catch> Catches = ast(ctx.catches());
         ctx.ast = nf.Try(pos(ctx), Block, Catches);
     }
 
-    /** Production: tryStatement ::= 'try' block catchesopt finallyBlock    (#tryStatement1) */
+    /** Production: tryStatement ::= 'try' block catchesopt finallyBlock (#tryStatement1) */
     @Override
     public void exitTryStatement1(TryStatement1Context ctx) {
-        Block Block = ctx.block().ast;
-        List<Catch> Catchesopt = ctx.catchesopt().ast;
-        Block Finally = ctx.finallyBlock().ast;
+        Block Block = ast(ctx.block());
+        List<Catch> Catchesopt = ast(ctx.catchesopt());
+        Block Finally = ast(ctx.finallyBlock());
         ctx.ast = nf.Try(pos(ctx), Block, Catchesopt, Finally);
     }
 
-    /** Production: catches ::= catchClause+    (#catches) */
+    /** Production: catches ::= catchClause+ (#catches) */
     @Override
     public void exitCatches(CatchesContext ctx) {
         List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
         for (CatchClauseContext CatchClause : ctx.catchClause()) {
-            l.add(CatchClause.ast);
+            l.add(ast(CatchClause));
         }
         ctx.ast = l;
     }
 
-    /** Production: catchClause ::= 'catch' '(' formalParameter ')' block    (#catchClause) */
+    /** Production: catchClause ::= 'catch' '(' formalParameter ')' block (#catchClause) */
     @Override
     public void exitCatchClause(CatchClauseContext ctx) {
-        X10Formal FormalParameter = ctx.formalParameter().ast;
-        Block Block = ctx.block().ast;
+        X10Formal FormalParameter = ast(ctx.formalParameter());
+        Block Block = ast(ctx.block());
         ctx.ast = nf.Catch(pos(ctx), FormalParameter, Block);
     }
 
-    /** Production: finallyBlock ::= 'finally' block    (#finallyBlock) */
+    /** Production: finallyBlock ::= 'finally' block (#finallyBlock) */
     @Override
     public void exitFinallyBlock(FinallyBlockContext ctx) {
-        Block Block = ctx.block().ast;
+        Block Block = ast(ctx.block());
         ctx.ast = Block;
     }
 
-    /** Production: clockedClauseopt ::= ('clocked' arguments)?    (#clockedClauseopt) */
+    /** Production: clockedClauseopt ::= ('clocked' arguments)? (#clockedClauseopt) */
     @Override
     public void exitClockedClauseopt(ClockedClauseoptContext ctx) {
         List<Expr> Arguments;
         if (ctx.arguments() == null) {
             Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         } else {
-            Arguments = ctx.arguments().ast;
+            Arguments = ast(ctx.arguments());
         }
         ctx.ast = Arguments;
     }
 
-    /** Production: asyncStatement ::= 'async' clockedClauseopt statement    (#asyncStatement0) */
+    /** Production: asyncStatement ::= 'async' clockedClauseopt statement (#asyncStatement0) */
     @Override
     public void exitAsyncStatement0(AsyncStatement0Context ctx) {
-        List<Expr> ClockedClauseopt = ctx.clockedClauseopt().ast;
-        Stmt Statement = ctx.statement().ast;
+        List<Expr> ClockedClauseopt = ast(ctx.clockedClauseopt());
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.Async(pos(ctx), ClockedClauseopt, Statement);
     }
 
-    /** Production: asyncStatement ::= 'clocked' 'async' statement    (#asyncStatement1) */
+    /** Production: asyncStatement ::= 'clocked' 'async' statement (#asyncStatement1) */
     @Override
     public void exitAsyncStatement1(AsyncStatement1Context ctx) {
-        Stmt Statement = ctx.statement().ast;
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.Async(pos(ctx), Statement, true);
     }
 
-    /** Production: atStatement ::= 'at' '(' expression ')' statement    (#atStatement) */
+    /** Production: atStatement ::= 'at' '(' expression ')' statement (#atStatement) */
     @Override
     public void exitAtStatement(AtStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.AtStmt(pos(ctx), Expression, Statement);
     }
 
-    /** Production: atomicStatement ::= 'atomic' statement    (#atomicStatement) */
+    /** Production: atomicStatement ::= 'atomic' statement (#atomicStatement) */
     @Override
     public void exitAtomicStatement(AtomicStatementContext ctx) {
-        Stmt Statement = ctx.statement().ast;
+        Stmt Statement = ast(ctx.statement());
         // Position of here might be wrong
         ctx.ast = nf.Atomic(pos(ctx), nf.Here(pos(ctx)), Statement);
     }
 
-    /** Production: whenStatement ::= 'when' '(' expression ')' statement    (#whenStatement) */
+    /** Production: whenStatement ::= 'when' '(' expression ')' statement (#whenStatement) */
     @Override
     public void exitWhenStatement(WhenStatementContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.When(pos(ctx), Expression, Statement);
     }
 
-    /** Production: atEachStatement ::= 'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement    (#atEachStatement0) */
+    /** Production: atEachStatement ::= 'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement (#atEachStatement0) */
     @Override
     public void exitAtEachStatement0(AtEachStatement0Context ctx) {
-        Formal LoopIndex = ctx.loopIndex().ast;
-        Expr Expression = ctx.expression().ast;
-        List<Expr> ClockedClauseopt = ctx.clockedClauseopt().ast;
-        Stmt Statement = ctx.statement().ast;
+        Formal LoopIndex = ast(ctx.loopIndex());
+        Expr Expression = ast(ctx.expression());
+        List<Expr> ClockedClauseopt = ast(ctx.clockedClauseopt());
+        Stmt Statement = ast(ctx.statement());
         FlagsNode fn = LoopIndex.flags();
         if (!fn.flags().isFinal()) {
             err.syntaxError("Enhanced ateach loop may not have var loop index. " + LoopIndex, LoopIndex.position());
@@ -2257,11 +4323,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
     }
 
-    /** Production: atEachStatement ::= 'ateach' '(' expression ')' statement    (#atEachStatement1) */
+    /** Production: atEachStatement ::= 'ateach' '(' expression ')' statement (#atEachStatement1) */
     @Override
     public void exitAtEachStatement1(AtEachStatement1Context ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         Id name = nf.Id(pos(ctx), Name.makeFresh());
         TypeNode type = nf.UnknownTypeNode(pos(ctx).markCompilerGenerated());
         X10Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
@@ -2269,12 +4335,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
     }
 
-    /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement    (#enhancedForStatement0) */
+    /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement (#enhancedForStatement0) */
     @Override
     public void exitEnhancedForStatement0(EnhancedForStatement0Context ctx) {
-        Formal LoopIndex = ctx.loopIndex().ast;
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Formal LoopIndex = ast(ctx.loopIndex());
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         FlagsNode fn = LoopIndex.flags();
         if (!fn.flags().isFinal()) {
             err.syntaxError("Enhanced for loop may not have var loop index. " + LoopIndex, LoopIndex.position());
@@ -2284,154 +4350,154 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
-    /** Production: enhancedForStatement ::= 'for' '(' expression ')' statement    (#enhancedForStatement1) */
+    /** Production: enhancedForStatement ::= 'for' '(' expression ')' statement (#enhancedForStatement1) */
     @Override
     public void exitEnhancedForStatement1(EnhancedForStatement1Context ctx) {
-        Expr Expression = ctx.expression().ast;
-        Stmt Statement = ctx.statement().ast;
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
         Id name = nf.Id(pos(ctx), Name.makeFresh());
         TypeNode type = nf.UnknownTypeNode(pos(ctx).markCompilerGenerated());
         Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
         ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
-    /** Production: finishStatement ::= 'finish' statement    (#finishStatement0) */
+    /** Production: finishStatement ::= 'finish' statement (#finishStatement0) */
     @Override
     public void exitFinishStatement0(FinishStatement0Context ctx) {
-        Stmt Statement = ctx.statement().ast;
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.Finish(pos(ctx), Statement, false);
     }
 
-    /** Production: finishStatement ::= 'clocked' 'finish' statement    (#finishStatement1) */
+    /** Production: finishStatement ::= 'clocked' 'finish' statement (#finishStatement1) */
     @Override
     public void exitFinishStatement1(FinishStatement1Context ctx) {
-        Stmt Statement = ctx.statement().ast;
+        Stmt Statement = ast(ctx.statement());
         ctx.ast = nf.Finish(pos(ctx), Statement, true);
     }
 
-    /** Production: castExpression ::= primary    (#castExpression0) */
+    /** Production: castExpression ::= primary (#castExpression0) */
     @Override
     public void exitCastExpression0(CastExpression0Context ctx) {
-        ctx.ast = ctx.primary().ast;
+        ctx.ast = ast(ctx.primary());
     }
 
-    /** Production: castExpression ::= expressionName    (#castExpression1) */
+    /** Production: castExpression ::= expressionName (#castExpression1) */
     @Override
     public void exitCastExpression1(CastExpression1Context ctx) {
-        ParsedName ExpressionName = ctx.expressionName().ast;
+        ParsedName ExpressionName = ast(ctx.expressionName());
         ctx.ast = ExpressionName.toExpr();
     }
 
-    /** Production: castExpression ::= castExpression 'as' type    (#castExpression2) */
+    /** Production: castExpression ::= castExpression 'as' type (#castExpression2) */
     @Override
     public void exitCastExpression2(CastExpression2Context ctx) {
-        Expr CastExpression = ctx.castExpression().ast;
-        TypeNode Type = ctx.type().ast;
+        Expr CastExpression = ast(ctx.castExpression());
+        TypeNode Type = ast(ctx.type());
         ctx.ast = nf.X10Cast(pos(ctx), Type, CastExpression);
     }
 
-    /** Production: typeParamWithVarianceList ::= typeParameter    (#typeParamWithVarianceList0) */
+    /** Production: typeParamWithVarianceList ::= typeParameter (#typeParamWithVarianceList0) */
     @Override
     public void exitTypeParamWithVarianceList0(TypeParamWithVarianceList0Context ctx) {
-        TypeParamNode TypeParameter = ctx.typeParameter().ast;
+        TypeParamNode TypeParameter = ast(ctx.typeParameter());
         List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
         l.add(TypeParameter);
         ctx.ast = l;
     }
 
-    /** Production: typeParamWithVarianceList ::= oBSOLETE_TypeParamWithVariance    (#typeParamWithVarianceList1) */
+    /** Production: typeParamWithVarianceList ::= oBSOLETE_TypeParamWithVariance (#typeParamWithVarianceList1) */
     @Override
     public void exitTypeParamWithVarianceList1(TypeParamWithVarianceList1Context ctx) {
-        TypeParamNode OBSOLETE_TypeParamWithVariance = ctx.oBSOLETE_TypeParamWithVariance().ast;
+        TypeParamNode OBSOLETE_TypeParamWithVariance = ast(ctx.oBSOLETE_TypeParamWithVariance());
         List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
         l.add(OBSOLETE_TypeParamWithVariance);
         ctx.ast = l;
     }
 
-    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' typeParameter    (#typeParamWithVarianceList2) */
+    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' typeParameter (#typeParamWithVarianceList2) */
     @Override
     public void exitTypeParamWithVarianceList2(TypeParamWithVarianceList2Context ctx) {
-        List<TypeParamNode> TypeParamWithVarianceList = ctx.typeParamWithVarianceList().ast;
-        TypeParamNode TypeParameter = ctx.typeParameter().ast;
+        List<TypeParamNode> TypeParamWithVarianceList = ast(ctx.typeParamWithVarianceList());
+        TypeParamNode TypeParameter = ast(ctx.typeParameter());
         TypeParamWithVarianceList.add(TypeParameter);
         ctx.ast = TypeParamWithVarianceList;
     }
 
-    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' oBSOLETE_TypeParamWithVariance    (#typeParamWithVarianceList3) */
+    /** Production: typeParamWithVarianceList ::= typeParamWithVarianceList ',' oBSOLETE_TypeParamWithVariance (#typeParamWithVarianceList3) */
     @Override
     public void exitTypeParamWithVarianceList3(TypeParamWithVarianceList3Context ctx) {
-        List<TypeParamNode> TypeParamWithVarianceList = ctx.typeParamWithVarianceList().ast;
-        TypeParamNode OBSOLETE_TypeParamWithVariance = ctx.oBSOLETE_TypeParamWithVariance().ast;
+        List<TypeParamNode> TypeParamWithVarianceList = ast(ctx.typeParamWithVarianceList());
+        TypeParamNode OBSOLETE_TypeParamWithVariance = ast(ctx.oBSOLETE_TypeParamWithVariance());
         TypeParamWithVarianceList.add(OBSOLETE_TypeParamWithVariance);
         ctx.ast = TypeParamWithVarianceList;
     }
 
-    /** Production: typeParameterList ::= typeParameter (',' typeParameter)*    (#typeParameterList) */
+    /** Production: typeParameterList ::= typeParameter (',' typeParameter)* (#typeParameterList) */
     @Override
     public void exitTypeParameterList(TypeParameterListContext ctx) {
         List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
         for (TypeParameterContext TypeParameter : ctx.typeParameter()) {
-            l.add(TypeParameter.ast);
+            l.add(ast(TypeParameter));
         }
         ctx.ast = l;
     }
 
-    /** Production: oBSOLETE_TypeParamWithVariance ::= '+' typeParameter    (#oBSOLETE_TypeParamWithVariance0) */
+    /** Production: oBSOLETE_TypeParamWithVariance ::= '+' typeParameter (#oBSOLETE_TypeParamWithVariance0) */
     @Override
     public void exitOBSOLETE_TypeParamWithVariance0(OBSOLETE_TypeParamWithVariance0Context ctx) {
-        TypeParamNode TypeParameter = ctx.typeParameter().ast;
+        TypeParamNode TypeParameter = ast(ctx.typeParameter());
         err.syntaxError("Covariance is no longer supported.", pos(ctx));
         ctx.ast = (TypeParamNode) TypeParameter.variance(ParameterType.Variance.COVARIANT).position(pos(ctx));
     }
 
-    /** Production: oBSOLETE_TypeParamWithVariance ::= '-' typeParameter    (#oBSOLETE_TypeParamWithVariance1) */
+    /** Production: oBSOLETE_TypeParamWithVariance ::= '-' typeParameter (#oBSOLETE_TypeParamWithVariance1) */
     @Override
     public void exitOBSOLETE_TypeParamWithVariance1(OBSOLETE_TypeParamWithVariance1Context ctx) {
-        TypeParamNode TypeParameter = ctx.typeParameter().ast;
+        TypeParamNode TypeParameter = ast(ctx.typeParameter());
         err.syntaxError("Contravariance is no longer supported.", pos(ctx));
         ctx.ast = (TypeParamNode) TypeParameter.variance(ParameterType.Variance.CONTRAVARIANT).position(pos(ctx));
     }
 
-    /** Production: typeParameter ::= identifier    (#typeParameter) */
+    /** Production: typeParameter ::= identifier (#typeParameter) */
     @Override
     public void exitTypeParameter(TypeParameterContext ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.TypeParamNode(pos(ctx), Identifier);
     }
 
 
-    /** Production: closureExpression ::= formalParameters whereClauseopt hasResultTypeopt oBSOLETE_Offersopt '=>' closureBody    (#closureExpression) */
+    /** Production: closureExpression ::= formalParameters whereClauseopt hasResultTypeopt oBSOLETE_Offersopt '=>' closureBody (#closureExpression) */
     @Override
     public void exitClosureExpression(ClosureExpressionContext ctx) {
-        List<Formal> FormalParameters = ctx.formalParameters().ast;
-        DepParameterExpr WhereClauseopt = ctx.whereClauseopt().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        List<Formal> FormalParameters = ast(ctx.formalParameters());
+        DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         TypeNode HasResultType = HasResultTypeopt == null ? nf.UnknownTypeNode(Position.COMPILER_GENERATED) : HasResultTypeopt;
-        TypeNode OBSOLETE_Offersopt = ctx.oBSOLETE_Offersopt().ast;
-        Block ClosureBody = ctx.closureBody().ast;
+        TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+        Block ClosureBody = ast(ctx.closureBody());
         ctx.ast = nf.Closure(pos(ctx), FormalParameters, WhereClauseopt, HasResultType, ClosureBody);
     }
 
-    /** Production: lastExpression ::= expression    (#lastExpression) */
+    /** Production: lastExpression ::= expression (#lastExpression) */
     @Override
     public void exitLastExpression(LastExpressionContext ctx) {
-        Expr Expression = ctx.expression().ast;
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.X10Return(pos(ctx), Expression, true);
     }
 
-    /** Production: closureBody ::= expression    (#closureBody0) */
+    /** Production: closureBody ::= expression (#closureBody0) */
     @Override
     public void exitClosureBody0(ClosureBody0Context ctx) {
-        Expr ConditionalExpression = ctx.expression().ast;
+        Expr ConditionalExpression = ast(ctx.expression());
         ctx.ast = nf.Block(pos(ctx), nf.X10Return(pos(ctx), ConditionalExpression, true));
     }
 
-    /** Production: closureBody ::= annotationsopt '{' blockStatementsopt lastExpression '}'    (#closureBody1) */
+    /** Production: closureBody ::= annotationsopt '{' blockStatementsopt lastExpression '}' (#closureBody1) */
     @Override
     public void exitClosureBody1(ClosureBody1Context ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
-        Stmt LastExpression = ctx.lastExpression().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
+        Stmt LastExpression = ast(ctx.lastExpression());
         List<Stmt> l = new ArrayList<Stmt>();
         l.addAll(BlockStatementsopt);
         l.add(LastExpression);
@@ -2440,352 +4506,346 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = b;
     }
 
-    /** Production: closureBody ::= annotationsopt block    (#closureBody2) */
+    /** Production: closureBody ::= annotationsopt block (#closureBody2) */
     @Override
     public void exitClosureBody2(ClosureBody2Context ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        Block Block = ctx.block().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        Block Block = ast(ctx.block());
         Block b = Block;
         b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
         ctx.ast = (polyglot.ast.Block) b.position(pos(ctx));
     }
 
-    /** Production: atExpression ::= annotationsopt 'at' '(' expression ')' closureBody    (#atExpression) */
+    /** Production: atExpression ::= annotationsopt 'at' '(' expression ')' closureBody (#atExpression) */
     @Override
     public void exitAtExpression(AtExpressionContext ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        Expr Expression = ctx.expression().ast;
-        Block ClosureBody = ctx.closureBody().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        Expr Expression = ast(ctx.expression());
+        Block ClosureBody = ast(ctx.closureBody());
         AtExpr r = nf.AtExpr(pos(ctx), Expression, ClosureBody);
         r = (AtExpr) ((X10Ext) r.ext()).annotations(Annotationsopt);
         ctx.ast = r;
     }
 
-    /** Production: oBSOLETE_FinishExpression ::= 'finish' '(' expression ')' block    (#oBSOLETE_FinishExpression) */
+    /** Production: oBSOLETE_FinishExpression ::= 'finish' '(' expression ')' block (#oBSOLETE_FinishExpression) */
     @Override
     public void exitOBSOLETE_FinishExpression(OBSOLETE_FinishExpressionContext ctx) {
-        Expr Expression = ctx.expression().ast;
-        Block Block = ctx.block().ast;
+        Expr Expression = ast(ctx.expression());
+        Block Block = ast(ctx.block());
         ctx.ast = nf.FinishExpr(pos(ctx), Expression, Block);
     }
 
-    /** Production: typeName ::= identifier    (#typeName0) */
+    /** Production: typeName ::= identifier (#typeName0) */
     @Override
     public void exitTypeName0(TypeName0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = new ParsedName(nf, ts, pos(ctx), Identifier);
     }
 
-    /** Production: typeName ::= typeName '.' identifier    (#typeName1) */
+    /** Production: typeName ::= typeName '.' identifier (#typeName1) */
     @Override
     public void exitTypeName1(TypeName1Context ctx) {
-        ParsedName TypeName = ctx.typeName().ast;
-        Id Identifier = ctx.identifier().ast;
+        ParsedName TypeName = ast(ctx.typeName());
+        Id Identifier = ast(ctx.identifier());
         // Position might be wrong
         ctx.ast = new ParsedName(nf, ts, pos(ctx), TypeName, Identifier);
     }
 
-    /** Production: className ::= typeName    (#className) */
+    /** Production: className ::= typeName (#className) */
     @Override
     public void exitClassName(ClassNameContext ctx) {
-        ctx.ast = ctx.typeName().ast;
+        ctx.ast = ast(ctx.typeName());
     }
 
-    /** Production: typeArguments ::= '[' type (',' type)* ']'    (#typeArguments) */
+    /** Production: typeArguments ::= '[' type (',' type)* ']' (#typeArguments) */
     @Override
     public void exitTypeArguments(TypeArgumentsContext ctx) {
         List<TypeNode> l = new ArrayList<TypeNode>();
         for (TypeContext Type : ctx.type()) {
-            l.add(Type.ast);
+            l.add(ast(Type));
         }
         ctx.ast = l;
     }
 
-    /** Production: packageName ::= identifier    (#packageName0) */
+    /** Production: packageName ::= identifier (#packageName0) */
     @Override
     public void exitPackageName0(PackageName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
     }
 
-    /** Production: packageName ::= packageName '.' identifier    (#packageName1) */
+    /** Production: packageName ::= packageName '.' identifier (#packageName1) */
     @Override
     public void exitPackageName1(PackageName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageName().ast, ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.packageName()), ast(ctx.identifier()));
     }
 
-    /** Production: expressionName ::= identifier    (#expressionName0) */
+    /** Production: expressionName ::= identifier (#expressionName0) */
     @Override
     public void exitExpressionName0(ExpressionName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
     }
 
-    /** Production: expressionName ::= fullyQualifiedName '.' identifier    (#expressionName1) */
+    /** Production: expressionName ::= fullyQualifiedName '.' identifier (#expressionName1) */
     @Override
     public void exitExpressionName1(ExpressionName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
     }
 
-    /** Production: methodName ::= identifier    (#methodName0) */
+    /** Production: methodName ::= identifier (#methodName0) */
     @Override
     public void exitMethodName0(MethodName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
     }
 
-    /** Production: methodName ::= fullyQualifiedName '.' identifier    (#methodName1) */
+    /** Production: methodName ::= fullyQualifiedName '.' identifier (#methodName1) */
     @Override
     public void exitMethodName1(MethodName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
     }
 
-    /** Production: packageOrTypeName ::= identifier    (#packageOrTypeName0) */
+    /** Production: packageOrTypeName ::= identifier (#packageOrTypeName0) */
     @Override
     public void exitPackageOrTypeName0(PackageOrTypeName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
     }
 
-    /** Production: packageOrTypeName ::= packageOrTypeName '.' identifier    (#packageOrTypeName1) */
+    /** Production: packageOrTypeName ::= packageOrTypeName '.' identifier (#packageOrTypeName1) */
     @Override
     public void exitPackageOrTypeName1(PackageOrTypeName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.packageOrTypeName().ast, ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.packageOrTypeName()), ast(ctx.identifier()));
     }
 
-    /** Production: fullyQualifiedName ::= identifier    (#fullyQualifiedName0) */
+    /** Production: fullyQualifiedName ::= identifier (#fullyQualifiedName0) */
     @Override
     public void exitFullyQualifiedName0(FullyQualifiedName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
     }
 
-    /** Production: fullyQualifiedName ::= fullyQualifiedName '.' identifier    (#fullyQualifiedName1) */
+    /** Production: fullyQualifiedName ::= fullyQualifiedName '.' identifier (#fullyQualifiedName1) */
     @Override
     public void exitFullyQualifiedName1(FullyQualifiedName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ctx.fullyQualifiedName().ast, ctx.identifier().ast);
+        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
     }
 
-    /** Production: compilationUnit ::= packageDeclaration? importDeclarationsopt typeDeclarationsopt    (#compilationUnit) */
+    /** Production: compilationUnit ::= packageDeclaration? importDeclarationsopt typeDeclarationsopt (#compilationUnit) */
     @Override
     public void exitCompilationUnit(CompilationUnitContext ctx) {
-        List<Import> importDeclarationsopt = ctx.importDeclarationsopt().ast;
-        List<TopLevelDecl> typeDeclarationsopt = ctx.typeDeclarationsopt().ast;
+        List<Import> importDeclarationsopt = ast(ctx.importDeclarationsopt());
+        List<TopLevelDecl> typeDeclarationsopt = ast(ctx.typeDeclarationsopt());
 
-        PackageNode packageDeclaration = ctx.packageDeclaration() == null ? null : ctx.packageDeclaration().ast;
+        PackageNode packageDeclaration = ctx.packageDeclaration() == null ? null : ast(ctx.packageDeclaration());
         ctx.ast = nf.SourceFile(pos(ctx), packageDeclaration, importDeclarationsopt, typeDeclarationsopt);
 
     }
 
-    /** Production: packageDeclaration ::= annotationsopt 'package' packageName ';'    (#packageDeclaration) */
+    /** Production: packageDeclaration ::= annotationsopt 'package' packageName ';' (#packageDeclaration) */
     @Override
     public void exitPackageDeclaration(PackageDeclarationContext ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        ParsedName PackageName = ctx.packageName().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        ParsedName PackageName = ast(ctx.packageName());
         PackageNode pn = PackageName.toPackage();
         pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
         ctx.ast = pn;
     }
 
-    /** Production: importDeclarationsopt ::= importDeclaration*    (#importDeclarationsopt) */
+    /** Production: importDeclarationsopt ::= importDeclaration* (#importDeclarationsopt) */
     @Override
     public void exitImportDeclarationsopt(ImportDeclarationsoptContext ctx) {
         List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
         for (ImportDeclarationContext importDeclaration : ctx.importDeclaration()) {
-            l.add(importDeclaration.ast);
+            l.add(ast(importDeclaration));
         }
         ctx.ast = l;
     }
-    /** Production: importDeclaration ::= 'import' typeName ';'    (#importDeclaration0) */
+
+    /** Production: importDeclaration ::= 'import' typeName ';' (#importDeclaration0) */
     @Override
     public void exitImportDeclaration0(ImportDeclaration0Context ctx) {
-        ParsedName TypeName = ctx.typeName().ast;
+        ParsedName TypeName = ast(ctx.typeName());
         ctx.ast = nf.Import(pos(ctx), Import.CLASS, QName.make(TypeName.toString()));
     }
 
-    /** Production: importDeclaration ::= 'import' packageOrTypeName '.' '*' ';'    (#importDeclaration1) */
+    /** Production: importDeclaration ::= 'import' packageOrTypeName '.' '*' ';' (#importDeclaration1) */
     @Override
     public void exitImportDeclaration1(ImportDeclaration1Context ctx) {
-        ParsedName PackageOrTypeName = ctx.packageOrTypeName().ast;
+        ParsedName PackageOrTypeName = ast(ctx.packageOrTypeName());
         ctx.ast = nf.Import(pos(ctx), Import.PACKAGE, QName.make(PackageOrTypeName.toString()));
     }
 
-    /** Production: typeDeclarationsopt ::= typeDeclaration*    (#typeDeclarationsopt) */
+    /** Production: typeDeclarationsopt ::= typeDeclaration* (#typeDeclarationsopt) */
     @Override
     public void exitTypeDeclarationsopt(TypeDeclarationsoptContext ctx) {
         List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
         for (TypeDeclarationContext typeDecl : ctx.typeDeclaration()) {
-            l.add(typeDecl.ast);
+            l.add(ast(typeDecl));
         }
         ctx.ast = l;
     }
 
-    /** Production: typeDeclaration ::= classDeclaration    (#typeDeclaration0) */
+    /** Production: typeDeclaration ::= classDeclaration (#typeDeclaration0) */
     @Override
     public void exitTypeDeclaration0(TypeDeclaration0Context ctx) {
-        ctx.ast = ctx.classDeclaration().ast;
+        ctx.ast = ast(ctx.classDeclaration());
     }
 
-    /** Production: typeDeclaration ::= structDeclaration    (#typeDeclaration1) */
+    /** Production: typeDeclaration ::= structDeclaration (#typeDeclaration1) */
     @Override
     public void exitTypeDeclaration1(TypeDeclaration1Context ctx) {
-        ctx.ast = ctx.structDeclaration().ast;
+        ctx.ast = ast(ctx.structDeclaration());
     }
 
     @Override
     public void exitTypeDeclaration2(TypeDeclaration2Context ctx) {
-        ctx.ast = ctx.interfaceDeclaration().ast;
+        ctx.ast = ast(ctx.interfaceDeclaration());
     }
 
-    /** Production: typeDeclaration ::= interfaceDeclaration  (#typeDeclaration3) */
+    /** Production: typeDeclaration ::= interfaceDeclaration (#typeDeclaration3) */
     @Override
     public void exitTypeDeclaration3(TypeDeclaration3Context ctx) {
-        ctx.ast = ctx.typeDefDeclaration().ast;
+        ctx.ast = ast(ctx.typeDefDeclaration());
     }
 
-    /** Production: typeDeclaration ::= ';'    (#typeDeclaration4) */
+    /** Production: typeDeclaration ::= ';' (#typeDeclaration4) */
     @Override
     public void exitTypeDeclaration4(TypeDeclaration4Context ctx) {
         ctx.ast = null;
     }
 
-    /** Production: interfacesopt ::= ('implements' type (',' type)*)?    (#interfacesopt) */
+    /** Production: interfacesopt ::= ('implements' type (',' type)*)? (#interfacesopt) */
     @Override
     public void exitInterfacesopt(InterfacesoptContext ctx) {
         List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
         for (TypeContext Type : ctx.type()) {
-            l.add(Type.ast);
+            l.add(ast(Type));
         }
         ctx.ast = l;
     }
 
-    /** Production: classBody ::= '{' classMemberDeclarationsopt '}'    (#classBody) */
+    /** Production: classBody ::= '{' classMemberDeclarationsopt '}' (#classBody) */
     @Override
     public void exitClassBody(ClassBodyContext ctx) {
-        List<ClassMember> ClassMemberDeclarationsopt = ctx.classMemberDeclarationsopt().ast;
+        List<ClassMember> ClassMemberDeclarationsopt = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        for (ClassMemberDeclarationContext ClassMember : ctx.classMemberDeclaration()) {
+            ClassMemberDeclarationsopt.addAll(ast(ClassMember));
+        }
         ctx.ast = nf.ClassBody(pos(ctx), ClassMemberDeclarationsopt);
     }
 
-    /** Production: classMemberDeclarationsopt ::= classMemberDeclaration*    (#classMemberDeclarationsopt) */
-    @Override
-    public void exitClassMemberDeclarationsopt(ClassMemberDeclarationsoptContext ctx) {
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        for (ClassMemberDeclarationContext ClassMember : ctx.classMemberDeclaration()) {
-            l.addAll(check(pos(ClassMember), ClassMember.ast));
-        }
-        ctx.ast = l;
-    }
-
-    /** Production: classMemberDeclaration ::= interfaceMemberDeclaration    (#classMemberDeclaration0) */
+    /** Production: classMemberDeclaration ::= interfaceMemberDeclaration (#classMemberDeclaration0) */
     @Override
     public void exitClassMemberDeclaration0(ClassMemberDeclaration0Context ctx) {
-        ctx.ast = ctx.interfaceMemberDeclaration().ast;
+        ctx.ast = ast(ctx.interfaceMemberDeclaration());
     }
 
-    /** Production: classMemberDeclaration ::= constructorDeclaration    (#classMemberDeclaration1) */
+    /** Production: classMemberDeclaration ::= constructorDeclaration (#classMemberDeclaration1) */
     @Override
     public void exitClassMemberDeclaration1(ClassMemberDeclaration1Context ctx) {
-        ConstructorDecl ConstructorDeclaration = ctx.constructorDeclaration().ast;
+        ConstructorDecl ConstructorDeclaration = ast(ctx.constructorDeclaration());
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         l.add(ConstructorDeclaration);
         ctx.ast = l;
     }
 
-    /** Production: formalDeclarators ::= formalDeclarator (',' formalDeclarator)*    (#formalDeclarators) */
+    /** Production: formalDeclarators ::= formalDeclarator (',' formalDeclarator)* (#formalDeclarators) */
     @Override
     public void exitFormalDeclarators(FormalDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
         for (FormalDeclaratorContext FormalDeclarator : ctx.formalDeclarator()) {
-            l.add(FormalDeclarator.ast);
+            l.add(ast(FormalDeclarator));
         }
         ctx.ast = l;
     }
 
-    /** Production: fieldDeclarators ::= fieldDeclarator (',' fieldDeclarator)*    (#fieldDeclarators) */
+    /** Production: fieldDeclarators ::= fieldDeclarator (',' fieldDeclarator)* (#fieldDeclarators) */
     @Override
     public void exitFieldDeclarators(FieldDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
         for (FieldDeclaratorContext FieldDeclarator : ctx.fieldDeclarator()) {
-            l.add(FieldDeclarator.ast);
+            l.add(ast(FieldDeclarator));
         }
         ctx.ast = l;
     }
 
-    /** Production: variableDeclaratorsWithType ::= variableDeclaratorWithType (',' variableDeclaratorWithType)*    (#variableDeclaratorsWithType) */
+    /** Production: variableDeclaratorsWithType ::= variableDeclaratorWithType (',' variableDeclaratorWithType)* (#variableDeclaratorsWithType) */
     @Override
     public void exitVariableDeclaratorsWithType(VariableDeclaratorsWithTypeContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
         for (VariableDeclaratorWithTypeContext VariableDeclaratorWithType : ctx.variableDeclaratorWithType()) {
-            l.add(VariableDeclaratorWithType.ast);
+            l.add(ast(VariableDeclaratorWithType));
         }
         ctx.ast = l;
     }
 
-    /** Production: variableDeclarators ::= variableDeclarator (',' variableDeclarator)*    (#variableDeclarators) */
+    /** Production: variableDeclarators ::= variableDeclarator (',' variableDeclarator)* (#variableDeclarators) */
     @Override
     public void exitVariableDeclarators(VariableDeclaratorsContext ctx) {
         List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
         for (VariableDeclaratorContext VariableDeclarator : ctx.variableDeclarator()) {
-            l.add(VariableDeclarator.ast);
+            l.add(ast(VariableDeclarator));
         }
         ctx.ast = l;
     }
 
-    /** Production: variableInitializer ::= expression    (#variableInitializer) */
+    /** Production: variableInitializer ::= expression (#variableInitializer) */
     @Override
     public void exitVariableInitializer(VariableInitializerContext ctx) {
-        ctx.ast = ctx.expression().ast;
+        ctx.ast = ast(ctx.expression());
     }
 
-    /** Production: resultType ::= ':' type    (#resultType) */
+    /** Production: resultType ::= ':' type (#resultType) */
     @Override
     public void exitResultType(ResultTypeContext ctx) {
-        ctx.ast = ctx.type().ast;
+        ctx.ast = ast(ctx.type());
     }
 
-    /** Production: hasResultType ::= resultType    (#hasResultType0) */
+    /** Production: hasResultType ::= resultType (#hasResultType0) */
     @Override
     public void exitHasResultType0(HasResultType0Context ctx) {
-        TypeNode Type = ctx.resultType().ast;
+        TypeNode Type = ast(ctx.resultType());
         ctx.ast = Type;
     }
 
-    /** Production: hasResultType ::= '<:' type    (#hasResultType1) */
+    /** Production: hasResultType ::= '<:' type (#hasResultType1) */
     @Override
     public void exitHasResultType1(HasResultType1Context ctx) {
-        TypeNode Type = ctx.type().ast;
+        TypeNode Type = ast(ctx.type());
         ctx.ast = nf.HasType(Type);
     }
 
-    /** Production: formalParameterList ::= formalParameter (',' formalParameter)*    (#formalParameterList) */
+    /** Production: formalParameterList ::= formalParameter (',' formalParameter)* (#formalParameterList) */
     @Override
     public void exitFormalParameterList(FormalParameterListContext ctx) {
         List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
         for (FormalParameterContext FormalParameter : ctx.formalParameter()) {
-            l.add(FormalParameter.ast);
+            l.add(ast(FormalParameter));
         }
         ctx.ast = l;
     }
 
-    /** Production: loopIndexDeclarator ::= identifier hasResultTypeopt    (#loopIndexDeclarator0) */
+    /** Production: loopIndexDeclarator ::= identifier hasResultTypeopt (#loopIndexDeclarator0) */
     @Override
     public void exitLoopIndexDeclarator0(LoopIndexDeclarator0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         List<Id> IdentifierList = Collections.<Id> emptyList();
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
     }
 
-    /** Production: loopIndexDeclarator ::= '[' identifierList ']' hasResultTypeopt    (#loopIndexDeclarator1) */
+    /** Production: loopIndexDeclarator ::= '[' identifierList ']' hasResultTypeopt (#loopIndexDeclarator1) */
     @Override
     public void exitLoopIndexDeclarator1(LoopIndexDeclarator1Context ctx) {
         Id Identifier = null;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
     }
 
-    /** Production: loopIndexDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt    (#loopIndexDeclarator2) */
+    /** Production: loopIndexDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt (#loopIndexDeclarator2) */
     @Override
     public void exitLoopIndexDeclarator2(LoopIndexDeclarator2Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
+        Id Identifier = ast(ctx.identifier());
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, null };
     }
 
@@ -2805,11 +4865,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return explodedFormals;
     }
 
-    /** Production: loopIndex ::= modifiersopt loopIndexDeclarator    (#loopIndex0) */
+    /** Production: loopIndex ::= modifiersopt loopIndexDeclarator (#loopIndex0) */
     @Override
     public void exitLoopIndex0(LoopIndex0Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Object[] LoopIndexDeclarator = ctx.loopIndexDeclarator().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Object[] LoopIndexDeclarator = ast(ctx.loopIndexDeclarator());
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
         X10Formal f;
         FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
@@ -2831,12 +4891,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
-    /** Production: loopIndex ::= modifiersopt varKeyword loopIndexDeclarator    (#loopIndex1) */
+    /** Production: loopIndex ::= modifiersopt varKeyword loopIndexDeclarator (#loopIndex1) */
     @Override
     public void exitLoopIndex1(LoopIndex1Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
-        Object[] LoopIndexDeclarator = ctx.loopIndexDeclarator().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
+        Object[] LoopIndexDeclarator = ast(ctx.loopIndexDeclarator());
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
         X10Formal f;
         FlagsNode fn = extractFlags(modifiers, VarKeyword);
@@ -2858,11 +4918,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
-    /** Production: formalParameter ::= modifiersopt formalDeclarator    (#formalParameter0) */
+    /** Production: formalParameter ::= modifiersopt formalDeclarator (#formalParameter0) */
     @Override
     public void exitFormalParameter0(FormalParameter0Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        Object[] FormalDeclarator = ctx.formalDeclarator().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Object[] FormalDeclarator = ast(ctx.formalDeclarator());
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
         X10Formal f;
         FlagsNode fn = extractFlags(modifiers, Flags.FINAL);
@@ -2885,12 +4945,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
-    /** Production: formalParameter ::= modifiersopt varKeyword formalDeclarator    (#formalParameter1) */
+    /** Production: formalParameter ::= modifiersopt varKeyword formalDeclarator (#formalParameter1) */
     @Override
     public void exitFormalParameter1(FormalParameter1Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
-        Object[] FormalDeclarator = ctx.formalDeclarator().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
+        Object[] FormalDeclarator = ast(ctx.formalDeclarator());
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
         X10Formal f;
         FlagsNode fn = extractFlags(modifiers, VarKeyword);
@@ -2913,10 +4973,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
-    /** Production: formalParameter ::= type    (#formalParameter2) */
+    /** Production: formalParameter ::= type (#formalParameter2) */
     @Override
     public void exitFormalParameter2(FormalParameter2Context ctx) {
-        TypeNode Type = check(pos(ctx.type()), ctx.type().ast);
+        TypeNode Type = ast(ctx.type());
         X10Formal f;
         FlagsNode fn = nf.FlagsNode(pos(ctx).markCompilerGenerated(), Flags.FINAL);
         Id name = nf.Id(pos(ctx).markCompilerGenerated(), Name.makeFresh("id"));
@@ -2926,92 +4986,92 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = f;
     }
 
-    /** Production: oBSOLETE_Offersopt ::= ('offers' type)?    (#oBSOLETE_Offersopt) */
+    /** Production: oBSOLETE_Offersopt ::= ('offers' type)? (#oBSOLETE_Offersopt) */
     @Override
     public void exitOBSOLETE_Offersopt(OBSOLETE_OffersoptContext ctx) {
-        TypeNode Type = ctx.type() == null ? null : ctx.type().ast;
+        TypeNode Type = ctx.type() == null ? null : ast(ctx.type());
         ctx.ast = Type;
     }
 
-    /** Production: throwsopt ::= ('throws' type (',' type)*)?    (#throwsopt) */
+    /** Production: throwsopt ::= ('throws' type (',' type)*)? (#throwsopt) */
     @Override
     public void exitThrowsopt(ThrowsoptContext ctx) {
         List<TypeNode> throwsList = new ArrayList<TypeNode>();
         for (TypeContext type : ctx.type()) {
-            throwsList.add(type.ast);
+            throwsList.add(ast(type));
         }
         ctx.ast = throwsList;
     }
 
-    /** Production: methodBody ::= '=' lastExpression ';'    (#methodBody0) */
+    /** Production: methodBody ::= '=' lastExpression ';' (#methodBody0) */
     @Override
     public void exitMethodBody0(MethodBody0Context ctx) {
-        Stmt LastExpression = ctx.lastExpression().ast;
+        Stmt LastExpression = ast(ctx.lastExpression());
         ctx.ast = nf.Block(pos(ctx), LastExpression);
     }
 
-    /** Production: methodBody ::= '=' annotationsopt '{' blockStatementsopt lastExpression '}'    (#methodBody1) */
+    /** Production: methodBody ::= '=' annotationsopt '{' blockStatementsopt lastExpression '}' (#methodBody1) */
     @Override
     public void exitMethodBody1(MethodBody1Context ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
-        Stmt LastExpression = ctx.lastExpression().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
+        Stmt LastExpression = ast(ctx.lastExpression());
         List<Stmt> l = new ArrayList<Stmt>();
         l.addAll(BlockStatementsopt);
         l.add(LastExpression);
         ctx.ast = (Block) ((X10Ext) nf.Block(pos(ctx), l).ext()).annotations(Annotationsopt);
     }
 
-    /** Production: methodBody ::= '='? annotationsopt block    (#methodBody2) */
+    /** Production: methodBody ::= '='? annotationsopt block (#methodBody2) */
     @Override
     public void exitMethodBody2(MethodBody2Context ctx) {
-        List<AnnotationNode> Annotationsopt = ctx.annotationsopt().ast;
-        Block Block = ctx.block().ast;
+        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+        Block Block = ast(ctx.block());
         ctx.ast = (Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos(ctx));
     }
 
-    /** Production: methodBody ::= ';'    (#methodBody3) */
+    /** Production: methodBody ::= ';' (#methodBody3) */
     @Override
     public void exitMethodBody3(MethodBody3Context ctx) {
         ctx.ast = null;
     }
 
-    /** Production: constructorBody ::= '='? constructorBlock    (#constructorBody0) */
+    /** Production: constructorBody ::= '='? constructorBlock (#constructorBody0) */
     @Override
     public void exitConstructorBody0(ConstructorBody0Context ctx) {
-        Block ConstructorBlock = ctx.constructorBlock().ast;
+        Block ConstructorBlock = ast(ctx.constructorBlock());
         ctx.ast = ConstructorBlock;
     }
 
-    /** Production: constructorBody ::= '=' explicitConstructorInvocation    (#constructorBody1) */
+    /** Production: constructorBody ::= '=' explicitConstructorInvocation (#constructorBody1) */
     @Override
     public void exitConstructorBody1(ConstructorBody1Context ctx) {
-        ConstructorCall ExplicitConstructorInvocation = ctx.explicitConstructorInvocation().ast;
+        ConstructorCall ExplicitConstructorInvocation = ast(ctx.explicitConstructorInvocation());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(ExplicitConstructorInvocation);
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
-    /** Production: constructorBody ::= '=' assignPropertyCall    (#constructorBody2) */
+    /** Production: constructorBody ::= '=' assignPropertyCall (#constructorBody2) */
     @Override
     public void exitConstructorBody2(ConstructorBody2Context ctx) {
-        Stmt AssignPropertyCall = ctx.assignPropertyCall().ast;
+        Stmt AssignPropertyCall = ast(ctx.assignPropertyCall());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(AssignPropertyCall);
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
-    /** Production: constructorBody ::= ';'    (#constructorBody3) */
+    /** Production: constructorBody ::= ';' (#constructorBody3) */
     @Override
     public void exitConstructorBody3(ConstructorBody3Context ctx) {
         ctx.ast = null;
     }
 
-    /** Production: constructorBlock ::= '{' explicitConstructorInvocation? blockStatementsopt '}'    (#constructorBlock) */
+    /** Production: constructorBlock ::= '{' explicitConstructorInvocation? blockStatementsopt '}' (#constructorBlock) */
     @Override
     public void exitConstructorBlock(ConstructorBlockContext ctx) {
-        Stmt ExplicitConstructorInvocationopt = ctx.explicitConstructorInvocation() == null ? null : ctx.explicitConstructorInvocation().ast;
-        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
+        Stmt ExplicitConstructorInvocationopt = ctx.explicitConstructorInvocation() == null ? null : ast(ctx.explicitConstructorInvocation());
+        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         if (ExplicitConstructorInvocationopt != null) {
             l.add(ExplicitConstructorInvocationopt);
@@ -3020,70 +5080,70 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), l);
     }
 
-    /** Production: arguments ::= '(' argumentList ')'    (#arguments) */
+    /** Production: arguments ::= '(' argumentList ')' (#arguments) */
     @Override
     public void exitArguments(ArgumentsContext ctx) {
-        ctx.ast = ctx.argumentList().ast;
+        ctx.ast = ast(ctx.argumentList());
     }
 
-    /** Production: extendsInterfacesopt ::= ('extends' type (',' type)*)?    (#extendsInterfacesopt) */
+    /** Production: extendsInterfacesopt ::= ('extends' type (',' type)*)? (#extendsInterfacesopt) */
     @Override
     public void exitExtendsInterfacesopt(ExtendsInterfacesoptContext ctx) {
         List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
         for (TypeContext type : ctx.type()) {
-            l.add(type.ast);
+            l.add(ast(type));
         }
         ctx.ast = l;
     }
 
-    /** Production: interfaceBody ::= '{' interfaceMemberDeclarationsopt '}'    (#interfaceBody) */
+    /** Production: interfaceBody ::= '{' interfaceMemberDeclarationsopt '}' (#interfaceBody) */
     @Override
     public void exitInterfaceBody(InterfaceBodyContext ctx) {
-        List<ClassMember> InterfaceMemberDeclarationsopt = ctx.interfaceMemberDeclarationsopt().ast;
+        List<ClassMember> InterfaceMemberDeclarationsopt = ast(ctx.interfaceMemberDeclarationsopt());
         ctx.ast = nf.ClassBody(pos(ctx), InterfaceMemberDeclarationsopt);
     }
 
-    /** Production: interfaceMemberDeclarationsopt ::= interfaceMemberDeclaration*    (#interfaceMemberDeclarationsopt) */
+    /** Production: interfaceMemberDeclarationsopt ::= interfaceMemberDeclaration* (#interfaceMemberDeclarationsopt) */
     @Override
     public void exitInterfaceMemberDeclarationsopt(InterfaceMemberDeclarationsoptContext ctx) {
         TypedList<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         for (InterfaceMemberDeclarationContext decl : ctx.interfaceMemberDeclaration()) {
-            l.addAll(decl.ast);
+            l.addAll(ast(decl));
         }
         ctx.ast = l;
     }
 
-    /** Production: interfaceMemberDeclaration ::= methodDeclaration    (#interfaceMemberDeclaration0) */
+    /** Production: interfaceMemberDeclaration ::= methodDeclaration (#interfaceMemberDeclaration0) */
     @Override
     public void exitInterfaceMemberDeclaration0(InterfaceMemberDeclaration0Context ctx) {
-        ClassMember MethodDeclaration = ctx.methodDeclaration().ast;
+        ClassMember MethodDeclaration = ast(ctx.methodDeclaration());
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         l.add(MethodDeclaration);
         ctx.ast = l;
     }
 
-    /** Production: interfaceMemberDeclaration ::= fieldDeclaration    (#interfaceMemberDeclaration2) */
+    /** Production: interfaceMemberDeclaration ::= fieldDeclaration (#interfaceMemberDeclaration2) */
     @Override
     public void exitInterfaceMemberDeclaration1(InterfaceMemberDeclaration1Context ctx) {
-        ClassMember PropertyMethodDeclaration = ctx.propertyMethodDeclaration().ast;
+        ClassMember PropertyMethodDeclaration = ast(ctx.propertyMethodDeclaration());
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         l.add(PropertyMethodDeclaration);
         ctx.ast = l;
     }
 
-    /** Production: interfaceMemberDeclaration ::= propertyMethodDeclaration    (#interfaceMemberDeclaration1) */
+    /** Production: interfaceMemberDeclaration ::= propertyMethodDeclaration (#interfaceMemberDeclaration1) */
     @Override
     public void exitInterfaceMemberDeclaration2(InterfaceMemberDeclaration2Context ctx) {
-        List<ClassMember> FieldDeclaration = ctx.fieldDeclaration().ast;
+        List<ClassMember> FieldDeclaration = ast(ctx.fieldDeclaration());
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         l.addAll(FieldDeclaration);
         ctx.ast = l;
     }
 
-    /** Production: interfaceMemberDeclaration ::= typeDeclaration    (#interfaceMemberDeclaration3) */
+    /** Production: interfaceMemberDeclaration ::= typeDeclaration (#interfaceMemberDeclaration3) */
     @Override
     public void exitInterfaceMemberDeclaration3(InterfaceMemberDeclaration3Context ctx) {
-        ClassMember TypeDeclaration = (ClassMember) ctx.typeDeclaration().ast;
+        ClassMember TypeDeclaration = (ClassMember) ast(ctx.typeDeclaration());
         List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
         if (TypeDeclaration != null) {
             l.add(TypeDeclaration);
@@ -3091,222 +5151,222 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = l;
     }
 
-    /** Production: annotationsopt ::= annotations?    (#annotationsopt) */
+    /** Production: annotationsopt ::= annotations? (#annotationsopt) */
     @Override
     public void exitAnnotationsopt(AnnotationsoptContext ctx) {
         List<AnnotationNode> l;
         if (ctx.annotations() == null) {
             l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
         } else {
-            l = ctx.annotations().ast;
+            l = ast(ctx.annotations());
         }
         ctx.ast = l;
     }
 
-    /** Production: annotations ::= annotation+    (#annotations) */
+    /** Production: annotations ::= annotation+ (#annotations) */
     @Override
     public void exitAnnotations(AnnotationsContext ctx) {
         List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
         for (AnnotationContext annotation : ctx.annotation()) {
-            l.add(annotation.ast);
+            l.add(ast(annotation));
         }
         ctx.ast = l;
     }
 
-    /** Production: annotation ::= '@' namedTypeNoConstraints    (#annotation) */
+    /** Production: annotation ::= '@' namedTypeNoConstraints (#annotation) */
     @Override
     public void exitAnnotation(AnnotationContext ctx) {
-        TypeNode NamedTypeNoConstraints = ctx.namedTypeNoConstraints().ast;
+        TypeNode NamedTypeNoConstraints = ast(ctx.namedTypeNoConstraints());
         ctx.ast = nf.AnnotationNode(pos(ctx), NamedTypeNoConstraints);
     }
 
-    /** Production: identifier ::= IDENTIFIER    (#identifier) */
+    /** Production: identifier ::= IDENTIFIER (#identifier) */
     @Override
     public void exitIdentifier(IdentifierContext ctx) {
         ctx.ast = nf.Id(pos(ctx), ctx.start.getText());
     }
 
 
-    /** Production: block ::= '{' blockStatementsopt '}'    (#block) */
+    /** Production: block ::= '{' blockStatementsopt '}' (#block) */
     @Override
     public void exitBlock(BlockContext ctx) {
-        List<Stmt> BlockStatementsopt = ctx.blockStatementsopt().ast;
+        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
         ctx.ast = nf.Block(pos(ctx), BlockStatementsopt);
     }
 
-    /** Production: blockStatements ::= blockInteriorStatement+    (#blockStatements) */
+    /** Production: blockStatements ::= blockInteriorStatement+ (#blockStatements) */
     @Override
     public void exitBlockStatements(BlockStatementsContext ctx) {
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         for (BlockInteriorStatementContext blockInteriorStatement : ctx.blockInteriorStatement()) {
-            l.addAll(blockInteriorStatement.ast);
+            l.addAll(ast(blockInteriorStatement));
         }
         ctx.ast = l;
     }
 
-    /** Production: blockInteriorStatement ::= localVariableDeclarationStatement    (#blockInteriorStatement0) */
+    /** Production: blockInteriorStatement ::= localVariableDeclarationStatement (#blockInteriorStatement0) */
     @Override
     public void exitBlockInteriorStatement0(BlockInteriorStatement0Context ctx) {
-        ctx.ast = ctx.localVariableDeclarationStatement().ast;
+        ctx.ast = ast(ctx.localVariableDeclarationStatement());
     }
 
-    /** Production: blockInteriorStatement ::= classDeclaration    (#blockInteriorStatement1) */
+    /** Production: blockInteriorStatement ::= classDeclaration (#blockInteriorStatement1) */
     @Override
     public void exitBlockInteriorStatement1(BlockInteriorStatement1Context ctx) {
-        ClassDecl ClassDeclaration = ctx.classDeclaration().ast;
+        ClassDecl ClassDeclaration = ast(ctx.classDeclaration());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(nf.LocalClassDecl(pos(ctx), ClassDeclaration));
         ctx.ast = l;
     }
 
-    /** Production: blockInteriorStatement ::= structDeclaration    (#blockInteriorStatement2) */
+    /** Production: blockInteriorStatement ::= structDeclaration (#blockInteriorStatement2) */
     @Override
     public void exitBlockInteriorStatement2(BlockInteriorStatement2Context ctx) {
-        ClassDecl StructDeclaration = ctx.structDeclaration().ast;
+        ClassDecl StructDeclaration = ast(ctx.structDeclaration());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(nf.LocalClassDecl(pos(ctx), StructDeclaration));
         ctx.ast = l;
     }
 
-    /** Production: blockInteriorStatement ::= typeDefDeclaration    (#blockInteriorStatement3) */
+    /** Production: blockInteriorStatement ::= typeDefDeclaration (#blockInteriorStatement3) */
     @Override
     public void exitBlockInteriorStatement3(BlockInteriorStatement3Context ctx) {
-        TypeDecl TypeDefDeclaration = ctx.typeDefDeclaration().ast;
+        TypeDecl TypeDefDeclaration = ast(ctx.typeDefDeclaration());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(nf.LocalTypeDef(pos(ctx), TypeDefDeclaration));
         ctx.ast = l;
     }
 
-    /** Production: blockInteriorStatement ::= statement    (#blockInteriorStatement4) */
+    /** Production: blockInteriorStatement ::= statement (#blockInteriorStatement4) */
     @Override
     public void exitBlockInteriorStatement4(BlockInteriorStatement4Context ctx) {
-        Stmt Statement = ctx.statement().ast;
+        Stmt Statement = ast(ctx.statement());
         List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         l.add(Statement);
         ctx.ast = l;
     }
 
-    /** Production: identifierList ::= identifier (',' identifier)*    (#identifierList) */
+    /** Production: identifierList ::= identifier (',' identifier)* (#identifierList) */
     @Override
     public void exitIdentifierList(IdentifierListContext ctx) {
         List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
         for (IdentifierContext identifier : ctx.identifier()) {
-            l.add(identifier.ast);
+            l.add(ast(identifier));
         }
         ctx.ast = l;
     }
 
-    /** Production: formalDeclarator ::= identifier resultType    (#formalDeclarator0) */
+    /** Production: formalDeclarator ::= identifier resultType (#formalDeclarator0) */
     @Override
     public void exitFormalDeclarator0(FormalDeclarator0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         List<Id> IdentifierList = Collections.<Id> emptyList();
-        TypeNode ResultType = ctx.resultType().ast;
+        TypeNode ResultType = ast(ctx.resultType());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
-    /** Production: formalDeclarator ::= '[' identifierList ']' resultType    (#formalDeclarator1) */
+    /** Production: formalDeclarator ::= '[' identifierList ']' resultType (#formalDeclarator1) */
     @Override
     public void exitFormalDeclarator1(FormalDeclarator1Context ctx) {
         Id Identifier = null;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode ResultType = ctx.resultType().ast;
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode ResultType = ast(ctx.resultType());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
-    /** Production: formalDeclarator ::= identifier '[' identifierList ']' resultType    (#formalDeclarator2) */
+    /** Production: formalDeclarator ::= identifier '[' identifierList ']' resultType (#formalDeclarator2) */
     @Override
     public void exitFormalDeclarator2(FormalDeclarator2Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode ResultType = ctx.resultType().ast;
+        Id Identifier = ast(ctx.identifier());
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode ResultType = ast(ctx.resultType());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, ResultType, null };
     }
 
-    /** Production: fieldDeclarator ::= identifier hasResultType    (#fieldDeclarator0) */
+    /** Production: fieldDeclarator ::= identifier hasResultType (#fieldDeclarator0) */
     @Override
     public void exitFieldDeclarator0(FieldDeclarator0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        TypeNode HasResultTypeopt = (TypeNode) ctx.hasResultType().ast;
+        Id Identifier = ast(ctx.identifier());
+        TypeNode HasResultTypeopt = (TypeNode) ast(ctx.hasResultType());
         Expr VariableInitializer = null;
         ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: fieldDeclarator ::= identifier hasResultTypeopt '=' variableInitializer    (#fieldDeclarator1) */
+    /** Production: fieldDeclarator ::= identifier hasResultTypeopt '=' variableInitializer (#fieldDeclarator1) */
     @Override
     public void exitFieldDeclarator1(FieldDeclarator1Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        TypeNode HasResultTypeopt = (TypeNode) ctx.hasResultTypeopt().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        Id Identifier = ast(ctx.identifier());
+        TypeNode HasResultTypeopt = (TypeNode) ast(ctx.hasResultTypeopt());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, Collections.<Id> emptyList(), HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclarator ::= identifier hasResultTypeopt '=' variableInitializer    (#variableDeclarator0) */
+    /** Production: variableDeclarator ::= identifier hasResultTypeopt '=' variableInitializer (#variableDeclarator0) */
     @Override
     public void exitVariableDeclarator0(VariableDeclarator0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         List<Id> IdentifierList = Collections.<Id> emptyList();
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclarator ::= '[' identifierList ']' hasResultTypeopt '=' variableInitializer    (#variableDeclarator1) */
+    /** Production: variableDeclarator ::= '[' identifierList ']' hasResultTypeopt '=' variableInitializer (#variableDeclarator1) */
     @Override
     public void exitVariableDeclarator1(VariableDeclarator1Context ctx) {
         Id Identifier = null;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer    (#variableDeclarator2) */
+    /** Production: variableDeclarator ::= identifier '[' identifierList ']' hasResultTypeopt '=' variableInitializer (#variableDeclarator2) */
     @Override
     public void exitVariableDeclarator2(VariableDeclarator2Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultTypeopt().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        Id Identifier = ast(ctx.identifier());
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclaratorWithType ::= identifier hasResultType '=' variableInitializer    (#variableDeclaratorWithType0) */
+    /** Production: variableDeclaratorWithType ::= identifier hasResultType '=' variableInitializer (#variableDeclaratorWithType0) */
     @Override
     public void exitVariableDeclaratorWithType0(VariableDeclaratorWithType0Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         List<Id> IdentifierList = Collections.<Id> emptyList();
-        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        TypeNode HasResultTypeopt = ast(ctx.hasResultType());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclaratorWithType ::= '[' identifierList ']' hasResultType '=' variableInitializer    (#variableDeclaratorWithType1) */
+    /** Production: variableDeclaratorWithType ::= '[' identifierList ']' hasResultType '=' variableInitializer (#variableDeclaratorWithType1) */
     @Override
     public void exitVariableDeclaratorWithType1(VariableDeclaratorWithType1Context ctx) {
         Id Identifier = null;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultType());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: variableDeclaratorWithType ::= identifier '[' identifierList ']' hasResultType '=' variableInitializer    (#variableDeclaratorWithType2) */
+    /** Production: variableDeclaratorWithType ::= identifier '[' identifierList ']' hasResultType '=' variableInitializer (#variableDeclaratorWithType2) */
     @Override
     public void exitVariableDeclaratorWithType2(VariableDeclaratorWithType2Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        List<Id> IdentifierList = ctx.identifierList().ast;
-        TypeNode HasResultTypeopt = ctx.hasResultType().ast;
-        Expr VariableInitializer = ctx.variableInitializer().ast;
+        Id Identifier = ast(ctx.identifier());
+        List<Id> IdentifierList = ast(ctx.identifierList());
+        TypeNode HasResultTypeopt = ast(ctx.hasResultType());
+        Expr VariableInitializer = ast(ctx.variableInitializer());
         ctx.ast = new Object[] { pos(ctx), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer };
     }
 
-    /** Production: localVariableDeclarationStatement ::= localVariableDeclaration ';'    (#localVariableDeclarationStatement) */
+    /** Production: localVariableDeclarationStatement ::= localVariableDeclaration ';' (#localVariableDeclarationStatement) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitLocalVariableDeclarationStatement(LocalVariableDeclarationStatementContext ctx) {
         // Check if this cast if correct
-        ctx.ast = (List<Stmt>) ((Object) ctx.localVariableDeclaration().ast);
+        ctx.ast = (List<Stmt>) ((Object) ast(ctx.localVariableDeclaration()));
     }
 
     List<LocalDecl> localVariableDeclaration(List<Modifier> Modifiersopt, List<FlagsNode> VarKeyword, List<Object[]> VariableDeclarators) {
@@ -3346,86 +5406,86 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return l;
     }
 
-    /** Production: localVariableDeclaration ::= modifiersopt varKeyword variableDeclarators    (#localVariableDeclaration0) */
+    /** Production: localVariableDeclaration ::= modifiersopt varKeyword variableDeclarators (#localVariableDeclaration0) */
     @Override
     public void exitLocalVariableDeclaration0(LocalVariableDeclaration0Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
-        List<Object[]> VariableDeclarators = ctx.variableDeclarators().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
+        List<Object[]> VariableDeclarators = ast(ctx.variableDeclarators());
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
-    /** Production: localVariableDeclaration ::= modifiersopt variableDeclaratorsWithType    (#localVariableDeclaration1) */
+    /** Production: localVariableDeclaration ::= modifiersopt variableDeclaratorsWithType (#localVariableDeclaration1) */
     @Override
     public void exitLocalVariableDeclaration1(LocalVariableDeclaration1Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
         List<FlagsNode> VarKeyword = null;
-        List<Object[]> VariableDeclarators = ctx.variableDeclaratorsWithType().ast;
+        List<Object[]> VariableDeclarators = ast(ctx.variableDeclaratorsWithType());
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
-    /** Production: localVariableDeclaration ::= modifiersopt varKeyword formalDeclarators    (#localVariableDeclaration2) */
+    /** Production: localVariableDeclaration ::= modifiersopt varKeyword formalDeclarators (#localVariableDeclaration2) */
     @Override
     public void exitLocalVariableDeclaration2(LocalVariableDeclaration2Context ctx) {
-        List<Modifier> Modifiersopt = ctx.modifiersopt().ast;
-        List<FlagsNode> VarKeyword = ctx.varKeyword().ast;
-        List<Object[]> VariableDeclarators = ctx.formalDeclarators().ast;
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
+        List<Object[]> VariableDeclarators = ast(ctx.formalDeclarators());
         ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
     }
 
-    /** Production: primary ::= 'here'    (#primary0) */
+    /** Production: primary ::= 'here' (#primary0) */
     @Override
     public void exitPrimary0(Primary0Context ctx) {
         ctx.ast = nf.Here(pos(ctx));
     }
 
-    /** Production: primary ::= '[' argumentListopt ']'    (#primary1) */
+    /** Production: primary ::= '[' argumentListopt ']' (#primary1) */
     @Override
     public void exitPrimary1(Primary1Context ctx) {
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         Tuple tuple = nf.Tuple(pos(ctx), ArgumentListopt);
         ctx.ast = tuple;
     }
 
-    /** Production: primary ::= literal    (#primary2) */
+    /** Production: primary ::= literal (#primary2) */
     @Override
     public void exitPrimary2(Primary2Context ctx) {
-        ctx.ast = ctx.literal().ast;
+        ctx.ast = ast(ctx.literal());
     }
 
-    /** Production: primary ::= 'self'    (#primary3) */
+    /** Production: primary ::= 'self' (#primary3) */
     @Override
     public void exitPrimary3(Primary3Context ctx) {
         ctx.ast = nf.Self(pos(ctx));
     }
 
-    /** Production: primary ::= 'this'    (#primary4) */
+    /** Production: primary ::= 'this' (#primary4) */
     @Override
     public void exitPrimary4(Primary4Context ctx) {
         ctx.ast = nf.This(pos(ctx));
     }
 
-    /** Production: primary ::= className '.' 'this'    (#primary5) */
+    /** Production: primary ::= className '.' 'this' (#primary5) */
     @Override
     public void exitPrimary5(Primary5Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
+        ParsedName ClassName = ast(ctx.className());
         ctx.ast = nf.This(pos(ctx), ClassName.toType());
     }
 
-    /** Production: primary ::= '(' expression ')'    (#primary6) */
+    /** Production: primary ::= '(' expression ')' (#primary6) */
     @Override
     public void exitPrimary6(Primary6Context ctx) {
-        Expr Expression = ctx.expression().ast;
+        Expr Expression = ast(ctx.expression());
         ctx.ast = nf.ParExpr(pos(ctx), Expression);
     }
 
-    /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary7) */
+    /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary7) */
     @Override
     public void exitPrimary7(Primary7Context ctx) {
-        ParsedName TypeName = ctx.typeName().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        ParsedName TypeName = ast(ctx.typeName());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ClassBody ClassBodyopt = ast(ctx.classBodyopt());
         if (ClassBodyopt == null) {
             ctx.ast = nf.X10New(pos(ctx), TypeName.toType(), TypeArgumentsopt, ArgumentListopt);
         } else {
@@ -3433,14 +5493,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: primary ::= primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary8) */
+    /** Production: primary ::= primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary8) */
     @Override
     public void exitPrimary8(Primary8Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        Expr Primary = ast(ctx.primary());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ClassBody ClassBodyopt = ast(ctx.classBodyopt());
         ParsedName b = new ParsedName(nf, ts, pos(ctx), Identifier);
         if (ClassBodyopt == null) {
             ctx.ast = nf.X10New(pos(ctx), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt);
@@ -3449,14 +5509,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: primary ::= fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt    (#primary9) */
+    /** Production: primary ::= fullyQualifiedName '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary9) */
     @Override
     public void exitPrimary9(Primary9Context ctx) {
-        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        ClassBody ClassBodyopt = ctx.classBodyopt().ast;
+        ParsedName FullyQualifiedName = ast(ctx.fullyQualifiedName());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ClassBody ClassBodyopt = ast(ctx.classBodyopt());
         ParsedName b = new ParsedName(nf, ts, pos(ctx), Identifier);
         if (ClassBodyopt == null) {
             ctx.ast = nf.X10New(pos(ctx), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt);
@@ -3465,73 +5525,73 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: primary ::= primary '.' identifier    (#primary10) */
+    /** Production: primary ::= primary '.' identifier (#primary10) */
     @Override
     public void exitPrimary10(Primary10Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Id Identifier = ctx.identifier().ast;
+        Expr Primary = ast(ctx.primary());
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
     }
 
-    /** Production: primary ::= s='super' '.' identifier    (#primary11) */
+    /** Production: primary ::= s='super' '.' identifier (#primary11) */
     @Override
     public void exitPrimary11(Primary11Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' identifier    (#primary12) */
+    /** Production: primary ::= className '.' s='super' '.' identifier (#primary12) */
     @Override
     public void exitPrimary12(Primary12Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        Id Identifier = ctx.identifier().ast;
+        ParsedName ClassName = ast(ctx.className());
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
-    /** Production: primary ::= methodName typeArgumentsopt '(' argumentListopt ')'    (#primary13) */
+    /** Production: primary ::= methodName typeArgumentsopt '(' argumentListopt ')' (#primary13) */
     @Override
     public void exitPrimary13(Primary13Context ctx) {
-        ParsedName MethodName = ctx.methodName().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ParsedName MethodName = ast(ctx.methodName());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary14) */
+    /** Production: primary ::= primary '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary14) */
     @Override
     public void exitPrimary14(Primary14Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Expr Primary = ast(ctx.primary());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10Call(pos(ctx), Primary, Identifier, TypeArguments, ArgumentListopt);
     }
 
-    /** Production: primary ::= s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary15) */
+    /** Production: primary ::= s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary15) */
     @Override
     public void exitPrimary15(Primary15Context ctx) {
-        Id Identifier = ctx.identifier().ast;
-        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Id Identifier = ast(ctx.identifier());
+        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s)), Identifier, TypeArguments, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'    (#primary16) */
+    /** Production: primary ::= className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary16) */
     @Override
     public void exitPrimary16(Primary16Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        Id Identifier = ctx.identifier().ast;
-        List<TypeNode> TypeArguments = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ParsedName ClassName = ast(ctx.className());
+        Id Identifier = ast(ctx.identifier());
+        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary typeArgumentsopt '(' argumentListopt ')'    (#primary17) */
+    /** Production: primary ::= primary typeArgumentsopt '(' argumentListopt ')' (#primary17) */
     @Override
     public void exitPrimary17(Primary17Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        Expr Primary = ast(ctx.primary());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         if (Primary instanceof Field) {
             Field f = (Field) Primary;
             ctx.ast = nf.X10Call(pos(ctx), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt);
@@ -3543,24 +5603,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: primary ::= className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'    (#primary18) */
+    /** Production: primary ::= className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')' (#primary18) */
     @Override
     public void exitPrimary18(Primary18Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        TypeNode Type = ctx.type().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ParsedName ClassName = ast(ctx.className());
+        TypeNode Type = ast(ctx.type());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         Name opName = Converter.operator_as;
         ctx.ast = nf.X10ConversionCall(pos(ctx), ClassName.toType(), nf.Id(pos(ctx.type()), opName), Type, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'    (#primary19) */
+    /** Production: primary ::= className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')' (#primary19) */
     @Override
     public void exitPrimary19(Primary19Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        TypeNode Type = ctx.type().ast;
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        ParsedName ClassName = ast(ctx.className());
+        TypeNode Type = ast(ctx.type());
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         Name opName = Converter.implicit_operator_as;
         ctx.ast = nf.X10ConversionCall(pos(ctx), ClassName.toType(), nf.Id(pos(ctx.type()), opName), Type, TypeArgumentsopt, ArgumentListopt);
     }
@@ -3578,405 +5638,405 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: primary ::= 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary20) */
+    /** Production: primary ::= 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary20) */
     @Override
     public void exitPrimary20(Primary20Context ctx) {
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= fullyQualifiedName '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary21) */
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary21) */
     @Override
     public void exitPrimary21(Primary21Context ctx) {
-        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        ParsedName FullyQualifiedName = ast(ctx.fullyQualifiedName());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary22) */
+    /** Production: primary ::= primary '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary22) */
     @Override
     public void exitPrimary22(Primary22Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Expr Primary = ast(ctx.primary());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary23) */
+    /** Production: primary ::= s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary23) */
     @Override
     public void exitPrimary23(Primary23Context ctx) {
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary24) */
+    /** Production: primary ::= className '.' s='super' '.' 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary24) */
     @Override
     public void exitPrimary24(Primary24Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        ParsedName ClassName = ast(ctx.className());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.binaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary25) */
+    /** Production: primary ::= 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')' (#primary25) */
     @Override
     public void exitPrimary25(Primary25Context ctx) {
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= fullyQualifiedName '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary26) */
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')' (#primary26) */
     @Override
     public void exitPrimary26(Primary26Context ctx) {
-        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        ParsedName FullyQualifiedName = ast(ctx.fullyQualifiedName());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary27) */
+    /** Production: primary ::= primary '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')' (#primary27) */
     @Override
     public void exitPrimary27(Primary27Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Expr Primary = ast(ctx.primary());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary28) */
+    /** Production: primary ::= s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')' (#primary28) */
     @Override
     public void exitPrimary28(Primary28Context ctx) {
-        Binary.Operator BinOp = ctx.binOp().ast;
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')'    (#primary29) */
+    /** Production: primary ::= className '.' s='super' '.' 'operator' '(' ')' binOp typeArgumentsopt '(' argumentListopt ')' (#primary29) */
     @Override
     public void exitPrimary29(Primary29Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        Binary.Operator BinOp = ctx.binOp().ast;
+        ParsedName ClassName = ast(ctx.className());
+        Binary.Operator BinOp = ast(ctx.binOp());
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
         if (opName == null) {
             err.syntaxError("Cannot invoke binary operator '" + BinOp + "'.", pos(ctx));
             opName = Name.make("invalid operator");
         }
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.binOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary30) */
+    /** Production: primary ::= 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')' (#primary30) */
     @Override
     public void exitPrimary30(Primary30Context ctx) {
         Name opName = ClosureCall.APPLY;
         Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary31) */
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')' (#primary31) */
     @Override
     public void exitPrimary31(Primary31Context ctx) {
-        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        ParsedName FullyQualifiedName = ast(ctx.fullyQualifiedName());
         Name opName = ClosureCall.APPLY;
         Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary32) */
+    /** Production: primary ::= primary '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')' (#primary32) */
     @Override
     public void exitPrimary32(Primary32Context ctx) {
-        Expr Primary = ctx.primary().ast;
+        Expr Primary = ast(ctx.primary());
         Name opName = ClosureCall.APPLY;
         Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary33) */
+    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')' (#primary33) */
     @Override
     public void exitPrimary33(Primary33Context ctx) {
         Name opName = ClosureCall.APPLY;
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')'    (#primary34) */
+    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp typeArgumentsopt '(' argumentListopt ')' (#primary34) */
     @Override
     public void exitPrimary34(Primary34Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
+        ParsedName ClassName = ast(ctx.className());
         Name opName = ClosureCall.APPLY;
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary35) */
+    /** Production: primary ::= 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')' (#primary35) */
     @Override
     public void exitPrimary35(Primary35Context ctx) {
         Name opName = SettableAssign.SET;
         Expr OperatorPrefix = nf.Field(pos(ctx), null, nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary36) */
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')' (#primary36) */
     @Override
     public void exitPrimary36(Primary36Context ctx) {
-        ParsedName FullyQualifiedName = ctx.fullyQualifiedName().ast;
+        ParsedName FullyQualifiedName = ast(ctx.fullyQualifiedName());
         Name opName = SettableAssign.SET;
         Expr OperatorPrefix = nf.Field(pos(ctx), FullyQualifiedName.toReceiver(), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary37) */
+    /** Production: primary ::= primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')' (#primary37) */
     @Override
     public void exitPrimary37(Primary37Context ctx) {
-        Expr Primary = ctx.primary().ast;
+        Expr Primary = ast(ctx.primary());
         Name opName = SettableAssign.SET;
         Expr OperatorPrefix = nf.Field(pos(ctx), Primary, nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary38) */
+    /** Production: primary ::= s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')' (#primary38) */
     @Override
     public void exitPrimary38(Primary38Context ctx) {
         Name opName = SettableAssign.SET;
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'    (#primary39) */
+    /** Production: primary ::= className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')' (#primary39) */
     @Override
     public void exitPrimary39(Primary39Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
+        ParsedName ClassName = ast(ctx.className());
         Name opName = SettableAssign.SET;
         Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.parenthesisOp()), opName));
-        List<TypeNode> TypeArgumentsopt = ctx.typeArgumentsopt().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
 
-    /** Production: literal ::= IntLiteral    (#IntLiteral) */
+    /** Production: literal ::= IntLiteral (#IntLiteral) */
     @Override
     public void exitIntLiteral(IntLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.INT);
     }
 
-    /** Production: literal ::= LongLiteral    (#LongLiteral) */
+    /** Production: literal ::= LongLiteral (#LongLiteral) */
     @Override
     public void exitLongLiteral(LongLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.LONG);
     }
 
-    /** Production: literal ::= ByteLiteral    (#ByteLiteral) */
+    /** Production: literal ::= ByteLiteral (#ByteLiteral) */
     @Override
     public void exitByteLiteral(ByteLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.BYTE);
     }
 
-    /** Production: literal ::= UnsignedByteLiteral    (#UnsignedByteLiteral) */
+    /** Production: literal ::= UnsignedByteLiteral (#UnsignedByteLiteral) */
     @Override
     public void exitUnsignedByteLiteral(UnsignedByteLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.UBYTE);
     }
 
-    /** Production: literal ::= ShortLiteral    (#ShortLiteral) */
+    /** Production: literal ::= ShortLiteral (#ShortLiteral) */
     @Override
     public void exitShortLiteral(ShortLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.SHORT);
     }
 
-    /** Production: literal ::= UnsignedShortLiteral    (#UnsignedShortLiteral) */
+    /** Production: literal ::= UnsignedShortLiteral (#UnsignedShortLiteral) */
     @Override
     public void exitUnsignedShortLiteral(UnsignedShortLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.USHORT);
     }
 
-    /** Production: literal ::= UnsignedIntLiteral    (#UnsignedIntLiteral) */
+    /** Production: literal ::= UnsignedIntLiteral (#UnsignedIntLiteral) */
     @Override
     public void exitUnsignedIntLiteral(UnsignedIntLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.UINT);
     }
 
-    /** Production: literal ::= UnsignedLongLiteral    (#UnsignedLongLiteral) */
+    /** Production: literal ::= UnsignedLongLiteral (#UnsignedLongLiteral) */
     @Override
     public void exitUnsignedLongLiteral(UnsignedLongLiteralContext ctx) {
         ctx.ast = getIntLit(ctx, IntLit.ULONG);
     }
 
-    /** Production: literal ::= FloatingPointLiteral    (#FloatingPointLiteral) */
+    /** Production: literal ::= FloatingPointLiteral (#FloatingPointLiteral) */
     @Override
     public void exitFloatingPointLiteral(FloatingPointLiteralContext ctx) {
         polyglot.lex.FloatLiteral a = float_lit(ctx);
         ctx.ast = nf.FloatLit(pos(ctx), FloatLit.FLOAT, a.getValue().floatValue());
     }
 
-    /** Production: literal ::= DoubleLiteral    (#DoubleLiteral) */
+    /** Production: literal ::= DoubleLiteral (#DoubleLiteral) */
     @Override
     public void exitDoubleLiteral(DoubleLiteralContext ctx) {
         polyglot.lex.DoubleLiteral a = double_lit(ctx);
         ctx.ast = nf.FloatLit(pos(ctx), FloatLit.DOUBLE, a.getValue().doubleValue());
     }
 
-    /** Production: literal ::= booleanLiteral    (#Literal10) */
+    /** Production: literal ::= booleanLiteral (#Literal10) */
     @Override
     public void exitLiteral10(Literal10Context ctx) {
-        ctx.ast = ctx.booleanLiteral().ast;
+        ctx.ast = ast(ctx.booleanLiteral());
     }
 
 
-    /** Production: literal ::= CharacterLiteral    (#CharacterLiteral) */
+    /** Production: literal ::= CharacterLiteral (#CharacterLiteral) */
     @Override
     public void exitCharacterLiteral(CharacterLiteralContext ctx) {
         ctx.ast = nf.CharLit(pos(ctx), char_lit(ctx).getValue().charValue());
     }
 
-    /** Production: literal ::= StringLiteral    (#StringLiteral) */
+    /** Production: literal ::= StringLiteral (#StringLiteral) */
     @Override
     public void exitStringLiteral(StringLiteralContext ctx) {
         ctx.ast = nf.StringLit(pos(ctx), string_lit(ctx).getValue());
     }
 
-    /** Production: literal ::= 'null'    (#NullLiteral) */
+    /** Production: literal ::= 'null' (#NullLiteral) */
     @Override
     public void exitNullLiteral(NullLiteralContext ctx) {
         ctx.ast = nf.NullLit(pos(ctx));
     }
 
-    /** Production: booleanLiteral ::= 'true' | 'false'   (#booleanLiteral) */
+    /** Production: booleanLiteral ::= 'true' | 'false' (#booleanLiteral) */
     @Override
     public void exitBooleanLiteral(BooleanLiteralContext ctx) {
         ctx.ast = nf.BooleanLit(pos(ctx), boolean_lit(ctx).getValue().booleanValue());
     }
 
-    /** Production: argumentList ::= expression (',' expression)*    (#argumentList) */
+    /** Production: argumentList ::= expression (',' expression)* (#argumentList) */
     @Override
     public void exitArgumentList(ArgumentListContext ctx) {
         List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         for (ExpressionContext e : ctx.expression()) {
-            l.add(e.ast);
+            l.add(ast(e));
         }
         ctx.ast = l;
     }
 
-    /** Production: fieldAccess ::= primary '.' identifier    (#fieldAccess0) */
+    /** Production: fieldAccess ::= primary '.' identifier (#fieldAccess0) */
     @Override
     public void exitFieldAccess0(FieldAccess0Context ctx) {
-        Expr Primary = ctx.primary().ast;
-        Id Identifier = ctx.identifier().ast;
+        Expr Primary = ast(ctx.primary());
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), Primary, Identifier);
     }
 
-    /** Production: fieldAccess ::= s='super' '.' identifier    (#fieldAccess1) */
+    /** Production: fieldAccess ::= s='super' '.' identifier (#fieldAccess1) */
     @Override
     public void exitFieldAccess1(FieldAccess1Context ctx) {
-        Id Identifier = ctx.identifier().ast;
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), Identifier);
     }
 
-    /** Production: fieldAccess ::= className '.' s='super' '.' identifier    (#fieldAccess2) */
+    /** Production: fieldAccess ::= className '.' s='super' '.' identifier (#fieldAccess2) */
     @Override
     public void exitFieldAccess2(FieldAccess2Context ctx) {
-        ParsedName ClassName = ctx.className().ast;
-        Id Identifier = ctx.identifier().ast;
+        ParsedName ClassName = ast(ctx.className());
+        Id Identifier = ast(ctx.identifier());
         ctx.ast = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier);
     }
 
-    /** Production: conditionalExpression ::= castExpression    (#conditionalExpression0) */
+    /** Production: conditionalExpression ::= castExpression (#conditionalExpression0) */
     @Override
     public void exitConditionalExpression0(ConditionalExpression0Context ctx) {
-        ctx.ast = ctx.castExpression().ast;
+        ctx.ast = ast(ctx.castExpression());
     }
 
-    /** Production: conditionalExpression ::= conditionalExpression op=('++'|'--')    (#conditionalExpression1) */
+    /** Production: conditionalExpression ::= conditionalExpression op=('++'|'--') (#conditionalExpression1) */
     @Override
     public void exitConditionalExpression1(ConditionalExpression1Context ctx) {
-        Expr PostfixExpression = ctx.conditionalExpression().ast;
+        Expr PostfixExpression = ast(ctx.conditionalExpression());
         Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.PLUS_PLUS:
@@ -3992,20 +6052,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), PostfixExpression, op);
     }
 
-    /** Production: conditionalExpression ::= annotations conditionalExpression    (#conditionalExpression2) */
+    /** Production: conditionalExpression ::= annotations conditionalExpression (#conditionalExpression2) */
     @Override
     public void exitConditionalExpression2(ConditionalExpression2Context ctx) {
-        List<AnnotationNode> Annotations = ctx.annotations().ast;
-        Expr UnannotatedUnaryExpression = ctx.conditionalExpression().ast;
+        List<AnnotationNode> Annotations = ast(ctx.annotations());
+        Expr UnannotatedUnaryExpression = ast(ctx.conditionalExpression());
         Expr e = UnannotatedUnaryExpression;
         e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
         ctx.ast = (Expr) e.position(pos(ctx));
     }
 
-    /** Production: conditionalExpression ::= op=('+'|'-'|'++'|'--') conditionalExpression    (#conditionalExpression3) */
+    /** Production: conditionalExpression ::= op=('+'|'-'|'++'|'--') conditionalExpression (#conditionalExpression3) */
     @Override
     public void exitConditionalExpression3(ConditionalExpression3Context ctx) {
-        Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
+        Expr UnaryExpressionNotPlusMinus = ast(ctx.conditionalExpression());
         Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.PLUS:
@@ -4027,10 +6087,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
     }
 
-    /** Production: conditionalExpression ::= op=('~'|'!'|'^'|'|'|'&'|'*'|'/'|'%') conditionalExpression    (#conditionalExpression4) */
+    /** Production: conditionalExpression ::= op=('~'|'!'|'^'|'|'|'&'|'*'|'/'|'%') conditionalExpression (#conditionalExpression4) */
     @Override
     public void exitConditionalExpression4(ConditionalExpression4Context ctx) {
-        Expr UnaryExpressionNotPlusMinus = ctx.conditionalExpression().ast;
+        Expr UnaryExpressionNotPlusMinus = ast(ctx.conditionalExpression());
         Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.TWIDDLE:
@@ -4064,20 +6124,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Unary(pos(ctx), op, UnaryExpressionNotPlusMinus);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '..' e2=conditionalExpression    (#conditionalExpression5) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '..' e2=conditionalExpression (#conditionalExpression5) */
     @Override
     public void exitConditionalExpression5(ConditionalExpression5Context ctx) {
-        Expr RangeExpression = ctx.e1.ast;
-        Expr UnaryExpression = ctx.e2.ast;
+        Expr RangeExpression = ast(ctx.e1);
+        Expr UnaryExpression = ast(ctx.e2);
         Expr regionCall = nf.Binary(pos(ctx), RangeExpression, Binary.DOT_DOT, UnaryExpression);
         ctx.ast = regionCall;
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('*'|'/'|'%'|'**') e2=conditionalExpression    (#conditionalExpression6) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('*'|'/'|'%'|'**') e2=conditionalExpression (#conditionalExpression6) */
     @Override
     public void exitConditionalExpression6(ConditionalExpression6Context ctx) {
-        Expr MultiplicativeExpression = ctx.e1.ast;
-        Expr RangeExpression = ctx.e2.ast;
+        Expr MultiplicativeExpression = ast(ctx.e1);
+        Expr RangeExpression = ast(ctx.e2);
         polyglot.ast.Binary.Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.MULTIPLY:
@@ -4099,11 +6159,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), MultiplicativeExpression, op, RangeExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('+'|'-') e2=conditionalExpression    (#conditionalExpression7) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('+'|'-') e2=conditionalExpression (#conditionalExpression7) */
     @Override
     public void exitConditionalExpression7(ConditionalExpression7Context ctx) {
-        Expr AdditiveExpression = ctx.e1.ast;
-        Expr MultiplicativeExpression = ctx.e2.ast;
+        Expr AdditiveExpression = ast(ctx.e1);
+        Expr MultiplicativeExpression = ast(ctx.e2);
         polyglot.ast.Binary.Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.PLUS:
@@ -4119,29 +6179,29 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), AdditiveExpression, op, MultiplicativeExpression);
     }
 
-    /** Production: conditionalExpression ::= hasZeroConstraint    (#conditionalExpression8) */
+    /** Production: conditionalExpression ::= hasZeroConstraint (#conditionalExpression8) */
     @Override
     public void exitConditionalExpression8(ConditionalExpression8Context ctx) {
-        ctx.ast = ctx.hasZeroConstraint().ast;
+        ctx.ast = ast(ctx.hasZeroConstraint());
     }
 
-    /** Production: conditionalExpression ::= isRefConstraint    (#conditionalExpression9) */
+    /** Production: conditionalExpression ::= isRefConstraint (#conditionalExpression9) */
     @Override
     public void exitConditionalExpression9(ConditionalExpression9Context ctx) {
-        ctx.ast = ctx.isRefConstraint().ast;
+        ctx.ast = ast(ctx.isRefConstraint());
     }
 
-    /** Production: conditionalExpression ::= subtypeConstraint    (#conditionalExpression10) */
+    /** Production: conditionalExpression ::= subtypeConstraint (#conditionalExpression10) */
     @Override
     public void exitConditionalExpression10(ConditionalExpression10Context ctx) {
-        ctx.ast = ctx.subtypeConstraint().ast;
+        ctx.ast = ast(ctx.subtypeConstraint());
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression    (#conditionalExpression11) */
+/** Production: conditionalExpression ::= e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression    (#conditionalExpression11) */
     @Override
     public void exitConditionalExpression11(ConditionalExpression11Context ctx) {
-        Expr expr1 = ctx.e1.ast;
-        Expr expr2 = ctx.e2.ast;
+        Expr expr1 = ast(ctx.e1);
+        Expr expr2 = ast(ctx.e2);
         polyglot.ast.Binary.Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.LEFT_SHIFT:
@@ -4182,19 +6242,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = call;
     }
 
-    /** Production: conditionalExpression ::= conditionalExpression 'instanceof' type    (#conditionalExpression12) */
+    /** Production: conditionalExpression ::= conditionalExpression 'instanceof' type (#conditionalExpression12) */
     @Override
     public void exitConditionalExpression12(ConditionalExpression12Context ctx) {
-        Expr RelationalExpression = ctx.conditionalExpression().ast;
-        TypeNode Type = ctx.type().ast;
+        Expr RelationalExpression = ast(ctx.conditionalExpression());
+        TypeNode Type = ast(ctx.type());
         ctx.ast = nf.Instanceof(pos(ctx), RelationalExpression, Type);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression    (#conditionalExpression13) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression (#conditionalExpression13) */
     @Override
     public void exitConditionalExpression13(ConditionalExpression13Context ctx) {
-        Expr RelationalExpression = ctx.e1.ast;
-        Expr ShiftExpression = ctx.e2.ast;
+        Expr RelationalExpression = ast(ctx.e1);
+        Expr ShiftExpression = ast(ctx.e2);
         polyglot.ast.Binary.Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.LESS:
@@ -4249,15 +6309,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return nf.AmbTypeNode(e.position(), ((AmbExpr) e).name());
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression    (#conditionalExpression14) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression (#conditionalExpression14) */
     @Override
     public void exitConditionalExpression14(ConditionalExpression14Context ctx) {
         TypeContext t1ctx = isType(ctx.e1);
         TypeContext t2ctx = isType(ctx.e2);
         if (t1ctx == null && t2ctx == null || ctx.op.getType() != X10Parser.EQUAL_EQUAL) {
             // Comparison between expressions
-            Expr EqualityExpression = ctx.e1.ast;
-            Expr RelationalExpression = ctx.e2.ast;
+            Expr EqualityExpression = ast(ctx.e1);
+            Expr RelationalExpression = ast(ctx.e2);
             polyglot.ast.Binary.Operator op;
             switch (ctx.op.getType()) {
             case X10Parser.EQUAL_EQUAL:
@@ -4273,24 +6333,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
         } else {
             // Comparison between types
-            TypeNode t1 = t1ctx == null ? toTypeNode(ctx.e1.ast) : t1ctx.ast;
-            TypeNode t2 = t2ctx == null ? toTypeNode(ctx.e2.ast) : t2ctx.ast;
+            TypeNode t1 = t1ctx == null ? toTypeNode(ctx.e1.ast) : ast(t1ctx);
+            TypeNode t2 = t2ctx == null ? toTypeNode(ctx.e2.ast) : ast(t2ctx);
             ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
         }
     }
 
     // @Override
     // public void exitConditionalExpression15(ConditionalExpression15Context ctx) {
-    // TypeNode t1 = ctx.t1.ast;
-    // TypeNode t2 = ctx.t2.ast;
+    // TypeNode t1 = ast(ctx.t1);
+    // TypeNode t2 = ast(ctx.t2);
     // ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
     // }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression    (#conditionalExpression16) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression (#conditionalExpression16) */
     @Override
     public void exitConditionalExpression16(ConditionalExpression16Context ctx) {
-        Expr EqualityExpression = ctx.e1.ast;
-        Expr RelationalExpression = ctx.e2.ast;
+        Expr EqualityExpression = ast(ctx.e1);
+        Expr RelationalExpression = ast(ctx.e2);
         polyglot.ast.Binary.Operator op;
         switch (ctx.op.getType()) {
         case X10Parser.TWIDDLE:
@@ -4306,70 +6366,70 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '&' e2=conditionalExpression    (#conditionalExpression17) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '&' e2=conditionalExpression (#conditionalExpression17) */
     @Override
     public void exitConditionalExpression17(ConditionalExpression17Context ctx) {
-        Expr AndExpression = ctx.e1.ast;
-        Expr EqualityExpression = ctx.e2.ast;
+        Expr AndExpression = ast(ctx.e1);
+        Expr EqualityExpression = ast(ctx.e2);
         ctx.ast = nf.Binary(pos(ctx), AndExpression, Binary.BIT_AND, EqualityExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '^' e2=conditionalExpression    (#conditionalExpression18) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '^' e2=conditionalExpression (#conditionalExpression18) */
     @Override
     public void exitConditionalExpression18(ConditionalExpression18Context ctx) {
-        Expr ExclusiveOrExpression = ctx.e1.ast;
-        Expr AndExpression = ctx.e2.ast;
+        Expr ExclusiveOrExpression = ast(ctx.e1);
+        Expr AndExpression = ast(ctx.e2);
         ctx.ast = nf.Binary(pos(ctx), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '|' e2=conditionalExpression    (#conditionalExpression19) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '|' e2=conditionalExpression (#conditionalExpression19) */
     @Override
     public void exitConditionalExpression19(ConditionalExpression19Context ctx) {
-        Expr InclusiveOrExpression = ctx.e1.ast;
-        Expr ExclusiveOrExpression = ctx.e2.ast;
+        Expr InclusiveOrExpression = ast(ctx.e1);
+        Expr ExclusiveOrExpression = ast(ctx.e2);
         ctx.ast = nf.Binary(pos(ctx), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '&&' e2=conditionalExpression    (#conditionalExpression20) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '&&' e2=conditionalExpression (#conditionalExpression20) */
     @Override
     public void exitConditionalExpression20(ConditionalExpression20Context ctx) {
-        Expr ConditionalAndExpression = ctx.e1.ast;
-        Expr InclusiveOrExpression = ctx.e2.ast;
+        Expr ConditionalAndExpression = ast(ctx.e1);
+        Expr InclusiveOrExpression = ast(ctx.e2);
         ctx.ast = nf.Binary(pos(ctx), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression);
     }
 
-    /** Production: conditionalExpression ::= e1=conditionalExpression '||' e2=conditionalExpression    (#conditionalExpression21) */
+    /** Production: conditionalExpression ::= e1=conditionalExpression '||' e2=conditionalExpression (#conditionalExpression21) */
     @Override
     public void exitConditionalExpression21(ConditionalExpression21Context ctx) {
-        Expr ConditionalOrExpression = ctx.e1.ast;
-        Expr ConditionalAndExpression = ctx.e2.ast;
+        Expr ConditionalOrExpression = ast(ctx.e1);
+        Expr ConditionalAndExpression = ast(ctx.e2);
         ctx.ast = nf.Binary(pos(ctx), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression);
     }
 
-    /** Production: conditionalExpression ::= closureExpression    (#conditionalExpression22) */
+    /** Production: conditionalExpression ::= closureExpression (#conditionalExpression22) */
     @Override
     public void exitConditionalExpression22(ConditionalExpression22Context ctx) {
-        ctx.ast = ctx.closureExpression().ast;
+        ctx.ast = ast(ctx.closureExpression());
     }
 
-    /** Production: conditionalExpression ::= atExpression    (#conditionalExpression23) */
+    /** Production: conditionalExpression ::= atExpression (#conditionalExpression23) */
     @Override
     public void exitConditionalExpression23(ConditionalExpression23Context ctx) {
-        ctx.ast = ctx.atExpression().ast;
+        ctx.ast = ast(ctx.atExpression());
     }
 
-    /** Production: conditionalExpression ::= oBSOLETE_FinishExpression    (#conditionalExpression24) */
+    /** Production: conditionalExpression ::= oBSOLETE_FinishExpression (#conditionalExpression24) */
     @Override
     public void exitConditionalExpression24(ConditionalExpression24Context ctx) {
-        ctx.ast = ctx.oBSOLETE_FinishExpression().ast;
+        ctx.ast = ast(ctx.oBSOLETE_FinishExpression());
     }
 
-    /** Production: conditionalExpression ::= <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression    (#conditionalExpression25) */
+    /** Production: conditionalExpression ::= <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression (#conditionalExpression25) */
     @Override
     public void exitConditionalExpression25(ConditionalExpression25Context ctx) {
-        Expr ConditionalOrExpression = ctx.e1.ast;
-        Expr Expression = ctx.e2.ast;
-        Expr ConditionalExpression = ctx.e3.ast;
+        Expr ConditionalOrExpression = ast(ctx.e1);
+        Expr Expression = ast(ctx.e2);
+        Expr ConditionalExpression = ast(ctx.e3);
         ctx.ast = nf.Conditional(pos(ctx), ConditionalOrExpression, Expression, ConditionalExpression);
     }
 
@@ -4398,552 +6458,552 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return false;
     }
 
-    /** Production: conditionalExpression ::= type    (#conditionalExpression26) */
+    /** Production: conditionalExpression ::= type (#conditionalExpression26) */
     @Override
     public void exitConditionalExpression26(ConditionalExpression26Context ctx) {
         if (isEquality(ctx.getParent())) {
             ctx.ast = null;
         } else {
             err.syntaxError("A type is not allowed as an expression", pos(ctx));
-            ctx.ast = errorExpression(pos(ctx));
+            ctx.ast = errorExpr(pos(ctx));
         }
     }
 
-    /** Production: assignmentExpression ::= assignment    (#assignmentExpression0) */
+    /** Production: assignmentExpression ::= assignment (#assignmentExpression0) */
     @Override
     public void exitAssignmentExpression0(AssignmentExpression0Context ctx) {
-        ctx.ast = ctx.assignment().ast;
+        ctx.ast = ast(ctx.assignment());
     }
 
-    /** Production: assignmentExpression ::= conditionalExpression    (#assignmentExpression1) */
+    /** Production: assignmentExpression ::= conditionalExpression (#assignmentExpression1) */
     @Override
     public void exitAssignmentExpression1(AssignmentExpression1Context ctx) {
-        ctx.ast = ctx.conditionalExpression().ast;
+        ctx.ast = ast(ctx.conditionalExpression());
     }
 
-    /** Production: assignment ::= leftHandSide assignmentOperator assignmentExpression    (#assignment0) */
+    /** Production: assignment ::= leftHandSide assignmentOperator assignmentExpression (#assignment0) */
     @Override
     public void exitAssignment0(Assignment0Context ctx) {
-        Expr LeftHandSide = ctx.leftHandSide().ast;
-        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
-        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        Expr LeftHandSide = ast(ctx.leftHandSide());
+        Assign.Operator AssignmentOperator = ast(ctx.assignmentOperator());
+        Expr AssignmentExpression = ast(ctx.assignmentExpression());
         ctx.ast = nf.Assign(pos(ctx), LeftHandSide, AssignmentOperator, AssignmentExpression);
     }
 
-    /** Production: assignment ::= expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression    (#assignment1) */
+    /** Production: assignment ::= expressionName '(' argumentListopt ')' assignmentOperator assignmentExpression (#assignment1) */
     @Override
     public void exitAssignment1(Assignment1Context ctx) {
-        ParsedName e1 = ctx.expressionName().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
-        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        ParsedName e1 = ast(ctx.expressionName());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        Assign.Operator AssignmentOperator = ast(ctx.assignmentOperator());
+        Expr AssignmentExpression = ast(ctx.assignmentExpression());
         ctx.ast = nf.SettableAssign(pos(ctx), e1.toExpr(), ArgumentListopt, AssignmentOperator, AssignmentExpression);
     }
 
-    /** Production: assignment ::= primary '(' argumentListopt ')' assignmentOperator assignmentExpression    (#assignment2) */
+    /** Production: assignment ::= primary '(' argumentListopt ')' assignmentOperator assignmentExpression (#assignment2) */
     @Override
     public void exitAssignment2(Assignment2Context ctx) {
-        Expr e1 = ctx.primary().ast;
-        List<Expr> ArgumentListopt = ctx.argumentListopt().ast;
-        Assign.Operator AssignmentOperator = ctx.assignmentOperator().ast;
-        Expr AssignmentExpression = ctx.assignmentExpression().ast;
+        Expr e1 = ast(ctx.primary());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        Assign.Operator AssignmentOperator = ast(ctx.assignmentOperator());
+        Expr AssignmentExpression = ast(ctx.assignmentExpression());
         ctx.ast = nf.SettableAssign(pos(ctx), e1, ArgumentListopt, AssignmentOperator, AssignmentExpression);
     }
 
-    /** Production: leftHandSide ::= expressionName    (#leftHandSide0) */
+    /** Production: leftHandSide ::= expressionName (#leftHandSide0) */
     @Override
     public void exitLeftHandSide0(LeftHandSide0Context ctx) {
-        ParsedName ExpressionName = ctx.expressionName().ast;
+        ParsedName ExpressionName = ast(ctx.expressionName());
         ctx.ast = ExpressionName.toExpr();
     }
 
-    /** Production: leftHandSide ::= fieldAccess    (#leftHandSide1) */
+    /** Production: leftHandSide ::= fieldAccess (#leftHandSide1) */
     @Override
     public void exitLeftHandSide1(LeftHandSide1Context ctx) {
-        ctx.ast = ctx.fieldAccess().ast;
+        ctx.ast = ast(ctx.fieldAccess());
     }
 
-    /** Production: expression ::= assignmentExpression    (#expression) */
+    /** Production: expression ::= assignmentExpression (#expression) */
     @Override
     public void exitExpression(ExpressionContext ctx) {
-        ctx.ast = ctx.assignmentExpression().ast;
+        ctx.ast = ast(ctx.assignmentExpression());
     }
 
-    /** Production: constantExpression ::= expression    (#constantExpression) */
+    /** Production: constantExpression ::= expression (#constantExpression) */
     @Override
     public void exitConstantExpression(ConstantExpressionContext ctx) {
-        ctx.ast = ctx.expression().ast;
+        ctx.ast = ast(ctx.expression());
     }
 
-    /** Production: assignmentOperator ::= '='    (#assignmentOperator0) */
+    /** Production: assignmentOperator ::= '=' (#assignmentOperator0) */
     @Override
     public void exitAssignmentOperator0(AssignmentOperator0Context ctx) {
         ctx.ast = Assign.ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '*='    (#assignmentOperator1) */
+    /** Production: assignmentOperator ::= '*=' (#assignmentOperator1) */
     @Override
     public void exitAssignmentOperator1(AssignmentOperator1Context ctx) {
         ctx.ast = Assign.MUL_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '/='    (#assignmentOperator2) */
+    /** Production: assignmentOperator ::= '/=' (#assignmentOperator2) */
     @Override
     public void exitAssignmentOperator2(AssignmentOperator2Context ctx) {
         ctx.ast = Assign.DIV_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '%='    (#assignmentOperator3) */
+    /** Production: assignmentOperator ::= '%=' (#assignmentOperator3) */
     @Override
     public void exitAssignmentOperator3(AssignmentOperator3Context ctx) {
         ctx.ast = Assign.MOD_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '+='    (#assignmentOperator4) */
+    /** Production: assignmentOperator ::= '+=' (#assignmentOperator4) */
     @Override
     public void exitAssignmentOperator4(AssignmentOperator4Context ctx) {
         ctx.ast = Assign.ADD_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '-='    (#assignmentOperator5) */
+    /** Production: assignmentOperator ::= '-=' (#assignmentOperator5) */
     @Override
     public void exitAssignmentOperator5(AssignmentOperator5Context ctx) {
         ctx.ast = Assign.SUB_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '<<='    (#assignmentOperator6) */
+    /** Production: assignmentOperator ::= '<<=' (#assignmentOperator6) */
     @Override
     public void exitAssignmentOperator6(AssignmentOperator6Context ctx) {
         ctx.ast = Assign.SHL_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '>>='    (#assignmentOperator7) */
+    /** Production: assignmentOperator ::= '>>=' (#assignmentOperator7) */
     @Override
     public void exitAssignmentOperator7(AssignmentOperator7Context ctx) {
         ctx.ast = Assign.SHR_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '>>>='    (#assignmentOperator8) */
+    /** Production: assignmentOperator ::= '>>>=' (#assignmentOperator8) */
     @Override
     public void exitAssignmentOperator8(AssignmentOperator8Context ctx) {
         ctx.ast = Assign.USHR_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '&='    (#assignmentOperator9) */
+    /** Production: assignmentOperator ::= '&=' (#assignmentOperator9) */
     @Override
     public void exitAssignmentOperator9(AssignmentOperator9Context ctx) {
         ctx.ast = Assign.BIT_AND_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '^='    (#assignmentOperator10) */
+    /** Production: assignmentOperator ::= '^=' (#assignmentOperator10) */
     @Override
     public void exitAssignmentOperator10(AssignmentOperator10Context ctx) {
         ctx.ast = Assign.BIT_XOR_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '|='    (#assignmentOperator11) */
+    /** Production: assignmentOperator ::= '|=' (#assignmentOperator11) */
     @Override
     public void exitAssignmentOperator11(AssignmentOperator11Context ctx) {
         ctx.ast = Assign.BIT_OR_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '..='    (#assignmentOperator12) */
+    /** Production: assignmentOperator ::= '..=' (#assignmentOperator12) */
     @Override
     public void exitAssignmentOperator12(AssignmentOperator12Context ctx) {
         ctx.ast = Assign.DOT_DOT_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '->='    (#assignmentOperator13) */
+    /** Production: assignmentOperator ::= '->=' (#assignmentOperator13) */
     @Override
     public void exitAssignmentOperator13(AssignmentOperator13Context ctx) {
         ctx.ast = Assign.ARROW_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '<-='    (#assignmentOperator14) */
+    /** Production: assignmentOperator ::= '<-=' (#assignmentOperator14) */
     @Override
     public void exitAssignmentOperator14(AssignmentOperator14Context ctx) {
         ctx.ast = Assign.LARROW_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '-<='    (#assignmentOperator15) */
+    /** Production: assignmentOperator ::= '-<=' (#assignmentOperator15) */
     @Override
     public void exitAssignmentOperator15(AssignmentOperator15Context ctx) {
         ctx.ast = Assign.FUNNEL_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '>-='    (#assignmentOperator16) */
+    /** Production: assignmentOperator ::= '>-=' (#assignmentOperator16) */
     @Override
     public void exitAssignmentOperator16(AssignmentOperator16Context ctx) {
         ctx.ast = Assign.LFUNNEL_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '**='    (#assignmentOperator17) */
+    /** Production: assignmentOperator ::= '**=' (#assignmentOperator17) */
     @Override
     public void exitAssignmentOperator17(AssignmentOperator17Context ctx) {
         ctx.ast = Assign.STARSTAR_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '<>='    (#assignmentOperator18) */
+    /** Production: assignmentOperator ::= '<>=' (#assignmentOperator18) */
     @Override
     public void exitAssignmentOperator18(AssignmentOperator18Context ctx) {
         ctx.ast = Assign.DIAMOND_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '><='    (#assignmentOperator19) */
+    /** Production: assignmentOperator ::= '><=' (#assignmentOperator19) */
     @Override
     public void exitAssignmentOperator19(AssignmentOperator19Context ctx) {
         ctx.ast = Assign.BOWTIE_ASSIGN;
     }
 
-    /** Production: assignmentOperator ::= '~='    (#assignmentOperator20) */
+    /** Production: assignmentOperator ::= '~=' (#assignmentOperator20) */
     @Override
     public void exitAssignmentOperator20(AssignmentOperator20Context ctx) {
         ctx.ast = Assign.TWIDDLE_ASSIGN;
     }
 
-    /** Production: prefixOp ::= '+'    (#prefixOp0) */
+    /** Production: prefixOp ::= '+' (#prefixOp0) */
     @Override
     public void exitPrefixOp0(PrefixOp0Context ctx) {
         ctx.ast = Unary.POS;
     }
 
-    /** Production: prefixOp ::= '-'    (#prefixOp1) */
+    /** Production: prefixOp ::= '-' (#prefixOp1) */
     @Override
     public void exitPrefixOp1(PrefixOp1Context ctx) {
         ctx.ast = Unary.NEG;
     }
 
-    /** Production: prefixOp ::= '!'    (#prefixOp2) */
+    /** Production: prefixOp ::= '!' (#prefixOp2) */
     @Override
     public void exitPrefixOp2(PrefixOp2Context ctx) {
         ctx.ast = Unary.NOT;
     }
 
-    /** Production: prefixOp ::= '~'    (#prefixOp3) */
+    /** Production: prefixOp ::= '~' (#prefixOp3) */
     @Override
     public void exitPrefixOp3(PrefixOp3Context ctx) {
         ctx.ast = Unary.BIT_NOT;
     }
 
-    /** Production: prefixOp ::= '^'    (#prefixOp4) */
+    /** Production: prefixOp ::= '^' (#prefixOp4) */
     @Override
     public void exitPrefixOp4(PrefixOp4Context ctx) {
         ctx.ast = Unary.CARET;
     }
 
-    /** Production: prefixOp ::= '|'    (#prefixOp5) */
+    /** Production: prefixOp ::= '|' (#prefixOp5) */
     @Override
     public void exitPrefixOp5(PrefixOp5Context ctx) {
         ctx.ast = Unary.BAR;
     }
 
-    /** Production: prefixOp ::= '&'    (#prefixOp6) */
+    /** Production: prefixOp ::= '&' (#prefixOp6) */
     @Override
     public void exitPrefixOp6(PrefixOp6Context ctx) {
         ctx.ast = Unary.AMPERSAND;
     }
 
-    /** Production: prefixOp ::= '*'    (#prefixOp7) */
+    /** Production: prefixOp ::= '*' (#prefixOp7) */
     @Override
     public void exitPrefixOp7(PrefixOp7Context ctx) {
         ctx.ast = Unary.STAR;
     }
 
-    /** Production: prefixOp ::= '/'    (#prefixOp8) */
+    /** Production: prefixOp ::= '/' (#prefixOp8) */
     @Override
     public void exitPrefixOp8(PrefixOp8Context ctx) {
         ctx.ast = Unary.SLASH;
     }
 
-    /** Production: prefixOp ::= '%'    (#prefixOp9) */
+    /** Production: prefixOp ::= '%' (#prefixOp9) */
     @Override
     public void exitPrefixOp9(PrefixOp9Context ctx) {
         ctx.ast = Unary.PERCENT;
     }
 
-    /** Production: binOp ::= '+'    (#binOp0) */
+    /** Production: binOp ::= '+' (#binOp0) */
     @Override
     public void exitBinOp0(BinOp0Context ctx) {
         ctx.ast = Binary.ADD;
     }
 
-    /** Production: binOp ::= '-'    (#binOp1) */
+    /** Production: binOp ::= '-' (#binOp1) */
     @Override
     public void exitBinOp1(BinOp1Context ctx) {
         ctx.ast = Binary.SUB;
     }
 
-    /** Production: binOp ::= '*'    (#binOp2) */
+    /** Production: binOp ::= '*' (#binOp2) */
     @Override
     public void exitBinOp2(BinOp2Context ctx) {
         ctx.ast = Binary.MUL;
     }
 
-    /** Production: binOp ::= '/'    (#binOp3) */
+    /** Production: binOp ::= '/' (#binOp3) */
     @Override
     public void exitBinOp3(BinOp3Context ctx) {
         ctx.ast = Binary.DIV;
     }
 
-    /** Production: binOp ::= '%'    (#binOp4) */
+    /** Production: binOp ::= '%' (#binOp4) */
     @Override
     public void exitBinOp4(BinOp4Context ctx) {
         ctx.ast = Binary.MOD;
     }
 
-    /** Production: binOp ::= '&'    (#binOp5) */
+    /** Production: binOp ::= '&' (#binOp5) */
     @Override
     public void exitBinOp5(BinOp5Context ctx) {
         ctx.ast = Binary.BIT_AND;
     }
 
-    /** Production: binOp ::= '|'    (#binOp6) */
+    /** Production: binOp ::= '|' (#binOp6) */
     @Override
     public void exitBinOp6(BinOp6Context ctx) {
         ctx.ast = Binary.BIT_OR;
     }
 
-    /** Production: binOp ::= '^'    (#binOp7) */
+    /** Production: binOp ::= '^' (#binOp7) */
     @Override
     public void exitBinOp7(BinOp7Context ctx) {
         ctx.ast = Binary.BIT_XOR;
     }
 
-    /** Production: binOp ::= '&&'    (#binOp8) */
+    /** Production: binOp ::= '&&' (#binOp8) */
     @Override
     public void exitBinOp8(BinOp8Context ctx) {
         ctx.ast = Binary.COND_AND;
     }
 
-    /** Production: binOp ::= '||'    (#binOp9) */
+    /** Production: binOp ::= '||' (#binOp9) */
     @Override
     public void exitBinOp9(BinOp9Context ctx) {
         ctx.ast = Binary.COND_OR;
     }
 
-    /** Production: binOp ::= '<<'    (#binOp10) */
+/** Production: binOp ::= '<<'    (#binOp10) */
     @Override
     public void exitBinOp10(BinOp10Context ctx) {
         ctx.ast = Binary.SHL;
     }
 
-    /** Production: binOp ::= '>>'    (#binOp11) */
+    /** Production: binOp ::= '>>' (#binOp11) */
     @Override
     public void exitBinOp11(BinOp11Context ctx) {
         ctx.ast = Binary.SHR;
     }
 
-    /** Production: binOp ::= '>>>'    (#binOp12) */
+    /** Production: binOp ::= '>>>' (#binOp12) */
     @Override
     public void exitBinOp12(BinOp12Context ctx) {
         ctx.ast = Binary.USHR;
     }
 
-    /** Production: binOp ::= '>='    (#binOp13) */
+    /** Production: binOp ::= '>=' (#binOp13) */
     @Override
     public void exitBinOp13(BinOp13Context ctx) {
         ctx.ast = Binary.GE;
     }
 
-    /** Production: binOp ::= '<='    (#binOp14) */
+    /** Production: binOp ::= '<=' (#binOp14) */
     @Override
     public void exitBinOp14(BinOp14Context ctx) {
         ctx.ast = Binary.LE;
     }
 
-    /** Production: binOp ::= '>'    (#binOp15) */
+    /** Production: binOp ::= '>' (#binOp15) */
     @Override
     public void exitBinOp15(BinOp15Context ctx) {
         ctx.ast = Binary.GT;
     }
 
-    /** Production: binOp ::= '<'    (#binOp16) */
+/** Production: binOp ::= '<'    (#binOp16) */
     @Override
     public void exitBinOp16(BinOp16Context ctx) {
         ctx.ast = Binary.LT;
     }
 
-    /** Production: binOp ::= '=='    (#binOp17) */
+    /** Production: binOp ::= '==' (#binOp17) */
     @Override
     public void exitBinOp17(BinOp17Context ctx) {
         ctx.ast = Binary.EQ;
     }
 
-    /** Production: binOp ::= '!='    (#binOp18) */
+    /** Production: binOp ::= '!=' (#binOp18) */
     @Override
     public void exitBinOp18(BinOp18Context ctx) {
         ctx.ast = Binary.NE;
     }
 
-    /** Production: binOp ::= '..'    (#binOp19) */
+    /** Production: binOp ::= '..' (#binOp19) */
     @Override
     public void exitBinOp19(BinOp19Context ctx) {
         ctx.ast = Binary.DOT_DOT;
     }
 
-    /** Production: binOp ::= '->'    (#binOp20) */
+    /** Production: binOp ::= '->' (#binOp20) */
     @Override
     public void exitBinOp20(BinOp20Context ctx) {
         ctx.ast = Binary.ARROW;
     }
 
-    /** Production: binOp ::= '<-'    (#binOp21) */
+    /** Production: binOp ::= '<-' (#binOp21) */
     @Override
     public void exitBinOp21(BinOp21Context ctx) {
         ctx.ast = Binary.LARROW;
     }
 
-    /** Production: binOp ::= '-<'    (#binOp22) */
+/** Production: binOp ::= '-<'    (#binOp22) */
     @Override
     public void exitBinOp22(BinOp22Context ctx) {
         ctx.ast = Binary.FUNNEL;
     }
 
-    /** Production: binOp ::= '>-'    (#binOp23) */
+    /** Production: binOp ::= '>-' (#binOp23) */
     @Override
     public void exitBinOp23(BinOp23Context ctx) {
         ctx.ast = Binary.LFUNNEL;
     }
 
-    /** Production: binOp ::= '**'    (#binOp24) */
+    /** Production: binOp ::= '**' (#binOp24) */
     @Override
     public void exitBinOp24(BinOp24Context ctx) {
         ctx.ast = Binary.STARSTAR;
     }
 
-    /** Production: binOp ::= '~'    (#binOp25) */
+    /** Production: binOp ::= '~' (#binOp25) */
     @Override
     public void exitBinOp25(BinOp25Context ctx) {
         ctx.ast = Binary.TWIDDLE;
     }
 
-    /** Production: binOp ::= '!~'    (#binOp26) */
+    /** Production: binOp ::= '!~' (#binOp26) */
     @Override
     public void exitBinOp26(BinOp26Context ctx) {
         ctx.ast = Binary.NTWIDDLE;
     }
 
-    /** Production: binOp ::= '!'    (#binOp27) */
+    /** Production: binOp ::= '!' (#binOp27) */
     @Override
     public void exitBinOp27(BinOp27Context ctx) {
         ctx.ast = Binary.BANG;
     }
 
-    /** Production: binOp ::= '<>'    (#binOp28) */
+    /** Production: binOp ::= '<>' (#binOp28) */
     @Override
     public void exitBinOp28(BinOp28Context ctx) {
         ctx.ast = Binary.DIAMOND;
     }
 
-    /** Production: binOp ::= '><'    (#binOp29) */
+/** Production: binOp ::= '><'    (#binOp29) */
     @Override
     public void exitBinOp29(BinOp29Context ctx) {
         ctx.ast = Binary.BOWTIE;
     }
 
-    /** Production: hasResultTypeopt ::= hasResultType?    (#hasResultTypeopt) */
+    /** Production: hasResultTypeopt ::= hasResultType? (#hasResultTypeopt) */
     @Override
     public void exitHasResultTypeopt(HasResultTypeoptContext ctx) {
-        ctx.ast = ctx.hasResultType() == null ? null : ctx.hasResultType().ast;
+        ctx.ast = ctx.hasResultType() == null ? null : ast(ctx.hasResultType());
     }
 
-    /** Production: typeArgumentsopt ::= typeArguments?    (#typeArgumentsopt) */
+    /** Production: typeArgumentsopt ::= typeArguments? (#typeArgumentsopt) */
     @Override
     public void exitTypeArgumentsopt(TypeArgumentsoptContext ctx) {
         if (ctx.typeArguments() == null) {
             ctx.ast = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
         } else {
-            ctx.ast = ctx.typeArguments().ast;
+            ctx.ast = ast(ctx.typeArguments());
         }
     }
 
-    /** Production: argumentListopt ::= argumentList?    (#argumentListopt) */
+    /** Production: argumentListopt ::= argumentList? (#argumentListopt) */
     @Override
     public void exitArgumentListopt(ArgumentListoptContext ctx) {
         if (ctx.argumentList() == null) {
             ctx.ast = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         } else {
-            ctx.ast = ctx.argumentList().ast;
+            ctx.ast = ast(ctx.argumentList());
         }
     }
 
-    /** Production: argumentsopt ::= arguments?    (#argumentsopt) */
+    /** Production: argumentsopt ::= arguments? (#argumentsopt) */
     @Override
     public void exitArgumentsopt(ArgumentsoptContext ctx) {
         if (ctx.arguments() == null) {
             ctx.ast = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         } else {
-            ctx.ast = ctx.arguments().ast;
+            ctx.ast = ast(ctx.arguments());
         }
     }
 
-    /** Production: identifieropt ::= identifier?    (#identifieropt) */
+    /** Production: identifieropt ::= identifier? (#identifieropt) */
     @Override
     public void exitIdentifieropt(IdentifieroptContext ctx) {
-        ctx.ast = ctx.identifier() == null ? null : ctx.identifier().ast;
+        ctx.ast = ctx.identifier() == null ? null : ast(ctx.identifier());
     }
 
-    /** Production: forInitopt ::= forInit?    (#forInitopt) */
+    /** Production: forInitopt ::= forInit? (#forInitopt) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForInitopt(ForInitoptContext ctx) {
         if (ctx.forInit() == null) {
             ctx.ast = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
         } else {
-            ctx.ast = (List<ForInit>) ctx.forInit().ast;
+            ctx.ast = (List<ForInit>) ast(ctx.forInit());
         }
     }
 
-    /** Production: forUpdateopt ::= forUpdate?    (#forUpdateopt) */
+    /** Production: forUpdateopt ::= forUpdate? (#forUpdateopt) */
     @SuppressWarnings("unchecked")
     @Override
     public void exitForUpdateopt(ForUpdateoptContext ctx) {
         if (ctx.forUpdate() == null) {
             ctx.ast = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
         } else {
-            ctx.ast = (List<ForUpdate>) ctx.forUpdate().ast;
+            ctx.ast = (List<ForUpdate>) ast(ctx.forUpdate());
         }
     }
 
-    /** Production: expressionopt ::= expression?    (#expressionopt) */
+    /** Production: expressionopt ::= expression? (#expressionopt) */
     @Override
     public void exitExpressionopt(ExpressionoptContext ctx) {
-        ctx.ast = ctx.expression() == null ? null : ctx.expression().ast;
+        ctx.ast = ctx.expression() == null ? null : ast(ctx.expression());
     }
 
-    /** Production: catchesopt ::= catches?    (#catchesopt) */
+    /** Production: catchesopt ::= catches? (#catchesopt) */
     @Override
     public void exitCatchesopt(CatchesoptContext ctx) {
         if (ctx.catches() == null) {
             ctx.ast = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
         } else {
-            ctx.ast = ctx.catches().ast;
+            ctx.ast = ast(ctx.catches());
         }
     }
 
-    /** Production: blockStatementsopt ::= blockStatements?    (#blockStatementsopt) */
+    /** Production: blockStatementsopt ::= blockStatements? (#blockStatementsopt) */
     @Override
     public void exitBlockStatementsopt(BlockStatementsoptContext ctx) {
         if (ctx.blockStatements() == null) {
             ctx.ast = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
         } else {
-            ctx.ast = ctx.blockStatements().ast;
+            ctx.ast = ast(ctx.blockStatements());
         }
     }
 
-    /** Production: classBodyopt ::= classBody?    (#classBodyopt) */
+    /** Production: classBodyopt ::= classBody? (#classBodyopt) */
     @Override
     public void exitClassBodyopt(ClassBodyoptContext ctx) {
-        ctx.ast = ctx.classBody() == null ? null : ctx.classBody().ast;
+        ctx.ast = ctx.classBody() == null ? null : ast(ctx.classBody());
     }
 
-    /** Production: formalParameterListopt ::= formalParameterList?    (#formalParameterListopt) */
+    /** Production: formalParameterListopt ::= formalParameterList? (#formalParameterListopt) */
     @Override
     public void exitFormalParameterListopt(FormalParameterListoptContext ctx) {
         if (ctx.formalParameterList() == null) {
             ctx.ast = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
         } else {
-            ctx.ast = ctx.formalParameterList().ast;
+            ctx.ast = ast(ctx.formalParameterList());
         }
     }
 
