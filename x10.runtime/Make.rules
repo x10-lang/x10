@@ -222,6 +222,9 @@ ifdef ENABLE_CROSS_COMPILE_ANY
     override CXX=CC
     override CC=cc
     override MPICXX=CC
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O2 -finline-functions
+    endif
   endif  
 
 endif 
