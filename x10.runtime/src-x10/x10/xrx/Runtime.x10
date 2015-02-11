@@ -515,17 +515,38 @@ public final class Runtime {
                 val h = hereInt();
                 val cl = ()=> @x10.compiler.RemoteInvocation("start_2") {terminate();};
                 for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
-                    x10rtSendMessage(j, cl, null);
+                	try {
+                    	x10rtSendMessage(j, cl, null);
+                	} catch (dpe:DeadPlaceException){
+                		// ignore - no need to worry about cancelling anything at a dead place
+                	}
                 }
                 terminate();
             };
             for(var i:Long=numPlaces-1; i>0; i-=32) {
-                x10rtSendMessage(i, cl1, null);
+            	try {
+                	x10rtSendMessage(i, cl1, null);
+            	} catch (dpe:DeadPlaceException) {
+            		// handle this portion of the fan-out directly, since the intermediate place is dead
+            		val h = i as Int;
+            		val cl = ()=> @x10.compiler.RemoteInvocation("start_4") {terminate();};
+            		for (var j:Int=Math.max(1n, h-31n); j<h; ++j) {
+            			try {
+            				x10rtSendMessage(j, cl, null);
+            			} catch (dpe2:DeadPlaceException){
+            				// ignore - no need to worry about cancelling anything at a dead place
+            			}
+            		}
+            	}
             }
         } else {
             val cl = ()=> @x10.compiler.RemoteInvocation("start_3") {terminate();};
             for (var i:Long=numPlaces-1; i>0; --i) {
-                x10rtSendMessage(i, cl, null);
+            	try {
+                	x10rtSendMessage(i, cl, null);
+            	} catch (dpe:DeadPlaceException){
+            		// ignore - no need to worry about cancelling anything at a dead place
+            	}
             }
         }
         terminate();
