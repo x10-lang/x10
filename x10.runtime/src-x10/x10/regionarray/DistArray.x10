@@ -84,6 +84,7 @@ public final class DistArray[T] (
         public def this(d:Dist, c:Rail[T]{self!=null}):LocalState[T]{self.dist==d} {
             property(d, c, d(here));
             this.ghostManager = null;
+            val unused = d(here);
         }
     }
 
@@ -119,7 +120,7 @@ public final class DistArray[T] (
      * The region for which backing storage is allocated at this place.
      */
     @TransientInitExpr(getLocalRegionFromLocalHandle())
-    protected transient var localRegion:Region(rank);
+    protected transient val localRegion:Region(rank);
     protected def getLocalRegionFromLocalHandle():Region(rank) {
         val ls = localHandle();
         var r:Region(rank);
@@ -175,7 +176,7 @@ public final class DistArray[T] (
             val localRegion:Region(dist.rank);
             val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
             if (ghostManager != null) {
-                localRegion = ghostManager.getGhostRegion(here) as Region(rank);
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
             } else {
                 localRegion = dist(here);
             }
@@ -230,10 +231,10 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
-            val localRegion:Region(rank);
+            val localRegion:Region(dist.rank);
             val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
             if (ghostManager != null) {
-                localRegion = ghostManager.getGhostRegion(here) as Region(rank);
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
             } else {
                 localRegion = dist(here);
             }
@@ -279,10 +280,10 @@ public final class DistArray[T] (
         property(dist);
  
         val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
-            val localRegion:Region(rank);
+            val localRegion:Region(dist.rank);
             val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
             if (ghostManager != null) {
-                localRegion = ghostManager.getGhostRegion(here) as Region(rank);
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
             } else {
                 localRegion = dist(here);
             }
