@@ -26,12 +26,11 @@ public class Place implements Serializable, Comparable<Place> {
 
   /**
    * Constructs a {@link Place} with the specified ID.
-   * <p>
-   * Prefer {@link Constructs#place(int)} to avoid constructing unnecessary
-   * {@link Place} objects.
    *
    * @param id
    *          the desired place ID
+   * @throws IllegalArgumentException
+   *           if the argument is negative
    */
   public Place(int id) {
     if (id < 0) {
