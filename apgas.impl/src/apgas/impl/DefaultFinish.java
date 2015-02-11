@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import apgas.SerializableJob;
 import apgas.util.GlobalID;
 
 /**
@@ -223,8 +224,13 @@ final class DefaultFinish implements Serializable, Finish {
       }
       exceptions.add(exception);
     } else {
-      // remote finish
-      new ExceptionalTask(this, exception, here).spawn(id.home.id);
+      // remote finish: spawn remote task to transfer exception to root finish
+      final SerializableThrowable t = new SerializableThrowable(exception);
+      final DefaultFinish that = this;
+      spawn(id.home.id);
+      new Task(this, (SerializableJob) () -> {
+        that.addSuppressed(t.t);
+      }, here).asyncat(id.home);
     }
   }
 
