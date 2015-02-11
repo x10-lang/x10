@@ -713,9 +713,9 @@ public final class Runtime {
         }
 
         operator this(n:Int):void {
-            workers.multiplace = Place.numAllPlaces()>1; // numAllPlaces includes accelerators
-            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport() || 
-                !(RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY);
+	    // numAllPlaces includes accelerators; if running in a resilient/elastic mode, must assume mutli-place.
+            workers.multiplace = Place.numAllPlaces() > 1 || RESILIENT_MODE != Configuration.RESILIENT_MODE_NONE; 
+            workers.busyWaiting = BUSY_WAITING || !x10rtBlockingProbeSupport();
             workers(0n) = worker();
             workers.count = n;
             for (var i:Int = 1n; i<n; i++) {

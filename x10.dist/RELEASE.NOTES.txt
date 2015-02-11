@@ -1,3 +1,13 @@
+X10 Release 2.5.0.6
+
+This is a minor release of X10 with the following changes from X10 2.5.0.5
+  + XTENLANG-3428, XTENLANG-3463: Bug fix for Elastic X10. When running in 
+    a non-default resilient mode (ie, in a mode that supports Elastic X10), 
+    force Pool.multiPlace to true independent of the number of actual Places 
+    when initializing the Pool.
+
+-------------------------------------------------------------------------
+
 X10 Release 2.5.0.5
 
 This is a minor release of X10 with the following changes from X10 2.5.0.4
