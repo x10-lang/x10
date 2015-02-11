@@ -91,7 +91,6 @@ final class BlockBlockDistGhostManager extends GhostManager {
                     if (periodic || place != here) {
                         val shift = getNeighborShift(neighborBlockIndex0, neighborBlockIndex1, divisions0, divisions1, periodic);
                         neighborList.add(new GhostNeighborFlag(place, shift));
-                        //Console.OUT.println(here + " neighbor ["+x+","+y+"] " + place + " shift " + shift);
                     }
                     if (x == 0) {
                         // there may be two different neighbors to the south
@@ -100,12 +99,10 @@ final class BlockBlockDistGhostManager extends GhostManager {
                             if (periodic || place2 != here) {
                                 val shift2 = getNeighborShift(neighborBlockIndex0, neighborBlockIndex1, divisions0, divisions1, periodic);
                                 neighborList.add(new GhostNeighborFlag(place2, shift2));
-                                //Console.OUT.println(here + " neighbor ["+x+","+y+"] " + place2 + " shift " + shift2);
                             }
                         } else if (i >= leftOver && groupIndex < leftOver) {
                         // A single neighbor may be both north and northwest
                         // or northeast. Remove the duplicate (north).
-                            //Console.OUT.println(here + " removing duplicate northern neighbor ["+x+","+y+"] " + place);
                             neighborList.removeLast();
                         }
                     }
@@ -134,7 +131,6 @@ final class BlockBlockDistGhostManager extends GhostManager {
         var i:Long=0;
         for (neighborFlag in neighbors) {
             if (neighborFlag.received == false) {
-                //Console.OUT.println(here + " still missing neighbor " + i + " " + neighborFlag.place);
                 return false;
             }
             i++;
@@ -209,12 +205,10 @@ final class BlockBlockDistGhostManager extends GhostManager {
                 val shift = neighborFlag.shift as Point(regionHere.rank);
                 if (periodic) {
                     val shiftedNeighbor = (neighborReg - shift);
-                    //Console.OUT.println("periodic: shifted neighborReg " + shiftedNeighbor);
                     regionToSend = (regionHere && shiftedNeighbor) as Region(regionHere.rank()){rect};
                 } else {
                     regionToSend = (regionHere && neighborReg) as Region(regionHere.rank()){rect};
                 }
-                //Console.OUT.println(here + " sending region " + regionToSend + " to " + neighborPlace + " shift " + shift);
                 array.putOverlap(regionToSend, neighborPlace, shift, currentPhase());
                 sentToNeighbor = true;
             }

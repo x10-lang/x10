@@ -59,12 +59,10 @@ public abstract class GhostManager {
      * Used to switch ghost manager phase from sending to using ghost data.
      */
     public def waitOnGhosts() {
-        //Console.OUT.println("waitOnGhosts() - phase " + currentPhase + " at " + here);
         when (allNeighborsReceived()) {
             currentPhase++;
             resetNeighborsReceived();
         }
-        //Console.OUT.println("waitOnGhosts() - progressed to phase " + currentPhase + " at " + here);
     }
 
     /**

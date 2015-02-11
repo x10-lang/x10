@@ -21,12 +21,30 @@ import x10.regionarray.Region;
 public class TestBlockDistGhostArray extends x10Test {
     static val DUMMY_VALUE = -1.0;
 
-    public static def testExchangeGhosts(periodic:Boolean):Boolean {
+    public static def testExchangeGhosts1(periodic:Boolean):Boolean {
+        val r = Region.makeRectangular(-1..20);
+        val bd = Dist.makeBlock(r);
+
+        return testExchangeGhosts(bd, periodic);
+    }
+
+    public static def testExchangeGhosts2(periodic:Boolean):Boolean {
         val r = Region.makeRectangular(1..4, 0..5);
         val bd = Dist.makeBlock(r, 0);
+
+        return testExchangeGhosts(bd, periodic);
+    }
+
+    public static def testExchangeGhosts3(periodic:Boolean):Boolean {
+        val r = Region.makeRectangular(-4..2, 3..8, 0..5);
+        val bd = Dist.makeBlock(r, 2);
+
+        return testExchangeGhosts(bd, periodic);
+    }
+
+    private static def testExchangeGhosts(bd:Dist, periodic:Boolean):Boolean {
         val ghostWidth = 1;
         val a = DistArray.make[Double](bd, DUMMY_VALUE, ghostWidth, periodic);
-
         finish for (place in a.dist.places()) at(place) async {
             // every place sets each point in its locally held region to its place ID
             val regionHere = bd(here);
@@ -52,15 +70,18 @@ public class TestBlockDistGhostArray extends x10Test {
                 chk(a.getPeriodic(p) == sourcePlaceId as Double);
             }
         }
-
         return true;
     }
 
     public def run() {
         var success:Boolean = true;
 
-        success &= testExchangeGhosts(false);
-        success &= testExchangeGhosts(true);
+        success &= testExchangeGhosts1(false);
+        success &= testExchangeGhosts1(true);
+        success &= testExchangeGhosts2(false);
+        success &= testExchangeGhosts2(true);
+        success &= testExchangeGhosts3(false);
+        success &= testExchangeGhosts3(true);
        
         return success;    
     }

@@ -21,9 +21,19 @@ import x10.regionarray.Region;
 public class TestBlockBlockDistGhostArray extends x10Test {
     static val DUMMY_VALUE = -1.0;
 
-    public static def testExchangeGhosts(periodic:Boolean):Boolean {
-        val r = Region.makeRectangular(1..4, 1..3);
+    public static def testExchangeGhosts2(periodic:Boolean):Boolean {
+        val r = Region.makeRectangular(1..10, 2..6);
         val bbd = Dist.makeBlockBlock(r, 0, 1);
+        return testExchangeGhosts(bbd, periodic);
+    }
+
+    public static def testExchangeGhosts3(periodic:Boolean):Boolean {
+        val r = Region.makeRectangular(1..5, 1..3, 0..4);
+        val bbd = Dist.makeBlockBlock(r, 1, 2);
+        return testExchangeGhosts(bbd, periodic);
+    }
+
+    private static def testExchangeGhosts(bbd:Dist, periodic:Boolean):Boolean {
         val ghostWidth = 1;
         val a = DistArray.make[Double](bbd, DUMMY_VALUE, ghostWidth, periodic);
 
@@ -59,8 +69,10 @@ public class TestBlockBlockDistGhostArray extends x10Test {
     public def run() {
         var success:Boolean = true;
 
-        success &= testExchangeGhosts(false);
-        success &= testExchangeGhosts(true);
+        success &= testExchangeGhosts2(false);
+        success &= testExchangeGhosts2(true);
+        success &= testExchangeGhosts3(false);
+        success &= testExchangeGhosts3(true);
        
         return success;    
     }

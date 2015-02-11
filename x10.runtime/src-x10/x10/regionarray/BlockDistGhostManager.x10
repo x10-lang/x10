@@ -102,10 +102,8 @@ final class BlockDistGhostManager extends GhostManager {
     public atomic def setNeighborReceived(place:Place, shift:Point) {
         if (leftNeighbor.place==place && leftNeighbor.received==false) {
             leftNeighbor.received = true;
-            //Console.OUT.println("notified leftNeighbor " + place + " at " + here);
         } else if (rightNeighbor.place==place && rightNeighbor.received==false) {
             rightNeighbor.received = true;
-            //Console.OUT.println("notified rightNeighbor " + place + " at " + here);
         } else {
             throw new BadPlaceException(here + " trying to notify received from neighbor "
                 + place + " - not a neighbor or already received!");
@@ -154,7 +152,6 @@ final class BlockDistGhostManager extends GhostManager {
             array.putOverlap(leftReg, leftNeighbor.place, shift, currentPhase());
         } else {
             leftNeighbor.received = true;
-            //Console.OUT.println("notified leftNeighbor here at " + here);
         }
 
         if (periodic || rightNeighbor.place != here) {
@@ -171,7 +168,6 @@ final class BlockDistGhostManager extends GhostManager {
             array.putOverlap(rightReg, rightNeighbor.place, shift, currentPhase());
         } else {
             rightNeighbor.received = true;
-            //Console.OUT.println("notified rightNeighbor here at " + here);
         }
     }
 }

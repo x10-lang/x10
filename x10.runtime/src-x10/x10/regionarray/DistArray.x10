@@ -428,14 +428,14 @@ public final class DistArray[T] (
     /**
      * Return the element of this array corresponding to the given point,
      * wrapped for periodic boundary conditions.
-     * The rank of the given point has to be the same as the rank of this array.
+     * The rank of the given point must be the same as the rank of this array.
      * If the distribution does not map the given Point to the current place,
      * then a BadPlaceException will be raised.
      * 
      * @param pt the given point
-     * @return the element of this array corresponding to the given point.
-     * @see #operator(Long)
-     * @see #set(T, Point)
+     * @return the element of this array corresponding to the given point,
+     *   wrapped for periodic boundary conditions.
+     * @see #setPeriodic(T, Point)
      */
     public final def getPeriodic(pt:Point(rank)): T {
         val l = localRegion();
@@ -443,7 +443,7 @@ public final class DistArray[T] (
         if (l.contains(pt)) {
             actualPt = pt;
         } else {
-            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, region());
+            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, l, region());
         }
         val offset = l.indexOf(actualPt);
         if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(pt);
@@ -453,14 +453,16 @@ public final class DistArray[T] (
      /**
      * Return the element of this three-dimensional array according to the given
      * indices, wrapped for periodic boundary conditions.
-     * The rank of the given point has to be the same as the rank of this array.
-     * If the distribution does not map the given Point to the current place,
+     * Only applies to three-dimensional arrays.
+     * Functionally equivalent to getPeriodic(Point{rank==3}).
+     * If the distribution does not map the given indices to the current place,
      * then a BadPlaceException will be raised.
      * 
-     * @param pt the given point
-     * @return the element of this array corresponding to the given point.
-     * @see #operator(Long)
-     * @see #set(T, Point)
+     * @param i0 the index in the first dimension
+     * @param i1 the index in the second dimension
+     * @param i2 the index in the third dimension
+     * @return the element of this array corresponding to the given triple of indices.
+     * @see #setPeriodic(T, Point)
      */
     public final def getPeriodic(i0:Long, i1:Long, i2:Long){rank==3}: T {
         val l = localRegion();
@@ -469,9 +471,9 @@ public final class DistArray[T] (
             offset = l.indexOf(i0,i1,i2);
         } else {
             val r = region();
-            val a0 = PeriodicBoundaryConditions.getPeriodicIndex(i0, r.min(0), r.max(0));
-            val a1 = PeriodicBoundaryConditions.getPeriodicIndex(i1, r.min(1), r.max(1));
-            val a2 = PeriodicBoundaryConditions.getPeriodicIndex(i2, r.min(2), r.max(2));
+            val a0 = PeriodicBoundaryConditions.getPeriodicIndex(i0, l.min(0), l.max(0), r.max(0)-r.min(0)+1);
+            val a1 = PeriodicBoundaryConditions.getPeriodicIndex(i1, l.min(1), l.max(1), r.max(1)-r.min(1)+1);
+            val a2 = PeriodicBoundaryConditions.getPeriodicIndex(i2, l.min(2), l.max(2), r.max(2)-r.min(2)+1);
             offset = l.indexOf(a0,a1,a2);
         }
         if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0, i1, i2);
@@ -601,8 +603,7 @@ public final class DistArray[T] (
      * @param pt the given point
      * @return the new value of the element of this array corresponding to the
      *   given point
-     * @see #operator(Point)
-     * @see #set(T, Long)
+     * @see #getPeriodic(Point)
      */    
     public final def setPeriodic(pt: Point(rank), v:T): T {
         val l = localRegion();
@@ -610,7 +611,7 @@ public final class DistArray[T] (
         if (l.contains(pt)) {
             actualPt = pt;
         } else {
-            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, region());
+            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, l, region());
         }
         if (CompilerFlags.checkPlace() && dist(actualPt) != here) raisePlaceError(pt);
         val offset = l.indexOf(actualPt);
@@ -1002,20 +1003,18 @@ public final class DistArray[T] (
                 val sourcePlace = here;
                 val localRaw = raw();
                 val g = localRegion();
-//Console.OUT.println("copying overlap " + overlap + " from local region " + g);
-                val neighborPortion = new Array[T](overlap, (p:Point(overlap.rank)) => localRaw(g.indexOf(p)) );
+                val neighborRegion = (overlap+shift) as Region{rect,self.rank==overlap.rank};
+                val neighborPortionRaw = Unsafe.allocRailUninitialized[T](neighborRegion.size());
+                var offset:Long = 0; // assume dense layout for neighborPortion
+                for (p in overlap) {
+                    neighborPortionRaw(offset++) = localRaw(g.indexOf(p));
+                }
+                val neighborPortion = new Array[T](neighborRegion, neighborPortionRaw);
                 @Uncounted at(neighborPlace) async {
                     val ghostManager = localHandle().ghostManager;
-//Console.OUT.println(here + " waiting to put ghosts from " + sourcePlace + " shift " + shift + " phase " + phase);
                     when (ghostManager.currentPhase() == phase);
                     val local2 = getLocalPortion();
-                    val local2Reg = local2.region;
-                    val local2Raw = local2.raw();
-                    for (p in overlap) {
-//Console.OUT.println(here + " send " + p + " index " + neighborPortion.region.indexOf(p) + " to " + (p+shift) + " index " + local2Reg.indexOf(p+shift));
-                        local2Raw(local2Reg.indexOf(p+shift)) = neighborPortion(p);
-                    }
-//Console.OUT.println(here + " setting neighbor received " + sourcePlace + " shift " + shift);
+                    local2.copy(neighborPortion, neighborPortion.region as Region{rect,self.rank==dist.region.rank});
                     ghostManager.setNeighborReceived(sourcePlace, -shift);
                 }
             }
@@ -1027,14 +1026,18 @@ public final class DistArray[T] (
             val sourcePlace = here;
             val localRaw = raw();
             val g = localRegion();
-            val neighborPortion = getPatch((overlap+shift) as Region(3){rect,self.rank==dist.region.rank});
+            val neighborRegion = (overlap+shift) as Region(3){rect,self.rank==dist.region.rank};
+            val neighborPortionRaw = Unsafe.allocRailUninitialized[T](neighborRegion.size());
+            var offset:Long = 0; // assume dense layout for neighborPortion
+            for ([i,j,k] in overlap) {
+                neighborPortionRaw(offset++) = localRaw(g.indexOf(i,j,k));
+            }
+            val neighborPortion = new Array[T](neighborRegion, neighborPortionRaw);
             @Uncounted at(neighborPlace) async {
                 val ghostManager = localHandle().ghostManager;
-                //Console.OUT.println(here + " waiting to put ghosts from " + sourcePlace + " shift " + shift + " phase " + phase);
                 when (ghostManager.currentPhase() == phase);
                 val local2 = getLocalPortion() as Array[T](3){rect};
                 local2.copy(neighborPortion, neighborPortion.region);
-                //Console.OUT.println(here + " setting neighbor received " + sourcePlace + " shift " + shift);
                 ghostManager.setNeighborReceived(sourcePlace, -shift);
             }
         }
