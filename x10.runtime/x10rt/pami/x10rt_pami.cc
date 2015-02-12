@@ -17,7 +17,7 @@
 #include <string.h>
 #include <unistd.h> // sleep()
 #include <errno.h> // for the strerror function
-#include <pthread.h> // for lock on the team mapping table
+#include <pthread.h> // for lock on the team mapping table, and context opening thread
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include <pami.h>
@@ -26,6 +26,7 @@
 #endif
 
 //#define DEBUG 1
+//#define DEBUG_MESSAGING 1
 
 // locally defined environment variables
 #define X10RT_PAMI_ASYNC_PROGRESS "X10RT_PAMI_ASYNC_PROGRESS"
@@ -151,11 +152,9 @@ struct x10rt_pami_state
 	pami_client_t client; // the PAMI client instance used for this place
 	pthread_key_t contextLookupTable; // thread local storage to map a worker thread to a context.
 	pami_context_t *context; // PAMI contexts associated with the client.  Allocated by worker thread 0
-	int32_t numValidContexts; // number of valid parallel contexts.
-	int32_t maxAllowedContexts; // max number of contexts allowed by the system, may be lowered by setting X10RT_PAMI_NUM_CONTEXTS
-	int32_t sharedContextIndex; // index of the shared context.  This is set to either maxParallelContexts-1, or -1 if no context is shared.
-	bool pendingContextOpen; // set to true when a thread would like a context to be opened.  Normally false
-	int32_t spareContextIndex; // normally -1, but may be set to a value between 1 and maxParallelContexts when a newly opened context is available to grab
+	int32_t numAllocatedContexts; // number of valid parallel contexts.
+	bool shareLastContext; // set to true if we start sharing when we run out of contexts
+	int32_t spareContextIndex; // which context can be assigned to a thread which requests one
 
 	x10rt_pami_team *teams;
 	uint32_t lastTeamIndex;
@@ -236,7 +235,7 @@ void error(const char* msg, ...)
 }
 
 bool isContextExclusive(pami_context_t myContext) {
-	if (state.sharedContextIndex == -1 || state.context[state.sharedContextIndex] != myContext)
+	if (!state.shareLastContext || state.context[state.numAllocatedContexts-1] != myContext)
 		return true;
 
 	return false;
@@ -305,7 +304,7 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 			state.stepOrder[i] = tmp;
 		}
 		#ifdef DEBUG
-			fprintf(stderr, "Switching AllToAll to internal implementation, messages will be sent as %u parallel chunks\n", state.a2achunks);
+			fprintf(stderr, "Switching AllToAll to internal implementation, messages will be sent as %lu parallel chunks\n", state.a2achunks);
 		#endif
 	}
 	else {
@@ -418,61 +417,54 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	}
 }
 
+// this is the context management thread, which advances unallocated contexts
+static void * advanceContexts(void *arg) {
+	int contextRangeStart = state.spareContextIndex;
+	while (contextRangeStart+1 < state.numAllocatedContexts) {
+		PAMI_Context_trylock_advancev(&state.context[contextRangeStart], state.numAllocatedContexts-contextRangeStart, 1);
+		contextRangeStart = state.spareContextIndex;
+	}
+	#ifdef DEBUG
+		fprintf(stderr, "Exiting context advance thread\n");
+	#endif
+
+	return NULL;
+}
+
 /*
  * This method returns the context associated with this thread
  * Note: this may sometimes return PAMI_CONTEXT_NULL if no context is available, unless waitForNonNull is set, in which case we will block until a context is created for us
  */
-pami_context_t getPAMIContext(bool waitForNonNull)
+pami_context_t getPAMIContext()
 {
-	if (state.maxAllowedContexts == 1) // no lookup needed when multiplexing on a single context
-		return state.context[0];
-
 	// get the context associated with this thread
 	pami_context_t context = pthread_getspecific(state.contextLookupTable);
 	if (context) return context;
 
-	// no context is associated with this thread.  Check to see if a spare one was created earlier that we can grab
-	context = PAMI_CONTEXT_NULL;
-	do {
-		if (state.spareContextIndex >= 0) { // found a spare
-			pthread_mutex_lock(&state.stateLock);
-			if (state.spareContextIndex >= 0) {
-				#ifdef DEBUG
-					fprintf(stderr, "Grabbing spare context at index %i\n", state.spareContextIndex);
-				#endif
-				context = state.context[state.spareContextIndex];
-				state.spareContextIndex = -1;
-				pthread_mutex_unlock(&state.stateLock);
+	// no context is associated with this thread. Grab one
+	pthread_mutex_lock(&state.stateLock);
+	context = state.context[state.spareContextIndex];
+	if (state.spareContextIndex+1 < state.numAllocatedContexts) {
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u thread %lu grabbing available context at index %i\n", state.myPlaceId, pthread_self(), state.spareContextIndex);
+		#endif
+		state.spareContextIndex++;
+	}
+	else {
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u thread %lu grabbing shared context at index %i\n", state.myPlaceId, pthread_self(), state.spareContextIndex);
+		#endif
+		state.shareLastContext = true;
+	}
+	pthread_mutex_unlock(&state.stateLock);
+	pthread_setspecific(state.contextLookupTable, context);
 
-				pthread_setspecific(state.contextLookupTable, context);
-//				registerHandlers(context, false);
-				return context;
-			}
-			else
-				pthread_mutex_unlock(&state.stateLock);
-		}
-		else if (state.numValidContexts == state.maxAllowedContexts) {
-			// no spare, but all are taken, and the last context is a shared one
-			#ifdef DEBUG
-				fprintf(stderr, "Grabbing shared context at index %i\n", state.numValidContexts-1);
-			#endif
-			context = state.context[state.numValidContexts-1];
-			pthread_setspecific(state.contextLookupTable, context);
-			return context;
-		}
-		// no spare available, but not all possible contexts have been allocated
-		else if (!state.pendingContextOpen) {
-			#ifdef DEBUG
-				fprintf(stderr, "Marking pendingContextOpen to true\n");
-			#endif
-			// set the flag that we want a new context to be opened
-			pthread_mutex_lock(&state.stateLock);
-			state.pendingContextOpen = true;
-			pthread_mutex_unlock(&state.stateLock);
-		}
-		sched_yield();
-	} while (waitForNonNull && context == PAMI_CONTEXT_NULL);
-
+	// lock & unlock the context to ensure that the context management thread isn't advancing it before it gets used by the new thread
+	// TODO: possibility of a previoud exclusive allocation using the context, and not realizing it's shared yet...
+	if (!state.shareLastContext) {
+		PAMI_Context_lock(context);
+		PAMI_Context_unlock(context);
+	}
 	return context;
 }
 
@@ -529,7 +521,7 @@ static void std_msg_complete (pami_context_t   context,
 		error("Error detected in std_msg_complete");
 
 	struct x10rt_msg_params *hdr = (struct x10rt_msg_params*) cookie;
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u processing delayed standard message %i, len=%u\n", state.myPlaceId, hdr->type, hdr->len);
 	#endif
 	handlerCallback hcb = state.callBackTable[hdr->type].handler;
@@ -563,7 +555,7 @@ static void local_msg_dispatch (
 		hdr->msg = x10rt_malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
 		hdr->type = *((x10rt_msg_type*)header_addr);
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "Place %u waiting on a partially delivered message %i, len=%lu\n", state.myPlaceId, hdr->type, pipe_size);
 		#endif
 		recv->local_fn = std_msg_complete;
@@ -590,7 +582,7 @@ static void local_msg_dispatch (
 		else
 			mp.msg = NULL;
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "Place %u processing standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
 		#endif
 		handlerCallback hcb = state.callBackTable[mp.type].handler;
@@ -610,7 +602,7 @@ static void put_handler_complete (pami_context_t   context,
 		error("put_handler_complete discovered a communication error");
 
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) cookie;
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u issuing put notifier callback, type=%i, msglen=%u, datalen=%u\n", state.myPlaceId, header->x10msg.type, header->x10msg.len, header->data_len);
 	#endif
 	notifierCallback ncb = state.callBackTable[header->x10msg.type].notifier;
@@ -659,7 +651,7 @@ static void local_put_dispatch (
 	else
 		localParameters->x10msg.msg = NULL;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u processing PUT message %i from %u, msglen=%u, len=%u, remote buf=%p, remote cookie=%p\n", state.myPlaceId, localParameters->x10msg.type, origin, localParameters->x10msg.len, localParameters->data_len, incomingParameters->data_ptr, incomingParameters->x10msg.msg);
 	#endif
 
@@ -700,7 +692,7 @@ static void get_handler_complete (pami_context_t   context,
 
 	x10rt_msg_params* header = (x10rt_msg_params*) cookie;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u running get_handler_complete, dest=%u type=%i, remote cookie=%p\n", state.myPlaceId, header->dest_place, header->type, header->msg);
 	#endif
 
@@ -723,7 +715,7 @@ static void get_handler_complete (pami_context_t   context,
 	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a GET_COMPLETE message from %u to %u: %i\n", state.myPlaceId, header->dest_place, status);
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "(%u) get_handler_complete\n", state.myPlaceId);
 	#endif
 }
@@ -783,7 +775,7 @@ static void local_get_dispatch (
 		parameters.addr.remote = header->data_ptr;
 		if ((status = PAMI_Put (context, &parameters)) != PAMI_SUCCESS)
 			error("Error sending data for GET response");
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "Place %u pushing out %u bytes of GET message data\n", state.myPlaceId, header->data_len);
 		#endif
 	}
@@ -806,7 +798,7 @@ static void get_complete_dispatch (
 {
 	struct x10rt_pami_header_data* header = *(struct x10rt_pami_header_data**)header_addr;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u got GET_COMPLETE from %u, header=%p\n", state.myPlaceId, origin, (void*)header);
 		fprintf(stderr, "     type=%i, datalen=%u. Calling notifier\n", header->x10msg.type, header->data_len);
 	#endif
@@ -814,7 +806,7 @@ static void get_complete_dispatch (
 	notifierCallback ncb = state.callBackTable[header->x10msg.type].notifier;
 	ncb(&header->x10msg, header->data_len);
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Place %u finished GET message\n", state.myPlaceId);
 	#endif
 	if (header->x10msg.len > 0)
@@ -969,6 +961,12 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 	config.value.intval = 1;
 
+	// check if we should have send block until all data is out
+	if (checkBoolEnvVar(getenv(X10RT_PAMI_BLOCKING_SEND)))
+		state.blockingSend = true;
+	else
+		state.blockingSend = false;
+
 	// Check if we want to enable async progress
 	if (checkBoolEnvVar(getenv(X10RT_PAMI_ASYNC_PROGRESS)))
 	{
@@ -998,43 +996,65 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		error("Unable to query the PAMI_CLIENT: %i\n", status);
 	state.myPlaceId = configuration[0].value.intval;
 	state.numPlaces = configuration[1].value.intval;
-	state.maxAllowedContexts = configuration[2].value.intval;
-	state.numValidContexts = 1; // we will pre-allocate the first context and associate it with this thread
-	state.spareContextIndex = -1;
+	state.numAllocatedContexts = configuration[2].value.intval;
+	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the state lock");
 
-	// determine the level of parallelism within a place we can support
-	// the strategy is to open up a new context for each new thread
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u init called from thread %lu\n", state.myPlaceId, pthread_self());
+	#endif
+
+	// determine the level of parallelism within a place we can support. The strategy is to open up a new context for each new thread
+
+	// check if an environment variable restricts contexts
 	char* ncontexts = getenv(X10RT_PAMI_NUM_CONTEXTS);
-	if (ncontexts && state.maxAllowedContexts >= atoi(ncontexts))
-		state.maxAllowedContexts = atoi(ncontexts);
+	if (ncontexts && state.numAllocatedContexts >= atoi(ncontexts))
+		state.numAllocatedContexts = atoi(ncontexts);
 	
-	// special case: if using static threads, and the thread count is at or below maxParallelContexts, we don't need to share the top context
+	// if using static threads, and the thread count is below numAllocatedContexts, we don't need to open so many
 	char* sthreads = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
 	char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
-	if (checkBoolEnvVar(sthreads) && nthreads && ithreads && state.maxAllowedContexts >= (atoi(nthreads) + atoi(ithreads))) {
-		state.sharedContextIndex = -1;
+	if (checkBoolEnvVar(sthreads) && nthreads && ithreads && state.numAllocatedContexts > (atoi(nthreads) + atoi(ithreads))) {
+		state.numAllocatedContexts = atoi(nthreads) + atoi(ithreads);
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u initializing up to %u thread-exclusive contexts to be allocated to worker threads on demand\n", state.myPlaceId, state.maxAllowedContexts);
-		#endif
-	}
-	else {
-		state.sharedContextIndex = state.maxAllowedContexts-1;
-		#ifdef DEBUG
-			fprintf(stderr, "Place %u initializing up to %u thread-exclusive contexts, plus 1 shared context, to be allocated to worker threads on demand\n", state.myPlaceId, state.maxAllowedContexts-1);
+			fprintf(stderr, "Place %u initializing up to %u contexts to be allocated to worker threads on demand\n", state.myPlaceId, state.numAllocatedContexts);
 		#endif
 	}
 
-	state.context = (pami_context_t*)x10rt_malloc(state.maxAllowedContexts*sizeof(pami_context_t));
+	state.context = (pami_context_t*)x10rt_malloc(state.numAllocatedContexts*sizeof(pami_context_t));
 	if (state.context == NULL) error("Unable to allocate memory for the context map");
-	memset(state.context, NULL, state.maxAllowedContexts*sizeof(pami_context_t));
+	for (int i=0; i<state.numAllocatedContexts; i++)
+		state.context[i] = PAMI_CONTEXT_NULL;
 	if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
 		error("Unable to allocate the thread-local-storage context lookup table");
-	// associate this thread with context 0
-	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[0], 1)) != PAMI_SUCCESS)
-		error("Unable to initialize the PAMI context: %i\n", status);
-	registerHandlers(state.context[0], true);
+
+	state.shareLastContext = false;
+	if ((status = PAMI_Context_createv(state.client, NULL, 0, state.context, state.numAllocatedContexts)) != PAMI_SUCCESS)
+		error("Unable to initialize %i PAMI contexts: %i\n", state.numAllocatedContexts, status);
 	pthread_setspecific(state.contextLookupTable, state.context[0]);
+	registerHandlers(state.context[0], true);
+	if (state.numAllocatedContexts > 1) {
+		state.spareContextIndex = 1;
+		// create the context management thread to advance unallocated contexts as needed
+		pthread_attr_t attr;
+		pthread_t thread;
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		pthread_create(&thread, &attr, &advanceContexts, NULL);
+		pthread_attr_destroy(&attr);
+	}
+	else
+		state.spareContextIndex = 0;
+
+	// create the world geometry
+	state.teams = (x10rt_pami_team*)x10rt_malloc(sizeof(x10rt_pami_team));
+	if (state.teams == NULL) error("Unable to allocate memory for teams data");
+	state.lastTeamIndex = 0;
+	state.teams[0].size = state.numPlaces;
+	state.teams[0].places = NULL;
+	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
+	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
+	determineCollectiveAlgorithms(state.teams);
 
 	#ifdef DEBUG
         fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
@@ -1065,23 +1085,6 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 #endif // power CPU
 #endif // not BlueGeneQ
 
-	// create the world geometry
-	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
-	state.teams = (x10rt_pami_team*)x10rt_malloc(sizeof(x10rt_pami_team));
-	if (state.teams == NULL) error("Unable to allocate memory for teams data");
-	state.lastTeamIndex = 0;
-	state.teams[0].size = state.numPlaces;
-	state.teams[0].places = NULL;
-	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
-	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
-	determineCollectiveAlgorithms(state.teams);
-
-	// check if we should have send block until all data is out
-	if (checkBoolEnvVar(getenv(X10RT_PAMI_BLOCKING_SEND)))
-		state.blockingSend = true;
-	else
-		state.blockingSend = false;
-
 	return X10RT_ERR_OK;
 }
 
@@ -1107,7 +1110,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	state.callBackTable[msg_type].finder = NULL;
 	state.callBackTable[msg_type].notifier = NULL;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u registered standard message handler %u\n", state.myPlaceId, msg_type);
 	#endif
 }
@@ -1185,7 +1188,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 {
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Preparing to send a message from place %u to %u, endpoint %u\n", state.myPlaceId, p->dest_place, p->dest_endpoint);
 	#endif
 
@@ -1203,11 +1206,11 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.dest            = target;
 		memset(&parameters.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "(%u) send immediate\n", state.myPlaceId);
 		#endif
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 		{
 			if ((status = PAMI_Send_immediate(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1233,7 +1236,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.remote_fn     = NULL;
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "(%u) send_msg\n", state.myPlaceId);
 		#endif
 
@@ -1246,7 +1249,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 			parameters.events.cookie        = (void *)&sendActive;
 			parameters.events.local_fn      = cookie_decrement;
 
-			pami_context_t myContext = getPAMIContext(true);
+			pami_context_t myContext = getPAMIContext();
 			if (isContextExclusive(myContext))
 			{
 				if ((status = PAMI_Send(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1281,7 +1284,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 			parameters.events.cookie        = bd;
 			parameters.events.local_fn      = free_buffered_data;
 
-			pami_context_t myContext = getPAMIContext(true);
+			pami_context_t myContext = getPAMIContext();
 			if (isContextExclusive(myContext))
 			{
 				if ((status = PAMI_Send(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1332,11 +1335,11 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.dest            = target;
 		memset(&parameters.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, p->type, p->len, len, buf);
 		#endif
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 		{
 			if ((status = PAMI_Send_immediate(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1382,11 +1385,11 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.events.local_fn		= free_header_data;
 		parameters.events.remote_fn     = NULL;
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGE
 			fprintf(stderr, "Preparing to send a PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, p->type, p->len, len, buf);
 		#endif
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 		{
 			if ((status = PAMI_Send(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1437,7 +1440,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		header->x10msg.msg = NULL;
 	header->callbackPtr = header; // sending this along with the data
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "Preparing to send a GET message from place %u to %u endpoint %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, len, buf, (void*)header);
 	#endif
 
@@ -1454,7 +1457,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		if ((status = PAMI_Send(myContext, &parameters)) != PAMI_SUCCESS)
@@ -1468,7 +1471,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 			error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 		PAMI_Context_unlock(myContext);
 	}
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGE
 		fprintf(stderr, "GET message sent from place %u to %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, (void*)header);
 	#endif
 }
@@ -1479,40 +1482,24 @@ x10rt_error x10rt_net_probe()
 {
 	// TODO - return proper error codes upon failure, in place of calling the error() method.
 	pami_result_t status = PAMI_ERROR;
-	pami_context_t myContext = getPAMIContext(false);
-	if (myContext != PAMI_CONTEXT_NULL) {
-		if (isContextExclusive(myContext))
-		{
-			do { status = x10rt_PAMI_Context_advance(myContext, 1);
-			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-			if (status == PAMI_ERROR) error ("Problem advancing the current context");
+	pami_context_t myContext = getPAMIContext();
+	if (isContextExclusive(myContext))
+	{
+		do { status = x10rt_PAMI_Context_advance(myContext, 1);
+		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+		if (status == PAMI_ERROR) error ("Problem advancing the current context");
+	}
+	else
+	{
+		status = PAMI_Context_trylock(myContext);
+		if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
+		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 
-			if (myContext == state.context[0] && state.pendingContextOpen) {
-				#ifdef DEBUG
-					fprintf(stderr, "Thread 0 opening a new context at index %i\n", state.numValidContexts);
-				#endif
-				// this thread is responsible for opening new contexts for others, and some other thread wants one
-				pthread_mutex_lock(&state.stateLock);
-				if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[state.numValidContexts], 1)) != PAMI_SUCCESS)
-					error("Unable to initialize the PAMI context: %i\n", status);
-				state.spareContextIndex = state.numValidContexts;
-				state.numValidContexts++;
-				state.pendingContextOpen = false;
-				pthread_mutex_unlock(&state.stateLock);
-			}
-		}
-		else
-		{
-			status = PAMI_Context_trylock(myContext);
-			if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
-			if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
+		do { status = x10rt_PAMI_Context_advance(myContext, 1);
+		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+		if (status == PAMI_ERROR) error ("Problem advancing the context");
 
-			do { status = x10rt_PAMI_Context_advance(myContext, 1);
-			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-			if (status == PAMI_ERROR) error ("Problem advancing the context");
-
-			if (PAMI_Context_unlock(myContext) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
-		}
+		if (PAMI_Context_unlock(myContext) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
 	}
 	return X10RT_ERR_OK;
 }
@@ -1558,16 +1545,16 @@ void x10rt_net_finalize()
 		__extension__
 		#endif
 		async_progress_disable_function PAMIX_Context_async_progress_disable = (async_progress_disable_function) PAMI_Extension_symbol (state.async_extension, "disable");
-		for (int i=0; i<state.numValidContexts; i++)
+		for (int i=0; i<state.numAllocatedContexts; i++)
 			PAMIX_Context_async_progress_disable (state.context[i], PAMIX_ASYNC_ALL);
 		PAMI_Extension_close (state.async_extension);
 		state.async_extension = NULL;
 	}
 
-	if (state.numValidContexts)
+	if (state.numAllocatedContexts)
 	{
 		// TODO - below should be state.numParallelContexts, not state.numParallelContexts-1, but this is a PAMI bug workaround.
-		if ((status = PAMI_Context_destroyv(state.context, state.numValidContexts-1)) != PAMI_SUCCESS)
+		if ((status = PAMI_Context_destroyv(state.context, state.numAllocatedContexts-1)) != PAMI_SUCCESS)
 			fprintf(stderr, "Error closing PAMI context: %i\n", status);
 	}
 	else
@@ -1586,6 +1573,8 @@ void x10rt_net_finalize()
 	free(state.teams);
 	if (state.stepOrder != NULL)
 		free(state.stepOrder);
+
+	pthread_mutex_destroy(&state.stateLock);
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
@@ -1615,7 +1604,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u using HFI\n", state.myPlaceId, type, (void*)victim, place);
 		#endif
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 			status = state.hfi_update (myContext, 1, &remote_info);
 		else
@@ -1650,7 +1639,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
 		#endif
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 			status = PAMI_Rmw(myContext, &operation);
 		else
@@ -1672,9 +1661,9 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 	{
 		// use HFI remote operations
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote %u operations using HFI\n", state.myPlaceId, numOps);
+			fprintf(stderr, "Place %u executing a remote %lu operations using HFI\n", state.myPlaceId, numOps);
 		#endif
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 			status = state.hfi_update (myContext, numOps, (hfi_remote_update_info_t*)ops);
 		else
@@ -1702,7 +1691,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
 		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (!isContextExclusive(myContext))
 			PAMI_Context_lock(myContext);
 
@@ -1731,7 +1720,7 @@ void x10rt_net_register_mem (void *ptr, size_t len)
 	pami_result_t status = PAMI_ERROR;
 	pami_memregion_t registration;
 	size_t registeredSize;
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 		status = PAMI_Memregion_create(myContext, ptr, len, &registeredSize, &registration);
 	else
@@ -1787,7 +1776,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (!isContextExclusive(myContext))
 	{
 		status = PAMI_Context_lock(myContext);
@@ -1888,7 +1877,7 @@ static void split_stage2 (pami_context_t   context,
 	cbd->teamIndex = myNewTeamIndex;
 	// TODO - interestingly, the context that comes in via the method call is sometimes null.  Probably a PAMI bug.
 	if (context == NULL)
-		context = getPAMIContext(true);
+		context = getPAMIContext();
 	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, context, team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 }
@@ -1931,7 +1920,7 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
 	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &operation);
@@ -1957,7 +1946,7 @@ void x10rt_net_team_del (x10rt_team team, x10rt_place role,
 	ptd->teamid = team;
 	ptd->arg = arg;
 	ptd->tch = ch;
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Geometry_destroy(state.client, &state.teams[team].geometry, myContext, team_destroy_complete, ptd);
@@ -2057,6 +2046,8 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 {
 	pami_result_t status = PAMI_ERROR;
 
+//	fprintf(stderr, "Place %u barrier called from thread %u\n", state.myPlaceId, pthread_self());
+
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
@@ -2070,7 +2061,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 		fprintf(stderr, "Place %u, role %u executing barrier. cookie=%p\n", state.myPlaceId, role, (void*)tcb);
 	#endif
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &tcb->operation);
@@ -2116,7 +2107,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	else
 		tcb->operation.cmd.xfer_broadcast.buf = (char*)dbuf;
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &tcb->operation);
@@ -2166,7 +2157,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 		fprintf(stderr, "Place %u executing scatter: role=%u, root=%u\n", state.myPlaceId, role, root);
 	#endif
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &tcb->operation);
@@ -2231,7 +2222,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			fprintf(stderr, "Place %u executing pre-alltoall barrier. cookie=%p\n", state.myPlaceId, (void*)tcb);
 		#endif
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 		{
 			status = PAMI_Collective(myContext, &operation);
@@ -2269,7 +2260,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			fprintf(stderr, "Place %u, role %u executing AllToAll with team %u. cookie=%p\n", state.myPlaceId, role, team, (void*)tcb);
 		#endif
 
-		pami_context_t myContext = getPAMIContext(true);
+		pami_context_t myContext = getPAMIContext();
 		if (isContextExclusive(myContext))
 		{
 			status = PAMI_Collective(myContext, &tcb->operation);
@@ -2338,7 +2329,7 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 		fprintf(stderr, "Place %u executing reduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &tcb->operation);
@@ -2392,7 +2383,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 		fprintf(stderr, "Place %u executing allreduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif
 
-	pami_context_t myContext = getPAMIContext(true);
+	pami_context_t myContext = getPAMIContext();
 	if (isContextExclusive(myContext))
 	{
 		status = PAMI_Collective(myContext, &tcb->operation);
