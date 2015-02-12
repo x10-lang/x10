@@ -1014,12 +1014,12 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	char* sthreads = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
 	char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
-	if (checkBoolEnvVar(sthreads) && nthreads && ithreads && state.numAllocatedContexts > (atoi(nthreads) + atoi(ithreads))) {
+	if (checkBoolEnvVar(sthreads) && nthreads && ithreads && state.numAllocatedContexts > (atoi(nthreads) + atoi(ithreads)))
 		state.numAllocatedContexts = atoi(nthreads) + atoi(ithreads);
-		#ifdef DEBUG
-			fprintf(stderr, "Place %u initializing up to %u contexts to be allocated to worker threads on demand\n", state.myPlaceId, state.numAllocatedContexts);
-		#endif
-	}
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u initializing up to %u contexts to be allocated to worker threads on demand\n", state.myPlaceId, state.numAllocatedContexts);
+	#endif
 
 	state.context = (pami_context_t*)x10rt_malloc(state.numAllocatedContexts*sizeof(pami_context_t));
 	if (state.context == NULL) error("Unable to allocate memory for the context map");
@@ -1551,7 +1551,8 @@ void x10rt_net_finalize()
 		state.async_extension = NULL;
 	}
 
-	if (state.numAllocatedContexts)
+#if !defined(__bgq__)
+	if (state.numAllocatedContexts > 1)
 	{
 		// TODO - below should be state.numParallelContexts, not state.numParallelContexts-1, but this is a PAMI bug workaround.
 		if ((status = PAMI_Context_destroyv(state.context, state.numAllocatedContexts-1)) != PAMI_SUCCESS)
@@ -1562,6 +1563,8 @@ void x10rt_net_finalize()
 		if ((status = PAMI_Context_destroyv(state.context, 1)) != PAMI_SUCCESS)
 			fprintf(stderr, "Error closing PAMI context: %i\n", status);
 	}
+#endif
+
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
 
