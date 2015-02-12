@@ -50,21 +50,20 @@ namespace x10 {
         extern const ::x10aux::serialization_id_t Rail_copy_from_serialization_id;
 
         extern const ::x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
-        extern const ::x10aux::serialization_id_t Rail_unconuted_copy_from_serialization_id;
-        
-        extern void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
-        extern void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
-	    extern void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
+        extern const ::x10aux::serialization_id_t Rail_uncounted_copy_from_serialization_id;
+        void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
+        void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
+        void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
 
-        extern void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+        void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
                                    ::x10::lang::Place dstPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
-        extern void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+        void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
                                      ::x10::lang::Place srcPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
-        extern void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
+        void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
-        extern void failAllocNoPointers(const char* msg);
+        void failAllocNoPointers(const char* msg);
 
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
         void throwNegativeArraySizeException() X10_PRAGMA_NORETURN;
@@ -80,7 +79,7 @@ namespace x10 {
             #endif
         }
 
-        extern void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
+        void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
 
         template<class T> class Rail : public ::x10::lang::X10Class   {
           public:
