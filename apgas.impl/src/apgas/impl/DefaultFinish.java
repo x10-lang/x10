@@ -117,7 +117,7 @@ final class DefaultFinish implements Serializable, Finish {
           count++;
           return;
         }
-        counts = new int[GlobalRuntimeImpl.getRuntime().transport.places()];
+        counts = new int[GlobalRuntimeImpl.getRuntime().maxPlace()];
         counts[here] = count;
         count = 1;
       }
@@ -262,8 +262,8 @@ final class DefaultFinish implements Serializable, Finish {
    *          a minimal size for the reallocation
    */
   private void resize(int min) {
-    final int[] tmp = new int[Math.max(min,
-        GlobalRuntimeImpl.getRuntime().transport.places())];
+    final int[] tmp = new int[Math.max(min, GlobalRuntimeImpl.getRuntime()
+        .maxPlace())];
     System.arraycopy(counts, 0, tmp, 0, counts.length);
     counts = tmp;
   }
@@ -301,7 +301,7 @@ final class DefaultFinish implements Serializable, Finish {
     synchronized (me) {
       final int here = GlobalRuntimeImpl.getRuntime().here;
       if (id.home.id != here && me.counts == null) {
-        me.counts = new int[GlobalRuntimeImpl.getRuntime().transport.places()];
+        me.counts = new int[GlobalRuntimeImpl.getRuntime().maxPlace()];
       }
     }
     return me;

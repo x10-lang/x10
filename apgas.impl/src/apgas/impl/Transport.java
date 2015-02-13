@@ -63,7 +63,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * The first unused place ID.
    */
-  private int places;
+  private int maxPlace;
 
   /**
    * The current members indexed by place ID.
@@ -225,8 +225,8 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
    *
    * @return a place ID.
    */
-  int places() {
-    return places;
+  int maxPlace() {
+    return maxPlace;
   }
 
   /**
@@ -292,8 +292,8 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
       }
       ++place;
     }
-    if (place > places) {
-      places = place;
+    if (place > maxPlace) {
+      maxPlace = place;
     }
     runtime.updatePlaces(added, removed);
   }

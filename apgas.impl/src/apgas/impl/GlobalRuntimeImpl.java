@@ -232,7 +232,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         }
 
         // wait for spawned places to join the global runtime
-        while (transport.places() < p) {
+        while (maxPlace() < p) {
           try {
             Thread.sleep(100);
           } catch (final InterruptedException e) {
@@ -398,5 +398,14 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public Place place(int id) {
     return new Place(id);
+  }
+
+  /**
+   * Returns the first unused place ID.
+   *
+   * @return the first unused place ID
+   */
+  public int maxPlace() {
+    return transport.maxPlace();
   }
 }
