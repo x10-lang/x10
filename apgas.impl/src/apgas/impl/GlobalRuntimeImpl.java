@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -119,10 +120,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * Constructs a new {@link GlobalRuntimeImpl} instance.
    *
-   * @throws IOException
+   * @throws Exception
    *           if an error occurs
    */
-  public GlobalRuntimeImpl() throws IOException {
+  public GlobalRuntimeImpl() throws Exception {
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
     final int threads = Integer.getInteger(Configuration.APGAS_THREADS, Runtime
@@ -217,20 +218,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
             + (master == null ? transport.getAddress() : master));
         command.add("-D" + Configuration.APGAS_LOCALHOST + "=" + localhost);
         command.add(getClass().getSuperclass().getCanonicalName());
-        for (int i = 0; i < p - 1; i++) {
-          Process process = exec(command);
-          synchronized (processes) {
-            if (dying <= 1) {
-              processes.add(process);
-              process = null;
-            }
-          }
-          if (process != null) {
-            process.destroyForcibly();
-            throw new IllegalStateException("Shutdown in progress");
-          }
-        }
 
+        final String name = System.getProperty("apgas.launcher");
+        @SuppressWarnings("unchecked")
+        final BiConsumer<Integer, List<String>> launcher = name == null ? new Launcher()
+            : (BiConsumer<Integer, List<String>>) Class.forName(name)
+                .newInstance();
+        launcher.accept(p, command);
         // wait for spawned places to join the global runtime
         while (maxPlace() < p) {
           try {
@@ -247,6 +241,31 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         // initiate shutdown
         shutdown();
         throw t;
+      }
+    }
+  }
+
+  private class Launcher implements BiConsumer<Integer, List<String>> {
+    @Override
+    public void accept(Integer p, List<String> command) {
+      try {
+        for (int i = 0; i < p - 1; i++) {
+          Process process = exec(command);
+          synchronized (processes) {
+            if (dying <= 1) {
+              processes.add(process);
+              process = null;
+            }
+          }
+          if (process != null) {
+            process.destroyForcibly();
+            throw new IllegalStateException("Shutdown in progress");
+          }
+        }
+      } catch (final RuntimeException e) {
+        throw e;
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
       }
     }
   }
