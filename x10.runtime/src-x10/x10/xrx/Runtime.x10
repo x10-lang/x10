@@ -211,7 +211,7 @@ public final class Runtime {
         public static native def congruentAvailable():Boolean;
 
         /**
-         * Request a memory allocator with the desried properties,
+         * Request a memory allocator with the desired properties,
          * the closest available allocator (which may be the default 
          * allocator) will be returned.
          * 
