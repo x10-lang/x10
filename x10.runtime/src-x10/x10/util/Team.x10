@@ -107,7 +107,7 @@ public struct Team {
                     Team.roles.grow(teamidcopy+1);
                 while (Team.roles.size() < teamidcopy)
                     Team.roles.add(-1n); // I am not a member of this team id.  Insert a dummy value.
-                   Team.roles(teamidcopy) = places.indexOf(here) as Int;
+                Team.roles(teamidcopy) = places.indexOf(here) as Int;
             });
         } else {
             this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
@@ -120,8 +120,13 @@ public struct Team {
                     Team.state.grow(teamidcopy+1);
                 while (Team.state.size() < teamidcopy)
                     Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-                Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, places.indexOf(here));
-                Team.state(teamidcopy).init();
+                val groupIndex = places.indexOf(here);
+                if (groupIndex >= 0) {
+                    Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, groupIndex);
+                    Team.state(teamidcopy).init();
+                } else {
+                    Team.state(teamidcopy) = null;
+                }
             });
         }
     }
