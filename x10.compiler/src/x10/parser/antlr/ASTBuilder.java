@@ -340,7 +340,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Modifier ast(ModifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
             return n;
         }
@@ -363,7 +363,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Modifier ast(MethodModifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
             return n;
         }
@@ -375,7 +375,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeDecl ast(TypeDefDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeDecl(p);
         }
         return ctx.ast;
@@ -397,7 +397,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private PropertyDecl ast(PropertyContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             PropertyDecl n = nf.PropertyDecl(p, null, errorTypeNode(p), errorId(p));
             return (PropertyDecl) n.error(true);
         }
@@ -409,7 +409,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ProcedureDecl ast(MethodDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -420,7 +420,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(BinaryOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -431,7 +431,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(PrefixOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -442,7 +442,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(ApplyOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -453,7 +453,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(SetOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -464,7 +464,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(ConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -475,7 +475,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(ExplicitConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -486,7 +486,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(ImplicitConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -497,7 +497,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private MethodDecl ast(PropertyMethodDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
         }
         return ctx.ast;
@@ -508,7 +508,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ConstructorCall ast(ExplicitConstructorInvocationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ConstructorCall n = nf.ConstructorCall(p, ConstructorCall.THIS, new ArrayList<Expr>());
             return (ConstructorCall) n.error(true);
         }
@@ -520,7 +520,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassDecl ast(InterfaceDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
         }
         return ctx.ast;
@@ -531,7 +531,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Stmt ast(AssignPropertyCallContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
             return (Stmt) n.error(true);
         }
@@ -543,7 +543,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(TypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -554,7 +554,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(FunctionTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -565,7 +565,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(ClassTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -576,7 +576,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(ConstrainedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -587,7 +587,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private CanonicalTypeNode ast(Void_Context ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             CanonicalTypeNode n = nf.CanonicalTypeNode(pos(ctx), ts.Void());
             return (CanonicalTypeNode) n.error(true);
         }
@@ -599,7 +599,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private AmbTypeNode ast(SimpleNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorAmbTypeNode(p);
         }
         return ctx.ast;
@@ -610,7 +610,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private AmbTypeNode ast(ParameterizedNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorAmbTypeNode(p);
         }
         return ctx.ast;
@@ -621,7 +621,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(DepNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -632,7 +632,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(NamedTypeNoConstraintsContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -643,7 +643,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(NamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -654,7 +654,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private DepParameterExpr ast(DepParametersContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorDepParameterExpr(p);
         }
         return ctx.ast;
@@ -709,7 +709,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private HasZeroTest ast(HasZeroConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             HasZeroTest n = nf.HasZeroTest(p, errorTypeNode(p));
             return (HasZeroTest) n.error(true);
         }
@@ -721,7 +721,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private IsRefTest ast(IsRefConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             IsRefTest n = nf.IsRefTest(p, errorTypeNode(p));
             return (IsRefTest) n.error(true);
         }
@@ -733,7 +733,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private SubtypeTest ast(SubtypeConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             SubtypeTest n = nf.SubtypeTest(pos(ctx), errorTypeNode(p), errorTypeNode(p), false);
             return (SubtypeTest) n.error(true);
         }
@@ -745,7 +745,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private DepParameterExpr ast(WhereClauseoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorDepParameterExpr(p);
         }
         return ctx.ast;
@@ -756,7 +756,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassDecl ast(ClassDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
         }
         return ctx.ast;
@@ -767,7 +767,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassDecl ast(StructDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
         }
         return ctx.ast;
@@ -778,7 +778,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ConstructorDecl ast(ConstructorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ConstructorDecl n = nf.ConstructorDecl(p, null, errorId(p), new ArrayList<Formal>(), errorBlock(p));
             return (ConstructorDecl) n.error(true);
         }
@@ -790,7 +790,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(SuperExtendsoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -823,7 +823,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Stmt ast(StatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
             return (Stmt) n.error(true);
         }
@@ -835,7 +835,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Stmt ast(AnnotationStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
             return (Stmt) n.error(true);
         }
@@ -847,7 +847,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Stmt ast(NonExpressionStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
             return (Stmt) n.error(true);
         }
@@ -859,7 +859,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Offer ast(OBSOLETE_OfferStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Offer n = nf.Offer(p, errorExpr(p));
             return (Offer) n.error(true);
         }
@@ -871,7 +871,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private If ast(IfThenStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             If n = nf.If(p, errorExpr(p), errorStmt(p));
             return (If) n.error(true);
         }
@@ -883,7 +883,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Empty ast(EmptyStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Empty n = nf.Empty(p);
             return (Empty) n.error(true);
         }
@@ -895,7 +895,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Labeled ast(LabeledStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Labeled n = nf.Labeled(p, errorId(p), errorStmt(p));
             return (Labeled) n.error(true);
         }
@@ -907,7 +907,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Stmt ast(LoopStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
             return (Stmt) n.error(true);
         }
@@ -919,7 +919,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Eval ast(ExpressionStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Eval n = nf.Eval(p, errorExpr(p));
             return (Eval) n.error(true);
         }
@@ -931,7 +931,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Assert ast(AssertStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Assert n = nf.Assert(p, errorExpr(p));
             return (Assert) n.error(true);
         }
@@ -943,7 +943,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Switch ast(SwitchStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Switch n = nf.Switch(p, errorExpr(p), new ArrayList<SwitchElement>());
             return (Switch) n.error(true);
         }
@@ -1010,7 +1010,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Case ast(SwitchLabelContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Case n = nf.Case(p, errorExpr(p));
             return (Case) n.error(true);
         }
@@ -1022,7 +1022,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private While ast(WhileStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             While n = nf.While(p, errorExpr(p), errorStmt(p));
             return (While) n.error(true);
         }
@@ -1034,7 +1034,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Do ast(DoStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Do n = nf.Do(p, errorStmt(p), errorExpr(p));
             return (Do) n.error(true);
         }
@@ -1046,7 +1046,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Loop ast(ForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Loop n = nf.Do(p, errorStmt(p), errorExpr(p));
             return (Loop) n.error(true);
         }
@@ -1058,7 +1058,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private For ast(BasicForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             For n = nf.For(p, new ArrayList<ForInit>(), errorExpr(p), new ArrayList<ForUpdate>(), errorStmt(p));
             return (For) n.error(true);
         }
@@ -1103,7 +1103,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Branch ast(BreakStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Branch n = nf.Break(p);
             return (Branch) n.error(true);
         }
@@ -1115,7 +1115,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Branch ast(ContinueStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Branch n = nf.Continue(p);
             return (Branch) n.error(true);
         }
@@ -1127,7 +1127,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Return ast(ReturnStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Return n = nf.Return(p);
             return (Return) n.error(true);
         }
@@ -1139,7 +1139,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Throw ast(ThrowStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Throw n = nf.Throw(p, errorExpr(p));
             return (Throw) n.error(true);
         }
@@ -1151,7 +1151,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Try ast(TryStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Try n = nf.Try(p, errorBlock(p), new ArrayList<Catch>());
             return (Try) n.error(true);
         }
@@ -1174,7 +1174,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Catch ast(CatchClauseContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Catch n = nf.Catch(p, errorFormal(p), errorBlock(p));
             return (Catch) n.error(true);
         }
@@ -1186,7 +1186,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(FinallyBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1208,7 +1208,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Async ast(AsyncStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Async n = nf.Async(p, errorStmt(p), false);
             return (Async) n.error(true);
         }
@@ -1220,7 +1220,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private AtStmt ast(AtStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AtStmt n = nf.AtStmt(p, errorExpr(p), errorStmt(p));
             return (AtStmt) n.error(true);
         }
@@ -1232,7 +1232,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Atomic ast(AtomicStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Atomic n = nf.Atomic(p, errorExpr(p), errorStmt(p));
             return (Atomic) n.error(true);
         }
@@ -1244,7 +1244,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private When ast(WhenStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             When n = nf.When(p, errorExpr(p), errorStmt(p));
             return (When) n.error(true);
         }
@@ -1256,7 +1256,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private X10Loop ast(AtEachStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             X10Loop n = nf.AtEach(p, errorFormal(p), errorExpr(p), errorStmt(p));
             return (X10Loop) n.error(true);
         }
@@ -1268,7 +1268,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private X10Loop ast(EnhancedForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             X10Loop n = nf.ForLoop(p, errorFormal(p), errorExpr(p), errorStmt(p));
             return (X10Loop) n.error(true);
         }
@@ -1280,7 +1280,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Finish ast(FinishStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Finish n = nf.Finish(p, errorStmt(p), false);
             return (Finish) n.error(true);
         }
@@ -1292,7 +1292,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(CastExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -1325,7 +1325,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeParamNode ast(OBSOLETE_TypeParamWithVarianceContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeParamNode(p);
         }
         return ctx.ast;
@@ -1336,7 +1336,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeParamNode ast(TypeParameterContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeParamNode(p);
         }
         return ctx.ast;
@@ -1347,7 +1347,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Closure ast(ClosureExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Closure n = nf.Closure(p, new ArrayList<Formal>(), errorDepParameterExpr(p), errorTypeNode(p), errorBlock(p));
             return (Closure) n.error(true);
         }
@@ -1359,7 +1359,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Return ast(LastExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Return n = nf.Return(p);
             return (Return) n.error(true);
         }
@@ -1371,7 +1371,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(ClosureBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1382,7 +1382,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private AtExpr ast(AtExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AtExpr n = nf.AtExpr(p, errorExpr(p), errorBlock(p));
             return (AtExpr) n.error(true);
         }
@@ -1394,7 +1394,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private FinishExpr ast(OBSOLETE_FinishExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             FinishExpr n = nf.FinishExpr(p, errorExpr(p), errorStmt(p));
             return (FinishExpr) n.error(true);
         }
@@ -1406,7 +1406,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(TypeNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1417,7 +1417,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(ClassNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1439,7 +1439,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(PackageNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1450,7 +1450,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(ExpressionNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1461,7 +1461,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(MethodNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1472,7 +1472,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(PackageOrTypeNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1483,7 +1483,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ParsedName ast(FullyQualifiedNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
         }
         return ctx.ast;
@@ -1494,7 +1494,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private SourceFile ast(CompilationUnitContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             SourceFile n = nf.SourceFile(p, new ArrayList<TopLevelDecl>());
             return (SourceFile) n.error(true);
         }
@@ -1506,7 +1506,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private PackageNode ast(PackageDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             PackageNode n = nf.PackageNode(p, null);
             return (PackageNode) n.error(true);
         }
@@ -1529,7 +1529,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Import ast(ImportDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Import n = nf.Import(p, Import.CLASS, QName.make("*"));
             return (Import) n.error(true);
         }
@@ -1552,7 +1552,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TopLevelDecl ast(TypeDeclarationContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             TopLevelDecl n = errorTypeDecl(p);
             return (TopLevelDecl) n.error(true);
         }
@@ -1575,7 +1575,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassBody ast(ClassBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ClassBody n = nf.ClassBody(p, new ArrayList<ClassMember>());
             return (ClassBody) n.error(true);
         }
@@ -1643,7 +1643,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(VariableInitializerContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -1654,7 +1654,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(ResultTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -1665,7 +1665,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(HasResultTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -1687,7 +1687,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Object[] ast(LoopIndexDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, null, null };
             return n;
         }
@@ -1699,7 +1699,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private X10Formal ast(LoopIndexContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorFormal(p);
         }
         return ctx.ast;
@@ -1710,7 +1710,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private X10Formal ast(FormalParameterContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorFormal(p);
         }
         return ctx.ast;
@@ -1721,7 +1721,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(OBSOLETE_OffersoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -1743,7 +1743,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(MethodBodyContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1754,7 +1754,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(ConstructorBodyContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1765,7 +1765,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(ConstructorBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1798,7 +1798,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassBody ast(InterfaceBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassBody(p);
         }
         return ctx.ast;
@@ -1853,7 +1853,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private AnnotationNode ast(AnnotationContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AnnotationNode n = nf.AnnotationNode(p, errorTypeNode(p));
             return (AnnotationNode) n.error(true);
         }
@@ -1865,7 +1865,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Id ast(IdentifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorId(p);
         }
         return ctx.ast;
@@ -1876,7 +1876,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Block ast(BlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
         }
         return ctx.ast;
@@ -1920,7 +1920,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Object[] ast(FormalDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), null };
             return n;
         }
@@ -1932,7 +1932,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Object[] ast(FieldDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorExpr(p) };
             return n;
         }
@@ -1944,7 +1944,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Object[] ast(VariableDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
             return n;
         }
@@ -1956,7 +1956,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Object[] ast(VariableDeclaratorWithTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
             return n;
         }
@@ -1990,7 +1990,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(PrimaryContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2001,7 +2001,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Lit ast(LiteralContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Lit n = nf.NullLit(p);
             return (Lit) n.error(true);
         }
@@ -2013,7 +2013,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private BooleanLit ast(BooleanLiteralContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             BooleanLit n = nf.BooleanLit(p, false);
             return (BooleanLit) n.error(true);
         }
@@ -2036,7 +2036,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Field ast(FieldAccessContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Field n = nf.Field(p, null, errorId(p));
             return (Field) n.error(true);
         }
@@ -2048,7 +2048,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(ConditionalExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2059,7 +2059,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(AssignmentExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2070,7 +2070,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(AssignmentContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2081,7 +2081,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(LeftHandSideContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2092,7 +2092,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Assign.Operator ast(AssignmentOperatorContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Assign.ASSIGN;
         }
         return ctx.ast;
@@ -2103,7 +2103,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(ExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2114,7 +2114,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(ConstantExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2125,7 +2125,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Unary.Operator ast(PrefixOpContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Unary.POS;
         }
         return ctx.ast;
@@ -2136,7 +2136,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Binary.Operator ast(BinOpContext ctx) {
         if (ctx == null || ctx.ast == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Binary.EQ;
         }
         return ctx.ast;
@@ -2148,7 +2148,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private TypeNode ast(HasResultTypeoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
         }
         return ctx.ast;
@@ -2192,7 +2192,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Id ast(IdentifieroptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorId(p);
         }
         return ctx.ast;
@@ -2225,7 +2225,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private Expr ast(ExpressionoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
         }
         return ctx.ast;
@@ -2258,7 +2258,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      */
     private ClassBody ast(ClassBodyoptContext ctx) {
         if (ctx == null) {
-            Position p = (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassBody(p);
         }
         return ctx.ast;
