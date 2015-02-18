@@ -270,6 +270,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     }
 
+    private FlagsNode errorFlags(Position p) {
+        return nf.FlagsNode(p, Flags.NONE);
+    }
+
     private ParsedName errorParsedName(Position p) {
         return new ParsedName(nf, ts, p, errorId(p));
     }
@@ -287,7 +291,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     private X10Formal errorFormal(Position p) {
-        return (X10Formal) nf.Formal(p, null, errorTypeNode(p), errorId(p)).error(true);
+        return (X10Formal) nf.Formal(p, errorFlags(p), errorTypeNode(p), errorId(p)).error(true);
     }
 
     private AmbTypeNode errorAmbTypeNode(Position p) {
@@ -299,7 +303,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     private TypeDecl errorTypeDecl(Position p) {
-        return (TypeDecl) nf.TypeDecl(p, null, errorId(p), null, null, null, null).error(true);
+        return (TypeDecl) nf.TypeDecl(p, errorFlags(p), errorId(p), null, null, null, null).error(true);
     }
 
     private TypeParamNode errorTypeParamNode(Position p) {
@@ -307,7 +311,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     private ClassDecl errorClassDecl (Position p) {
-        return (ClassDecl) nf.ClassDecl(p, null, errorId(p), errorTypeNode(p), new ArrayList<TypeNode>(), errorClassBody(p)).error(true);
+        return (ClassDecl) nf.ClassDecl(p, errorFlags(p), errorId(p), errorTypeNode(p), new ArrayList<TypeNode>(), errorClassBody(p)).error(true);
     }
 
     private ClassBody errorClassBody(Position p) {
@@ -318,7 +322,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     private MethodDecl errorMethodDecl(Position p) {
-        return (MethodDecl) nf.MethodDecl(p, null, errorTypeNode(p), errorId(p), new ArrayList<Formal>(), errorBlock(p)).error(true);
+        return (MethodDecl) nf.MethodDecl(p, errorFlags(p), errorTypeNode(p), errorId(p), new ArrayList<Formal>(), errorBlock(p)).error(true);
     }
 
 
@@ -398,7 +402,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     private PropertyDecl ast(PropertyContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            PropertyDecl n = nf.PropertyDecl(p, null, errorTypeNode(p), errorId(p));
+            PropertyDecl n = nf.PropertyDecl(p, errorFlags(p), errorTypeNode(p), errorId(p));
             return (PropertyDecl) n.error(true);
         }
         return ctx.ast;
@@ -779,7 +783,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     private ConstructorDecl ast(ConstructorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            ConstructorDecl n = nf.ConstructorDecl(p, null, errorId(p), new ArrayList<Formal>(), errorBlock(p));
+            ConstructorDecl n = nf.ConstructorDecl(p, errorFlags(p), errorId(p), new ArrayList<Formal>(), errorBlock(p));
             return (ConstructorDecl) n.error(true);
         }
         return ctx.ast;
