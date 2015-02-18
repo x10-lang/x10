@@ -461,10 +461,8 @@ pami_context_t getPAMIContext()
 
 	// lock & unlock the context to ensure that the context management thread isn't advancing it before it gets used by the new thread
 	// TODO: possibility of a previoud exclusive allocation using the context, and not realizing it's shared yet...
-	if (!state.shareLastContext) {
-		PAMI_Context_lock(context);
-		PAMI_Context_unlock(context);
-	}
+	PAMI_Context_lock(context);
+	PAMI_Context_unlock(context);
 	return context;
 }
 
@@ -1029,12 +1027,18 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		error("Unable to allocate the thread-local-storage context lookup table");
 
 	state.shareLastContext = false;
+	state.spareContextIndex = 0;
 	if ((status = PAMI_Context_createv(state.client, NULL, 0, state.context, state.numAllocatedContexts)) != PAMI_SUCCESS)
 		error("Unable to initialize %i PAMI contexts: %i\n", state.numAllocatedContexts, status);
 	pthread_setspecific(state.contextLookupTable, state.context[0]);
 	registerHandlers(state.context[0], true);
 	if (state.numAllocatedContexts > 1) {
-		state.spareContextIndex = 1;
+		#if defined(__bgq__)
+		    // the initialization thread becomes worker 0 on BG.  Other platforms create a new thread for worker 0
+		    // So if we're not on BG, context 0 gets used by the init thread, but is available for the first worker too, since
+		    // the init thread will shortly block forever
+			state.spareContextIndex = 1;
+		#endif
 		// create the context management thread to advance unallocated contexts as needed
 		pthread_attr_t attr;
 		pthread_t thread;
@@ -1043,8 +1047,6 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		pthread_create(&thread, &attr, &advanceContexts, NULL);
 		pthread_attr_destroy(&attr);
 	}
-	else
-		state.spareContextIndex = 0;
 
 	// create the world geometry
 	state.teams = (x10rt_pami_team*)x10rt_malloc(sizeof(x10rt_pami_team));
