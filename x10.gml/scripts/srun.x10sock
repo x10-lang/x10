@@ -1,0 +1,15 @@
+#!/bin/sh
+if [ "$_" != "/usr/bin/salloc" ] ; then
+    if [ "$SLURM_PROCID" == 0 ] ; then
+        echo "$0" can only be run via salloc, do not run it with srun
+        exit 1
+    fi
+fi
+X10_HOSTFILE="hosts.$SLURM_JOB_ID"
+X10_NPLACES=$SLURM_NPROCS
+X10_SINGLE_JVM=""
+srun -l /bin/hostname -s | sort -n | awk '{print $2}' > $X10_HOSTFILE
+"$@"
+rc=$?
+rm -f $X10_HOSTFILE
+exit $rc

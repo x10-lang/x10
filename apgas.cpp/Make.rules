@@ -1,0 +1,33 @@
+#########################
+# This Makefile fragment is intended to be included in all
+# application Makefiles that compiler/link against the 
+# APGAS library.
+##########################
+
+#########################
+# User-servicable Parts #
+#########################
+
+X10_DIST ?= $(call abspath,../x10.dist)
+APGAS_DIR ?= $(X10_DIST)/../apgas.cpp
+
+X10RT_LIB ?= x10rt_sockets
+
+#############
+# Variables #
+#############
+
+include $(X10_DIST)/stdlib/libx10.properties
+
+ifdef DEBUG
+    XRX_LIB=lib-dbg
+    XRX_INCLUDE=include-dbg
+else
+    XRX_LIB=lib
+    XRX_INCLUDE=include
+endif
+
+override CXXFLAGS += $(X10LIB_CXXFLAGS) -I$(X10_DIST)/include -I$(X10_DIST)/stdlib/$(XRX_INCLUDE) 
+
+APGAS_LINK_ARGS = -L$(X10_DIST)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(X10_DIST)/lib \
+	-L$(X10_DIST)/stdlib/$(XRX_LIB) -lapgas $(X10LIB_LDLIBS) -Wl,--rpath -Wl,$(X10_DIST)/stdlib/$(XRX_LIB)

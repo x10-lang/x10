@@ -1,0 +1,6 @@
+Test and benchmark GML library built applications
+
+1) commu  --- communication benchmarks
+2) serial --- single-place (sequential computation) of dense and sparse matrix multiplication
+3) summ   --- benchmarks of distributed dense and sparse matrix multiplication implemented in SUMMA
+

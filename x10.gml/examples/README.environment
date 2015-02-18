@@ -1,0 +1,81 @@
+Environment variables for testing resilient GML applications
+------------------------------------------------------------
+
+X10_RESILIENT_MODE:
+    This variable is set to a non-zero value to enable the Resilient X10 Mode.
+
+X10_GML_HAMMER_FILE:
+    The PlaceHammer class can be used to kill places for resilience testing.
+    An input file is required to configure the timing and the identities of
+    places to kill.
+    Config file format:
+    First Line Format:  [mode=time|mode=iteration]
+    The first line specifies the hammer mode:
+       mode=iteration: The iter mode is for iterative applications, a place
+                       should be killed at a certain iteration number.
+       mode=time     : In time mode, a place should be killed after sleeping
+                       for a certain time (milliseconds) 
+
+    Remaining Lines Format (for Iteration Mode):
+    [Iteration_Number:Place_Id:Iteration_Kill_Type]
+      Iteration_Kill_Type specifies when during the iteration the place should
+      be killed.  There are 3 possible values [S|C|R]:
+          S: kill during the iteration step execution
+          C: kill during taking a checkpoint
+          R: kill during restore
+
+    Remaining Lines Format (for Time Mode):
+    [Time_In_Milliseconds:Place_Id]
+       The line specifies the time in milliseconds the hammer should sleep
+       before killing the specified place
+ 
+X10_PLACE_GROUP_RESTORE_MODE: 
+    This variable configures how to create a place group to restore the
+    computation after place(s) death.
+    Possible Values:
+    0: (default) Shrink mode, dead places won't be replaced
+    1: Redundant mode which replaces the dead places with spare places.
+       Use make run_redundant to test this mode.
+    2: Elastic mode which creates new places to replace the dead ones.
+       Use make run_elastic to test this mode.
+
+X10_ELASTIC_MAX_WAIT_SECONDS:
+    This variable is only used if X10_PLACE_GROUP_RESTORE_MODE=2
+    It determines the maximum time the application can wait for new places to
+    be created. The default value is 1 second.
+    
+X10_RESILIENT_STORE_MODE:
+    This variable determines the type of Resilient Store to use when creating
+    snapshots for the GML objects.
+    Possible Values:
+    0: (default) Place Zero Resilient Store
+    1: Distributed Double In-Memory Resilient Store
+
+X10_RESILIENT_STORE_LOCAL_COPY:
+    This variable describes how the resilient store will create local copies.
+    Possible Values:
+    clone : (default) use the object's clone method 
+    at    : using the implicit call to Runtime.deepCopy by the at construct
+    deep  : call Runtime.deepCopy to clone the object
+
+X10_RESILIENT_STORE_REMOTE_COPY:
+    This variable describes how the resilient store will create remote copies.
+    Possible Values:
+    at  : (default) uses the at construct to create remote clones
+    dma : uses Rail.asyncCopy methods to create remote clones
+
+X10_GML_REBALANCE:
+    This variable determines whether restoring a Matrix should recalculate the
+    data grid to balance the load among the remaining places.
+    Possible values:
+    0: use the old data grid
+    1: recalculate the data grid
+
+Example Run Commands:
+---------------------
+1) Using the Hammer:
+X10_RESILIENT_MODE=1 X10_GML_HAMMER_FILE=hammer_iter.txt make run_sock
+X10_RESILIENT_MODE=1 X10_GML_HAMMER_FILE=hammer_time.txt make run_sock
+
+2) Using Elastic X10 to replace the dead places with newly created ones:
+X10_RESILIENT_MODE=1 make run_elastic

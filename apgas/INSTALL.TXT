@@ -1,0 +1,9 @@
+For support in Eclipse 4.4.1, please install the "Lambda Support Patch" in Eclipse from archive lambda-update-site.zip.
+
+The patch addresses two issues in the org.eclipse.jdt.core plugin with lambda serialization.
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=442416
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418
+
+The patch implements additional compiler warnings when:
+- a serializable lambda captures this,
+- a serializable lambda captures a non-serializable variable (including this).

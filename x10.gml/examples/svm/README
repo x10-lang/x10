@@ -1,0 +1,14 @@
+SVM Global Matrix Library code, part of the X10 project (http://x10-lang.org).
+
+This program is controlled by the Eclipse Public Licence v1.0
+http://www.eclipse.org/legal/epl-v10.html
+
+Summary
+-------
+
+This GML example code implements a linear support vector machine for binary
+classification of real-valued datasets.
+
+The file ionosphere.data is taken from the UCI Machine Learning Repository:
+Ionosphere Data Set.
+https://archive.ics.uci.edu/ml/datasets/Ionosphere

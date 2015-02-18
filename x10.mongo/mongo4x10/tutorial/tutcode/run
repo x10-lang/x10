@@ -1,0 +1,19 @@
+#!/bin/bash
+echo Compiling the files with prefix $1
+# /Users/bard/x10/juss/Actors/mongo/tutorial/drivers
+pushd ../../drivers > /dev/null
+DRIVERS=`pwd`
+popd > /dev/null
+# Change CP1 if your Java Mongo binding is somewhere else.
+CP1=$DRIVERS/mongo-2.7.3.jar
+SP1=$DRIVERS
+
+# Clean up, to be polite.
+rm -r class
+
+# Compile.  Note that we need a classpath (-cp) *and* a sourcepath (-sourcepath).
+x10c -d class -cp $CP1 -sourcepath .:$SP1 $1_*.x10 
+
+# And run.  No sourcepath needed here.
+cd class
+x10 -cp $CP1 $1_Main

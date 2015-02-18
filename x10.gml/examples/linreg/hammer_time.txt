@@ -1,0 +1,6 @@
+mode=time
+#time_to_sleep:place_to_kill
+100:1
+100:3
+100:5
+
