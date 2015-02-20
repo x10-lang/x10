@@ -9,7 +9,7 @@
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10doc.jar"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="antlr.jar" value="antlr-4.4-complete.jar"/>
+    <property name="antlr.jar" value="antlr-4.5-complete.jar"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <property name="tools.jar" value="tools.jar"/>
