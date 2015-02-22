@@ -5,6 +5,10 @@ lexer grammar X10_Lexer;
 }
 
 @lexer::members {
+  public static final int WHITESPACES = 1;
+  public static final int DOCCOMMENTS = 2;
+  public static final int COMMENTS = 3;
+	
   boolean isDecimal() {
       int next = _input.LA(1);
       return (next != '.') &&
@@ -380,11 +384,15 @@ ZeroToThree
     :   [0-3]
     ;
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+WS  :  [ \t\r\n\u000C]+ -> channel(1) // WHITESPACES
+    ;
+
+DOCCOMMENT
+    :  '/**' .*? '*/' -> channel(2) // DOCCOMMENTS
     ;
 
 COMMENT
-    :   '/*' .*? '*/' -> skip
+    :   '/*' .*? '*/' -> channel(3) // COMMENTS
     ;
 
 LINE_COMMENT
