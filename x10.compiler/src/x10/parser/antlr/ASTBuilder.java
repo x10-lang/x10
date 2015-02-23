@@ -623,6 +623,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected TypeSystem ts;
     protected NodeFactory nf;
     protected FileSource srce;
+    protected String fileName;
 
     public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
         compilerOpts = opts;
@@ -630,8 +631,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         nf = n;
         srce = source;
         eq = q;
+        fileName = source.toString();
 
-        String fileName = source.path();
         lexer = new X10Lexer(inputStream);
         tokens = new CommonTokenStream(lexer);
         
@@ -697,7 +698,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = ctx.getStop() == null ? ctx.getStart().getLine() : ctx.getStop().getLine();
         int endColumn = ctx.getStop() == null ? ctx.getStart().getCharPositionInLine() : ctx.getStop().getCharPositionInLine();
         int endOffset = ctx.getStop() == null ? ctx.getStart().getStopIndex() : ctx.getStop().getStopIndex();
-        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
     }
 
     /** Returns the position of a given token. */
@@ -708,7 +709,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = line;
         int endOffset = t.getStopIndex();
         int endColumn = column + endOffset - offset;
-        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
     }
 
     /** Returns the position going from {@code ctx} to {@code t}. */
@@ -719,7 +720,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endLine = t.getLine();
         int endOffset = t.getStopIndex();
         int endColumn = t.getCharPositionInLine() + endOffset - t.getStartIndex();
-        return new Position("", srce.path(), line, column, endLine, endColumn, offset, endOffset);
+        return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
     }
 
     private String comment(ParserRuleContext ctx) {
