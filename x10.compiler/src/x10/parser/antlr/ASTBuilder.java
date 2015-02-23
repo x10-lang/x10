@@ -488,9 +488,6 @@ import x10.parserGen.X10Parser.Primary10Context;
 import x10.parserGen.X10Parser.Primary11Context;
 import x10.parserGen.X10Parser.Primary12Context;
 import x10.parserGen.X10Parser.Primary13Context;
-import x10.parserGen.X10Parser.Primary14Context;
-import x10.parserGen.X10Parser.Primary15Context;
-import x10.parserGen.X10Parser.Primary16Context;
 import x10.parserGen.X10Parser.Primary17Context;
 import x10.parserGen.X10Parser.Primary18Context;
 import x10.parserGen.X10Parser.Primary19Context;
@@ -6041,35 +6038,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
         List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
-    }
-
-    /** Production: primary ::= primary '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary14) */
-    @Override
-    public void exitPrimary14(Primary14Context ctx) {
-        Expr Primary = ast(ctx.primary());
-        Id Identifier = ast(ctx.identifier());
-        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
-        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
-        ctx.ast = nf.X10Call(pos(ctx), Primary, Identifier, TypeArguments, ArgumentListopt);
-    }
-
-    /** Production: primary ::= s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary15) */
-    @Override
-    public void exitPrimary15(Primary15Context ctx) {
-        Id Identifier = ast(ctx.identifier());
-        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
-        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
-        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.s)), Identifier, TypeArguments, ArgumentListopt);
-    }
-
-    /** Production: primary ::= className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')' (#primary16) */
-    @Override
-    public void exitPrimary16(Primary16Context ctx) {
-        ParsedName ClassName = ast(ctx.className());
-        Id Identifier = ast(ctx.identifier());
-        List<TypeNode> TypeArguments = ast(ctx.typeArgumentsopt());
-        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
-        ctx.ast = nf.X10Call(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), Identifier, TypeArguments, ArgumentListopt);
     }
 
     /** Production: primary ::= primary typeArgumentsopt '(' argumentListopt ')' (#primary17) */

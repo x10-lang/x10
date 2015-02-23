@@ -585,9 +585,6 @@ primary returns [Expr ast]:
     | className '.' s='super' '.' identifier    #primary12
     // methodInvocation
     | methodName typeArgumentsopt '(' argumentListopt ')'                                     #primary13
-    | primary '.' identifier typeArgumentsopt '(' argumentListopt ')'                         #primary14
-    | s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'                       #primary15
-    | className '.' s='super' '.' identifier typeArgumentsopt '(' argumentListopt ')'         #primary16
     | primary typeArgumentsopt '(' argumentListopt ')'                                        #primary17
     | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'     #primary18
     | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'          #primary19

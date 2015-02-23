@@ -5,8 +5,12 @@ lexer grammar X10_Lexer;
 }
 
 @lexer::members {
+	
+  /** Hidden channel for white spaces */
   public static final int WHITESPACES = 1;
+  /** Hidden channel for X10Doc comments */
   public static final int DOCCOMMENTS = 2;
+  /** Hidden channel for simple comments */
   public static final int COMMENTS = 3;
 	
   boolean isDecimal() {
