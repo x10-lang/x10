@@ -426,6 +426,7 @@ template<class T> void x10::lang::Rail<T>::clear() {
 
 
 template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
+    if (numElems <= 0) return;
     checkBounds(start, FMGL(size));
     checkBounds(start+numElems-1, FMGL(size));
     memset(&raw[start], 0, sizeof(T)*numElems);
