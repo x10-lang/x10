@@ -65,8 +65,6 @@ comm_src=\
 	x10/matrix/comm/MatrixScatter.x10 \
 	x10/matrix/comm/MatrixBcast.x10 \
 	x10/matrix/comm/MatrixRemoteCopy.x10 \
-	x10/matrix/comm/SparseRemoteDestInfo.x10 \
-	x10/matrix/comm/DenseRemoteDestInfo.x10 \
 	x10/matrix/comm/MatrixGather.x10 \
 	x10/matrix/comm/MatrixRingCast.x10 \
     x10/matrix/comm/RemotePair.x10 \
