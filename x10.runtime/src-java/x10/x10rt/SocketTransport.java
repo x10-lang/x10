@@ -917,7 +917,7 @@ public class SocketTransport {
 					Thread.sleep(100);
 					delay-=100;
 					if (delay <= 0 || shuttingDown) {
-						markPlaceDead(remotePlace); // mark it as dead
+						if (remotePlace >= 0) markPlaceDead(remotePlace); // mark it as dead
 						if (DEBUG) e.printStackTrace();
 						throw new IOException("Place "+myPlaceId+" unable to connect to place "+remotePlace);
 					}
