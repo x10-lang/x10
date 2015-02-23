@@ -11,7 +11,7 @@ import javax.swing.JDialog;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
-import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -614,7 +614,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     protected X10Parser p;
     protected X10Lexer lexer;
-    protected BufferedTokenStream tokens;
+    protected CommonTokenStream tokens;
 
     protected X10CompilerOptions compilerOpts;
     protected ErrorQueue eq;
@@ -633,7 +633,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
         String fileName = source.path();
         lexer = new X10Lexer(inputStream);
-        tokens = new BufferedTokenStream(lexer);
+        tokens = new CommonTokenStream(lexer);
         
         p = new X10Parser(tokens);
         p.removeErrorListeners();
@@ -642,7 +642,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         p.addErrorListener(err);
     }
     
-    public BufferedTokenStream getTokens(){
+    public CommonTokenStream getTokens(){
     	return tokens;
     }
 
