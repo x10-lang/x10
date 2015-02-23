@@ -387,29 +387,77 @@ public struct Team {
     }
 
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Byte, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Byte, op:Int):Byte {
+        val chk = new Rail[Byte](1, src);
+        val dst = new Rail[Byte](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:UByte, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UByte, op:Int):UByte {
+        val chk = new Rail[UByte](1, src);
+        val dst = new Rail[UByte](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Short, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Short, op:Int):Short {
+        val chk = new Rail[Short](1, src);
+        val dst = new Rail[Short](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:UShort, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UShort, op:Int):UShort {
+        val chk = new Rail[UShort](1, src);
+        val dst = new Rail[UShort](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:UInt, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:UInt, op:Int):UInt {
+        val chk = new Rail[UInt](1, src);
+        val dst = new Rail[UInt](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Int, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Int, op:Int):Int {
+        val chk = new Rail[Int](1, src);
+        val dst = new Rail[Int](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Long, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Long, op:Int):Long {
+        val chk = new Rail[Long](1, src);
+        val dst = new Rail[Long](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:ULong, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:ULong, op:Int):ULong {
+        val chk = new Rail[ULong](1, src);
+        val dst = new Rail[ULong](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Float, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Float, op:Int):Float {
+        val chk = new Rail[Float](1, src);
+        val dst = new Rail[Float](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce (root:Place, src:Double, op:Int) = genericReduce(root, src, op);
+    public def reduce (root:Place, src:Double, op:Int):Double {
+        val chk = new Rail[Double](1, src);
+        val dst = new Rail[Double](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
-    public def reduce[T](root:Place, src:T, op:Int) = genericReduce(root, src, op);
-
-    private def genericReduce[T] (root:Place, src:T, op:Int) : T {
+    public def reduce[T](root:Place, src:T, op:Int):T {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         reduce(root, chk, 0, dst, 0, 1, op);
@@ -500,29 +548,77 @@ public struct Team {
     }
 
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Byte, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Byte, op:Int):Byte {
+        val chk = new Rail[Byte](1, src);
+        val dst = new Rail[Byte](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:UByte, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:UByte, op:Int):UByte {
+        val chk = new Rail[UByte](1, src);
+        val dst = new Rail[UByte](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Short, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Short, op:Int):Short {
+        val chk = new Rail[Short](1, src);
+        val dst = new Rail[Short](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:UShort, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:UShort, op:Int):UShort {
+        val chk = new Rail[UShort](1, src);
+        val dst = new Rail[UShort](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:UInt, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:UInt, op:Int):UInt {
+        val chk = new Rail[UInt](1, src);
+        val dst = new Rail[UInt](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Int, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Int, op:Int):Int {
+        val chk = new Rail[Int](1, src);
+        val dst = new Rail[Int](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Long, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Long, op:Int):Long {
+        val chk = new Rail[Long](1, src);
+        val dst = new Rail[Long](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:ULong, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:ULong, op:Int):ULong {
+        val chk = new Rail[ULong](1, src);
+        val dst = new Rail[ULong](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Float, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Float, op:Int):Float {
+        val chk = new Rail[Float](1, src);
+        val dst = new Rail[Float](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce (src:Double, op:Int) = genericAllreduce(src, op);
+    public def allreduce (src:Double, op:Int):Double {
+        val chk = new Rail[Double](1, src);
+        val dst = new Rail[Double](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
-    public def allreduce[T](src:T, op:Int) = genericAllreduce(src, op);
-
-    private def genericAllreduce[T] (src:T, op:Int) : T {
+    public def allreduce[T](src:T, op:Int):T {
         val chk = new Rail[T](1, src);
         val dst = new Rail[T](1, src);
         allreduce(chk, 0, dst, 0, 1, op);
