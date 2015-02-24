@@ -144,6 +144,14 @@ public abstract class ResilientMap[K,V] {V haszero} {
      */
     public abstract def asyncRemove(k:K):void;
 
+	/**
+     * Associate value v with key k in the resilient map.
+     * Similar to {@link #put(K,V)}, but does not return 
+	 * the old value (and so can be more efficient).
+     * @see #put(K,V)
+     */
+    public abstract def set(k: K, v: V):void;
+
     /**
      * Return number of key-value pairs in the resilient map.
      */
@@ -155,6 +163,24 @@ public abstract class ResilientMap[K,V] {V haszero} {
      * immediately.
      */
     public abstract def submitToKey(k:K, entryProcessor:(Entry[K,V])=>Any, callback:(Any)=>void):void;
+
+	 /**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately.
+     * The activity created to do the remove will be registered with the
+     * dynamically enclosing finish.
+     */
+    public abstract def asyncSubmitToKey(k:K, entryProcessor:(Entry[K,V])=>void):void;
+
+	/**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately with a future. When forced, it will wait until the operation is done
+	 * and return the result of the entryProcessor.
+     *
+     */
+    public abstract def asyncSubmitToKeyFuture(k:K, entryProcessor:(Entry[K,V])=>Any):()=>Any;
 
     /**
      * Releases the lock for the specified key.

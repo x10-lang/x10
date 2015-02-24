@@ -231,6 +231,16 @@ CustomSerialization {
         async { remove(k); }
     }
 
+	/**
+     * Associate value v with key k in the resilient map.
+     * Similar to {@link #put(K,V)}, but does not return 
+	 * the old value (and so is more efficient).
+     * @see #put(K,V)
+     */
+    public def set(k: K, v: V):void {
+		keyValueMap.set(k, v);
+    };
+
     /**
      * Return number of key-value pairs in the resilient map.
      */
@@ -257,6 +267,52 @@ CustomSerialization {
         keyValueMap.submitToKey(k, p, c);
     }
 
+	 /**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately.
+     * The activity created to do the remove will be registered with the
+     * dynamically enclosing finish.
+     */
+    public def asyncSubmitToKey(k:K, entryProcessor:(Entry[K,V])=>void):void {
+		val p = new com.hazelcast.map.EntryProcessor() {
+            public def process(entry:java.util.Map.Entry):Any {
+                entryProcessor(entry as Entry[K,V]);
+				return null;
+            }
+            public def getBackupProcessor():com.hazelcast.map.EntryBackupProcessor = null;
+        };
+		val future = keyValueMap.submitToKey(k, p);
+		async { future.get(); }
+	}
+
+	/**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately with a future. When forced, it will wait until the operation is done
+	 * and return the result of the entryProcessor.
+     *
+     */
+    public def asyncSubmitToKeyFuture(k:K, entryProcessor:(Entry[K,V])=>Any):()=>Any {
+		val p = new com.hazelcast.map.EntryProcessor() {
+            public def process(entry:java.util.Map.Entry):Any {
+                entryProcessor(entry as Entry[K,V]);
+				return null;
+            }
+            public def getBackupProcessor():com.hazelcast.map.EntryBackupProcessor = null;
+        };
+		val future = keyValueMap.submitToKey(k, p);
+		return () => {
+			try {
+				return future.get();
+			} catch(e:java.lang.InterruptedException) {
+				throw new Exception(e);
+			} catch(e:java.util.concurrent.ExecutionException) {
+				throw new Exception(e);
+			}
+		};
+	}
+	
     /**
      * Releases the lock for the specified key.
      */
