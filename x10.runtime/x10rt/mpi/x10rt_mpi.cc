@@ -116,13 +116,19 @@ static inline void release_lock(pthread_mutex_t * lock) {
     }
 }
 
+// We need to lock/unlock at the x10rt level exactly when
+// the threading mode is SERIALIZED.
+// In SINGLE and FUNNELED mode, only a single thread will ever make
+// MPI calls, so no locking is needed.
+// In MULTIPLE mode, the underlying MPI implementation will handle the
+// locking, so we should not lock redundantly here.
 #define LOCK_IF_MPI_IS_NOT_MULTITHREADED {  \
-    if(!global_state.is_mpi_multithread)    \
+    if(global_state.threading_mode ==  X10RT_MPI_THREAD_SERIALIZED) \
         get_lock(&global_state.lock);       \
 }
 
 #define UNLOCK_IF_MPI_IS_NOT_MULTITHREADED {    \
-    if(!global_state.is_mpi_multithread)        \
+    if(global_state.threading_mode ==  X10RT_MPI_THREAD_SERIALIZED) \
         release_lock(&global_state.lock);       \
 }
 
@@ -351,12 +357,19 @@ typedef x10rt_notifier *putCb2;
 typedef x10rt_finder *getCb1;
 typedef x10rt_notifier *getCb2;
 
+typedef enum {
+    X10RT_MPI_THREAD_SINGLE = 0,
+    X10RT_MPI_THREAD_FUNNELED = 1,
+    X10RT_MPI_THREAD_SERIALIZED = 2,
+    X10RT_MPI_THREAD_MULTIPLE = 3
+} x10rt_mpi_threading_mode;
+
 class x10rt_internal_state {
     public:
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
-        bool                is_mpi_multithread;
+        x10rt_mpi_threading_mode threading_mode;
         bool				report_nonblocking_coll;
         int                 rank;
         int                 nprocs;
@@ -380,7 +393,7 @@ class x10rt_internal_state {
         x10rt_internal_state() {
             init                = false;
             finalized           = false;
-            is_mpi_multithread  = false;
+            threading_mode      = X10RT_MPI_THREAD_SINGLE;
             report_nonblocking_coll	= false;
         }
         void Init() {
@@ -493,23 +506,23 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     char* nthreads = getenv("X10_NTHREADS");
     char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
     if (checkBoolEnvVar(sthreads) && nthreads && ithreads && (atoi(nthreads) == 1) && (atoi(ithreads) == 0)) {
-        global_state.is_mpi_multithread = false;
+        global_state.threading_mode = X10RT_MPI_THREAD_SINGLE;
         if (MPI_SUCCESS != MPI_Init(argc, argv)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
             abort();
         }
     } else {
-        global_state.is_mpi_multithread = true;
+        global_state.threading_mode = X10RT_MPI_THREAD_SERIALIZED;
         if (MPI_SUCCESS != MPI_Init_thread(argc, argv, 
-                    MPI_THREAD_MULTIPLE, &provided)) {
+                    MPI_THREAD_SERIALIZED, &provided)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init_Thread\n", __FILE__, __LINE__);
             abort();
         }
         MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
-        if (MPI_THREAD_MULTIPLE != provided) {
+        if (MPI_THREAD_SERIALIZED != provided) {
             if (0 == global_state.rank) {
                 fprintf(stderr, "[%s:%d] Underlying MPI implementation"
-                        " does not provide MPI_THREAD_MULTIPLE threading level\n",
+                        " does not provide MPI_THREAD_SERIALIZED threading level\n",
                         __FILE__, __LINE__);
                 fprintf(stderr, "Unable to support requested level of X10 threading; exiting\n");
             }
