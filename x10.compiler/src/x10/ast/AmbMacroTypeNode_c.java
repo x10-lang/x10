@@ -336,7 +336,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             if (!first) {
                 sb.append(",");
             } else {
-                first = true;
+                first = false;
             }
             sb.append(e.type().fullName());
         }
