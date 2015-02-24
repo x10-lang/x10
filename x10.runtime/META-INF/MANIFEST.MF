@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 runtime
 Bundle-SymbolicName: x10.runtime
-Bundle-Version: 2.5.1.qualifier
+Bundle-Version: 2.5.2.qualifier
 Eclipse-AutoStart: true
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: x10.common
