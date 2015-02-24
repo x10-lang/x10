@@ -362,8 +362,8 @@ lastExpression returns [Return ast]:
     ;
 closureBody returns [Block ast]:
       expression                                               #closureBody0
-    | annotationsopt '{' blockStatementsopt lastExpression '}'   #closureBody1
     | annotationsopt block                                     #closureBody2
+    | annotationsopt '{' blockStatementsopt lastExpression '}'   #closureBody1
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody
@@ -481,8 +481,8 @@ throwsopt returns [List<TypeNode> ast]:
     ;
 methodBody returns [Block ast]:
       '=' lastExpression ';'                                         #methodBody0
-    | '=' annotationsopt '{' blockStatementsopt lastExpression '}'   #methodBody1
     | '='? annotationsopt block                                      #methodBody2
+    | '=' annotationsopt '{' blockStatementsopt lastExpression '}'   #methodBody1
     | ';'                                                            #methodBody3
     ;
 constructorBody returns [Block ast]:
@@ -609,6 +609,11 @@ primary returns [Expr ast]:
     | primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
     | s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                   #primary38
     | className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'     #primary39
+    // errors
+//    | s='super' dot='.'                    #primaryError0
+//    | className '.' s='super' dot='.'      #primaryError1
+//    | className dot='.'                    #primaryError2
+//    | primary dot='.'                      #primaryError3
     ;
 literal returns [Lit ast]:
       IntLiteral             #IntLiteral
