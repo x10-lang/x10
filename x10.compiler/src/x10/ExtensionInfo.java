@@ -58,6 +58,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
+import polyglot.frontend.ParserCleanupGoal;
 import polyglot.frontend.ParserGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
@@ -523,7 +524,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        private void addSemanticCheckSourceGoals(Job job, List<Goal> goals) {
     	   addTypecheckSourceGoals(job, goals);
 
-           goals.add(ConformanceChecked(job));
+    	   Goal conformanceGoal = ConformanceChecked(job);
+    	   goals.add(conformanceGoal);
+
+    	   Goal parserCleanupGoal = ParserCleanuped(job);
+    	   goals.add(parserCleanupGoal);
+    	   parserCleanupGoal.addPrereq(conformanceGoal);
 
            // Data-flow analyses
            goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
@@ -541,7 +547,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
-	       goals.add(CommunicationOptimizer(job));
+           goals.add(CommunicationOptimizer(job));
            goals.add(MoveFieldInitializers(job)); // should do this before desugaring
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
@@ -981,6 +987,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new X10ParserGoal(extInfo.compiler(), job).intern(this);
        }
        
+        public Goal ParserCleanuped(Job job) {
+            return new ParserCleanupGoal(job).intern(this);
+        }
+
        public Goal DotOutputted(Job job, String name) {
     	   Goal cg = new OutputGoal(job, new DotTranslator(job, extInfo.typeSystem(), extInfo.nodeFactory(), extInfo.targetFactory(), name), name);
     	   return cg.intern(this);

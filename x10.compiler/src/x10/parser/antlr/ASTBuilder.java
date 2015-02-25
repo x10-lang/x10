@@ -15,7 +15,10 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.ParserATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -615,6 +618,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected X10Parser p;
     protected X10Lexer lexer;
     protected CommonTokenStream tokens;
+    protected static ParserATNSimulator parserState;
 
     protected X10CompilerOptions compilerOpts;
     protected ErrorQueue eq;
@@ -624,6 +628,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected NodeFactory nf;
     protected FileSource srce;
     protected String fileName;
+
+    public static void clearState() {
+        if (parserState != null) {
+            parserState.clearDFA();
+        }
+    }
 
     public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
         compilerOpts = opts;
@@ -637,10 +647,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         tokens = new CommonTokenStream(lexer);
         
         p = new X10Parser(tokens);
+
+        parserState = p.getInterpreter();
+        
         p.removeErrorListeners();
         err = new ParserErrorListener(eq, fileName);
-        errorStrategy = new DefaultErrorStrategy();
         p.addErrorListener(err);
+
+        errorStrategy = new DefaultErrorStrategy();
+        p.setErrorHandler(errorStrategy);
     }
     
     public CommonTokenStream getTokens(){
@@ -6360,6 +6375,28 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
+    // /** Production: primary ::= 'super' dot='.' (#primaryError0) */
+    // @Override
+    // public void exitPrimaryError0(PrimaryError0Context ctx) {
+    // err.syntaxError("identifier expected", pos(ctx.dot));
+    // ctx.ast = nf.Super(pos(ctx.s));
+    // }
+    //
+    // /** Production: primary ::= className '.' s='super' dot='.' (#primaryError1) */
+    // @Override
+    // public void exitPrimaryError1(PrimaryError1Context ctx) {
+    // err.syntaxError("identifier expected", pos(ctx.dot));
+    // ParsedName ClassName = ast(ctx.className());
+    // ctx.ast = nf.Super(pos(ctx.className(), ctx.s), ClassName.toType());
+    // }
+    //
+    // /** Production: primary ::= primary dot='.' (#primaryError0) */
+    // @Override
+    // public void exitPrimaryError2(PrimaryError2Context ctx) {
+    // err.syntaxError("identifier expected", pos(ctx.dot));
+    // ParsedName ExpressionName = ast(ctx.className());
+    // ctx.ast = ExpressionName.toExpr();
+    // }
 
     /** Production: literal ::= IntLiteral (#IntLiteral) */
     @Override
