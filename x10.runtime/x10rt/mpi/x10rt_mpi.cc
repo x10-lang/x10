@@ -39,6 +39,11 @@
 #include <x10rt_cpp.h>
 #include <x10rt_ser.h>
 
+#if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
+#define X10RT_NONBLOCKING_SUPPORTED true
+#else
+#define X10RT_NONBLOCKING_SUPPORTED false
+#endif
 
 #define X10RT_NET_DEBUG(fmt, ...) do { \
     if(coll_state.is_enabled_debug_print) { \
@@ -123,12 +128,12 @@ static inline void release_lock(pthread_mutex_t * lock) {
 // In MULTIPLE mode, the underlying MPI implementation will handle the
 // locking, so we should not lock redundantly here.
 #define LOCK_IF_MPI_IS_NOT_MULTITHREADED {  \
-    if(global_state.threading_mode ==  X10RT_MPI_THREAD_SERIALIZED) \
+    if(global_state.threading_mode ==  MPI_THREAD_SERIALIZED) \
         get_lock(&global_state.lock);       \
 }
 
 #define UNLOCK_IF_MPI_IS_NOT_MULTITHREADED {    \
-    if(global_state.threading_mode ==  X10RT_MPI_THREAD_SERIALIZED) \
+    if(global_state.threading_mode ==  MPI_THREAD_SERIALIZED) \
         release_lock(&global_state.lock);       \
 }
 
@@ -357,19 +362,12 @@ typedef x10rt_notifier *putCb2;
 typedef x10rt_finder *getCb1;
 typedef x10rt_notifier *getCb2;
 
-typedef enum {
-    X10RT_MPI_THREAD_SINGLE = 0,
-    X10RT_MPI_THREAD_FUNNELED = 1,
-    X10RT_MPI_THREAD_SERIALIZED = 2,
-    X10RT_MPI_THREAD_MULTIPLE = 3
-} x10rt_mpi_threading_mode;
-
 class x10rt_internal_state {
     public:
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
-        x10rt_mpi_threading_mode threading_mode;
+        int					threading_mode;
         bool				report_nonblocking_coll;
         int                 rank;
         int                 nprocs;
@@ -393,8 +391,8 @@ class x10rt_internal_state {
         x10rt_internal_state() {
             init                = false;
             finalized           = false;
-            threading_mode      = X10RT_MPI_THREAD_SINGLE;
-            report_nonblocking_coll	= false;
+            threading_mode      = MPI_THREAD_SINGLE;
+            report_nonblocking_coll	= X10RT_NONBLOCKING_SUPPORTED;
         }
         void Init() {
             init          = true;
@@ -504,7 +502,7 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     char* nthreads = getenv("X10_NTHREADS");
     char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
     if (checkBoolEnvVar(sthreads) && nthreads && ithreads && (atoi(nthreads) == 1) && (atoi(ithreads) == 0)) {
-        global_state.threading_mode = X10RT_MPI_THREAD_SINGLE;
+        global_state.threading_mode = MPI_THREAD_SINGLE;
         if (MPI_SUCCESS != MPI_Init(argc, argv)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
             abort();
@@ -515,10 +513,10 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
         int level_provided;
 
         if (thread_multiple) {
-            global_state.threading_mode = X10RT_MPI_THREAD_MULTIPLE;
+            global_state.threading_mode = MPI_THREAD_MULTIPLE;
             level_required = MPI_THREAD_MULTIPLE;
         } else {
-            global_state.threading_mode = X10RT_MPI_THREAD_SERIALIZED;
+            global_state.threading_mode = MPI_THREAD_SERIALIZED;
             level_required = MPI_THREAD_SERIALIZED;
         }
         if (MPI_SUCCESS != MPI_Init_thread(argc, argv, level_required, &level_provided)) {
@@ -2468,14 +2466,14 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #define TOSTR(x) TOSTR_I(x)
 #define TOSTR_I(x) #x
 
-#if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
+#if X10RT_NONBLOCKING_SUPPORTED
 #define MPI_COLLECTIVE(name, iname, ...) \
      CollectivePostprocess *cp = new CollectivePostprocess(); \
      MPI_Request &req = cp->req; \
      LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
      if (MPI_SUCCESS != MPI_NONBLOCKING_COLLECTIVE_NAME(iname)(__VA_ARGS__, &req)) { \
          fprintf(stderr, "[%s:%d] %s\n", \
-                 __FILE__, __LINE__, "Error in MPI_" #name); \
+                 __FILE__, __LINE__, "Error in MPI_" #iname); \
          abort(); \
      } \
      UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
