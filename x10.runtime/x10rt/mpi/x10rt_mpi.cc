@@ -499,8 +499,6 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
 
     global_state.Init();
 
-    int provided;
-
     // special case: if using static threads, and the thread count is exactly 1 we don't need multi-thread MPI
     char* sthreads = getenv("X10_STATIC_THREADS");
     char* nthreads = getenv("X10_NTHREADS");
@@ -512,17 +510,27 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
             abort();
         }
     } else {
-        global_state.threading_mode = X10RT_MPI_THREAD_SERIALIZED;
-        if (MPI_SUCCESS != MPI_Init_thread(argc, argv, 
-                    MPI_THREAD_SERIALIZED, &provided)) {
+        char *thread_multiple = getenv("X10RT_MPI_THREAD_MULTIPLE");
+        int level_required;
+        int level_provided;
+
+        if (thread_multiple) {
+            global_state.threading_mode = X10RT_MPI_THREAD_MULTIPLE;
+            level_required = MPI_THREAD_MULTIPLE;
+        } else {
+            global_state.threading_mode = X10RT_MPI_THREAD_SERIALIZED;
+            level_required = MPI_THREAD_SERIALIZED;
+        }
+        if (MPI_SUCCESS != MPI_Init_thread(argc, argv, level_required, &level_provided)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init_Thread\n", __FILE__, __LINE__);
             abort();
         }
+
         MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
-        if (MPI_THREAD_SERIALIZED != provided) {
+        if (level_required != level_provided) {
             if (0 == global_state.rank) {
                 fprintf(stderr, "[%s:%d] Underlying MPI implementation"
-                        " does not provide MPI_THREAD_SERIALIZED threading level\n",
+                        " does not provide requested threading level\n",
                         __FILE__, __LINE__);
                 fprintf(stderr, "Unable to support requested level of X10 threading; exiting\n");
             }
