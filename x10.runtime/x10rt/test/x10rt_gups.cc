@@ -309,7 +309,7 @@ void decrement (unsigned long place)
     if (x10rt_here()==place) {
         pongs_outstanding--;
     } else {
-        x10rt_msg_params p2 = {0, PONG_ID, NULL, 0, 0};
+        x10rt_msg_params p2 = {0, PONG_ID, NULL, 0};
         x10rt_send_msg(&p2);
     }
 }
@@ -412,7 +412,7 @@ void validate (void)
 {
     pongs_outstanding=x10rt_nhosts();
     for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
-        x10rt_msg_params params = {p, VALIDATE_ID, NULL, 0, 0};
+        x10rt_msg_params params = {p, VALIDATE_ID, NULL, 0};
         x10rt_send_msg(&params);
     }
     do_validate();
@@ -512,7 +512,7 @@ int main(int argc, char **argv)
         }
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
-            x10rt_msg_params p = {i, QUIT_ID, NULL, 0, 0};
+            x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(&p);
         }
         finished = true;

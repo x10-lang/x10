@@ -882,8 +882,7 @@ static void recv_completion(int ix, int bytes,
     x10rt_msg_params p = { x10rt_net_here(),
                            ix,
                            req->getBuf(),
-                           bytes,
-                           0
+                           bytes
                          };
 
     q->remove(req);
@@ -910,8 +909,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
     x10rt_msg_params p = { get_req->dest_place,
                            get_req->type,
                            get_req->msg,
-                           get_req->msg_len,
-                           0
+                           get_req->msg_len
                          };
     q->remove(req);
     x10rt_lgl_stats.get_copied_bytes_sent += get_req->len;
@@ -945,8 +943,7 @@ static void get_incoming_req_completion(int dest_place,
     x10rt_msg_params p = { x10rt_net_here(),
                            get_nw_req->type,
                            static_cast <void *> (&get_nw_req[1]),
-                           get_nw_req->msg_len,
-                           0
+                           get_nw_req->msg_len
                          };
     q->remove(req);
     x10rt_lgl_stats.get.messages_received++;
@@ -1012,8 +1009,7 @@ static void put_incoming_req_completion(int src_place,
     x10rt_msg_params p = { x10rt_net_here(),
                            put_req->type,
                            static_cast <void *> (&put_req[1]),
-                           put_req->msg_len,
-                           0
+                           put_req->msg_len
                          };
     q->remove(req);
     x10rt_lgl_stats.put.messages_received++;
@@ -1044,8 +1040,7 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
     x10rt_msg_params p = { x10rt_net_here(),
                            put_req->type,
                            static_cast <void *> (&put_req[1]),
-                           put_req->msg_len,
-                           0
+                           put_req->msg_len
                          };
     q->remove(req);
     x10rt_lgl_stats.put_copied_bytes_received += put_req->len;

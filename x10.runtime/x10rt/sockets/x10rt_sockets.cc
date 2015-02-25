@@ -1179,7 +1179,6 @@ bool probe (bool onlyProcessAccept, bool block)
 				#endif
 
 				x10rt_msg_params mp;
-				mp.dest_endpoint = 0;
 				mp.dest_place = context.myPlaceId;
 				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
 					return fatal_error("reading x10rt_msg_params.type"), false;

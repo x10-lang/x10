@@ -790,7 +790,6 @@ x10rt_error x10rt_net_probe (void)
 
 		// reconstruct the x10rt_msg_params structure
 		x10rt_msg_params mp;
-		mp.dest_endpoint = 0;
 		mp.dest_place = state.myPlaceId;
 		mp.type = entry->type;
 		mp.len = entry->msgLen;

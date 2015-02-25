@@ -94,9 +94,6 @@ struct x10rt_msg_params {
 
     /** The length of the message in bytes.  If #msg is NULL then #len shall be 0. */
     uint32_t len;
-
-    /** The endpoint where the message will be delivered at the dest place. */
-    x10rt_endpoint dest_endpoint;
 };
 
 /** A callback for processing a newly received message.

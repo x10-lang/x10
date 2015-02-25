@@ -42,7 +42,7 @@ static void recv_msg_ping (const x10rt_msg_params *p)
         std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
         abort();
     }
-    x10rt_msg_params p2 = {0, PONG_ID, p->msg, p->len, 0};
+    x10rt_msg_params p2 = {0, PONG_ID, p->msg, p->len};
     x10rt_send_msg(&p2);
 }
 
@@ -68,7 +68,7 @@ static void recv_put_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
         std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
         abort();
     }
-    x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0, 0};
+    x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
     x10rt_send_put(&p2, buf, len);
 }
 
@@ -98,7 +98,7 @@ static void recv_get_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
         abort();
     }
     // send to dest place again
-    x10rt_msg_params p2 = {p->dest_place, PONG_GET_ID, NULL, 0, 0};
+    x10rt_msg_params p2 = {p->dest_place, PONG_GET_ID, NULL, 0};
     x10rt_send_get(&p2, pong_buf, len);
 }
 
@@ -155,14 +155,14 @@ long long run_test(unsigned long iters,
         for (unsigned long j=0 ; j<window ; ++j) {
             for (unsigned long k=1 ; k<x10rt_nhosts() ; ++k) {
                 if (put) {
-                    x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0, 0};
+                    x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0};
                     x10rt_send_put(&p, buf, len);
                 } else if (get) {
-                    x10rt_msg_params p = {k, PING_GET_ID, NULL, 0, 0};
+                    x10rt_msg_params p = {k, PING_GET_ID, NULL, 0};
                     if(validate) memset(ping_buf, 0, len);
                     x10rt_send_get(&p, ping_buf, len);
                 } else {
-                    x10rt_msg_params p = {k, PING_ID, buf, len, 0};
+                    x10rt_msg_params p = {k, PING_ID, buf, len};
                     x10rt_send_msg(&p);
                 }
                 pongs_outstanding++;
@@ -310,7 +310,7 @@ int main(int argc, char **argv)
         }
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
-            x10rt_msg_params p = {i, QUIT_ID, NULL, 0, 0};
+            x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(&p);
         }
         finished = true;

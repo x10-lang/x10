@@ -71,7 +71,6 @@ static inline void x10rt_serbuf_init (x10rt_serbuf *b, x10rt_place dest, x10rt_m
 {
     b->p.msg = NULL;
     b->p.dest_place = dest;
-    b->p.dest_endpoint = 0;
     b->p.type = id;
     b->p.len = 0;
     b->cap = 0;

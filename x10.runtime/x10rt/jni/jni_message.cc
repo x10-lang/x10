@@ -118,7 +118,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, j
     }
 
     // buffer is a byte array, so no need to endian swap
-    x10rt_msg_params msg = {place, msg_id, buffer, numBytes, 0};
+    x10rt_msg_params msg = {place, msg_id, buffer, numBytes};
     x10rt_send_msg(&msg);
 
     if (X10_PAUSE_GC_ON_SEND) {
