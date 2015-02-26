@@ -467,15 +467,16 @@ struct CollState {
         }
         is_enabled_debug_print = checkBoolEnvVar(getenv(X10RT_MPI_DEBUG_PRINT));
     }
-
-    ~CollState() {
-        /*
-        for (int i = 1; i < X10RT_DATATYPE_TBL_SIZE; i++) {
+    
+    void finalize() {
+    	for (int i = 1; i < X10RT_DATATYPE_TBL_SIZE; i++) {
             LOCK_IF_MPI_IS_NOT_MULTITHREADED;
             MPI_Type_free(&datatypeTbl[i]);
             UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         }
-        */
+	}    
+
+    ~CollState() {
         free(datatypeTbl);
     }
 
@@ -1262,27 +1263,6 @@ static void x10rt_net_probe_ex (bool network_only) {
     x10rt_net_team_probe();
 }
 
-void x10rt_net_finalize(void) {
-    assert(global_state.init);
-    assert(!global_state.finalized);
-
-    while (global_state.pending_send_list.length() > 0 ||
-            global_state.pending_recv_list.length() > 0) {
-        x10rt_net_probe();
-    }
-    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
-        abort();
-    }
-    if (MPI_SUCCESS != MPI_Finalize()) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
-        abort();
-    }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    global_state.finalized = true;
-}
-
 x10rt_coll_type x10rt_net_coll_support () {
     if (global_state.report_nonblocking_coll)
 	    return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
@@ -1389,6 +1369,18 @@ struct TeamDB {
         return t;
     }
 
+    void releaseAllTeams()
+    {
+    	assert(global_state.init);
+        assert(!global_state.finalized);
+        for (x10rt_team t=0; t<teamc; t++) {
+        	X10RT_NET_DEBUG("freeing t = %d", t);
+        	LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        	MPI_Comm_free(&(this->teamv[t]));
+        	UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        }
+    }
+
     void releaseTeam (x10rt_team t)
     {
         assert(global_state.init);
@@ -1443,8 +1435,8 @@ private:
                 x10rt_team new_teamc = i+1;
                 teamv = safe_realloc(teamv, new_teamc);
                 if (iscleared) {
-			for (x10rt_team j = 0; j < new_teamc - teamc; ++j)
-				teamv[teamc + j] = MPI_COMM_NULL;
+                	for (x10rt_team j = 0; j < new_teamc - teamc; ++j)
+                		teamv[teamc + j] = MPI_COMM_NULL;
                 }
                 teamc = new_teamc;
             }
@@ -1469,17 +1461,15 @@ private:
             LOCK_IF_MPI_IS_NOT_MULTITHREADED;
             MPI_Comm_group(MPI_COMM_WORLD, &MPI_GROUP_WORLD);
             if (MPI_SUCCESS != MPI_Group_incl(MPI_GROUP_WORLD, placec, ranks, &grp)) {
-		fprintf(stderr, "[%s:%d] %s\n",
-				__FILE__, __LINE__, "Error in MPI_Group_incl");
-		delete[] ranks;
-		abort();
+            	fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Group_incl");
+            	delete[] ranks;
+            	abort();
             }
             delete[] ranks;
             MPI_Comm comm;
             if (MPI_SUCCESS != MPI_Comm_create(MPI_COMM_WORLD, grp, &comm)) {
-		fprintf(stderr, "[%s:%d] %s\n",
-				__FILE__, __LINE__, "Error in MPI_Comm_create");
-		abort();
+            	fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
+            	abort();
             }
             MPI_Group_free(&MPI_GROUP_WORLD);
             MPI_Group_free(&grp);
@@ -1489,6 +1479,30 @@ private:
         }
 
 } mpi_tdb;
+
+void x10rt_net_finalize(void) {
+    assert(global_state.init);
+    assert(!global_state.finalized);
+
+    while (global_state.pending_send_list.length() > 0 ||
+            global_state.pending_recv_list.length() > 0) {
+        x10rt_net_probe();
+    }
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    if (MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
+        abort();
+    }
+    coll_state.finalize();
+    mpi_tdb.releaseAllTeams();
+    MPI_Comm_free(&global_state.mpi_comm);
+    if (MPI_SUCCESS != MPI_Finalize()) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
+        abort();
+    }
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    global_state.finalized = true;
+}
 
 struct CollectivePostprocessEnv {
     x10rt_completion_handler *ch;
