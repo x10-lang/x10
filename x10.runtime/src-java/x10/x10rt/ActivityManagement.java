@@ -19,8 +19,9 @@ public class ActivityManagement {
     public static FinishState activityCreationBookkeeping() {
         Activity activity = x10.xrx.Runtime.activity();
         FinishState fs = activity.finishState();
+        fs.notifyRemoteContinuationCreated();
         fs.notifySubActivitySpawn(x10.xrx.Runtime.home());
-        fs.notifyActivityCreation$O(x10.xrx.Runtime.home(), null); // DG: FIXME: Suspicious...we're doing something dodgy here
+        fs.notifyActivityCreation$O(x10.xrx.Runtime.home(), null);
         return fs;
     }
 

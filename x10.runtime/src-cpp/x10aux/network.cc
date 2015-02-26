@@ -512,6 +512,7 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 
 void *x10aux::coll_enter() {
     x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
+    fs->notifyRemoteContinuationCreated();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
     fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here), NULL);
     return fs;

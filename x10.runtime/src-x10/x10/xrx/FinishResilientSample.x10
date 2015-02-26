@@ -195,6 +195,10 @@ class FinishResilientSample extends FinishResilient implements Runtime.Mortal {
        RS.unlock();
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
+
+    def notifyRemoteContinuationCreated():void { 
+        // A no-op for this finish
+    }
     
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
         val srcId = srcPlace.id, dstId = here.id;

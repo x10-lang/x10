@@ -121,6 +121,10 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
 
+    def notifyRemoteContinuationCreated():void { 
+        hasRemote = true;
+    }
+
     /*
      * This method can't block because it may run on an @Immediate worker.  
      * Therefore it can't use Runtime.runImmediateAsync.

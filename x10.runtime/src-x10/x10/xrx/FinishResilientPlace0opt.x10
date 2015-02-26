@@ -219,6 +219,11 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
         }
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
+
+    def notifyRemoteContinuationCreated():void { 
+        Console.OUT.println("FIXME.  Need to create 'vital state'!");
+    }
+
     
     // activity from srcPlace is being created
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
