@@ -72,7 +72,6 @@ public class WrapBLAS {
         String lib = "jblas";
         String ext = System.getenv("GML_ELEM_TYPE");
         if (ext != null) lib += "_" + ext;
-        System.out.println("Loading " + lib);
 
         System.loadLibrary(lib);
     }
