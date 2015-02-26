@@ -1048,12 +1048,52 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      */
     public def makeSnapshot():DistObjectSnapshot {
         val snapshot = DistObjectSnapshot.make();
-        finish ateach(pl in Dist.makeUnique(places)) {
-            val i = places.indexOf(here);
-            val data = handleBS();
-            val blockSetInfo = new BlockSetSnapshotInfo(i, data);
-            snapshot.save(i, blockSetInfo);
-        }        
+        val blockList = handleBS().blocklist;
+        val isSparse = blockList.get(0).isSparse();
+        
+        if (isSparse) {
+            finish ateach(pl in Dist.makeUnique(places)) {
+                val i = places.indexOf(here);
+                val data = handleBS();
+                val blocksCount = data.blocklist.size();
+                val metadata = data.getBlocksMetaData();
+                val totalSize = data.getStorageSize();
+                val allIndex = new Rail[Long](totalSize);
+                val allValue = new Rail[ElemType](totalSize);
+                
+                data.initSparseBlocksRemoteCopyAtSource();
+                data.flattenIndex(allIndex);
+                data.flattenValue(allValue);
+                data.finalizeSparseBlocksRemoteCopyAtSource();
+                
+                val blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
+                blockSetInfo.initSparse(blocksCount, metadata, allIndex, allValue);
+                snapshot.save(i, blockSetInfo);
+            }
+        } else {
+            /* Disable flattening the dense blocks
+            finish ateach(pl in Dist.makeUnique(places)) {
+                val i = places.indexOf(here);
+                val data = handleBS();
+                val blocksCount = data.blocklist.size();
+                val metadata = data.getBlocksMetaData();
+                val totalSize = data.getStorageSize();
+                val allValue = new Rail[ElemType](totalSize);
+                data.flattenValue(allValue);
+                
+                val blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
+                blockSetInfo.initDense(blocksCount, metadata, allValue);
+                snapshot.save(i, blockSetInfo);
+            }
+            */
+            finish ateach(pl in Dist.makeUnique(places)) {
+                val i = places.indexOf(here);
+                val data = handleBS();
+                val blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
+                blockSetInfo.setBlockSet(data);
+                snapshot.save(i, blockSetInfo);
+            }
+        }
         snapshotGrid = getGrid();
         snapshotMap = getMap();
         return snapshot;
@@ -1094,12 +1134,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
              * get (and cache) saved info for the place
              */
             val map = cached();
-            var cashedBlockSetInfo:BlockSetSnapshotInfo = map.get(loadPlaceIndex);
-            if (cashedBlockSetInfo == null){                
-                cashedBlockSetInfo = snapshot.load(loadPlaceIndex) as BlockSetSnapshotInfo;
-                map.put(loadPlaceIndex, cashedBlockSetInfo);
+            var cachedBlockSetInfo:BlockSetSnapshotInfo = map.get(loadPlaceIndex);
+            if (cachedBlockSetInfo == null){                
+                cachedBlockSetInfo = snapshot.load(loadPlaceIndex) as BlockSetSnapshotInfo;
+                map.put(loadPlaceIndex, cachedBlockSetInfo);
             }            
-            val blockSet = cashedBlockSetInfo.blockSet;
+            val blockSet = cachedBlockSetInfo.getBlockSet();
             val foundValue = getDataValue(i,j,blockSet, oldGrid);
             return foundValue;
         };
@@ -1153,7 +1193,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
             val placesIter = placeBlockMap.keySet().iterator();
             while (placesIter.hasNext()) {
                 val oldPlaceIndex = placesIter.next();
-                val oldBlockSet = (snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo).blockSet;
+                val oldBlockSet = (snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo).getBlockSet();
                 val blocksList = placeBlockMap.get(oldPlaceIndex);
                 for (newBlock in blocksList){
                     val blockRowId = newBlock.myRowId;
@@ -1231,13 +1271,15 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
                         //load the old segment from resilient store
                         val oldPlaceIndex = oldMap.findPlaceIndex(oldBlockId);
                         val map = cached();
-                        var cashedBlockSetInfo:BlockSetSnapshotInfo = map.get(oldPlaceIndex);
-                        if (cashedBlockSetInfo == null) {
-                            cashedBlockSetInfo = snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo;
-                            map.put(oldPlaceIndex, cashedBlockSetInfo);
+                        var cachedBlockSetInfo:BlockSetSnapshotInfo = map.get(oldPlaceIndex);
+                        if (cachedBlockSetInfo == null) {
+                            cachedBlockSetInfo = snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo;
+                            map.put(oldPlaceIndex, cachedBlockSetInfo);
                         }
-                        val blockSet = cashedBlockSetInfo.blockSet;
-                        val oldBlk = blockSet.find(oldBlockId);
+                        val blockSet = cachedBlockSetInfo.getBlockSet();
+                        val rid = oldGrid.getRowBlockId(oldBlockId);
+                        val cid = oldGrid.getColBlockId(oldBlockId);
+                        val oldBlk = blockSet.find(rid, cid);
 
                         val oldBlockMatrix = oldBlk.getMatrix();
                         val newBlockMatrix = newBlk.getMatrix();
@@ -1277,3 +1319,4 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     }
 
 }
+

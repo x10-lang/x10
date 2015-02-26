@@ -27,7 +27,7 @@ import x10.matrix.util.Debug;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.DenseMatrix;
 import x10.matrix.builder.SparseCSCBuilder;
-import x10.matrix.ElemType;	
+import x10.matrix.ElemType;
 /**
  * This class provides implementation of list of matrix blocks stored in on place.
  */
@@ -858,6 +858,27 @@ public class BlockSet  {
         newBlockSet.blocklist.addAll(blocksList);
         return newBlockSet;
     }
+    
+    public static def makeSparseBlockSet(blocksCount:Long, metadata:Rail[Long], index:Rail[Long], value:Rail[ElemType]):BlockSet {
+        val blocksList = BlockSet.makeBlocksFromMetaData(metadata, blocksCount, true);
+        var offset:Long = 0;
+        for (var i:Long = 0; i < blocksCount; i++) {
+            val blk = blocksList.get(i);
+            val dstspa = blk.getMatrix() as SparseCSC;
+            val indexValueSize = blk.getIndex().size;
+            val dstColOff = 0;
+            val colCnt = dstspa.N;
+            val datcnt = indexValueSize;
+            dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datcnt);
+            Rail.copy(index, offset, dstspa.getIndex(),0 , indexValueSize);
+            Rail.copy(value, offset, dstspa.getValue(),0 , indexValueSize);
+            dstspa.finalizeRemoteCopyAtDest();
+            offset += indexValueSize;
+        }
+        val newBlockSet = new BlockSet(null, null, null);
+        newBlockSet.blocklist.addAll(blocksList);
+        return newBlockSet;
+    }
    
     public static def remoteMakeDenseBlockSet(blocksCount:Long, metaDataSize:Long, totalSize:Long, mGR:GlobalRail[Long], valGR:GlobalRail[ElemType]):BlockSet{
         val metaDataTarget = new Rail[Long](metaDataSize);
@@ -868,10 +889,24 @@ public class BlockSet  {
         }
         val blocksList = BlockSet.makeBlocksFromMetaData(metaDataTarget, blocksCount, false);                
         var offset:Long = 0;
-        for (var i:Long = 0; i < blocksCount; i++){        
+        for (var i:Long = 0; i < blocksCount; i++) {
             val blk = blocksList.get(i);
             val dataSize = blk.getStorageSize();
             Rail.copy(allValueTarget, offset, blk.getData(), 0, dataSize);
+            offset += dataSize;
+        }
+        val newBlockSet = new BlockSet(null, null, null);
+        newBlockSet.blocklist.addAll(blocksList);
+        return newBlockSet;
+    }
+    
+    public static def makeDenseBlockSet(blocksCount:Long, metadata:Rail[Long], value:Rail[ElemType]):BlockSet {
+        val blocksList = BlockSet.makeBlocksFromMetaData(metadata, blocksCount, false);
+        var offset:Long = 0;
+        for (var i:Long = 0; i < blocksCount; i++) {
+            val blk = blocksList.get(i);
+            val dataSize = blk.getStorageSize();
+            Rail.copy(value, offset, blk.getData(), 0, dataSize);
             offset += dataSize;
         }
         val newBlockSet = new BlockSet(null, null, null);
@@ -898,3 +933,4 @@ public class BlockSet  {
         return this;
     }   
 }
+
