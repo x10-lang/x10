@@ -276,9 +276,16 @@ public class SocketTransport {
 					}
 				} // connect to all lower places
 	    	}
-			for (int i=myPlaceId+1; i<nplaces; i++)
-				while (!shuttingDown && !channels.containsKey(i))
+	    	long cutoffTime = System.currentTimeMillis() + connectionTimeout;
+			for (int i=myPlaceId+1; i<nplaces; i++) {
+				while (!shuttingDown && !channels.containsKey(i) && System.currentTimeMillis() <= cutoffTime) {
 					x10rt_probe(PROBE_TYPE.ACCEPT, true); // wait for connections from all upper places
+				}
+				// anything not connected at this point is considered dead
+				if (!channels.containsKey(i) && System.currentTimeMillis() > cutoffTime) {
+					markPlaceDead(i);
+				}
+			}
 	    }
     	
     	return RETURNCODE.X10RT_ERR_OK.ordinal();
