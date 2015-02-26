@@ -69,6 +69,10 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 
 #define X10RT_MPI_DEBUG_PRINT "X10RT_MPI_DEBUG_PRINT"
 #define X10RT_MPI_FORCE_COLLECTIVES "X10RT_MPI_FORCE_COLLECTIVES"
+#define X10RT_MPI_THREAD_SERIALIZED "X10RT_MPI_THREAD_SERIALIZED"
+#define X10_STATIC_THREADS "X10_STATIC_THREADS"
+#define X10_NTHREADS "X10_NTHREADS"
+#define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -498,9 +502,9 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     global_state.Init();
 
     // special case: if using static threads, and the thread count is exactly 1 we don't need multi-thread MPI
-    char* sthreads = getenv("X10_STATIC_THREADS");
-    char* nthreads = getenv("X10_NTHREADS");
-    char* ithreads = getenv("X10_NUM_IMMEDIATE_THREADS");
+    char* sthreads = getenv(X10_STATIC_THREADS);
+    char* nthreads = getenv(X10_NTHREADS);
+    char* ithreads = getenv(X10_NUM_IMMEDIATE_THREADS);
     if (checkBoolEnvVar(sthreads) && nthreads && ithreads && (atoi(nthreads) == 1) && (atoi(ithreads) == 0)) {
         global_state.threading_mode = MPI_THREAD_SINGLE;
         if (MPI_SUCCESS != MPI_Init(argc, argv)) {
@@ -508,7 +512,7 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
             abort();
         }
     } else {
-        char *thread_serialized = getenv("X10RT_MPI_THREAD_SERIALIZED");
+        char *thread_serialized = getenv(X10RT_MPI_THREAD_SERIALIZED);
         int level_required;
         int level_provided;
 
