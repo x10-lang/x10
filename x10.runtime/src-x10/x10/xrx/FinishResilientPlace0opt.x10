@@ -6,13 +6,16 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
-package x10.lang;
+package x10.xrx;
 import x10.util.concurrent.SimpleLatch;
 
 import x10.util.*;
 import x10.util.concurrent.*;
+
+import x10.array.Array_2;
+import x10.array.Array_3;
 
 import x10.io.CustomSerialization;
 import x10.io.Deserializer;
@@ -29,6 +32,10 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     private static val place0 = Place.FIRST_PLACE;
     private static val hereId = Runtime.hereLong();
     private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10
+    
+    private static val AT = 0;
+    private static val ASYNC = 1;
+    private static val AT_AND_ASYNC = AT..ASYNC;
     
     /*
      * Additional data structures
@@ -61,11 +68,11 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     // VitalState - stored at Place0, exists only when activities exist remote places
     private static class VitalState {
         // remoteCount indicates that remote FS exists at the place
-        val remoteCount    = new Rail[Int](MAX_PLACES, 0n);
-        val remoteAdopted  = new Rail[Int](MAX_PLACES, 0n);
+        val remoteCount    = new Array_2[Int](MAX_PLACES, 2); // keep AT and ASYNC separately
+        val remoteAdopted  = new Array_2[Int](MAX_PLACES, 2);
         // transitCount indicates activity is being created at another place
-        val transitCount   = new Rail[Int](MAX_PLACES * MAX_PLACES, 0n);
-        val transitAdopted = new Rail[Int](MAX_PLACES * MAX_PLACES, 0n);
+        val transitCount   = new Array_3[Int](MAX_PLACES, MAX_PLACES, 2);
+        val transitAdopted = new Array_3[Int](MAX_PLACES, MAX_PLACES, 2);
 
         var numDead:Long = 0; // number of dead places already handled for this state
         val deadPlaces = new HashSet[Long](); // places DeadPlaceExceptions should be thrown
@@ -150,8 +157,14 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     
     // new activity being spawned to a place
     def notifySubActivitySpawn(place:Place):void {
+        notifySubActivitySpawn(place, ASYNC);
+    }
+    def notifyShiftedActivitySpawn(place:Place):void {
+        notifySubActivitySpawn(place, AT);
+    }
+    private def notifySubActivitySpawn(place:Place, kind:Long):void {
         val srcId = hereId, dstId = place.id;
-        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         
         //   home to home        -> localLive++ here, to avoid racing
         // remote to sameRemote  -> localLive++ here, to avoid racing
@@ -168,8 +181,7 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
         if (verbose>=2) debug("spawning to another place, need transit++");
         val _id = id;
         val acId = isAtHome(id) ? (localState as LocalState.Home).ancestorId : FinishID_NULL;
-        val vsCreatedCell = new Cell[Boolean](false);
-        lowLevelFetch(place0, vsCreatedCell, ()=>{ atomic {
+        val vsCreated = Runtime.evalImmediateAt[Boolean](place0, ()=>{ atomic {
             var vsCreated:Boolean = false;
             var vs:VitalState = vitalStates.getOrElse(_id, null);
             if (vs == null) { // create a new VitalState
@@ -186,10 +198,10 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
                 }
             }
 
-            vs.transitCount(srcId*MAX_PLACES + dstId)++;
+            vs.transitCount(srcId, dstId, kind)++;
             if (vs.isAdopted()) {
                 val adopterVS = vitalStates.getOrThrow(vs.adopterId); // should exist
-                adopterVS.transitAdopted(srcId*MAX_PLACES + dstId)++;
+                adopterVS.transitAdopted(srcId, dstId, kind)++;
             }
             if (verbose>=3) vs.dump("DUMP id="+_id);
             if (Place.isDead(dstId)) {
@@ -201,7 +213,7 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
             
             return vsCreated;
         }});
-        if (vsCreatedCell()) {
+        if (vsCreated) {
             assert isAtHome(id);
             (localState as LocalState.Home).hasVitalState.incrementAndGet(); // use AtomicLong to avoid racing
         }
@@ -209,9 +221,18 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     }
     
     // activity from srcPlace is being created
-    def notifyActivityCreation(srcPlace:Place):Boolean {
+    def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, false/*non-blocking*/, ASYNC);
+    }
+    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, true/*blocking*/, ASYNC);
+    }
+    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+        return notifyActivityCreation(srcPlace, activity, true/*blocking*/, AT);
+    }
+    private def notifyActivityCreation(srcPlace:Place, activity:Activity, blocking:Boolean, kind:Long):Boolean {
         val srcId = srcPlace.id, dstId = hereId;
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind+" activity="+activity+" blocking="+blocking);
         if (Place.isDead(srcId)) {
             if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false, srcPlace is dead");
             return false;
@@ -230,33 +251,126 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
         val c = localState.localLive.getAndIncrement(); // localLive++
         val _id = id;
         val isFirst = (c==0n); // activity is newly created here
-        val isRegisteredCell = new Cell[Boolean](false);
-        lowLevelFetch(place0, isRegisteredCell, ()=>{ atomic {
+        
+      if (blocking) { // blocking case, normal code
+        assert activity==null;
+        val isRegistered = Runtime.evalImmediateAt[Boolean](place0, ()=>{ atomic {
           if (Place.isDead(srcId)) {
             if (verbose>=2) debug("srcPlace is dead, not register the new activity");
             return false;
           } else {
             val isToHome = (dstId==getHomeId(_id));
             val vs = vitalStates.getOrThrow(_id); // should exist
-            if (isFirst && !isToHome) vs.remoteCount(dstId)++;
-            vs.transitCount(srcId*MAX_PLACES + dstId)--;
+            if (isFirst && !isToHome) vs.remoteCount(dstId, kind)++;
+            vs.transitCount(srcId, dstId, kind)--;
             if (vs.isAdopted()) {
                 val adopterVS = vitalStates.getOrThrow(vs.adopterId); // should exist
                 assert !isToHome; // vs.isAdopted means that home is dead
-                if (isFirst) adopterVS.remoteAdopted(dstId)++;
-                adopterVS.transitAdopted(srcId*MAX_PLACES + dstId)--;
+                if (isFirst) adopterVS.remoteAdopted(dstId, kind)++;
+                adopterVS.transitAdopted(srcId, dstId, kind)--;
             }
             if (verbose>=3) vs.dump("DUMP id="+_id);
             if (isToHome) quiescent_check(_id); // to delete VS if necessary
             return true;
           }
         }});
-        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning "+isRegisteredCell());
-        return isRegisteredCell();
+        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning "+isRegistered);
+        return isRegistered;
+
+      } else { // non-blocking case, cannot use runImmediateAsync
+        
+        val pendingActivity = GlobalRef(activity); 
+        at (place0) @Immediate("Place0opt_notifyActivityCreation_to_zero") async {
+         atomic {
+
+          // this part is same as above except returning nothing
+          if (Place.isDead(srcId)) {
+            if (verbose>=2) debug("srcPlace is dead, not register the new activity");
+            //return false;
+          } else {
+            val isToHome = (dstId==getHomeId(_id));
+            val vs = vitalStates.getOrThrow(_id); // should exist
+            if (isFirst && !isToHome) vs.remoteCount(dstId, kind)++;
+            vs.transitCount(srcId, dstId, kind)--;
+            if (vs.isAdopted()) {
+                val adopterVS = vitalStates.getOrThrow(vs.adopterId); // should exist
+                assert !isToHome; // vs.isAdopted means that home is dead
+                if (isFirst) adopterVS.remoteAdopted(dstId, kind)++;
+                adopterVS.transitAdopted(srcId, dstId, kind)--;
+            }
+            if (verbose>=3) vs.dump("DUMP id="+_id);
+            if (isToHome) quiescent_check(_id); // to delete VS if necessary
+            //return true;
+          }
+         } // atomic
+
+          // push the pending activity
+            at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
+                val pa = pendingActivity();
+                if (pa != null && pa.epoch == Runtime.epoch()) {
+                    if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
+                    Runtime.worker().push(pa);
+                }
+                pendingActivity.forget();
+            }
+        }
+        // Return false because we want to defer pushing the activity.
+        return false;                
+      }
+    }
+    
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
+        notifyActivityCreationFailedOrTerminated(srcPlace, t, ASYNC);
+    }
+    def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+        notifyActivityCreationFailedOrTerminated(srcPlace, null, ASYNC);
+    }
+    private def notifyActivityCreationFailedOrTerminated(srcPlace:Place, t:CheckedThrowable, kind:Long):void { 
+        val srcId = srcPlace.id, dstId = hereId;
+        if (verbose>=1) debug(">>>> notifyActivityCreationFailedOrTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind+" t="+t);
+        
+        //   home to home        -> do nothing (localLive already incremented)
+        // remote to sameRemote  -> do nothing (localLive already incremented)
+        if (srcId == dstId) { // local creation, no need to transit--
+            //@@@@ Do we need to do localLive--, or this case should not happen??
+            if (verbose>=1) debug("<<<< notifyActivityCreationFailedOrTerminated(id="+id+") returning, src==dst");
+            return;
+        }
+        
+        //   home to remote      -> VS.transit(src,dst)--; quiescent_check
+        // remote to otherRemote -> VS.transit(src,dst)--; quiescent_check
+        // remote to home        -> VS.transit(src,dst)--; quiescent_check
+        val _id = id;
+        at (place0) @Immediate("Place0opt_notifyActivityCreationFailedOrTerminated_to_zero") async {
+          atomic { //@@@@ need to verify this code
+            if (verbose>=2) debug("notifyActivityCreationFailedOrTerminated running at place0");
+            val vs = vitalStates.getOrThrow(_id); // should exist
+            vs.transitCount(srcId, dstId, kind)--;
+            if (t != null) {
+                val ls = localStates.getOrThrow(_id) as LocalState.Home; // should exist
+                ls.excs.add(t); // already in atomic region
+            }
+            quiescent_check(_id);
+            if (vs.isAdopted()) {
+                val adopterVS = vitalStates.getOrThrow(vs.adopterId); // should exist
+                adopterVS.transitAdopted(srcId, dstId, kind)--;
+                //@@@@ do we need to do excs.add(t) here?
+                quiescent_check(vs.adopterId);
+            }
+            if (verbose>=3) vs.dump("DUMP id="+_id);
+          }
+       }
+       if (verbose>=1) debug("<<<< notifyActivityCreationFailedOrTerminated(id="+id+") returning");
     }
     
     // activity run here is being terminated
     def notifyActivityTermination():void {
+        notifyActivityTermination(ASYNC);
+    }
+    def notifyShiftedActivityCompletion():void {
+        notifyActivityTermination(AT);
+    }
+    def notifyActivityTermination(kind:Long):void {
         val dstId = hereId;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId);
         
@@ -282,12 +396,12 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
         // localLive==0 && remote -> localStates.remove(id); VS.remote--; quiescent_check
         atomic { localStates.remove(id); }
         val _id = id;
-        lowLevelAt(place0, ()=>{ atomic {
+        Runtime.runImmediateAt(place0, ()=>{ atomic {
             val vs = vitalStates.getOrThrow(_id); // should exist
-            vs.remoteCount(dstId)--; quiescent_check(_id);
+            vs.remoteCount(dstId, kind)--; quiescent_check(_id);
             if (vs.isAdopted()) {
                 val adopterVS = vitalStates.getOrThrow(vs.adopterId); // should exist
-                adopterVS.remoteAdopted(dstId)--;
+                adopterVS.remoteAdopted(dstId, kind)--;
                 quiescent_check(vs.adopterId);
             }
         }});
@@ -300,9 +414,17 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
         
         notifyActivityTermination(); // terminate myself
-
-        // wait for the latch release
         val ls = (localState as LocalState.Home);
+        
+        // If there is no remote activities, see if this worker
+        // can execute other asyncs that are governed by the finish before waiting on the latch.
+        val hasVS = ls.hasVitalState.get(); // hasVS==0 means no remote activities
+        if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || hasVS==0n)) {
+            if (verbose>=2) debug("calling worker.join for id="+id);
+            Runtime.worker().join(ls.latch);
+        }
+        
+        // wait for the latch release
         if (verbose>=2) debug("calling latch.await for id="+id);
         ls.latch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
@@ -325,9 +447,7 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
             atomic { ls.excs.add(t); }
         } else {
             val _id = id;
-            lowLevelAt(Place(getHomeId(id)), ()=>{ atomic { // just ignored if home place is dead
-val lsTmp = localStates.getOrElse(_id, null) as LocalState.Home;		//@@@@
-if (lsTmp==null) debug("@@@@@@ pushException: id="+_id+" not found, t=" + t);	//@@@@
+            Runtime.runImmediateAt(Place(getHomeId(id)), ()=>{ atomic { // just ignored if home place is dead
                 val ls = localStates.getOrThrow(_id) as LocalState.Home; // should exist
                 atomic { ls.excs.add(t); }
             }});
@@ -382,16 +502,17 @@ if (lsTmp==null) debug("@@@@@@ pushException: id="+_id+" not found, t=" + t);	//
                     dcVS.adopterId = id;
                     dcIds.addAll(dcVS.descendantIds); // these will be checked in the following iteration
                     dcVS.descendantIds.clear();
-                    for (i in 0..(MAX_PLACES-1)) {
-                        vs.remoteAdopted(i) += (dcVS.remoteCount(i) + dcVS.remoteAdopted(i));
-                        dcVS.remoteAdopted(i) = 0n;
+                    for (k in AT_AND_ASYNC) {
+                      for (i in 0..(MAX_PLACES-1)) {
+                        vs.remoteAdopted(i,k) += (dcVS.remoteCount(i,k) + dcVS.remoteAdopted(i,k));
+                        dcVS.remoteAdopted(i,k) = 0n;
                         // don't clear dcVS.remoteCount, which will be checked to remove this dcVS
                         for (j in 0..(MAX_PLACES-1)) {
-                            val idx = i*MAX_PLACES + j;
-                            vs.transitAdopted(idx) += (dcVS.transitCount(idx) + dcVS.transitAdopted(idx));
-                            dcVS.transitAdopted(idx) = 0n;
+                            vs.transitAdopted(i,j,k) += (dcVS.transitCount(i,j,k) + dcVS.transitAdopted(i,j,k));
+                            dcVS.transitAdopted(i,j,k) = 0n;
                             // don't clear dcVS.transitCount, which will be checked to remove this dcVS
                         }
+                      }
                     }
                     // need not copy the deadPlaces info to the adopter
                 }
@@ -401,35 +522,36 @@ if (lsTmp==null) debug("@@@@@@ pushException: id="+_id+" not found, t=" + t);	//
         // 2 delete dead entries
         for (i in 0..(MAX_PLACES-1)) {
             if (!Place.isDead(i)) continue;
-            if (vs.remoteCount(i) > 0n) {
+            if (vs.remoteCount(i, ASYNC) > 0n) { // only the ASYNC counter is converted to DPE
                 if (verbose>=3) debug("adding DPE("+i+") for remoteCount("+i+")");
                 vs.deadPlaces.add(i);
             }
-            vs.remoteCount(i) = vs.remoteAdopted(i) = 0n;
+            vs.remoteCount(i, AT) = vs.remoteAdopted(i, AT) = 0n;
+            vs.remoteCount(i, ASYNC) = vs.remoteAdopted(i, ASYNC) = 0n;
             for (j in 0..(MAX_PLACES-1)) {
-                val idx = i*MAX_PLACES + j;
-                vs.transitCount(idx) = vs.transitAdopted(idx) = 0n;
-                val idx2 = j*MAX_PLACES + i;
-                if (vs.transitCount(idx2) > 0n) {
+                vs.transitCount(i,j, AT) = vs.transitAdopted(i,j, AT) = 0n;
+                vs.transitCount(i,j, ASYNC) = vs.transitAdopted(i,j, ASYNC) = 0n;
+                if (vs.transitCount(j,i, ASYNC) > 0n) { // only the ASYNC counter is converted to DPE
                     if (verbose>=3) debug("adding DPE("+i+") for transitCount("+j+","+i+")");
                     vs.deadPlaces.add(i);
                 }
-                vs.transitCount(idx2) = vs.transitAdopted(idx2) = 0n;
+                vs.transitCount(j,i, AT) = vs.transitAdopted(j,i, AT) = 0n;
+                vs.transitCount(j,i, ASYNC) = vs.transitAdopted(j,i, ASYNC) = 0n;
             }
         }
         
         // 3 quiescent check
         if (verbose>=3) vs.dump("DUMP id="+id);
         var quiet:Boolean = true;
-        for (i in 0..(MAX_PLACES-1)) {
-            if (vs.remoteCount(i) > 0n) { quiet = false; break; }
-            if (vs.remoteAdopted(i) > 0n) { quiet = false; break; }
+        outer: for (k in AT_AND_ASYNC) {
+          for (i in 0..(MAX_PLACES-1)) {
+            if (vs.remoteCount(i,k) > 0n) { quiet = false; break outer; }
+            if (vs.remoteAdopted(i,k) > 0n) { quiet = false; break outer; }
             for (j in 0..(MAX_PLACES-1)) {
-                val idx = i*MAX_PLACES + j;
-                if (vs.transitCount(idx) > 0n) { quiet = false; break; }
-                if (vs.transitAdopted(idx) > 0n) { quiet = false; break; }
+                if (vs.transitCount(i,j,k) > 0n) { quiet = false; break outer; }
+                if (vs.transitAdopted(i,j,k) > 0n) { quiet = false; break outer; }
             }
-            if (!quiet) break;
+          }
         }
         if (quiet) {
             if (verbose>=2) debug("removing vitalState(id="+id+")");
@@ -437,9 +559,9 @@ if (lsTmp==null) debug("@@@@@@ pushException: id="+_id+" not found, t=" + t);	//
                 // better to remove id from ancestor(adopter)'s descendantIds, but we don't know it
                 // therefore, the descendantIds entry will be cleared at the ancestor's Step1
             val dpes = vs.deadPlaces;
-            lowLevelSend(Place(getHomeId(id)), ()=>{ // just ignored if home place is dead
+            at (Place(getHomeId(id))) @Immediate("quiescent_check_vsRemoved") async { // just ignored if home place is dead @@@@TOCHECK
                 var ls:LocalState.Home;
-                atomic { // should not cause deadlock because this is executed asynchronously by lowLevelSend
+                atomic { // should not cause deadlock because this is executed asynchronously @@@@TOCHECK
                     ls = localStates.getOrThrow(id) as LocalState.Home; // should exist
                     for (placeId in dpes) ls.dpes.add(placeId);
                 }
@@ -449,276 +571,10 @@ if (lsTmp==null) debug("@@@@@@ pushException: id="+_id+" not found, t=" + t);	//
                     if (verbose>=2) debug("calling latch.release for id="+id);
                     ls.latch.release();
                 }
-            });
+            }
         }
         
         if (verbose>=2) debug("quiescent_check(id="+id+") returning, quiet="+quiet);
-    }
-
-    /*
-     * Support for faster runAt
-     */
-    public def runAt(place:Place, body:()=>void, prof:Runtime.Profile):void {
-        if (verbose>=1) debug("FinishResilient.runAt called, place.id=" + place.id);
-        Runtime.ensureNotInAtomic();
-        if (place.id == Runtime.hereLong()) {
-            // local path can be the same as before
-            Runtime.runAtNonResilient(place, body, prof);
-            if (verbose>=1) debug("FinishResilient.runAt returning (locally executed)");
-            return;
-        }
-        
-        val real_finish = this;
-        //real_finish.notifySubActivitySpawn(place);
-        
-        //@@val tmp_finish = make(this/*parent*/, null/*latch*/);
-        val tmp_finish = make(this/*parent*/, new SimpleLatch());
-        // TODO: clockPhases are now passed but their resiliency is not supported yet
-        // TODO: This implementation of runAt does not explicitly dealloc things
-        val home = here;
-        //@@real_finish.notifySubActivitySpawn(place);//@@@@
-        tmp_finish.notifySubActivitySpawnWithRealFinish(place, real_finish);
-        
-        // XTENLANG-3357: clockPhases must be passed and returned
-        val myActivity = Runtime.activity();
-        val epoch = myActivity.epoch;
-        val clockPhases = myActivity.clockPhases;
-        val cpCell = new Cell[Activity.ClockPhases](clockPhases);
-        val cpGref = GlobalRef(cpCell);
-        
-        // [DC] do not use at (place) async since the finish state is handled internally
-        // [DC] go to the lower level...
-        val cl = () => @RemoteInvocation("fiish_resilient_run_at") {
-            if (verbose>=2) debug("FinishResilient.runAt closure received");
-            val exec_body = () => {
-                if (verbose>=2) debug("FinishResilient.runAt exec_body started");
-                val remoteActivity = Runtime.activity();
-                remoteActivity.clockPhases = clockPhases; // XTENLANG-3357: set passed clockPhases
-                //@@real_finish.notifyActivityCreation(home);//@@@@
-                if (tmp_finish.notifyActivityCreationWithRealFinish(home, real_finish)) {
-                    try {
-                        try {
-                            body();
-                        } catch (e:Runtime.AtCheckedWrapper) {
-                            throw e.getCheckedCause();
-                        } 
-                    } catch (t:CheckedThrowable) {
-                        tmp_finish.pushException(t);
-                    }
-                    // XTENLANG-3357: return the (maybe modified) clockPhases, similar code as "at (cpGref) { cpGref().set(clockPhases); }"
-                    // TODO: better to merge this with notifyActivityTermination to reduce send
-                    val cl1 = ()=> @RemoteInvocation("finish_resilient_run_at_1") {
-                        if (verbose>=2) debug("FinishResilient.runAt setting new clockPhases");
-                        cpGref.getLocalOrCopy().set(clockPhases); // this will be set to myActivity.clockPhases
-                    };
-                    if (verbose>=2) debug("FinishResilient.runAt exec_body sending closure to set clockPhases");
-                    Runtime.x10rtSendMessage(cpGref.home.id, cl1, null); // TODO: should use lowLevelAt
-                    Unsafe.dealloc(cl1);
-                    
-                    tmp_finish.notifyActivityTerminationWithRealFinish(real_finish, home);
-                    //@@real_finish.notifyActivityTermination();//@@@@
-                }
-                remoteActivity.clockPhases = null; // XTENLANG-3357
-                if (verbose>=2) debug("FinishResilient.runAt exec_body finished");
-            };
-            if (verbose>=2) debug("FinishResilient.runAt create a new activity to execute");
-            Runtime.dealOrPush(new Activity(epoch, exec_body, home, real_finish, false, false));
-            // TODO: Unsafe.dealloc(exec_body); needs to be called somewhere
-        };
-        if (verbose>=2) debug("FinishResilient.runAt sending closure");
-        Runtime.x10rtSendMessage(place.id, cl, prof);
-        
-        try {
-            if (verbose>=2) debug("FinishResilient.runAt calling tmp_finish.waitForFinish");
-            tmp_finish.waitForFinish();
-            if (verbose>=2) debug("FinishResilient.runAt returned from tmp_finish.waitForFinish");
-            myActivity.clockPhases = cpCell(); // XTENLANG-3357: set the (maybe modified) clockPhases
-        } catch (e:MultipleExceptions) {
-            assert e.exceptions.size == 1 : e.exceptions();
-            var e2:CheckedThrowable = e.exceptions(0);
-            if (verbose>=1) debug("FinishResilient.runAt received exception="+e2);
-            if (e2 instanceof WrappedThrowable) {
-                e2 = e2.getCheckedCause();
-            }
-            Runtime.throwCheckedWithoutThrows(e2);
-        }
-        if (verbose>=1) debug("FinishResilient.runAt returning (remotely executed)");
-    }
-
-    def notifySubActivitySpawnWithRealFinish(place:Place, real_finish:FinishResilientPlace0opt):void {
-        val srcId = hereId, dstId = place.id;
-        if (verbose>=1) debug(">>>> notifySubActivitySpawnWithRealFinish(id="+id+") called, srcId="+srcId + " dstId="+dstId + " real_finish="+real_finish);
-        
-        assert srcId != dstId;
-        assert dstId != getHomeId(id);
-        
-        if (verbose>=2) debug("spawning to another remote place, need transit++");
-        val _id1 = id;
-        val acId1 = isAtHome(id) ? (localState as LocalState.Home).ancestorId : FinishID_NULL;
-        val _id0 = real_finish.id;
-        val acId0 = isAtHome(real_finish.id) ? (real_finish.localState as LocalState.Home).ancestorId : FinishID_NULL;
-        val vs0CreatedCell = new Cell[Boolean](false);
-        lowLevelFetch(place0, vs0CreatedCell, ()=>{ atomic {
-            var vs0Created:Boolean = false;
-            var vs0:VitalState = vitalStates.getOrElse(_id0, null);
-            if (vs0 == null) { // create a new VitalState
-                if (verbose>=2) debug("creating a new VitalState for id0="+_id0+", ancestorId0="+acId0);
-                assert srcId == getHomeId(_id0);
-                vs0 = new VitalState(); vitalStates.put(_id0, vs0); vs0Created = true;
-                if (acId0 == FinishID_NULL) {
-                    // this only happens if the ancestor is the top-level finish
-                } else {
-                    var acVS0:VitalState = vitalStates.getOrThrow(acId0); // should exist
-                    if (acVS0.isAdopted()) acVS0 = vitalStates.getOrThrow(acVS0.adopterId); // should exist
-                    assert !acVS0.isAdopted();
-                    acVS0.descendantIds.add(_id0);
-                }
-            }
-            
-            /*@@@@ (kawatiya 2014/09/29)
-             * This "transit[dstId,srcId]+=1000" is necessary to:
-             * - keep the VS0 while runAt activity is running
-             * - remove the VS0 when the dst place is dead, without throwing DPE
-             * We use 1000 here to distinguish this special case easily.
-             * The count will be decremented in notifyActivityTerminationWithRealFinish or cleared in quiescent_check
-             */
-            vs0.transitCount(dstId*MAX_PLACES + srcId) += 1000n; //@@@@ vs0.transit[dstId,srcId] += 1000
-            if (vs0.isAdopted()) {
-                val adopterVS0 = vitalStates.getOrThrow(vs0.adopterId); // should exist
-                adopterVS0.transitAdopted(dstId*MAX_PLACES + srcId) += 1000n;
-            }
-            if (verbose>=3) vs0.dump("DUMP id0="+_id0);
-            if (Place.isDead(dstId)) {
-                if (verbose>=2) debug("target place is already dead, try quiescent_check(id0)");
-                quiescent_check(_id0);
-                if (vs0.isAdopted()) quiescent_check(vs0.adopterId);
-            }
-            
-            var vs1Created:Boolean = false;
-            var vs1:VitalState = vitalStates.getOrElse(_id1, null);
-            if (vs1 == null) { // create a new VitalState
-                if (verbose>=2) debug("creating a new VitalState for id1="+_id1+", ancestorId1="+acId1);
-                assert srcId == getHomeId(_id1);
-                vs1 = new VitalState(); vitalStates.put(_id1, vs1); vs1Created = true;
-                if (acId1 == FinishID_NULL) {
-                    // this only happens if the ancestor is the top-level finish
-                } else {
-                    var acVS1:VitalState = vitalStates.getOrThrow(acId1); // should exist
-                    if (acVS1.isAdopted()) acVS1 = vitalStates.getOrThrow(acVS1.adopterId); // should exist
-                    assert !acVS1.isAdopted();
-                    acVS1.descendantIds.add(_id1);
-                }
-            }
-            
-            vs1.transitCount(srcId*MAX_PLACES + dstId)++;
-            if (vs1.isAdopted()) {
-                val adopterVS1 = vitalStates.getOrThrow(vs1.adopterId); // should exist
-                adopterVS1.transitAdopted(srcId*MAX_PLACES + dstId)++;
-            }
-            if (verbose>=3) vs1.dump("DUMP id1="+_id1);
-            if (Place.isDead(dstId)) {
-                if (verbose>=2) debug("target place is already dead, try quiescent_check(id1)");
-                quiescent_check(_id1);
-                if (vs1.isAdopted()) quiescent_check(vs1.adopterId);
-            }
-            
-            assert vs1Created == true;
-            return vs0Created;
-        }});
-        if (true) {
-            assert isAtHome(id);
-            (localState as LocalState.Home).hasVitalState.incrementAndGet(); // use AtomicLong to avoid racing
-        }
-        if (vs0CreatedCell()) {
-            assert isAtHome(real_finish.id);
-            (real_finish.localState as LocalState.Home).hasVitalState.incrementAndGet(); // use AtomicLong to avoid racing
-        }
-        if (verbose>=1) debug("<<<< notifySubActivitySpawnWithRealFinish(id="+id+") returning");
-    }
-
-    def notifyActivityCreationWithRealFinish(srcPlace:Place, real_finish:FinishResilientPlace0opt):Boolean {
-        //@@@@ TODO: now this code should be same as original notifyActivityCreation?
-        val srcId = srcPlace.id, dstId = hereId;
-        if (verbose>=1) debug(">>>> notifyActivityCreationWithRealFinish(id="+id+") called, srcId="+srcId + " dstId="+dstId + " real_finish="+real_finish);
-        if (Place.isDead(srcId)) {
-            if (verbose>=1) debug("<<<< notifyActivityCreationWithRealFinish(id="+id+") returning false, srcPlace is dead");
-            return false;
-        }
-        
-        val c = localState.localLive.getAndIncrement(); // localLive++
-        
-        assert srcId != dstId;
-        assert dstId != getHomeId(id);
-        
-        val _id1 = id;
-        val isFirst1 = (c==0n); // activity is newly created here (remote place)
-        val isRegistered1Cell = new Cell[Boolean](false);
-        //@@@@ val _id0 = real_finish.id;
-        //@@@@ val isFirst0 = true;
-        //@@@@ val isRegistered0Cell = new Cell[Boolean](false);
-        lowLevelFetch(place0, isRegistered1Cell, ()=>{ atomic {
-            //@@@@ keep the vs0 status in transit[dstId,srcId]
-            
-          if (Place.isDead(srcId)) {
-            if (verbose>=2) debug("srcPlace is dead, not register the new activity");
-            return false;
-          } else {
-            //@@@@ val isToHome1 = (dstId==getHomeId(_id1)); // should be false
-            val vs1 = vitalStates.getOrThrow(_id1); // should exist
-            if (isFirst1) vs1.remoteCount(dstId)++;
-            vs1.transitCount(srcId*MAX_PLACES + dstId)--;
-            if (vs1.isAdopted()) {
-                val adopterVS1 = vitalStates.getOrThrow(vs1.adopterId); // should exist
-                if (isFirst1) adopterVS1.remoteAdopted(dstId)++;
-                adopterVS1.transitAdopted(srcId*MAX_PLACES + dstId)--;
-            }
-            if (verbose>=3) vs1.dump("DUMP id1="+_id1);
-            //@@@@ if (isToHome1) quiescent_check(_id1); // to delete VS if necessary
-            return true;
-          }
-        }});
-        if (verbose>=1) debug("<<<< notifyActivityCreationWithRealFinish(id="+id+") returning "+isRegistered1Cell());
-        return isRegistered1Cell();
-    }
-
-    def notifyActivityTerminationWithRealFinish(real_finish:FinishResilientPlace0opt, srcPlace:Place):void {
-        val dstId = hereId;
-        val srcId = srcPlace.id;//@@@@
-        if (verbose>=1) debug(">>>> notifyActivityTerminationWithRealFinish(id="+id+") called, dstId="+dstId + " real_finish="+real_finish + " srcId="+srcId);
-        
-        val c = localState.localLive.decrementAndGet(); // localLive--
-        assert c == 0n;
-        assert !isAtHome(id);
-        
-        // localLive==0 && remote -> localStates.remove(id); VS.remote--; quiescent_check
-        atomic { localStates.remove(id); }
-        val _id1 = id;
-        val _id0 = real_finish.id;
-        lowLevelAt(place0, ()=>{ atomic {
-            val vs1 = vitalStates.getOrThrow(_id1); // should exist
-            vs1.remoteCount(dstId)--; quiescent_check(_id1);
-            if (vs1.isAdopted()) {
-                val adopterVS1 = vitalStates.getOrThrow(vs1.adopterId); // should exist
-                adopterVS1.remoteAdopted(dstId)--;
-                quiescent_check(vs1.adopterId);
-            }
-            
-            val vs0 = vitalStates.getOrThrow(_id0); // should exist
-            //vs0.remoteCount(getHomeId(_id0))--; quiescent_check(_id0);
-            //if (vs0.isAdopted()) {
-            //    val adopterVS0 = vitalStates.getOrThrow(vs0.adopterId); // should exist
-            //    adopterVS0.remoteAdopted(getHomeId(_id0))--;
-            //    quiescent_check(vs0.adopterId);
-            //}
-            vs0.transitCount(dstId*MAX_PLACES + srcId) -= 1000n; //@@@@ vs0.transit[dstId,srcId] -= 1000
-            quiescent_check(_id0);
-            if (vs0.isAdopted()) {
-                val adopterVS0 = vitalStates.getOrThrow(vs0.adopterId); // should exist
-                adopterVS0.transitAdopted(dstId*MAX_PLACES + srcId) -= 1000n;
-                quiescent_check(vs0.adopterId);
-            }
-        }});
-        if (verbose>=1) debug("<<<< notifyActivityTerminationWithRealFinish(id="+id+") returning");
     }
 }
 
