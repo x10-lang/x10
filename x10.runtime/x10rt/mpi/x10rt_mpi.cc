@@ -508,16 +508,16 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
             abort();
         }
     } else {
-        char *thread_multiple = getenv("X10RT_MPI_THREAD_MULTIPLE");
+        char *thread_serialized = getenv("X10RT_MPI_THREAD_SERIALIZED");
         int level_required;
         int level_provided;
 
-        if (thread_multiple) {
-            global_state.threading_mode = MPI_THREAD_MULTIPLE;
-            level_required = MPI_THREAD_MULTIPLE;
-        } else {
+        if (thread_serialized) {
             global_state.threading_mode = MPI_THREAD_SERIALIZED;
             level_required = MPI_THREAD_SERIALIZED;
+        } else {
+            global_state.threading_mode = MPI_THREAD_MULTIPLE;
+            level_required = MPI_THREAD_MULTIPLE;
         }
         if (MPI_SUCCESS != MPI_Init_thread(argc, argv, level_required, &level_provided)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init_Thread\n", __FILE__, __LINE__);
