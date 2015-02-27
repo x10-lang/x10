@@ -831,7 +831,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Modifier>} is returned.
      */
-    private List<Modifier> ast(ModifiersoptContext ctx) {
+    private final List<Modifier> ast(ModifiersoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Modifier> l = new TypedList<Modifier>(new LinkedList<Modifier>(), Modifier.class, false);
             return l;
@@ -842,7 +842,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Modifier} is returned.
      */
-    private Modifier ast(ModifierContext ctx) {
+    private final Modifier ast(ModifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
@@ -854,7 +854,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Modifier>} is returned.
      */
-    private List<Modifier> ast(MethodModifiersoptContext ctx) {
+    private final List<Modifier> ast(MethodModifiersoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Modifier> l = new TypedList<Modifier>(new LinkedList<Modifier>(), Modifier.class, false);
             return l;
@@ -865,7 +865,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Modifier} is returned.
      */
-    private Modifier ast(MethodModifierContext ctx) {
+    private final Modifier ast(MethodModifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Modifier n = new FlagModifier(pos(ctx), FlagModifier.ABSTRACT);
@@ -877,7 +877,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeDecl} is returned.
      */
-    private TypeDecl ast(TypeDefDeclarationContext ctx) {
+    private final TypeDecl ast(TypeDefDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeDecl(p);
@@ -888,7 +888,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<PropertyDecl>} is returned.
      */
-    private List<PropertyDecl> ast(PropertiesoptContext ctx) {
+    private final List<PropertyDecl> ast(PropertiesoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<PropertyDecl> l = new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false);
             return l;
@@ -899,7 +899,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code PropertyDecl} is returned.
      */
-    private PropertyDecl ast(PropertyContext ctx) {
+    private final PropertyDecl ast(PropertyContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             PropertyDecl n = nf.PropertyDecl(p, errorFlags(p), errorTypeNode(p), errorId(p));
@@ -911,7 +911,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ProcedureDecl} is returned.
      */
-    private ProcedureDecl ast(MethodDeclarationContext ctx) {
+    private final ProcedureDecl ast(MethodDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -922,7 +922,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(BinaryOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(BinaryOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -933,7 +933,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(PrefixOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(PrefixOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -944,7 +944,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(ApplyOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(ApplyOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -955,7 +955,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(SetOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(SetOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -966,7 +966,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(ConversionOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(ConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -977,7 +977,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(ExplicitConversionOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(ExplicitConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -988,7 +988,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(ImplicitConversionOperatorDeclarationContext ctx) {
+    private final MethodDecl ast(ImplicitConversionOperatorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -999,7 +999,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
-    private MethodDecl ast(PropertyMethodDeclarationContext ctx) {
+    private final MethodDecl ast(PropertyMethodDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorMethodDecl(p);
@@ -1010,7 +1010,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ConstructorCall} is returned.
      */
-    private ConstructorCall ast(ExplicitConstructorInvocationContext ctx) {
+    private final ConstructorCall ast(ExplicitConstructorInvocationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ConstructorCall n = nf.ConstructorCall(p, ConstructorCall.THIS, new ArrayList<Expr>());
@@ -1022,7 +1022,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
      */
-    private ClassDecl ast(InterfaceDeclarationContext ctx) {
+    private final ClassDecl ast(InterfaceDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
@@ -1033,7 +1033,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
      */
-    private Stmt ast(AssignPropertyCallContext ctx) {
+    private final Stmt ast(AssignPropertyCallContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
@@ -1045,7 +1045,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(TypeContext ctx) {
+    private final TypeNode ast(TypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1056,7 +1056,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(FunctionTypeContext ctx) {
+    private final TypeNode ast(FunctionTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1067,7 +1067,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(ClassTypeContext ctx) {
+    private final TypeNode ast(ClassTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1078,7 +1078,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(ConstrainedTypeContext ctx) {
+    private final TypeNode ast(ConstrainedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1089,7 +1089,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code CanonicalTypeNode} is returned.
      */
-    private CanonicalTypeNode ast(Void_Context ctx) {
+    private final CanonicalTypeNode ast(Void_Context ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             CanonicalTypeNode n = nf.CanonicalTypeNode(pos(ctx), ts.Void());
@@ -1101,7 +1101,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
      */
-    private AmbTypeNode ast(SimpleNamedTypeContext ctx) {
+    private final AmbTypeNode ast(SimpleNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorAmbTypeNode(p);
@@ -1112,7 +1112,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
      */
-    private AmbTypeNode ast(ParameterizedNamedTypeContext ctx) {
+    private final AmbTypeNode ast(ParameterizedNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorAmbTypeNode(p);
@@ -1123,7 +1123,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(DepNamedTypeContext ctx) {
+    private final TypeNode ast(DepNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1134,7 +1134,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(NamedTypeNoConstraintsContext ctx) {
+    private final TypeNode ast(NamedTypeNoConstraintsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1145,7 +1145,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(NamedTypeContext ctx) {
+    private final TypeNode ast(NamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1156,7 +1156,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code DepParameterExpr} is returned.
      */
-    private DepParameterExpr ast(DepParametersContext ctx) {
+    private final DepParameterExpr ast(DepParametersContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorDepParameterExpr(p);
@@ -1167,7 +1167,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
      */
-    private List<TypeParamNode> ast(TypeParamsWithVarianceoptContext ctx) {
+    private final List<TypeParamNode> ast(TypeParamsWithVarianceoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
             return l;
@@ -1178,7 +1178,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
      */
-    private List<TypeParamNode> ast(TypeParametersoptContext ctx) {
+    private final List<TypeParamNode> ast(TypeParametersoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
             return l;
@@ -1189,7 +1189,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
      */
-    private List<Formal> ast(FormalParametersContext ctx) {
+    private final List<Formal> ast(FormalParametersContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
             return l;
@@ -1200,7 +1200,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ConstraintConjunctionoptContext ctx) {
+    private final List<Expr> ast(ConstraintConjunctionoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -1211,7 +1211,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code HasZeroTest} is returned.
      */
-    private HasZeroTest ast(HasZeroConstraintContext ctx) {
+    private final HasZeroTest ast(HasZeroConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             HasZeroTest n = nf.HasZeroTest(p, errorTypeNode(p));
@@ -1223,7 +1223,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code IsRefTest} is returned.
      */
-    private IsRefTest ast(IsRefConstraintContext ctx) {
+    private final IsRefTest ast(IsRefConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             IsRefTest n = nf.IsRefTest(p, errorTypeNode(p));
@@ -1235,7 +1235,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code SubtypeTest} is returned.
      */
-    private SubtypeTest ast(SubtypeConstraintContext ctx) {
+    private final SubtypeTest ast(SubtypeConstraintContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             SubtypeTest n = nf.SubtypeTest(pos(ctx), errorTypeNode(p), errorTypeNode(p), false);
@@ -1247,7 +1247,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code DepParameterExpr} is returned ({@code ctx.ast} can be null).
      */
-    private DepParameterExpr ast(WhereClauseoptContext ctx) {
+    private final DepParameterExpr ast(WhereClauseoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorDepParameterExpr(p);
@@ -1258,7 +1258,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
      */
-    private ClassDecl ast(ClassDeclarationContext ctx) {
+    private final ClassDecl ast(ClassDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
@@ -1269,7 +1269,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassDecl} is returned.
      */
-    private ClassDecl ast(StructDeclarationContext ctx) {
+    private final ClassDecl ast(StructDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassDecl(p);
@@ -1280,7 +1280,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ConstructorDecl} is returned.
      */
-    private ConstructorDecl ast(ConstructorDeclarationContext ctx) {
+    private final ConstructorDecl ast(ConstructorDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ConstructorDecl n = nf.ConstructorDecl(p, errorFlags(p), errorId(p), new ArrayList<Formal>(), errorBlock(p));
@@ -1292,7 +1292,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
      */
-    private TypeNode ast(SuperExtendsoptContext ctx) {
+    private final TypeNode ast(SuperExtendsoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -1303,7 +1303,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code List<FlagsNode>} is returned ({@code ctx.ast} can be null).
      */
-    private List<FlagsNode> ast(VarKeywordContext ctx) {
+    private final List<FlagsNode> ast(VarKeywordContext ctx) {
         if (ctx == null) {
             List<FlagsNode> l = new TypedList<FlagsNode>(new LinkedList<FlagsNode>(), FlagsNode.class, false);
             return l;
@@ -1314,7 +1314,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
      */
-    private List<ClassMember> ast(FieldDeclarationContext ctx) {
+    private final List<ClassMember> ast(FieldDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
             return l;
@@ -1325,7 +1325,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
      */
-    private Stmt ast(StatementContext ctx) {
+    private final Stmt ast(StatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
@@ -1337,7 +1337,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
      */
-    private Stmt ast(AnnotationStatementContext ctx) {
+    private final Stmt ast(AnnotationStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
@@ -1349,7 +1349,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
      */
-    private Stmt ast(NonExpressionStatementContext ctx) {
+    private final Stmt ast(NonExpressionStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
@@ -1361,7 +1361,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Offer} is returned.
      */
-    private Offer ast(OBSOLETE_OfferStatementContext ctx) {
+    private final Offer ast(OBSOLETE_OfferStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Offer n = nf.Offer(p, errorExpr(p));
@@ -1373,7 +1373,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code If} is returned.
      */
-    private If ast(IfThenStatementContext ctx) {
+    private final If ast(IfThenStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             If n = nf.If(p, errorExpr(p), errorStmt(p));
@@ -1385,7 +1385,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Empty} is returned.
      */
-    private Empty ast(EmptyStatementContext ctx) {
+    private final Empty ast(EmptyStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Empty n = nf.Empty(p);
@@ -1397,7 +1397,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Labeled} is returned.
      */
-    private Labeled ast(LabeledStatementContext ctx) {
+    private final Labeled ast(LabeledStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Labeled n = nf.Labeled(p, errorId(p), errorStmt(p));
@@ -1409,7 +1409,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
      */
-    private Stmt ast(LoopStatementContext ctx) {
+    private final Stmt ast(LoopStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
@@ -1421,7 +1421,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Eval} is returned.
      */
-    private Eval ast(ExpressionStatementContext ctx) {
+    private final Eval ast(ExpressionStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Eval n = nf.Eval(p, errorExpr(p));
@@ -1433,7 +1433,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Assert} is returned.
      */
-    private Assert ast(AssertStatementContext ctx) {
+    private final Assert ast(AssertStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Assert n = nf.Assert(p, errorExpr(p));
@@ -1445,7 +1445,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Switch} is returned.
      */
-    private Switch ast(SwitchStatementContext ctx) {
+    private final Switch ast(SwitchStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Switch n = nf.Switch(p, errorExpr(p), new ArrayList<SwitchElement>());
@@ -1457,7 +1457,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
      */
-    private List<SwitchElement> ast(SwitchBlockContext ctx) {
+    private final List<SwitchElement> ast(SwitchBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
             return l;
@@ -1468,7 +1468,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
      */
-    private List<SwitchElement> ast(SwitchBlockStatementGroupsoptContext ctx) {
+    private final List<SwitchElement> ast(SwitchBlockStatementGroupsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
             return l;
@@ -1479,7 +1479,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<SwitchElement>} is returned.
      */
-    private List<SwitchElement> ast(SwitchBlockStatementGroupContext ctx) {
+    private final List<SwitchElement> ast(SwitchBlockStatementGroupContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<SwitchElement> l = new TypedList<SwitchElement>(new LinkedList<SwitchElement>(), SwitchElement.class, false);
             return l;
@@ -1490,7 +1490,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Case>} is returned.
      */
-    private List<Case> ast(SwitchLabelsoptContext ctx) {
+    private final List<Case> ast(SwitchLabelsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
             return l;
@@ -1501,7 +1501,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Case>} is returned.
      */
-    private List<Case> ast(SwitchLabelsContext ctx) {
+    private final List<Case> ast(SwitchLabelsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Case> l = new TypedList<Case>(new LinkedList<Case>(), Case.class, false);
             return l;
@@ -1512,7 +1512,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Case} is returned.
      */
-    private Case ast(SwitchLabelContext ctx) {
+    private final Case ast(SwitchLabelContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Case n = nf.Case(p, errorExpr(p));
@@ -1524,7 +1524,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code While} is returned.
      */
-    private While ast(WhileStatementContext ctx) {
+    private final While ast(WhileStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             While n = nf.While(p, errorExpr(p), errorStmt(p));
@@ -1536,7 +1536,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Do} is returned.
      */
-    private Do ast(DoStatementContext ctx) {
+    private final Do ast(DoStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Do n = nf.Do(p, errorStmt(p), errorExpr(p));
@@ -1548,7 +1548,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Loop} is returned.
      */
-    private Loop ast(ForStatementContext ctx) {
+    private final Loop ast(ForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Loop n = nf.Do(p, errorStmt(p), errorExpr(p));
@@ -1560,7 +1560,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code For} is returned.
      */
-    private For ast(BasicForStatementContext ctx) {
+    private final For ast(BasicForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             For n = nf.For(p, new ArrayList<ForInit>(), errorExpr(p), new ArrayList<ForUpdate>(), errorStmt(p));
@@ -1572,7 +1572,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForInit>} is returned.
      */
-    private List<? extends ForInit> ast(ForInitContext ctx) {
+    private final List<? extends ForInit> ast(ForInitContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<? extends ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
             return l;
@@ -1583,7 +1583,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForUpdate>} is returned.
      */
-    private List<? extends ForUpdate> ast(ForUpdateContext ctx) {
+    private final List<? extends ForUpdate> ast(ForUpdateContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<? extends ForUpdate> l = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
             return l;
@@ -1594,7 +1594,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends Eval>} is returned.
      */
-    private List<? extends Eval> ast(StatementExpressionListContext ctx) {
+    private final List<? extends Eval> ast(StatementExpressionListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<? extends Eval> l = new TypedList<Eval>(new LinkedList<Eval>(), Eval.class, false);
             return l;
@@ -1605,7 +1605,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Branch} is returned.
      */
-    private Branch ast(BreakStatementContext ctx) {
+    private final Branch ast(BreakStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Branch n = nf.Break(p);
@@ -1617,7 +1617,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Branch} is returned.
      */
-    private Branch ast(ContinueStatementContext ctx) {
+    private final Branch ast(ContinueStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Branch n = nf.Continue(p);
@@ -1629,7 +1629,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Return} is returned.
      */
-    private Return ast(ReturnStatementContext ctx) {
+    private final Return ast(ReturnStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Return n = nf.Return(p);
@@ -1641,7 +1641,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Throw} is returned.
      */
-    private Throw ast(ThrowStatementContext ctx) {
+    private final Throw ast(ThrowStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Throw n = nf.Throw(p, errorExpr(p));
@@ -1653,7 +1653,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Try} is returned.
      */
-    private Try ast(TryStatementContext ctx) {
+    private final Try ast(TryStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Try n = nf.Try(p, errorBlock(p), new ArrayList<Catch>());
@@ -1665,7 +1665,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Catch>} is returned.
      */
-    private List<Catch> ast(CatchesContext ctx) {
+    private final List<Catch> ast(CatchesContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
             return l;
@@ -1676,7 +1676,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Catch} is returned.
      */
-    private Catch ast(CatchClauseContext ctx) {
+    private final Catch ast(CatchClauseContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Catch n = nf.Catch(p, errorFormal(p), errorBlock(p));
@@ -1688,7 +1688,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
      */
-    private Block ast(FinallyBlockContext ctx) {
+    private final Block ast(FinallyBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -1699,7 +1699,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ClockedClauseoptContext ctx) {
+    private final List<Expr> ast(ClockedClauseoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -1710,7 +1710,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Async} is returned.
      */
-    private Async ast(AsyncStatementContext ctx) {
+    private final Async ast(AsyncStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Async n = nf.Async(p, errorStmt(p), false);
@@ -1722,7 +1722,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AtStmt} is returned.
      */
-    private AtStmt ast(AtStatementContext ctx) {
+    private final AtStmt ast(AtStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AtStmt n = nf.AtStmt(p, errorExpr(p), errorStmt(p));
@@ -1734,7 +1734,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Atomic} is returned.
      */
-    private Atomic ast(AtomicStatementContext ctx) {
+    private final Atomic ast(AtomicStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Atomic n = nf.Atomic(p, errorExpr(p), errorStmt(p));
@@ -1746,7 +1746,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code When} is returned.
      */
-    private When ast(WhenStatementContext ctx) {
+    private final When ast(WhenStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             When n = nf.When(p, errorExpr(p), errorStmt(p));
@@ -1758,7 +1758,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Loop} is returned.
      */
-    private X10Loop ast(AtEachStatementContext ctx) {
+    private final X10Loop ast(AtEachStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             X10Loop n = nf.AtEach(p, errorFormal(p), errorExpr(p), errorStmt(p));
@@ -1770,7 +1770,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Loop} is returned.
      */
-    private X10Loop ast(EnhancedForStatementContext ctx) {
+    private final X10Loop ast(EnhancedForStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             X10Loop n = nf.ForLoop(p, errorFormal(p), errorExpr(p), errorStmt(p));
@@ -1782,7 +1782,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Finish} is returned.
      */
-    private Finish ast(FinishStatementContext ctx) {
+    private final Finish ast(FinishStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Finish n = nf.Finish(p, errorStmt(p), false);
@@ -1794,7 +1794,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(CastExpressionContext ctx) {
+    private final Expr ast(CastExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -1805,7 +1805,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
      */
-    private List<TypeParamNode> ast(TypeParamWithVarianceListContext ctx) {
+    private final List<TypeParamNode> ast(TypeParamWithVarianceListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
             return l;
@@ -1816,7 +1816,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeParamNode>} is returned.
      */
-    private List<TypeParamNode> ast(TypeParameterListContext ctx) {
+    private final List<TypeParamNode> ast(TypeParameterListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeParamNode> l = new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false);
             return l;
@@ -1827,7 +1827,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeParamNode} is returned.
      */
-    private TypeParamNode ast(OBSOLETE_TypeParamWithVarianceContext ctx) {
+    private final TypeParamNode ast(OBSOLETE_TypeParamWithVarianceContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeParamNode(p);
@@ -1838,7 +1838,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeParamNode} is returned.
      */
-    private TypeParamNode ast(TypeParameterContext ctx) {
+    private final TypeParamNode ast(TypeParameterContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeParamNode(p);
@@ -1849,7 +1849,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Closure} is returned.
      */
-    private Closure ast(ClosureExpressionContext ctx) {
+    private final Closure ast(ClosureExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Closure n = nf.Closure(p, new ArrayList<Formal>(), errorDepParameterExpr(p), errorTypeNode(p), errorBlock(p));
@@ -1861,7 +1861,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Return} is returned.
      */
-    private Return ast(LastExpressionContext ctx) {
+    private final Return ast(LastExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Return n = nf.Return(p);
@@ -1873,7 +1873,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
      */
-    private Block ast(ClosureBodyContext ctx) {
+    private final Block ast(ClosureBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -1884,7 +1884,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AtExpr} is returned.
      */
-    private AtExpr ast(AtExpressionContext ctx) {
+    private final AtExpr ast(AtExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AtExpr n = nf.AtExpr(p, errorExpr(p), errorBlock(p));
@@ -1896,7 +1896,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code FinishExpr} is returned.
      */
-    private FinishExpr ast(OBSOLETE_FinishExpressionContext ctx) {
+    private final FinishExpr ast(OBSOLETE_FinishExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             FinishExpr n = nf.FinishExpr(p, errorExpr(p), errorStmt(p));
@@ -1908,7 +1908,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(TypeNameContext ctx) {
+    private final ParsedName ast(TypeNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1919,7 +1919,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(ClassNameContext ctx) {
+    private final ParsedName ast(ClassNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1930,7 +1930,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
      */
-    private List<TypeNode> ast(TypeArgumentsContext ctx) {
+    private final List<TypeNode> ast(TypeArgumentsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             return l;
@@ -1941,7 +1941,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(PackageNameContext ctx) {
+    private final ParsedName ast(PackageNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1952,7 +1952,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(ExpressionNameContext ctx) {
+    private final ParsedName ast(ExpressionNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1963,7 +1963,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(MethodNameContext ctx) {
+    private final ParsedName ast(MethodNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1974,7 +1974,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(PackageOrTypeNameContext ctx) {
+    private final ParsedName ast(PackageOrTypeNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1985,7 +1985,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ParsedName} is returned.
      */
-    private ParsedName ast(FullyQualifiedNameContext ctx) {
+    private final ParsedName ast(FullyQualifiedNameContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorParsedName(p);
@@ -1996,7 +1996,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code SourceFile} is returned.
      */
-    private SourceFile ast(CompilationUnitContext ctx) {
+    private final SourceFile ast(CompilationUnitContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             SourceFile n = nf.SourceFile(p, new ArrayList<TopLevelDecl>());
@@ -2008,7 +2008,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code PackageNode} is returned.
      */
-    private PackageNode ast(PackageDeclarationContext ctx) {
+    private final PackageNode ast(PackageDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             PackageNode n = nf.PackageNode(p, null);
@@ -2020,7 +2020,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Import>} is returned.
      */
-    private List<Import> ast(ImportDeclarationsoptContext ctx) {
+    private final List<Import> ast(ImportDeclarationsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Import> l = new TypedList<Import>(new LinkedList<Import>(), Import.class, false);
             return l;
@@ -2031,7 +2031,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Import} is returned.
      */
-    private Import ast(ImportDeclarationContext ctx) {
+    private final Import ast(ImportDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Import n = nf.Import(p, Import.CLASS, QName.make("*"));
@@ -2043,7 +2043,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TopLevelDecl>} is returned.
      */
-    private List<TopLevelDecl> ast(TypeDeclarationsoptContext ctx) {
+    private final List<TopLevelDecl> ast(TypeDeclarationsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TopLevelDecl> l = new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false);
             return l;
@@ -2054,7 +2054,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TopLevelDecl} is returned ({@code ctx.ast} can be null).
      */
-    private TopLevelDecl ast(TypeDeclarationContext ctx) {
+    private final TopLevelDecl ast(TypeDeclarationContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             TopLevelDecl n = errorTypeDecl(p);
@@ -2066,7 +2066,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
      */
-    private List<TypeNode> ast(InterfacesoptContext ctx) {
+    private final List<TypeNode> ast(InterfacesoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             return l;
@@ -2077,7 +2077,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassBody} is returned.
      */
-    private ClassBody ast(ClassBodyContext ctx) {
+    private final ClassBody ast(ClassBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             ClassBody n = nf.ClassBody(p, new ArrayList<ClassMember>());
@@ -2090,7 +2090,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
      */
-    private List<ClassMember> ast(ClassMemberDeclarationContext ctx) {
+    private final List<ClassMember> ast(ClassMemberDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
             return l;
@@ -2101,7 +2101,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
      */
-    private List<Object[]> ast(FormalDeclaratorsContext ctx) {
+    private final List<Object[]> ast(FormalDeclaratorsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
             return l;
@@ -2112,7 +2112,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
      */
-    private List<Object[]> ast(FieldDeclaratorsContext ctx) {
+    private final List<Object[]> ast(FieldDeclaratorsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
             return l;
@@ -2123,7 +2123,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
      */
-    private List<Object[]> ast(VariableDeclaratorsWithTypeContext ctx) {
+    private final List<Object[]> ast(VariableDeclaratorsWithTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
             return l;
@@ -2134,7 +2134,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Object[]>} is returned.
      */
-    private List<Object[]> ast(VariableDeclaratorsContext ctx) {
+    private final List<Object[]> ast(VariableDeclaratorsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
             return l;
@@ -2145,7 +2145,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(VariableInitializerContext ctx) {
+    private final Expr ast(VariableInitializerContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2156,7 +2156,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(ResultTypeContext ctx) {
+    private final TypeNode ast(ResultTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -2167,7 +2167,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
      */
-    private TypeNode ast(HasResultTypeContext ctx) {
+    private final TypeNode ast(HasResultTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -2178,7 +2178,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
      */
-    private List<Formal> ast(FormalParameterListContext ctx) {
+    private final List<Formal> ast(FormalParameterListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
             return l;
@@ -2189,7 +2189,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
      */
-    private Object[] ast(LoopIndexDeclaratorContext ctx) {
+    private final Object[] ast(LoopIndexDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, null, null };
@@ -2201,7 +2201,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Formal} is returned.
      */
-    private X10Formal ast(LoopIndexContext ctx) {
+    private final X10Formal ast(LoopIndexContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorFormal(p);
@@ -2212,7 +2212,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Formal} is returned.
      */
-    private X10Formal ast(FormalParameterContext ctx) {
+    private final X10Formal ast(FormalParameterContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorFormal(p);
@@ -2223,7 +2223,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
      */
-    private TypeNode ast(OBSOLETE_OffersoptContext ctx) {
+    private final TypeNode ast(OBSOLETE_OffersoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -2234,7 +2234,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
      */
-    private List<TypeNode> ast(ThrowsoptContext ctx) {
+    private final List<TypeNode> ast(ThrowsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             return l;
@@ -2245,7 +2245,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Block} is returned ({@code ctx.ast} can be null).
      */
-    private Block ast(MethodBodyContext ctx) {
+    private final Block ast(MethodBodyContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -2256,7 +2256,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Block} is returned ({@code ctx.ast} can be null).
      */
-    private Block ast(ConstructorBodyContext ctx) {
+    private final Block ast(ConstructorBodyContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -2267,7 +2267,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
      */
-    private Block ast(ConstructorBlockContext ctx) {
+    private final Block ast(ConstructorBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -2278,7 +2278,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ArgumentsContext ctx) {
+    private final List<Expr> ast(ArgumentsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -2289,7 +2289,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
      */
-    private List<TypeNode> ast(ExtendsInterfacesoptContext ctx) {
+    private final List<TypeNode> ast(ExtendsInterfacesoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             return l;
@@ -2300,7 +2300,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code ClassBody} is returned.
      */
-    private ClassBody ast(InterfaceBodyContext ctx) {
+    private final ClassBody ast(InterfaceBodyContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassBody(p);
@@ -2311,7 +2311,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
      */
-    private List<ClassMember> ast(InterfaceMemberDeclarationsoptContext ctx) {
+    private final List<ClassMember> ast(InterfaceMemberDeclarationsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
             return l;
@@ -2322,7 +2322,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<ClassMember>} is returned.
      */
-    private List<ClassMember> ast(InterfaceMemberDeclarationContext ctx) {
+    private final List<ClassMember> ast(InterfaceMemberDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
             return l;
@@ -2333,7 +2333,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<AnnotationNode>} is returned.
      */
-    private List<AnnotationNode> ast(AnnotationsoptContext ctx) {
+    private final List<AnnotationNode> ast(AnnotationsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
             return l;
@@ -2344,7 +2344,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<AnnotationNode>} is returned.
      */
-    private List<AnnotationNode> ast(AnnotationsContext ctx) {
+    private final List<AnnotationNode> ast(AnnotationsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<AnnotationNode> l = new TypedList<AnnotationNode>(new LinkedList<AnnotationNode>(), AnnotationNode.class, false);
             return l;
@@ -2355,7 +2355,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AnnotationNode} is returned.
      */
-    private AnnotationNode ast(AnnotationContext ctx) {
+    private final AnnotationNode ast(AnnotationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             AnnotationNode n = nf.AnnotationNode(p, errorTypeNode(p));
@@ -2367,7 +2367,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Id} is returned.
      */
-    private Id ast(IdentifierContext ctx) {
+    private final Id ast(IdentifierContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorId(p);
@@ -2378,7 +2378,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
      */
-    private Block ast(BlockContext ctx) {
+    private final Block ast(BlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -2389,7 +2389,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
      */
-    private List<Stmt> ast(BlockStatementsContext ctx) {
+    private final List<Stmt> ast(BlockStatementsContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
             return l;
@@ -2400,7 +2400,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
      */
-    private List<Stmt> ast(BlockInteriorStatementContext ctx) {
+    private final List<Stmt> ast(BlockInteriorStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
             return l;
@@ -2411,7 +2411,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Id>} is returned.
      */
-    private List<Id> ast(IdentifierListContext ctx) {
+    private final List<Id> ast(IdentifierListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Id> l = new TypedList<Id>(new LinkedList<Id>(), Id.class, false);
             return l;
@@ -2422,7 +2422,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
      */
-    private Object[] ast(FormalDeclaratorContext ctx) {
+    private final Object[] ast(FormalDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), null };
@@ -2434,7 +2434,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
      */
-    private Object[] ast(FieldDeclaratorContext ctx) {
+    private final Object[] ast(FieldDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorExpr(p) };
@@ -2446,7 +2446,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
      */
-    private Object[] ast(VariableDeclaratorContext ctx) {
+    private final Object[] ast(VariableDeclaratorContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
@@ -2458,7 +2458,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Object[]} is returned.
      */
-    private Object[] ast(VariableDeclaratorWithTypeContext ctx) {
+    private final Object[] ast(VariableDeclaratorWithTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Object[] n = new Object[] { p, null, Collections.<Id> emptyList(), null, errorTypeNode(p), errorExpr(p) };
@@ -2470,7 +2470,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
      */
-    private List<Stmt> ast(LocalVariableDeclarationStatementContext ctx) {
+    private final List<Stmt> ast(LocalVariableDeclarationStatementContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
             return l;
@@ -2481,7 +2481,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<LocalDecl>} is returned.
      */
-    private List<LocalDecl> ast(LocalVariableDeclarationContext ctx) {
+    private final List<LocalDecl> ast(LocalVariableDeclarationContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
             return l;
@@ -2492,7 +2492,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(PrimaryContext ctx) {
+    private final Expr ast(PrimaryContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2503,7 +2503,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Lit} is returned.
      */
-    private Lit ast(LiteralContext ctx) {
+    private final Lit ast(LiteralContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Lit n = nf.NullLit(p);
@@ -2515,7 +2515,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code BooleanLit} is returned.
      */
-    private BooleanLit ast(BooleanLiteralContext ctx) {
+    private final BooleanLit ast(BooleanLiteralContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             BooleanLit n = nf.BooleanLit(p, false);
@@ -2527,7 +2527,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ArgumentListContext ctx) {
+    private final List<Expr> ast(ArgumentListContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -2538,7 +2538,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Field} is returned.
      */
-    private Field ast(FieldAccessContext ctx) {
+    private final Field ast(FieldAccessContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Field n = nf.Field(p, null, errorId(p));
@@ -2550,7 +2550,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(ConditionalExpressionContext ctx) {
+    private final Expr ast(ConditionalExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2561,7 +2561,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(AssignmentExpressionContext ctx) {
+    private final Expr ast(AssignmentExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2572,7 +2572,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(AssignmentContext ctx) {
+    private final Expr ast(AssignmentContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2583,7 +2583,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(LeftHandSideContext ctx) {
+    private final Expr ast(LeftHandSideContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2594,7 +2594,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Assign} is returned.
      */
-    private Assign.Operator ast(AssignmentOperatorContext ctx) {
+    private final Assign.Operator ast(AssignmentOperatorContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Assign.ASSIGN;
@@ -2605,7 +2605,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(ExpressionContext ctx) {
+    private final Expr ast(ExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2616,7 +2616,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
-    private Expr ast(ConstantExpressionContext ctx) {
+    private final Expr ast(ConstantExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2627,7 +2627,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Unary} is returned.
      */
-    private Unary.Operator ast(PrefixOpContext ctx) {
+    private final Unary.Operator ast(PrefixOpContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Unary.POS;
@@ -2638,7 +2638,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Binary} is returned.
      */
-    private Binary.Operator ast(BinOpContext ctx) {
+    private final Binary.Operator ast(BinOpContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return Binary.EQ;
@@ -2650,7 +2650,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code TypeNode} is returned ({@code ctx.ast} can be null).
      */
-    private TypeNode ast(HasResultTypeoptContext ctx) {
+    private final TypeNode ast(HasResultTypeoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorTypeNode(p);
@@ -2661,7 +2661,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<TypeNode>} is returned.
      */
-    private List<TypeNode> ast(TypeArgumentsoptContext ctx) {
+    private final List<TypeNode> ast(TypeArgumentsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<TypeNode> l = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
             return l;
@@ -2672,7 +2672,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ArgumentListoptContext ctx) {
+    private final List<Expr> ast(ArgumentListoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -2683,7 +2683,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Expr>} is returned.
      */
-    private List<Expr> ast(ArgumentsoptContext ctx) {
+    private final List<Expr> ast(ArgumentsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
             return l;
@@ -2694,7 +2694,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Id} is returned ({@code ctx.ast} can be null).
      */
-    private Id ast(IdentifieroptContext ctx) {
+    private final Id ast(IdentifieroptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorId(p);
@@ -2705,7 +2705,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForInit>} is returned.
      */
-    private List<? extends ForInit> ast(ForInitoptContext ctx) {
+    private final List<? extends ForInit> ast(ForInitoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<? extends ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
             return l;
@@ -2716,7 +2716,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<? extends ForUpdate>} is returned.
      */
-    private List<? extends ForUpdate> ast(ForUpdateoptContext ctx) {
+    private final List<? extends ForUpdate> ast(ForUpdateoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<? extends ForUpdate> l = new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false);
             return l;
@@ -2727,7 +2727,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code Expr} is returned ({@code ctx.ast} can be null).
      */
-    private Expr ast(ExpressionoptContext ctx) {
+    private final Expr ast(ExpressionoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -2738,7 +2738,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Catch>} is returned.
      */
-    private List<Catch> ast(CatchesoptContext ctx) {
+    private final List<Catch> ast(CatchesoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Catch> l = new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false);
             return l;
@@ -2749,7 +2749,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Stmt>} is returned.
      */
-    private List<Stmt> ast(BlockStatementsoptContext ctx) {
+    private final List<Stmt> ast(BlockStatementsoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Stmt> l = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
             return l;
@@ -2760,7 +2760,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} is null, a dummy value of type {@code ClassBody} is returned ({@code ctx.ast} can be null).
      */
-    private ClassBody ast(ClassBodyoptContext ctx) {
+    private final ClassBody ast(ClassBodyoptContext ctx) {
         if (ctx == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorClassBody(p);
@@ -2771,7 +2771,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code List<Formal>} is returned.
      */
-    private List<Formal> ast(FormalParameterListoptContext ctx) {
+    private final List<Formal> ast(FormalParameterListoptContext ctx) {
         if (ctx == null || ctx.ast == null) {
             List<Formal> l = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
             return l;
