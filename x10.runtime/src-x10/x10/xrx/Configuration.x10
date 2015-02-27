@@ -94,7 +94,8 @@ final class Configuration {
     static def num_immediate_threads():Int {
         var v:Int = 1n;
         try {
-            v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", "1"));
+            val defVal = Runtime.x10rtBlockingProbeSupport() ? "1" : "0";
+            v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", defVal));
         } catch (NumberFormatException) {
         }
         return v;
