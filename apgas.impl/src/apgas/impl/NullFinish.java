@@ -21,16 +21,10 @@ final class NullFinish implements Serializable, Finish {
   private static final long serialVersionUID = -6486525914605983562L;
 
   /**
-   * The {@link NullFinish} instance.
+   * The singleton {@link NullFinish} instance.
    */
   static final NullFinish SINGLETON = new NullFinish();
 
-  /**
-   * Constructs a {@link NullFinish} instance.
-   *
-   * @param p
-   *          the place ID of the main task
-   */
   private NullFinish() {
   }
 
