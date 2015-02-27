@@ -147,7 +147,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       }
     }
     if (factory == null) {
-      this.factory = resilient ? new ResilientFinish.Factory()
+      this.factory = resilient ? new ResilientFinishOpt.Factory()
           : new DefaultFinish.Factory();
     } else {
       this.factory = factory;
