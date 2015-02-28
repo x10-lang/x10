@@ -1,9 +1,6 @@
-For support in Eclipse 4.4.1, please install the "Lambda Support Patch" in Eclipse from archive lambda-update-site.zip.
+This project requires Eclipse 4.4.2 or later.
 
-The patch addresses two issues in the org.eclipse.jdt.core plugin with lambda serialization.
-https://bugs.eclipse.org/bugs/show_bug.cgi?id=442416
-https://bugs.eclipse.org/bugs/show_bug.cgi?id=442418
-
-The patch implements additional compiler warnings when:
+The apgas.dt.zip contains the "APGAS Development Toolkit" feature for Eclipse 4.4.2.
+This feature augments the Eclipse Java Compiler to generate additional warnings when:
 - a serializable lambda captures this,
-- a serializable lambda captures a non-serializable variable (including this).
+- a serializable lambda captures a non-serializable variable.
