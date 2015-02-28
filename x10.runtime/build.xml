@@ -17,7 +17,7 @@
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
 	<property name="gen-java.zip" value="gen-java.zip"/>
-    <property name="ecj.jar" value="${lib}/ecj-4.4.1.jar"/>
+    <property name="ecj.jar" value="${lib}/ecj-4.4.2.jar"/>
     <property name="math.jar" value="${lib}/commons-math3-3.3.jar"/>
     <property name="log.jar" value="${lib}/commons-logging-1.2.jar"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast-3.3.1.jar"/>
