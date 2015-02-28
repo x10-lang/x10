@@ -717,6 +717,11 @@ public final class Runtime {
                 prof.bytes += ser.dataBytesWritten();
             }
 
+            // Needed to prevent the worker that calls stopFinish
+            // from trying to help and improperly scheduling an activity
+            // from an unrelated finish.
+	    activity().finishState().notifyRemoteContinuationCreated();
+
             // Spawn asynchronous activity
             val asyncBody = ()=>{
                 val deser = new Deserializer(ser);
@@ -775,6 +780,12 @@ public final class Runtime {
         a.ensureNotInAtomic();
 
         val epoch = a.epoch;
+
+        // Needed to prevent the worker that calls stopFinish
+        // from trying to help and improperly scheduling an activity
+        // from an unrelated finish.
+	activity().finishState().notifyRemoteContinuationCreated();
+
         submitLocalActivity(new Activity(epoch, body, here, new FinishState.UncountedFinish()));
     }
 
