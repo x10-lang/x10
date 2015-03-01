@@ -94,9 +94,9 @@ assignPropertyCall returns [Stmt ast]:
       'property' typeArgumentsopt '(' argumentListopt ')' ';'
     ;
 type returns [TypeNode ast]:
-      functionType         #typeFunctionType
-    | constrainedType      #typeConstrainedType
-    | void_                #typeVoid
+      'void'               #typeVoid
+    | namedType            #typeConstrainedType
+    | functionType         #typeFunctionType
     | type annotations     #typeAnnotations
     ;
 functionType returns [TypeNode ast]:
@@ -105,29 +105,16 @@ functionType returns [TypeNode ast]:
 classType returns [TypeNode ast]:
       namedType
     ;
-constrainedType returns [TypeNode ast]:
-      namedType
-    ;
-void_ returns [CanonicalTypeNode ast]:
-      'void'
-    ;
 simpleNamedType returns [AmbTypeNode ast]:
       typeName                                                                       #simpleNamedType0
     | primary '.' identifier                                                         #simpleNamedType1
     | simpleNamedType typeArgumentsopt argumentsopt depParameters? '.' identifier    #simpleNamedType2
     ;
-parameterizedNamedType returns [AmbTypeNode ast]:
+namedTypeNoConstraints returns [TypeNode ast]:
       simpleNamedType typeArguments? arguments?
     ;
-depNamedType returns [TypeNode ast]:
-      parameterizedNamedType depParameters
-    ;
-namedTypeNoConstraints returns [TypeNode ast]:
-      parameterizedNamedType
-    ;
 namedType returns [TypeNode ast]:
-      depNamedType                               #namedType1
-    | namedTypeNoConstraints                     #namedType0
+      simpleNamedType typeArguments? arguments? depParameters?
     ;
 depParameters returns [DepParameterExpr ast]:
       '{' /* fUTURE_ExistentialList? */ constraintConjunctionopt '}'
@@ -146,13 +133,6 @@ constraintConjunctionopt returns [List<Expr> ast]:
     ;
 hasZeroConstraint returns [HasZeroTest ast]:
       type 'haszero'
-    ;
-isRefConstraint returns [IsRefTest ast]:
-      type 'isref'
-    ;
-subtypeConstraint returns [SubtypeTest ast]:
-      t1=type '<:' t2=type     #subtypeConstraint0
-    | t1=type ':>' t2=type     #subtypeConstraint1
     ;
 whereClauseopt returns [DepParameterExpr ast]:
       depParameters?
@@ -652,30 +632,32 @@ conditionalExpression returns [Expr ast]:
     | e1=conditionalExpression '..' e2=conditionalExpression                    #conditionalExpression5
     | e1=conditionalExpression op=('*'|'/'|'%'|'**') e2=conditionalExpression   #conditionalExpression6
     | e1=conditionalExpression op=('+'|'-') e2=conditionalExpression            #conditionalExpression7
-    | hasZeroConstraint                                                         #conditionalExpression8
-    | isRefConstraint                                                           #conditionalExpression9
-    | subtypeConstraint                                                         #conditionalExpression10
+    | conditionalExpression op=('haszero'|'isref')                              #conditionalExpression8
+    | t1=conditionalExpression op=('<:'|':>') t2=conditionalExpression          #conditionalExpression10
     | e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression   #conditionalExpression11
     | conditionalExpression 'instanceof' type                                   #conditionalExpression12
     | e1=conditionalExpression op=('<'|'>'|'<='|'>=') e2=conditionalExpression  #conditionalExpression13
     | e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression          #conditionalExpression14
- //   | t1=type '==' t2=type                                                      #conditionalExpression15 // Danger some type equalities can be capture by the previous rule
     | e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression           #conditionalExpression16
     | e1=conditionalExpression '&' e2=conditionalExpression                     #conditionalExpression17
     | e1=conditionalExpression '^' e2=conditionalExpression                     #conditionalExpression18
     | e1=conditionalExpression '|' e2=conditionalExpression                     #conditionalExpression19
     | e1=conditionalExpression '&&' e2=conditionalExpression                    #conditionalExpression20
     | e1=conditionalExpression '||' e2=conditionalExpression                    #conditionalExpression21
-    | closureExpression                                                         #conditionalExpression22
-    | atExpression                                                              #conditionalExpression23
-    | oBSOLETE_FinishExpression                                                 #conditionalExpression24
-    | <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression   #conditionalExpression25
+    | <assoc=right> e1=conditionalExpression '?' e2=expression ':' e3=nonAssignmentExpression   #conditionalExpression25
     | type                                                                      #conditionalExpression26
     ;
 
+nonAssignmentExpression returns [Expr ast]:
+      closureExpression            #nonAssignmentExpression1
+    | atExpression                 #nonAssignmentExpression2
+    | oBSOLETE_FinishExpression    #nonAssignmentExpression3
+    | conditionalExpression        #nonAssignmentExpression4
+;
+
 assignmentExpression returns [Expr ast]:
-      assignment                #assignmentExpression0
-    | conditionalExpression     #assignmentExpression1
+      assignment                  #assignmentExpression0
+    | nonAssignmentExpression     #assignmentExpression1
     ;
 assignment returns [Expr ast]:
       leftHandSide assignmentOperator assignmentExpression                             #assignment0

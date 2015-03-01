@@ -16,9 +16,7 @@ import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.atn.PredictionMode;
-import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -30,7 +28,6 @@ import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Branch;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
@@ -106,11 +103,9 @@ import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.HasZeroTest;
-import x10.ast.IsRefTest;
 import x10.ast.Offer;
 import x10.ast.PropertyDecl;
 import x10.ast.SettableAssign;
-import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.TypeDecl;
 import x10.ast.TypeParamNode;
@@ -258,9 +253,6 @@ import x10.parserGen.X10Parser.ConditionalExpression19Context;
 import x10.parserGen.X10Parser.ConditionalExpression1Context;
 import x10.parserGen.X10Parser.ConditionalExpression20Context;
 import x10.parserGen.X10Parser.ConditionalExpression21Context;
-import x10.parserGen.X10Parser.ConditionalExpression22Context;
-import x10.parserGen.X10Parser.ConditionalExpression23Context;
-import x10.parserGen.X10Parser.ConditionalExpression24Context;
 import x10.parserGen.X10Parser.ConditionalExpression25Context;
 import x10.parserGen.X10Parser.ConditionalExpression26Context;
 import x10.parserGen.X10Parser.ConditionalExpression2Context;
@@ -270,10 +262,8 @@ import x10.parserGen.X10Parser.ConditionalExpression5Context;
 import x10.parserGen.X10Parser.ConditionalExpression6Context;
 import x10.parserGen.X10Parser.ConditionalExpression7Context;
 import x10.parserGen.X10Parser.ConditionalExpression8Context;
-import x10.parserGen.X10Parser.ConditionalExpression9Context;
 import x10.parserGen.X10Parser.ConditionalExpressionContext;
 import x10.parserGen.X10Parser.ConstantExpressionContext;
-import x10.parserGen.X10Parser.ConstrainedTypeContext;
 import x10.parserGen.X10Parser.ConstraintConjunctionoptContext;
 import x10.parserGen.X10Parser.ConstructorBlockContext;
 import x10.parserGen.X10Parser.ConstructorBody0Context;
@@ -286,7 +276,6 @@ import x10.parserGen.X10Parser.ContinueStatementContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationExplicitContext;
 import x10.parserGen.X10Parser.ConversionOperatorDeclarationImplicitContext;
-import x10.parserGen.X10Parser.DepNamedTypeContext;
 import x10.parserGen.X10Parser.DepParametersContext;
 import x10.parserGen.X10Parser.DoStatementContext;
 import x10.parserGen.X10Parser.DoubleLiteralContext;
@@ -372,7 +361,6 @@ import x10.parserGen.X10Parser.InterfaceMemberDeclaration3Context;
 import x10.parserGen.X10Parser.InterfaceMemberDeclarationContext;
 import x10.parserGen.X10Parser.InterfaceMemberDeclarationsoptContext;
 import x10.parserGen.X10Parser.InterfacesoptContext;
-import x10.parserGen.X10Parser.IsRefConstraintContext;
 import x10.parserGen.X10Parser.LabeledStatementContext;
 import x10.parserGen.X10Parser.LastExpressionContext;
 import x10.parserGen.X10Parser.LeftHandSide0Context;
@@ -430,10 +418,13 @@ import x10.parserGen.X10Parser.ModifierPublicContext;
 import x10.parserGen.X10Parser.ModifierStaticContext;
 import x10.parserGen.X10Parser.ModifierTransientContext;
 import x10.parserGen.X10Parser.ModifiersoptContext;
-import x10.parserGen.X10Parser.NamedType0Context;
-import x10.parserGen.X10Parser.NamedType1Context;
 import x10.parserGen.X10Parser.NamedTypeContext;
 import x10.parserGen.X10Parser.NamedTypeNoConstraintsContext;
+import x10.parserGen.X10Parser.NonAssignmentExpression1Context;
+import x10.parserGen.X10Parser.NonAssignmentExpression2Context;
+import x10.parserGen.X10Parser.NonAssignmentExpression3Context;
+import x10.parserGen.X10Parser.NonAssignmentExpression4Context;
+import x10.parserGen.X10Parser.NonAssignmentExpressionContext;
 import x10.parserGen.X10Parser.NonExpressionStatemen0Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen10Context;
 import x10.parserGen.X10Parser.NonExpressionStatemen11Context;
@@ -471,7 +462,6 @@ import x10.parserGen.X10Parser.PackageNameContext;
 import x10.parserGen.X10Parser.PackageOrTypeName0Context;
 import x10.parserGen.X10Parser.PackageOrTypeName1Context;
 import x10.parserGen.X10Parser.PackageOrTypeNameContext;
-import x10.parserGen.X10Parser.ParameterizedNamedTypeContext;
 import x10.parserGen.X10Parser.PrefixOp0Context;
 import x10.parserGen.X10Parser.PrefixOp1Context;
 import x10.parserGen.X10Parser.PrefixOp2Context;
@@ -543,9 +533,6 @@ import x10.parserGen.X10Parser.StatementContext;
 import x10.parserGen.X10Parser.StatementExpressionListContext;
 import x10.parserGen.X10Parser.StringLiteralContext;
 import x10.parserGen.X10Parser.StructDeclarationContext;
-import x10.parserGen.X10Parser.SubtypeConstraint0Context;
-import x10.parserGen.X10Parser.SubtypeConstraint1Context;
-import x10.parserGen.X10Parser.SubtypeConstraintContext;
 import x10.parserGen.X10Parser.SuperExtendsoptContext;
 import x10.parserGen.X10Parser.SwitchBlockContext;
 import x10.parserGen.X10Parser.SwitchBlockStatementGroupContext;
@@ -606,7 +593,6 @@ import x10.parserGen.X10Parser.VariableDeclaratorWithTypeContext;
 import x10.parserGen.X10Parser.VariableDeclaratorsContext;
 import x10.parserGen.X10Parser.VariableDeclaratorsWithTypeContext;
 import x10.parserGen.X10Parser.VariableInitializerContext;
-import x10.parserGen.X10Parser.Void_Context;
 import x10.parserGen.X10Parser.WhenStatementContext;
 import x10.parserGen.X10Parser.WhereClauseoptContext;
 import x10.parserGen.X10Parser.WhileStatementContext;
@@ -645,11 +631,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
         lexer = new X10Lexer(inputStream);
         tokens = new CommonTokenStream(lexer);
-        
+
         p = new X10Parser(tokens);
 
         parserState = p.getInterpreter();
-        
+
         p.removeErrorListeners();
         err = new ParserErrorListener(eq, fileName);
         p.addErrorListener(err);
@@ -657,9 +643,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         errorStrategy = new DefaultErrorStrategy();
         p.setErrorHandler(errorStrategy);
     }
-    
-    public CommonTokenStream getTokens(){
-    	return tokens;
+
+    public CommonTokenStream getTokens() {
+        return tokens;
     }
 
     private CompilationUnitContext getParseTree() {
@@ -810,13 +796,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return (TypeParamNode) nf.TypeParamNode(p, errorId(p)).error(true);
     }
 
-    private ClassDecl errorClassDecl (Position p) {
+    private ClassDecl errorClassDecl(Position p) {
         return (ClassDecl) nf.ClassDecl(p, errorFlags(p), errorId(p), errorTypeNode(p), new ArrayList<TypeNode>(), errorClassBody(p)).error(true);
     }
 
     private ClassBody errorClassBody(Position p) {
         return (ClassBody) nf.ClassBody(p, new ArrayList<ClassMember>()).error(true);
     }
+
     private DepParameterExpr errorDepParameterExpr(Position p) {
         return (DepParameterExpr) nf.DepParameterExpr(p, new ArrayList<Expr>());
     }
@@ -1076,57 +1063,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
-     */
-    private final TypeNode ast(ConstrainedTypeContext ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            return errorTypeNode(p);
-        }
-        return ctx.ast;
-    }
-
-    /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code CanonicalTypeNode} is returned.
-     */
-    private final CanonicalTypeNode ast(Void_Context ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            CanonicalTypeNode n = nf.CanonicalTypeNode(pos(ctx), ts.Void());
-            return (CanonicalTypeNode) n.error(true);
-        }
-        return ctx.ast;
-    }
-
-    /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
      */
     private final AmbTypeNode ast(SimpleNamedTypeContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorAmbTypeNode(p);
-        }
-        return ctx.ast;
-    }
-
-    /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code AmbTypeNode} is returned.
-     */
-    private final AmbTypeNode ast(ParameterizedNamedTypeContext ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            return errorAmbTypeNode(p);
-        }
-        return ctx.ast;
-    }
-
-    /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code TypeNode} is returned.
-     */
-    private final TypeNode ast(DepNamedTypeContext ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            return errorTypeNode(p);
         }
         return ctx.ast;
     }
@@ -1216,30 +1158,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             HasZeroTest n = nf.HasZeroTest(p, errorTypeNode(p));
             return (HasZeroTest) n.error(true);
-        }
-        return ctx.ast;
-    }
-
-    /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code IsRefTest} is returned.
-     */
-    private final IsRefTest ast(IsRefConstraintContext ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            IsRefTest n = nf.IsRefTest(p, errorTypeNode(p));
-            return (IsRefTest) n.error(true);
-        }
-        return ctx.ast;
-    }
-
-    /**
-     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code SubtypeTest} is returned.
-     */
-    private final SubtypeTest ast(SubtypeConstraintContext ctx) {
-        if (ctx == null || ctx.ast == null) {
-            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
-            SubtypeTest n = nf.SubtypeTest(pos(ctx), errorTypeNode(p), errorTypeNode(p), false);
-            return (SubtypeTest) n.error(true);
         }
         return ctx.ast;
     }
@@ -2551,6 +2469,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
      */
     private final Expr ast(ConditionalExpressionContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorExpr(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Expr} is returned.
+     */
+    private final Expr ast(NonAssignmentExpressionContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorExpr(p);
@@ -3976,16 +3905,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.functionType());
     }
 
-    /** Production: type ::= constrainedType (#typeConstrainedType) */
+    /** Production: type ::= namedType (#typeConstrainedType) */
     @Override
     public void exitTypeConstrainedType(TypeConstrainedTypeContext ctx) {
-        ctx.ast = ast(ctx.constrainedType());
+        ctx.ast = ast(ctx.namedType());
     }
 
-    /** Production: type ::= void_ (#typeVoid) */
+    /** Production: type ::= 'void' (#typeVoid) */
     @Override
     public void exitTypeVoid(TypeVoidContext ctx) {
-        ctx.ast = ast(ctx.void_());
+        ctx.ast = nf.CanonicalTypeNode(pos(ctx), ts.Void());
     }
 
     /** Production: type ::= type annotations (#typeAnnotations) */
@@ -4013,18 +3942,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitClassType(ClassTypeContext ctx) {
         ctx.ast = ast(ctx.namedType());
-    }
-
-    /** Production: constrainedType ::= namedType (#constrainedType) */
-    @Override
-    public void exitConstrainedType(ConstrainedTypeContext ctx) {
-        ctx.ast = ast(ctx.namedType());
-    }
-
-    /** Production: void_ ::= 'void' (#void_) */
-    @Override
-    public void exitVoid_(Void_Context ctx) {
-        ctx.ast = nf.CanonicalTypeNode(pos(ctx), ts.Void());
     }
 
     /** Production: simpleNamedType ::= typeName (#simpleNamedType0) */
@@ -4059,9 +3976,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.AmbTypeNode(pos(ctx), qualifier, Identifier);
     }
 
-    /** Production: parameterizedNamedType ::= simpleNamedType typeArguments? arguments? (#parameterizedNamedType) */
+    /** Production: namedTypeNoConstraints ::= simpleNamedType typeArguments? arguments? (#namedTypeNoConstraints) */
     @Override
-    public void exitParameterizedNamedType(ParameterizedNamedTypeContext ctx) {
+    public void exitNamedTypeNoConstraints(NamedTypeNoConstraintsContext ctx) {
         AmbTypeNode SimpleNamedType = ast(ctx.simpleNamedType());
         if (ctx.typeArguments() == null && ctx.arguments() == null) {
             ctx.ast = SimpleNamedType;
@@ -4073,40 +3990,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
-    /** Production: depNamedType ::= parameterizedNamedType depParameters (#depNamedType) */
+    /** Production: namedType ::= simpleNamedType typeArguments? arguments? depParameters? (#namedType) */
     @Override
-    public void exitDepNamedType(DepNamedTypeContext ctx) {
-        if (ast(ctx.parameterizedNamedType()) instanceof AmbMacroTypeNode) {
-            AmbMacroTypeNode ParameterizedNamedType = (AmbMacroTypeNode) ast(ctx.parameterizedNamedType());
-            DepParameterExpr DepParameters = ast(ctx.depParameters());
-            TypeNode type = nf.AmbDepTypeNode(pos(ctx), ParameterizedNamedType, DepParameters);
-            ctx.ast = type;
+    public void exitNamedType(NamedTypeContext ctx) {
+        AmbTypeNode SimpleNamedType = ast(ctx.simpleNamedType());
+        if (ctx.typeArguments() == null && ctx.arguments() == null && ctx.depParameters() == null) {
+            ctx.ast = SimpleNamedType;
         } else {
-            AmbTypeNode SimpleNamedType = ast(ctx.parameterizedNamedType());
-            TypedList<TypeNode> TypeArguments = new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false);
-            TypedList<Expr> Arguments = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-            DepParameterExpr DepParameters = ast(ctx.depParameters());
-            TypeNode type = nf.AmbDepTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), TypeArguments, Arguments, DepParameters);
-            ctx.ast = type;
+            List<TypeNode> typeArguments = ctx.typeArguments() == null ? new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false) : ast(ctx.typeArguments());
+            List<Expr> Arguments = ctx.arguments() == null ? new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false) : ast(ctx.arguments());
+            AmbMacroTypeNode ParameterizedNamedType = nf.AmbMacroTypeNode(pos(ctx), SimpleNamedType.prefix(), SimpleNamedType.name(), typeArguments, Arguments);
+            if (ctx.depParameters() == null) {
+                ctx.ast = ParameterizedNamedType;
+            } else {
+                DepParameterExpr DepParameters = ast(ctx.depParameters());
+                TypeNode type = nf.AmbDepTypeNode(pos(ctx), ParameterizedNamedType, DepParameters);
+                ctx.ast = type;
+            }
         }
-    }
-
-    /** Production: namedTypeNoConstraints ::= parameterizedNamedType (#namedTypeNoConstraints) */
-    @Override
-    public void exitNamedTypeNoConstraints(NamedTypeNoConstraintsContext ctx) {
-        ctx.ast = ast(ctx.parameterizedNamedType());
-    }
-
-    /** Production: namedType ::= depNamedType (#namedType1) */
-    @Override
-    public void exitNamedType1(NamedType1Context ctx) {
-        ctx.ast = ast(ctx.depNamedType());
-    }
-
-    /** Production: namedType ::= namedTypeNoConstraints (#namedType0) */
-    @Override
-    public void exitNamedType0(NamedType0Context ctx) {
-        ctx.ast = ast(ctx.namedTypeNoConstraints());
     }
 
     /** Production: depParameters ::= '{' constraintConjunctionopt '}' (#depParameters) */
@@ -4151,36 +4052,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             l.add(ast(e));
         }
         ctx.ast = l;
-    }
-
-    /** Production: hasZeroConstraint ::= type 'haszero' (#hasZeroConstraint) */
-    @Override
-    public void exitHasZeroConstraint(HasZeroConstraintContext ctx) {
-        TypeNode t1 = ast(ctx.type());
-        ctx.ast = nf.HasZeroTest(pos(ctx), t1);
-    }
-
-    /** Production: isRefConstraint ::= type 'isref' (#isRefConstraint) */
-    @Override
-    public void exitIsRefConstraint(IsRefConstraintContext ctx) {
-        TypeNode t1 = ast(ctx.type());
-        ctx.ast = nf.IsRefTest(pos(ctx), t1);
-    }
-
-    /** Production: subtypeConstraint ::= t1=type '<:' t2=type (#subtypeConstraint0) */
-    @Override
-    public void exitSubtypeConstraint0(SubtypeConstraint0Context ctx) {
-        TypeNode t1 = ast(ctx.t1);
-        TypeNode t2 = ast(ctx.t2);
-        ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, false);
-    }
-
-    /** Production: subtypeConstraint ::= t1=type ':>' t2=type (#subtypeConstraint1) */
-    @Override
-    public void exitSubtypeConstraint1(SubtypeConstraint1Context ctx) {
-        TypeNode t1 = ast(ctx.t1);
-        TypeNode t2 = ast(ctx.t2);
-        ctx.ast = nf.SubtypeTest(pos(ctx), t2, t1, false);
     }
 
     /** Production: whereClauseopt ::= depParameters? (#whereClauseopt) */
@@ -6676,22 +6547,51 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), AdditiveExpression, op, MultiplicativeExpression);
     }
 
-    /** Production: conditionalExpression ::= hasZeroConstraint (#conditionalExpression8) */
+    /** Production: conditionalExpression ::= conditioanalExpression op=('haszero'|'isref') (#conditionalExpression8) */
     @Override
     public void exitConditionalExpression8(ConditionalExpression8Context ctx) {
-        ctx.ast = ast(ctx.hasZeroConstraint());
+        if (kind(ctx.conditionalExpression()) == ConditionalExpressionKind.EXPRESSION) {
+            err.syntaxError("This expression should be a type.", pos(ctx.conditionalExpression()));
+        } else {
+            TypeNode t1 = toTypeNode(ctx.conditionalExpression());
+            switch (ctx.op.getType()) {
+            case X10Parser.HASZERO:
+                ctx.ast = nf.HasZeroTest(pos(ctx), t1);
+                break;
+            case X10Parser.ISREF:
+                ctx.ast = nf.IsRefTest(pos(ctx), t1);
+                break;
+            default:
+                assert false;
+            }
+        }
     }
 
-    /** Production: conditionalExpression ::= isRefConstraint (#conditionalExpression9) */
-    @Override
-    public void exitConditionalExpression9(ConditionalExpression9Context ctx) {
-        ctx.ast = ast(ctx.isRefConstraint());
-    }
-
-    /** Production: conditionalExpression ::= subtypeConstraint (#conditionalExpression10) */
+    /** Production: conditionalExpression ::= t1=conditionalExpression op=('<:'|':>') t2=conditionalExpression (#conditionalExpression10) */
     @Override
     public void exitConditionalExpression10(ConditionalExpression10Context ctx) {
-        ctx.ast = ast(ctx.subtypeConstraint());
+        ConditionalExpressionKind kind1 = kind(ctx.t1);
+        ConditionalExpressionKind kind2 = kind(ctx.t2);
+        if (kind1 == ConditionalExpressionKind.EXPRESSION) {
+            err.syntaxError("This expression should be a type.", pos(ctx.t1));
+        } else {
+            if (kind2 == ConditionalExpressionKind.EXPRESSION) {
+                err.syntaxError("This expression should be a type.", pos(ctx.t2));
+            } else {
+                TypeNode t1 = toTypeNode(ctx.t1);
+                TypeNode t2 = toTypeNode(ctx.t2);
+                switch (ctx.op.getType()) {
+                case X10Parser.SUBTYPE:
+                    ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, false);
+                    break;
+                case X10Parser.SUPERTYPE:
+                    ctx.ast = nf.SubtypeTest(pos(ctx), t2, t1, false);
+                    break;
+                default:
+                    assert (false);
+                }
+            }
+        }
     }
 
 /** Production: conditionalExpression ::= e1=conditionalExpression op=('<<'|'>>'|'>>>'|'->'|'<-'|'-<'|'>-'|'!'|'<>'|'><') e2=conditionalExpression    (#conditionalExpression11) */
@@ -6773,45 +6673,45 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), RelationalExpression, op, ShiftExpression);
     }
 
-    /** Test if the given context corresponds to at type. If this is the case, the TypeContext is returned, otherwise, null is returned. */
-    private static TypeContext isType(ParserRuleContext ctx) {
-        if (ctx instanceof ConditionalExpression26Context) {
-            return ((ConditionalExpression26Context) ctx).type();
-        }
-        if (ctx instanceof ConstantExpressionContext) {
-            return isType(((ConstantExpressionContext) ctx).expression());
-        }
-        if (ctx instanceof ExpressionContext) {
-            return isType(((ExpressionContext) ctx).assignmentExpression());
-        }
-        if (ctx instanceof AssignmentExpression1Context) {
-            return isType(((AssignmentExpression1Context) ctx).conditionalExpression());
-        }
-        if (ctx instanceof ConditionalExpression0Context) {
-            return isType(((ConditionalExpression0Context) ctx).castExpression());
-        }
-        if (ctx instanceof CastExpression0Context) {
-            return isType(((CastExpression0Context) ctx).primary());
-        }
-        if (ctx instanceof Primary6Context) {
-            return isType(((Primary6Context) ctx).expression());
-        }
-        return null;
+    /** The different kind of conditional expressions. */
+    private enum ConditionalExpressionKind {
+        EXPRESSION, TYPE, AMBVAR
     }
 
+    /** Retrun the kind of a conditional expression. */
+    private ConditionalExpressionKind kind(ConditionalExpressionContext ctx) {
+        if (ctx instanceof ConditionalExpression26Context) {
+            return ConditionalExpressionKind.TYPE;
+        }
+        if (ctx instanceof ConditionalExpression0Context) {
+            if (((ConditionalExpression0Context) ctx).castExpression() instanceof CastExpression1Context) {
+                return ConditionalExpressionKind.AMBVAR;
+            }
+        }
+        return ConditionalExpressionKind.EXPRESSION;
+    }
 
-    /** Convert an expression that should be a variable into a type. */
-    private TypeNode toTypeNode(Expr e) {
-        assert (e instanceof AmbExpr);
-        return nf.AmbTypeNode(e.position(), ((AmbExpr) e).name());
+    /** Convert a conditional expression that should be of kind TYPE or AMBVAR into a type. */
+    private TypeNode toTypeNode(ConditionalExpressionContext ctx) {
+        if (ctx instanceof ConditionalExpression26Context) {
+            return ast(((ConditionalExpression26Context) ctx).type());
+        }
+        if (ctx instanceof ConditionalExpression0Context) {
+            CastExpressionContext castExpression = ((ConditionalExpression0Context) ctx).castExpression();
+            if (castExpression instanceof CastExpression1Context) {
+                AmbExpr e = (AmbExpr) ast(((CastExpression1Context) castExpression));
+                return nf.AmbTypeNode(e.position(), e.name());
+            }
+        }
+        return null;
     }
 
     /** Production: conditionalExpression ::= e1=conditionalExpression op=('=='|'!=') e2=conditionalExpression (#conditionalExpression14) */
     @Override
     public void exitConditionalExpression14(ConditionalExpression14Context ctx) {
-        TypeContext t1ctx = isType(ctx.e1);
-        TypeContext t2ctx = isType(ctx.e2);
-        if (t1ctx == null && t2ctx == null || ctx.op.getType() != X10Parser.EQUAL_EQUAL) {
+        ConditionalExpressionKind kind1 = kind(ctx.e1);
+        ConditionalExpressionKind kind2 = kind(ctx.e2);
+        if (kind1 != ConditionalExpressionKind.TYPE && kind2 != ConditionalExpressionKind.TYPE || ctx.op.getType() != X10Parser.EQUAL_EQUAL) {
             // Comparison between expressions
             Expr EqualityExpression = ast(ctx.e1);
             Expr RelationalExpression = ast(ctx.e2);
@@ -6829,19 +6729,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             }
             ctx.ast = nf.Binary(pos(ctx), EqualityExpression, op, RelationalExpression);
         } else {
-            // Comparison between types
-            TypeNode t1 = t1ctx == null ? toTypeNode(ctx.e1.ast) : ast(t1ctx);
-            TypeNode t2 = t2ctx == null ? toTypeNode(ctx.e2.ast) : ast(t2ctx);
-            ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
+            if (kind1 != ConditionalExpressionKind.EXPRESSION && kind2 != ConditionalExpressionKind.EXPRESSION) {
+                // Comparison between types
+                TypeNode t1 = toTypeNode(ctx.e1);
+                TypeNode t2 = toTypeNode(ctx.e2);
+                ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
+            } else {
+                err.syntaxError("Can not test the equality between types and expressions.", pos(ctx));
+            }
         }
     }
-
-    // @Override
-    // public void exitConditionalExpression15(ConditionalExpression15Context ctx) {
-    // TypeNode t1 = ast(ctx.t1);
-    // TypeNode t2 = ast(ctx.t2);
-    // ctx.ast = nf.SubtypeTest(pos(ctx), t1, t2, true);
-    // }
 
     /** Production: conditionalExpression ::= e1=conditionalExpression op=('~'|'!~') e2=conditionalExpression (#conditionalExpression16) */
     @Override
@@ -6903,25 +6800,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Binary(pos(ctx), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression);
     }
 
-    /** Production: conditionalExpression ::= closureExpression (#conditionalExpression22) */
-    @Override
-    public void exitConditionalExpression22(ConditionalExpression22Context ctx) {
-        ctx.ast = ast(ctx.closureExpression());
-    }
 
-    /** Production: conditionalExpression ::= atExpression (#conditionalExpression23) */
-    @Override
-    public void exitConditionalExpression23(ConditionalExpression23Context ctx) {
-        ctx.ast = ast(ctx.atExpression());
-    }
-
-    /** Production: conditionalExpression ::= oBSOLETE_FinishExpression (#conditionalExpression24) */
-    @Override
-    public void exitConditionalExpression24(ConditionalExpression24Context ctx) {
-        ctx.ast = ast(ctx.oBSOLETE_FinishExpression());
-    }
-
-    /** Production: conditionalExpression ::= <assoc=right> e1=conditionalExpression '?' e2=conditionalExpression ':' e3=conditionalExpression (#conditionalExpression25) */
+    /** Production: conditionalExpression ::= <assoc=right> e1=conditionalExpression '?' e2=expression ':' e3=nonAssignmentExpression (#conditionalExpression25) */
     @Override
     public void exitConditionalExpression25(ConditionalExpression25Context ctx) {
         Expr ConditionalOrExpression = ast(ctx.e1);
@@ -6930,27 +6810,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Conditional(pos(ctx), ConditionalOrExpression, Expression, ConditionalExpression);
     }
 
-    private static boolean isEquality(ParserRuleContext ctx) {
-        if (ctx instanceof ConditionalExpression14Context) {
+    /** Check that a type can be used in this context (i.e., haszero, isref, <:, :>, ==). */
+    private static boolean isTypeContext(ParserRuleContext ctx) {
+        if (ctx instanceof ConditionalExpression8Context) {
             return true;
         }
-        if (ctx instanceof ConstantExpressionContext) {
-            return isEquality(ctx.getParent());
+        if (ctx instanceof ConditionalExpression10Context) {
+            return true;
         }
-        if (ctx instanceof ExpressionContext) {
-            return isEquality(ctx.getParent());
-        }
-        if (ctx instanceof AssignmentExpression1Context) {
-            return isEquality(ctx.getParent());
-        }
-        if (ctx instanceof ConditionalExpression0Context) {
-            return isEquality(ctx.getParent());
-        }
-        if (ctx instanceof CastExpression0Context) {
-            return isEquality(ctx.getParent());
-        }
-        if (ctx instanceof Primary6Context) {
-            return isEquality(ctx.getParent());
+        if (ctx instanceof ConditionalExpression14Context) {
+            return true;
         }
         return false;
     }
@@ -6958,12 +6827,35 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: conditionalExpression ::= type (#conditionalExpression26) */
     @Override
     public void exitConditionalExpression26(ConditionalExpression26Context ctx) {
-        if (isEquality(ctx.getParent())) {
+        if (isTypeContext(ctx.getParent())) {
             ctx.ast = null;
         } else {
             err.syntaxError("A type is not allowed as an expression", pos(ctx));
             ctx.ast = errorExpr(pos(ctx));
         }
+    }
+
+    /** Production: nonAssignmentExpression ::= closureExpression (#nonAssignmentExpression1) */
+    @Override
+    public void exitNonAssignmentExpression1(NonAssignmentExpression1Context ctx) {
+        ctx.ast = ast(ctx.closureExpression());
+    }
+
+    /** Production: nonAssignmentExpression ::= atExpression (#nonAssignmentExpression2) */
+    @Override
+    public void exitNonAssignmentExpression2(NonAssignmentExpression2Context ctx) {
+        ctx.ast = ast(ctx.atExpression());
+    }
+
+    /** Production: nonAssignmentExpression ::= oBSOLETE_FinishExpression (#nonAssignmentExpression3) */
+    @Override
+    public void exitNonAssignmentExpression3(NonAssignmentExpression3Context ctx) {
+        ctx.ast = ast(ctx.oBSOLETE_FinishExpression());
+    }
+
+    @Override
+    public void exitNonAssignmentExpression4(NonAssignmentExpression4Context ctx) {
+        ctx.ast = ast(ctx.conditionalExpression());
     }
 
     /** Production: assignmentExpression ::= assignment (#assignmentExpression0) */
@@ -6975,7 +6867,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: assignmentExpression ::= conditionalExpression (#assignmentExpression1) */
     @Override
     public void exitAssignmentExpression1(AssignmentExpression1Context ctx) {
-        ctx.ast = ast(ctx.conditionalExpression());
+        ctx.ast = ast(ctx.nonAssignmentExpression());
     }
 
     /** Production: assignment ::= leftHandSide assignmentOperator assignmentExpression (#assignment0) */
