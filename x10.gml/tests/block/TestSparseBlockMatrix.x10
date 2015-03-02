@@ -67,9 +67,17 @@ public class TestSparseBlockMatrix extends x10Test {
 		if (!ret)
 			Console.OUT.println("--------Sparse block matrix Clone test failed!--------");
 
-		sbm(1, 1) = sbm1(2,2) = ET(10.0);
+        // find non-zero indices in first and second columns
+        var firstNonzeroIndex:Long = 1;
+        while (sbm(firstNonzeroIndex, 1) == 0.0) firstNonzeroIndex++;
 
-        if ((sbm(1,1)==sbm1(2,2)) && (sbm(1,1)==ET(10.0))) {
+        var secondNonzeroIndex:Long = 1;
+        while (sbm(secondNonzeroIndex, 2) == 0.0) secondNonzeroIndex++;
+
+		sbm(firstNonzeroIndex, 1) = sbm1(secondNonzeroIndex, 2) = ET(10.0);
+
+        if ((sbm(firstNonzeroIndex, 1) == sbm1(secondNonzeroIndex, 2)) 
+         && (sbm(firstNonzeroIndex, 1) == ET(10.0))) {
                 ret &= true;
         } else {
                 ret &= false;
