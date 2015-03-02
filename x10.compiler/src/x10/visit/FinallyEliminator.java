@@ -78,6 +78,7 @@ public class FinallyEliminator extends ContextVisitor {
     protected final TypeSystem ts;
     protected AltSynthesizer syn;
     protected final FinallyEliminatorState fes;
+    private final boolean isManagedX10;
 
     /**
      * @param job
@@ -89,6 +90,7 @@ public class FinallyEliminator extends ContextVisitor {
         this.ts  = ts;
         this.syn = new AltSynthesizer(ts, nf);
         this.fes = new FinallyEliminatorState();
+        isManagedX10 = ((x10.ExtensionInfo) job.extensionInfo()).isManagedX10();
     }
 
     /**
@@ -196,7 +198,12 @@ public class FinallyEliminator extends ContextVisitor {
         // [DC] throwing CheckedThrowable might be a problem here... but hopefully after exception checking so ok
         Type throwableType  = ts.CheckedThrowable();
         LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
-        Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
+        Block tryBody;
+        if (isManagedX10) {
+            tryBody = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
+        } else {
+            tryBody = syn.createBlock(pos, s);
+        }
         Formal f            = syn.createFormal(pos, throwableType);
         Stmt assignment     = syn.createAssignment( pos, 
                                                     syn.createLocal(pos, throwDecl), 
