@@ -1,29 +1,32 @@
-X10 Release 2.5.1
+X10 Release 2.5.2
 
 HIGHLIGHTS OF THIS RELEASE
 
-The primary features of the X10 2.5.1 release are enhancements to
-Resilient and Elastic X10.  Key highlights include:
-  + Full integration of the Hazelcast in-memory data grid with Managed
-    X10.  Key features include new X10 APIs to utilize Hazelcast as an
-    implementation of x10.util.resilient.ResilientMap, an
-    implementation of resilient finish using Hazelcast (X10_RESILIENT_MODE=12), 
-    and integration of Hazelcast grid initialization into the X10
-    launcher (bin/x10 script).
-  + Resilient X10 using Place 0 resilient finish
-    (X10_RESILIENT_MODE=1) can now support the same levels of
-    concurrency and distribution as non-resilient X10.  This was
-    enabled by new features in the X10 runtime and network layer for
-    message stratification and stronger progress guarantees for
-    explicitly marked short messages (see x10.compiler.Immediate).
-  + The development of additional Resilient and Elastic X10 sample
-    applications. Resiliency support has been added to the Global
-    Matrix Library (GML) and several of its sample applications.
-    Resiliency and Elasticity have also been added to M3RLite (Main
-    Memory Map Reduce Lite) and several new M3RLite sample
-    applications are now available as well.
-For additional information about Resilient and Elastic X10, please see
-samples/resiliency and the x10-lang.org website.
+Although there were no X10 language changes in X10 2.5.2, this release
+does contain user-visible changes to the structure of the X10 class
+library.  
+   (1)  The implementation of the X10 Runtime was moved from the
+        x10.lang package to a new x10.xrx package.  Unlike x10.lang,
+	this package is not auto-imported into all programs. Programs
+	that make calls to x10.xrx.Runtime (or other impacted classes)
+	will need to be updated to import the used XRX classes. 
+   (2)  We continue to improve Resilient/Elastic X10 and have made a
+        number of API improvements to classes in the
+	x10.util.resilient package.
+   (3)  We have added built-in support for ghost regions to the
+        x10.regionarray.DistArray class.  Some mostly internal changes
+	to the DistArray API were made to enable this new
+	functionality (XTENLANG-3488,3489).
+
+This release also contains significant enhancements to the x10rt_mpi
+implementation, including exploitation of MPI-3 non-blocking
+collections by X10 Team operations to enable unrestricted mixing of
+APGAS asynchronous messaging with Team collective operations.
+
+This release is also the first time we are bundling the Lulesh proxy
+application with the X10 benchmarks. We continue to improve our Lulesh
+code, but believe it has now reached a level of stability and
+performance that make it generally usable as a X10 benchmark.
 
 LIMITATIONS OF THIS RELEASE
 
@@ -51,38 +54,29 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.5.1
+Below is a summary of JIRA issues addressed for the X10 2.5.2
+
+Release Notes - X10 - Version X10 2.5.2
 
 ** New Features and Improvements
-    * [XTENLANG-3333] - X10 WebSite: Add information on current community projects under community
-    * [XTENLANG-3443] - ArrayList.resize
-    * [XTENLANG-3445] - RailUtils.scan
-    * [XTENLANG-3456] - Create as many BDWGC marker threads as X10 worker threads
-    * [XTENLANG-3457] - Reduce memory usage of X10RT sockets launcher processes
-    * [XTENLANG-3461] - Map / reduce methods on local Matrix and Vector classes
-    * [XTENLANG-3468] - Team reduce, allreduce for user-defined Arithmetic/Bitwise/Ordered struct types
-    * [XTENLANG-3475] - GML: Wrap LAPACK eigensolver DSYEVX instead of DSYEV
+    * [XTENLANG-1373] - Support for ghost cells in distributed arrays
+    * [XTENLANG-3447] - Splittable PNRG
+    * [XTENLANG-3479] - Add FileReader.offset()
+    * [XTENLANG-3480] - GML: add rank-one update (DGER)
+    * [XTENLANG-3484] - Move XRX runtime to x10.xrx package (out of x10.lang)
+    * [XTENLANG-3488] - Replace Dist.offset with Region.indexOf
+    * [XTENLANG-3490] - x10rt_mpi should default to MPI_THREAD_MULTIPLE
 
 ** Bugs
-    * [XTENLANG-3304] - On Resilient X10, at (p) { body } may block even if the body finished
-    * [XTENLANG-3343] - Resilient X10 fails with "TOO MANY THREADS"
-    * [XTENLANG-3344] - Resilient X10 fails with "TOO MANY THREADS" (another case)
-    * [XTENLANG-3379] - On Resilient X10, at (p) async is not executed in parallel without X10_BUSY_WAITING
-    * [XTENLANG-3428] - Elastic X10 and Runtime.Workers.multiplace
-    * [XTENLANG-3435] - @NoInline on closure within static @Inline method results in wrong saved_this
-    * [XTENLANG-3437] - Experimental Java MPI launcher causes SEGV with non-IBM Java VM
-    * [XTENLANG-3438] - GC library and build system patch for K computer
-    * [XTENLANG-3442] - Some structs can't be interface's members's return types
-    * [XTENLANG-3462] - Incorrect implementation of instanceof and cast for nested generic types
-    * [XTENLANG-3463] - Resilient X10 requires BUSY_WAITING=true
-    * [XTENLANG-3466] - Template-related compile error in Native X10
-    * [XTENLANG-3470] - Incorrect generated code for variable shadowing
-
-** Tasks
-    * [XTENLANG-3439] - Update sample programs (online; X10DT help) for 2.5.1
+    * [XTENLANG-3354] - asyncCopy deadlocks on BG/Q
+    * [XTENLANG-3355] - alltoall segfaults on BG/Q
+    * [XTENLANG-3485] - On MacOs the jblas library must have extension .jnilib and not .so
+    * [XTENLANG-3486] - GML: transpose DenseMatrix.T(DenseMatrix) should store to invocation target
+    * [XTENLANG-3489] - Replace x10.regionarray.PeriodicDist with x10.regionarray.PeriodicBoundaryConditions
+    * [XTENLANG-3492] - Team creation fails over SparsePlaceGroup
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=20503
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=20767
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
