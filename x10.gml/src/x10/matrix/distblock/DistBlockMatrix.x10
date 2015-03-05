@@ -29,6 +29,7 @@ import x10.matrix.comm.BlockGather;
 import x10.matrix.comm.BlockScatter;
 import x10.matrix.comm.BlockSetBcast;
 import x10.matrix.block.SparseBlock;
+import x10.matrix.sparse.SparseCSC;
 import x10.matrix.builder.SparseCSCBuilder;
 import x10.util.resilient.DistObjectSnapshot;
 import x10.util.resilient.Snapshottable;
@@ -1293,11 +1294,23 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
                             DenseMatrix.copySubset((oldBlockMatrix as DenseMatrix), srcRowOffset, srcColOffset, (newBlockMatrix as DenseMatrix), dstRowOffset, dstColOffset, rowsCount, colCnt);
                         } else {
                             val sparseBuilder = newBlk.getBuilder() as SparseCSCBuilder;
-                            for (var l:Long = 0; l < rowsCount ; l++) {
-                                for (var m:Long = 0; m <colCnt ; m++) {
-                                    val v = oldBlockMatrix(srcRowOffset+l,m);
-                                    if (MathTool.isZero(v)) continue;
-                                    sparseBuilder.append(dstRowOffset+l,m, v);
+                            val oldMatColumns = (oldBlockMatrix as SparseCSC).ccdata.cLine;
+                            val cArray = (oldBlockMatrix as SparseCSC).ccdata.cLine(0).cArray;
+                            for (var m:Long = 0; m <colCnt ; m++) {
+                                val curCol = oldMatColumns(m);
+                                val cArrayOffset =  curCol.offset;
+                                val cArrayLength = curCol.length;
+                                
+                                if (cArrayLength == 0)  continue;
+                                
+                                for (var l:Long = 0; l < cArrayLength ; l++) {
+                                    val rowIndex = cArray.index(cArrayOffset+l);
+                                    if (rowIndex >= srcRowOffset && rowIndex < srcRowOffset+rowsCount) {
+                                        val newRowId = rowIndex - srcRowOffset + dstRowOffset;
+                                        val newColId = m;
+                                        val rowValue = cArray.value(cArrayOffset+l) as ElemType;
+                                        sparseBuilder.append(newRowId, newColId, rowValue);
+                                    }
                                 }
                             }
                         }
