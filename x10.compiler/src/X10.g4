@@ -352,8 +352,7 @@ oBSOLETE_FinishExpression returns [FinishExpr ast]:
       'finish' '(' expression ')' block
     ;
 typeName returns [ParsedName ast]:
-      identifier                #typeName0
-    | typeName '.' identifier   #typeName1
+      identifier ('.' identifier)*
     ;
 className returns [ParsedName ast]:
       typeName
@@ -362,24 +361,19 @@ typeArguments returns [List<TypeNode> ast]:
       '[' type (',' type)* ']'
     ;
 packageName returns [ParsedName ast]:
-      identifier                            #packageName0
-    | packageName '.' identifier            #packageName1
+      identifier ('.' identifier)*
     ;
 expressionName returns [ParsedName ast]:
-      identifier                            #expressionName0
-    | fullyQualifiedName '.' identifier     #expressionName1
+      identifier ('.' identifier)*
     ;
 methodName returns [ParsedName ast]:
-      identifier                            #methodName0
-    | fullyQualifiedName '.' identifier     #methodName1
+      identifier ('.' identifier)*
     ;
 packageOrTypeName returns [ParsedName ast]:
-      identifier                            #packageOrTypeName0
-    | packageOrTypeName '.' identifier      #packageOrTypeName1
+      identifier ('.' identifier)*
     ;
 fullyQualifiedName returns [ParsedName ast]:
-      identifier                            #fullyQualifiedName0
-    | fullyQualifiedName '.' identifier     #fullyQualifiedName1
+      identifier ('.' identifier)*
     ;
 compilationUnit returns [SourceFile ast]:
       packageDeclaration? importDeclarationsopt typeDeclarationsopt

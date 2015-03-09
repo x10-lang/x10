@@ -3,6 +3,7 @@ package x10.parser.antlr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -15,7 +16,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.ParserATNSimulator;
+import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -292,8 +295,6 @@ import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl0Context;
 import x10.parserGen.X10Parser.ExplicitConversionOperatorDecl1Context;
 import x10.parserGen.X10Parser.ExplicitConversionOperatorDeclarationContext;
 import x10.parserGen.X10Parser.ExpressionContext;
-import x10.parserGen.X10Parser.ExpressionName0Context;
-import x10.parserGen.X10Parser.ExpressionName1Context;
 import x10.parserGen.X10Parser.ExpressionNameContext;
 import x10.parserGen.X10Parser.ExpressionStatementContext;
 import x10.parserGen.X10Parser.ExpressionoptContext;
@@ -333,8 +334,6 @@ import x10.parserGen.X10Parser.FormalParameterContext;
 import x10.parserGen.X10Parser.FormalParameterListContext;
 import x10.parserGen.X10Parser.FormalParameterListoptContext;
 import x10.parserGen.X10Parser.FormalParametersContext;
-import x10.parserGen.X10Parser.FullyQualifiedName0Context;
-import x10.parserGen.X10Parser.FullyQualifiedName1Context;
 import x10.parserGen.X10Parser.FullyQualifiedNameContext;
 import x10.parserGen.X10Parser.FunctionTypeContext;
 import x10.parserGen.X10Parser.HasResultType0Context;
@@ -402,8 +401,6 @@ import x10.parserGen.X10Parser.MethodModifierContext;
 import x10.parserGen.X10Parser.MethodModifierModifierContext;
 import x10.parserGen.X10Parser.MethodModifierPropertyContext;
 import x10.parserGen.X10Parser.MethodModifiersoptContext;
-import x10.parserGen.X10Parser.MethodName0Context;
-import x10.parserGen.X10Parser.MethodName1Context;
 import x10.parserGen.X10Parser.MethodNameContext;
 import x10.parserGen.X10Parser.ModifierAbstractContext;
 import x10.parserGen.X10Parser.ModifierAnnotationContext;
@@ -456,11 +453,7 @@ import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance0Context;
 import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVariance1Context;
 import x10.parserGen.X10Parser.OBSOLETE_TypeParamWithVarianceContext;
 import x10.parserGen.X10Parser.PackageDeclarationContext;
-import x10.parserGen.X10Parser.PackageName0Context;
-import x10.parserGen.X10Parser.PackageName1Context;
 import x10.parserGen.X10Parser.PackageNameContext;
-import x10.parserGen.X10Parser.PackageOrTypeName0Context;
-import x10.parserGen.X10Parser.PackageOrTypeName1Context;
 import x10.parserGen.X10Parser.PackageOrTypeNameContext;
 import x10.parserGen.X10Parser.PrefixOp0Context;
 import x10.parserGen.X10Parser.PrefixOp1Context;
@@ -562,8 +555,6 @@ import x10.parserGen.X10Parser.TypeDeclarationContext;
 import x10.parserGen.X10Parser.TypeDeclarationsoptContext;
 import x10.parserGen.X10Parser.TypeDefDeclarationContext;
 import x10.parserGen.X10Parser.TypeFunctionTypeContext;
-import x10.parserGen.X10Parser.TypeName0Context;
-import x10.parserGen.X10Parser.TypeName1Context;
 import x10.parserGen.X10Parser.TypeNameContext;
 import x10.parserGen.X10Parser.TypeParamWithVarianceList0Context;
 import x10.parserGen.X10Parser.TypeParamWithVarianceList1Context;
@@ -672,6 +663,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public Node parse() {
         CompilationUnitContext tree = getParseTree();
+        
         // p.getInterpreter().clearDFA();
         if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
             Future<JDialog> dialogHdl = tree.inspect(p);
@@ -715,15 +707,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     /** Returns the position going from {@code ctx} to {@code t}. */
     protected Position pos(ParserRuleContext ctx, Token t) {
-        int line = ctx.getStart().getLine();
-        int column = ctx.getStart().getCharPositionInLine();
-        int offset = ctx.getStart().getStartIndex();
-        int endLine = t.getLine();
-        int endOffset = t.getStopIndex();
-        int endColumn = t.getCharPositionInLine() + endOffset - t.getStartIndex();
-        return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
+        Position p1 = pos(ctx);
+        Position p2 = pos(t);
+        return new Position(p1, p2);
     }
-
+    
+    /** Returns the position going from {@code n} to {@code ctx} */
+    protected Position pos(ParsedName n, ParserRuleContext ctx) {
+        Position p1 = n.pos;
+        Position p2 = pos(ctx);
+        return new Position(p1, p2);
+    }
+    
     private String comment(ParserRuleContext ctx) {
         String s = null;
         int i = ctx.getStart().getTokenIndex();
@@ -746,6 +741,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         String clean_filename = (slash >= 0 && dot >= 0 ? filename.substring(slash + 1, dot) : "");
         if ((!clean_filename.equals(idname)) && clean_filename.equalsIgnoreCase(idname))
             err.syntaxError("This type name does not match the name of the containing file: " + filename.substring(slash + 1), identifier.position());
+    }
+
+
+    /** Build a parsed name from a list of identifiers. */
+    protected ParsedName toParsedName(List<IdentifierContext> identifiers) {
+        Iterator<IdentifierContext> iter = identifiers.iterator();
+        assert (iter.hasNext());
+        IdentifierContext ident = iter.next();
+        ParsedName name = new ParsedName(nf, ts, pos(ident), ast(ident));
+        while (iter.hasNext()) {
+            ident = iter.next();
+            name = new ParsedName(nf, ts, pos(name, ident), name, ast(ident));
+        }
+        return name;
     }
 
 
@@ -4910,20 +4919,11 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.FinishExpr(pos(ctx), Expression, Block);
     }
 
-    /** Production: typeName ::= identifier (#typeName0) */
+    /** Production: typeName ::= identifier ('.' identifier)* (#typeName) */
     @Override
-    public void exitTypeName0(TypeName0Context ctx) {
-        Id Identifier = ast(ctx.identifier());
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), Identifier);
-    }
-
-    /** Production: typeName ::= typeName '.' identifier (#typeName1) */
-    @Override
-    public void exitTypeName1(TypeName1Context ctx) {
-        ParsedName TypeName = ast(ctx.typeName());
-        Id Identifier = ast(ctx.identifier());
-        // Position might be wrong
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), TypeName, Identifier);
+    public void exitTypeName(TypeNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
     /** Production: className ::= typeName (#className) */
@@ -4941,65 +4941,40 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         ctx.ast = l;
     }
-
-    /** Production: packageName ::= identifier (#packageName0) */
+    
+    /** Production: packageName ::= identifier ('.' identifier)* (#packageName) */
     @Override
-    public void exitPackageName0(PackageName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
+    public void exitPackageName(PackageNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
-    /** Production: packageName ::= packageName '.' identifier (#packageName1) */
+    /** Production: expressionName ::= identifier ('.' identifier)* (#expressionName) */
     @Override
-    public void exitPackageName1(PackageName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.packageName()), ast(ctx.identifier()));
+    public void exitExpressionName(ExpressionNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
-    /** Production: expressionName ::= identifier (#expressionName0) */
+    /** Production: methodName ::= identifier ('.' identifier)* (#methodName) */
     @Override
-    public void exitExpressionName0(ExpressionName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
+    public void exitMethodName(MethodNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
-    /** Production: expressionName ::= fullyQualifiedName '.' identifier (#expressionName1) */
+    /** Production: packageOrTypeName ::= identifier ('.' identifier)* (#packageOrTypeName) */
     @Override
-    public void exitExpressionName1(ExpressionName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
+    public void exitPackageOrTypeName(PackageOrTypeNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
-    /** Production: methodName ::= identifier (#methodName0) */
+    /** Production: fullyQualifiedName ::= identifier ('.' identifier)* (#fullyQualifiedName) */
     @Override
-    public void exitMethodName0(MethodName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
-    }
-
-    /** Production: methodName ::= fullyQualifiedName '.' identifier (#methodName1) */
-    @Override
-    public void exitMethodName1(MethodName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
-    }
-
-    /** Production: packageOrTypeName ::= identifier (#packageOrTypeName0) */
-    @Override
-    public void exitPackageOrTypeName0(PackageOrTypeName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
-    }
-
-    /** Production: packageOrTypeName ::= packageOrTypeName '.' identifier (#packageOrTypeName1) */
-    @Override
-    public void exitPackageOrTypeName1(PackageOrTypeName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.packageOrTypeName()), ast(ctx.identifier()));
-    }
-
-    /** Production: fullyQualifiedName ::= identifier (#fullyQualifiedName0) */
-    @Override
-    public void exitFullyQualifiedName0(FullyQualifiedName0Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.identifier()));
-    }
-
-    /** Production: fullyQualifiedName ::= fullyQualifiedName '.' identifier (#fullyQualifiedName1) */
-    @Override
-    public void exitFullyQualifiedName1(FullyQualifiedName1Context ctx) {
-        ctx.ast = new ParsedName(nf, ts, pos(ctx), ast(ctx.fullyQualifiedName()), ast(ctx.identifier()));
+    public void exitFullyQualifiedName(FullyQualifiedNameContext ctx) {
+        List<IdentifierContext> identifiers = ctx.identifier();
+        ctx.ast = toParsedName(identifiers);
     }
 
     /** Production: compilationUnit ::= packageDeclaration? importDeclarationsopt typeDeclarationsopt (#compilationUnit) */
