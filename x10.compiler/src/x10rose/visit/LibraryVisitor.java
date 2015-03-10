@@ -523,8 +523,11 @@ public class LibraryVisitor extends NodeVisitor {
             JL m = members.get(i);
             if (m instanceof X10MethodDecl_c) {
                 X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
-                if (RoseTranslator.hasFunctionType(methodDecl))
+                // TODO: remove this condition when parsing closure is supported 
+                if (RoseTranslator.hasFunctionType(methodDecl)) {
+                    --final_member_size;
                     continue;
+                }
                 StringBuffer param = new StringBuffer();
                 for (Formal f : methodDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
@@ -533,8 +536,11 @@ public class LibraryVisitor extends NodeVisitor {
                 previsit(methodDecl, type_name);
             } else if (m instanceof X10ConstructorDecl_c) {
                 X10ConstructorDecl_c constructorDecl = (X10ConstructorDecl_c) m;
-                if (RoseTranslator.hasFunctionType(constructorDecl))
+                // TODO: remove this condition when parsing closure is supported 
+                if (RoseTranslator.hasFunctionType(constructorDecl)) {
+                    --final_member_size;
                     continue;
+                }
                 StringBuffer param = new StringBuffer();
                 for (Formal f : constructorDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
@@ -543,8 +549,11 @@ public class LibraryVisitor extends NodeVisitor {
                 previsit(constructorDecl, package_name, type_name);
             } else if (m instanceof X10FieldDecl_c) {
                 X10FieldDecl_c fieldDecl = (X10FieldDecl_c) m;
-                if (RoseTranslator.hasFunctionType(fieldDecl))
+                // TODO: remove this condition when parsing closure is supported 
+                if (RoseTranslator.hasFunctionType(fieldDecl)) {                    
+                    --final_member_size;
                     continue;  
+                }
                 RoseTranslator.memberMap.put(JNI.cactionGetCurrentClassName() + ":" + ((X10FieldDecl_c) m).name().toString(), RoseTranslator.uniqMemberIndex++);
                 previsit(fieldDecl, type_name);
             } else if (m instanceof TypeNode_c) {

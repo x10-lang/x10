@@ -311,6 +311,12 @@ class JNI implements Callable<Boolean> {
     
     public static native void cactionTuple(JavaToken jToken);
     public static native void cactionTupleEnd(int tuple_size, JavaToken jToken);
+      
+    public static native void cactionClosure(JavaToken jToken);
+    public static native void cactionClosureEnd(String callerName, JavaToken jToken);  
+    public static native void cactionClosureCall(JavaToken jToken);    
+    public static native void cactionClosureCallEnd(JavaToken jToken);
+    
     //**********************************************************
     //*                                                        *
     //*    Start of JavaDoc Nodes.                             *

@@ -1411,6 +1411,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
         if (RoseTranslator.isX10Primitive(class_name)) {
             String canonicalTypeName = n.nameString();
             JNI.cactionTypeReference("", canonicalTypeName, this, RoseTranslator.createJavaToken());
+        } else if (n.type().toString().indexOf("=>") > 0) {
+            JNI.cactionTypeReference("", n.type().toString(), this, RoseTranslator.createJavaToken(n, n.toString()));
         } else if (    n.type().toString().indexOf("x10.lang.Rail[") == 0 
                     || n.type().toString().indexOf("x10.util.GrowableRail[") == 0) {
             String railString = n.type().toString();
@@ -1581,7 +1583,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
         toRose(n, "Return:", n.toString());
         JNI.cactionReturnStatement(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.expr());
+        System.out.println("PRINT 0305A");
         JNI.cactionReturnStatementEnd((n.expr() != null), RoseTranslator.createJavaToken(n, n.toString()));
+        System.out.println("PRINT 0305B");
+
+        toRose(n, "Return end:", n.toString());
     }
 
     public void visit(X10Binary_c n) {
@@ -2410,15 +2416,68 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(Closure_c n) {
-        toRose(n, "Closure:");
-        visitChildren(n, n.formals());
+        toRose(n, "Closure:", n, n.formals(), n.body());
+        Closure_c closure = (Closure_c) n;
+
+        JNI.cactionClosure(RoseTranslator.createJavaToken(n, n.toString()));
+        
+        String callerClass = JNI.cactionGetCurrentClassName();
+        int closureIndex = RoseTranslator.uniqMemberIndex++;
+
+        /* Defines class declaration */
+        String closureName = "Closure_" + closureIndex;
+        JNI.cactionSetCurrentClassName(closureName);
+        JNI.cactionPushPackage("", RoseTranslator.createJavaToken(n, closureName));
+        JNI.cactionInsertClassStart(closureName, false, false, false, false, RoseTranslator.createJavaToken(n, closureName));
+        JNI.cactionInsertClassEnd(closureName, RoseTranslator.createJavaToken(n, closureName));
+        JNI.cactionBuildClassSupportStart(closureName, "", true, false, false, false, false, RoseTranslator.createJavaToken(n, closureName));
+        JNI.cactionBuildClassExtendsAndImplementsSupport(0, new String[0], false, "", 0, new String[0], 
+                                                         RoseTranslator.createJavaToken(n, n.toString()));
+
+        /* Defines <tt>apply</tt> method declaration in the defining class above */
+        String closureMethodName = "apply";
+        String returnType = "void";
+        JNI.cactionBuildMethodSupportStart(closureMethodName, closureIndex, RoseTranslator.createJavaToken(n, closureMethodName));
+        JNI.cactionTypeReference("", returnType, this, RoseTranslator.createJavaToken());      // build return type
+        List<Formal> formals = n.formals();
+        visitChildren(n, formals);  // build parameters
+        JNI.cactionBuildMethodSupportEnd(closureMethodName, closureIndex, false, false, false, 0, n.formals().size(), true, 
+                                         RoseTranslator.createJavaToken(n, n.toString()), 
+                                         RoseTranslator.createJavaToken(n, n.toString() + "_args"));       
+        
+        /* Defines method body */
+        StringBuffer param = new StringBuffer();
+        for (Formal f : formals)
+            param.append(f.type().toString().toLowerCase());        
+        RoseTranslator.memberMap.put(JNI.cactionGetCurrentClassName() + ":" + closureMethodName + "(" + param + ")", RoseTranslator.uniqMemberIndex++);     
+        int method_index = RoseTranslator.memberMap.get(JNI.cactionGetCurrentClassName() + ":" + closureMethodName + "(" + param + ")");
+        JNI.cactionMethodDeclaration(closureMethodName, closureIndex, formals.size(), RoseTranslator.createJavaToken(n, closureMethodName), 
+                                   RoseTranslator.createJavaToken(n, closureMethodName + "(" + param + ")"));
+        JNI.cactionMethodDeclarationHeader(closureMethodName, false, false, false, false, false, false, false, false, false, 0, 0, 0, 
+                                           RoseTranslator.createJavaToken(n, closureMethodName));
         visitChild(n, n.body());
+        JNI.cactionMethodDeclarationEnd(0, n.body().statements().size(), RoseTranslator.createJavaToken(n, closureMethodName + "(" + param + ")"));
+        
+        /* Finishes to define class declaration */
+        JNI.cactionBuildClassSupportEnd(closureName, 1, RoseTranslator.createJavaToken(n, closureName));
+        JNI.cactionTypeDeclaration("", closureName, 0, false, false, false, false, false, false, false, true, false, false, false, 
+                                   RoseTranslator.createJavaToken(n, closureName));
+
+        JNI.cactionClosureEnd(callerClass, RoseTranslator.createJavaToken(n, n.toString()));
+
+        /* cactionClosureEnd internally changes the current class name, thus comment out */
+//        /* change current class */
+//        JNI.cactionSetCurrentClassName(callerClass);
+        
+        toRose(n, "Closure end:", n);
     }
 
     public void visit(ClosureCall_c n) {
-        toRose(n, "ClosureCall:");
+        toRose(n, "ClosureCall:", n.target(), n.arguments());
+//        JNI.cactionClosureCall();
         visitChild(n, n.target());
         visitChildren(n, n.arguments());
+//        JNI.cactionClosureCallEnd();
     }
 
     public void visit(StmtExpr_c n) {
@@ -2437,7 +2496,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         for (polyglot.ast.SwitchElement el : n.elements()) {
             /**
              * This count does not include the default clause.
-             * Rose manages the additional count for the defualt.
+             * Rose manages the additional count for the default.
              * @see src/frontend/X10_ROSE_Connection/ParserActionROSE.C:cactionSwitchStatementEnd()
              */
             if (el instanceof Case_c) {
