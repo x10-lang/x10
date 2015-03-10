@@ -236,7 +236,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionSetupSourceFilename(String full_file_name);
     public static native void cactionClearSourceFilename();
 //MH-20140414
-    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
+    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, boolean is_struct, JavaToken jToken);
 //   public static native void cactionInsertClassStart(String java_string, JavaToken jToken);
     public static native void cactionInsertClassEnd(String className, JavaToken jToken);
 //MH-20140414
