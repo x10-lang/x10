@@ -595,7 +595,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected X10Parser p;
     protected X10Lexer lexer;
     protected CommonTokenStream tokens;
-    protected static ParserATNSimulator parserState;
 
     protected X10CompilerOptions compilerOpts;
     protected ErrorQueue eq;
@@ -607,9 +606,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected String fileName;
 
     public static void clearState() {
-        if (parserState != null) {
-            parserState.clearDFA();
-        }
+      ParserCleaner.clearDFA();
     }
 
     public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
@@ -625,8 +622,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
         p = new X10Parser(tokens);
 
-        parserState = p.getInterpreter();
-
+        /* Use new caches */
+        lexer.setInterpreter(new LexerATNSimulator(lexer, lexer.getATN(), lexer.getInterpreter().decisionToDFA, new PredictionContextCache()));
+        p.setInterpreter(new ParserATNSimulator(p, p.getATN(), p.getInterpreter().decisionToDFA, new PredictionContextCache()));
+        
         p.removeErrorListeners();
         err = new ParserErrorListener(eq, fileName);
         p.addErrorListener(err);
@@ -664,7 +663,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public Node parse() {
         CompilationUnitContext tree = getParseTree();
         
-        // p.getInterpreter().clearDFA();
         if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
             Future<JDialog> dialogHdl = tree.inspect(p);
             try {
