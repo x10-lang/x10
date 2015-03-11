@@ -2474,10 +2474,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public void visit(ClosureCall_c n) {
         toRose(n, "ClosureCall:", n.target(), n.arguments());
-//        JNI.cactionClosureCall();
+        JNI.cactionClosureCall(RoseTranslator.createJavaToken(n, n.toString()));
+        List<Expr> args = n.arguments();
+        visitChildren(n, args);
         visitChild(n, n.target());
-        visitChildren(n, n.arguments());
-//        JNI.cactionClosureCallEnd();
+        JNI.cactionClosureCallEnd(args.size(), RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visit(StmtExpr_c n) {
