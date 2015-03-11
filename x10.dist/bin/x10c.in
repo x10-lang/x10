@@ -132,7 +132,7 @@ export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx1024m -Xss1m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+command="\"$JAVA\" -Xmx1024m -Xss2m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 
 [ -n "$verbose" ] && echo "$command"
 
