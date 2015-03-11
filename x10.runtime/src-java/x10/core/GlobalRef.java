@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import x10.core.fun.Fun_0_0;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.DeadPlaceException;
 import x10.lang.Place;
 import x10.xrx.Runtime.Mortal;
 import x10.rtt.NamedType;
@@ -359,12 +360,20 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
                 GlobalizedObjectTracker.changeRemoteCount(id, delta);
             } else if (delta > 0) { // remote GlobalRef, increment
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", remote -> call runAt and wait");
-                //x10.lang.Runtime.runAt(placeId, new $Closure$0(id, delta)/*should be KIND_NOT_ASYNC*/); // this does not work inside deserializer
-                //x10.runtime.impl.java.Runtime.runClosureAt(placeId, new $Closure$0(id, delta)); // this does not wait for the execution
-                x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), true/*wait*/); // special simplified version of runAt
+                try {
+                    //x10.lang.Runtime.runAt(placeId, new $Closure$0(id, delta)/*should be KIND_NOT_ASYNC*/); // this does not work inside deserializer
+                    //x10.runtime.impl.java.Runtime.runClosureAt(placeId, new $Closure$0(id, delta)); // this does not wait for the execution
+                    x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), true/*wait*/); // special simplified version of runAt
+                } catch (DeadPlaceException e) {
+                    if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: place=" + place.id + " is dead");
+                }
             } else { // remote GlobalRef, decrement can be asynchronous
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", remote -> call runAt and not-wait");
-                x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), false/*not-wait*/);
+                try {
+                    x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), false/*not-wait*/);
+                } catch (DeadPlaceException e) {
+                    if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: place=" + place.id + " is dead");
+                }
             }
         }
         

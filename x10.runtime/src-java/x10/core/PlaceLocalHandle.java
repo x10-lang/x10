@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.DeadPlaceException;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.StaticVoidFunType;
@@ -155,12 +156,17 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
     // Delete a PLH data at all places
     private static void deleteDataAtAllPlaces(long grefId) {
         long hereId = x10.xrx.Runtime.home().id;
+        // TODO numPlaces or maxPlaces?
         long numPlaces = x10.lang.Place.numPlaces$O();
         for (long placeId = 0; placeId < numPlaces; placeId++) {
             if (placeId == hereId) {
                 deleteLocalData(hereId, grefId);
             } else {
-                x10.xrx.Runtime.runAtSimple(new x10.lang.Place(placeId), new $Closure$0(hereId, grefId), false/*not-wait*/);
+                try {
+                    x10.xrx.Runtime.runAtSimple(new x10.lang.Place(placeId), new $Closure$0(hereId, grefId), false/*not-wait*/);
+                } catch (DeadPlaceException e) {
+                    if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: place=" + placeId + " is dead");
+                }
             }
         }
     }
