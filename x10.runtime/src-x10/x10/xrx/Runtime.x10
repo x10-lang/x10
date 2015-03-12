@@ -798,10 +798,11 @@ public final class Runtime {
         var clockPhases:Clock.ClockPhases = null;
     }
 
-    /** Subvert X10 and target language exception checking.
+    /**
+     * Subvert X10 and target language exception checking.
      */
     @Native("c++", "::x10aux::throwException(::x10aux::nullCheck(#e))")
-    @Native("java", "java.lang.Thread.currentThread().stop(#e)")
+    @Native("java", "x10.runtime.impl.java.Runtime.throwCheckedWithoutThrows(#e)")
     static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
 
     /**
