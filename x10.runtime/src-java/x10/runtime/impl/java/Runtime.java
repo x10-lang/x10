@@ -535,6 +535,14 @@ public abstract class Runtime implements VoidFun_0_0 {
         throw new x10.io.NotSerializableException("Cannot serialize " + getClass());
 	}
 
+    /**
+     * Subvert X10 and target language exception checking.
+     */
+    public static void throwCheckedWithoutThrows(java.lang.Throwable e) {
+        if (e instanceof java.lang.RuntimeException) throw (java.lang.RuntimeException) e;
+        if (e instanceof java.lang.Error) throw (java.lang.Error) e;
+        java.lang.Thread.currentThread().stop(e); // FIXME this will throw UnsupportedOperationException since Java 8 
+    }
     
     /**
      * Time serialization/deserialization operations.
