@@ -173,11 +173,12 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     // start monitoring cluster
     transport.start();
 
-    final String name = System.getProperty(Configuration.APGAS_LAUNCHER);
-    launcher = (name == null) ? new LocalLauncher() : (Launcher) Class.forName(
-        name).newInstance();
-
-    if (p > 1) {
+    if (p == 0) {
+      launcher = null;
+    } else {
+      final String name = System.getProperty(Configuration.APGAS_LAUNCHER);
+      launcher = (name == null) ? new LocalLauncher() : (Launcher) Class
+          .forName(name).newInstance();
       // launch additional places
       try {
         final ArrayList<String> command = new ArrayList<String>();
@@ -274,7 +275,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public void shutdown() {
-    launcher.shutdown();
+    if (launcher != null) {
+      launcher.shutdown();
+    }
     pool.shutdown();
     transport.shutdown();
   }

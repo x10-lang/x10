@@ -14,6 +14,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -33,11 +34,13 @@ public class Launcher implements apgas.util.Launcher {
     command.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stderr");
   }
 
+  private final org.apache.hadoop.conf.Configuration conf = new YarnConfiguration();
+  private final AMRMClient<ContainerRequest> rmClient = AMRMClient
+      .createAMRMClient();
+
   @Override
   public void launch(int n, List<String> command) throws Exception {
     redirect(command); // TODO clone before mutating the command
-    final org.apache.hadoop.conf.Configuration conf = new YarnConfiguration();
-    final AMRMClient<ContainerRequest> rmClient = AMRMClient.createAMRMClient();
     rmClient.init(conf);
     rmClient.start();
     final NMClient nmClient = NMClient.createNMClient();
@@ -72,6 +75,12 @@ public class Launcher implements apgas.util.Launcher {
 
   @Override
   public void shutdown() {
+    try {
+      rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED,
+          "", null);
+    } catch (final YarnException | IOException e) {
+    }
+    rmClient.stop();
   }
 
   /**
