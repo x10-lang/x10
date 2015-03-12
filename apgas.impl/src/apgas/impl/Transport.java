@@ -174,7 +174,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * Starts monitoring cluster membership events.
    */
-  void start() {
+  synchronized void start() {
     regItemListener = allMembers.addItemListener(this, false);
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
   }
@@ -207,17 +207,10 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * Shuts down this Hazelcast instance.
    */
-  void shutdown() {
+  synchronized void shutdown() {
     hazelcast.getCluster().removeMembershipListener(regMembershipListener);
     allMembers.removeItemListener(regItemListener);
     hazelcast.shutdown();
-  }
-
-  /**
-   * Terminates this Hazelcast instance forcefully.
-   */
-  void terminate() {
-    hazelcast.getLifecycleService().terminate();
   }
 
   /**

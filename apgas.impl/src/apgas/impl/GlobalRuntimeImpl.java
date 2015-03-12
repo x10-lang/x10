@@ -13,7 +13,6 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.ProcessBuilder.Redirect;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -34,6 +32,7 @@ import apgas.Place;
 import apgas.SerializableCallable;
 import apgas.SerializableJob;
 import apgas.util.GlobalID;
+import apgas.util.Launcher;
 
 /**
  * The {@link GlobalRuntimeImpl} class implements the
@@ -86,15 +85,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   List<Place> places;
 
   /**
-   * The processes we spawned.
+   * The launcher used to spawn additional places.
    */
-  final List<Process> processes = new ArrayList<Process>();
-
-  /**
-   * Status of the shutdown sequence (0 live, 1 shutting down the Global
-   * Runtime, 2 shutting down the JVM).
-   */
-  int dying;
+  final Launcher launcher;
 
   /**
    * The registered place failure handler.
@@ -104,13 +97,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
     return t instanceof Worker ? (Worker) t : null;
-  }
-
-  private static Process exec(List<String> command) throws IOException {
-    final ProcessBuilder pb = new ProcessBuilder(command);
-    pb.redirectOutput(Redirect.INHERIT);
-    pb.redirectError(Redirect.INHERIT);
-    return pb.start();
   }
 
   public static GlobalRuntimeImpl getRuntime() {
@@ -164,9 +150,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     here = transport.here();
     home = new Place(here);
 
-    // install shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> terminate()));
-
     // install hook on thread 1
     if (!daemon) {
       final Thread thread[] = new Thread[Thread.activeCount()];
@@ -189,6 +172,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // start monitoring cluster
     transport.start();
+
+    final String name = System.getProperty(Configuration.APGAS_LAUNCHER);
+    launcher = (name == null) ? new LocalLauncher() : (Launcher) Class.forName(
+        name).newInstance();
 
     if (p > 1) {
       // launch additional places
@@ -218,22 +205,16 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
             + (master == null ? transport.getAddress() : master));
         command.add(getClass().getSuperclass().getCanonicalName());
 
-        final String name = System.getProperty("apgas.launcher");
-        @SuppressWarnings("unchecked")
-        final BiConsumer<Integer, List<String>> launcher = name == null ? new Launcher()
-            : (BiConsumer<Integer, List<String>>) Class.forName(name)
-                .newInstance();
-        launcher.accept(p, command);
+        launcher.launch(p - 1, command);
+
         // wait for spawned places to join the global runtime
         while (maxPlace() < p) {
           try {
             Thread.sleep(100);
           } catch (final InterruptedException e) {
           }
-          for (final Process process : processes) {
-            if (!process.isAlive()) {
-              throw new IOException("A process exited prematurely");
-            }
+          if (!launcher.healthy()) {
+            throw new IOException("A process exited prematurely");
           }
         }
       } catch (final Throwable t) {
@@ -241,43 +222,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         shutdown();
         throw t;
       }
-    }
-  }
-
-  private class Launcher implements BiConsumer<Integer, List<String>> {
-    @Override
-    public void accept(Integer p, List<String> command) {
-      try {
-        for (int i = 0; i < p - 1; i++) {
-          Process process = exec(command);
-          synchronized (processes) {
-            if (dying <= 1) {
-              processes.add(process);
-              process = null;
-            }
-          }
-          if (process != null) {
-            process.destroyForcibly();
-            throw new IllegalStateException("Shutdown in progress");
-          }
-        }
-      } catch (final RuntimeException e) {
-        throw e;
-      } catch (final Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  /**
-   * Kills all spawned processes.
-   */
-  private void terminate() {
-    synchronized (processes) {
-      dying = 2;
-    }
-    for (final Process process : processes) {
-      process.destroyForcibly();
     }
   }
 
@@ -328,17 +272,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     this.handler = handler;
   }
 
-  /**
-   * Asks the scheduler and the transport to shutdown.
-   */
   @Override
   public void shutdown() {
-    synchronized (processes) {
-      if (dying > 0) {
-        return;
-      }
-      dying = 1;
-    }
+    launcher.shutdown();
     pool.shutdown();
     transport.shutdown();
   }

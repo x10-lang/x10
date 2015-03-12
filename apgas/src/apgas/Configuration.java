@@ -93,4 +93,9 @@ public final class Configuration {
    * Name of the finish implementation class to instantiate (String property).
    */
   public static final String APGAS_FINISH = "apgas.finish";
+
+  /**
+   * Name of the launcher implementation class to instantiate (String property).
+   */
+  public static final String APGAS_LAUNCHER = "apgas.launcher";
 }
