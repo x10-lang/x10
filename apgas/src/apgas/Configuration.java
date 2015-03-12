@@ -78,12 +78,11 @@ public final class Configuration {
   public static final String APGAS_DAEMON = "apgas.daemon";
 
   /**
-   * Specifies the ip address of the current host (String property).
+   * Specifies the java command to run for spawning places (String property).
    * <p>
-   * The return value of "{@code InetAddress.getLocalHost().getHostAddress()}"
-   * is used if this property is not set.
+   * Defaults to "java".
    */
-  public static final String APGAS_LOCALHOST = "apgas.localhost";
+  public static final String APGAS_JAVA = "apgas.java";
 
   /**
    * Turns on resiliency.

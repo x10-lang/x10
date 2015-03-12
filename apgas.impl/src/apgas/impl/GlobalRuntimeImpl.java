@@ -153,12 +153,12 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       this.factory = factory;
     }
     final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
-    final String localhost = System.getProperty(Configuration.APGAS_LOCALHOST,
-        InetAddress.getLocalHost().getHostAddress());
+    final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
     // initialize scheduler and transport
     pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
-    transport = new Transport(this, master, localhost, compact);
+    transport = new Transport(this, master, InetAddress.getLocalHost()
+        .getHostAddress(), compact);
 
     // initialize here
     here = transport.here();
@@ -194,7 +194,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       // launch additional places
       try {
         final ArrayList<String> command = new ArrayList<String>();
-        command.add("java");
+        command.add(java);
         command.add("-cp");
         command.add(System.getProperty("java.class.path"));
         if (resilient) {
@@ -216,7 +216,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         command.add("-D" + Configuration.APGAS_DAEMON + "=true");
         command.add("-D" + Configuration.APGAS_MASTER + "="
             + (master == null ? transport.getAddress() : master));
-        command.add("-D" + Configuration.APGAS_LOCALHOST + "=" + localhost);
         command.add(getClass().getSuperclass().getCanonicalName());
 
         final String name = System.getProperty("apgas.launcher");

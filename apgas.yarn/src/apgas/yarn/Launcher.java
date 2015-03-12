@@ -85,16 +85,18 @@ public class Launcher implements BiConsumer<Integer, List<String>> {
    *           if an error occurs
    */
   public static void main(String[] args) throws IOException, YarnException {
-    if (args.length <= 1) {
-      System.err.println("Usage: hadoop apgas.yarn.Launcher JARS CLASSNAME");
-      System.err.println(" where JARS is a colon-separated list of jar files");
+    if (args.length <= 2) {
+      System.err.println("Usage: yarn apgas.yarn.Launcher JAVA JARS CLASSNAME");
+      System.err.println(" where JAVA is the java executable");
+      System.err.println("       JARS is a colon-separated list of jar files");
       System.err.println("       CLASSNAME is the name of the main class");
       System.exit(1);
     }
     final List<String> command = new ArrayList<String>();
-    command.add("java");
+    command.add(args[0]);
     command.add("-Dapgas.launcher=apgas.yarn.Launcher");
-    command.add(args[1]);
+    command.add("-Dapgas.java=" + args[0]);
+    command.add(args[2]);
     redirect(command);
     final Configuration conf = new YarnConfiguration();
     final YarnClient yarnClient = YarnClient.createYarnClient();
@@ -107,7 +109,7 @@ public class Launcher implements BiConsumer<Integer, List<String>> {
                 YarnConfiguration.YARN_APPLICATION_CLASSPATH,
                 YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH));
     final Map<String, String> env = Collections.singletonMap(
-        Environment.CLASSPATH.name(), args[0]
+        Environment.CLASSPATH.name(), args[1]
             + ApplicationConstants.CLASS_PATH_SEPARATOR + cp);
     final ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(null,
         env, command, null, null, null);
