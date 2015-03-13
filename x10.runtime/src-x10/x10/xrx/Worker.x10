@@ -150,6 +150,9 @@ public final class Worker extends Thread implements Unserializable {
         Runtime.x10rtProbe();
         for (;;) {
             activity = poll();
+            if (activity == null) {
+                activity = Runtime.pool.workers.probeInbound(); // also look for tasks enqueued by Immediate worker threads
+            }
             if (activity == null || activity.epoch < Runtime.epoch()) {
                 activity = tmp; // restore current activity
                 return;
