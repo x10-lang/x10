@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
 import x10.core.fun.VoidFun_0_0;
+import x10.core.fun.VoidFun_0_1;
 import x10.xrx.FinishState;
 import x10.lang.Place;
 import x10.runtime.impl.java.Runtime;
@@ -27,6 +28,9 @@ public class MessageHandlers {
     // values set in native method registerHandlers()
     private static int closureMessageID;
     private static int simpleAsyncMessageID;
+    static VoidFun_0_1<Place> placeAddedHandler = null;
+    static VoidFun_0_1<Place> placeRemovedHandler = null;
+
 		
     /**
      * Register the native methods that will invoke runClosureAtReceive
@@ -157,5 +161,69 @@ public class MessageHandlers {
                 ex.printStackTrace();
             }
     	}
+    }
+    
+    static void runPlaceAddedHandler(int placeId) {
+    	VoidFun_0_1<Place> handler = placeAddedHandler;
+    	if (handler == null) return;
+        
+    	PlaceChangeWrapper pcw = new PlaceChangeWrapper(handler, placeId);
+    	x10.xrx.Runtime.submitUncounted(pcw);
+    }
+    
+    static void runPlaceRemovedHandler(int placeId) {
+    	VoidFun_0_1<Place> handler = placeRemovedHandler;
+    	if (handler == null) return;
+    	
+    	PlaceChangeWrapper pcw = new PlaceChangeWrapper(handler, placeId);
+    	x10.xrx.Runtime.submitUncounted(pcw);
+    }
+    
+    final public static class PlaceChangeWrapper extends x10.core.Ref implements x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable
+    {
+    	private VoidFun_0_1<Place> handler;
+    	private long place;
+    	
+        public PlaceChangeWrapper(VoidFun_0_1<Place> handler, long place) {
+        	this.handler = handler;
+        	this.place = place;
+        }
+
+        public static final x10.rtt.RuntimeType<PlaceChangeWrapper> $RTT = 
+            x10.rtt.StaticVoidFunType.<PlaceChangeWrapper> make(PlaceChangeWrapper.class, new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
+        
+        public x10.rtt.RuntimeType<?> $getRTT() { return $RTT; }
+        
+        public x10.rtt.Type<?> $getParam(int i) { return null; }
+        
+        private Object writeReplace() throws java.io.ObjectStreamException {
+            return new x10.serialization.SerializationProxy(this);
+        }
+        
+        public static x10.serialization.X10JavaSerializable $_deserialize_body(x10.x10rt.MessageHandlers.PlaceChangeWrapper $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        	$_obj.handler = $deserializer.readObject();
+            $_obj.place = $deserializer.readLong();
+            return $_obj;
+        }
+        
+        public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        	x10.x10rt.MessageHandlers.PlaceChangeWrapper $_obj = new x10.x10rt.MessageHandlers.PlaceChangeWrapper((java.lang.System[]) null);
+            $deserializer.record_reference($_obj);
+            return $_deserialize_body($_obj, $deserializer);
+        }
+        
+        public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+        	$serializer.write(this.handler);
+        	$serializer.write(this.place);
+        }
+        
+        // constructor just for allocation
+        public PlaceChangeWrapper(final java.lang.System[] $dummy) {}
+        
+		@Override
+		public void $apply() {
+			Place p = new Place(this.place);
+			this.handler.$apply(p, p.$getRTT());
+		}
     }
 }

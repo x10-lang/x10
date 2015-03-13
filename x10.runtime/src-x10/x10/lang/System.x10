@@ -109,6 +109,37 @@ public class System {
         }
         return launcherAdded;
     }
+    
+    /*
+     * Registers a user-defined function to execute when a place has been added.  Normally
+     * there is no callback, and a user has to call Place.numPlaces() to see how many places
+     * exist at that moment.  As an alternative, the user can register their own function
+     * which the runtime will execute once whenever a place has been added.
+     * 
+     * If this method is called more than once, only the most recent registration will execute.
+     * 
+     * When a place is added, the runtime pushes the registered handler along with the associated 
+     * place onto the work queue, so the user is free to use anything in their handler, and is not 
+     * required to execute quickly.
+     */
+    @Native("java", "x10.x10rt.X10RT.registerPlaceAddedHandler(#handler)")
+    public static native def registerPlaceAddedHandler(handler:(Place)=>void):void;
+
+    /*
+     * Registers a user-defined function to execute when a place has been removed.  Normally
+     * there is no callback, and a user has to call Place.isDead() to find out if a place has
+     * died.  As an alternative, the user can register their own function which the runtime will 
+     * execute once whenever a place has been marked as dead.
+     * 
+     * If this method is called more than once, only the most recent registration will execute.
+     * 
+     * When a place is removed, the runtime pushes the registered handler along with the associated 
+     * place onto the work queue, so the user is free to use anything in their handler, and is not 
+     * required to execute quickly.
+     */
+    @Native("java", "x10.x10rt.X10RT.registerPlaceRemovedHandler(#handler)")
+    public static native def registerPlaceRemovedHandler(handler:(Place)=>void):void;
+
 
     /**
      * Sets the exit code with which the X10 program will exit.

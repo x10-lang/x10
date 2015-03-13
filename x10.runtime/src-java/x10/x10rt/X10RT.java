@@ -17,7 +17,9 @@ import java.nio.ByteBuffer;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.HazelcastInstance;
 
+import x10.core.fun.VoidFun_0_1;
 import x10.lang.GlobalRail;
+import x10.lang.Place;
 import x10.x10rt.SocketTransport.RETURNCODE;
 
 public class X10RT {
@@ -392,6 +394,14 @@ public class X10RT {
     public static void registerHandlers() {
     	if (!forceSinglePlace && javaSockets == null)
     		x10.x10rt.MessageHandlers.registerHandlers();
+    }
+    
+    public static void registerPlaceAddedHandler(VoidFun_0_1<Place> function) {
+    	x10.x10rt.MessageHandlers.placeAddedHandler = function;
+    }
+    
+    public static void registerPlaceRemovedHandler(VoidFun_0_1<Place> function) {
+    	x10.x10rt.MessageHandlers.placeRemovedHandler = function;
     }
     
     // library-mode alternative to the shutdown hook in init()

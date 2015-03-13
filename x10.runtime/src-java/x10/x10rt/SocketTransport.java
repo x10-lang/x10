@@ -311,6 +311,8 @@ public class SocketTransport {
     				lowestValidPlaceId++;
     		}
     	}
+    	// notify the runtime, if interested
+    	MessageHandlers.runPlaceRemovedHandler(place);
     }
     
     // request to start more places.  Forward to the launcher, if possible
@@ -513,6 +515,9 @@ public class SocketTransport {
 							if (remote >= nplaces)
 								this.nplaces = remote+1;
 						}
+						
+						// notify the upper runtime of the new place
+						MessageHandlers.runPlaceAddedHandler(remote);
 					}
 					else if (to == -1) {
 						remote = controlMsg.getInt();
@@ -577,6 +582,9 @@ public class SocketTransport {
 										assert(false);
 									}
 								}
+								
+								// notify the upper runtime of the new place
+								MessageHandlers.runPlaceAddedHandler(remote);
 							}
 							else { // Ask the lowest numbered place for a new place ID
 								// store link for later, when the GET_PLACE_RESPONSE comes in
@@ -725,6 +733,9 @@ public class SocketTransport {
 											assert(false);
 										}
 									}
+									
+									// notify the upper runtime of the new place
+									MessageHandlers.runPlaceAddedHandler(remote);
 								}
 								else if (DEBUG) System.err.println("Taking note of new num places: "+remote);
 							}
