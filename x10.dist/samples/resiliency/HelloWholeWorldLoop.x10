@@ -18,6 +18,9 @@ class HelloWholeWorldLoop {
          return;
      }
      
+     System.registerPlaceAddedHandler((p:Place)=>{Console.OUT.println("I see that "+p+" was added");});
+     System.registerPlaceRemovedHandler((p:Place)=>{Console.OUT.println("I see that "+p+" was removed");});
+     
      for (i:Long in 0..(Long.parse(args(1)))){
          try {
              val world = Place.places();
