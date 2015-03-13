@@ -100,6 +100,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         x10.xrx.Runtime.get$NTHREADS();
         x10.xrx.Runtime.get$MAX_THREADS();
         x10.xrx.Runtime.get$STATIC_THREADS();
+        x10.xrx.Runtime.get$NUM_IMMEDIATE_THREADS();
         x10.xrx.Runtime.get$WARN_ON_THREAD_CREATION();
         x10.xrx.Runtime.get$BUSY_WAITING();
         x10.xrx.Runtime.get$CANCELLABLE();
