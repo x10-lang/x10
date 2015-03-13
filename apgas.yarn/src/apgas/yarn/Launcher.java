@@ -1,6 +1,7 @@
 package apgas.yarn;
 
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,14 @@ public class Launcher implements apgas.util.Launcher {
 
   @Override
   public void launch(int n, List<String> command) throws Exception {
+    final List<String> chmod = new ArrayList<String>();
+    chmod.add("chmod");
+    chmod.add("a+rx");
+    chmod.add(System.getenv(Environment.LOG_DIRS.name()));
+    final ProcessBuilder pb = new ProcessBuilder(chmod);
+    pb.redirectOutput(Redirect.INHERIT);
+    pb.redirectError(Redirect.INHERIT);
+    pb.start();
     redirect(command); // TODO clone before mutating the command
     rmClient.init(conf);
     rmClient.start();
