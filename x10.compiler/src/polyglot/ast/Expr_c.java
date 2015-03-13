@@ -73,6 +73,16 @@ public abstract class Expr_c extends Term_c implements Expr
         return null;
     }
 
+    protected boolean dot = false;
+    public boolean dot() {
+        return dot;
+    }
+    public Expr_c dot(boolean flag) {
+        Expr_c e = (Expr_c) copy();
+        e.error = flag;
+        return e;
+    }
+    
     public Node buildTypes(TypeBuilder tb) {
         return type(tb.typeSystem().unknownType(position()));
     }

@@ -43,6 +43,17 @@ public interface Expr extends Receiver, Term
     ConstantValue constantValue();
     
     /**
+     * Return whether the expression is followed by a ".". This flag is used to
+     * build AST of programs that are not syntactically correct.
+     */
+    boolean dot();
+    
+    /**
+     * Returns a copy of the expression with the {@code dot} flag set to {@code b}.
+     */
+    Expr dot(boolean b);
+    
+    /**
      * Correctly parenthesize the subexpression <code>expr<code>
      * based on its precedence and the precedence of this expression.
      *

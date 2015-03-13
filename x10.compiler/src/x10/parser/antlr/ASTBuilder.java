@@ -6227,7 +6227,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitPrimaryError0(PrimaryError0Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
-        ctx.ast = nf.Super(pos(ctx.s));
+        ctx.ast = (Expr) nf.Super(pos(ctx.s)).dot(true).error(true);
     }
 
     /** Production: primary ::= className '.' s='super' dot='.' (#primaryError1) */
@@ -6235,7 +6235,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError1(PrimaryError1Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         ParsedName ClassName = ast(ctx.className());
-        ctx.ast = nf.Super(pos(ctx.className(), ctx.s), ClassName.toType());
+        ctx.ast = (Expr) nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()).dot(true).error(true);
     }
 
     /** Production: primary ::= className dot='.' (#primaryError2) */
@@ -6243,7 +6243,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError2(PrimaryError2Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         ParsedName ExpressionName = ast(ctx.className());
-        ctx.ast = ExpressionName.toExpr();
+        ctx.ast = (Expr) ExpressionName.toExpr().dot(true).error(true);
     }
 
     /** Production: primary ::= primary dot='.' (#primaryError3) */
@@ -6251,7 +6251,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError3(PrimaryError3Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         Expr expr = ast(ctx.primary());
-        ctx.ast = expr;
+        ctx.ast = (Expr) expr.dot(true).error(true);
     }
 
     /** Production: literal ::= IntLiteral (#IntLiteral) */
