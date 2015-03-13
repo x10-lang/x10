@@ -507,6 +507,10 @@ import x10.parserGen.X10Parser.Primary7Context;
 import x10.parserGen.X10Parser.Primary8Context;
 import x10.parserGen.X10Parser.Primary9Context;
 import x10.parserGen.X10Parser.PrimaryContext;
+import x10.parserGen.X10Parser.PrimaryError0Context;
+import x10.parserGen.X10Parser.PrimaryError1Context;
+import x10.parserGen.X10Parser.PrimaryError2Context;
+import x10.parserGen.X10Parser.PrimaryError3Context;
 import x10.parserGen.X10Parser.PropertiesoptContext;
 import x10.parserGen.X10Parser.PropertyContext;
 import x10.parserGen.X10Parser.PropertyMethodDecl0Context;
@@ -606,7 +610,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected String fileName;
 
     public static void clearState() {
-      ParserCleaner.clearDFA();
+        ParserCleaner.clearDFA();
     }
 
     public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
@@ -625,7 +629,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         /* Use new caches */
         lexer.setInterpreter(new LexerATNSimulator(lexer, lexer.getATN(), lexer.getInterpreter().decisionToDFA, new PredictionContextCache()));
         p.setInterpreter(new ParserATNSimulator(p, p.getATN(), p.getInterpreter().decisionToDFA, new PredictionContextCache()));
-        
+
         p.removeErrorListeners();
         err = new ParserErrorListener(eq, fileName);
         p.addErrorListener(err);
@@ -662,7 +666,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public Node parse() {
         CompilationUnitContext tree = getParseTree();
-        
+
         if (compilerOpts.x10_config.DISPLAY_PARSE_TREE) {
             Future<JDialog> dialogHdl = tree.inspect(p);
             try {
@@ -709,14 +713,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Position p2 = pos(t);
         return new Position(p1, p2);
     }
-    
+
     /** Returns the position going from {@code n} to {@code ctx} */
     protected Position pos(ParsedName n, ParserRuleContext ctx) {
         Position p1 = n.pos;
         Position p2 = pos(ctx);
         return new Position(p1, p2);
     }
-    
+
     private String comment(ParserRuleContext ctx) {
         String s = null;
         int i = ctx.getStart().getTokenIndex();
@@ -4939,7 +4943,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         ctx.ast = l;
     }
-    
+
     /** Production: packageName ::= identifier ('.' identifier)* (#packageName) */
     @Override
     public void exitPackageName(PackageNameContext ctx) {
@@ -6219,28 +6223,36 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
-    // /** Production: primary ::= 'super' dot='.' (#primaryError0) */
-    // @Override
-    // public void exitPrimaryError0(PrimaryError0Context ctx) {
-    // err.syntaxError("identifier expected", pos(ctx.dot));
-    // ctx.ast = nf.Super(pos(ctx.s));
-    // }
-    //
-    // /** Production: primary ::= className '.' s='super' dot='.' (#primaryError1) */
-    // @Override
-    // public void exitPrimaryError1(PrimaryError1Context ctx) {
-    // err.syntaxError("identifier expected", pos(ctx.dot));
-    // ParsedName ClassName = ast(ctx.className());
-    // ctx.ast = nf.Super(pos(ctx.className(), ctx.s), ClassName.toType());
-    // }
-    //
-    // /** Production: primary ::= primary dot='.' (#primaryError0) */
-    // @Override
-    // public void exitPrimaryError2(PrimaryError2Context ctx) {
-    // err.syntaxError("identifier expected", pos(ctx.dot));
-    // ParsedName ExpressionName = ast(ctx.className());
-    // ctx.ast = ExpressionName.toExpr();
-    // }
+    /** Production: primary ::= 'super' dot='.' (#primaryError0) */
+    @Override
+    public void exitPrimaryError0(PrimaryError0Context ctx) {
+        err.syntaxError("identifier expected", pos(ctx.dot));
+        ctx.ast = nf.Super(pos(ctx.s));
+    }
+
+    /** Production: primary ::= className '.' s='super' dot='.' (#primaryError1) */
+    @Override
+    public void exitPrimaryError1(PrimaryError1Context ctx) {
+        err.syntaxError("identifier expected", pos(ctx.dot));
+        ParsedName ClassName = ast(ctx.className());
+        ctx.ast = nf.Super(pos(ctx.className(), ctx.s), ClassName.toType());
+    }
+
+    /** Production: primary ::= className dot='.' (#primaryError2) */
+    @Override
+    public void exitPrimaryError2(PrimaryError2Context ctx) {
+        err.syntaxError("identifier expected", pos(ctx.dot));
+        ParsedName ExpressionName = ast(ctx.className());
+        ctx.ast = ExpressionName.toExpr();
+    }
+
+    /** Production: primary ::= primary dot='.' (#primaryError3) */
+    @Override
+    public void exitPrimaryError3(PrimaryError3Context ctx) {
+        err.syntaxError("identifier expected", pos(ctx.dot));
+        Expr expr = ast(ctx.primary());
+        ctx.ast = expr;
+    }
 
     /** Production: literal ::= IntLiteral (#IntLiteral) */
     @Override

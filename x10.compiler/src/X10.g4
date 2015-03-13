@@ -584,10 +584,10 @@ primary returns [Expr ast]:
     | s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                   #primary38
     | className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'     #primary39
     // errors
-//    | s='super' dot='.'                    #primaryError0
-//    | className '.' s='super' dot='.'      #primaryError1
-//    | className dot='.'                    #primaryError2
-//    | primary dot='.'                      #primaryError3
+    | s='super' dot='.'                    #primaryError0
+    | className '.' s='super' dot='.'      #primaryError1
+    | className dot='.'                    #primaryError2
+    | primary dot='.'                      #primaryError3
     ;
 literal returns [Lit ast]:
       IntLiteral             #IntLiteral
