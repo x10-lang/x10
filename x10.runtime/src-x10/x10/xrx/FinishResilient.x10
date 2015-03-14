@@ -90,6 +90,17 @@ abstract class FinishResilient extends FinishState {
             fs = r;
             break;
         }
+        case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
+        {
+           val p = (parent!=null) ? parent : getCurrentFS();
+           val l = (latch!=null) ? latch : new SimpleLatch();
+           val o = p as Any;
+           var r:FinishState = null;
+           @Native("java", "r = x10.xrx.managed.FinishResilientHCopt.make(o, l);")
+        { failJavaOnlyMode(); }
+        fs = r;
+        break;
+        }
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
@@ -123,6 +134,10 @@ abstract class FinishResilient extends FinishState {
             @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath();")
             { failJavaOnlyMode(); }
             break;
+        case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
+        @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath();")
+        { failJavaOnlyMode(); }
+        break;
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
             FinishResilientPlace0opt.notifyPlaceDeath();
             break;
