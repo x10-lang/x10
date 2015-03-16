@@ -1,7 +1,7 @@
 lexer grammar X10_Lexer;
 
 @lexer::header {
-  package x10.parserGen;
+  package x10.parser.antlr.generated;
 }
 
 @lexer::members {

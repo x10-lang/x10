@@ -7,8 +7,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.dfa.DFA;
 
-import x10.parserGen.X10Lexer;
-import x10.parserGen.X10Parser;
+import x10.parser.antlr.generated.X10Lexer;
+import x10.parser.antlr.generated.X10Parser;
 
 /**
  * @author lmandel

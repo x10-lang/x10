@@ -1,7 +1,7 @@
 grammar X10;
 
 @parser::header {
-  package x10.parserGen;
+  package x10.parser.antlr.generated;
   
   import x10.parser.antlr.ASTBuilder.Modifier;
   import polyglot.parse.*;

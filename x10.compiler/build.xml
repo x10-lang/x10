@@ -149,6 +149,26 @@
             <arg value="${grammar.file}"/>
         </exec>
     </target>
+    <target name="grammar-antlr" depends="init">
+        <property name="parser.dir" location="${src}/x10/parser/antlr"/>
+        <property name="grammar.file" location="${parser.dir}/X10.g4"/>
+        <delete>
+            <fileset dir="${parser.dir}/generated">
+                <include name="X10.tokens"/>
+                <include name="X10Lexer.tokens"/>
+                <include name="X10Lexer.java"/>
+                <include name="X10Parser.java"/>
+                <include name="X10BaseListener.java"/>
+                <include name="X10Listener.java"/>
+            </fileset>
+        </delete>
+        <echo message="Generating ANTLR 4 grammar: ${grammar.file}"/>
+        <java jar="${lib}/${antlr.jar}" fork="true" failonerror="true" dir="${parser.dir}">
+            <arg line="-o generated"/>
+            <arg line="-listener -no-visitor -encoding UTF-8"/>
+            <arg line="${grammar.file}"/>
+        </java>
+    </target>
     <target name="rebuild" depends="grammar,build"/>
     <target name="tags" depends="init">
       <!-- create a blank tags file -->
