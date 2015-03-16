@@ -3413,6 +3413,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         TypeDecl cd = nf.TypeDecl(pos(ctx), f, Identifier, TypeParametersopt, formals, WhereClauseopt, Type);
         cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
+        cd = (TypeDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
@@ -3435,6 +3436,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<AnnotationNode> annotations = extractAnnotations(Annotationsopt);
         PropertyDecl cd = nf.PropertyDecl(pos(ctx), nf.FlagsNode(pos(ctx), Flags.PUBLIC.Final()), ResultType, Identifier);
         cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
+        cd = (PropertyDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
@@ -3458,6 +3460,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ProcedureDecl pd = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                 Identifier, TypeParametersopt, FormalParameters, WhereClauseopt, OBSOLETE_Offersopt, Throwsopt, MethodBody);
         pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(modifiers));
+        pd = (ProcedureDecl) ((X10Ext) pd.ext()).setComment(comment(ctx));
         ctx.ast = pd;
     }
 
@@ -3522,6 +3525,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().Static()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3555,6 +3559,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3589,6 +3594,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3622,6 +3628,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().Static()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3654,6 +3661,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3681,6 +3689,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3710,6 +3719,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().clearStatic()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3748,6 +3758,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().Static()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3775,6 +3786,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().Static()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3803,6 +3815,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             md = md.flags(flags.flags(flags.flags().Static()));
         }
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3821,6 +3834,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
                 : HasResultTypeopt, Identifier, TypeParametersopt, FormalParameters, WhereClauseopt, null, // offersOpt
                 Collections.<TypeNode> emptyList(), MethodBody);
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3838,6 +3852,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
                 : HasResultTypeopt, Identifier, Collections.<TypeParamNode> emptyList(), Collections.<Formal> emptyList(), WhereClauseopt, null, // offersOpt
                 Collections.<TypeNode> emptyList(), MethodBody);
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+        md = (MethodDecl) ((X10Ext) md.ext()).setComment(comment(ctx));
         ctx.ast = md;
     }
 
@@ -3899,6 +3914,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         FlagsNode fn = extractFlags(modifiers, Flags.INTERFACE);
         ClassDecl cd = nf.X10ClassDecl(pos(ctx), fn, Identifier, TypeParametersopt, props, ci, null, ExtendsInterfacesopt, InterfaceBody);
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
@@ -4099,6 +4115,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<AnnotationNode> annotations = extractAnnotations(modifiers);
         ClassDecl cd = nf.X10ClassDecl(pos(ctx), f, Identifier, TypeParametersopt, props, ci, Superopt, Interfacesopt, ClassBody);
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
+        cd = (ClassDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
@@ -4119,6 +4136,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = nf.X10ClassDecl(pos(ctx), extractFlags(modifiers, Flags.STRUCT), Identifier, TypeParametersopt, props, ci, null, Interfacesopt, ClassBody);
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
@@ -4140,6 +4158,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ConstructorDecl cd = nf.X10ConstructorDecl(pos(ctx), extractFlags(modifiers), nf.Id(pos(ctx.id), TypeSystem.CONSTRUCTOR_NAME), HasResultTypeopt, TypeParametersopt,
                 FormalParameters, WhereClauseopt, OBSOLETE_Offersopt, Throwsopt, ConstructorBody);
         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+        cd = (ConstructorDecl) ((X10Ext) cd.ext()).setComment(comment(ctx));
         ctx.ast = cd;
     }
 
