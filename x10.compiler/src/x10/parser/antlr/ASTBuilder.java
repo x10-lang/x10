@@ -62,6 +62,7 @@ import polyglot.ast.Loop;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Node_c;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
@@ -6227,7 +6228,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitPrimaryError0(PrimaryError0Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
-        ctx.ast = (Expr) nf.Super(pos(ctx.s)).dot(true).error(true);
+        ctx.ast = (Expr) nf.Super(pos(ctx.s)).error(true);
     }
 
     /** Production: primary ::= className '.' s='super' dot='.' (#primaryError1) */
@@ -6235,7 +6236,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError1(PrimaryError1Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         ParsedName ClassName = ast(ctx.className());
-        ctx.ast = (Expr) nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()).dot(true).error(true);
+        ctx.ast = (Expr) nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()).error(true);
     }
 
     /** Production: primary ::= className dot='.' (#primaryError2) */
@@ -6243,7 +6244,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError2(PrimaryError2Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         ParsedName ExpressionName = ast(ctx.className());
-        ctx.ast = (Expr) ExpressionName.toExpr().dot(true).error(true);
+        ctx.ast = (Expr) ExpressionName.toExpr().error(true);
     }
 
     /** Production: primary ::= primary dot='.' (#primaryError3) */
@@ -6251,7 +6252,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimaryError3(PrimaryError3Context ctx) {
         err.syntaxError("identifier expected", pos(ctx.dot));
         Expr expr = ast(ctx.primary());
-        ctx.ast = (Expr) expr.dot(true).error(true);
+        ctx.ast = (Expr) expr.error(true);
     }
 
     /** Production: literal ::= IntLiteral (#IntLiteral) */
