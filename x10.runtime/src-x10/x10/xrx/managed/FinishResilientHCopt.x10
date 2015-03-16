@@ -23,25 +23,106 @@ import java.util.Map;
 import x10.xrx.*;
 
 public
-class FinishResilientHCopt extends FinishResilientBridge {
+class FinishResilientHCopt extends FinishResilientBridge implements x10.io.CustomSerialization {
   private var f:FinishResilientHC;
 
-  private def this(parent:Any, latch:SimpleLatch) {
-  f = FinishResilientHC.make(parent, latch);
-  }
+  // for all instances
+  private transient var local:Int; // local task count
+  private transient val latch:SimpleLatch; // used as a lock if not root instamce
+
+  // for root instance
+  private transient val parent:Any; // parent finish
+//  private transient var exceptions:GrowableRail[CheckedThrowable](); // TODO
 
   static def make(parent:Any, latch:SimpleLatch):FinishResilientHCopt {
     return new FinishResilientHCopt(parent, latch);
   }
 
-  public def notifySubActivitySpawn(place:Place):void { f.notifySubActivitySpawn(place); }
-  public def notifyRemoteContinuationCreated():void { f.notifyRemoteContinuationCreated(); }
-  public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean = f.notifyActivityCreation(srcPlace, activity);
-  public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean = f.notifyActivityCreationBlocking(srcPlace, activity);
-  public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { f.notifyActivityCreationFailed(srcPlace, t); }
-  public def notifyActivityCreatedAndTerminated(srcPlace:Place):void { f.notifyActivityCreatedAndTerminated(srcPlace); }
-  public def notifyActivityTermination():void { f.notifyActivityTermination(); }
-  public def pushException(t:CheckedThrowable):void { f.pushException(t); }
-  public def waitForFinish():void { f.waitForFinish(); }
-  public def joinFinish(latch:SimpleLatch):void { f.joinFinish(latch); }
+  private def this(parent:Any, latch:SimpleLatch) {
+    this.parent = parent;
+    this.latch = latch;
+  }
+
+  public def serialize(s:x10.io.Serializer) {
+    init();
+    s.writeAny(f);
+  }
+
+  private def this(ds:x10.io.Deserializer) {
+    this.f = ds.readAny() as FinishResilientHC;
+    this.parent = 42;
+    this.latch = new SimpleLatch();
+  }
+
+  private def init() {
+    latch.lock();
+    if (f == null) {
+      if (parent instanceof FinishResilientHCopt) {
+        (parent as FinishResilientHCopt).init();
+      }
+      f = FinishResilientHC.make(parent, new SimpleLatch());
+    }
+    latch.unlock();
+  }
+  
+  public def notifySubActivitySpawn(place:Place):void {
+    if (place.equals(here)) {
+      latch.lock();
+      local++;
+      latch.unlock();
+    } else {
+      f.notifySubActivitySpawn(place);
+    }
+  }
+
+  public def notifyRemoteContinuationCreated():void {
+    init();
+  }
+
+  public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+    return srcPlace.equals(here) || f.notifyActivityCreation(srcPlace, activity);
+  }
+
+  public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
+    return notifyActivityCreation(srcPlace, activity);
+  }
+
+  public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
+    init();
+    f.notifyActivityCreationFailed(srcPlace, t);
+  }
+
+  public def notifyActivityCreatedAndTerminated(srcPlace:Place):void {
+    init();
+    f.notifyActivityCreatedAndTerminated(srcPlace);
+  }
+
+  public def notifyActivityTermination():void {
+    latch.lock();
+    if (--local >= 0) {
+      latch.unlock();
+      return;
+    }
+    val b = f != null && 42.equals(parent);
+    latch.unlock();
+    if (b) f.notifyActivityTermination();
+    latch.release();
+  }
+
+  public def pushException(t:CheckedThrowable):void {
+    init();
+    f.pushException(t);
+  }
+  
+  public def waitForFinish():void {
+    notifyActivityTermination();
+    if ((!Runtime.STRICT_FINISH) && (f == null)) {
+      joinFinish(latch);
+    }
+    latch.await();
+    latch.lock();
+    val b = f != null;
+    latch.unlock();
+    if (b) f.waitForFinish();
+  }
 }
