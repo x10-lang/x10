@@ -207,8 +207,8 @@ public class SocketTransport {
 				try {
 					initLink(i, null);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					if (x10.xrx.Configuration.resilient_mode$O() == x10.xrx.Configuration.RESILIENT_MODE_NONE)
+						e.printStackTrace();
 				} // connect to all lower places
 			}
 			for (int i=myPlaceId+1; i<nplaces; i++)
