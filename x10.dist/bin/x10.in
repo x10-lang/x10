@@ -302,9 +302,9 @@ fi
 [ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
 if [ "${x10rt_impl}" = "yarn" ]; then
   if [ -z "$nativeyarn" ]; then
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "$yarnupload" "x10.x10rt.yarn.Client" "${java_args[@]}")
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "x10.x10rt.yarn.Client" "${java_args[@]}")
   else
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`" "$yarnupload" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
+    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
   fi
 fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
