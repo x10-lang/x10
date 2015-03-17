@@ -38,7 +38,7 @@ Xjvm  = $(shell which x10)
 # run tests short-keys
 
 run_java	: java
-		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_NPLACES=$(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(build_path):$(gml_lib):$(base_dir_elem)/lib $(target) $(test_args)
+		GML_ELEM_TYPE=$(GML_ELEM_TYPE) X10_NPLACES=$(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml_$(GML_ELEM_TYPE).jar -libpath $(base_dir_elem)/lib $(target) $(test_args)
 #		$(Xjvm) -np $(numplaces) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args)
 
 run_mpi		: mpi
