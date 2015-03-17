@@ -176,9 +176,11 @@ public class ApplicationMaster {
 		for (int i=0; i<args.length; i++) {
 			try {
 				if (args[i].startsWith("-Xmx")) {
-					if (args[i].endsWith("m"))
+					if (args[i].toLowerCase().endsWith("g"))
+						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1))*1024;
+					else if (args[i].toLowerCase().endsWith("m"))
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1));
-					else if (args[i].endsWith("k"))
+					else if (args[i].toLowerCase().endsWith("k"))
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1))/1024;
 					else
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4))/1024/1024;
