@@ -78,8 +78,11 @@ public class ApplicationMaster {
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
 	public static final String X10_YARNUPLOAD = "X10_YARNUPLOAD";
 	public static final String X10YARNENV_ = "X10YARNENV_";
+	private static final String DEAD = "DEAD";
 	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE, LAUNCH_REQUEST, LAUNCH_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
+	private static final int PORT_UNKNOWN = -1;
+	private static final int PORT_DEAD = -2;
 	
 	private Configuration conf;
 	private String appMasterHostname;
@@ -96,7 +99,7 @@ public class ApplicationMaster {
 			super();
 			this.hostname = hostname;
 			this.sc = null;
-			this.port = -1;
+			this.port = PORT_UNKNOWN;
 			this.pendingPortRequests = null;
 		}
 		final String hostname;
@@ -108,6 +111,7 @@ public class ApplicationMaster {
 //	private int appMasterX10LauncherPort; // Port used by X10 places to communicate directly with the AM
 	private final Selector selector;
 	private final HashMap<Integer, CommunicationLink> links;
+	private final HashMap<ContainerId, Integer> places; // map of containers to places
 	private final HashMap<SocketChannel, ByteBuffer> pendingReads;
 	
 	private AMRMClientAsync<ContainerRequest> resourceManager; // Handle to communicate with the Resource Manager
@@ -161,6 +165,7 @@ public class ApplicationMaster {
 		initialNumPlaces = Integer.parseInt(envs.get(X10_NPLACES));
 		coresPerPlace = Integer.parseInt(envs.get(X10_NTHREADS));
 		links = new HashMap<Integer, ApplicationMaster.CommunicationLink>(initialNumPlaces);
+		places = new HashMap<ContainerId, Integer>(initialNumPlaces);
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
 		selector = Selector.open();
 		this.args = args;
@@ -418,9 +423,10 @@ public class ApplicationMaster {
 			case GOODBYE:
 			{
 				try {
-					CommunicationLink link = links.remove(source);
+					CommunicationLink link = links.get(source);
 					assert(link.pendingPortRequests == null);
 					sc.close();
+					link.port = PORT_DEAD;
 				} catch (IOException e) {
 					LOG.warn("Error closing socket channel", e);
 				}
@@ -432,8 +438,12 @@ public class ApplicationMaster {
 				LOG.info("Got PORT_REQUEST from place "+source+" for place "+destination);
 				// check to see if we know the requested information
 				CommunicationLink linkInfo = links.get(destination);
-				if (linkInfo.port != -1) {
-					String linkString = linkInfo.hostname+":"+linkInfo.port;
+				if (linkInfo.port != PORT_UNKNOWN) {
+					String linkString;
+					if (linkInfo.port == PORT_DEAD)
+						linkString = DEAD;
+					else
+						linkString = linkInfo.hostname+":"+linkInfo.port;
 					LOG.info("Telling place "+source+" that place "+destination+" is at "+linkString);
 					byte[] linkBytes = linkString.getBytes(); // matches existing code.  TODO: switch to UTF8
 					ByteBuffer response = ByteBuffer.allocateDirect(headerLength+linkBytes.length).order(ByteOrder.nativeOrder());
@@ -501,6 +511,7 @@ public class ApplicationMaster {
 			// shutting down... ignore
 		}
 		links.clear();
+		places.clear();
 		
 		// When the application completes, it should stop all running containers
 		LOG.info("X10 program "+appName+" completed. Stopping running containers");
@@ -657,6 +668,7 @@ public class ApplicationMaster {
 							localResources, env, commands, null, allTokens.duplicate(), null);
 					LOG.info("Storing link for place "+placeId);
 					links.put(placeId, new CommunicationLink(hostname)); // save the hostname of the machine with this place
+					places.put(allocatedContainer.getId(), placeId);
 					nodeManager.startContainerAsync(allocatedContainer, ctx);
 				}
 				catch (IOException e) {
@@ -692,6 +704,7 @@ public class ApplicationMaster {
 					// container completed successfully
 					LOG.info("Container completed successfully." + ", containerId="+ containerStatus.getContainerId());
 				}
+				links.get(places.get(containerStatus.getContainerId())).port = PORT_DEAD; // mark the place as dead
 			}
 			// check to see if everything is down, and if so, exit ourselves
 			if (numCompletedContainers.get() == (numAllocatedContainers.get()+numExtraContainers.get())) {
