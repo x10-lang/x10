@@ -195,7 +195,7 @@ public class Client {
 		
 		StringBuilder uploadedFiles = new StringBuilder();
 		
-		// upload any files specified via -copy argument
+		// upload any files specified via -upload argument to the x10 script
 		String upload = System.getProperty(ApplicationMaster.X10_YARNUPLOAD);
 		if (upload != null) {
 			String[] files = upload.split(",");
