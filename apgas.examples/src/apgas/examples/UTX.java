@@ -36,7 +36,7 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class UTS {
+final class UTX {
   static final class Bag implements Serializable {
     private static final long serialVersionUID = 2200935927036145803L;
 
@@ -113,7 +113,8 @@ final class UTS {
   }
 
   static final class Worker {
-    static final Worker uts = new Worker();
+    static final int power = 3;
+    static final Worker[] uts = new Worker[1 << power];
 
     static MessageDigest encoder() {
       try {
@@ -125,9 +126,9 @@ final class UTS {
 
     synchronized void handle(Place p) {
       // p is dead, unblock if waiting on p
-      if (state == p.id) {
+      if (state >> power == p.id) {
         // attempt to extract loot from store
-        final Checkpoint c = map.get(home);
+        final Checkpoint c = map.get(location);
         if (c.bag != null) {
           merge(c.bag);
         }
@@ -137,17 +138,27 @@ final class UTS {
     }
 
     final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
-    final IMap<Place, Checkpoint> map = hz.getMap("map");
-    final Place home = here();
-    final int places = places().size();
+    final IMap<Integer, Checkpoint> map = hz.getMap("map");
+    final int location;
+    final int locations = places().size() << power;
 
-    {
+    static {
+      for (int id = 0; id < (1 << power); ++id) {
+        uts[id] = new Worker(id + (here().id << power));
+      }
       GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
         if (place.id > 0) {
-          System.err.println(home + " observes that " + place + " failed!");
+          System.err.println(here() + " observes that " + place + " failed!");
         }
-        uts.handle(place);
+        for (int id = 0; id < (1 << power); ++id) {
+          uts[id].handle(place);
+        }
       });
+    }
+
+    Worker(int location) {
+      this.location = location;
+      lifeline = new AtomicBoolean(location != locations - 1);
     }
 
     final Random random = new Random();
@@ -157,8 +168,8 @@ final class UTS {
     long count;
     long transfers;
 
-    final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
-    AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
+    final ConcurrentLinkedQueue<Integer> thieves = new ConcurrentLinkedQueue<Integer>();
+    final AtomicBoolean lifeline;
     int state = -2; // -2: inactive, -1: running, p: stealing from p
 
     int digest() throws DigestException {
@@ -187,7 +198,7 @@ final class UTS {
         bag.upper[0] = v;
         bag.size = 1;
       }
-      map.set(home, new Checkpoint(bag, count));
+      map.set(location, new Checkpoint(bag, count));
     }
 
     void expand() throws DigestException {
@@ -230,7 +241,7 @@ final class UTS {
     }
 
     void run() throws DigestException {
-      System.err.println(here() + " starting");
+      System.err.println(location + " starting");
       synchronized (this) {
         state = -1;
       }
@@ -241,24 +252,26 @@ final class UTS {
           }
           distribute();
         }
-        map.set(home, new Checkpoint(count));
+        map.set(location, new Checkpoint(count));
         steal();
       }
       synchronized (this) {
         state = -2;
       }
       lifelinesteal();
-      System.err.println(here() + " stopping");
+      System.err.println(location + " stopping");
       distribute();
     }
 
     void lifelinesteal() {
-      if (places == 1) {
+      if (locations == 1) {
         return;
       }
       try {
-        asyncat(place((here().id + places - 1) % places), () -> {
-          uts.lifeline.set(true);
+        final int victim = (location + locations - 1) % locations;
+        final int id = victim & ((1 << power) - 1);
+        asyncat(place(victim >> power), () -> {
+          uts[id].lifeline.set(true);
         });
       } catch (final DeadPlaceException e) {
         // TODO should go to next lifeline, but correct as is
@@ -266,24 +279,25 @@ final class UTS {
     }
 
     void steal() {
-      if (places == 1) {
+      if (locations == 1) {
         return;
       }
-      final Place from = home;
-      int p = random.nextInt(places - 1);
-      if (p >= from.id) {
-        p++;
+      final int thief = location;
+      int victim = random.nextInt(locations - 1);
+      if (victim >= thief) {
+        victim++;
       }
-      if (!places().contains(place(p))) {
+      if (!places().contains(place(victim >> power))) {
         // TODO should try other place, but ok as is
         return;
       }
       synchronized (this) {
-        state = p;
+        state = victim;
       }
       try {
-        uncountedasyncat(place(p), () -> {
-          uts.request(from);
+        final int id = victim & ((1 << power) - 1);
+        uncountedasyncat(place(victim >> power), () -> {
+          uts[id].request(thief);
         });
       } catch (final DeadPlaceException e) {
         // pretend stealing failed
@@ -302,17 +316,18 @@ final class UTS {
       }
     }
 
-    void request(Place p) {
+    void request(int thief) {
       synchronized (this) {
         if (state == -1) {
-          thieves.add(p);
+          thieves.add(thief);
           return;
         }
       }
       try {
-        final Place h = home;
-        uncountedasyncat(p, () -> {
-          uts.deal(h, null);
+        final int victim = location;
+        final int id = thief & ((1 << power) - 1);
+        uncountedasyncat(place(thief >> power), () -> {
+          uts[id].deal(victim, null);
         });
       } catch (final DeadPlaceException e) {
         // place is dead, nothing to do
@@ -331,8 +346,8 @@ final class UTS {
       run();
     }
 
-    synchronized void deal(Place p, Bag b) {
-      if (state != p.id) {
+    synchronized void deal(int victim, Bag b) {
+      if (state != victim) {
         // victim is dead, ignore late distribution
         return;
       }
@@ -343,7 +358,7 @@ final class UTS {
       notifyAll();
     }
 
-    void transfer(Place p, Bag b) {
+    void transfer(int thief, Bag b) {
       transfers++;
       while (true) {
         try {
@@ -351,18 +366,18 @@ final class UTS {
             @Override
             public Object execute(TransactionalTaskContext context)
                 throws TransactionException {
-              final TransactionalMap<Place, Checkpoint> map = context
+              final TransactionalMap<Integer, Checkpoint> map = context
                   .getMap("map");
-              map.set(home, new Checkpoint(bag, count));
-              final Checkpoint c = map.getForUpdate(p);
+              map.set(location, new Checkpoint(bag, count));
+              final Checkpoint c = map.getForUpdate(thief);
               final long n = c == null ? 0 : c.count;
-              map.set(p, new Checkpoint(b, n));
+              map.set(thief, new Checkpoint(b, n));
               return null;
             }
           });
           return;
         } catch (final Throwable t) {
-          System.err.println("Exception in transaction at " + home
+          System.err.println("Exception in transaction at " + location
               + "... retrying");
           t.printStackTrace();
         }
@@ -370,31 +385,33 @@ final class UTS {
     }
 
     void distribute() {
-      Place p;
+      Integer thief;
       if (lifeline.get()) {
         final Bag b = bag.split();
         if (b != null) {
-          p = place((here().id + 1) % places);
+          thief = (location + 1) % locations;
           lifeline.set(false);
-          transfer(p, b);
+          transfer(thief, b);
           try {
-            asyncat(p, () -> {
-              uts.lifelinedeal(b);
+            final int id = thief & ((1 << power) - 1);
+            asyncat(place(thief >> power), () -> {
+              uts[id].lifelinedeal(b);
             });
           } catch (final DeadPlaceException e) {
             // thief died, nothing to do
           }
         }
       }
-      while ((p = thieves.poll()) != null) {
+      while ((thief = thieves.poll()) != null) {
         final Bag b = bag.split();
         if (b != null) {
-          transfer(p, b);
+          transfer(thief, b);
         }
         try {
-          final Place h = home;
-          uncountedasyncat(p, () -> {
-            uts.deal(h, b);
+          final int victim = location;
+          final int id = thief & ((1 << power) - 1);
+          uncountedasyncat(place(thief >> power), () -> {
+            uts[id].deal(victim, b);
           });
         } catch (final DeadPlaceException e) {
           // thief died, nothing to do
@@ -421,7 +438,7 @@ final class UTS {
 
   public static void main(String[] args) {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
-      System.setProperty(Configuration.APGAS_PLACES, "4");
+      System.setProperty(Configuration.APGAS_PLACES, "4don;");
     }
     System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
@@ -439,8 +456,8 @@ final class UTS {
 
     try {
       finish(() -> {
-        Worker.uts.init(19, depth);
-        Worker.uts.run();
+        Worker.uts[0].init(19, depth);
+        Worker.uts[0].run();
       });
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
@@ -450,16 +467,16 @@ final class UTS {
 
     long count = 0;
     // collect all counts
-    for (final Checkpoint c : Worker.uts.map.values()) {
+    for (final Checkpoint c : Worker.uts[0].map.values()) {
       count += c.count;
     }
 
-    // if places have died, process remaning nodes seqentially at place 0
-    for (final Map.Entry<Place, Checkpoint> e : Worker.uts.map.entrySet()) {
+    // if places have died, process remaining nodes sequentially at place 0
+    for (final Map.Entry<Integer, Checkpoint> e : Worker.uts[0].map.entrySet()) {
       final Bag b = e.getValue().bag;
       if (b != null && b.size != 0) {
         System.err.println("Recovering " + e.getKey());
-        count += Worker.uts.seq(b);
+        count += Worker.uts[0].seq(b);
       }
     }
 
@@ -470,7 +487,11 @@ final class UTS {
     // collect all counts
     for (final Place p : places()) {
       transfers += at(p, () -> {
-        return Worker.uts.transfers;
+        int v = 0;
+        for (int id = 0; id < (1 << Worker.power); ++id) {
+          v += Worker.uts[id].transfers;
+        }
+        return v;
       });
     }
 
