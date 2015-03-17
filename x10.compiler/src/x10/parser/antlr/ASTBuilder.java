@@ -651,6 +651,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         try {
             // First stage
             tree = p.compilationUnit();
+            if (tree.ast == null) {
+                throw new Exception();
+            }
         } catch (Exception ex) {
             // Second stage
             tokens.reset();
