@@ -29,8 +29,9 @@ class HelloWholeWorldLoop {
                  at (p) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
              }
          }
-         catch (e:DeadPlaceException) {
-             Console.OUT.println("Got DeadPlaceException from "+e.place+" in round "+i);
+         catch (me:MultipleExceptions) {
+             for (e in me.getExceptionsOfType[DeadPlaceException](true))
+                 Console.OUT.println("Got DeadPlaceException from "+e.place+" in round "+i);
          }
          
          System.sleep(10000);
