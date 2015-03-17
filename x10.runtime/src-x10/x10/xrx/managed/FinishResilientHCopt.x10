@@ -66,6 +66,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   }
   
   public def notifySubActivitySpawn(place:Place):void {
+    init();
     if (place.equals(here)) {
       latch.lock();
       local++;
