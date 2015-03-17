@@ -117,7 +117,7 @@ public class Errors {
 
 			Position position = e.position();
 
-			if (p != null) {
+			if (position == null && p != null) {
 				position = p;
 			}
 			
