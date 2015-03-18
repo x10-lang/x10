@@ -706,7 +706,11 @@ public class ApplicationMaster {
 					// container completed successfully
 					LOG.info("Container completed successfully." + ", containerId="+ containerStatus.getContainerId());
 				}
-				links.get(places.get(containerStatus.getContainerId())).port = PORT_DEAD; // mark the place as dead
+				Integer placeId = places.get(containerStatus.getContainerId());
+				if (placeId != null) {
+					CommunicationLink l = links.get(placeId);
+					if (l != null) l.port = PORT_DEAD; // mark the place as dead
+				}
 			}
 			// check to see if everything is down, and if so, exit ourselves
 			if (numCompletedContainers.get() == (numAllocatedContainers.get()+numExtraContainers.get())) {
