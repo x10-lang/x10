@@ -447,4 +447,6 @@ class FinishResilientHC extends FinishResilientBridge {
         latch.release(); // latch.await is in waitForFinish
         if (verbose>=2) debug("checkStatus(id="+id+") returning, latch released");
     }
+
+    public def notifyRemoteContinuationCreated():void { hasRemote = true; }
 }
