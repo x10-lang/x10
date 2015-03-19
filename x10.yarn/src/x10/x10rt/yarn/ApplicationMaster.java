@@ -741,7 +741,7 @@ public class ApplicationMaster {
 					if (ContainerExitStatus.ABORTED == exitStatus) {
 						// killed by framework, not really a failure?
 						LOG.info("Container aborted");
-					} else if (placeId != null && pendingKills.containsKey(placeId))  {
+					} else if (placeId != null && pendingKills != null && pendingKills.containsKey(placeId))  {
 						// TODO: ensure that the pending kill actually executed
 						LOG.info("Container was killed and exited with exit code "+exitStatus);
 					} else {
