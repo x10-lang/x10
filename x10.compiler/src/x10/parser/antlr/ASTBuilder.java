@@ -5794,7 +5794,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
         List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
         List<Object[]> VariableDeclarators = ast(ctx.variableDeclarators());
-        ctx.ast = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
+        List<LocalDecl> decls = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
+        if (decls.size() == 1) { 
+            LocalDecl decl = (LocalDecl) decls.get(0).position(pos(ctx));
+            decls = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
+            decls.add(decl);
+        }
+        ctx.ast = decls;
     }
 
     /** Production: localVariableDeclaration ::= modifiersopt variableDeclaratorsWithType (#localVariableDeclaration1) */
