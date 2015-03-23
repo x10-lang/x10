@@ -2310,18 +2310,6 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitMethodBody2(X10Parser.MethodBody2Context ctx);
 	/**
-	 * Enter a parse tree produced by the {@code methodBody1}
-	 * labeled alternative in {@link X10Parser#methodBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterMethodBody1(X10Parser.MethodBody1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code methodBody1}
-	 * labeled alternative in {@link X10Parser#methodBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitMethodBody1(X10Parser.MethodBody1Context ctx);
-	/**
 	 * Enter a parse tree produced by the {@code methodBody3}
 	 * labeled alternative in {@link X10Parser#methodBody}.
 	 * @param ctx the parse tree

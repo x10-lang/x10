@@ -117,9 +117,7 @@ public final class RemoteArray[T](
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = {
-        return this()(p)=v;
-    }
+    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = this()(p)=v;
 
     /**
      * Access the Array that is encapsulated by this RemoteArray. 

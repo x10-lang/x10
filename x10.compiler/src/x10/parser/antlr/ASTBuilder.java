@@ -386,7 +386,6 @@ import x10.parser.antlr.generated.X10Parser.LoopStatement2Context;
 import x10.parser.antlr.generated.X10Parser.LoopStatement3Context;
 import x10.parser.antlr.generated.X10Parser.LoopStatementContext;
 import x10.parser.antlr.generated.X10Parser.MethodBody0Context;
-import x10.parser.antlr.generated.X10Parser.MethodBody1Context;
 import x10.parser.antlr.generated.X10Parser.MethodBody2Context;
 import x10.parser.antlr.generated.X10Parser.MethodBody3Context;
 import x10.parser.antlr.generated.X10Parser.MethodBodyContext;
@@ -4908,14 +4907,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), nf.X10Return(pos(ctx), ConditionalExpression, true));
     }
 
-    /** Production: closureBody ::= annotationsopt '{' blockStatementsopt lastExpression '}' (#closureBody1) */
+    /** Production: closureBody ::= annotationsopt '{' blockInteriorStatement* lastExpression '}' (#closureBody1) */
     @Override
     public void exitClosureBody1(ClosureBody1Context ctx) {
         List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
-        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
         Stmt LastExpression = ast(ctx.lastExpression());
         List<Stmt> l = new ArrayList<Stmt>();
-        l.addAll(BlockStatementsopt);
+        for (BlockInteriorStatementContext blockInteriorStatement : ctx.blockInteriorStatement()) {
+            l.addAll(ast(blockInteriorStatement));
+        }
         l.add(LastExpression);
         Block b = nf.Block(pos(ctx), l);
         b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
@@ -5392,19 +5392,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), LastExpression);
     }
 
-    /** Production: methodBody ::= '=' annotationsopt '{' blockStatementsopt lastExpression '}' (#methodBody1) */
-    @Override
-    public void exitMethodBody1(MethodBody1Context ctx) {
-        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
-        List<Stmt> BlockStatementsopt = ast(ctx.blockStatementsopt());
-        Stmt LastExpression = ast(ctx.lastExpression());
-        List<Stmt> l = new ArrayList<Stmt>();
-        l.addAll(BlockStatementsopt);
-        l.add(LastExpression);
-        ctx.ast = (Block) ((X10Ext) nf.Block(pos(ctx), l).ext()).annotations(Annotationsopt);
-    }
-
-    /** Production: methodBody ::= '='? annotationsopt block (#methodBody2) */
+    /** Production: methodBody ::= annotationsopt block (#methodBody2) */
     @Override
     public void exitMethodBody2(MethodBody2Context ctx) {
         List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
@@ -5418,7 +5406,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = null;
     }
 
-    /** Production: constructorBody ::= '='? constructorBlock (#constructorBody0) */
+    /** Production: constructorBody ::= constructorBlock (#constructorBody0) */
     @Override
     public void exitConstructorBody0(ConstructorBody0Context ctx) {
         Block ConstructorBlock = ast(ctx.constructorBlock());

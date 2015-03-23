@@ -39,7 +39,7 @@ public class ReaderIterator[T] { T haszero } implements Iterator[T], Iterable[T]
     /** Allow the iterator to be used in a for loop. */
     public def iterator():Iterator[T] = this;
 
-    public def next():T = {
+    public def next():T {
         if (!hasNext())
             throw new NoSuchElementException();
         val x:T = next;

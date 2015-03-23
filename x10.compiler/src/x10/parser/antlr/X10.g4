@@ -343,7 +343,7 @@ lastExpression returns [Return ast]:
 closureBody returns [Block ast]:
       expression                                               #closureBody0
     | annotationsopt block                                     #closureBody2
-    | annotationsopt '{' blockStatementsopt lastExpression '}'   #closureBody1
+    | annotationsopt '{' blockInteriorStatement* lastExpression '}'   #closureBody1
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody
@@ -455,12 +455,11 @@ throwsopt returns [List<TypeNode> ast]:
     ;
 methodBody returns [Block ast]:
       '=' lastExpression ';'                                         #methodBody0
-    | '='? annotationsopt block                                      #methodBody2
-    | '=' annotationsopt '{' blockStatementsopt lastExpression '}'   #methodBody1
+    | annotationsopt block                                           #methodBody2
     | ';'                                                            #methodBody3
     ;
 constructorBody returns [Block ast]:
-      '='? constructorBlock                 #constructorBody0
+      constructorBlock                      #constructorBody0
     | '=' explicitConstructorInvocation     #constructorBody1
     | '=' assignPropertyCall                #constructorBody2
     | ';'                                   #constructorBody3
