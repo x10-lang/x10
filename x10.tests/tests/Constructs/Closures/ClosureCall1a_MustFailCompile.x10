@@ -33,7 +33,7 @@ public class ClosureCall1a_MustFailCompile extends x10Test {
     class Y extends X {public static val name = "Y";}
     class Z extends X {public static val name = "Z";}
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         // must fail compile
         val a = ([T](){T<:X} => T.name)();
@@ -42,7 +42,7 @@ public class ClosureCall1a_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureCall1a_MustFailCompile().execute();
     }
 }

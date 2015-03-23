@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 
 public class DepTypeThisClause(i:int, j:int) extends x10Test {
-    def this(ii:int, jj:int):DepTypeThisClause{self.i==ii,self.j==jj} = { property(ii,jj); }
+    def this(ii:int, jj:int):DepTypeThisClause{self.i==ii,self.j==jj} { property(ii,jj); }
 
     // i is a param for this method and also a property
     def make(i:int(3n)){this.i==3n}:DepTypeThisClause = new DepTypeThisClause(i,i);
@@ -30,13 +30,13 @@ public class DepTypeThisClause(i:int, j:int) extends x10Test {
       return ret;
    }
 
-    public def NotReallyRun(){this.i==3n}:boolean(true) = {
+    public def NotReallyRun(){this.i==3n}:boolean(true) {
         x10.io.Console.OUT.println("i (=3?) = " + i); //property ref.
         return true;
     }
 
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new DepTypeThisClause(3n,9n).execute();
     }
 

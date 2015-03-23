@@ -44,7 +44,7 @@ public class UIntCall extends x10Test {
 	return "int" + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val i0 = 0n;
 	val u1 = 1un;

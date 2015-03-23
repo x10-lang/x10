@@ -37,7 +37,7 @@ public class UIntOverride4 extends x10Test {
 	public def f(x:UInt) { return "N:UInt"; }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val ji = new J[Int]();
 	val ju = new J[UInt]();
 	val k = new K();

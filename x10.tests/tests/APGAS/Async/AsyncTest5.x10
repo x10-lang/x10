@@ -21,7 +21,7 @@ import x10.regionarray.*;
  */
 public class AsyncTest5 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val A: DistArray[int](1) = DistArray.make[int](Dist.makeUnique());
         chk(Place.numPlaces() >= 2);
         finish async chk(A.dist(0) == here);
@@ -43,11 +43,11 @@ public class AsyncTest5 extends x10Test {
         return true;
     }
 
-    static def implies(var x: boolean, var y: boolean): boolean = {
+    static def implies(var x: boolean, var y: boolean): boolean {
         return (!x) | y;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new AsyncTest5().execute();
     }
 }

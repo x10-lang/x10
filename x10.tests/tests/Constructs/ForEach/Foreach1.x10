@@ -21,7 +21,7 @@ public class Foreach1 extends x10Test {
     public static N: int = 100n;
     var nActivities: int = 0n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val P0  = here; // save current place
         val d = Region.make(0, N-1)->here;
         val hasbug  = DistArray.make[boolean](d);
@@ -37,7 +37,7 @@ public class Foreach1 extends x10Test {
         return !hasbug.reduce((x:Boolean,y:Boolean) => x|y, false) &&
             nActivities == N;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Foreach1().execute();
     }
 }

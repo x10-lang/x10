@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class AssignmentLiteralPrimitiveToPrimitive extends x10Test {
 
-	 public def run(): boolean = {
+	 public def run(): boolean {
 		var bb: byte{self==1y} = 1y;
 		var ss: short{self==10s} = 10s;
 		var ii: int{self==20n} = 20n;
@@ -30,7 +30,7 @@ public class AssignmentLiteralPrimitiveToPrimitive extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new AssignmentLiteralPrimitiveToPrimitive().execute();
 	}
 }

@@ -25,7 +25,7 @@ public class UByteCallStatic extends x10Test {
 	return "byte = " + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val i0 = 0y;
 	val u1 = 1uy;
 	val s0 = f(i0);

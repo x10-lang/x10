@@ -14,7 +14,7 @@ import harness.x10Test;
 
 /**
  * The body of the closure is evaluated when the closure is invoked by
- * a call expression (§12.8), not at the closure’s place in the
+ * a call expression (Â§12.8), not at the closures place in the
  * program text.
  *
  * @author bdlucas 8/2008
@@ -24,12 +24,12 @@ public class ClosureBody2 extends x10Test {
 
     var x:long = 0;
 
-    def x(x:long):void = {
+    def x(x:long):void {
         this.x=x;
     }
 
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         // not evaluated here
         val f = () => {x(1);};
@@ -42,7 +42,7 @@ public class ClosureBody2 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureBody2().execute();
     }
 }

@@ -20,7 +20,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile extends x
 
 	 private val overIntMax: long = (x10.lang.Int.MAX_VALUE as long) + 10000;
 	 
-	 public def run(): boolean = {
+	 public def run(): boolean {
 		try {
 			// This value cannot fit in an integer, so the compiler must flag an error.
 			var l2: long{self==2147493647L} = overIntMax as long{self==2147493647n}; // ERR: Int literal 2147493647 is out of range. // ERR Cannot build constraint from expression |x10.lang.Long.self == x10.lang.Long.implicit_operator_as(-2147473649)
@@ -30,7 +30,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile extends x
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new  Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile().execute();
 	}
 

@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class OKAtomicInWhen extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   val b=true;
 	   try {
 	     when (b==true) 

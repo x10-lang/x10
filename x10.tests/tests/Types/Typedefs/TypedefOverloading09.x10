@@ -41,7 +41,7 @@ public class TypedefOverloading09 extends TypedefTest {
         static type A/*D*/(i:long,s:String) = W{self.i==i && self.s==s};
         static type A/*E*/(s:String,i:long) = W{self.s==s && self.i==i};
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         a1:A = new A();
         a2:A/*B*/(1) = 1;
@@ -51,7 +51,7 @@ public class TypedefOverloading09 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading09().execute();
     }
 }

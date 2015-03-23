@@ -22,7 +22,7 @@ public class JavaArrayWithInitializer extends x10Test {
 
     static N: long = 25;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val foo1  = new Array[long](N, (i:long)=> i);
 

@@ -18,21 +18,21 @@ import harness.x10Test;
 public class X10DepTypeClassOne(p:int) extends x10Test implements X10InterfaceOne {
    public property p():int = p;
    
-   public def this(p: int): X10DepTypeClassOne{self.p==p} = {
+   public def this(p: int): X10DepTypeClassOne{self.p==p} {
        property(p);
    }
 
-   public def run(): boolean = {
+   public def run(): boolean {
       val p: int = 1n;
       var one: X10DepTypeClassOne = new X10DepTypeClassOne(p);
       return one.p() == p;
    }
    
-   public def interfaceMethod(): void = {
+   public def interfaceMethod(): void {
 
    }
    
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Rail[String]): void {
       new X10DepTypeClassOne(0n).execute();
    }
    }

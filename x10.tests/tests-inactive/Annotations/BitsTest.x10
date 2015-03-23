@@ -18,7 +18,7 @@ public class BitsTest extends harness.x10Test {
     var a: int;
     var b: int;
     
-    public def run(): boolean = {
+    public def run(): boolean {
     	b = 65536;
     	b = 0;
         a = 7 & 1;
@@ -26,7 +26,7 @@ public class BitsTest extends harness.x10Test {
         return a == 1 && b == 0x14567;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new BitsTest().execute();
     }
 }

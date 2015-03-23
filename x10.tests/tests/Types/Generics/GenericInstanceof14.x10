@@ -30,12 +30,12 @@ public class GenericInstanceof14 extends GenericTest {
     class Super {};
     class Sub extends Super {};
     
-    public def run() = {
+    public def run() {
         var a:Any = new A();
         return !(a instanceof I[I[Sub]]) && a instanceof I[I[Super]];
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInstanceof14().execute();
     }
 }

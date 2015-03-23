@@ -22,7 +22,7 @@ public class BenchmarkIterateArray(elements : Long) extends x10Test {
         property(elements);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val a = new Array_1[Long](elements);
         val iterations = (1e7 / elements) as Int;
         Console.OUT.println("iterations = " + iterations);

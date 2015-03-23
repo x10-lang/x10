@@ -31,7 +31,7 @@ public class TestNumericConversion extends x10Test {
 	    return true;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	if (1 as Float != 1.0f) 	{ p(" (1 as Float != 1.0f)    "); r = false; }
 	if (0 as Float != 0.0f) 	{ p(" (0 as Float != 0.0f)    "); r = false; }

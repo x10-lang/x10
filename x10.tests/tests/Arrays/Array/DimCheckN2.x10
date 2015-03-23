@@ -20,17 +20,17 @@ import x10.regionarray.*;
  */
 public class DimCheckN2 extends x10Test {
 
-    def m(var r:Region(2){self!=null}): void = {
+    def m(var r:Region(2){self!=null}): void {
         val a1 = new Array[int](r, (p[i,j]: Point): int => { return i as int; });
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r  = Region.make(0..2, 0..3);
         m(r);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DimCheckN2().execute();
     }
 }

@@ -25,7 +25,7 @@ public class XTENLANG_636 extends x10Test {
         var x : X;
         def this(x:X) { this.x = x; }
         public def get() : X = x;
-        public def set(x:X) = {this.x = x;} 
+        public def set(x:X) {this.x = x;} 
       }
 
        class Get[X] implements IGet[X]{
@@ -37,7 +37,7 @@ public class XTENLANG_636 extends x10Test {
        class Set[X] implements ISet[X]{
         var x : X; // var fields must be invariant
         def this(x:X) { this.x = x; }
-        public def set(x:X) = {this.x = x;} 
+        public def set(x:X) {this.x = x;} 
       }
 
 
@@ -52,7 +52,7 @@ public class XTENLANG_636 extends x10Test {
       }
       
       
-    public def run(): boolean = {
+    public def run(): boolean {
         val test1 = Sub <: Super;
         val test2 = ISet[Sub] :> ISet[Super];
         val test3 = ISet[Sub] <: ISet[Int];
@@ -61,7 +61,7 @@ public class XTENLANG_636 extends x10Test {
         return test1 && !test2 && (!test3) && (!test4) && (!test5);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new XTENLANG_636().execute();
     }
 }

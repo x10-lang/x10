@@ -18,13 +18,13 @@ import x10.regionarray.*;
  * @author vj
  */
 public class DepTypeRef extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
       var R: Region{rect} = Region.make(1..2, 1..2);
       var a: Array[double]{rect} = new Array[double](R, (p: Point) => 1.0);
       return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DepTypeRef().execute();
     }
 }

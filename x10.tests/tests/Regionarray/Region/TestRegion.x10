@@ -62,23 +62,23 @@ abstract public class TestRegion extends x10Test {
 
         var os: Rail[Any] = new Rail[Any](10);
 
-        def set(i0: long, vue: double): void = {
+        def set(i0: long, vue: double): void {
             os(i0) = new Box[double](vue);
         }
 
-        def set(i0: long, i1: long, vue: double): void = {
+        def set(i0: long, i1: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        def set(i0: long, i1: long, i2: long, vue: double): void = {
+        def set(i0: long, i1: long, i2: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: long): void = {
+        def pr(rank: long): void {
             var min: long = os.size;
             var max: long = 0L;
             for (var i: long = 0L; i<os.size; i++) {
@@ -121,11 +121,11 @@ abstract public class TestRegion extends x10Test {
         }
     }
 
-    def prArray(test: String, r: Region): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region): Array[double]{rank==r.rank} {
         return prArray(test, r, false);
     }
 
-    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} {
 
         val init1 : (Point(r.rank))=>double  = (pt: Point(r.rank)) => {
             var v: int = 1n;
@@ -142,7 +142,7 @@ abstract public class TestRegion extends x10Test {
         return a as Array[double]{rank==r.rank};
     }
 
-    def prUnbounded(test: String, r: Region): void = {
+    def prUnbounded(test: String, r: Region): void {
         try {
             prRegion(test, r);
             val i = r.iterator();
@@ -161,7 +161,7 @@ abstract public class TestRegion extends x10Test {
         pr(test + " " + r);
     }
             
-    def prRegion(test: String, r: Region): void = {
+    def prRegion(test: String, r: Region): void {
 
         pr("--- " + testName() + ": " + test);
 
@@ -176,11 +176,11 @@ abstract public class TestRegion extends x10Test {
         pr("region: " + r);
     }
 
-    def prArray(test: String, a: Array[double]): void = {
+    def prArray(test: String, a: Array[double]): void {
         prArray(test, a, false);
     }
 
-    def prArray(test: String, a: Array[double], bump: boolean): void = {
+    def prArray(test: String, a: Array[double], bump: boolean): void {
 
         val r: Region = a.region;
 
@@ -207,7 +207,7 @@ abstract public class TestRegion extends x10Test {
     }
 
 
-    def pr(s: String): void = {
+    def pr(s: String): void {
         (out as GlobalRef[Printer]{self.home==here})().println(s);
     }
 

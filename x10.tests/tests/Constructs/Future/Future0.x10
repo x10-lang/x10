@@ -16,9 +16,9 @@ import x10.util.concurrent.Future;
  * Future test.
  */
 public class Future0 extends x10Test {
-	public def run() = {
+	public def run() {
 	  val x = Future.make[int](()=> 47n);
-	  x() == 47n
+	  return x() == 47n;
 	}
 
 	public static def main(Rail[String])  {

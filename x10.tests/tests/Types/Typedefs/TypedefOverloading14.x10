@@ -23,14 +23,14 @@ public class TypedefOverloading14 extends TypedefTest {
 
     static class A(i:long) {def this() = property(0);}
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         type A = long;
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading14().execute();
     }
 }

@@ -17,7 +17,7 @@ import x10.array.DistArray_BlockBlock_2;
  */
 public class DistArray_BlockBlock_2_Access extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val da = new DistArray_BlockBlock_2[Long](5, 7, (i:Long,j:Long) => 0);
 
         finish for (place in da.placeGroup()) at(place) {
@@ -34,7 +34,7 @@ public class DistArray_BlockBlock_2_Access extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DistArray_BlockBlock_2_Access().execute();
     }
 }

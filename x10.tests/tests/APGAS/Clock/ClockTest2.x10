@@ -20,7 +20,7 @@ public class ClockTest2 extends x10Test {
 	var value: long = 0;
 	static  N: long = 10;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		clocked finish {
 		   for (var i: long = 0; i < N; i++) {
 			 clocked 

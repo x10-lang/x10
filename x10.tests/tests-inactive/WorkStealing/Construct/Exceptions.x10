@@ -16,14 +16,14 @@ import harness.x10Test;
  * Test for x10 exceptions in X10 work-stealing
  */
 public class Exceptions extends x10Test {
-    static def e(msg:String): long = {
+    static def e(msg:String): long {
         if (true) throw new x10.lang.Exception(msg);
         return -1;
     }
     
     var ok: boolean = true;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         //step 1: finish try-catch can catch non async exception
 
         finish {

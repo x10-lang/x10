@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class InnerClass extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
     		class X {}
     		class Y {}

@@ -22,13 +22,13 @@ import x10.util.*;
 
 public class ClosureCall3 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val y = (x:Long)=> x;
         val z :Long(1) = y(1);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureCall3().execute();
     }
 }

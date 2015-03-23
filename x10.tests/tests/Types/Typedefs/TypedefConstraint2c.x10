@@ -25,7 +25,7 @@ public class TypedefConstraint2c extends TypedefTest {
         //val name = T.name;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type C[T]{T<:Y} = FOO[T];
         c:C[Z] = new FOO[Z]();
@@ -34,7 +34,7 @@ public class TypedefConstraint2c extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint2c().execute();
     }
 }

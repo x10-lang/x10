@@ -33,13 +33,13 @@ public class FlattenCondAnd extends x10Test {
 
     val a: Array[Boolean](2);
 
-    public def this(): FlattenCondAnd = {
+    public def this(): FlattenCondAnd {
         a = new Array[Boolean](Region.make(1..10, 1..10), ([i,j]: Point) => true);
     }
 
     def m(x: boolean)= !x;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x: boolean = m(a(1, 1)) && a(0, 0); // the second expression will throw an exception if it is evaluated.
         return !x;
     }

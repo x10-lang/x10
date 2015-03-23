@@ -29,7 +29,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
     
     static struct Wrapper{
         val m_array: DistArray[double](2);
-        def this(var a_array: DistArray[double](2)): Wrapper = {
+        def this(var a_array: DistArray[double](2)): Wrapper {
             m_array=a_array;
         }
     }

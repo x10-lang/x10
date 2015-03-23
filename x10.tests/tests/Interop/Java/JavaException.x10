@@ -36,7 +36,7 @@ public class JavaException extends x10Test {
 	return pass;
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
 	var pass: Boolean = false;
         pass = x10Exception();
 	chk(pass);

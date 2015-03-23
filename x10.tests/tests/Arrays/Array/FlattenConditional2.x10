@@ -21,18 +21,18 @@ public class FlattenConditional2 extends x10Test {
 
     var a: Array[int](2);
 
-    public def this(): FlattenConditional2 = {
+    public def this(): FlattenConditional2 {
         a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
 
     var extra: int = 4n;
 
-    def m(i: int): int = {
+    def m(i: int): int {
         if (i==6n) throw new Exception();
         return i;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x: int = a(1, 1)==2n? m(a(2, 2)) : m(a(3, 3));
         return x==4n;
     }

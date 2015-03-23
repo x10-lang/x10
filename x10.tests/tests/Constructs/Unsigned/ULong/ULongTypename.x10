@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author Salikh Zakirov 5/2011
  */
 public class ULongTypename extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
 	val u1 = 1ul;
 	val a1 = u1 as Any;
 	if (!(u1.typeName().equals("x10.lang.ULong"))) return false;

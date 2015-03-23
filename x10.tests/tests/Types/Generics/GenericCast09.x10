@@ -27,7 +27,7 @@ public class GenericCast09 extends GenericTest {
         public def m(long) = 0;
     }
 
-    public def run() = {
+    public def run() {
 
         var a:Any = new A();
 
@@ -40,7 +40,7 @@ public class GenericCast09 extends GenericTest {
         return false;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericCast09().execute();
     }
 }

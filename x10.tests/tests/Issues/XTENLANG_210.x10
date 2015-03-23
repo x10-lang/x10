@@ -20,7 +20,7 @@ class XTENLANG_210 extends x10Test {
 
     var os:Rail[Any] = new Rail[Any](10);
     
-    operator this(i0:int)=(vue:double): void = {
+    operator this(i0:int)=(vue:double): void {
         os(i0) = new Box[double](vue);
     }
 

@@ -40,7 +40,7 @@ public class JavaSerialization2 extends x10Test {
         Console.OUT.println("test2b passed");
     }
         
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test1();
         test2a();
         test2b();

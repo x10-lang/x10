@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class CastPrimitiveConstrainedToPrimitiveConstrained extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		
 		try { 
 			var i: int{self == 0n} = 0n;
@@ -30,7 +30,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastPrimitiveConstrainedToPrimitiveConstrained().execute();
 	}
 

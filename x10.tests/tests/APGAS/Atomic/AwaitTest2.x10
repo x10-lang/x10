@@ -18,12 +18,12 @@ public class AwaitTest2 extends x10Test {
 
 	var val_: long = 42;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		when (val_ == 42);
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new AwaitTest2().execute();
 	}
 }

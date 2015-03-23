@@ -29,16 +29,16 @@ public class CovariantReturnFromAnonymousClass extends x10Test {
 		 def whatever():I;
 	}
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   x10.io.Console.OUT.println("" + (new I() {
-		   public def test(): void = {
+		   public def test(): void {
 			   x10.io.Console.OUT.println("Inner Class test invoked.");
 		   }
 		   public def whatever() = this;
 	   }).whatever() + " hmm.. this worked");
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CovariantReturnFromAnonymousClass().execute();
 	}
 }

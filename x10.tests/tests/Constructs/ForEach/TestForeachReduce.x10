@@ -47,7 +47,7 @@ public class TestForeachReduce(N:Long) extends x10Test {
         return true;
 	}
 
-	public static def main(args:Rail[String]): void = {
+	public static def main(args:Rail[String]): void {
         var size:Long = 1017;
         var print:Boolean = false;
         if (args.size > 0) {

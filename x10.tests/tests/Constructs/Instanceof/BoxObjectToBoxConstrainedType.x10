@@ -19,12 +19,12 @@ import harness.x10Test;
  **/
 public class BoxObjectToBoxConstrainedType extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
                 val n = ValueClass(1);
 		return n instanceof ValueClass{p==1};
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new BoxObjectToBoxConstrainedType().execute();
 	}
 }

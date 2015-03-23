@@ -18,7 +18,7 @@ import harness.x10Test;
  **/
  public class CastInt3ToAny3AndBack extends x10Test {
 
-   public def run(): boolean = {      
+   public def run(): boolean {      
       var obj: Any(3n) = 3n;
       val i = obj as Int(3n);
       return true;

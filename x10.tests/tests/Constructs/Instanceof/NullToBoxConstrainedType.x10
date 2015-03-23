@@ -20,7 +20,7 @@ public class NullToBoxConstrainedType extends x10Test {
 	 
 	public def run()=!(null instanceof Box[ValueClass{p==1}]);
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NullToBoxConstrainedType().execute();
 	}
 }

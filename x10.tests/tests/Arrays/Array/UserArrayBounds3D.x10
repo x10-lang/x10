@@ -26,7 +26,7 @@ import harness.x10Test;
 
 public class UserArrayBounds3D extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val COUNT: int = 100n;
         val L: int = 3n;
@@ -53,7 +53,7 @@ public class UserArrayBounds3D extends x10Test {
      * return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int,ub3: int, i: int, j: int, var k: int): boolean = {
+    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int,ub3: int, i: int, j: int, var k: int): boolean {
 
         var a: Array[Int](3) = new Array[Int](Region.make(lb1..ub1, lb2..ub2, lb3..ub3), ([i,j,k]: Point)=> 0n);
 
@@ -72,7 +72,7 @@ public class UserArrayBounds3D extends x10Test {
     /**
      * print a string
      */
-    private static def pr(var s: String): void = {
+    private static def pr(var s: String): void {
         x10.io.Console.OUT.println(s);
     }
 

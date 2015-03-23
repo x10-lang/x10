@@ -37,32 +37,32 @@ public class InterfaceTypeInvariant_MustFailCompile extends x10Test {
     class Tester1(n: int, m:int) implements Test{
         public property n():int = n;
         @ERR public property m():int = m;
-      public def this() = { property(3n,2n); }
+      public def this() { property(3n,2n); }
       public def put()=0n;
 	}
     class Tester2(n: int, m:int{self==this.n()}) implements Test{
         public property n():int = n;
         @ShouldNotBeERR public property m():int{self==this.n()} = m;
-      @ERR @ERR public def this() = { property(3n,2n); }  // [Semantic Error: Invalid type; the real clause of InterfaceTypeInvariant_MustFailCompile.Tester2{self.n==3, self.m==2} is inconsistent.]
+      @ERR @ERR public def this() { property(3n,2n); }  // [Semantic Error: Invalid type; the real clause of InterfaceTypeInvariant_MustFailCompile.Tester2{self.n==3, self.m==2} is inconsistent.]
       public def put()=0;
 	}
     class Tester3(n: int, m:int{self==this.n()}) implements Test{
         public property n():int = n;
         @ShouldNotBeERR public property m():int{self==this.n()} = m;
-      public def this() = { property(3n,3n); }
+      public def this() { property(3n,3n); }
       public def put()=0n;
 	}
 
     class Tester(n: int, m:int){m == 2n && n == 3n} implements Test{ 
         public property n():int = n;
         @ERR public property m():int = m;
-      public def this():Tester = { property(3n,2n); }
+      public def this():Tester { property(3n,2n); }
       public def put()=0n;
 	}
  
     public def run()=true;
    
-    public static def main(Rail[String]): void = {
+    public static def main(Rail[String]): void {
         new InterfaceTypeInvariant_MustFailCompile().execute();
     }
    

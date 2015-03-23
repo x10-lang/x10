@@ -29,7 +29,7 @@ class XTENLANG_23 extends x10Test {
     }
     
     abstract class BA[T] extends AA[T] implements S[T,P] {
-        public final operator this(P)=(T):void = {}
+        public final operator this(P)=(T):void {}
     }
     
     abstract class VA[T] extends BA[T] {}

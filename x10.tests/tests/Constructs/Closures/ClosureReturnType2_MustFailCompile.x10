@@ -25,14 +25,14 @@ import x10.compiler.tests.*; // err markers
 
 public class ClosureReturnType2_MustFailCompile extends x10Test {
 
-    def foo() = {}
+    def foo() {}
 
-    public def run(): boolean = {
+    public def run(): boolean {
         @ERR val f = ():int => {foo();};  // Closure must return a value of type x10.lang.Int
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturnType2_MustFailCompile().execute();
     }
 }

@@ -15,13 +15,13 @@ import harness.x10Test;
  * Check that a double lit generates a dep clause.
  */
 public class DoubleLitDepType_MustFailCompile extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var f: double{self==1.2D} = 1.3D; // ERR
 		var f2: double{self==1.2D} = 1.2D;
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new DoubleLitDepType_MustFailCompile().execute();
 	}
 

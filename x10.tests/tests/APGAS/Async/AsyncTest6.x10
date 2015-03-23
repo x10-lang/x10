@@ -21,7 +21,7 @@ public class AsyncTest6 extends x10Test {
 
     public static N: long = 20;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var s: long = 0;
         for (i in 0..(N-1)) {
             finish async x10.io.Console.OUT.println("s="+s+" i="+i);

@@ -14,7 +14,7 @@ import x10.regionarray.*;
 
 public class Array1DCodeGen extends x10Test {
 
-    final def matgen(val a: DistArray[double](3), val b: DistArray[double](3)): double = {
+    final def matgen(val a: DistArray[double](3), val b: DistArray[double](3)): double {
 
         var n: long = a.region.max(0);
         var init: int = 1325n;
@@ -37,18 +37,18 @@ public class Array1DCodeGen extends x10Test {
         return norma;
     }
 
-    final def write(val a: DistArray[double](3), val i: long, val j: long, val k: long, val val_: double): void = {
+    final def write(val a: DistArray[double](3), val i: long, val j: long, val k: long, val val_: double): void {
         async at(a.dist(i, j, k)) atomic a(i, j, k) = val_;
     }
 
     final 
     static // BARD: This failed to compile with a place error.
            // So I made it static.
-    def plusWrite(val a: DistArray[double](3), val i: long, val j: long, val k: long, val val_: double): void = {
+    def plusWrite(val a: DistArray[double](3), val i: long, val j: long, val k: long, val val_: double): void {
         async at(a.dist(i, j, k)) atomic a(i, j, k) += val_;
     }
     
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val R = Region.make(0..5, 0..5, 0..5);
         val a = DistArray.make[double](Dist.makeConstant(R, here));

@@ -18,7 +18,7 @@ import x10.regionarray.*;
  * @author kemal 4/2005
  */
 public class RegionAlgebra extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
         val R1: Region(2) = Region.make(0..1, 0..7);
         val R2: Region(2) = Region.make(4..5, 0..7);
         val R3: Region(2) = Region.make(0..7, 4..5);
@@ -56,7 +56,7 @@ public class RegionAlgebra extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new RegionAlgebra().execute();
     }
 }

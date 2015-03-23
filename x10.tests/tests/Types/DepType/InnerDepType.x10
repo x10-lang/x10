@@ -20,12 +20,12 @@ public class InnerDepType extends x10Test {
     class Test(i:int) {
        public def this(i:int):Test{self.i==i} { property(i); }
     }
-	public def run(): boolean = {
+	public def run(): boolean {
 	 
 	    var x: Test{self.i==0n} = new Test(0n); 
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new InnerDepType().execute();
 	}
 }

@@ -25,7 +25,7 @@ public class PointArithmetic_MustFailCompile extends x10Test {
 
     public static DIM: long = 5;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         var sum: long = 0;
         val p = [2 as long, 2, 2, 2, 2] as Point(DIM);
@@ -90,7 +90,7 @@ public class PointArithmetic_MustFailCompile extends x10Test {
         d = r / p; // ERR
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointArithmetic_MustFailCompile().execute();
     }
 }

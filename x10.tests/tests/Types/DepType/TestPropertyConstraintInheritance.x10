@@ -30,7 +30,7 @@ public class TestPropertyConstraintInheritance extends x10Test {
         }
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val b = new B();
         val x = b(0);
         return true;

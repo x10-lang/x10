@@ -21,7 +21,7 @@ import harness.x10Test;
  */
 public class ClosureConstraint3_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val f = (x:int){x==1n}=>x;
 
@@ -32,7 +32,7 @@ public class ClosureConstraint3_MustFailCompile extends x10Test {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureConstraint3_MustFailCompile().execute();
     }
 }

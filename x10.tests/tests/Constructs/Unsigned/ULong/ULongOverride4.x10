@@ -37,7 +37,7 @@ public class ULongOverride4 extends x10Test {
 	public def f(x:ULong) { return "N:ULong"; }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val ji = new J[Long]();
 	val ju = new J[ULong]();
 	val k = new K();

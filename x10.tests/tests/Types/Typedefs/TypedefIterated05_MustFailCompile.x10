@@ -23,7 +23,7 @@ import harness.x10Test;
 
 public class TypedefIterated05_MustFailCompile extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type A = B; // ERR
         type B = A;
@@ -31,7 +31,7 @@ public class TypedefIterated05_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefIterated05_MustFailCompile().execute();
     }
 }

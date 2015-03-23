@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 public class AsyncReturn_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish async {
 				return; // ERR: Cannot return from an async.
 		}

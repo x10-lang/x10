@@ -23,7 +23,7 @@ import x10.regionarray.*;
 
 public class UserArrayBounds4D extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val COUNT: int = 100n;
         val L: int = 3n;
@@ -53,7 +53,7 @@ public class UserArrayBounds4D extends x10Test {
      * return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int, ub3: int, lb4:int, ub4:int, i: int, j: int, k: int, l : int): boolean = {
+    private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int, ub3: int, lb4:int, ub4:int, i: int, j: int, k: int, l : int): boolean {
 
         var a: Array[Int](4) = new Array[Int](Region.make(lb1..ub1, lb2..ub2, lb3..ub3, lb4..ub4), ([i,j,k,l]: Point)=> 0n);
 
@@ -72,7 +72,7 @@ public class UserArrayBounds4D extends x10Test {
     /**
      * print a string
      */
-    private static def pr(var s: String): void = {
+    private static def pr(var s: String): void {
         x10.io.Console.OUT.println(s);
     }
 

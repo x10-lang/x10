@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class ArrayTypeCheck2 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val two = 2;
         
@@ -27,7 +27,7 @@ public class ArrayTypeCheck2 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayTypeCheck2().execute();
     }
 }

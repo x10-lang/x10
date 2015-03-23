@@ -19,12 +19,12 @@ import harness.x10Test;
 public class InfiniteLoopTest_MustFailTimeout extends x10Test {
 
 	var flag: boolean = true;
-	public def run(): boolean = {
+	public def run(): boolean {
 		while (flag) ;
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new InfiniteLoopTest_MustFailTimeout().execute();
 	}
 }

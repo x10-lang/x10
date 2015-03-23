@@ -20,7 +20,7 @@ public class Array1Exploded extends x10Test {
 
     public def select(p[i,j]: Point, [k,l]: Point)=i+k;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val r = Region.make(1..10, 1..10);
         val ia = new Array[long](r);
@@ -44,7 +44,7 @@ public class Array1Exploded extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Array1Exploded().execute();
     }
 }

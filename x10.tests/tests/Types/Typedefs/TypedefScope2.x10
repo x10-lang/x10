@@ -23,7 +23,7 @@ public class TypedefScope2 extends TypedefTest {
 
     static type T = long;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         a:T = 1;
         check("a", a, 1);
@@ -31,7 +31,7 @@ public class TypedefScope2 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefScope2().execute();
     }
 }

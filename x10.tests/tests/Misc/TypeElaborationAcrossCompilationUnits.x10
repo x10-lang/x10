@@ -23,13 +23,13 @@ rank==3.
 public class TypeElaborationAcrossCompilationUnits extends x10Test {
 
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 		var t: Temp = new Temp();
 		var b: Region{rank==3} = t.m(Region.make(1..10, 1..10, 1..10));
 		return true;
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new TypeElaborationAcrossCompilationUnits().execute();
 	}
 }

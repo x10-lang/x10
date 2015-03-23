@@ -27,17 +27,17 @@ public class NonFinalField_MustFailCompile extends x10Test {
    public var bad:boolean=true;
 	class Test(i: int) {
 	
-	   public def this(ii:int):Test = {
+	   public def this(ii:int):Test {
 	     property(ii);
 	   }
 	}
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   var a: Test =  new Test(52n) as
 	    Test{i==52n, bad}; // ERR
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NonFinalField_MustFailCompile().execute();
 	}
 }

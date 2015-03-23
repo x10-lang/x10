@@ -39,7 +39,7 @@ import harness.x10Test;
  */
 public class ClockTest16a extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		try {
 		val x = new X();
 		finish async {
@@ -71,7 +71,7 @@ public class ClockTest16a extends x10Test {
 			}
 
 			val f0 = new foo() {
-				public operator this(): void = {
+				public operator this(): void {
 					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
 						Clock.advanceAll();
@@ -80,7 +80,7 @@ public class ClockTest16a extends x10Test {
 			};
 
 			val f1  = new foo() {
-				public operator this(): void = {
+				public operator this(): void {
 					val cx: Clock = ca(x.one());
 					async clocked(cx) { // no clock use error
 						Clock.advanceAll();
@@ -125,7 +125,7 @@ public class ClockTest16a extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest16a().execute();
 	}
 
@@ -133,7 +133,7 @@ public class ClockTest16a extends x10Test {
 	 * A class to invoke a 'function pointer' that may do an async
 	 */
 	static class Y {
-		static def test(val f: foo): void = {
+		static def test(val f: foo): void {
 			{
 				f(); // it is hard to determine f does an async clocked(c) S,
 				//where the current activity is not registered on c
@@ -163,8 +163,8 @@ public class ClockTest16a extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): long = { return z(z(z(1))); }
-		def one(): long = { return z(z(z(0))); }
-		def modify(): void = { z(0) += 1; }
+		def zero(): long { return z(z(z(1))); }
+		def one(): long { return z(z(z(0))); }
+		def modify(): void { z(0) += 1; }
 	}
 }

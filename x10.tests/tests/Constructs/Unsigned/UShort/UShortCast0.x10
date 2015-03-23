@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author Salikh Zakirov 5/2011
  */
 public class UShortCast0 extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
 	val xx = 1us;
 	val i1 = 1n;
 	val s1 = 1s;

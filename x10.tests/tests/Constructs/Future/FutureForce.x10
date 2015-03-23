@@ -21,7 +21,7 @@ public class FutureForce extends x10Test {
 	var flag: Boolean;
 	var foo: Int;
 
-	public def bar(): Int = {
+	public def bar(): Int {
 		x10.io.Console.OUT.print("waiting ...");
 		System.sleep(2000);
 		x10.io.Console.OUT.println("done.");
@@ -29,12 +29,12 @@ public class FutureForce extends x10Test {
 		return 42n;
 	}
 
-	public def foo(): Int = {
+	public def foo(): Int {
 		var r2: Future[Int] = Future.make( () => bar() );
 		return 42n;
 	}
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
 		atomic flag = false;
 		var r1: Future[Int] = Future.make( () => foo() );
 		r1();
@@ -44,7 +44,7 @@ public class FutureForce extends x10Test {
 		return (b == true);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new FutureForce().execute();
 	}
 }

@@ -22,7 +22,7 @@ public class ArrayDecl extends x10Test {
 
     public static N: int = 24n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val ia0 = DistArray.make[int](Dist.makeConstant(Region.make(0, N-1), here));
         val p: Place = here;
@@ -74,7 +74,7 @@ public class ArrayDecl extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]):void = {
+    public static def main(Rail[String]):void {
         new ArrayDecl().execute();
     }
 }

@@ -19,12 +19,12 @@ import harness.x10Test;
  */
 public class IntLitOct extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		x10.io.Console.OUT.println(01124563);
 		return 01124563==305523;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new IntLitOct().execute();
 	}
 

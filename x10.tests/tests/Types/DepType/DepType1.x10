@@ -22,7 +22,7 @@ public class DepType1(i:int, j:int) extends x10Test {
     
      //  property declaration for an inner class.
     class Test(k:int) extends DepType1 { 
-        def this(k:int):Test{self.k==k} = {
+        def this(k:int):Test{self.k==k} {
             super(k,k);
 	        property(k);
         }
@@ -30,19 +30,19 @@ public class DepType1(i:int, j:int) extends x10Test {
     var t:Test;
    
     
-    public def this(i:int, j:int):DepType1{self.i==i,self.j==j} = {
+    public def this(i:int, j:int):DepType1{self.i==i,self.j==j} {
       property(i,j);
       v=0n;
       b=true;
     }
     
  
-    public def run():boolean= {
+    public def run():boolean {
     d:DepType1{self.i==3n}= new DepType1(3n,6n);
 	return true;
     }
 	
-    public static def main(a: Rail[String]):void = {
+    public static def main(a: Rail[String]):void {
         new DepType1(3n,9n).execute();
     }
    

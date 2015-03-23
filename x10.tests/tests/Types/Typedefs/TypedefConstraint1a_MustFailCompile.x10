@@ -26,7 +26,7 @@ public class TypedefConstraint1a_MustFailCompile extends TypedefTest {
     public static type A2[T] = Z;
     public static type A3[T] {T==Y} = Z;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var a1:A1;
         var a11:A1[X]; // ShouldBeErr
         var a2:A2[X];
@@ -37,7 +37,7 @@ public class TypedefConstraint1a_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint1a_MustFailCompile().execute();
     }
 }

@@ -22,7 +22,7 @@ public class ClockTest4 extends x10Test {
 	var value: long = 0;
 	public static N: long = 32;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val c: Clock = Clock.make();
 
 		for  (i in 1..(N-1)) async clocked(c) {
@@ -35,7 +35,7 @@ public class ClockTest4 extends x10Test {
 		return true;
 	}
 
-	def foreachBody(i: long, c: Clock): void = {
+	def foreachBody(i: long, c: Clock): void {
 		async clocked(c) finish async { async { atomic value += i; } }
 		Clock.advanceAll();
 		var temp: long;

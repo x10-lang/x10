@@ -83,7 +83,7 @@ public class OuterThisTests(i:Int) extends x10Test {
         def m(Int{self==OuterThisTests.this.i}){}
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val o = new OuterThisTests(3n);
         val x = o.new X("x");
         x.m(o.i);

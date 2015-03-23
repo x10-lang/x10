@@ -20,13 +20,13 @@ public class InCtorRetType extends x10Test {
     static type Testy(i:int) = Test{self.i==i};
 
     static class Test(i:int) {
-       def this(i:int):Testy(i) = {
+       def this(i:int):Testy(i) {
           property(i);
        }
     }
 	public def run()=true;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new InCtorRetType().execute();
 	}
 }

@@ -56,7 +56,7 @@ public class GenericInnerClass3[T] extends harness.x10Test {
        this.outerVar = 10n; // allowed because Inner extends 
        }
        
-    def test(x:T, y:T): Boolean = {
+    def test(x:T, y:T): Boolean {
        chk(this.outerVar == 10n, "outerVar==10");
        chk(this.outerVal.equals(888n), "this.outerVal");
        chk(this.outerVar.equals(10n), "this.outerVar");

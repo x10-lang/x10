@@ -16,13 +16,13 @@ import x10.util.concurrent.Future;
  * Future test.
  */
 public class FutureForced extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		val x = Future.make( () => 41 );
 		val v = x();
 		return x.forced();
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new FutureForced().execute();
 	}
 }

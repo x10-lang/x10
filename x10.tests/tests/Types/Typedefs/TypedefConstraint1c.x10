@@ -22,7 +22,7 @@ public class TypedefConstraint1c extends TypedefTest {
     class Y extends X {def name(): String = "Y";}
     class Z extends Y {def name(): String = "Z";}
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type C[T]{Y<:T} = T;
         c:C[X] = new X();
@@ -31,7 +31,7 @@ public class TypedefConstraint1c extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint1c().execute();
     }
 }

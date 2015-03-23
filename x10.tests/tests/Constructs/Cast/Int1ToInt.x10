@@ -15,14 +15,14 @@ import harness.x10Test;
  * Check that dep clauses are cheked when checking statically if a cast can be valid at runtime.
  */
 public class Int1ToInt extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var zero: int{self==0n} = 0n;
 		var one: int{self==1n} = 1n;
 		var i: int = one as int;
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Int1ToInt().execute();
 	}
 

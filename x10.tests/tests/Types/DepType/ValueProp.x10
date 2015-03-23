@@ -18,16 +18,16 @@ import harness.x10Test;
  */
 public class ValueProp extends x10Test {
     static struct Value1(i:int, j:int) {
-	  public def this(i:int, j:int): Value1{self.i==i,self.j==j}=  {
+	  public def this(i:int, j:int): Value1{self.i==i,self.j==j}  {
 	    property(i,j);
 	  }
 	}
-	public def run():boolean= {
+	public def run():boolean {
 	Value1(2n,3n);
 	return true;
 	}
 	 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ValueProp().execute();
 	}
 	

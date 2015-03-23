@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class GenericMethods6 extends GenericTest {
 
-    public def run() = {
+    public def run() {
 
         class A[U] {
             def m[T](u:U,t:T) = t;
@@ -34,7 +34,7 @@ public class GenericMethods6 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericMethods6().execute();
     }
 }

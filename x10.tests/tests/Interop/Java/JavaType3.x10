@@ -40,7 +40,7 @@ public class JavaType3 extends x10Test {
     	chk(a instanceof Java.array[String]);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test1();
         test2();
         test3();

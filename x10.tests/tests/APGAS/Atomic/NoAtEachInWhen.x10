@@ -20,7 +20,7 @@ public class NoAtEachInWhen extends x10Test {
 
 	var b: boolean;
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 			b=true;
 			try { 
 		      when (b==true) 

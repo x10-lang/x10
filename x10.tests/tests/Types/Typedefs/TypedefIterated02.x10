@@ -23,7 +23,7 @@ import harness.x10Test;
 
 public class TypedefIterated02 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         type X[T,U] = T;
         type A[T] = X[T,String]; // = T
         type B = int;
@@ -34,7 +34,7 @@ public class TypedefIterated02 extends TypedefTest {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefIterated02().execute();
     }
 }

@@ -20,14 +20,14 @@ public class DepTypeInMethodArgDependsOnArg extends x10Test {
   public static def arraycopy(val a_dest: Array[double], 
                               val a_src: Array[double]{rank==a_dest.rank}):void { }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val buffDest: Array[double]{rank==2} = new Array[double](Region.make(1..10, 1..10));
         val buffSrc = buffDest;
         arraycopy(buffDest,  buffSrc);
         return true;
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DepTypeInMethodArgDependsOnArg().execute();
     }
 }

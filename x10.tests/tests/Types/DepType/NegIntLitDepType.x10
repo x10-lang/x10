@@ -15,12 +15,12 @@ import harness.x10Test;
  * Check that an int lit generates the correct dep clause.
  */
 public class NegIntLitDepType extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var f: int{self==-2n} = -2n;
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NegIntLitDepType().execute();
 	}
 

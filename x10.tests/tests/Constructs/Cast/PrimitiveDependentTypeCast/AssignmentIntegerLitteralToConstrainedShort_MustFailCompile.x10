@@ -20,21 +20,21 @@ import harness.x10Test;
  **/
 public class AssignmentIntegerLitteralToConstrainedShort_MustFailCompile extends x10Test {
 
-	public def run2() = {
+	public def run2() {
 		val constraint = 0s;
 		var i: short{self == constraint} = 0s;
     }
-	public def run3() = {
+	public def run3() {
 		val constraint:short{self==0s} = 0s;
 		var i: short{self == constraint} = 0s;
     }
-	public def run(): boolean = {
+	public def run(): boolean {
 		val constraint: short = 0s;
 		var i: short{self == constraint} = 0s; // ERR: should fail because constraint: short, not short{self==0s}
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new AssignmentIntegerLitteralToConstrainedShort_MustFailCompile().execute();
 	}
 

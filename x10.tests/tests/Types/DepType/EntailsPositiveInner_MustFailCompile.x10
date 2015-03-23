@@ -19,14 +19,14 @@ import harness.x10Test;
  */
 public class EntailsPositiveInner_MustFailCompile extends x10Test {
     class Test(i:int, j:int) {
-        public def this(ii:int, jj:int):Test{self.i==ii,self.j==jj} = { property(ii,jj);}
+        public def this(ii:int, jj:int):Test{self.i==ii,self.j==jj} { property(ii,jj);}
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x: Test{self.i==self.j} = new Test(1n,2n); // ERR should fail
         return true;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new EntailsPositiveInner_MustFailCompile().execute();
     }
 }

@@ -18,7 +18,7 @@ import x10.util.ArrayList;
  * @author nystrom 9/2008
  */
 public class Assign2 extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
                 val a = new ArrayList[String]();
                 a(0) = "hi";
                 var i:Settable[Long,String] = a;

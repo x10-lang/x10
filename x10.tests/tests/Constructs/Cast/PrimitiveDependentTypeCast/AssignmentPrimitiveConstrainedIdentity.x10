@@ -18,7 +18,7 @@ import harness.x10Test;
  **/
 public class AssignmentPrimitiveConstrainedIdentity extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		
 		try { 
          var i: int(0n) = 0n;

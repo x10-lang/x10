@@ -18,14 +18,14 @@ import harness.x10Test;
  * auxiliary class for ImportTest, also a test by itself.
  */
 public class T3 extends x10Test {
-	public static def m3(val x: int): boolean = {
+	public static def m3(val x: int): boolean {
 		return _T4.m4(x);
 	}
-	public def run(): boolean = {
+	public def run(): boolean {
 		return m3(49n);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new T3().execute();
 	}
 }

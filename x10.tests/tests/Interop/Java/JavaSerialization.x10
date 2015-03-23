@@ -36,7 +36,7 @@ public class JavaSerialization extends x10Test {
         }
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         testFile();
         testHashSet();
         return true;

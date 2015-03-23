@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class RegionTest1 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         var r: Region(1){rect} = Region.make(0, 100);
         var reg: Region(2){rect} = r*r;
@@ -29,7 +29,7 @@ public class RegionTest1 extends x10Test {
         return sum == 0;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new RegionTest1().execute();
     }
 }

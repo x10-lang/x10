@@ -19,14 +19,14 @@ import harness.x10Test;
 public class Bounds3 extends x10Test {
         class C[T]{T:>String} {
                 var x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
         }
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 return new C[String]("").x.equals("");
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Bounds3().execute();
 	}
 }

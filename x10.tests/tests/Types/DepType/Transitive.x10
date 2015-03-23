@@ -22,13 +22,13 @@ import x10.regionarray.*;
  */
 public class Transitive extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	    val a: Region{rank==2} = Region.make(0..10, 0..10);
 	    val b: Region{rank==a.rank} = a;
 	    var c: Region{rank==2} = b;
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Transitive().execute();
 	}
 }

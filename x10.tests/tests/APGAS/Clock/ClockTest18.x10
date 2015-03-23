@@ -22,7 +22,7 @@ import harness.x10Test;
  */
 public class ClockTest18 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		try {
 		    finish{
 		         /*A0*/
@@ -30,7 +30,7 @@ public class ClockTest18 extends x10Test {
 		        val  x = new X();
 		        // f0 does not transmit clocks to subactivity
 		        val  f0:foo = new foo() {
-			        public operator this(): void = {
+			        public operator this(): void {
 				        /* Activity A3 */
 				        async {
 					        x10.io.Console.OUT.println("#A3: hello from A3");
@@ -39,7 +39,7 @@ public class ClockTest18 extends x10Test {
 		         };
 		        // f1 transmits clock c0 to subactivity
 		        val f1:foo  = new foo() {
-			        public operator this(): void = {
+			        public operator this(): void {
 				         /*Activity A2*/
 				         async clocked(c0) {
 					        x10.io.Console.OUT.println("#A2 before resume");
@@ -79,7 +79,7 @@ public class ClockTest18 extends x10Test {
 	 * A class to invoke a 'function pointer'
 	 */
 	static class Y {
-		static def test(f: foo): void = {
+		static def test(f: foo): void {
 			f(); // it is hard to determine what f does at compile time
 		}
 	}
@@ -105,8 +105,8 @@ public class ClockTest18 extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): long = { return z(z(z(1))); /* that is a 0 */ }
-		def one(): long = { return z(z(z(0))); /* that is a 1 */ }
-		def modify(): void = { z(0) += 1; }
+		def zero(): long { return z(z(z(1))); /* that is a 0 */ }
+		def one(): long { return z(z(z(0))); /* that is a 1 */ }
+		def modify(): void { z(0) += 1; }
 	}
 }

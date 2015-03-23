@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class Unsigned2 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val x: uint = 1un;
         x10.io.Console.OUT.println(x.toString());
         x10.io.Console.OUT.println(x as int);
@@ -35,7 +35,7 @@ public class Unsigned2 extends x10Test {
             && (z as int) == 1n;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Unsigned2().execute();
     }
 }

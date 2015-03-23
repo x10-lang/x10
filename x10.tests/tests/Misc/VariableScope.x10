@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class VariableScope extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val N: long = 10;
         var e: Region(1){rect} = Region.make(1, N);
@@ -40,7 +40,7 @@ public class VariableScope extends x10Test {
         return n == 2 * N * N;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new VariableScope().execute();
     }
 }

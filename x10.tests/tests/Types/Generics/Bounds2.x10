@@ -19,7 +19,7 @@ import harness.x10Test;
 public class Bounds2 extends x10Test {
         class C[T]{T<:String} {
                 var x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
         }
 
 	public def run()=new C[String]("").x.equals("");

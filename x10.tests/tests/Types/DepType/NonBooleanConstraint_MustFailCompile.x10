@@ -27,12 +27,12 @@ public class NonBooleanConstraint_MustFailCompile(i:int, j:int)
     {this.i} // ERR ERR: The type of the constraint NonBooleanConstraint_MustFailCompile.this.i must be boolean, not x10.lang.Int{self==NonBooleanConstraint_MustFailCompile#this.i}.
     extends x10Test {
 
-	public def this(k:int):NonBooleanConstraint_MustFailCompile = {
+	public def this(k:int):NonBooleanConstraint_MustFailCompile {
 	    property(k,k);
 	}
 	public def run()=true;
 	
-	public static def main(Rail[String])  = {
+	public static def main(Rail[String])   {
 		new NonBooleanConstraint_MustFailCompile(2n).execute();
 	}
 }

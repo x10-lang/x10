@@ -22,11 +22,11 @@ import harness.x10Test;
 
 public class TypedefBasic2 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class A[T] {
             val t:T;
-            def this(t:T) = {this.t=t;}
+            def this(t:T) {this.t=t;}
         }
 
 
@@ -48,7 +48,7 @@ public class TypedefBasic2 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefBasic2().execute();
     }
 }

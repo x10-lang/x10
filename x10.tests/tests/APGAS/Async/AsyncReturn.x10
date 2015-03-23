@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class AsyncReturn extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		class T {
 			private val root = GlobalRef[T](this);
 			transient var t: int;

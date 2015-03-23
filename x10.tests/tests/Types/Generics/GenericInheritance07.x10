@@ -31,7 +31,7 @@ public class GenericInheritance07 extends GenericTest {
         public def m(T) = 0;
     }
 
-    public def run() = {
+    public def run() {
         
         val a = new A[long]();
         val i:I[long] = a;
@@ -44,7 +44,7 @@ public class GenericInheritance07 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInheritance07().execute();
     }
 }

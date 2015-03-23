@@ -19,16 +19,16 @@ import harness.x10Test;
 
 public class GenericMethods5_MustFailCompile extends GenericTest {
 
-    def m[T,U](T,U) = {};
+    def m[T,U](T,U) {};
 
-    public def run() = {
+    public def run() {
 
         m[String,long](1,"1"); // ERR
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericMethods5_MustFailCompile().execute();
     }
 }

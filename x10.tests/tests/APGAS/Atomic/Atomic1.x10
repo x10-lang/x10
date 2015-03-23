@@ -21,7 +21,7 @@ public class Atomic1 extends x10Test {
 	transient var cnt: long = 0;
 	transient var cnt_broken: long = 0;
 	public static N: long = 100;
-	def threadRun(): long = {
+	def threadRun(): long {
 		for (i in 0..(N-1)) {
 			var t: long;
 			atomic t = cnt_broken;
@@ -31,7 +31,7 @@ public class Atomic1 extends x10Test {
 		return 0;
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val a = Future.make[long](()=>threadRun());
 		val b = Future.make[long](()=>threadRun());
 		val c = Future.make[long](()=>threadRun());

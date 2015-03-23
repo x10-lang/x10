@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class ObjectArrayInitializerShorthand extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val d  = Dist.makeConstant(Region.make(1..10, 1..10), here);
         val dr = GlobalRef[Dist](d);
         // DistArray could be copying when it initializes. So never use == unless

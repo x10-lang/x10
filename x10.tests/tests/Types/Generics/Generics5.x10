@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Generics5 extends x10Test {
-        public def run(): boolean = {
+        public def run(): boolean {
                 var result: boolean = true;
 
                 val v = new Rail[long](3, (i:long) => 2*(i as Int));
@@ -27,7 +27,7 @@ public class Generics5 extends x10Test {
                 return result;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Generics5().execute();
 	}
 }

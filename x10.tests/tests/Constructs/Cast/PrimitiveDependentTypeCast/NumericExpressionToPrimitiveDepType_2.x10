@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class NumericExpressionToPrimitiveDepType_2 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var j: int = -1n;
 		var i: int{self == 0n} = 0n;
 		try {
@@ -30,7 +30,7 @@ public class NumericExpressionToPrimitiveDepType_2 extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NumericExpressionToPrimitiveDepType_2().execute();
 	}
 

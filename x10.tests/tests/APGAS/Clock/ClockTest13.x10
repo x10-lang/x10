@@ -86,7 +86,7 @@ public class ClockTest13 extends x10Test {
 	var phaseC: long = 0;
 	var phaseD: long = 0;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish async {
 			val a = Clock.make();
 			val b = Clock.make();
@@ -99,7 +99,7 @@ public class ClockTest13 extends x10Test {
 		return true;
 	}
 
-	def taskA(val a: Clock): void = {
+	def taskA(val a: Clock): void {
 		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" A new phase");
 			atomic phaseA++;
@@ -117,7 +117,7 @@ public class ClockTest13 extends x10Test {
 			Clock.advanceAll();
 		}
 	}
-	def taskB(val a: Clock, val b: Clock): void = {
+	def taskB(val a: Clock, val b: Clock): void {
 		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" B new phase");
 			atomic phaseB++;
@@ -129,7 +129,7 @@ public class ClockTest13 extends x10Test {
 			Clock.advanceAll();
 		}
 	}
-	def taskC(val b: Clock, val c: Clock): void = {
+	def taskC(val b: Clock, val c: Clock): void {
 		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" C new phase");
 			atomic phaseC++;
@@ -141,7 +141,7 @@ public class ClockTest13 extends x10Test {
 			Clock.advanceAll();
 		}
 	}
-	def taskD(val c: Clock): void = {
+	def taskD(val c: Clock): void {
 		for (k in 1..N) {
 			x10.io.Console.OUT.println(""+k+" D new phase");
 			atomic phaseD++;

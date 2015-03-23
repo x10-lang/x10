@@ -28,7 +28,7 @@ public class XTENLANG_2367 extends x10Test {
 
     private static class Ex {
         var f : String = "";
-        def example(x:Any){x != null} = {
+        def example(x:Any){x != null} {
             this.f = x.toString();
         }
     }

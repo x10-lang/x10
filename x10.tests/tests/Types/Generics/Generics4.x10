@@ -20,16 +20,16 @@ public class Generics4 extends x10Test {
         class Gen[T] {
                 var y: T;
                 
-                public def this(x: T) = { y = x; }
+                public def this(x: T) { y = x; }
                 
-                public def set(x: T): void = {
+                public def set(x: T): void {
                   y = x;
                 }
                 
                 public def get(): T = y;
         }
 
-        public def run(): boolean = {
+        public def run(): boolean {
                 var result: boolean = true;
 
                 val s = new Gen[String]("hi");
@@ -44,7 +44,7 @@ public class Generics4 extends x10Test {
                 return result;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Generics4().execute();
 	}
 }

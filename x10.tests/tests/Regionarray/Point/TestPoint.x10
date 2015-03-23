@@ -47,14 +47,14 @@ abstract public class TestPoint extends x10Test {
         }
     }
 
-    def prPoint(test: String, p: Point): void = {
+    def prPoint(test: String, p: Point): void {
         var sum: long = 0;
         for (var i: long = 0; i<p.rank; i++)
             sum += p(i);
         pr(test + " " + p + " sum=" + sum);
     }
 
-    def pr(s: String): void = {
+    def pr(s: String): void {
         out.println(s);
     }
 

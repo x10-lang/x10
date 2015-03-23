@@ -21,7 +21,7 @@ public class AtEachLoopOnArray extends x10Test {
 	private val root = GlobalRef[AtEachLoopOnArray](this);
     var success: boolean = true;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	   val A: DistArray[double](1) =
 	       DistArray.make[double](Region.make(0,10)->here, ([i]: Point): double => i as double);
 	

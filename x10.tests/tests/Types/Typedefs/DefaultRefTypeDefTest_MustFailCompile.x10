@@ -19,16 +19,16 @@ import harness.x10Test;
 public class DefaultRefTypeDefTest_MustFailCompile extends x10Test {
 
     static class Foo(n:long, s:String) {
-       def this(n:long, s:String):Foo(n,s) = { // ERR ERR: Could not find type "Foo(x10.lang.Long,T)". Constructor return type is not a subtype of the containing class.
+       def this(n:long, s:String):Foo(n,s) { // ERR ERR: Could not find type "Foo(x10.lang.Long,T)". Constructor return type is not a subtype of the containing class.
          property(n,s);
        }
     }
-    public def run() = {
+    public def run() {
         x:Foo(2,"a") = new Foo(2,"a"); // ERR ERR: Could not find type "Foo(x10.lang.Long,T)". Cannot assign expression to target.
-        true
+        return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DefaultRefTypeDefTest_MustFailCompile().execute();
     }
 }

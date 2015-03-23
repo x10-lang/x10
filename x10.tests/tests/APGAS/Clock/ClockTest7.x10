@@ -46,7 +46,7 @@ public class ClockTest7 extends x10Test {
 	var value: long = 0;
 	static val N: long = 16;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		try {
 		val c: Clock = Clock.make();
 

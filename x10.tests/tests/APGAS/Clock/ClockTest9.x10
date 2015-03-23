@@ -27,7 +27,7 @@ public class ClockTest9 extends x10Test {
 	public static M: long = 8;
 	val v  = new Rail[long](N, 0);
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish async {
 			val c: Clock = Clock.make();
 
@@ -39,7 +39,7 @@ public class ClockTest9 extends x10Test {
 		return true;
 	}
 
-	def foreachBody(i: long, c: Clock): void = {
+	def foreachBody(i: long, c: Clock): void {
 		async clocked(c) finish async  {
 			val d: Clock = Clock.make();
 
@@ -56,7 +56,7 @@ public class ClockTest9 extends x10Test {
 		Clock.advanceAll();
 	}
 
-	def foreachBodyInner(i: long, j: long, d: Clock): void = {
+	def foreachBodyInner(i: long, j: long, d: Clock): void {
 		// activity i, j increments val[i] by j
 		async clocked(d) finish async { atomic v(i) += j; }
 		x10.io.Console.OUT.println("#1 i = "+i+" j = "+j);

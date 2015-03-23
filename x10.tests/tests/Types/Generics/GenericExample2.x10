@@ -26,7 +26,7 @@ public class GenericExample2 extends GenericTest {
             var x: X;
             def this(x: X) { this.x = x; }
             def get(): X = x;
-            def set(x: X) = { this.x = x; }
+            def set(x: X) { this.x = x; }
         }
         
         static class Get[X] {
@@ -40,12 +40,12 @@ public class GenericExample2 extends GenericTest {
             def set(x: X):void;
         }
 
-    public def run() = {
+    public def run() {
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericExample2().execute();
     }
 }

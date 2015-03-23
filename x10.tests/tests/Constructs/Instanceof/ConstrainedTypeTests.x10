@@ -20,7 +20,7 @@ import harness.x10Test;
  **/
 public class ConstrainedTypeTests extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var res1: boolean = X10DepTypeClassOneB == X10DepTypeClassOneB;
         var res2: boolean = X10DepTypeSubClassOneB <: X10DepTypeClassOneB;
         var res3: boolean = X10DepTypeSubClassOneB <: Int;
@@ -37,7 +37,7 @@ public class ConstrainedTypeTests extends x10Test {
         return (res1 && res2 && !res3 && !res4 && !res5 && res6);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ConstrainedTypeTests().execute();
     }
 }

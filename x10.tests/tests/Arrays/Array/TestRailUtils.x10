@@ -22,7 +22,7 @@ import x10.util.Random;
 public class TestRailUtils extends x10Test {
     static N = 30;
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         testSortAndSearchRail();
         testSortAndSearchArrayList();
         testMap();
@@ -146,7 +146,7 @@ public class TestRailUtils extends x10Test {
         }
     }
 
-	public static def main(args: Rail[String]): void = {
+	public static def main(args: Rail[String]): void {
 		new TestRailUtils().execute();
 	}
 }

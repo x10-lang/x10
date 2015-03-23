@@ -22,7 +22,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Long) extends x10Test {
         property(elementsPerPlace);
     }
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         // create a dummy array distributed to every place, to make sure they're all ready
         val m = DistArray.make[Int](Dist.makeUnique());
 
@@ -41,7 +41,7 @@ public class BenchmarkCreateDistArray(elementsPerPlace : Long) extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
         var elementsPerPlace : Long = 1;
         if (args.size > 0) {
             elementsPerPlace = Long.parse(args(0));

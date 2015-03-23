@@ -21,7 +21,7 @@ import harness.x10Test;
 public class AsyncTest1 extends x10Test {
 
 	var flag: boolean;
-	public def run(): boolean = {
+	public def run(): boolean {
 		async { atomic { flag = true; } }
 		var b: boolean;
 		do {

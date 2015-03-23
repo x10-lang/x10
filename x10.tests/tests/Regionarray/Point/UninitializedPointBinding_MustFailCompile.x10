@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class UninitializedPointBinding_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         var p[i,j]: Point; // ERR: Syntax Error: An exploded point must have an initializer.
         p = [1,2];
@@ -28,7 +28,7 @@ public class UninitializedPointBinding_MustFailCompile extends x10Test {
         return (i == 1 && j == 2); // ERR ERR: "i" may not have been initialized "j" may not have been initialized
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Rail[String]): void {
         new UninitializedPointBinding_MustFailCompile().execute();
     }
 }

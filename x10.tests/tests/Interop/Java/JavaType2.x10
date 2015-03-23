@@ -32,7 +32,7 @@ public class JavaType2 extends x10Test {
         chk(l.equals(ll));
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test();
         return true;
     }

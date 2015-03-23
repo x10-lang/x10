@@ -17,17 +17,17 @@ import harness.x10Test;
 
 public class DepClauseForBoxedType extends x10Test {
 	class Prop(i: int, j: int) {
-		public def this(i: int, j: int): Prop = {
+		public def this(i: int, j: int): Prop {
 			property(i,j);
 		}
     }
   
-	public def run(): boolean = {
+	public def run(): boolean {
          var p: Prop = new Prop(1n,2n);
 	     return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new DepClauseForBoxedType().execute();
 	}
  }

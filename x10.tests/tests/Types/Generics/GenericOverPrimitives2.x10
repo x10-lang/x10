@@ -19,11 +19,11 @@ import harness.x10Test;
 
 public class GenericOverPrimitives2 extends GenericTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class A[T] {
             val t:T;
-            def this(t:T) = {this.t=t;}
+            def this(t:T) {this.t=t;}
             def get() = t;
         }
 
@@ -33,7 +33,7 @@ public class GenericOverPrimitives2 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverPrimitives2().execute();
     }
 }

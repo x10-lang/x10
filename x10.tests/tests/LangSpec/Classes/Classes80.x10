@@ -30,7 +30,7 @@ public class Classes80 extends x10Test {
 
  static class Example {
    var f : String = "";
-   def setF(x:Any){x != null} : void = {
+   def setF(x:Any){x != null} : void {
       this.f = x.toString();
    }
 }

@@ -21,7 +21,7 @@ import x10.regionarray.*;
  */
 public class Array1 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val e = Region.make(1,10);
         val r= e*e;
@@ -49,7 +49,7 @@ public class Array1 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Array1().execute();
     }
 }

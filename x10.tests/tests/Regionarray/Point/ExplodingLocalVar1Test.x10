@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class ExplodingLocalVar1Test extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 	    // the type Point is not supplied. 
 	    // This should really not work, according to Sec 4.13.1 (type inference)
 	    // and Section 10 (destructuring syntax). But it does.

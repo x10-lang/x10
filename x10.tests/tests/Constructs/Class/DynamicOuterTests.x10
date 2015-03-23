@@ -25,7 +25,7 @@ public class DynamicOuterTests extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val a = new A(3n);
         val x = a.new X(0xd00d1eabadbaff1eUL);
         x.m(a.i);

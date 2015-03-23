@@ -20,18 +20,18 @@ import harness.x10Test;
 public class MethodInvocation extends x10Test {
 
     static class Test(i:int, j:int) {
-        public def this(ii:int, jj:int):Test{self.i==ii,self.j==jj} = { property(ii,jj); }
+        public def this(ii:int, jj:int):Test{self.i==ii,self.j==jj} { property(ii,jj); }
         public def tester(k:int, l:int(k)) = k + l;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var t: Test = new Test(1n, 2n);
         // the following call types correctly
         t.tester(3n, 3n);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new MethodInvocation().execute();
     }
 }

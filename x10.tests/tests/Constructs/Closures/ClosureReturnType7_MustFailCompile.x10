@@ -20,7 +20,7 @@ import harness.x10Test;
 
 public class ClosureReturnType7_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         // inferred to be void
         val f = (x:long) => {};
@@ -32,7 +32,7 @@ public class ClosureReturnType7_MustFailCompile extends x10Test {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturnType7_MustFailCompile().execute();
     }
 }

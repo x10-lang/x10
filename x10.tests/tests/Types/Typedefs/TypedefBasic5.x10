@@ -22,7 +22,7 @@ import harness.x10Test;
 
 public class TypedefBasic5 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type A(i:int) = int{self==i};
         a:A(1n) = 1n;
@@ -30,7 +30,7 @@ public class TypedefBasic5 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefBasic5().execute();
     }
 }

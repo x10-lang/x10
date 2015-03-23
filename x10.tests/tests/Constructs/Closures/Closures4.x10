@@ -18,18 +18,18 @@ import harness.x10Test;
  */
 public class Closures4 extends x10Test {
         static class C implements (long, long) => long {
-                public operator this(i: long, j: long):long = {
+                public operator this(i: long, j: long):long {
                         return i+j;
                 }
         }
                 
-	public def run(): boolean = {
+	public def run(): boolean {
                 val x = new C();
                 val j = x(3,4);
                 return j == 7;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Closures4().execute();
 	}
 }

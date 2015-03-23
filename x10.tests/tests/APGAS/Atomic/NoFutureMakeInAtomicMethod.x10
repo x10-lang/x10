@@ -17,7 +17,7 @@ import x10.util.concurrent.Future;
  */
 public class NoFutureMakeInAtomicMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
 			atomic 
 			  m();

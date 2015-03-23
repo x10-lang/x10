@@ -21,7 +21,7 @@ public class AtOtherPlace extends x10Test{
 		var val_:Any;
 	}
     
-    public def run(): boolean = {
+    public def run(): boolean {
         val Other  = Place.places().next(here);
         val t = (new T()).root;
         at (Other) {

@@ -24,8 +24,8 @@ import harness.x10Test;
  **/
 public struct ValueClass(p:long) implements X10InterfaceOneB {
 	
-	public def this(p:long):ValueClass{self.p==p} = {
+	public def this(p:long):ValueClass{self.p==p} {
 	    property(p);
 	}
-	public  def interfaceMethod():void  = {}
+	public  def interfaceMethod():void   {}
 }

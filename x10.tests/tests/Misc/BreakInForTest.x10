@@ -26,7 +26,7 @@ public class BreakInForTest extends x10Test {
     var n1: long = 91;
     var n2: long = 27;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         for (var i: long = 0; i < N; i++) {
             if ((i+1) % n1 == 0) continue;
             if ((i+1) % n2 == 0) break;
@@ -38,7 +38,7 @@ public class BreakInForTest extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new BreakInForTest().execute();
     }
 }

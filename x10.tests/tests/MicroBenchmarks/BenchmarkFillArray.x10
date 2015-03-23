@@ -23,7 +23,7 @@ public class BenchmarkFillArray extends x10Test {
     public def this(N : Int) {
         this.N = N;
     }
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val a = new Array_1[Char](N+1);
         var start : Long = System.nanoTime();
         for (i in 0..REPS) {
@@ -59,7 +59,7 @@ public class BenchmarkFillArray extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
         var n : Int = 100000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));

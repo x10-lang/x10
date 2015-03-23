@@ -21,7 +21,7 @@ public class GenericMethods1 extends GenericTest {
 
     def m[T](t:T) = t;
 
-    public def run() = {
+    public def run() {
 
         genericCheck("m[long](1)", m[long](1), 1);
         genericCheck("m[String](\"1\")", m[String]("1"), "1");
@@ -29,7 +29,7 @@ public class GenericMethods1 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericMethods1().execute();
     }
 }

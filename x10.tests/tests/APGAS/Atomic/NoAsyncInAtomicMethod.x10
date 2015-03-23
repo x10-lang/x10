@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class NoAsyncInAtomicMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
 			atomic 
 			  m();

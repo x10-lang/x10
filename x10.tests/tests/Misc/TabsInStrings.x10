@@ -19,10 +19,10 @@ import harness.x10Test;
 public class TabsInStrings extends x10Test {
 
 	static class fmt {
-		public static def format(var t: double): String = { return ""+t; }
+		public static def format(var t: double): String { return ""+t; }
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var t: double = 25;
 		var tmax: double = 200;
 		x10.io.Console.OUT.println("	--> total mg-resid "+fmt.format(t)+
@@ -31,7 +31,7 @@ public class TabsInStrings extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new TabsInStrings().execute();
 	}
 }

@@ -17,7 +17,7 @@ import x10.regionarray.*;
 
 public class PlaceCheck1 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var ret: boolean;
 		x10.io.Console.OUT.println("num places = " + Place.numPlaces());
 		// this test only works with > 1 place
@@ -89,7 +89,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def checkMethodCall(): boolean = {
+	public static def checkMethodCall(): boolean {
 		var ret: boolean = false;
 		try {
 			val obj  = new PlaceCheck1();
@@ -110,7 +110,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def checkArrayAccess(): boolean = {
+	public static def checkArrayAccess(): boolean {
 		var ret: boolean = false;
 		val d = Dist.makeUnique();
 		val arr  =  DistArray.make[int](d, (Point) => 123n);
@@ -128,7 +128,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def checkArrayAssign(): boolean = {
+	public static def checkArrayAssign(): boolean {
 		var ret: boolean = false;
 		val d  = Dist.makeUnique();
 		val arr = DistArray.make[int](d, ([p]: Point): int => 123n);
@@ -149,7 +149,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def main(Rail[String]): void = {
+	public static def main(Rail[String]): void {
 		new PlaceCheck1().execute();
 	}
 }

@@ -24,13 +24,13 @@ public class ClosureBody1c extends x10Test {
 
     var x:long = 0;
 
-    def x(x:long):void = {
+    def x(x:long):void {
         this.x=x;
     }
 
     def x() = x;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         // block terminated by return expression
         val h = ()=>{x(2);x()+1};
@@ -40,7 +40,7 @@ public class ClosureBody1c extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureBody1c().execute();
     }
 }

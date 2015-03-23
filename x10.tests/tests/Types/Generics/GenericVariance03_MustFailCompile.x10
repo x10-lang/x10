@@ -25,12 +25,12 @@ public class GenericVariance03_MustFailCompile extends GenericTest {
 
     class A[T] {}
 
-    public def run() = {
+    public def run() {
         val az:A[Z] = new A[Y](); // ERR
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericVariance03_MustFailCompile().execute();
     }
 }

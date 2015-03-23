@@ -54,7 +54,7 @@ abstract public class TestDist extends x10Test {
     abstract class R {
 	val testName:String;
 	
-        def this(test: String): R = {
+        def this(test: String): R {
 	    testName = test;
 	}
 
@@ -76,23 +76,23 @@ abstract public class TestDist extends x10Test {
 
         var os: Rail[Any] = new Rail[Any](10);
 
-        def set(i0: long, vue: double): void = {
+        def set(i0: long, vue: double): void {
             os(i0) = new Box[double](vue);
         }
 
-        def set(i0: long, i1: long, vue: double): void = {
+        def set(i0: long, i1: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        def set(i0: long, i1: long, i2: long, vue: double): void = {
+        def set(i0: long, i1: long, i2: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: long): void = {
+        def pr(rank: long): void {
             var min: long = os.size;
             var max: long = 0L;
             for (var i: long = 0L; i<os.size; i++) {
@@ -137,11 +137,11 @@ abstract public class TestDist extends x10Test {
         at (out.home) out().print(s);
     }
 
-    def prArray(test: String, r: Region): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region): Array[double]{rank==r.rank} {
         return prArray(test, r, false);
     }
 
-    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
+    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} {
 
         val init1 = (pt: Point) => {
             var v: long = 1;
@@ -158,26 +158,26 @@ abstract public class TestDist extends x10Test {
         return a as Array[double]{rank==r.rank};
     }
 
-    def prRegion(test: String, r: Region): void = {
+    def prRegion(test: String, r: Region): void {
 
         pr("--- " + testName + ": " + test);
 
-        new R("rank")		{def run(): String = {return "" + r.rank;}}.runTest();
-        new R("rect")		{def run(): String = {return "" + r.rect;}}.runTest();
-        new R("zeroBased")	{def run(): String = {return "" + r.zeroBased;}}.runTest();
-        new R("rail")		{def run(): String = {return "" + r.rail;}}.runTest();
+        new R("rank")		{def run(): String {return "" + r.rank;}}.runTest();
+        new R("rect")		{def run(): String {return "" + r.rect;}}.runTest();
+        new R("zeroBased")	{def run(): String {return "" + r.zeroBased;}}.runTest();
+        new R("rail")		{def run(): String {return "" + r.rail;}}.runTest();
 
-        new R("isConvex()")	{def run(): String = {return "" + r.isConvex();}}.runTest();
-        new R("size()")		{def run(): String = {return "" + r.size();}}.runTest();
+        new R("isConvex()")	{def run(): String {return "" + r.isConvex();}}.runTest();
+        new R("size()")		{def run(): String {return "" + r.size();}}.runTest();
 
         pr("region: " + r);
     }
 
-    def prArray(test: String, a: Array[double]): void = {
+    def prArray(test: String, a: Array[double]): void {
         prArray(test, a, false);
     }
 
-    def prArray(test: String, a: Array[double], bump: boolean): void = {
+    def prArray(test: String, a: Array[double], bump: boolean): void {
 
         val r: Region = a.region;
 
@@ -187,7 +187,7 @@ abstract public class TestDist extends x10Test {
         prArray1(a, bump);
     }
 
-    def prArray1(a: Array[double], bump: boolean): void = {
+    def prArray1(a: Array[double], bump: boolean): void {
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
             if (p.rank==1) {
@@ -208,7 +208,7 @@ abstract public class TestDist extends x10Test {
     }
 
 
-    def prDist(test: String, d: Dist): void = {
+    def prDist(test: String, d: Dist): void {
 
         pr("--- " + test + ": " + d);
 

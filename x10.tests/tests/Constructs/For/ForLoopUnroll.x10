@@ -19,7 +19,7 @@ import x10.compiler.Unroll;
  */
 public class ForLoopUnroll extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 
         var x:Long = 0l;
 

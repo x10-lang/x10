@@ -22,7 +22,7 @@ public class BenchmarkGetPatch(N:Long) extends x10Test {
         property(N);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         benchmark2D();
         benchmark3D();
 

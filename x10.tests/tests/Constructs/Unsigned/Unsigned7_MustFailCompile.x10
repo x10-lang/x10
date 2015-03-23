@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class Unsigned7_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val a: ubyte = 0;  // ERR
         val b: ubyte = 1;  // ERR
         val c: ubyte = -1; // ERR
@@ -27,7 +27,7 @@ public class Unsigned7_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Unsigned7_MustFailCompile().execute();
     }
 }

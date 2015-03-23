@@ -22,7 +22,7 @@ import x10.compiler.tests.*; // err markers
  **/
 public class Float_ConstraintDeclaredAsDouble_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var j: float = 0.00001F;
 		
 		// invalid assignment 
@@ -48,7 +48,7 @@ public class Float_ConstraintDeclaredAsDouble_MustFailCompile extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Float_ConstraintDeclaredAsDouble_MustFailCompile().execute();
 	}
 

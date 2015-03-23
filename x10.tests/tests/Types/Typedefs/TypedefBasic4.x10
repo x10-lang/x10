@@ -22,7 +22,7 @@ import harness.x10Test;
 
 public class TypedefBasic4 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class X(i:int,s:String) {def this(i:int,s:String):X{self.i==i,self.s==s} = property(i,s);}
 
@@ -32,7 +32,7 @@ public class TypedefBasic4 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefBasic4().execute();
     }
 }

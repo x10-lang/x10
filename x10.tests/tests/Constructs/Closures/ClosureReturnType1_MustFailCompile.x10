@@ -21,15 +21,15 @@ import harness.x10Test;
 
 public class ClosureReturnType1_MustFailCompile extends x10Test {
 
-    def foo() = {}
+    def foo() {}
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val f = ():void => {foo();
             1}; // ERR ShouldNotBeERR (Cannot return a value from closure ()null => void.)
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturnType1_MustFailCompile().execute();
     }
 }

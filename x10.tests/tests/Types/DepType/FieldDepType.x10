@@ -20,13 +20,13 @@ import x10.regionarray.*;
 public class FieldDepType extends x10Test {
     var f: Array[Double](1) = new Array[double](11, (i:long)=> (10-i) as Double);
 
-    def m(a: Array[Double]{rank==1&&rect&&zeroBased}): void = {
+    def m(a: Array[Double]{rank==1&&rect&&zeroBased}): void {
     }
-    public def run(): Boolean = {
+    public def run(): Boolean {
         m(f as Array[Double]{zeroBased, rect, rank==1});
         return f(0)==10.0D;
     }
-    public static def main(Rail[String]): void = {
+    public static def main(Rail[String]): void {
         new FieldDepType().execute();
     }
 }

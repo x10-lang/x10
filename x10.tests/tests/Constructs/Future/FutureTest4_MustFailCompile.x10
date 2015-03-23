@@ -28,7 +28,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 	/**
 	 * testing free variables in future expression
 	 */
-	public def run(): boolean = {
+	public def run(): boolean {
 		val A = DistArray.make[long](Dist.makeBlock(Region.make(0..(N-1), 0..(N-1))), ([i,j]: Point):long => N*i+j);
 		var x: long=0;
 		var s: long=0;
@@ -56,7 +56,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 		return (x == 252);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new FutureTest4_MustFailCompile().execute();
 	}
 }

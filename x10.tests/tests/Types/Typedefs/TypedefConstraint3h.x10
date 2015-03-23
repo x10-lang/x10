@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class TypedefConstraint3h extends TypedefTest {
 
-    public def run():boolean = {
+    public def run():boolean {
 
         type T(x:long){x==1} = long;
         val one:long{self==1} = 1;
@@ -26,7 +26,7 @@ class TypedefConstraint3h extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint3h().execute();
     }
 }

@@ -18,11 +18,11 @@ import harness.x10Test;
  */
 public class Prop(i: int,  j: int) extends x10Test  {
 
-	public def this(i: int, j: int): Prop{self.i==i,self.j==j} = {
+	public def this(i: int, j: int): Prop{self.i==i,self.j==j} {
 	    property(i,j);
 	}
 	public def run(): boolean = true;
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Prop(2n,3n).execute();
 	}
 	}

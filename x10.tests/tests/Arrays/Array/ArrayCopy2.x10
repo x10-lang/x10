@@ -111,7 +111,7 @@ public class ArrayCopy2 extends x10Test {
      * For all combinations of dists of arrays B and A,
      * do an array copy from B to A, and verify.
      */
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val R:Region(4) = Region.make(0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1));
         val TestDists = Region.make(0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1));
@@ -138,7 +138,7 @@ public class ArrayCopy2 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayCopy2().execute();
     }
 
@@ -156,7 +156,7 @@ public class ArrayCopy2 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Long, R: Region): Dist(R) = {
+        public static def getDist(distType: Long, R: Region): Dist(R) {
             switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
                 case BLOCKBLOCK: return Dist.makeBlockBlock(R, 0,1) as Dist(R);

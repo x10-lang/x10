@@ -27,17 +27,17 @@ class Test(i: int, j:int) {  // ERR
 	 	 //Semantic Error: Duplicate method "method SameSignatureMethod_MustFailCompile.Test.tester(l:x10.lang.Int{self==0}): x10.lang.Int{self==0, l==0}"; previous declaration at C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\DepType\SameSignatureMethod_MustFailCompile.x10:29,10-35.]
 
 		 
-		def this(i:int, j:int):Test = {
+		def this(i:int, j:int):Test {
 			property(i,j);
 		}
 	}
 
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   return true;
 	}  
 	
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new SameSignatureMethod_MustFailCompile().execute();
     }
    

@@ -37,9 +37,9 @@ public class Classes250 extends x10Test {
   public operator this(i:Long) = v(i);
   public operator this(i:Long, j:Long) = [v(i),v(j)];
   public operator this(i:Long) = (newval:Long)
-      = {v(i) = newval;}
+       {v(i) = newval;}
   public operator this(i:Long, j:Long) = (newval:Long)
-      = { v(i) = newval; v(j) = newval+1;}
+       { v(i) = newval; v(j) = newval+1;}
   public def example() {
     this(1) = 6;   assert this(1) == 6;
     this(1) += 7;  assert this(1) == 13;

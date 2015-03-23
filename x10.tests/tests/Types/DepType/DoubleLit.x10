@@ -20,7 +20,7 @@ public class DoubleLit extends x10Test {
     def m():double(1.0D)=1.0D;
     
 	public def run()=true;
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new DoubleLit().execute();
 	}
 }

@@ -19,13 +19,13 @@ import harness.x10Test;
 public class Variance2_MustFailCompile extends x10Test {
         class Get[T] {
                 val x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
                 def get(): T = x; }
 
         class A { }
         class B extends A { }
 
-        public def run(): boolean = {
+        public def run(): boolean {
                 val ga = new Get[A](new A());
                 val gb = new Get[B](new B());
                 val a = ga.get();
@@ -41,7 +41,7 @@ public class Variance2_MustFailCompile extends x10Test {
                     && x == a && y == b;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Variance2_MustFailCompile().execute();
 	}
 }

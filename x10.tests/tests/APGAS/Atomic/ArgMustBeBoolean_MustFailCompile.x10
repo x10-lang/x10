@@ -19,12 +19,12 @@ public class ArgMustBeBoolean_MustFailCompile extends x10Test {
 
         var b: int;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		when(b) {} // ERR: condition must be Boolean. must fail at compile time.
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ArgMustBeBoolean_MustFailCompile().execute();
 	}
 

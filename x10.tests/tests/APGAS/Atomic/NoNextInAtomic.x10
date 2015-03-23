@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class NoNextInAtomic extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   val c = Clock.make();
 	   try {
 	     atomic 

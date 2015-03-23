@@ -45,7 +45,7 @@ public class JavaType3b extends x10Test {
         return fails == 0;
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         var ok:Boolean = true;
         ok &= test();
         return ok;

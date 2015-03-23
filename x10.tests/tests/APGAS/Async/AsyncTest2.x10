@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class AsyncTest2 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val NP = Place.numPlaces();
         val A: DistArray[long]{rank==1} = DistArray.make[long](Dist.makeUnique());
         finish

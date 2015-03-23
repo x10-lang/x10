@@ -20,14 +20,14 @@ public class DepType(i:int, j:int) extends x10Test {
 
     // property declaration for an inner class.
     static class Test(k:int) extends DepType {
-        def this(kk:int):Test = {
+        def this(kk:int):Test {
             super(3n,4n);
             property(kk);
         }
     }
 
     static class Test2 extends DepType {
-        def this():Test2 = {
+        def this():Test2 {
             super(3n,5n);
         }
     }
@@ -44,7 +44,7 @@ public class DepType(i:int, j:int) extends x10Test {
     }*/
 
     // A constructor may specify constraints on properties that are true of the returned object.
-    public def this(i:int, j:int):DepType{self.i==i && self.j==j} = {
+    public def this(i:int, j:int):DepType{self.i==i && self.j==j} {
         property(i,j);
     }
 
@@ -52,21 +52,21 @@ public class DepType(i:int, j:int) extends x10Test {
     public static def make(i: int{self==3n}):DepType{self.i==3n,self.j==3n} = new DepType(i,i);
 
     // a local variable with a dep clause.
-    public  def  run():boolean = {
+    public  def  run():boolean {
         val d:DepType{self.i==3n} = new DepType(3n,6n);
         return true;
     }
 
     //  a method whose return type is a deptype
-    public def run3():boolean{self==true} = {
+    public def run3():boolean{self==true} {
         x10.io.Console.OUT.println("i (=3?) = " + i);
         return true;
     }
-    public def run4( j:int):boolean = {
+    public def run4( j:int):boolean {
         x10.io.Console.OUT.println("i (=3?) = " + i);
         return true;
     }
-    public static def main(args: Rail[String]):void = {
+    public static def main(args: Rail[String]):void {
         new DepType(3n,9n).execute();
     }
 }

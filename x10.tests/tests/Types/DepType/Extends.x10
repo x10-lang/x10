@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class Extends extends x10Test {
     class Test(i:int, j:int) {
-        def this(i:int, j:int):Test{self.i==i&&self.j==j} = {
+        def this(i:int, j:int):Test{self.i==i&&self.j==j} {
             property(i,j);
         }
     }
@@ -30,12 +30,12 @@ public class Extends extends x10Test {
             property(k);
         }
     }
-    public def run(): boolean = {
+    public def run(): boolean {
         var a: Test2{self.k==1n && self.i==self.j} = new Test2(1n);
         var b: Test{self.i==self.j} = a;
         return true;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Extends().execute();
     }
 }

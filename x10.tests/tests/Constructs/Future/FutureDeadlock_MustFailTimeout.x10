@@ -43,7 +43,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 	var f1: Future[Int]= null;
 	var f2: Future[Int] = null;
 
-	def a1(): Int = {
+	def a1(): Int {
 		System.sleep(5000); // to make deadlock occur deterministically
 		var tmpf: Future[Int] = null;
 		atomic tmpf = f2;
@@ -51,7 +51,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		return tmpf();
 	}
 
-	def a2(): int = {
+	def a2(): int {
 		System.sleep(5000); // to make deadlock occur deterministically
                 var tmpf: Future[Int] = null;
 		atomic tmpf = f1;
@@ -59,7 +59,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		return tmpf();
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val tmpf1  = Future.make[Int](() => a1());
 		atomic f1 = tmpf1;
 		val tmpf2 = Future.make[Int](() => a2());

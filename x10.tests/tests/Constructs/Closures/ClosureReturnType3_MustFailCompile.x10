@@ -23,15 +23,15 @@ import harness.x10Test;
 
 public class ClosureReturnType3_MustFailCompile extends x10Test {
 
-    def foo() = {}
+    def foo() {}
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val f = ():int => {foo();
             return "not an int";}; // ERR
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturnType3_MustFailCompile().execute();
     }
 }

@@ -19,7 +19,7 @@ public class ConditionalAtomicTest extends x10Test {
 	var value1: int = 0n;
 	var value2: int = 0n;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val c: Clock = Clock.make();
 		async clocked(c) {
 			// this activity waits until value1 and

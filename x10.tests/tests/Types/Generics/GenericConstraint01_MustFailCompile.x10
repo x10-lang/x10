@@ -24,11 +24,11 @@ public class GenericConstraint01_MustFailCompile extends GenericTest {
 
     var a:A[X,Y]; // ERR: Type GenericConstraint01_MustFailCompile.A[GenericConstraint01_MustFailCompile.X, GenericConstraint01_MustFailCompile.Y] is inconsistent.
 
-    public def run(): boolean = {
+    public def run(): boolean {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericConstraint01_MustFailCompile().execute();
     }
 }

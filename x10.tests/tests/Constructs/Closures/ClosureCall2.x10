@@ -25,7 +25,7 @@ public class ClosureCall2 extends x10Test {
     def f(x:long) = "method";
     val f = (x:String) => "closure";
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         chk(f(1).equals("method"), "f(1)");
         chk(f("1").equals("closure"), "f(\"1\")");
@@ -33,7 +33,7 @@ public class ClosureCall2 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureCall2().execute();
     }
 }

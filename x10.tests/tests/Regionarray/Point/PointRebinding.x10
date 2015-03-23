@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class PointRebinding extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val p: Point = [1, 2] as Point;
         val [i, j]: Point = p;
@@ -27,7 +27,7 @@ public class PointRebinding extends x10Test {
         return (i == 1L && j == 2L);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointRebinding().execute();
     }
 }

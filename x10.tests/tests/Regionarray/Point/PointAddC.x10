@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class PointAddC extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val p:Point = [2 as long, 2, 2, 2, 2] as Point;
         var c:long = 2;
@@ -34,7 +34,7 @@ public class PointAddC extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointAddC().execute();
     }
 }

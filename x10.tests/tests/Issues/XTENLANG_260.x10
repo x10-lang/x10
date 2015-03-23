@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class XTENLANG_260 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
     
         val a = 99;
         val b = 1.2;

@@ -21,7 +21,7 @@ import harness.x10Test;
  */
 public class ClockAsyncTest2 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
            val clocks = [Clock.make()];
 	   finish {
               async clocked (clocks(0)) {

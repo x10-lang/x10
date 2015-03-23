@@ -17,14 +17,14 @@ import x10.regionarray.*;
  */
 public class Array3Char extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r  = Region.make(1..10, 1..10);
         val ia  = new Array[Char](r, (x:Point)=>'_');
         ia(1, 1) = 'a';
         return ('a' == ia(1, 1));
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Array3Char().execute();
     }
 }

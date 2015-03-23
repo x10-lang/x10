@@ -18,7 +18,7 @@ import x10.regionarray.*;
  */
 public class Array3DoubleSwapped extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r  = Region.make(1..10, 1..10);
         val ia = new Array[Double](r, (x:Point)=>0.0D);
         ia(1, 1) = 42.0D;
@@ -26,7 +26,7 @@ public class Array3DoubleSwapped extends x10Test {
         return ia(1,1) == 42.0D;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Array3DoubleSwapped().execute();
     }
 }

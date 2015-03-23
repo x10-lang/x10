@@ -20,7 +20,7 @@ import x10.regionarray.*;
  */
 public class PointIndex extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         var sum:long = 0;
         var gotException: boolean;
@@ -45,7 +45,7 @@ public class PointIndex extends x10Test {
         return sum == 0 && gotException;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointIndex().execute();
     }
 }

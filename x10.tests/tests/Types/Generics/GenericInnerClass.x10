@@ -25,11 +25,11 @@ public class GenericInnerClass[A] extends GenericTest {
 
     public static def foo() = new GenericInnerClass[Long]().make[Double]();
 
-    public def run() = {
+    public def run() {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInnerClass[Any]().execute();
     }
 }

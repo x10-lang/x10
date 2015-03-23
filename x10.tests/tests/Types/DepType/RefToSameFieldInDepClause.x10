@@ -21,12 +21,12 @@ public class RefToSameFieldInDepClause extends x10Test {
 
     var v: int{v == 0n};
 	
-    public def run(): boolean = {
+    public def run(): boolean {
 	
 	return true;
     }
 	
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new RefToSameFieldInDepClause().execute();
     }
    

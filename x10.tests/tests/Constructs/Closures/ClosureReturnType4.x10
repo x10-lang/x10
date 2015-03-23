@@ -34,7 +34,7 @@ public class ClosureReturnType4 extends x10Test {
         def name(): String = "C";
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val f = (x:long) => {if (x==0) return new B(); return new C();};
         val a0 = f(0);
@@ -46,7 +46,7 @@ public class ClosureReturnType4 extends x10Test {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturnType4().execute();
     }
 }

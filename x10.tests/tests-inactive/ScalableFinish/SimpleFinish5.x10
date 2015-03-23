@@ -33,7 +33,7 @@ public class SimpleFinish5 {
 	    Console.OUT.println("time = "+ (end - start) + " milliseconds");
      }
     /** x10doc comment for myMethod */
-    public def myMethod(): boolean = {
+    public def myMethod(): boolean {
        return true;
     }
 }
