@@ -794,11 +794,7 @@ function main {
 	    else
 		managed_x10_extra_resiliency_args=""
 		if [[ "$jen_resiliency_mode" != "0" ]]; then
-		    if [[ ( "$jen_resiliency_mode" == "12" || "$jen_resiliency_mode" == "22" ) ]]; then
-			managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast"
-		    else
-			managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets"
-		    fi
+		    managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets"
 		fi
 		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M ${managed_x10_extra_resiliency_args} ${managed_x10_extra_args} -t -v -J-ea ${className}"
 	    fi
