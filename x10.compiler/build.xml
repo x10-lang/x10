@@ -14,7 +14,8 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="antlr.jar" value="antlr-4.5-complete.jar"/>
+    <property name="antlr.jar" value="antlr-runtime-4.5.jar"/>
+    <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
@@ -163,7 +164,7 @@
             </fileset>
         </delete>
         <echo message="Generating ANTLR 4 grammar: ${grammar.file}"/>
-        <java jar="${lib}/${antlr.jar}" fork="true" failonerror="true" dir="${parser.dir}">
+        <java jar="${lib}/${antlr-complete.jar}" fork="true" failonerror="true" dir="${parser.dir}">
             <arg line="-o generated"/>
             <arg line="-listener -no-visitor -encoding UTF-8"/>
             <arg line="${grammar.file}"/>

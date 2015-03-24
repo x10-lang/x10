@@ -33,7 +33,7 @@ echo "Testing"
 
 echo "Running front-end RunTestSuite on FrontEndTests_MustFailCompile.x10"
 cd "$TMP_DIR"
-nice $JAVA -Xmx1G -ea -DQUIET=true -cp "$ROOT/x10.dist/lib/x10c.jar${PATH_SEP}$ROOT/x10.dist/lib/lpg.jar${PATH_SEP}$ROOT/x10.dist/lib/antlr-4.5-complete.jar" x10.util.RunTestSuite "$ROOT/x10.tests/tests/Misc/x10/frontend/tests/FrontEndTests_MustFailCompile.x10" -extclass x10c.ExtensionInfo -sourcepath "$ROOT/x10.dist/stdlib/x10.jar" -sourcepath "$ROOT/x10.tests/tests/x10lib" -commandlineonly || testFailed
+nice $JAVA -Xmx1G -ea -DQUIET=true -cp "$ROOT/x10.dist/lib/x10c.jar${PATH_SEP}$ROOT/x10.dist/lib/lpg.jar${PATH_SEP}$ROOT/x10.dist/lib/antlr-runtime-4.5.jar" x10.util.RunTestSuite "$ROOT/x10.tests/tests/Misc/x10/frontend/tests/FrontEndTests_MustFailCompile.x10" -extclass x10c.ExtensionInfo -sourcepath "$ROOT/x10.dist/stdlib/x10.jar" -sourcepath "$ROOT/x10.tests/tests/x10lib" -commandlineonly || testFailed
 
 if [ "$target" != "dist-java" ]; then
 
