@@ -43,11 +43,13 @@ public class ParserErrorListener extends BaseErrorListener implements
 
     /** Returns the position of a given token. */
     private Position pos(Token t) {
+        System.err.println("XXXXXXX ---------------------------------------");
+        int eof = t.getInputStream().size() - 1;
         int line = t.getLine();
         int column = t.getCharPositionInLine();
-        int offset = t.getStartIndex();
+        int offset = Math.min(t.getStartIndex(), eof);
         int endLine = line;
-        int endOffset = t.getStopIndex();
+        int endOffset = Math.max(t.getStopIndex(), offset);
         int endColumn = column + endOffset - offset;
         return new Position("", file, line, column, endLine, endColumn, offset, endOffset);
     }
