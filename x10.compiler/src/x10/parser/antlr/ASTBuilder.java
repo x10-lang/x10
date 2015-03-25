@@ -650,9 +650,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         try {
             // First stage
             tree = p.compilationUnit();
-            if (tree.ast == null) {
-                throw new Exception();
-            }
         } catch (Exception ex) {
             // Second stage
             tokens.reset();
@@ -743,7 +740,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
         return ((X10Ext) d.ext()).setComment(c);
     }
-    
+
     private void checkTypeName(Id identifier) {
         String filename = srce.name();
         String idname = identifier.id().toString();
@@ -5783,7 +5780,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<FlagsNode> VarKeyword = ast(ctx.varKeyword());
         List<Object[]> VariableDeclarators = ast(ctx.variableDeclarators());
         List<LocalDecl> decls = localVariableDeclaration(Modifiersopt, VarKeyword, VariableDeclarators);
-        if (decls.size() == 1) { 
+        if (decls.size() == 1) {
             LocalDecl decl = (LocalDecl) decls.get(0).position(pos(ctx));
             decls = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
             decls.add(decl);
