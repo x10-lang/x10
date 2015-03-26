@@ -123,7 +123,9 @@ public class System {
      * required to execute quickly.
      */
     @Native("java", "x10.x10rt.X10RT.registerPlaceAddedHandler(#handler)")
-    public static native def registerPlaceAddedHandler(handler:(Place)=>void):void;
+    public static def registerPlaceAddedHandler(handler:(Place)=>void): void {
+        return; // not yet supported in native X10
+    }
 
     /*
      * Registers a user-defined function to execute when a place has been removed.  Normally
@@ -138,7 +140,9 @@ public class System {
      * required to execute quickly.
      */
     @Native("java", "x10.x10rt.X10RT.registerPlaceRemovedHandler(#handler)")
-    public static native def registerPlaceRemovedHandler(handler:(Place)=>void):void;
+    public static def registerPlaceRemovedHandler(handler:(Place)=>void): void {
+        return; // not yet supported in native X10
+    }
 
 
     /**
