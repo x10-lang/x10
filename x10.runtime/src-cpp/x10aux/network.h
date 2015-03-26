@@ -51,8 +51,6 @@ namespace x10aux {
     extern msg_type kernel_put;
 
     // caches to avoid repeatedly calling into x10rt for trivial things
-    extern place num_places;
-    extern place num_hosts;
     extern place here;
 
     // can be used to test whether the above caches contain valid data

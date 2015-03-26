@@ -106,11 +106,11 @@ public abstract class PlaceTopology {
 
 
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)::x10aux::num_places)")
+    @Native("c++", "((x10_long)x10rt_nplaces())")
     protected static native def num_all_places():Long;
 
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)::x10aux::num_hosts)")
+    @Native("c++", "((x10_long)x10rt_nplaces())")
     protected static native def num_primary_places():Long;
 
     /**

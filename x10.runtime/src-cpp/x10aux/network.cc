@@ -38,8 +38,6 @@ using namespace x10::lang;
 using namespace x10aux;
 
 // caches to avoid repeatedly calling into x10rt for trivial things
-x10aux::place x10aux::num_places = 0;
-x10aux::place x10aux::num_hosts = 0;
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
 x10_int x10aux::num_local_cores = 1; // this will be set in template_main
@@ -163,8 +161,6 @@ void x10aux::network_init (int ac, char **av) {
         abort();
     }
     x10aux::here = x10rt_here();
-    x10aux::num_places = x10rt_nplaces();
-    x10aux::num_hosts = x10rt_nhosts();
     remote_op_batch = get_remote_op_batch();
     opv = (x10rt_remote_op_params*)malloc(remote_op_batch * sizeof(*opv));
 }
@@ -255,7 +251,7 @@ void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
         <<" nid "<<net_id<<" to place: "<<p);
 
     assert(p!=here); // this case should be handled earlier
-    assert(p<num_places); // this is ensured by XRX runtime
+    assert(p<x10rt_nplaces()); // this is ensured by XRX runtime
 
     assert(!is_cuda(p));
 

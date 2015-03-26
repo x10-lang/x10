@@ -45,14 +45,14 @@ public final struct Place(
      * Invariant: Place.numPlaces() == Place.places().numPlaces().
      */
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)::x10aux::num_hosts)")
+    @Native("c++", "((x10_long)x10rt_nplaces())")
     public static native def numPlaces():Long;
     
     /** 
      * The total number of all kinds of places (both primary and children/accelerators).
      */
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)::x10aux::num_places)")
+    @Native("c++", "((x10_long)x10rt_nplaces())")
     public static native def numAllPlaces():Long;
 
     /** 
