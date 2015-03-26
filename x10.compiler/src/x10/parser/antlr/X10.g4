@@ -376,7 +376,7 @@ fullyQualifiedName returns [ParsedName ast]:
       identifier ('.' identifier)*
     ;
 compilationUnit returns [SourceFile ast]:
-      packageDeclaration? importDeclarationsopt typeDeclarationsopt
+      packageDeclaration? importDeclarationsopt typeDeclarationsopt EOF
     ;
 packageDeclaration returns [PackageNode ast]:
       annotationsopt 'package' packageName ';'
