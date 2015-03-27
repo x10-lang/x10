@@ -94,6 +94,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   Consumer<Place> handler;
 
+  /**
+   * True if shutdown is in progress.
+   */
+  private boolean dying;
+
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
     return t instanceof Worker ? (Worker) t : null;
@@ -275,6 +280,12 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
   @Override
   public void shutdown() {
+    synchronized (this) {
+      if (dying) {
+        return;
+      }
+      dying = true;
+    }
     if (launcher != null) {
       launcher.shutdown();
     }
