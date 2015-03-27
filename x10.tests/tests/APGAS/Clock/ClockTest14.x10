@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class ClockTest14 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val c = Clock.make();
 		var gotException: boolean;
 		Clock.advanceAll();
@@ -42,7 +42,7 @@ public class ClockTest14 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest14().execute();
 	}
 }

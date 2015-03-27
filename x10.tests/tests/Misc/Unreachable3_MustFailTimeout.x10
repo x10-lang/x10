@@ -19,14 +19,14 @@ import harness.x10Test;
  */
 public class Unreachable3_MustFailTimeout extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		async {
 			while (true) { }
 		}
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Unreachable3_MustFailTimeout().execute();
 	}
 }

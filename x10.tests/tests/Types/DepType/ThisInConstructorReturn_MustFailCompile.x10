@@ -26,11 +26,11 @@ public class ThisInConstructorReturn_MustFailCompile extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var t: Test = new Test();
         return t.R1==t.a;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ThisInConstructorReturn_MustFailCompile().execute();
     }
 }

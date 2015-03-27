@@ -16,7 +16,7 @@ import harness.x10Test;
 import dims.*;
 
 public class DimTest2 extends harness.x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
 	var meltC: double = 0;
 	var boilC: double = 100;
 

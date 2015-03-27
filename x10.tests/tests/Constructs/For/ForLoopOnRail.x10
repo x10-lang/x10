@@ -20,7 +20,7 @@ public class ForLoopOnRail extends x10Test {
 
     public static N: int = 3n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val a = new Rail[double](11, (i:long) => i as double);
 
         for (i in a.range) {
@@ -29,7 +29,7 @@ public class ForLoopOnRail extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ForLoopOnRail().execute();
     }
 }

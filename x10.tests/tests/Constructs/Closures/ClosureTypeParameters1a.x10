@@ -17,7 +17,7 @@ import harness.x10Test;
  * 
  * Methods, constructors, closures, and type definitions may have type
  * parameters, which are instantiated with concrete types at invocation
- * (ง4.2).
+ * (ยง4.2).
  * 
  * A method, constructor, or closure may have type parameters whose scope
  * is the signature and body of the declaring method, constructor or
@@ -28,7 +28,7 @@ import harness.x10Test;
 
 public class ClosureTypeParameters1a extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class X[T] {val f = () => 0;}
         chk(new X[String]().f() == 0, "new X[String]().f()");
@@ -36,7 +36,7 @@ public class ClosureTypeParameters1a extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureTypeParameters1a().execute();
     }
 }

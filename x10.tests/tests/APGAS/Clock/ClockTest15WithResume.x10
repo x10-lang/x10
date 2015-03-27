@@ -80,7 +80,7 @@ public class ClockTest15WithResume extends x10Test {
 
 	var x: long = 0; // global counter
 	var advanced_A1: boolean = false; // signals that A1 executed next and read x == 2
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish /* A0 */ async {
 			val a = Clock.make();
 			val b = Clock.make();
@@ -117,7 +117,7 @@ public class ClockTest15WithResume extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest15WithResume().execute();
 	}
 }

@@ -20,13 +20,13 @@ import x10.compiler.tests.*; // err markers
  */
 public class ArrayTypeCheck3_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	// should be Array[Int](2)
         val a1:Array[Int](3)  =  new Array[Int](Region.make(0..2, 0..3), (p[i]: Point)=>(i as int)); // ERR
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayTypeCheck3_MustFailCompile().execute();
     }
 }

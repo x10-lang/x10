@@ -19,7 +19,7 @@ import x10.regionarray.*;
 public class PlaceCast2 extends x10Test {
     var nplaces: long = 0L;
     private val root = GlobalRef[PlaceCast2](this);
-    public def run(): boolean = {
+    public def run(): boolean {
             val d = Dist.makeUnique();
             x10.io.Console.OUT.println("num places = " + Place.numPlaces());
             val root = this.root;

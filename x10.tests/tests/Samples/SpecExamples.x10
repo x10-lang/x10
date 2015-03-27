@@ -160,5 +160,5 @@ class PropertyMethodExample(x:Int, y:Int) {
 	def example( a : PropertyMethodExample{eq()}, b : PropertyMethodExample{is(3)} ) {}
 }
 class Oddvec { // ShouldBeErr?  no corresponding operator() defined.
-public operator this(i:Int)=(newval:Int) = {}
+public operator this(i:Int)=(newval:Int) {}
 }

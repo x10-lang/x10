@@ -20,7 +20,7 @@ public class DoubleLitCoercion extends x10Test {
     def m():double(1.0)=1.0;
     
 	public def run()=true;
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new DoubleLitCoercion().execute();
 	}
 }

@@ -14,7 +14,7 @@ import x10.regionarray.*;
 
 public class TestSimpleArrayMult extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val N: int = 99900n;
         var start1: long = System.currentTimeMillis();
@@ -55,7 +55,7 @@ public class TestSimpleArrayMult extends x10Test {
     }
 
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TestSimpleArrayMult().execute();
        
     }

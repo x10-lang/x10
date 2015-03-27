@@ -40,7 +40,7 @@ public class ClosureEnclosingScope5 extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         chk(new C(2).new D(4).sum() ==  11, "new C(2).new D(4).sum");
 
         return true;

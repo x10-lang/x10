@@ -27,7 +27,7 @@ import harness.x10Test;
 
 public class UserArrayBounds1D extends x10Test {
 
-   public def run(): boolean = {
+   public def run(): boolean {
       val COUNT: int = 100n;
       val L: int = 10n;
       val K: int = 3n;

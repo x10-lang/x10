@@ -62,13 +62,13 @@ public class BCGTest extends x10Test{
     public def run():boolean {
 	val filename:String = pathCombine(["tests", "Samples", "GLB", "bcg"], "bc_n14.txt");
 	gt:ArrayList[String] = prepareGroundTruth(filename);
-	chk(gt.size() == 13250L); // creepy, i know
+	chk(gt.size() == 13318L); // creepy, i know
 	val args = new Rail[String](2L);
 	args(0) = "-n";
 	args(1) = "14";
 	val result:Rail[Double] = BCG.mainTest(args);
 	resultL:ArrayList[String] = printBetweennessMap(result);
-	chk(resultL.size() == 13250L);
+	chk(resultL.size() == 13318L);
 	return (mychk(gt, resultL));
 	
     }

@@ -21,7 +21,7 @@ import harness.x10Test;
  * the explicit type arguments. If the method has a type parameter T,
  * the type argument corresponding to T is inferred to be the least
  * common ancestor of the types of any formal parameters of type T.
- *// Closures are no longer permitted to take type parameters.
+ * // Closures are no longer permitted to take type parameters.
  * @author bdlucas 8/2008
  */
 

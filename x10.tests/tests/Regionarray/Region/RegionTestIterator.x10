@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class RegionTestIterator extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val r = Region.make(0, 100);
         val reg = r*r;
@@ -33,7 +33,7 @@ public class RegionTestIterator extends x10Test {
         return sum == 0 && numPts == (101*101);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new RegionTestIterator().execute();
     }
 }

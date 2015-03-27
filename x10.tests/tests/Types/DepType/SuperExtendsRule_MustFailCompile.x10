@@ -26,29 +26,29 @@ public class SuperExtendsRule_MustFailCompile extends x10Test {
 	}
 
 	static class Test2(k:int) extends Test {
-		def this(k:int):Test2{self.i==self.j} = {
+		def this(k:int):Test2{self.i==self.j} {
 			// the call to super below violates the constraint i == j
 			super(0n,1n);  // ShouldBeErr
 			property(k); // ShouldNotBeERR: Instances created by this constructor do not satisfy return type
 		}
 	}
 	static class Test3 extends Test {
-		def this():Test3{self.i==self.j} = { // ERR: Instances created by this constructor do not satisfy return type
+		def this():Test3{self.i==self.j} { // ERR: Instances created by this constructor do not satisfy return type
 			// the call to super below violates the constraint i == j
 			super(0n,1n); 
 		}
 	}
 	static class Test4 extends Test {
-		def this():Test4{self.i==self.j} = {
+		def this():Test4{self.i==self.j} {
 			super(1n,1n);  // ShouldBeErr
 		}
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new SuperExtendsRule_MustFailCompile().execute();
 	}
 }

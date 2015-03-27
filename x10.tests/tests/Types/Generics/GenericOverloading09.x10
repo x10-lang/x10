@@ -26,7 +26,7 @@ public class GenericOverloading09 extends GenericTest {
     static def m[T]() = 0;
     static def m[T](T) = 1;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         genericCheck("m[long]()", m[long](), 0);
         genericCheck("m[long](long)", m[long](0), 1);
@@ -34,7 +34,7 @@ public class GenericOverloading09 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverloading09().execute();
     }
 }

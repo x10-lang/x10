@@ -25,14 +25,14 @@ public class FlattenAsyncExpr2 extends x10Test {
 
     val a: DistArray[int](1);
 
-    public def this(): FlattenAsyncExpr2 = {
+    public def this(): FlattenAsyncExpr2 {
         a = DistArray.make[int](Region.make(1,10) -> here, ([j]: Point): int => { return (2*j) as int;});
     }
 
     static def m(x: int) = x;
         
     
-    public def run(): boolean = {
+    public def run(): boolean {
         finish async at(a.dist(1)) {
             m(50000n);
             atomic { a(1) = (a(1)^2n);}

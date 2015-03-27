@@ -19,7 +19,7 @@ import x10.regionarray.*;
 
 public class StencilFor2D extends x10Test {
     
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val R = Region.make(-1..256, -1..256);
         val r = Region.make(0..255, 0..255);

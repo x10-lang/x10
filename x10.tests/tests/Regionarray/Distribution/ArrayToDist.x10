@@ -22,7 +22,7 @@ public class ArrayToDist extends x10Test {
 
     static N = 4;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val R = Region.make(0..(N-1), 0..(N-1));
         val D  = Dist.makeBlock(R, 0);
@@ -56,6 +56,6 @@ public class ArrayToDist extends x10Test {
 
     static class foo {
         public var value: int;
-        public def this(var x: int): foo = { this.value = x; }
+        public def this(var x: int): foo { this.value = x; }
     }
 }

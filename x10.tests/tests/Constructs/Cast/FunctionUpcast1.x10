@@ -26,7 +26,7 @@ public class FunctionUpcast1 extends x10Test {
     public static @NoInline def eval2(cls:()=>Any) = cls();
     public static @NoInline def eval3(i:Long, cls:(Long)=>Any) = cls(i);
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val e1 = eval1((a:Any, b:Any)=>((a as Int)+(b as Int)+10n));
         val e2 = eval2(()=>1011n);
         chk(e1 == e2);

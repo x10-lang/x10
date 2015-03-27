@@ -21,11 +21,11 @@ public class FlattenInitFor extends x10Test {
 
     val a: DistArray[int](2);
 
-    public def this(): FlattenInitFor = {
+    public def this(): FlattenInitFor {
         a = DistArray.make[int](Region.make(1..10, 1..10)->here, ([i,j]: Point): int => (i as int));
     }
     
-    public def run(): boolean = {
+    public def run(): boolean {
         for (var e: int = at (a.dist(1, 1)) a(1, 1); e < 3 ; e++) 
             x10.io.Console.OUT.println("done.");        
         return true;

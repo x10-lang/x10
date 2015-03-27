@@ -32,12 +32,12 @@ public class GenericExample1 extends GenericTest {
             }
         }
 
-    public def run() = {
+    public def run() {
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericExample1().execute();
     }
 }

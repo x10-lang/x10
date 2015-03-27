@@ -29,7 +29,7 @@ public class FlattenPlaceCast extends x10Test {
     	private val root = GlobalRef[Test](this);
     };
 
-    public def run():boolean  = {
+    public def run():boolean   {
 	chk(Place.numPlaces() >= 2, "This test must be run with at least two places");
         val d1next = Place.places().next(d(1));
         val x = a(1,1);

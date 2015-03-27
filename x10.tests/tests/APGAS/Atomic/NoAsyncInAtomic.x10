@@ -19,7 +19,7 @@ public class NoAsyncInAtomic extends x10Test {
 
 	var b: boolean;
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 			try {
 		      atomic 
 		        async 
@@ -30,7 +30,7 @@ public class NoAsyncInAtomic extends x10Test {
 			}
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NoAsyncInAtomic().execute();
 	}
 }

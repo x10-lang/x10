@@ -21,7 +21,7 @@ import x10.util.concurrent.Future;
 
 public class ArrayFutureFlatten extends x10Test {
 
-    public def run(): boolean = { 
+    public def run(): boolean { 
         val A = new Array[int](Region.make(1..10,1..10), (Point)=>0n);
         val B = new Array[int](Region.make(1..10, 1..10), (Point)=>0n);
         val b = (Future.make[int](()=>3n))();
@@ -29,7 +29,7 @@ public class ArrayFutureFlatten extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayFutureFlatten().execute();
     }
 }

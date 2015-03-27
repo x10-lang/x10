@@ -21,7 +21,7 @@ public class NullableComparison extends x10Test {
 
 	public static N: long = 6;
 
-	public def run(): boolean = {
+	public def run(): boolean {
         // [DC] this appears to be a perfectly reasonable program that should execute correctly
 		val objList = new Rail[Empty](N);
 		val obj: Empty = new Empty();

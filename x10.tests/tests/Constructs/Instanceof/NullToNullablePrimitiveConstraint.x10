@@ -19,11 +19,11 @@ import harness.x10Test;
  **/
 public class NullToNullablePrimitiveConstraint extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return !(null instanceof Box[Int]);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NullToNullablePrimitiveConstraint().execute();
 	}
 }

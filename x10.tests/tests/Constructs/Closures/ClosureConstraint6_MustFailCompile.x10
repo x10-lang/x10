@@ -20,7 +20,7 @@ import harness.x10Test;
 
 public class ClosureConstraint6_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         // not allowed
         val f:Any =
@@ -30,7 +30,7 @@ public class ClosureConstraint6_MustFailCompile extends x10Test {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureConstraint6_MustFailCompile().execute();
     }
 }

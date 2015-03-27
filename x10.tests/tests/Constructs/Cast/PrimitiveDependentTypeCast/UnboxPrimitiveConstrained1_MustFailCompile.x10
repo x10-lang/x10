@@ -18,7 +18,7 @@ import harness.x10Test;
  **/
  public class UnboxPrimitiveConstrained1_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var res2: boolean = false;
 		
       var ni: int(4n) = 4n;
@@ -34,7 +34,7 @@ import harness.x10Test;
 		return res2;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new UnboxPrimitiveConstrained1_MustFailCompile().execute();
 	}
 }

@@ -17,7 +17,7 @@ import x10.regionarray.*;
  */
 class XTENLANG_265 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
             
         val d = Dist.makeUnique();
         ateach (p:Point in d)

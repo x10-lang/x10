@@ -20,7 +20,7 @@ public class HasTypeField extends x10Test {
 
 	val x <: Long = 1; 
 	def m(x:Long{self==1}) = x;
-	public def run(): boolean = {
+	public def run(): boolean {
 		m(x);
 		return true;
 	}

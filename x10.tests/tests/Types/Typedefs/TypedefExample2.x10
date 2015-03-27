@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class TypedefExample2 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type A = Int;
         type B = String;
@@ -37,7 +37,7 @@ public class TypedefExample2 extends TypedefTest {
 
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefExample2().execute();
     }
 }

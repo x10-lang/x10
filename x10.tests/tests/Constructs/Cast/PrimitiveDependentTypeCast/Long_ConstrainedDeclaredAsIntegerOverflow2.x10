@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class Long_ConstrainedDeclaredAsIntegerOverflow2 extends x10Test {
 
-	 public def run(): boolean = {
+	 public def run(): boolean {
 		var result: boolean = false;
 		val notAnInt: long = 2147493648L ;
 		val b: int{self == -2147473648n} = notAnInt as int{self== -2147473648n};
@@ -35,7 +35,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow2 extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new  Long_ConstrainedDeclaredAsIntegerOverflow2().execute();
 	}
 }

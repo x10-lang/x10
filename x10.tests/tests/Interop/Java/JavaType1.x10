@@ -27,7 +27,7 @@ public class JavaType1 extends x10Test {
         chk(d.equals(dd));
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test();
         return true;
     }

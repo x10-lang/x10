@@ -19,12 +19,12 @@ import harness.x10Test;
  */
 public class IntLitOctOutOfRange_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		x10.io.Console.OUT.println(077777777777777777777n); // ERR
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new IntLitOctOutOfRange_MustFailCompile().execute();
 	}
 

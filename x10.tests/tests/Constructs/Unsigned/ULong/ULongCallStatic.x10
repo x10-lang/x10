@@ -25,7 +25,7 @@ public class ULongCallStatic extends x10Test {
 	return "long = " + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val i0 = 0l;
 	val u1 = 1ul;
 	val s0 = f(i0);

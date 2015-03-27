@@ -29,7 +29,7 @@ import harness.x10Test;
         return false;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new CastNullAnyToPrimitive().execute();
     }
 }

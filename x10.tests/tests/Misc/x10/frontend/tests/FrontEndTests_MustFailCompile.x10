@@ -1939,7 +1939,7 @@ class TestVarAccessInClosures {
         class C {
             val c1:long = 1;
             var c2:long = 1;
-            def foo() = {
+            def foo() {
                 val fun = () => {
                     val d1:long = 1;
                     var d2:long = 1;
@@ -1950,7 +1950,7 @@ class TestVarAccessInClosures {
 						d2  // ERR: Local variable "d2" is accessed from an inner class or a closure, and must be declared final.
 						)()
                 };
-                fun()
+                return fun();
             }
         }
 	}
@@ -3849,7 +3849,7 @@ interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, Im
 		//@Ann42 use(5); // todo: it should parse!
 	}
 	@ERR @Ann42 def m2() = @ERR @Ann42 4;
-	@ERR @Ann42 def m3() = @ERR @Ann42 { 5 };
+	@ERR @Ann42 def m3() @ERR @Ann42 { return 5; };
 }
 
 class SubtypeCheckForUserDefinedConversion { // see also SubtypeCheckForUserDefinedConversion_MustFailCompile
@@ -5622,7 +5622,7 @@ class RuntimeChecksOfConstraintsInGenerics {
 
 class PropDefConstraint_Circular(a: Boolean) { // see XTENLANG-2426
 
-	@ERR @ERR property def prop1(i:Boolean):Boolean = {  prop1(i) }
+	@ERR @ERR property def prop1(i:Boolean):Boolean {  return prop1(i); }
 	property prop2():Boolean = prop1(true);
 	@ERR @ERR property propA():Boolean = propB();
 	@ERR @ERR property propB():Boolean = propA();
@@ -5975,12 +5975,12 @@ class TestInitChecker {
         val b:long = 1;
         class C {
             val c = 1;
-            def foo() = {
+            def foo() {
                 val fun = () => {
                     val d:long = 1;
                     (() => a+b+c+d)()
                 };
-                fun()
+                return fun();
             }
         }
 	}

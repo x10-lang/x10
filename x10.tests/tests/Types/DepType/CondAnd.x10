@@ -20,13 +20,13 @@ import x10.regionarray.Region;
 public class CondAnd extends x10Test {
    
    
-	public def run(): boolean = {
+	public def run(): boolean {
 	   val r1 = Region.make(0, 100);
 	   val r2 = Region.make(2, 99);
 	   val r3 = r1 && r2;
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CondAnd().execute();
 	}
 }

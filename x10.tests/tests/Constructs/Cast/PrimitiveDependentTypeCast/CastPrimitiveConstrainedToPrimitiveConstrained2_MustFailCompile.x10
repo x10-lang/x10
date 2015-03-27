@@ -18,7 +18,7 @@ import harness.x10Test;
  **/
 public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		
 		try { 
 			var i: int{self == 1n} = 1n;
@@ -30,7 +30,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile ext
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile().execute();
 	}
 

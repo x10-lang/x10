@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class Integer_ConstraintWithVariable extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val iconstraint: int{self==0n} = 0n;
 		// constraint's variable must be final
 		// hence these two types should be equivalent
@@ -26,7 +26,7 @@ public class Integer_ConstraintWithVariable extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Integer_ConstraintWithVariable().execute();
 	}
 

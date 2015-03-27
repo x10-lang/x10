@@ -39,22 +39,22 @@ public class InterfaceProp extends x10Test {
           super(nn,ii); 
           property(mm, kk);
       }
-      public def a():void = {
+      public def a():void {
         var x:int;
       }
 	}
 	class D(n:int, i:int) implements I {
        public property i():int = i;
       public def this(nn:int, ii:int):D { property(nn, ii); }
-      public def a():void= {
+      public def a():void {
         var x:int;
       }
 	}
-	public def run(): boolean = {
+	public def run(): boolean {
         new E(1n,2n,3n,4n);
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new InterfaceProp().execute();
 	}
 }

@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class ArrayOfArraysShorthand extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val r1 = Region.make(0,7);
         val r2 = Region.make(0,9);
@@ -32,7 +32,7 @@ public class ArrayOfArraysShorthand extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayOfArraysShorthand().execute();
     }
 }

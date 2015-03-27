@@ -23,8 +23,8 @@ public class AsyncInit extends x10Test {
         return x;
     }
     public def run(): Boolean {
-    	Console.OUT.println(testInt(2n));
-        Console.OUT.println(test(2));
+    	Runtime.println(testInt(2n));
+        Runtime.println(test(2));
         return true;
     }
     public static def main(Rail[String]) {

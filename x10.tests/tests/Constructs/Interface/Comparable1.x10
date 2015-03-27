@@ -22,7 +22,7 @@ public class Comparable1 extends x10Test {
         chk(!r2);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test();
         return true;
     }

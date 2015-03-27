@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class Restrict extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r = Region.make(0,100);
         val R = r*r;
         val d = R->here;
@@ -32,7 +32,7 @@ public class Restrict extends x10Test {
         return (R.size() == R2.size());
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Restrict().execute();
     }
 }

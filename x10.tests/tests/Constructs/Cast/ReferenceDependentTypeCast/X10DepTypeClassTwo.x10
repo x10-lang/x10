@@ -18,16 +18,16 @@ import harness.x10Test;
 public class X10DepTypeClassTwo(p: int, q: int) extends x10Test {
     public property p():int = p;
     
-    public def this(a: int, b: int): X10DepTypeClassTwo{self.p==a&&self.q==b} = {
+    public def this(a: int, b: int): X10DepTypeClassTwo{self.p==a&&self.q==b} {
         property(a,b);
     }
     
-    public def run(): boolean = {
+    public def run(): boolean {
         var one: X10DepTypeClassTwo{self.p==this.p} = new X10DepTypeClassTwo(this.p,0n);
         return one.p() == 0n;
     }
     
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Rail[String]): void {
         new X10DepTypeClassTwo(0n,0n).execute();
     }
 }

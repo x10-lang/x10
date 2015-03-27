@@ -20,13 +20,13 @@ public class Variance3 extends x10Test {
         interface Set[T] { def set(y: T): void; }
         class SetImpl[T] implements Set[T] {
                         var x: T;
-                        def this(y: T) = { x = y; }
-                        public def set(y: T): void = { x = y; }  }
+                        def this(y: T) { x = y; }
+                        public def set(y: T): void { x = y; }  }
 
         class A { }
         class B extends A { }
 
-        public def run(): boolean = {
+        public def run(): boolean {
                 val a = new A();
                 val b = new B();
 
@@ -45,7 +45,7 @@ public class Variance3 extends x10Test {
                 return true;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Variance3().execute();
 	}
 }

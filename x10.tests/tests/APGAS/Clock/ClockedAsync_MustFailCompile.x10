@@ -17,7 +17,7 @@ import harness.x10Test;
 public class ClockedAsync_MustFailCompile extends x10Test {
 
 
-	public def run(): boolean = {
+	public def run(): boolean {
 	 clocked async ; // ERR: clocked async must be invoked inside a statically enclosing clocked finish.
 		return false;
 	}

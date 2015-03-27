@@ -44,7 +44,7 @@ public class UShortCall extends x10Test {
 	return "short" + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val i0 = 0s;
 	val u1 = 1us;

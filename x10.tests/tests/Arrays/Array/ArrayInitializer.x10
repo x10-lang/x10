@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class ArrayInitializer extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val e = Region.make(0, 9);
         val r = e*e*e;
@@ -29,7 +29,7 @@ public class ArrayInitializer extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayInitializer().execute();
     }
 }

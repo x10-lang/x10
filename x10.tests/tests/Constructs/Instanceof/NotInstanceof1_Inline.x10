@@ -25,26 +25,26 @@ import harness.x10Test;
  **/
 public class NotInstanceof1_Inline extends x10Test {
 	 
-	public def run():boolean = {
+	public def run():boolean {
 		val diffType = this.getDifferentType();
 		
 		return !(diffType instanceof X10DepTypeClassOneB{p==1});
 	}
 
-	private def getSameType():Any = {
+	private def getSameType():Any {
 		return new X10DepTypeClassOneB(1);
 	}
 	
-	private def getDifferentType():Any = {
+	private def getDifferentType():Any {
 		return new OtherClass(1);
 	}
 	
-	public static def main(args: Rail[String]) = {
+	public static def main(args: Rail[String]) {
 		new NotInstanceof1_Inline().execute();
 	}
 		 
 	 public class OtherClass (p:long) {
-		public  def this(p:long) = {
+		public  def this(p:long) {
                     property(p);
 		}
 	 }

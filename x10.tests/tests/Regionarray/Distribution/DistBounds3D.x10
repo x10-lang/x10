@@ -23,7 +23,7 @@ import x10.regionarray.*;
 
 public class DistBounds3D extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val COUNT: int = 200n;
         val L: int = 3n;
         val K: int = 1n;
@@ -52,7 +52,7 @@ public class DistBounds3D extends x10Test {
      * return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var lb3: int, var ub3: int, val i: int, val j: int, val k: int, var distType: int): boolean = {
+    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var lb3: int, var ub3: int, val i: int, val j: int, val k: int, var distType: int): boolean {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k+" "+ distType);
 
@@ -80,18 +80,18 @@ public class DistBounds3D extends x10Test {
     /**
      * print a string
      */
-    private static def pr(var s: String): void = {
+    private static def pr(var s: String): void {
         x10.io.Console.OUT.println(s);
     }
 
     /**
      * true iff (x if and only if y)
      */
-    private static def iff(var x: boolean, var y: boolean): boolean = {
+    private static def iff(var x: boolean, var y: boolean): boolean {
         return x == y;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DistBounds3D().execute();
     }
 
@@ -110,7 +110,7 @@ public class DistBounds3D extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(val distType: int, val r: Region): Dist{region==r} = {
+        public static def getDist(val distType: int, val r: Region): Dist{region==r} {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 case BLOCKBLOCK: return Dist.makeBlockBlock(r, 0, 1);

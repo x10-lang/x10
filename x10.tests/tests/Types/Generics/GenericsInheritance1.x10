@@ -40,14 +40,14 @@ import harness.x10Test;
  */
 public class GenericsInheritance1 extends x10Test {
         interface I[T] { def m(): T; }
-        class C { public def m():long = { return 0; } }
+        class C { public def m():long { return 0; } }
         class D extends C implements I[long] { }
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new GenericsInheritance1().execute();
 	}
 }

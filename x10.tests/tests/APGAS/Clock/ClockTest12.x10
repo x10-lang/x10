@@ -23,7 +23,7 @@ public class ClockTest12 extends x10Test {
 
 	var phase: long = 0;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish async {
 		    val c  = Clock.make();
 		    async clocked(c) taskA(1, c);
@@ -33,7 +33,7 @@ public class ClockTest12 extends x10Test {
 		return true;
 	}
 
-	def taskA(var id: long, val c: Clock): void = {
+	def taskA(var id: long, val c: Clock): void {
 		var tmp: long;
 		System.sleep(1000);
 		atomic tmp = phase;
@@ -66,7 +66,7 @@ public class ClockTest12 extends x10Test {
 		Clock.advanceAll();
 	}
 
-	def taskB(val c: Clock): void = {
+	def taskB(val c: Clock): void {
 		var tmp: long;
 		atomic tmp = phase;
 		x10.io.Console.OUT.println("now in phase "+tmp);
@@ -84,7 +84,7 @@ public class ClockTest12 extends x10Test {
 		Clock.advanceAll();
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest12().execute();
 	}
 }

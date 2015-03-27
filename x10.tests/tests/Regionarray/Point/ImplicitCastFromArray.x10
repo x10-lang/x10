@@ -21,7 +21,7 @@ import x10.regionarray.*;
 public class ImplicitCastFromArray extends x10Test {
 
     def m(p:Point(2))=p;
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val p = [1,2];
        

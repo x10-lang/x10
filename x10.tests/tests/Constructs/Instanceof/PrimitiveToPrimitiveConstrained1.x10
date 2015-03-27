@@ -19,7 +19,7 @@ public class PrimitiveToPrimitiveConstrained1 extends x10Test {
 	 
 	public def run() = 3 instanceof long{self==3};
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new PrimitiveToPrimitiveConstrained1().execute();
 	}
 }

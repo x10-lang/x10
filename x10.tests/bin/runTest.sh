@@ -328,7 +328,7 @@ prog=runTest.sh
 # platform independent abstraction for certain commands
 EGREP=egrep
 egrep --version 2>/dev/null 1>/dev/null
-if [[ $? == 0 && $(uname -s) != CYGWIN* && $(uname -s) != Linux* ]]; then
+if [[ $? == 0 && $(uname -s) != Sun* && $(uname -s) != CYGWIN* && $(uname -s) != Linux* ]]; then
     EGREP="egrep -E"
 fi
 
@@ -363,7 +363,7 @@ thrunstate="UNKNOWN_STATE"
 tcbackend="native"
 
 # resiliency modes
-tc_all_resilient_modes="0 1 12 22 99"
+tc_all_resilient_modes="0 1 12 99"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
@@ -759,9 +759,6 @@ function main {
 		12) 
 		    mode_name="hc_resilient_finish"
 		    ;;
-		22) 
-		    mode_name="hc_opt_resilient_finish"
-		    ;;
 		99) 
 		    mode_name="resilient_x10rt"
 		    ;;
@@ -775,8 +772,8 @@ function main {
 		continue;
 	    fi
 
-            if [[ "$tcbackend" == "native" && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
-		printf "\nSkipping hazelcast-based mode for Native X10\n";
+            if [[ "$tcbackend" == "native" && "$mode_name" == "hc_resilient_finish" ]]; then
+		printf "\nSkipping hc_resilient_finish mode for Native X10\n";
 		continue;
 	    fi
 
@@ -794,7 +791,11 @@ function main {
 	    else
 		managed_x10_extra_resiliency_args=""
 		if [[ "$jen_resiliency_mode" != "0" ]]; then
-		    managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets"
+		    if [[ $"$jen_resiliency_mode" == "12" ]]; then
+			managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets -DX10RT_DATASTORE=Hazelcast"
+		    else
+			managed_x10_extra_resiliency_args="-DX10RT_IMPL=JavaSockets"
+		    fi
 		fi
 		run_cmd="X10_RESILIENT_MODE=${jen_resiliency_mode} X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost $X10_HOME/x10.dist/bin/x10 -ms128M -mx512M ${managed_x10_extra_resiliency_args} ${managed_x10_extra_args} -t -v -J-ea ${className}"
 	    fi

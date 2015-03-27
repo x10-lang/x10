@@ -24,10 +24,10 @@ import harness.x10Test;
  **/
 public class X10DepTypeClassOneB(p:long) implements X10InterfaceOneB {
 
-	public def this(p:long) = {
+	public def this(p:long) {
 	    property(p);
 	}
 
-	public  def interfaceMethod():void  = {}
+	public  def interfaceMethod():void   {}
 
 }

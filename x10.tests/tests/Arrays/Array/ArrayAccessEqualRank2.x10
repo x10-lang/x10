@@ -26,7 +26,7 @@ public class ArrayAccessEqualRank2 extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val R = Region.make(0,9);
         val S = Region.make(0,9); 
         // R and S should both be rank 1.
@@ -38,7 +38,7 @@ public class ArrayAccessEqualRank2 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new ArrayAccessEqualRank2().execute();
     }
 }

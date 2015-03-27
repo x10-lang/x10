@@ -16,7 +16,7 @@ import harness.x10Test;
  **/
 public class ReferenceToReference extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var identity: X10DepTypeClassOneB = new X10DepTypeClassOneB(1);
 		var upcast: Any = new X10DepTypeClassOneB(1);
 		var downcast: X10DepTypeClassOneB = new X10DepTypeSubClassOneB(1,2);
@@ -28,7 +28,7 @@ public class ReferenceToReference extends x10Test {
 		return (res1 && res2 && res3);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ReferenceToReference().execute();
 	}
 

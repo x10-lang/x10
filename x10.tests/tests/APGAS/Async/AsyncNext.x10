@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class AsyncNext extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val Other: Place = Place.places().next(here);
 		val t = new T();
 		val troot = t.root;

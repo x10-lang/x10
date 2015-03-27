@@ -34,14 +34,14 @@ public class GenericInstanceof06 extends GenericTest {
         public def m(String) = 1;
     }
 
-    public def run() = {
+    public def run() {
         
         var a:Any = new A();
 
         return a instanceof I[long] && a instanceof J[String];
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInstanceof06().execute();
     }
 }

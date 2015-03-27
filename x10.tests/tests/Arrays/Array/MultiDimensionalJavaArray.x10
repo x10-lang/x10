@@ -22,7 +22,7 @@ public class MultiDimensionalJavaArray extends x10Test {
 
     static PI = Math.PI;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val MIN = 0..99;
         val MAJ = 0..9;
         val a = new Array[Array[Double](1)](Region.make(MIN), (Point) => new Array[Double](Region.make(MAJ)));

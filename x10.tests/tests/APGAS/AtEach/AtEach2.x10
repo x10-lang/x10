@@ -22,7 +22,7 @@ public class AtEach2 extends x10Test {
     private val root = GlobalRef[AtEach2](this);
     transient var nplaces: long = 0L;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val d: Dist = Dist.makeUnique();
         val root = this.root;
         finish ateach (p in d) {

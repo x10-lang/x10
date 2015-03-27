@@ -24,12 +24,12 @@ public class Bounds4_MustFailCompile extends x10Test {
                 var x: T = new B(); // ERR: B not a subtype of T
         }
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 val a = new A();
                 return new C[A]().x == a;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Bounds4_MustFailCompile().execute();
 	}
 }

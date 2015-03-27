@@ -32,18 +32,18 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 	public static val f2: foo = new foo(1);
 	public static f3: foo = new foo(1n);
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		x1++;
 		f1 = new foo(2n); // ERR: Cannot assign to static field f1
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NoStaticMutable1_MustFailCompile().execute();
 	}
 
 	static class foo {
 		var VAL: int; // val is a keyword! you can't use it as a field name.
-		def this(var x: int): foo = { VAL = x; }
+		def this(var x: int): foo { VAL = x; }
 	}
 }

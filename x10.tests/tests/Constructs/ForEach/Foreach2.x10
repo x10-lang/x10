@@ -22,7 +22,7 @@ public class Foreach2 extends x10Test {
     public static N: int = 100n;
     var nActivities: int = 0n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val P0 = here; // save current place
         val r = Region.make(0, N-1);
         val d = r->P0;
@@ -40,7 +40,7 @@ public class Foreach2 extends x10Test {
         return nActivities == N;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Foreach2().execute();
     }
 }

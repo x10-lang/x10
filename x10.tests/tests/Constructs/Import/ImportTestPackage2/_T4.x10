@@ -15,7 +15,7 @@ package ImportTestPackage2;
  * Auxiliary class for ImportTest
  */
 public class _T4 {
-	public static def m4(val x: int): boolean = {
+	public static def m4(val x: int): boolean {
 		return x == 49n;
 	}
 }

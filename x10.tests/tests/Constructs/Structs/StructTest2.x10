@@ -21,7 +21,7 @@ import x10.regionarray.Region;
  */
 public class StructTest2 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r = Region.make(0, 9);
         val d = r->here;
         val f = new foo();
@@ -62,7 +62,7 @@ public class StructTest2 extends x10Test {
         return n != -1;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new StructTest2().execute();
     }
 
@@ -71,7 +71,7 @@ public class StructTest2 extends x10Test {
       val cval: Complex;
       val refval: foo;
 
-      def this(lval: long, cval: Complex, refval:foo) = {
+      def this(lval: long, cval: Complex, refval:foo) {
         this.lval = lval;
         this.cval = cval;
         this.refval = refval;

@@ -17,12 +17,12 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Closures1 extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
                 val j = ((i:long) => 3+i)(4);
                 return j == 7;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Closures1().execute();
 	}
 }

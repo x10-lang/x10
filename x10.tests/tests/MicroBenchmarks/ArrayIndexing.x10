@@ -46,7 +46,7 @@ public class ArrayIndexing extends x10Test {
 	var _genericArray3D: Array[Generic](3);
 	var _genericArray4D: Array[Generic](4);
 
-	public def this(): ArrayIndexing = {
+	public def this(): ArrayIndexing {
 		val kArraySize: int = 30n;
 		var range1D: Region(1);
                 var range2D: Region(2);
@@ -109,7 +109,7 @@ public class ArrayIndexing extends x10Test {
 		x10.io.Console.OUT.println("Generic arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
-	def verify1D(var array: Array[Generic](1)): boolean = {
+	def verify1D(var array: Array[Generic](1)): boolean {
 		var h1: long = array.region.max(0);
 		var l1: long = array.region.min(0);
 		var count: int = 0n;
@@ -124,7 +124,7 @@ public class ArrayIndexing extends x10Test {
 		}
 		return true;
 	}
-	def verify2D(var array: Array[Generic](2)): boolean = {
+	def verify2D(var array: Array[Generic](2)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var l1: long = array.region.min(0);
@@ -142,7 +142,7 @@ public class ArrayIndexing extends x10Test {
 			}
 		return true;
 	}
-	def verify3D(var array: Array[Generic](3)): boolean = {
+	def verify3D(var array: Array[Generic](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -163,7 +163,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[Generic](4)): boolean = {
+	def verify4D(var array: Array[Generic](4)): boolean {
                 var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -188,7 +188,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[double](3)): boolean = {
+	def verify3D(var array: Array[double](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -209,7 +209,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[double](4)): boolean = {
+	def verify4D(var array: Array[double](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -234,7 +234,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[long](3)): boolean = {
+	def verify3D(var array: Array[long](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -255,7 +255,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[long](4)): boolean = {
+	def verify4D(var array: Array[long](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -280,7 +280,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[float](3)): boolean = {
+	def verify3D(var array: Array[float](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2) ;
@@ -301,7 +301,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[float](4)): boolean = {
+	def verify4D(var array: Array[float](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -326,7 +326,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[char](3)): boolean = {
+	def verify3D(var array: Array[char](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2) ;
@@ -347,7 +347,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[char](4)): boolean = {
+	def verify4D(var array: Array[char](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -372,7 +372,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[byte](3)): boolean = {
+	def verify3D(var array: Array[byte](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2) ;
@@ -393,7 +393,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[byte](4)): boolean = {
+	def verify4D(var array: Array[byte](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -418,7 +418,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[int](3)): boolean = {
+	def verify3D(var array: Array[int](3)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -440,7 +440,7 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[int](4)): boolean = {
+	def verify4D(var array: Array[int](4)): boolean {
 		var h1: long = array.region.max(0);
 		var h2: long = array.region.max(1);
 		var h3: long = array.region.max(2);
@@ -465,56 +465,56 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def initialize(array: Array[double]): void = {
+	def initialize(array: Array[double]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(array: Array[Generic]): void = {
+	def initialize(array: Array[Generic]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = new Generic(count++);
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(array: Array[int]): void = {
+	def initialize(array: Array[int]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(array: Array[long]): void = {
+	def initialize(array: Array[long]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(array: Array[float]): void = {
+	def initialize(array: Array[float]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
-	def initialize(array: Array[byte]): void = {
+	def initialize(array: Array[byte]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = (count++) as byte;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as byte));
 		}
 	}
-	def initialize(array: Array[char]): void = {
+	def initialize(array: Array[char]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = (count++) as char;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as char));
 		}
 	}
-	def initialize(array: Array[boolean]): void = {
+	def initialize(array: Array[boolean]): void {
 		var count: int = 0n;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = 1 == (count++)%2;
@@ -522,7 +522,7 @@ public class ArrayIndexing extends x10Test {
 		}
 	}
 
-	def runDoubleTests(var repeatCount: int): boolean = {
+	def runDoubleTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Doubles...");
 		var start: long = System.currentTimeMillis();
 		initialize(_doubleArray3D);
@@ -537,7 +537,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runFloatTests(var repeatCount: int): boolean = {
+	def runFloatTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Floats...");
 		var start: long = System.currentTimeMillis();
 		initialize(_floatArray3D);
@@ -552,7 +552,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runIntTests(var repeatCount: int): boolean = {
+	def runIntTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Ints...");
 		var start: long = System.currentTimeMillis();
 		initialize(_intArray3D);
@@ -567,7 +567,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runLongTests(var repeatCount: int): boolean = {
+	def runLongTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Longs...");
 		var start: long = System.currentTimeMillis();
 		initialize(_longArray3D);
@@ -582,7 +582,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runByteTests(var repeatCount: int): boolean = {
+	def runByteTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Bytes...");
 		var start: long = System.currentTimeMillis();
 		initialize(_byteArray3D);
@@ -597,7 +597,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runCharTests(var repeatCount: int): boolean = {
+	def runCharTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Chars...");
 		var start: long = System.currentTimeMillis();
 		initialize(_charArray3D);
@@ -612,11 +612,11 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def runBooleanTests(var repeatCount: int): boolean = {
+	def runBooleanTests(var repeatCount: int): boolean {
 		return true;
 	}
 
-	def runGenericTests(var repeatCount: int): boolean = {
+	def runGenericTests(var repeatCount: int): boolean {
 		x10.io.Console.OUT.println("Testing Longs...");
 		initialize(_genericArray1D);
 		if (!verify1D(_genericArray1D)) return false;
@@ -638,7 +638,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var repeatCount: int = 500n;
 		if (!runByteTests(repeatCount)) return false;
 		if (!runCharTests(repeatCount)) return false;
@@ -652,7 +652,7 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def testDouble2D(iterations: int, verbose: boolean): void = {
+	def testDouble2D(iterations: int, verbose: boolean): void {
 		//if (verbose) x10.io.Console.OUT.println("testDouble2d called with "+iterations);
 		var start: long;
                 var stop: long;
@@ -665,7 +665,7 @@ public class ArrayIndexing extends x10Test {
 		if (verbose)x10.io.Console.OUT.println("testDouble2d("+iterations+") elapsed time:"+(((stop-start) as double)/1000));
 	}
 
-	def testDouble1D(iterations: int, verbose: boolean): void = {
+	def testDouble1D(iterations: int, verbose: boolean): void {
 		if (verbose) x10.io.Console.OUT.println("testDouble1d called with "+iterations);
 		var start: long;
                 var stop: long;
@@ -677,7 +677,7 @@ public class ArrayIndexing extends x10Test {
 		if (verbose)x10.io.Console.OUT.println("testDouble1d("+iterations+") elapsed time:"+(((stop-start) as double)/1000));
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ArrayIndexing().execute();
 	}
 

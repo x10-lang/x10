@@ -6,7 +6,7 @@ import x10.regionarray.*;
  * @author milthorpe
  */
 public class TestBlockBlockDist extends x10Test {
-	public def run(): Boolean = {
+	public def run(): Boolean {
         // array region is 40 * 50 * 60
         val gridRegion = Region.makeRectangular(0..39, 0..49, 0..59);
         val gridDist1 = Dist.makeBlockBlock(gridRegion, 0, 1);

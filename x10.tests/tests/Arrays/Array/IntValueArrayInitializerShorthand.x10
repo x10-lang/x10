@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class IntValueArrayInitializerShorthand extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val ia = new Array[int](Region.make(1..10, 1..10), ([i,j]:Point) => ((i+j) as int));
 

@@ -22,7 +22,7 @@ public class AtomicTest extends x10Test {
 	var startCount: long = 0;
 	var endCount: long = N;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var b: boolean; // temp
 	async  {
 	    atomic {

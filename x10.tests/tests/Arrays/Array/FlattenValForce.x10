@@ -19,7 +19,7 @@ import x10.util.concurrent.Future;
 
 public class FlattenValForce extends x10Test {
    
-    static def rd(val e: Array[Future[Int]](1), val i: int)  = {
+    static def rd(val e: Array[Future[Int]](1), val i: int)   {
         val fd = Future.make[Double]( ()=> 3.0);
         val x  = fd();
         return Future.make[Int](()=> e(i)());

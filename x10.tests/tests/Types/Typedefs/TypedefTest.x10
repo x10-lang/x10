@@ -22,7 +22,7 @@ abstract class TypedefTest extends x10Test {
 
     var result:boolean = true;
 
-    def check(test:String, actual:Int, expected:Int) = {
+    def check(test:String, actual:Int, expected:Int) {
 
         var result:boolean = actual == expected;
 
@@ -33,7 +33,7 @@ abstract class TypedefTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def check(test:String, actual:String, expected:String) = {
+    def check(test:String, actual:String, expected:String) {
 
         var result:boolean = actual.equals(expected);
 
@@ -44,7 +44,7 @@ abstract class TypedefTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def check(test:String, actual:Any, expected:Any) = {
+    def check(test:String, actual:Any, expected:Any) {
 
         var result:boolean = actual.equals(expected);
 
@@ -55,7 +55,7 @@ abstract class TypedefTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def pr(s:String):void = {
+    def pr(s:String):void {
         x10.io.Console.OUT.println(s);
     }
 

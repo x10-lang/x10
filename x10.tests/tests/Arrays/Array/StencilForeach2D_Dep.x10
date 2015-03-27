@@ -21,7 +21,7 @@ import x10.regionarray.*;
 
 public class StencilForeach2D_Dep extends x10Test {
     
-    public def run(): boolean = {
+    public def run(): boolean {
         val R  = Region.make(-1..256, -1..256);
         val r  = Region.make(0..255, 0..255);
         val north = [0, 1] as Point;
@@ -37,7 +37,7 @@ public class StencilForeach2D_Dep extends x10Test {
         return true;
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new StencilForeach2D_Dep().execute();
     }
 

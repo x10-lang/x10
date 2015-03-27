@@ -24,7 +24,7 @@ public class UserDefinedArray extends x10Test {
     static R = Region.make(0,1);
     static D = Dist.makeBlock(R, 0);
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         chk(Place.numPlaces() <= 1 || D(0) != D(1));
         // create an array a such that
@@ -64,7 +64,7 @@ public class UserDefinedArray extends x10Test {
         return i0 + 1n == i1;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new UserDefinedArray().execute();
     }
 
@@ -72,6 +72,6 @@ public class UserDefinedArray extends x10Test {
     	private val root = GlobalRef[E](this);
     	def home() = root.home;
         var v: int;
-        def this(var i: int): E = { v = i; }
+        def this(var i: int): E { v = i; }
     }
 }

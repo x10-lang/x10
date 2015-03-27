@@ -19,7 +19,7 @@ public class AtEach_MustFailCompile {
     private val root = GlobalRef[AtEach_MustFailCompile](this);
     transient var nplaces: int = 0;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val d: Dist = Dist.makeUnique();
         val disagree: DistArray[int]{dist==d} = DistArray.make[int](d);
         val root = this.root;

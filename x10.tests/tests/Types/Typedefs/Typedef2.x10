@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Typedef2 extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
                 type foo[T] = T;
                 type bar(x: int) = int{self==x};
                 val x: foo[int] = 3n;
@@ -25,7 +25,7 @@ public class Typedef2 extends x10Test {
 		return x == 3n && y == 5n;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Typedef2().execute();
 	}
 }

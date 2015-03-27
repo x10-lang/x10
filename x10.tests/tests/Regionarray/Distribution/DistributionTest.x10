@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class DistributionTest extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r = Region.make(0,100); //(low, high)
         val R = r*r;
         val d  = R->here;
@@ -27,7 +27,7 @@ public class DistributionTest extends x10Test {
                 (R.max(1) - R.min(1) + 1 == 101L));
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DistributionTest().execute();
     }
 }

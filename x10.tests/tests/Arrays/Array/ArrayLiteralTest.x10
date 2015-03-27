@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class ArrayLiteralTest extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val r = [1n, 2n, 3n];
         val a = [1 as Int,2 as Int,3 as Int];
@@ -29,7 +29,7 @@ public class ArrayLiteralTest extends x10Test {
         return suma==6n && sumr==6n;
     }
 
-    public static def main(Rail[String]): void = {
+    public static def main(Rail[String]): void {
         new ArrayLiteralTest().execute();
     }
 }

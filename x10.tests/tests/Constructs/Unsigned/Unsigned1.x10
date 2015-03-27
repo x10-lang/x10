@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class Unsigned1 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val x: uint = 1n as uint;
         x10.io.Console.OUT.println(x.toString());
         x10.io.Console.OUT.println(x as int);
@@ -26,7 +26,7 @@ public class Unsigned1 extends x10Test {
         return (x as int) == 1n && (y as int) == Int.MIN_VALUE;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Unsigned1().execute();
     }
 }

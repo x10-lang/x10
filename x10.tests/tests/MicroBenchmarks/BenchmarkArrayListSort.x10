@@ -22,7 +22,7 @@ public class BenchmarkArrayListSort extends x10Test {
     public def this(N : Int) {
         this.N = N;
     }
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val r = new Random();
         val a = new ArrayList[Double]();
         for (i in 1..N) {
@@ -47,7 +47,7 @@ public class BenchmarkArrayListSort extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
         var n : Int = 1000n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));

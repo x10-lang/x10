@@ -16,7 +16,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class PrimitiveAssignment extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var b: byte = 2y;
 		var c: char = 'c';
 		var s: short = 10s;
@@ -28,7 +28,7 @@ public class PrimitiveAssignment extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new PrimitiveAssignment().execute();
 	}
 }

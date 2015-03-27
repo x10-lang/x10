@@ -21,14 +21,14 @@ public class ObjectEquality extends x10Test {
 
 	var objField: Empty;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val obj: Empty = new Empty();
 		if (obj == objField)
 			return false;
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ObjectEquality().execute();
 	}
 }

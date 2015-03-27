@@ -17,7 +17,7 @@ import x10.compiler.tests.*; // err markers
 /**
  * STATIC SEMANTICS RULE: In an expression (x1: T1, . . ., xn: Tn) =>
  * e, any outer local variable accessed by e must be final or must be
- * declared as shared (ง14.9).
+ * declared as shared (ยง14.9).
  *
  * @author bdlucas 8/2008
  */
@@ -26,7 +26,7 @@ public class ClosureEnclosingScope2c_MustFailCompile extends x10Test {
 
     val a = 1;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val b = 1;
 
@@ -42,7 +42,7 @@ public class ClosureEnclosingScope2c_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureEnclosingScope2c_MustFailCompile().execute();
     }
 }

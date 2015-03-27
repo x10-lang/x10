@@ -54,7 +54,7 @@ public class ArrayCopy1 extends x10Test {
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: DistArray[int], val B: DistArray[int]): void = {
+    public def arrayCopy(val A: DistArray[int], val B: DistArray[int]): void {
 
         val D = A.dist;
         val E = B.dist;
@@ -77,7 +77,7 @@ public class ArrayCopy1 extends x10Test {
      * For all combinations of dists of arrays B and A,
      * do an array copy from B to A, and verify.
      */
-    public def run(): boolean = {
+    public def run(): boolean {
 
         try {
 

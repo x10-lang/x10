@@ -18,11 +18,11 @@ import harness.x10Test;
  * @author nystrom 6/17/2007
  */
 public class NoDepClause extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 	    val r:String = "abcd";
 	    return r != "a";
 	}
-	public static def main(val args: Rail[String]): void = {
+	public static def main(val args: Rail[String]): void {
 	    new NoDepClause().execute();
 	}
 }

@@ -33,7 +33,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
-	def m1(val A: Rail[int], val K: long): int = {
+	def m1(val A: Rail[int], val K: long): int {
 		for (i in A.range) async {
 			System.sleep(3000);
 			atomic A(i) += 1n;
@@ -47,7 +47,7 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects
 	 * and exceptions.
 	 */
-	def m2(val A: Rail[int], val K: long): int = {
+	def m2(val A: Rail[int], val K: long): int {
 		for (i in A.range) async {
 			System.sleep(3000);
 			atomic A(i) += 1n;
@@ -62,7 +62,7 @@ public class FutureTest3 extends x10Test {
 	 * testing future with subactivities with
 	 * side effects and exceptions.
 	 */
-	public def run(): boolean = {
+	public def run(): boolean {
 		val A = new Rail[int](N);
 		val K:Long = 3;
 		var gotException: boolean;
@@ -144,7 +144,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * True iff x logically implies y
 	 */
-	static def imp(x: boolean, y: boolean): boolean = {
+	static def imp(x: boolean, y: boolean): boolean {
 		return (!x||y);
 	}
 

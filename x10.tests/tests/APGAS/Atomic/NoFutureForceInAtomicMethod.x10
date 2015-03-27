@@ -17,7 +17,7 @@ import x10.util.concurrent.Future;
  */
 public class NoFutureForceInAtomicMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
         	val f=Future.make[int](()=>0n);
 			atomic 

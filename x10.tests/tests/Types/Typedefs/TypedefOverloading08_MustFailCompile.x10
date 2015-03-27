@@ -24,11 +24,11 @@ public class TypedefOverloading08_MustFailCompile extends TypedefTest {
     static class A(i:long) {def this() = property(0);}
     static type A = long; // ERR
 
-    public def run(): boolean = {
+    public def run(): boolean {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading08_MustFailCompile().execute();
     }
 }

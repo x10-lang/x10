@@ -34,7 +34,7 @@ public class ClosureEnclosingScope3 extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         chk(new C().new D().sum() == 11, "new C().new D().sum");
 

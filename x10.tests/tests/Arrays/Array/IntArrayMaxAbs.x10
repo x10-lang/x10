@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class IntArrayMaxAbs extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val ia  = new Array[int](Region.make(1..10, 1..10), (p:Point)=>(-p(0) as Int));
 
 	    val absMax = ia.reduce((a:Int, b:Int):Int => {

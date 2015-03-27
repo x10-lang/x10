@@ -17,7 +17,7 @@ import x10.regionarray.*;
  */
 public class Array3Byte extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r  = Region.make(1..10, 1..10);
         val ia  = new Array[Byte](r, (x:Point)=>(0 as Byte));
     
@@ -25,7 +25,7 @@ public class Array3Byte extends x10Test {
         return (42y == ia(1, 1));
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Array3Byte().execute();
     }
 }

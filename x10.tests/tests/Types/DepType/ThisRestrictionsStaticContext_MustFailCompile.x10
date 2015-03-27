@@ -18,16 +18,16 @@ import harness.x10Test;
  */
 public class ThisRestrictionsStaticContext_MustFailCompile extends x10Test {
      class Test(i:int, j:int) {
-       public def this(i:int, j:int):Test{self.i==i,self.j==j} = { property(i,j);}
+       public def this(i:int, j:int):Test{self.i==i,self.j==j} { property(i,j);}
     }
    public val a: Test = new Test(4n, 4n); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
-   public static def m(var arg: Test{self == this.a}): Test{self == this.a} = { // ERR: Cannot access a non-static field or method, or refer to "this" or "super" from a static context. 
+   public static def m(var arg: Test{self == this.a}): Test{self == this.a} { // ERR: Cannot access a non-static field or method, or refer to "this" or "super" from a static context. 
       return arg;
     }
-	public def run(): boolean = { 
+	public def run(): boolean { 
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ThisRestrictionsStaticContext_MustFailCompile().execute();
 	}
 }

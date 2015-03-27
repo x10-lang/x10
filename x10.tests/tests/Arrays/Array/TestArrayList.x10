@@ -17,7 +17,7 @@ import x10.util.ArrayList;
  */
 public class TestArrayList extends x10Test {
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         testAccess();
         testRemove();
         testResize();
@@ -102,7 +102,7 @@ public class TestArrayList extends x10Test {
         chk(a(4) == 4);
     }
 
-	public static def main(args: Rail[String]): void = {
+	public static def main(args: Rail[String]): void {
 		new TestArrayList().execute();
 	}
 }

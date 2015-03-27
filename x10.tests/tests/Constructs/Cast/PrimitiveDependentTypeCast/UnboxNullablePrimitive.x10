@@ -18,7 +18,7 @@ import x10.util.Box;
  **/
  public class UnboxNullablePrimitive extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var res1: boolean = false;
         var res2: boolean = false;
         var res4: boolean = false;

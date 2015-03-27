@@ -34,7 +34,7 @@ public class GenericOverriding08_MustFailCompile extends GenericTest {
     public def run() = true;
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverriding08_MustFailCompile().execute();
     }
 }

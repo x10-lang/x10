@@ -32,7 +32,7 @@ public class ConsistentInterfaceInvariants extends x10Test {
     
     public def run():boolean=true;
 	
-    public static def main(a: Rail[String]) = {
+    public static def main(a: Rail[String]) {
         new ConsistentInterfaceInvariants().execute();
     }
    

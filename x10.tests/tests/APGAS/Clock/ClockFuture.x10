@@ -22,7 +22,7 @@ public class ClockFuture extends x10Test {
 
     private var clock_has_advanced: boolean;
 
-    public def m(): long = {
+    public def m(): long {
 	   var ret: long = 0;
 	   when (clock_has_advanced) {
 	      ret = 42;
@@ -30,7 +30,7 @@ public class ClockFuture extends x10Test {
 	   return ret;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	   clocked finish { 
          val f  = Future.make[long] (()=> m());
          // x10.io.Console.OUT.print("1 ... ");

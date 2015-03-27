@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class TypedefConstraint3f_MustFailCompile extends TypedefTest {
 
-    public def run():boolean = {
+    public def run():boolean {
 
         type T(x:long,y:long){x==1&&y==-1} = long;
         var a:T(1,1); // ERR
@@ -25,7 +25,7 @@ class TypedefConstraint3f_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint3f_MustFailCompile().execute();
     }
 }

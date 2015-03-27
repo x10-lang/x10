@@ -19,7 +19,7 @@ import x10.compiler.SuppressTransientError;
 public class AsyncFieldAccess extends x10Test {
     private val root = GlobalRef[AsyncFieldAccess](this);
 	@SuppressTransientError transient var t: GlobalRef[T] = GlobalRef[T](null);
-	public def run(): boolean = {
+	public def run(): boolean {
 		val second = Place.places().next(here);
 		val root = this.root;
 		finish 

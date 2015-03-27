@@ -26,14 +26,14 @@ import harness.x10Test;
  */
 public class IntDepType_MustFailCompile extends x10Test {
     class Test(i:int, j:int) {
-       public def this(i:int, j:int):Test = { property(i, j); }
+       public def this(i:int, j:int):Test { property(i, j); }
     }
   
-	public def run(): boolean = {
+	public def run(): boolean {
 		var i: int{self == 0n} = 3n;  // ERR
 	   return true;
 	}
-	public static def main(Rail[String])= {
+	public static def main(Rail[String]) {
 		new IntDepType_MustFailCompile().execute();
 	}
 }

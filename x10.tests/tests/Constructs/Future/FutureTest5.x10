@@ -38,7 +38,7 @@ public class FutureTest5 extends x10Test {
 	/**
 	 * Create future in child, force it in parent.
 	 */
-	private def testUp_(val del: boolean): boolean = {
+	private def testUp_(val del: boolean): boolean {
 		atomic fut = null;
 		async {
 			val t1 = Future.make[Int]( () => 42n );
@@ -56,7 +56,7 @@ public class FutureTest5 extends x10Test {
 	/**
 	 * Create future in parent, force it in child.
 	 */
-	private def testDown_(): boolean = {
+	private def testDown_(): boolean {
 		val fut_l = Future.make( () => 42n );
 		finish async {
 			var fortytwo: int = fut_l.force();
@@ -68,7 +68,7 @@ public class FutureTest5 extends x10Test {
 	/**
 	 * Create future in child 1, force it in child 2.
 	 */
-	private def testSibling_(val del: boolean): boolean = {
+	private def testSibling_(val del: boolean): boolean {
 		atomic fut = null;
 		async {
 			val t1= Future.make[Int]( () => 42n );
@@ -85,7 +85,7 @@ public class FutureTest5 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new FutureTest5().execute();
 	}
 }

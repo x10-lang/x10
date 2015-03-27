@@ -20,7 +20,7 @@ public class ClockTest3a extends x10Test {
 	var value: long = 0;
 	static val N: long = 32;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		clocked finish {
 
 			for  (i in 0..(N-1)) clocked async {

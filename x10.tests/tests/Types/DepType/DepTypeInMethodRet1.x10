@@ -20,7 +20,7 @@ public class DepTypeInMethodRet1 extends x10Test {
    
    public def m(t: boolean): boolean(t) = t;
 	 public def run()=m(true);
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new DepTypeInMethodRet1().execute();
 	}
 }

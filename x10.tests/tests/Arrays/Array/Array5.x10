@@ -19,24 +19,24 @@ public class Array5 extends x10Test {
 
     var ia: Array[int](1);
 
-    public def this(): Array5 = {}
+    public def this(): Array5 {}
 
-    public def this(var ia: Array[int](1)): Array5 = {
+    public def this(var ia: Array[int](1)): Array5 {
         this.ia = ia;
     }
 
-    private def runtest(): boolean = {
+    private def runtest(): boolean {
         ia(0) = 42n;
         return 42n == ia(0);
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val temp = new Array[int](1, (long)=>0n);
         temp(0) = 43n;
         return (new Array5(temp)).runtest();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Array5().execute();
     }
 }

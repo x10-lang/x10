@@ -31,7 +31,7 @@ public class GenericInference4 extends GenericTest {
 
     def m[T,U](t:T,u:U){T<:X && U<:X} = X.name + X.name;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val d = m(new Y(), new Z());
         genericCheck("d", d, "XX");
@@ -39,7 +39,7 @@ public class GenericInference4 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInference4().execute();
     }
 }

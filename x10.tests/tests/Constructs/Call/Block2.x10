@@ -17,12 +17,12 @@ import x10.regionarray.Region;
  * Check that the dist.block method propagates region properties from arg to result
  */
 public class Block2 extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var d: Dist(1) = Dist.makeBlock(Region.makeRectangular(0,1), 0);
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Block2().execute();
 	}
 

@@ -24,7 +24,7 @@ public class ClosureEnclosingScope1b extends x10Test {
 
     val a = 1;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val b = 1;
 
@@ -33,7 +33,7 @@ public class ClosureEnclosingScope1b extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureEnclosingScope1b().execute();
     }
 }

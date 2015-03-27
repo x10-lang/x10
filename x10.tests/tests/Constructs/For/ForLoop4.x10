@@ -22,7 +22,7 @@ public class ForLoop4 extends x10Test {
 
 	public static N: long = 3;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		//Ensure iterator works in lexicographic order
 		var n: long = 0L;
 		var prev: Box[Point] = null;
@@ -41,7 +41,7 @@ public class ForLoop4 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[Point], var p: Point): boolean = {
+	static def successor(var prev: Box[Point], var p: Point): boolean {
 		if (prev == null) return true;
                 val v = prev();
 		var i: long = v(0);

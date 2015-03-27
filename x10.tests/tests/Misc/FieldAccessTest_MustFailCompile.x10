@@ -26,7 +26,7 @@ public class FieldAccessTest_MustFailCompile extends x10Test {
 
 	public def run()  = true;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new FieldAccessTest_MustFailCompile().execute();
 	}
 }

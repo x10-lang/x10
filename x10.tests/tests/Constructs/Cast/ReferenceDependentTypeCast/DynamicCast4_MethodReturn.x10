@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class DynamicCast4_MethodReturn extends x10Test {
-   public def run(): boolean = {      
+   public def run(): boolean {      
       try {                  
          // constraint not meet
          var convertedObject: X10DepTypeClassTwo{p==0n&&q==2n} = 
@@ -31,11 +31,11 @@ public class DynamicCast4_MethodReturn extends x10Test {
       return false;
    }
    
-   public def objectReturner(): Any = {
+   public def objectReturner(): Any {
       return new X10DepTypeClassTwo(0n,1n);
    }
 
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Rail[String]): void {
       new DynamicCast4_MethodReturn().execute();
    }
 }

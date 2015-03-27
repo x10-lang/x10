@@ -29,7 +29,7 @@ public class Types150 extends x10Test {
 // file Types line 655
  static class Coords(x: Long, y: Long) {
   def this(x: Long, y: Long) :
-    Coords{self.x==x, self.y==y} = {
+    Coords{self.x==x, self.y==y} {
     property(x, y);
   }
 

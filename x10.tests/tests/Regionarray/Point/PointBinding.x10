@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class PointBinding extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val p[i,j]: Point = Point.make(1, 2);
         return (i == 1L && j == 2L);
     }

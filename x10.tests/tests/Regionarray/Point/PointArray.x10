@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class PointArray extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         var p: Rail[Point] = new Rail[Point](1, (long)=>Point.make(0));
         p(0) = Point.make(1, 2);
@@ -28,7 +28,7 @@ public class PointArray extends x10Test {
         return (p(0)(0) == 1L && p(0)(1) == 2L);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointArray().execute();
     }
 }

@@ -18,7 +18,7 @@ public class AwaitTest extends x10Test {
 
 	var val_: int = 0n;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val c: Clock = Clock.make();
 		async clocked(c) {
 			when(val_ > 43n);

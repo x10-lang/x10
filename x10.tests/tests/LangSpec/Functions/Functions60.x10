@@ -28,10 +28,10 @@ public class Functions60 extends x10Test {
 
 // file Functions line 331
  static  class Finderator {
- static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
+ static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T {
   for (x: T in xs)
     if (f(x)) return x;
-  absent
+  return absent;
 }
  static def checkery() {
 xs: List[Long] = new ArrayList[Long]();

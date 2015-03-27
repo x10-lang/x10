@@ -93,7 +93,7 @@ public class JavaSerialization5b extends x10Test {
         }
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test1();
         test2();
         test3();

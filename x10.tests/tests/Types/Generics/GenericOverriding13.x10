@@ -34,7 +34,7 @@ public class GenericOverriding13 extends GenericTest {
     val a = new A[long]();
     val b = new B[long]();
 
-    public def run() = {
+    public def run() {
 
         genericCheck("a.m[String](0)", a.m[String](0), 0);
         genericCheck("b.m[String](0)", b.m[String](0), 1);
@@ -42,7 +42,7 @@ public class GenericOverriding13 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverriding13().execute();
     }
 }

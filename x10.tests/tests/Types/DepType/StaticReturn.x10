@@ -17,11 +17,11 @@ import x10.regionarray.*;
  */
 public class StaticReturn extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var s: Dist{rank==2} = starY();
 		return true;
 	}
-	def starY(): Dist{rank==2} = {
+	def starY(): Dist{rank==2} {
 		var d: Dist{rank==2} = Dist.makeConstant(Region.make(0..1, 0..1), here);
 		return d;
 	}

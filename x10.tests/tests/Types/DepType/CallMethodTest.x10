@@ -20,11 +20,11 @@ import x10.regionarray.Region;
  */
 public class CallMethodTest extends x10Test { 
   
-  public def run(): boolean = { 
+  public def run(): boolean { 
        val r:Region(2) = Region.makeRectangular(1..10, 1..10);
        return true;
     }
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Rail[String]): void {
         new CallMethodTest().execute();
     }
 }

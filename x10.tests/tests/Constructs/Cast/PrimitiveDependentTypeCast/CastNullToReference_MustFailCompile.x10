@@ -17,13 +17,13 @@ import harness.x10Test;
  **/
  public class CastNullToReference_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var obj:x10.lang.Any = null as Any; // ok in 1.7
 		var v:x10.lang.Complex = null as Complex; // ERR not allowed in 2.0 
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastNullToReference_MustFailCompile().execute();
 	}
 }

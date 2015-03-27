@@ -26,7 +26,7 @@ public class ArrayAccessEqualRank extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
     		val D = Dist.make(Region.make(0,9));
     		val a = DistArray.make[Int](D, (Point)=>0n);
     		val b = DistArray.make[Int](D, (Point)=>0n);
@@ -34,7 +34,7 @@ public class ArrayAccessEqualRank extends x10Test {
     		return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new ArrayAccessEqualRank().execute();
     }
 }

@@ -18,7 +18,7 @@ import harness.x10Test;
  **/
 public class ObjectToNullablePrimitiveConstrained1 extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var primitive: x10.lang.Any = 3;
 		return (primitive instanceof Long{self==3});
 	}

@@ -17,7 +17,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 			public def zero():Long = 1;
 			public operator this(x:Long,y:Long):Long = x*y;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new AccumulatorRuntimeTest().execute();
 	}
 

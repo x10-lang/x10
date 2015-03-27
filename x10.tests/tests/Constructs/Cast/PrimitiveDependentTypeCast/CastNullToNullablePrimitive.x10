@@ -18,13 +18,13 @@ import harness.x10Test;
  **/
  public class CastNullToNullablePrimitive extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		// Expression type changes to /*nullable*/BoxedInteger
       var i: x10.util.Box[int] = null as x10.util.Box[int];
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastNullToNullablePrimitive().execute();
 	}
 }

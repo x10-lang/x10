@@ -53,7 +53,7 @@ import harness.x10Test;
  */
 public class ClockTest5 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val c: Clock = Clock.make();
 		val d: Clock = Clock.make();
 		val e: Clock = Clock.make();
@@ -78,11 +78,11 @@ public class ClockTest5 extends x10Test {
 		return true;
 	}
 
-	static def m(var a: String, var clocks: String, var phase: long): void = {
+	static def m(var a: String, var clocks: String, var phase: long): void {
 		x10.io.Console.OUT.println("Actitivity "+a+" in phase "+phase+" of clocks "+clocks);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest5().executeAsync();
 	}
 }

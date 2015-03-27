@@ -25,7 +25,7 @@ public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
         //val name = T.name;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type C[T]{Y<:T} = FOO[T]; // ERR: Type TypedefConstraint2c_MustFailCompile.FOO[T] is inconsistent.
         val c1:C[Z]; // ERR
@@ -34,7 +34,7 @@ public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint2c_MustFailCompile().execute();
     }
 }

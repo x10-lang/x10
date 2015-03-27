@@ -25,14 +25,14 @@ import harness.x10Test;
  */
 public class IntDepType extends x10Test {
    class Test(i:int, j:int) {
-       public def this(i:int, j:int):Test = { property(i, j); }
+       public def this(i:int, j:int):Test { property(i, j); }
     }
   
-	public def run(): boolean = {
+	public def run(): boolean {
 		var i: int{self == 0n} = 0n;
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new IntDepType().execute();
 	}
 }

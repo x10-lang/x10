@@ -35,7 +35,7 @@ public class EncapsulatedArray2D extends x10Test {
         }
     }
     
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val size: int = 5n;
         val R = Region.make(0..(size-1), 0..(size-1));

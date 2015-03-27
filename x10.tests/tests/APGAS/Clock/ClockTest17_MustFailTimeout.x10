@@ -43,13 +43,13 @@ import harness.x10Test;
  */
 public class ClockTest17_MustFailTimeout extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		/*A0*/
 		val c0: Clock = Clock.make();
 		val x = new X();
 		// f0 does not transmit clocks to subactivity
 		val f0  = new foo() {
-			public operator this(): void = {
+			public operator this(): void {
 				async {
 					x10.io.Console.OUT.println("hello from finish async S");
 				}
@@ -57,7 +57,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		};
 		// f1 transmits clocks to subactivity
 		val f1  = new foo() {
-			public operator this(): void = {
+			public operator this(): void {
 				/*Activity A1*/
 				async clocked(c0) {
 					x10.io.Console.OUT.println("#1 before next");
@@ -97,7 +97,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 * A class to invoke a 'function pointer' inside of finish
 	 */
 	static class Y {
-		static def test(var f: foo): void = {
+		static def test(var f: foo): void {
 			finish {
 				f(); // it is hard to determine f does an async clocked(c) S
 			}
@@ -125,8 +125,8 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 */
 	static class X {
 		public val z = [1,0];
-		def zero(): long = { return z(z(z(1))); }
-		def one(): long = { return z(z(z(0))); }
-		def modify(): void = { z(0) += 1; }
+		def zero(): long { return z(z(z(1))); }
+		def one(): long { return z(z(z(0))); }
+		def modify(): void { z(0) += 1; }
 	}
 }

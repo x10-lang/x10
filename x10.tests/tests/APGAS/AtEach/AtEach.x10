@@ -21,7 +21,7 @@ public class AtEach extends x10Test {
     private val root = GlobalRef[AtEach](this);
     transient var nplaces: long = 0L;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val d: Dist = Dist.makeUnique();
         val disagree: DistArray[int]{dist==d} = DistArray.make[int](d);
         val root = this.root;

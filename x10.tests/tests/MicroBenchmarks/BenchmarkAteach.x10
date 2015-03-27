@@ -17,7 +17,7 @@ import x10.regionarray.*;
  */
 public class BenchmarkAteach extends x10Test {
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val a = DistArray.make[Long](Dist.makeUnique());
 
         val start = System.nanoTime();
@@ -32,7 +32,7 @@ public class BenchmarkAteach extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new BenchmarkAteach().execute();
 	}
 

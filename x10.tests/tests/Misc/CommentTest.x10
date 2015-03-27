@@ -24,14 +24,14 @@ public class CommentTest extends x10Test {
 	/**
 	 * Testing a comment before nullary constructor.
 	 */
-	public def this(): CommentTest = {
+	public def this(): CommentTest {
 		v = 10n;
 	}
 
 	/**
 	 * Testing a comment before unary constructor.
 	 */
-	public def this(var x: int): CommentTest = {
+	public def this(var x: int): CommentTest {
 		v = x;
 	}
 
@@ -43,7 +43,7 @@ public class CommentTest extends x10Test {
 	/**
 	 * Testing comments for main
 	 */
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CommentTest().execute();
 	}
 }

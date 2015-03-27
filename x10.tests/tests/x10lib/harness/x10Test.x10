@@ -37,7 +37,7 @@ abstract public class x10Test {
         reportResult(b());
     }
 
-    public def execute(): void = {
+    public def execute(): void {
         var b: boolean = false;
         try {
             finish b = this.run();
@@ -74,17 +74,17 @@ abstract public class x10Test {
 
     public static PREFIX: String = "++++++ ";
 
-    public static def success(): void = {
+    public static def success(): void {
         println(PREFIX+"Test succeeded.");
         System.setExitCode(0n);
     }
 
-    public static def failure(): void = {
+    public static def failure(): void {
         println(PREFIX+"Test failed.");
         System.setExitCode(1n);
     }
 
-    protected static def reportResult(b: boolean): void = {
+    protected static def reportResult(b: boolean): void {
         if (b) success(); else failure();
     }
 
@@ -103,7 +103,7 @@ abstract public class x10Test {
     /**
      * Check if a given condition is true, and throw an error if not.
      */
-    public static def chk(b: boolean): void = {
+    public static def chk(b: boolean): void {
         if (!b) throw new TestException();
     }
 
@@ -111,7 +111,7 @@ abstract public class x10Test {
      * Check if a given condition is true, and throw an error with a given
      * message if not.
      */
-    public static def chk(b: boolean, s: String): void = {
+    public static def chk(b: boolean, s: String): void {
         if (!b) throw new TestException(s);
     }
 
@@ -120,7 +120,7 @@ abstract public class x10Test {
     /**
      * Return a random integer between lb and ub (inclusive)
      */
-    protected def ranInt(lb: int, ub: int): int = {
+    protected def ranInt(lb: int, ub: int): int {
         return lb + myRand.nextInt(ub-lb+1n);
     }
 

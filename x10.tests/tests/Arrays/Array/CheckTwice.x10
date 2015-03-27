@@ -20,13 +20,13 @@ import x10.regionarray.*;
 
 public class CheckTwice extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val e  = 1..10;
         val f  = [e, e];
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new CheckTwice().execute();
     }
 

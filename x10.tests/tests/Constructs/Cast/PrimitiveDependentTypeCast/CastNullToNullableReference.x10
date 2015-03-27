@@ -17,12 +17,12 @@ import harness.x10Test;
  **/
  public class CastNullToNullableReference extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
       var obj: x10.util.Box[Any] = null as x10.util.Box[Any];
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastNullToNullableReference().execute();
 	}
 }

@@ -19,7 +19,7 @@ public class JavaComparable1 extends x10Test {
         public def compareTo(T) = 0n;
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val i = new Comparable[UInt]() {
             public def compareTo(UInt) = 0n;
         };

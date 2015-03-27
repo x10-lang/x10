@@ -37,7 +37,7 @@ public class UShortOverride4 extends x10Test {
 	public def f(x:UShort) { return "N:UShort"; }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val ji = new J[Short]();
 	val ju = new J[UShort]();
 	val k = new K();

@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class RegionTriangular extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val Universe: Region(2) = Region.make(0..7, 0..7);
 		var upperT: Region(2) = Region.makeUpperTriangular(8);
 		pr("upperT", upperT);
@@ -30,11 +30,11 @@ public class RegionTriangular extends x10Test {
 		return true;
 	}
 
-	static def iff(var x: boolean, var y: boolean): boolean = {
+	static def iff(var x: boolean, var y: boolean): boolean {
 		return (x == y);
 	}
 
-	static def pr(var s: String, var r: Region): void = {
+	static def pr(var s: String, var r: Region): void {
 		x10.io.Console.OUT.println();
 		x10.io.Console.OUT.println("printing region "+s);
 		var k: int = 0n;
@@ -45,7 +45,7 @@ public class RegionTriangular extends x10Test {
 		}
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new RegionTriangular().execute();
 	}
 }

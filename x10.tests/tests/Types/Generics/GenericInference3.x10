@@ -31,7 +31,7 @@ public class GenericInference3 extends GenericTest {
 
     def m[T](t1:T,t2:T){T<:V} = V.name;
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val v = new V();
         val w = new W();
@@ -54,7 +54,7 @@ public class GenericInference3 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInference3().execute();
     }
 }

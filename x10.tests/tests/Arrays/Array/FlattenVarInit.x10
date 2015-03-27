@@ -31,7 +31,7 @@ public class FlattenVarInit extends x10Test {
 
     def m(x: int)=x;
     
-    public def run(): boolean = {
+    public def run(): boolean {
         var t0: int;
         t0 = m(a(1, 1));
         return t0==2n;

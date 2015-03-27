@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author Salikh Zakirov 5/2011
  */
 public class ULongArray0 extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
 	if (!test_simple()) return false;
 	return true;
     }

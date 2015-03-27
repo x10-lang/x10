@@ -20,13 +20,13 @@ import harness.x10Test;
 public class Inference6 extends x10Test {
         def m[T](x: Rail[T]) = x(0);
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 val x = m([1n]);
                 val y: int = x;
 		return y == 1n;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Inference6().execute();
 	}
 }

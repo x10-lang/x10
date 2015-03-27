@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class TypedefScope5 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val foo = () => {
             type T = long;
@@ -33,7 +33,7 @@ public class TypedefScope5 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefScope5().execute();
     }
 }
