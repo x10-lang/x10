@@ -14,10 +14,13 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
+    <property name="antlr.jar" value="antlr-runtime-4.5.jar"/>
+    <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
+        <path refid="antlr.classpath"/>
         <path refid="shrike.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
@@ -27,6 +30,9 @@
     </path>
     <path id="lpg.classpath">
         <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="antlr.classpath">
+        <pathelement location="${lib}/${antlr.jar}"/>
     </path>
     <path id="shrike.classpath">
         <pathelement location="${lib}/${shrike.jar}"/>
@@ -79,6 +85,10 @@
             <available file="${lib}/${lpg.jar}"/>
         </condition>
         <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
+        <condition property="antlr.jar.present">
+            <available file="${lib}/${antlr.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${antlr.jar}" unless="antlr.jar.present"/>
         <condition property="shrike.jar.present">
             <available file="${lib}/${shrike.jar}"/>
         </condition>
@@ -139,6 +149,26 @@
             <arg value="-directory-prefix=${src}/"/>
             <arg value="${grammar.file}"/>
         </exec>
+    </target>
+    <target name="grammar-antlr" depends="init">
+        <property name="parser.dir" location="${src}/x10/parser/antlr"/>
+        <property name="grammar.file" location="${parser.dir}/X10.g4"/>
+        <delete>
+            <fileset dir="${parser.dir}/generated">
+                <include name="X10.tokens"/>
+                <include name="X10Lexer.tokens"/>
+                <include name="X10Lexer.java"/>
+                <include name="X10Parser.java"/>
+                <include name="X10BaseListener.java"/>
+                <include name="X10Listener.java"/>
+            </fileset>
+        </delete>
+        <echo message="Generating ANTLR 4 grammar: ${grammar.file}"/>
+        <java jar="${lib}/${antlr-complete.jar}" fork="true" failonerror="true" dir="${parser.dir}">
+            <arg line="-o generated"/>
+            <arg line="-listener -no-visitor -encoding UTF-8"/>
+            <arg line="${grammar.file}"/>
+        </java>
     </target>
     <target name="rebuild" depends="grammar,build"/>
     <target name="tags" depends="init">

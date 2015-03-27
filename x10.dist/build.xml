@@ -14,6 +14,8 @@
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="dependencies/lpg.runtime.java_2.0.22.jar"/>
+    <property name="antlr.jar" value="antlr-runtime-4.5.jar"/>
+    <property name="antlr.jar.url" value="dependencies/antlr-runtime-4.5.jar"/>
     <property name="ecj.jar" value="ecj-4.4.2.jar"/>
     <property name="ecj.jar.url" value="dependencies/ecj-4.4.2.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
@@ -95,6 +97,9 @@
         <mkdir dir="${stdlib}" />
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
+        </condition>
+        <condition property="local.antlr.jar" value="${env.LOCAL_ANTLR_JAR}">
+            <isset property="env.LOCAL_ANTLR_JAR"/>
         </condition>
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
@@ -236,6 +241,7 @@
     </target>
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
@@ -248,6 +254,7 @@
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
+                <isset property="antlr.jar.present"/>
                 <isset property="ecj.jar.present"/>
                 <isset property="hazelcast.jar.present"/>
                 <isset property="wala.jar.present"/>
@@ -291,6 +298,19 @@
         <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to find ${lpg.jar} at ${local.lpg.jar}" unless="lpg.jar.present"/>
+    </target>
+
+    <target name="antlr-jar" depends="init,antlr-local-jar" unless="local.antlr.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${antlr.jar.url}" dest="${lib}/${antlr.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
+        <fail message="Unable to get ${antlr.jar} from ${antlr.jar.url}" unless="antlr.jar.present"/>
+    </target>
+    <target name="antlr-local-jar" depends="init" if="local.antlr.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.antlr.jar}" tofile="${lib}/${antlr.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
+        <fail message="Unable to find ${antlr.jar} at ${local.antlr.jar}" unless="antlr.jar.present"/>
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
@@ -621,6 +641,7 @@ if [ -n "$IS_CYGWIN" ]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "
 
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
+ANTLR_JAR='${antlr.jar}'
 ECJ_JAR='${ecj.jar}'
 HAZELCAST_JAR='${hazelcast.jar}'
 WALA_JAR='${wala.jar}'
