@@ -258,9 +258,9 @@ final class UTX {
       synchronized (this) {
         state = -2;
       }
+      distribute();
       lifelinesteal();
       System.err.println(location + " stopping");
-      distribute();
     }
 
     void lifelinesteal() {
@@ -438,7 +438,7 @@ final class UTX {
 
   public static void main(String[] args) {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
-      System.setProperty(Configuration.APGAS_PLACES, "4;");
+      System.setProperty(Configuration.APGAS_PLACES, "4");
     }
     System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");

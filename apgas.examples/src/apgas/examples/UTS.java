@@ -247,9 +247,9 @@ final class UTS {
       synchronized (this) {
         state = -2;
       }
+      distribute();
       lifelinesteal();
       System.err.println(here() + " stopping");
-      distribute();
     }
 
     void lifelinesteal() {
