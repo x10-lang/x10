@@ -195,14 +195,20 @@ public final class Foreach {
      */
     public static @Inline def block(min:Long, max:Long,
                                     body:(min:Long, max:Long)=>void) {
-        if (Runtime.NTHREADS == 1n) {
+        val nthreads = Runtime.NTHREADS;
+        if (nthreads == 1n) {
             sequential(min, max, body);
         } else {
-            finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
+            val numElems = max - min + 1;
+	        if (numElems < 1) return;
+            val blockSize = numElems/nthreads;
+            val leftOver = numElems - nthreads*blockSize;
+            finish for (var t:Long = nthreads-1; t >= 0; t--) {
                 val myT = t;
                 async {
-                    val block = BlockingUtils.partitionBlock(min, max, Runtime.NTHREADS, myT);
-                    body(block.min, block.max);
+                    val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
+                    val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
+                    body(lo, hi);
                 }
             }
         }
@@ -237,19 +243,25 @@ public final class Foreach {
     public static @Inline def blockReduce[T](min:Long, max:Long,
                                     body:(min:Long, max:Long)=>T,
                                     reduce:(a:T,b:T)=>T):T{
-        if (Runtime.NTHREADS == 1n) {
+        val nthreads = Runtime.NTHREADS;
+        if (nthreads == 1n) {
             return body(min, max); // sequential
         } else {
-            val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
-            finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
+            val numElems = max - min + 1;
+	        if (numElems < 1) return body(min, max);
+            val blockSize = numElems/nthreads;
+            val leftOver = numElems - nthreads*blockSize;
+            val results = Unsafe.allocRailUninitialized[T](nthreads);
+            finish for (var t:Long = nthreads-1; t >= 0; t--) {
                 val myT = t;
                 async {
-                    val block = BlockingUtils.partitionBlock(min, max, Runtime.NTHREADS, myT);
-                    results(myT) = body(block.min, block.max);
+                    val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
+                    val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
+                    results(myT) = body(lo, hi);
                 }
             }
             var res:T = results(0);
-            for (myT in 1..(Runtime.NTHREADS-1)) {
+            for (myT in 1..(nthreads-1)) {
                 res = reduce(res, results(myT));
             }
             return res;
