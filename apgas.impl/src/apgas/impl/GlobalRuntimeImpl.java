@@ -13,6 +13,7 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -188,6 +189,8 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       try {
         final ArrayList<String> command = new ArrayList<String>();
         command.add(java);
+        command.add("-Xbootclasspath:"
+            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
         command.add("-cp");
         command.add(System.getProperty("java.class.path"));
         if (resilient) {
