@@ -27,6 +27,9 @@ default	: java
 run		: run_java
 ###################################################
 
+spmv_x10:	SpMV.x10
+	x10c++ -O -NO_CHECKS -VERBOSE_CHECKS -g -x10lib $(base_dir_elem)/native_gml.properties -post '\# -O3' -report postcompile=1 SpMV.x10 -o spmv_x10
+
 ###################################################
 # Including rules
 ###################################################
