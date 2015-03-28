@@ -70,7 +70,7 @@ public class BCGTest extends x10Test{
 	resultL:ArrayList[String] = printBetweennessMap(result);
 	chk(resultL.size() == 13250L);
 	return (mychk(gt, resultL));
-	
+
     }
 
 

@@ -25,7 +25,7 @@ public class BenchmarkUpdateGhosts(arrayDim:Long) {
         property(elementsPerPlace);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val facI = Math.sqrt(Place.numPlaces()) as Long;
         val facJ = Place.numPlaces() / facI;
         val r = Region.makeRectangular(0..(arrayDim*facI-1), 0..(arrayDim*facJ-1), 0..(arrayDim-1));
@@ -49,7 +49,7 @@ public class BenchmarkUpdateGhosts(arrayDim:Long) {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         var arrayDim:Long = 100;
         if (args.size > 0) {
             arrayDim = Long.parseLong(args(0));

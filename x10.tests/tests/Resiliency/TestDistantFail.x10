@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.xrx.Runtime;
 
 // NUM_PLACES: 3
 // RESILIENT_X10_ONLY
