@@ -315,7 +315,7 @@ static void ensure_init_congruent (size_t req_size) {
             // in particular, cygwin can fall in this trap
             // other platforms have yet to be investigated for possible support
 
-            if (x10aux::num_places == 1) {
+        if (x10rt_nplaces() == 1) {
                 // Because there is only a single place, we can just fall back to malloc
                 obj = x10aux::alloc_internal(size, false);
             } else {
