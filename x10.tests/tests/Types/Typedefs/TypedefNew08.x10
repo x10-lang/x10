@@ -28,8 +28,8 @@ public class TypedefNew08 extends TypedefTest {
     static class Y {}
 
     static class A[C] {
-        def this() {};
-        def this(i:long):A[C] {};
+        def this() {}
+        def this(i:long):A[C] {}
     }
 
     static type T[C] = A[C];
