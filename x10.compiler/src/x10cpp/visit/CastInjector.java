@@ -207,7 +207,7 @@ public class CastInjector extends ContextVisitor {
             Expr e2 = null;
             
             if (Types.baseType(fType) instanceof FunctionType) {
-                e2 = upcastToFunctionType(e, (FunctionType)Types.baseType(fType), false); 
+                e2 = upcastToFunctionType(e, (FunctionType)Types.baseType(fType)); 
             } else if (!ts.typeDeepBaseEquals(fType, e.type(), context)) {
                 e2 =  makeCast(e.position(), e, fType);
             }
@@ -230,7 +230,7 @@ public class CastInjector extends ContextVisitor {
      */
     private Expr upcast(Expr a, Type fType) {
         if (Types.baseType(fType) instanceof FunctionType) {
-            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), false);
+            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType));
         } else if (!ts.typeDeepBaseEquals(fType, a.type(), context)) {
             Position pos = a.position();
             return makeCast(a.position(), a, fType);
@@ -253,7 +253,7 @@ public class CastInjector extends ContextVisitor {
         }
 
         if (Types.baseType(fType) instanceof FunctionType) {
-            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType), true);
+            return upcastToFunctionType(a, (FunctionType)Types.baseType(fType));
         }
                 
         if (ts.isObjectType(a.type(), context) && ts.isObjectType(fType, context)) {
@@ -269,9 +269,8 @@ public class CastInjector extends ContextVisitor {
         }
     }
     
-    private Expr upcastToFunctionType(Expr e, FunctionType castFType, boolean allowImplicitCasts) {
+    private Expr upcastToFunctionType(Expr e, FunctionType castFType) {
         boolean exactMatch = false;
-        FunctionType exprFType = null;
 
         if (e instanceof NullLit) {
             // can force exactMatch to be true because a NPE will be raised at runtime
@@ -282,27 +281,22 @@ public class CastInjector extends ContextVisitor {
             List<FunctionType> cands = Types.functionTypes(e.type());
             for (FunctionType ft : cands) {
                 if (ft.argumentTypes().size() == castFType.argumentTypes().size()) {
-                    exprFType = ft;
-                    break;
-                }
-            }
-            if (exprFType == null) {
-                throw new InternalCompilerError("Can't find valid function type on upcast of "+e.type()+"to "+castFType);
-            }
-
-            exactMatch = ts.typeDeepBaseEquals(exprFType.returnType(), castFType.returnType(), context);
-            if (exactMatch) {
-                for (int i=0; i<exprFType.argumentTypes().size(); i++) {
-                    Type ea = exprFType.argumentTypes().get(i);
-                    Type ca = castFType.argumentTypes().get(i);
-                    if (!ts.typeDeepBaseEquals(ea, ca, context)) {
-                        exactMatch = false;
-                        break;
+                    exactMatch = ts.typeDeepBaseEquals(ft.returnType(), castFType.returnType(), context);
+                    if (exactMatch) {
+                        for (int i=0; i<ft.argumentTypes().size(); i++) {
+                            Type ea = ft.argumentTypes().get(i);
+                            Type ca = castFType.argumentTypes().get(i);
+                            if (!ts.typeDeepBaseEquals(ea, ca, context)) {
+                                exactMatch = false;
+                                break;
+                            }
+                        }
                     }
+                    if (exactMatch) break;
                 }
             }
         }
-        
+
         if (exactMatch) {
             if (e instanceof Closure_c) {
                 // C++ code generated for the allocation of a closure literal 
@@ -313,14 +307,20 @@ public class CastInjector extends ContextVisitor {
                 // Already at the right C++ level interface type.
                 return e;
             }
-            if (allowImplicitCasts && ts.isObjectOrInterfaceType(e.type(), context)) {
-                // C++ level ref to ref conversion is good enough
-                return e;
-            }
 
             Position pos = e.position();
             return makeCast(e.position(), e, castFType);
         } else {
+            List<FunctionType> cands = new ArrayList<FunctionType>();
+            for (FunctionType ft : Types.functionTypes(e.type())) {
+                if (ft.argumentTypes().size() == castFType.argumentTypes().size()) {
+                    cands.add(ft);
+                }
+            }
+            if (cands.size() != 1) {
+                throw new InternalCompilerError("Unable to find unique starting function type for upcast of "+e.type()+"to "+castFType);
+            }
+            FunctionType exprFType = cands.get(0);
             Position pos = e.position();
             List<Formal> formals = new ArrayList<Formal>();
             for (Type ft : castFType.argumentTypes()) {
