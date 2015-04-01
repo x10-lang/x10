@@ -317,6 +317,11 @@
         <copy file="${local.antlr.jar}" tofile="${lib}/${antlr.jar}"/>
         <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
         <fail message="Unable to find ${antlr.jar} at ${local.antlr.jar}" unless="antlr.jar.present"/>
+	<!-- necessary for X10DT -->
+	<mkdir dir="${x10.compiler.location}/lib" />
+        <copy todir="${x10.compiler.location}/lib">
+            <fileset dir="." file="${lib}/${antlr.jar}"/>
+        </copy>
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
@@ -806,6 +811,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
          ant -Dx10.version=VER tars
     -->
     <target name="tars" depends="tar,srctar,testtar"/>
+
     <target name="update-host-fragment" description="Updates the x10.dist platform-specific fragment in this workspace">
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
