@@ -195,6 +195,19 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
   }
 
   /**
+   * Returns the distributed map instance implementing resilient finish.
+   *
+   * @param <K>
+   *          key type
+   * @param <V>
+   *          value type
+   * @return the map
+   */
+  <K, V> IMap<K, V> getResilientFinishMap() {
+    return hazelcast.<K, V> getMap(APGAS_FINISH);
+  }
+
+  /**
    * Returns the socket address of this Hazelcast instance.
    *
    * @return an address in the form "ip:port"

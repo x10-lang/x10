@@ -26,7 +26,6 @@ import apgas.util.GlobalID;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.query.Predicate;
@@ -38,13 +37,6 @@ import com.hazelcast.query.Predicate;
  */
 final class ResilientFinishState implements Serializable {
   private static final long serialVersionUID = 756668504413905415L;
-
-  /**
-   * The resilient map from finish IDs to finish states.
-   */
-  private static final IMap<GlobalID, ResilientFinishState> map = GlobalRuntimeImpl
-      .getRuntime().transport
-      .<GlobalID, ResilientFinishState> getMap("apgas:finish");
 
   /**
    * The set of places that have died during this finish execution.
@@ -185,7 +177,8 @@ final class ResilientFinishState implements Serializable {
     final Predicate<GlobalID, ResilientFinishState> predicate = entry -> {
       return entry.getKey().home.id == here || entry.getKey().home.id == p;
     };
-    for (final GlobalID id : map.keySet(predicate)) {
+    for (final GlobalID id : GlobalRuntimeImpl.getRuntime().resilientFinishMap
+        .keySet(predicate)) {
       update(id, state -> {
         if (state == null) {
           // entry has been removed already, ignore
@@ -337,16 +330,17 @@ final class ResilientFinishState implements Serializable {
   static <T> T execute(GlobalID id, boolean applyOnBackup,
       EntryProcessor<T> processor) {
     try {
-      return (T) map.executeOnKey(id,
-          new AbstractEntryProcessor<GlobalID, ResilientFinishState>(
-              applyOnBackup) {
-            private static final long serialVersionUID = -8787905766218374656L;
+      return (T) GlobalRuntimeImpl.getRuntime().resilientFinishMap
+          .executeOnKey(id,
+              new AbstractEntryProcessor<GlobalID, ResilientFinishState>(
+                  applyOnBackup) {
+                private static final long serialVersionUID = -8787905766218374656L;
 
-            @Override
-            public T process(Map.Entry<GlobalID, ResilientFinishState> entry) {
-              return processor.process(entry);
-            }
-          });
+                @Override
+                public T process(Map.Entry<GlobalID, ResilientFinishState> entry) {
+                  return processor.process(entry);
+                }
+              });
     } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
@@ -365,7 +359,7 @@ final class ResilientFinishState implements Serializable {
    * @return the unique id of the registration
    */
   static String addListener(ResilientFinish finish) {
-    return ResilientFinishState.map.addEntryListener(
+    return GlobalRuntimeImpl.getRuntime().resilientFinishMap.addEntryListener(
         new EntryListener<GlobalID, ResilientFinishState>() {
 
           @Override
@@ -411,6 +405,7 @@ final class ResilientFinishState implements Serializable {
    *          the unique id of the registration
    */
   static void removeListener(String registration) {
-    map.removeEntryListener(registration);
+    GlobalRuntimeImpl.getRuntime().resilientFinishMap
+        .removeEntryListener(registration);
   }
 }

@@ -35,6 +35,8 @@ import apgas.SerializableJob;
 import apgas.util.GlobalID;
 import apgas.util.Launcher;
 
+import com.hazelcast.core.IMap;
+
 /**
  * The {@link GlobalRuntimeImpl} class implements the
  * {@link apgas.GlobalRuntime} class.
@@ -100,6 +102,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   private boolean dying;
 
+  /**
+   * The resilient map from finish IDs to finish states.
+   */
+  final IMap<GlobalID, ResilientFinishState> resilientFinishMap;
+
   private static Worker currentWorker() {
     final Thread t = Thread.currentThread();
     return t instanceof Worker ? (Worker) t : null;
@@ -155,6 +162,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     // initialize here
     here = transport.here();
     home = new Place(here);
+
+    resilientFinishMap = resilient ? transport
+        .<GlobalID, ResilientFinishState> getResilientFinishMap() : null;
 
     // install hook on thread 1
     if (!daemon) {
