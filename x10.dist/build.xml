@@ -430,7 +430,7 @@
         <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,antlr-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
 
 	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
