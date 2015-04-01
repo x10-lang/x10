@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import apgas.Configuration;
 import apgas.DeadPlaceException;
@@ -34,12 +35,16 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class ResilientUTS {
+final class ResilientUTS implements Consumer<Place> {
   static ResilientUTS uts;
 
-  synchronized void handle(Place p) {
+  @Override
+  public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
-    if (state == p.id) {
+    if (place.id > 0) {
+      System.err.println(here() + " observes that " + place + " failed!");
+    }
+    if (state == place.id) {
       // attempt to extract loot from store
       final Bag b = map.get(home);
       if (b.size != 0) {
@@ -54,17 +59,16 @@ final class ResilientUTS {
   final IMap<Place, Bag> map = hz.getMap("map");
   final Place home = here();
   final int places = places().size();
-
   final Random random = new Random();
   final MessageDigest md = Bag.encoder();
-  Bag bag = new Bag(64);
+  final Bag bag = new Bag(64);
   long transfers;
-
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
-  AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
+  final AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
   int state = -2; // -2: inactive, -1: running, p: stealing from p
 
-  void init(int s, int d) {
+  void seed(int s, int d) {
+    map.clear();
     bag.seed(md, s, d);
     map.set(home, bag.trim());
   }
@@ -234,21 +238,6 @@ final class ResilientUTS {
     }
   }
 
-  static String sub(String str, int start, int end) {
-    return str.substring(start, Math.min(end, str.length()));
-  }
-
-  public static void init() {
-    GlobalRuntime.getRuntime();
-    uts = new ResilientUTS();
-    GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
-      if (place.id > 0) {
-        System.err.println(here() + " observes that " + place + " failed!");
-      }
-      uts.handle(place);
-    });
-  }
-
   public static void main(String[] args) {
     int depth = 13;
     try {
@@ -262,11 +251,34 @@ final class ResilientUTS {
     System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
-    // initialize worker and handler in each place
+    // initialize uts and place failure handler in each place
     finish(() -> {
       for (final Place p : places()) {
         asyncat(p, () -> {
-          init();
+          uts = new ResilientUTS();
+          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
+        });
+      }
+    });
+
+    System.out.println("Warmup...");
+    try {
+      uts.seed(19, depth - 2); // seed: 19
+      finish(() -> {
+        uts.run();
+      });
+    } catch (final MultipleException e) {
+      if (!e.isDeadPlaceException()) {
+        throw e;
+      }
+    }
+
+    // initialize uts and place failure handler in each place
+    finish(() -> {
+      for (final Place p : places()) {
+        asyncat(p, () -> {
+          uts = new ResilientUTS();
+          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
         });
       }
     });
@@ -275,7 +287,7 @@ final class ResilientUTS {
     long time = System.nanoTime();
 
     try {
-      uts.init(19, depth); // seed: 19
+      uts.seed(19, depth); // seed: 19
       finish(() -> {
         uts.run();
       });
@@ -313,8 +325,8 @@ final class ResilientUTS {
     }
 
     System.out.println("Performance: " + count + "/"
-        + sub("" + time / 1e9, 0, 6) + " = "
-        + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s using "
+        + Bag.sub("" + time / 1e9, 0, 6) + " = "
+        + Bag.sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s using "
         + transfers + " transactions");
   }
 }
