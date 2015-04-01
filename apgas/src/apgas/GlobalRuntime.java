@@ -13,7 +13,6 @@ package apgas;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,30 +20,45 @@ import java.util.function.Consumer;
  * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
  * down the APGAS global runtime for the application.
  * <p>
- * The global runtime is implicitly initialized when this class is loaded.
- * <p>
- * If the system property APGAS_PLACES is set to an integer 'n' greater than 1,
- * this initialization will spawn 'n-1' additional JVMs. These additional JVMs
- * will execute the same main method as the current one.
- * <p>
- * The current runtime can be obtained from the {@link #getRuntime()} method.
+ * The global runtime is implicitly initialized when first used. The current
+ * runtime can be obtained from the {@link #getRuntime()} method.
  */
 public abstract class GlobalRuntime {
   /**
-   * The {@link GlobalRuntime} instance for this application.
+   * A wrapper class for implementing double-checked locking.
    */
-  private static final GlobalRuntime runtime;
+  private static class GlobalRuntimeWrapper {
+    /**
+     * The {@link GlobalRuntime} instance for this application.
+     */
+    private final GlobalRuntime runtime;
+
+    /**
+     * Initializes the {@link GlobalRuntime} instance for this application.
+     */
+    private GlobalRuntimeWrapper() {
+      try {
+        final String className = System.getProperty(
+            Configuration.APGAS_RUNTIME, "apgas.impl.GlobalRuntimeImpl");
+        final Constructor<?> constructor = Class.forName(className)
+            .getConstructor(new Class<?>[0]);
+        constructor.setAccessible(true);
+        runtime = (GlobalRuntime) constructor.newInstance(new Object[0]);
+      } catch (final ReflectiveOperationException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 
   /**
-   * Throws {@code UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException
-   *           when invoked
+   * The {@link GlobalRuntimeWrapper} instance for this application.
+   */
+  private static GlobalRuntimeWrapper runtime;
+
+  /**
+   * Constructs a new {@link GlobalRuntime} instance.
    */
   protected GlobalRuntime() {
-    if (runtime != null) {
-      throw new UnsupportedOperationException();
-    }
   }
 
   /**
@@ -53,24 +67,16 @@ public abstract class GlobalRuntime {
    * @return the GlobalRuntime instance
    */
   public static GlobalRuntime getRuntime() {
-    return runtime;
-  }
-
-  static {
-    try {
-      final String className = System.getProperty(Configuration.APGAS_RUNTIME,
-          "apgas.impl.GlobalRuntimeImpl");
-      final Constructor<?> constructor = Class.forName(className)
-          .getConstructor(new Class<?>[0]);
-      constructor.setAccessible(true);
-      try {
-        runtime = (GlobalRuntime) constructor.newInstance(new Object[0]);
-      } catch (final InvocationTargetException e) {
-        throw e.getCause();
+    GlobalRuntimeWrapper r = runtime;
+    if (r == null) {
+      synchronized (GlobalRuntime.class) {
+        if (runtime == null) {
+          runtime = new GlobalRuntimeWrapper();
+        }
+        r = runtime;
       }
-    } catch (final Throwable t) {
-      throw new ExceptionInInitializerError(t);
     }
+    return r.runtime;
   }
 
   /**
@@ -191,11 +197,12 @@ public abstract class GlobalRuntime {
   protected abstract List<? extends Place> places();
 
   /**
-   * Starts the global runtime and waits for incoming tasks.
+   * Intializes the global runtime.
    *
    * @param args
    *          ignored
    */
   public static void main(String[] args) {
+    getRuntime();
   }
 }
