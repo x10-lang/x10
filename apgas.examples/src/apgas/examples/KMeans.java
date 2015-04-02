@@ -33,6 +33,8 @@ public class KMeans {
   static int CLUSTERS = 4;
 
   static class ClusterState implements Serializable {
+    private static final long serialVersionUID = 1862268388246760008L;
+
     float[][] clusters = new float[CLUSTERS][DIM];
     int[] clusterCounts = new int[CLUSTERS];
   }
