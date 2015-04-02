@@ -82,6 +82,23 @@ public final class Constructs {
   }
 
   /**
+   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
+   * transitively spawned by {@code f}, and returns the result.
+   *
+   * @param <SerializableT>
+   *          the type of the result (must implement java.io.Serializable)
+   * @param p
+   *          the requested place of execution
+   * @param f
+   *          the function to run
+   * @return the result
+   */
+  public static <SerializableT extends Serializable> SerializableT at(Place p,
+      SerializableCallable<SerializableT> f) {
+    return GlobalRuntime.getRuntime().at(p, f);
+  }
+
+  /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
    * transitively spawned by {@code f}.
    * <p>
@@ -94,22 +111,6 @@ public final class Constructs {
    */
   public static void at(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().at(p, f);
-  }
-
-  /**
-   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
-   * transitively spawned by {@code f}, and returns the result.
-   *
-   * @param <T>
-   *          the type of the result
-   * @param p
-   *          the requested place of execution
-   * @param f
-   *          the function to run
-   * @return the result
-   */
-  public static <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
-    return GlobalRuntime.getRuntime().at(p, f);
   }
 
   /**
