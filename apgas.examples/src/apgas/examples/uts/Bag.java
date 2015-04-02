@@ -37,6 +37,9 @@ final class Bag implements Serializable {
   int size; // number of nodes in the bag
   long count; // number of nodes processed so far
 
+  Bag() {
+  }
+
   Bag(int n) {
     hash = new byte[n * 20 + 4]; // slack for in-place SHA1 computation
     depth = new int[n];
@@ -84,7 +87,7 @@ final class Bag implements Serializable {
     final int l = lower[top];
     final int u = upper[top] - 1;
     if (u == l) {
-      --size;
+      size = top;
     } else {
       upper[top] = u;
     }
@@ -107,12 +110,17 @@ final class Bag implements Serializable {
   }
 
   Bag trim() {
-    final Bag b = new Bag(size);
-    System.arraycopy(hash, 0, b.hash, 0, size * 20);
-    System.arraycopy(depth, 0, b.depth, 0, size);
-    System.arraycopy(lower, 0, b.lower, 0, size);
-    System.arraycopy(upper, 0, b.upper, 0, size);
-    b.size = size;
+    final Bag b;
+    if (size == 0) {
+      b = new Bag();
+    } else {
+      b = new Bag(size);
+      System.arraycopy(hash, 0, b.hash, 0, size * 20);
+      System.arraycopy(depth, 0, b.depth, 0, size);
+      System.arraycopy(lower, 0, b.lower, 0, size);
+      System.arraycopy(upper, 0, b.upper, 0, size);
+      b.size = size;
+    }
     b.count = count;
     return b;
   }
@@ -134,22 +142,22 @@ final class Bag implements Serializable {
         System.arraycopy(hash, i * 20, b.hash, b.size * 20, 20);
         b.depth[b.size] = depth[i];
         b.upper[b.size] = upper[i];
-        upper[i] -= p / 2;
-        b.lower[b.size++] = upper[i];
+        b.lower[b.size++] = upper[i] -= p / 2;
       }
     }
     return b;
   }
 
   void merge(Bag b) {
-    while (size + b.size > depth.length) {
+    final int s = size + b.size;
+    while (s > depth.length) {
       grow();
     }
     System.arraycopy(b.hash, 0, hash, size * 20, b.size * 20);
     System.arraycopy(b.depth, 0, depth, size, b.size);
     System.arraycopy(b.lower, 0, lower, size, b.size);
     System.arraycopy(b.upper, 0, upper, size, b.size);
-    size += b.size;
+    size = s;
   }
 
   private void grow() {
@@ -180,24 +188,25 @@ final class Bag implements Serializable {
     }
 
     final MessageDigest md = encoder();
-    Bag bag = new Bag(5);
+
+    Bag bag = new Bag(64);
 
     System.out.println("Warmup...");
     bag.seed(md, 19, depth - 2);
     bag.run(md);
 
-    bag = new Bag(5);
+    bag = new Bag(64);
 
     System.out.println("Starting...");
     long time = System.nanoTime();
 
     bag.seed(md, 19, depth);
     bag.run(md);
-    final long count = bag.count;
 
     time = System.nanoTime() - time;
     System.out.println("Finished.");
 
+    final long count = bag.count;
     System.out.println("Depth: " + depth + ", Performance: " + count + "/"
         + sub("" + time / 1e9, 0, 6) + " = "
         + sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");

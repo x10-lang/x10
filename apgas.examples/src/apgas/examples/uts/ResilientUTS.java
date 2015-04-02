@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import apgas.Configuration;
 import apgas.DeadPlaceException;
 import apgas.GlobalRuntime;
+import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
 
@@ -35,14 +36,14 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class ResilientUTS implements Consumer<Place> {
+final class ResilientUTS implements Consumer<Place>, Job {
   static ResilientUTS uts;
 
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
     if (place.id > 0) {
-      System.err.println(here() + " observes that " + place + " failed!");
+      System.err.println(home + " observes that " + place + " failed!");
     }
     if (state == place.id) {
       // attempt to extract loot from store
@@ -68,13 +69,13 @@ final class ResilientUTS implements Consumer<Place> {
   int state = -2; // -2: inactive, -1: running, p: stealing from p
 
   void seed(int s, int d) {
-    map.clear();
     bag.seed(md, s, d);
     map.set(home, bag.trim());
   }
 
-  void run() throws DigestException {
-    System.err.println(here() + " starting");
+  @Override
+  public void run() throws DigestException {
+    System.err.println(home + " starting");
     synchronized (this) {
       state = -1;
     }
@@ -93,7 +94,7 @@ final class ResilientUTS implements Consumer<Place> {
     }
     distribute();
     lifelinesteal();
-    System.err.println(here() + " stopping");
+    System.err.println(home + " stopping");
   }
 
   void lifelinesteal() {
@@ -101,7 +102,7 @@ final class ResilientUTS implements Consumer<Place> {
       return;
     }
     try {
-      asyncat(place((here().id + places - 1) % places), () -> {
+      asyncat(place((home.id + places - 1) % places), () -> {
         uts.lifeline.set(true);
       });
     } catch (final DeadPlaceException e) {
@@ -170,7 +171,7 @@ final class ResilientUTS implements Consumer<Place> {
 
   synchronized void deal(Place p, Bag b) {
     if (state != p.id) {
-      // victim is dead, ignore late distribution
+      // thief is no longer waiting for this message, discard
       return;
     }
     if (b != null) {
@@ -210,7 +211,7 @@ final class ResilientUTS implements Consumer<Place> {
     if (lifeline.get()) {
       final Bag b = bag.split();
       if (b != null) {
-        p = place((here().id + 1) % places);
+        p = place((home.id + 1) % places);
         lifeline.set(false);
         transfer(p, b);
         try {
@@ -264,14 +265,14 @@ final class ResilientUTS implements Consumer<Place> {
     System.out.println("Warmup...");
     try {
       uts.seed(19, depth - 2); // seed: 19
-      finish(() -> {
-        uts.run();
-      });
+      finish(uts);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
       }
     }
+
+    uts.map.clear();
 
     // initialize uts and place failure handler in each place
     finish(() -> {
@@ -288,28 +289,22 @@ final class ResilientUTS implements Consumer<Place> {
 
     try {
       uts.seed(19, depth); // seed: 19
-      finish(() -> {
-        uts.run();
-      });
+      finish(uts);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
       }
     }
 
-    // if places have died, process remaning nodes seqentially at place 0
-    for (final Map.Entry<Place, Bag> e : uts.map.entrySet()) {
-      final Bag b = e.getValue();
-      if (b != null && b.size != 0) {
-        System.err.println("Recovering " + e.getKey());
-        b.run(uts.md);
-        uts.map.set(e.getKey(), b.trim());
-      }
-    }
-
     long count = 0;
     // collect all counts
-    for (final Bag b : uts.map.values()) {
+    // if places have died, process remaining nodes sequentially at place 0
+    for (final Map.Entry<Place, Bag> e : uts.map.entrySet()) {
+      final Bag b = e.getValue();
+      if (b.size != 0) {
+        System.err.println("Recovering " + e.getKey());
+        b.run(uts.md);
+      }
       count += b.count;
     }
 
@@ -319,14 +314,12 @@ final class ResilientUTS implements Consumer<Place> {
     long transfers = 0;
     // collect all counts
     for (final Place p : places()) {
-      transfers += at(p, () -> {
-        return uts.transfers;
-      });
+      transfers += at(p, () -> uts.transfers);
     }
 
-    System.out.println("Performance: " + count + "/"
-        + Bag.sub("" + time / 1e9, 0, 6) + " = "
-        + Bag.sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s using "
-        + transfers + " transactions");
+    System.out.println("Depth: " + depth + ", Places: " + uts.places
+        + ", Performance: " + count + "/" + Bag.sub("" + time / 1e9, 0, 6)
+        + " = " + Bag.sub("" + (count / (time / 1e3)), 0, 6)
+        + "M nodes/s using " + transfers + " transactions");
   }
 }
