@@ -22,19 +22,64 @@ import apgas.SerializableCallable;
 
 @SuppressWarnings("javadoc")
 public class GlobalObject<T extends GlobalObject<T>> {
-  GlobalRef<T> ref; // package-private
+  GlobalRef<T[]> ref; // package-private
 
   public static <T extends GlobalObject<T>> T make(
-      Collection<? extends Place> places, SerializableCallable<T> initializer) {
-    final GlobalRef<T> r = new GlobalRef<T>(places, initializer);
+      Collection<? extends Place> places, int multiplicity,
+      SerializableFunction<? super Area, T> initializer) {
+    final GlobalRef<T[]> r = new GlobalRef<T[]>(places, () -> {
+      return (T[]) new GlobalObject[multiplicity];
+    });
     finish(() -> {
       for (final Place p : places) {
         Constructs.asyncat(p, () -> {
-          r.get().ref = r;
+          final T[] a = r.get();
+          for (int area = 0; area < multiplicity; ++area) {
+            a[area] = initializer.apply(new Area(here(), area, multiplicity));
+            a[area].ref = r;
+          }
         });
       }
     });
-    return r.get();
+    return r.get()[0];
+  }
+
+  public final GlobalRef<T[]> ref() {
+    return ref;
+  }
+
+  public static <T extends GlobalObject<T>> T make(
+      Collection<? extends Place> places,
+      SerializableFunction<? super Area, T> initializer) {
+    return make(places, 1, initializer);
+  }
+
+  public static <T extends GlobalObject<T>> T make(
+      Collection<? extends Place> places, SerializableCallable<T> initializer) {
+    return make(places, 1, area -> initializer.call());
+  }
+
+  public static class Area extends Place {
+    private static final long serialVersionUID = 193406403512190763L;
+
+    public final int area;
+    public final int multiplicity;
+
+    public Area(Place p, int area, int multiplicity) {
+      super(p.id);
+      this.area = area;
+      this.multiplicity = multiplicity;
+    }
+
+    public Area(int id, int multiplicity) {
+      super(id / multiplicity);
+      this.area = id % multiplicity;
+      this.multiplicity = multiplicity;
+    }
+
+    public int lid() {
+      return id * multiplicity + area;
+    }
   }
 
   public static interface SerializableConsumer<T> extends Serializable {
@@ -47,24 +92,27 @@ public class GlobalObject<T extends GlobalObject<T>> {
   }
 
   public void asyncat(Place p, SerializableConsumer<T> f) {
-    final GlobalRef<T> r = ref;
+    final int area = p instanceof Area ? ((Area) p).area : 0;
+    final GlobalRef<T[]> r = ref;
     Constructs.asyncat(p, () -> {
-      f.accept(r.get());
+      f.accept(r.get()[area]);
     });
   }
 
   public void uncountedasyncat(Place p, SerializableConsumer<T> f) {
-    final GlobalRef<T> r = ref;
+    final int area = p instanceof Area ? ((Area) p).area : 0;
+    final GlobalRef<T[]> r = ref;
     Constructs.uncountedasyncat(p, () -> {
-      f.accept(r.get());
+      f.accept(r.get()[area]);
     });
   }
 
   public <SerializableT extends Serializable> SerializableT at(Place p,
       SerializableFunction<T, SerializableT> f) {
-    final GlobalRef<T> r = ref;
+    final int area = p instanceof Area ? ((Area) p).area : 0;
+    final GlobalRef<T[]> r = ref;
     return Constructs.at(p, () -> {
-      return f.apply(r.get());
+      return f.apply(r.get()[area]);
     });
   }
 }
