@@ -39,6 +39,9 @@ public class GlobalObject<T> implements Serializable {
 
   public static <T extends GlobalObject<T>> T make(
       Collection<? extends Place> places, SerializableCallable<T> initializer) {
+    if (!places.contains(here())) {
+      throw new BadPlaceException();
+    }
     final GlobalRef<T> ref = new GlobalRef<T>(places, () -> initializer.call());
     finish(() -> {
       for (final Place p : places) {

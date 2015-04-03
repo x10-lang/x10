@@ -39,6 +39,8 @@ import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     Consumer<Place>, Job {
+  GlobalUTS uts = this;
+
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
@@ -103,7 +105,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     }
     try {
       asyncat(place((home.id + places - 1) % places), () -> {
-        lifeline.set(true);
+        uts.lifeline.set(true);
       });
     } catch (final DeadPlaceException e) {
       // TODO should go to next lifeline, but correct as is
@@ -128,7 +130,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     }
     try {
       uncountedasyncat(place(p), () -> {
-        request(from);
+        uts.request(from);
       });
     } catch (final DeadPlaceException e) {
       // pretend stealing failed
@@ -157,7 +159,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     try {
       final Place h = home;
       uncountedasyncat(p, () -> {
-        deal(h, null);
+        uts.deal(h, null);
       });
     } catch (final DeadPlaceException e) {
       // place is dead, nothing to do
@@ -216,7 +218,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
         transfer(p, b);
         try {
           asyncat(p, () -> {
-            lifelinedeal(b);
+            uts.lifelinedeal(b);
           });
         } catch (final DeadPlaceException e) {
           // thief died, nothing to do
@@ -231,7 +233,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
       try {
         final Place h = home;
         uncountedasyncat(p, () -> {
-          deal(h, b);
+          uts.deal(h, b);
         });
       } catch (final DeadPlaceException e) {
         // thief died, nothing to do
