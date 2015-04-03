@@ -39,7 +39,6 @@ import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     Consumer<Place>, Job {
-
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
@@ -103,8 +102,8 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
       return;
     }
     try {
-      asyncat(place((home.id + places - 1) % places), uts -> {
-        uts.lifeline.set(true);
+      asyncat(place((home.id + places - 1) % places), () -> {
+        lifeline.set(true);
       });
     } catch (final DeadPlaceException e) {
       // TODO should go to next lifeline, but correct as is
@@ -128,8 +127,8 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
       state = p;
     }
     try {
-      uncountedasyncat(place(p), uts -> {
-        uts.request(from);
+      uncountedasyncat(place(p), () -> {
+        request(from);
       });
     } catch (final DeadPlaceException e) {
       // pretend stealing failed
@@ -157,8 +156,8 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     }
     try {
       final Place h = home;
-      uncountedasyncat(p, uts -> {
-        uts.deal(h, null);
+      uncountedasyncat(p, () -> {
+        deal(h, null);
       });
     } catch (final DeadPlaceException e) {
       // place is dead, nothing to do
@@ -216,8 +215,8 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
         lifeline.set(false);
         transfer(p, b);
         try {
-          asyncat(p, uts -> {
-            uts.lifelinedeal(b);
+          asyncat(p, () -> {
+            lifelinedeal(b);
           });
         } catch (final DeadPlaceException e) {
           // thief died, nothing to do
@@ -231,23 +230,13 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
       }
       try {
         final Place h = home;
-        uncountedasyncat(p, uts -> {
-          uts.deal(h, b);
+        uncountedasyncat(p, () -> {
+          deal(h, b);
         });
       } catch (final DeadPlaceException e) {
         // thief died, nothing to do
       }
     }
-  }
-
-  void init() {
-    finish(() -> {
-      for (final Place p : places()) {
-        asyncat(p, uts -> {
-          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
-        });
-      }
-    });
   }
 
   public static void main(String[] args) {
@@ -264,24 +253,36 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
     // initialize uts and place failure handler in each place
-    GlobalUTS uts = GlobalObject.make(places(), () -> new GlobalUTS());
-    uts.init();
+    final GlobalUTS uts0 = GlobalObject.make(places(), () -> new GlobalUTS());
+    finish(() -> {
+      for (final Place p : places()) {
+        asyncat(p, () -> {
+          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts0);
+        });
+      }
+    });
 
     System.out.println("Warmup...");
     try {
-      uts.seed(19, depth - 2); // seed: 19
-      finish(uts);
+      uts0.seed(19, depth - 2); // seed: 19
+      finish(uts0);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
       }
     }
 
-    uts.map.clear();
+    uts0.map.clear();
 
     // initialize uts and place failure handler in each place
-    uts = GlobalObject.make(places(), () -> new GlobalUTS());
-    uts.init();
+    final GlobalUTS uts = GlobalObject.make(places(), () -> new GlobalUTS());
+    finish(() -> {
+      for (final Place p : places()) {
+        asyncat(p, () -> {
+          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
+        });
+      }
+    });
 
     System.out.println("Starting...");
     long time = System.nanoTime();
@@ -313,7 +314,7 @@ final class GlobalUTS extends GlobalObject<GlobalUTS> implements
     long transfers = 0;
     // collect all counts
     for (final Place p : places()) {
-      transfers += uts.at(p, u -> u.transfers);
+      transfers += at(p, () -> uts.transfers);
     }
 
     System.out.println("Depth: " + depth + ", Places: " + uts.places

@@ -13,6 +13,7 @@ package apgas.util;
 
 import static apgas.Constructs.*;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -21,98 +22,39 @@ import apgas.Place;
 import apgas.SerializableCallable;
 
 @SuppressWarnings("javadoc")
-public class GlobalObject<T extends GlobalObject<T>> {
-  GlobalRef<T[]> ref; // package-private
+public class GlobalObject<T> implements Serializable {
+  private static final class ProxyObject<T> implements Serializable {
+    private static final long serialVersionUID = -2416972795695833335L;
 
-  public static <T extends GlobalObject<T>> T make(
-      Collection<? extends Place> places, int multiplicity,
-      SerializableFunction<? super Area, T> initializer) {
-    final GlobalRef<T[]> r = new GlobalRef<T[]>(places, () -> {
-      return (T[]) new GlobalObject[multiplicity];
-    });
-    finish(() -> {
-      for (final Place p : places) {
-        Constructs.asyncat(p, () -> {
-          final T[] a = r.get();
-          for (int area = 0; area < multiplicity; ++area) {
-            a[area] = initializer.apply(new Area(here(), area, multiplicity));
-            a[area].ref = r;
-          }
-        });
-      }
-    });
-    return r.get()[0];
-  }
+    private final GlobalRef<T> ref;
 
-  public final GlobalRef<T[]> ref() {
-    return ref;
-  }
+    private ProxyObject(GlobalRef<T> ref) {
+      this.ref = ref;
+    }
 
-  public static <T extends GlobalObject<T>> T make(
-      Collection<? extends Place> places,
-      SerializableFunction<? super Area, T> initializer) {
-    return make(places, 1, initializer);
+    private Object readResolve() throws ObjectStreamException {
+      return ref.get();
+    }
   }
 
   public static <T extends GlobalObject<T>> T make(
       Collection<? extends Place> places, SerializableCallable<T> initializer) {
-    return make(places, 1, area -> initializer.call());
-  }
-
-  public static class Area extends Place {
-    private static final long serialVersionUID = 193406403512190763L;
-
-    public final int area;
-    public final int multiplicity;
-
-    public Area(Place p, int area, int multiplicity) {
-      super(p.id);
-      this.area = area;
-      this.multiplicity = multiplicity;
-    }
-
-    public Area(int id, int multiplicity) {
-      super(id / multiplicity);
-      this.area = id % multiplicity;
-      this.multiplicity = multiplicity;
-    }
-
-    public int lid() {
-      return id * multiplicity + area;
-    }
-  }
-
-  public static interface SerializableConsumer<T> extends Serializable {
-    void accept(T t) throws Exception;
-  }
-
-  public static interface SerializableFunction<T, SerializableT> extends
-      Serializable {
-    SerializableT apply(T t) throws Exception;
-  }
-
-  public void asyncat(Place p, SerializableConsumer<T> f) {
-    final int area = p instanceof Area ? ((Area) p).area : 0;
-    final GlobalRef<T[]> r = ref;
-    Constructs.asyncat(p, () -> {
-      f.accept(r.get()[area]);
+    final GlobalRef<T> ref = new GlobalRef<T>(places, () -> initializer.call());
+    finish(() -> {
+      for (final Place p : places) {
+        Constructs.asyncat(p, () -> ref.get().ref = ref);
+      }
     });
+    return ref.get();
   }
 
-  public void uncountedasyncat(Place p, SerializableConsumer<T> f) {
-    final int area = p instanceof Area ? ((Area) p).area : 0;
-    final GlobalRef<T[]> r = ref;
-    Constructs.uncountedasyncat(p, () -> {
-      f.accept(r.get()[area]);
-    });
+  GlobalRef<T> ref; // package-private
+
+  public GlobalRef<T> ref() {
+    return ref;
   }
 
-  public <SerializableT extends Serializable> SerializableT at(Place p,
-      SerializableFunction<T, SerializableT> f) {
-    final int area = p instanceof Area ? ((Area) p).area : 0;
-    final GlobalRef<T[]> r = ref;
-    return Constructs.at(p, () -> {
-      return f.apply(r.get()[area]);
-    });
+  protected Object writeReplace() throws ObjectStreamException {
+    return new ProxyObject<T>(ref);
   }
 }
