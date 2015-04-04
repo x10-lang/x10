@@ -23,41 +23,39 @@ import apgas.SerializableCallable;
 
 @SuppressWarnings("javadoc")
 public class GlobalObject<T> implements Serializable {
-  private static final class ProxyObject<T> implements Serializable {
+  private static final class ProxyObject implements Serializable {
     private static final long serialVersionUID = -2416972795695833335L;
 
-    private final GlobalRef<T> ref;
+    private final GlobalID id;
 
-    private ProxyObject(GlobalRef<T> ref) {
-      this.ref = ref;
+    private ProxyObject(GlobalID id) {
+      this.id = id;
     }
 
     private Object readResolve() throws ObjectStreamException {
-      return ref.get();
+      return id.getHere();
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends GlobalObject<T>> T make(
       Collection<? extends Place> places, SerializableCallable<T> initializer) {
-    if (!places.contains(here())) {
-      throw new BadPlaceException();
-    }
-    final GlobalRef<T> ref = new GlobalRef<T>(places, () -> initializer.call());
+    final GlobalID id = new GlobalID();
     finish(() -> {
       for (final Place p : places) {
-        Constructs.asyncat(p, () -> ref.get().ref = ref);
+        Constructs.asyncat(p, () -> {
+          final T t = initializer.call();
+          t.id = id;
+          id.putHere(t);
+        });
       }
     });
-    return ref.get();
+    return (T) id.getHere();
   }
 
-  GlobalRef<T> ref; // package-private
-
-  public GlobalRef<T> ref() {
-    return ref;
-  }
+  protected GlobalID id;
 
   protected Object writeReplace() throws ObjectStreamException {
-    return new ProxyObject<T>(ref);
+    return new ProxyObject(id);
   }
 }
