@@ -363,7 +363,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       final T result = f.call();
       Constructs.asyncat(home, () -> id.putHere(result));
     }));
-    return (T) id.getHere();
+    return (T) id.removeHere();
   }
 
   @Override
