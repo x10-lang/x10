@@ -22,7 +22,7 @@ import apgas.Place;
 import apgas.SerializableCallable;
 
 @SuppressWarnings("javadoc")
-public class GlobalObject<T> implements Serializable {
+public class GlobalObject implements Serializable {
   private static final class ProxyObject implements Serializable {
     private static final long serialVersionUID = -2416972795695833335L;
 
@@ -38,7 +38,7 @@ public class GlobalObject<T> implements Serializable {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T extends GlobalObject<T>> T make(
+  public static <T extends GlobalObject> T make(
       Collection<? extends Place> places, SerializableCallable<T> initializer) {
     final GlobalID id = new GlobalID();
     finish(() -> {

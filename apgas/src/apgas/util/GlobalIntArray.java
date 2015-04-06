@@ -16,7 +16,7 @@ import java.util.Collection;
 import apgas.Place;
 
 @SuppressWarnings("javadoc")
-public class GlobalIntArray extends GlobalObject<GlobalIntArray> {
+public class GlobalIntArray extends GlobalObject {
   public final int[] a;
 
   protected GlobalIntArray(int n) {
