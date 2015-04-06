@@ -14,6 +14,7 @@ package apgas;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 /**
@@ -195,6 +196,13 @@ public abstract class GlobalRuntime {
    * @return the current list of places in the global runtime
    */
   protected abstract List<? extends Place> places();
+
+  /**
+   * Returns the executor service for the place.
+   *
+   * @return the executor service
+   */
+  public abstract ExecutorService getExecutorService();
 
   /**
    * Intializes the global runtime.

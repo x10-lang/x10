@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
@@ -388,5 +389,10 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   public int maxPlace() {
     return transport.maxPlace();
+  }
+
+  @Override
+  public ExecutorService getExecutorService() {
+    return pool;
   }
 }
