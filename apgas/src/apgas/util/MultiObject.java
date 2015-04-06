@@ -24,8 +24,8 @@ import apgas.Place;
 
 @SuppressWarnings("javadoc")
 public class MultiObject<T> implements Serializable {
-  private static final class ProxyObject<T> implements Serializable {
-    private static final long serialVersionUID = -2416972795695833335L;
+  private static final class ProxyObject implements Serializable {
+    private static final long serialVersionUID = 4387253164554524128L;
 
     private final GlobalID id;
 
@@ -69,6 +69,6 @@ public class MultiObject<T> implements Serializable {
   protected T[] on;
 
   protected Object writeReplace() throws ObjectStreamException {
-    return new ProxyObject<T>(id);
+    return new ProxyObject(id);
   }
 }
