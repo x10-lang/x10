@@ -37,8 +37,7 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class GlobalUTS extends GlobalObject<GlobalUTS> implements
-    Consumer<Place>, Job {
+final class GlobalUTS extends GlobalObject implements Consumer<Place>, Job {
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
