@@ -27,6 +27,7 @@ import apgas.GlobalRuntime;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
+import apgas.util.MultiObject;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -36,9 +37,8 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class MultiUTS implements Consumer<Place>, Job {
-  static MultiUTS[] uts;
-
+final class MultiUTS extends MultiObject<MultiUTS> implements Consumer<Place>,
+    Job {
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
@@ -71,9 +71,9 @@ final class MultiUTS implements Consumer<Place>, Job {
 
   MultiUTS(int location, int threads) {
     this.threads = threads;
-    this.home = location;
+    this.home = location + here().id * threads;
     places = places().size() * threads;
-    lifeline = new AtomicBoolean(location != places - 1);
+    lifeline = new AtomicBoolean(home != places - 1);
   }
 
   void seed(int s, int d) {
@@ -113,7 +113,7 @@ final class MultiUTS implements Consumer<Place>, Job {
       final int p = (home + places - 1) % places;
       final int thread = p % threads;
       asyncat(place(p / threads), () -> {
-        uts[thread].lifeline.set(true);
+        on[thread].lifeline.set(true);
       });
     } catch (final DeadPlaceException e) {
       // TODO should go to next lifeline, but correct as is
@@ -139,7 +139,7 @@ final class MultiUTS implements Consumer<Place>, Job {
     try {
       final int thread = p % threads;
       uncountedasyncat(place(p / threads), () -> {
-        uts[thread].request(from);
+        on[thread].request(from);
       });
     } catch (final DeadPlaceException e) {
       // pretend stealing failed
@@ -169,7 +169,7 @@ final class MultiUTS implements Consumer<Place>, Job {
       final int h = home;
       final int thread = p % threads;
       uncountedasyncat(place(p / threads), () -> {
-        uts[thread].deal(h, null);
+        on[thread].deal(h, null);
       });
     } catch (final DeadPlaceException e) {
       // place is dead, nothing to do
@@ -229,7 +229,7 @@ final class MultiUTS implements Consumer<Place>, Job {
         transfer(p, b);
         try {
           asyncat(place(p / threads), () -> {
-            uts[thread].lifelinedeal(b);
+            on[thread].lifelinedeal(b);
           });
         } catch (final DeadPlaceException e) {
           // thief died, nothing to do
@@ -245,7 +245,7 @@ final class MultiUTS implements Consumer<Place>, Job {
         final int h = home;
         final int thread = p % threads;
         uncountedasyncat(place(p / threads), () -> {
-          uts[thread].deal(h, b);
+          on[thread].deal(h, b);
         });
       } catch (final DeadPlaceException e) {
         // thief died, nothing to do
@@ -267,41 +267,31 @@ final class MultiUTS implements Consumer<Place>, Job {
     System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
-    // initialize uts and place failure handler in each place
-    finish(() -> {
-      for (final Place p : places()) {
-        asyncat(p, () -> {
-          uts = new MultiUTS[threads];
-          for (int i = 0; i < threads; ++i) {
-            uts[i] = new MultiUTS(p.id * threads + i, threads);
-          }
-          // GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
-          });
-      }
-    });
+    // initialize uts
+    final MultiUTS uts0 = MultiObject.make(places(), threads,
+        location -> new MultiUTS(location, threads));
 
     System.out.println("Warmup...");
     try {
-      uts[0].seed(19, depth - 2); // seed: 19
-      finish(uts[0]);
+      uts0.seed(19, depth - 2); // seed: 19
+      finish(uts0);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
       }
     }
 
-    uts[0].map.clear();
+    uts0.map.clear();
 
     // initialize uts and place failure handler in each place
+    final MultiUTS uts = MultiObject.make(places(), threads,
+        location -> new MultiUTS(location, threads));
     finish(() -> {
       for (final Place p : places()) {
         asyncat(p, () -> {
-          for (int i = 0; i < threads; ++i) {
-            uts[i] = new MultiUTS(p.id * threads + i, threads);
-          }
           GlobalRuntime.getRuntime().setPlaceFailureHandler(place -> {
             for (int i = 0; i < threads; ++i) {
-              uts[i].accept(place);
+              uts.on[i].accept(place);
             }
           });
         });
@@ -312,8 +302,8 @@ final class MultiUTS implements Consumer<Place>, Job {
     long time = System.nanoTime();
 
     try {
-      uts[0].seed(19, depth); // seed: 19
-      finish(uts[0]);
+      uts.seed(19, depth); // seed: 19
+      finish(uts);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
@@ -323,11 +313,11 @@ final class MultiUTS implements Consumer<Place>, Job {
     long count = 0;
     // collect all counts
     // if places have died, process remaining nodes sequentially at place 0
-    for (final Map.Entry<Integer, Bag> e : uts[0].map.entrySet()) {
+    for (final Map.Entry<Integer, Bag> e : uts.map.entrySet()) {
       final Bag b = e.getValue();
       if (b.size != 0) {
         System.err.println("Recovering " + e.getKey());
-        b.run(uts[0].md);
+        b.run(uts.md);
       }
       count += b.count;
     }
@@ -341,13 +331,13 @@ final class MultiUTS implements Consumer<Place>, Job {
       transfers += at(p, () -> {
         int v = 0;
         for (int i = 0; i < threads; ++i) {
-          v += uts[i].transfers;
+          v += uts.on[i].transfers;
         }
         return v;
       });
     }
 
-    System.out.println("Depth: " + depth + ", Locations: " + uts[0].places
+    System.out.println("Depth: " + depth + ", Locations: " + uts.places
         + ", Performance: " + count + "/" + Bag.sub("" + time / 1e9, 0, 6)
         + " = " + Bag.sub("" + (count / (time / 1e3)), 0, 6)
         + "M nodes/s using " + transfers + " transactions");
