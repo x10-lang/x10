@@ -104,44 +104,46 @@ public class KMeans {
               final int[] clusterCounts = clusterState.clusterCounts;
               Arrays.fill(clusterCounts, 0);
 
-              // compute new clusters and counters final float[][] points =
-                final float[][] points = globalPoints.get();
+              /* compute new clusters and counters */
+              final float[][] points = globalPoints.get();
 
-                for (int p = 0; p < points.length; p++) {
-                  int closest = -1;
-                  float closestDist = Float.MAX_VALUE;
-                  for (int k = 0; k < CLUSTERS; k++) {
-                    float dist = 0;
-                    for (int d = 0; d < DIM; d++) {
-                      final double tmp = points[p][d] - currentClusters[k][d];
-                      dist += tmp * tmp;
-                    }
-                    if (dist < closestDist) {
-                      closestDist = dist;
-                      closest = k;
-                    }
-                  }
-
+              for (int p = 0; p < points.length; p++) {
+                int closest = -1;
+                float closestDist = Float.MAX_VALUE;
+                for (int k = 0; k < CLUSTERS; k++) {
+                  float dist = 0;
                   for (int d = 0; d < DIM; d++) {
-                    newClusters[closest][d] += points[p][d];
+                    final double tmp = points[p][d] - currentClusters[k][d];
+                    dist += tmp * tmp;
                   }
-                  clusterCounts[closest]++;
+                  if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = k;
+                  }
                 }
 
-                return clusterState;
-              });
+                for (int d = 0; d < DIM; d++) {
+                  newClusters[closest][d] += points[p][d];
+                }
+                clusterCounts[closest]++;
+              }
+
+              return clusterState;
+            });
 
             // combine place clusters to central
-            // final atomic {
-            for (int i = 0; i < CLUSTERS; i++) {
-              for (int j = 0; j < DIM; j++) {
-                centralNewClusters[i][j] += placeClusters.clusters[i][j];
+            synchronized (centralNewClusters) {
+              for (int i = 0; i < CLUSTERS; i++) {
+                for (int j = 0; j < DIM; j++) {
+                  centralNewClusters[i][j] += placeClusters.clusters[i][j];
+                }
               }
             }
-            for (int j = 0; j < CLUSTERS; j++) {
-              centralClusterCounts[j] += placeClusters.clusterCounts[j];
+            synchronized (centralClusterCounts) {
+              for (int j = 0; j < CLUSTERS; j++) {
+                centralClusterCounts[j] += placeClusters.clusterCounts[j];
+              }
             }
-            // }
           });
         }
       });
