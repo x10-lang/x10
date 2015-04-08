@@ -18,14 +18,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <x10/lang/Place.h>
-#include <x10/xrx/Runtime.h>
-#include <x10/io/Console.h>
 #include <x10/xrx/Thread.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
-#include <x10/xrx/Worker.h>
-#include <x10/util/Team.h>
 
 using namespace x10aux;
 
@@ -77,8 +72,6 @@ static x10::lang::Rail<x10::lang::String*>* convert_args(int ac, char **av) {
 static void* real_x10_main_inner(void* args);
 
 void x10aux::apgas_main(int argc, char** argv) {
-    x10aux::network_init(argc, argv);
-
     x10_main_args args;
     args.ac = argc;
     args.av = argv;
