@@ -59,9 +59,13 @@ public class PlaceLocalObject implements Serializable {
     return (T) id.getHere();
   }
 
-  protected GlobalID id;
+  GlobalID id; // package private
 
-  protected Object writeReplace() throws ObjectStreamException {
+  public static GlobalID getId(PlaceLocalObject object) {
+    return object.id;
+  }
+
+  Object writeReplace() throws ObjectStreamException { // package private
     return new ObjectReference(id);
   }
 }
