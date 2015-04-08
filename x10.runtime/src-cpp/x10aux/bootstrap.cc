@@ -21,6 +21,7 @@
 #include <x10/xrx/Thread.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>
+#include <x10/util/Team.h>
 
 using namespace x10aux;
 
