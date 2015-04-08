@@ -11,23 +11,27 @@
 
 package apgas.util;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import apgas.Place;
 
 @SuppressWarnings("javadoc")
-public class GlobalArray<T> extends GlobalObject {
-  public final T[] a;
+public class PlaceLocalIntArray extends PlaceLocalObject {
+  protected final int[] array;
 
-  protected GlobalArray(T[] a) {
-    this.a = a;
+  protected PlaceLocalIntArray(int n) {
+    array = new int[n];
   }
 
-  @SafeVarargs
-  public static <T> GlobalArray<T> make(Collection<? extends Place> places,
-      int n, T... a) {
-    return GlobalObject.make(places,
-        () -> new GlobalArray<T>(Arrays.copyOf(a, n)));
+  public int get(int index) {
+    return array[index];
+  }
+
+  public void set(int index, int t) {
+    array[index] = t;
+  }
+
+  public static PlaceLocalIntArray make(Collection<? extends Place> places, int localLength) {
+    return PlaceLocalObject.make(places, () -> new PlaceLocalIntArray(localLength));
   }
 }

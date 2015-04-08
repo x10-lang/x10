@@ -18,17 +18,18 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import apgas.Constructs;
+import apgas.DeadPlaceException;
 import apgas.Place;
 import apgas.SerializableCallable;
 
 @SuppressWarnings("javadoc")
-public class GlobalObject implements Serializable {
-  private static final class ProxyObject implements Serializable {
+public class PlaceLocalObject implements Serializable {
+  private static final class ObjectReference implements Serializable {
     private static final long serialVersionUID = -2416972795695833335L;
 
     private final GlobalID id;
 
-    private ProxyObject(GlobalID id) {
+    private ObjectReference(GlobalID id) {
       this.id = id;
     }
 
@@ -38,24 +39,29 @@ public class GlobalObject implements Serializable {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T extends GlobalObject> T make(
+  public static <T extends PlaceLocalObject> T make(
       Collection<? extends Place> places, SerializableCallable<T> initializer) {
     final GlobalID id = new GlobalID();
-    finish(() -> {
-      for (final Place p : places) {
-        Constructs.asyncat(p, () -> {
-          final T t = initializer.call();
-          t.id = id;
-          id.putHere(t);
-        });
-      }
-    });
+    try {
+      finish(() -> {
+        for (final Place p : places) {
+          Constructs.asyncat(p, () -> {
+            final T t = initializer.call();
+            t.id = id;
+            id.putHere(t);
+          });
+        }
+      });
+    } catch (final DeadPlaceException e) {
+      id.remove(places);
+      throw e;
+    }
     return (T) id.getHere();
   }
 
   protected GlobalID id;
 
   protected Object writeReplace() throws ObjectStreamException {
-    return new ProxyObject(id);
+    return new ObjectReference(id);
   }
 }

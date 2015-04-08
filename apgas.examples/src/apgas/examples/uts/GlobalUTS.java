@@ -27,7 +27,7 @@ import apgas.GlobalRuntime;
 import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
-import apgas.util.GlobalObject;
+import apgas.util.PlaceLocalObject;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -37,7 +37,7 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class GlobalUTS extends GlobalObject implements Consumer<Place>, Job {
+final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
@@ -252,7 +252,7 @@ final class GlobalUTS extends GlobalObject implements Consumer<Place>, Job {
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
     // initialize uts and place failure handler in each place
-    final GlobalUTS uts0 = GlobalObject.make(places(), () -> new GlobalUTS());
+    final GlobalUTS uts0 = PlaceLocalObject.make(places(), () -> new GlobalUTS());
     finish(() -> {
       for (final Place p : places()) {
         asyncat(p, () -> {
@@ -274,7 +274,7 @@ final class GlobalUTS extends GlobalObject implements Consumer<Place>, Job {
     uts0.map.clear();
 
     // initialize uts and place failure handler in each place
-    final GlobalUTS uts = GlobalObject.make(places(), () -> new GlobalUTS());
+    final GlobalUTS uts = PlaceLocalObject.make(places(), () -> new GlobalUTS());
     finish(() -> {
       for (final Place p : places()) {
         asyncat(p, () -> {
