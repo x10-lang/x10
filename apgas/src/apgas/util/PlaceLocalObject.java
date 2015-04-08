@@ -65,7 +65,7 @@ public class PlaceLocalObject implements Serializable {
     return object.id;
   }
 
-  Object writeReplace() throws ObjectStreamException { // package private
+  protected Object writeReplace() throws ObjectStreamException {
     return new ObjectReference(id);
   }
 }
