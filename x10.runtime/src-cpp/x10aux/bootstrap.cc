@@ -121,11 +121,6 @@ static void* real_x10_main_inner(void* _main_args) {
 
     setlinebuf(stdout);
 
-#if defined(__bg__)
-	// override the default of X10_STATIC_THREADS to be true on BlueGene
-	setenv("X10_STATIC_THREADS", "true", 0);
-#endif
-
     x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
 #ifdef X10_USE_BDWGC
