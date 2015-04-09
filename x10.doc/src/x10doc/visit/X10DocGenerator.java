@@ -54,7 +54,7 @@ import x10doc.doc.X10RootDoc;
 public class X10DocGenerator extends X10DelegatingVisitor {
 
     private final Job job;
-    private X10SemanticRules parser;
+//    private X10SemanticRules parser;
     private X10RootDoc rootDoc;
     private Stack<X10ClassDoc> stack;
     private X10SourceFile_c source;
@@ -81,12 +81,12 @@ public class X10DocGenerator extends X10DelegatingVisitor {
         assert (job.source() instanceof FileSource);
         FileSource source = (FileSource) job.source();
         this.source = (X10SourceFile_c) n;
-        try {
-            this.parser = (X10SemanticRules) job.extensionInfo().parser(source.open(), source,
-                                                                        new SilentErrorQueue(0, "Ignored"));
-        } catch (IOException e) {
-            assert false : "Cannot reparse file " + source;
-        }
+//        try {
+//            this.parser = (X10SemanticRules) job.extensionInfo().parser(source.open(), source,
+//                                                                        new SilentErrorQueue(0, "Ignored"));
+//        } catch (IOException e) {
+//            assert false : "Cannot reparse file " + source;
+//        }
 
         // List<TopLevelDecl> decls = n.decls();
         // X10ClassDoc[] classes = new X10ClassDoc[decls.size()];
@@ -102,13 +102,13 @@ public class X10DocGenerator extends X10DelegatingVisitor {
         ((ExtensionInfo) job.extensionInfo()).setRoot(this.rootDoc);
 
         // rootDoc.printStats();
-        this.parser = null;
+//        this.parser = null;
     }
 
     private String getDocComments(Node n) {
         String s = ((X10Ext) n.ext()).comment();
         if (s != null) return s;
-        return printDocComments(n.position().offset());
+        return null; //printDocComments(n.position().offset());
     }
 
     @Override
@@ -323,15 +323,15 @@ public class X10DocGenerator extends X10DelegatingVisitor {
     // go through comments preceding a given offset corresponding to a
     // class/method/...
     // declaration, and print documentation comments
-    String printDocComments(int offset) {
-        String retVal = null;
-        for (IToken t : parser.getIPrsStream().getTokenAtCharacter(offset).getPrecedingAdjuncts()) {
-            String str = t.toString().trim();
-            if (str.startsWith("/**")) {
-                // System.out.println("adjunct: " + t);
-                retVal = str;
-            }
-        }
-        return retVal;
-    }
+//    String printDocComments(int offset) {
+//        String retVal = null;
+//        for (IToken t : parser.getIPrsStream().getTokenAtCharacter(offset).getPrecedingAdjuncts()) {
+//            String str = t.toString().trim();
+//            if (str.startsWith("/**")) {
+//                // System.out.println("adjunct: " + t);
+//                retVal = str;
+//            }
+//        }
+//        return retVal;
+//    }
 }
