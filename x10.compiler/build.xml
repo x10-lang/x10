@@ -5,6 +5,7 @@
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
     <property name="lpg.location" location="${x10.home}/lpg.generator"/>
+    <property name="x10.antlr.location" location="${x10.home}/x10.antlr"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
@@ -14,14 +15,14 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="antlr.jar" value="antlr-runtime-4.5.jar"/>
+    <property name="antlr-runtime.jar" value="antlr-runtime-4.5.jar"/>
     <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
-        <path refid="antlr.classpath"/>
         <path refid="shrike.classpath"/>
+        <path refid="x10.antlr.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
     </path>
@@ -31,11 +32,11 @@
     <path id="lpg.classpath">
         <pathelement location="${lib}/${lpg.jar}"/>
     </path>
-    <path id="antlr.classpath">
-        <pathelement location="${lib}/${antlr.jar}"/>
-    </path>
     <path id="shrike.classpath">
         <pathelement location="${lib}/${shrike.jar}"/>
+    </path>
+    <path id="x10.antlr.classpath">
+        <pathelement location="${x10.antlr.location}/${antlr-runtime.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
@@ -85,10 +86,6 @@
             <available file="${lib}/${lpg.jar}"/>
         </condition>
         <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
-        <condition property="antlr.jar.present">
-            <available file="${lib}/${antlr.jar}"/>
-        </condition>
-        <fail message="Unable to find required file ${lib}/${antlr.jar}" unless="antlr.jar.present"/>
         <condition property="shrike.jar.present">
             <available file="${lib}/${shrike.jar}"/>
         </condition>
@@ -201,6 +198,7 @@
         <arg value="-R"/>
         <arg value="--exclude=classes"/>
         <arg value="lpg.runtime.java"/>
+        <arg value="x10.antlr"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
         <arg value="x10.common"/>
