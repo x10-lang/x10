@@ -743,7 +743,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int i = ctx.getStart().getTokenIndex();
         List<Token> cmtChannel = tokens.getHiddenTokensToLeft(i, X10Lexer.DOCCOMMENTS);
         if (cmtChannel != null) {
-            Token cmt = cmtChannel.get(0);
+            Token cmt = cmtChannel.get(cmtChannel.size() - 1);
             if (cmt != null) {
                 s = cmt.getText();
             }
