@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Antlr
 Bundle-SymbolicName: x10.antlr
-Bundle-Version: 1.0.0
+Bundle-Version: 2.5.2.qualifier
 Bundle-ClassPath: antlr-runtime-4.5.jar
 Export-Package: org.abego.treelayout,
  org.abego.treelayout.internal.util,
