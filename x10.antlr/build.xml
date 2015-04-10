@@ -6,6 +6,7 @@
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10antlr.jar"/>
+    <property name="src" location="${basedir}/src"/>
     <property name="antlr-runtime.jar" value="antlr-runtime-4.5.jar" />
     <property name="build" location="${basedir}/classes"/>
     <!-- get the environment variables -->
