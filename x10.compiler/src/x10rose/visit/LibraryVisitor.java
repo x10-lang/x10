@@ -789,7 +789,6 @@ public class LibraryVisitor extends NodeVisitor {
             TypeNode intface = interfaces.get(i);
             if (RoseTranslator.DEBUG) System.out.println("Interface=" + intface);
             if (intface instanceof AmbTypeNode_c) {
-                System.out.println("111");
                 handleAmbType((AmbTypeNode_c) intface, interfaceNames, i);
             }
             // currently, not handle the function type
@@ -981,10 +980,11 @@ public class LibraryVisitor extends NodeVisitor {
         // in case the return type is unknown. Such a case will occur by
         // writing
         // like"public def toString() = "Place(" + this.id + ")";"
-        if (n.returnType() instanceof UnknownTypeNode_c)
+        // comment out parsing return type
+//        if (n.returnType() instanceof UnknownTypeNode_c)
             JNI.cactionTypeReference("", "void", this, RoseTranslator.createJavaToken());
-        else
-            visitChild(n, n.returnType());
+//        else
+//            visitChild(n, n.returnType());
         
         visitChildren(n, n.formals());
 
