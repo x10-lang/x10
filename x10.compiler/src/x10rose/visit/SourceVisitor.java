@@ -212,8 +212,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             FileSource source = (FileSource) job.source();
             String sourceName = source.toString();
             boolean isFoundSourceFile = false;
-            for (int i = 0; i <= RoseTranslator.fileIndex; ++i) { // including currently
-                                                   // processing file
+            for (int i = 0; i <= RoseTranslator.fileIndex; ++i) { // including currently processing file
                 String sourceFileGiven = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
                 if (sourceName.equals(sourceFileGiven))
                     isFoundSourceFile = true;
@@ -224,6 +223,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             Reader reader = source.open();
             ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
             Parser p = job.extensionInfo().parser(reader, source, eq);
+            source.close();
             Node ast;
             if (astMap.containsKey(sourceName))
                 ast = astMap.get(sourceName);
