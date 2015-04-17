@@ -2187,46 +2187,11 @@ public class LibraryVisitor extends NodeVisitor {
         for (Formal f : n.formals()) {
             param.append(f.type().toString().toLowerCase());
         }
-        // if (n.returnType().toString().indexOf("{") >= 0) {
-        //
-        // }
 
-        // JNI.cactionBuildMethodSupportStart(method_name, method_index,
-        // createJavaToken());
-        // visitChild(n, n.returnType());
-        // visitChildren(n, n.formals());
         int method_index = RoseTranslator.memberMap.get(JNI.cactionGetCurrentClassName() + ":" + method_name + "(" + param + ")");
-
-        JNI.cactionMethodDeclaration(n.name().id().toString(), method_index, formals.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
-
-        // JNI.cactionBuildMethodSupportEnd(method_name, method_index, //
-        // method index
-        // false, false, false, 0, formals.size(),
-        // true, /* user-defined-method */
-        // new JavaToken(n.name().id().toString(), new
-        // JavaSourcePositionInformation(n.position().line())),
-        // new JavaToken(n.name().id().toString()+"_args", new
-        // JavaSourcePositionInformation(n.position().line())));
-
-        // visitChild(n, n.guard());
-        // visitChild(n, n.offerType());
-        // visitChildren(n, n.throwsTypes());
-        visitChild(n, n.body());
-        
+        JNI.cactionMethodDeclaration(n.name().id().toString(), method_index, RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        visitChild(n, n.body());     
         JNI.cactionMethodDeclarationEnd(0, n.body().statements().size(), RoseTranslator.createJavaToken(n, method_name + "(" + param + ")"));
-        // String constructor_name = n.name().toString();
-        //
-        // JNI.cactionConstructorDeclarationHeader(constructor_name, false,
-        // false, n.typeParameters().size(), n.formals().size(), n
-        // .throwsTypes().size(), RoseTranslator.createJavaToken());
-        // JNI.cactionConstructorDeclarationEnd(n.body().statements().size(),
-        // createJavaToken());
-        //
-        // visitChildren(n, n.formals());
-        // // visitChild(n, n.guard());
-        // // visitChild(n, n.offerType());
-        // // visitChildren(n, n.throwsTypes());
-        // visitChild(n, n.body());
     }
 
     public void visit(X10ConstructorCall_c n) {

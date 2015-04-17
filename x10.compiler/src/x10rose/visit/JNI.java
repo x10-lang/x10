@@ -93,10 +93,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionConstructorDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
     public static native void cactionExplicitConstructorCall(JavaToken jToken);
     public static native void cactionExplicitConstructorCallEnd(boolean is_implicit_super, boolean is_super, boolean has_qualification, String package_name, String type_name, int constructor_index, int numberOfTypeArguments, int numberOfArguments, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionMethodDeclaration(String name, int method_index, JavaToken jToken);
-    public static native void cactionMethodDeclaration(String name, int method_index, int number_of_arguments, JavaToken method_location, JavaToken args_location);
-
+    public static native void cactionMethodDeclaration(String name, int method_index, JavaToken jToken);
     public static native void cactionMethodDeclarationHeader(String name, boolean java_is_abstract, boolean java_is_native, boolean java_is_static, boolean java_is_final, boolean java_is_synchronized, boolean java_is_public, boolean java_is_protected, boolean java_is_private, boolean java_is_strictfp, int numberOfTypeParameters, int numArguments, int numThrows, JavaToken jToken);
 //MH-20140414
     public static native void cactionMethodDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
@@ -267,6 +264,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionBuildMethodSupportStart(String methodName, int method_index, JavaToken method_loc);
     public static native void cactionUpdateMethodSupportStart(String method_name, int method_index, int num_formal_parameters, JavaToken jToken);
     public static native void cactionBuildMethodSupportEnd(String methodName, int method_index, boolean is_constructor, boolean is_abstract, boolean is_native, int num_type_parameters, int num_arguments, boolean is_compiler_generated, JavaToken method_loc, JavaToken args_loc);
+    public static native void cactionBuildClosureMethodSupportEnd(String methodName, int method_index, boolean is_constructor, boolean is_abstract, boolean is_native, int num_type_parameters, int num_env_arguments, int num_arguments, boolean is_compiler_generated, JavaToken method_loc, JavaToken args_loc);
     public static native void cactionUpdateMethodSupportEnd(String method_name, int method_index, boolean is_compiler_generated, int num_parameters, JavaToken args_location, JavaToken jToken);
     public static native void cactionBuildFieldSupport(String fieldName, JavaToken jToken);
     public static native void cactionUpdateFieldSupport(String name, JavaToken jToken);
