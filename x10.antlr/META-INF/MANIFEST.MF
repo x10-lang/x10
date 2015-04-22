@@ -18,4 +18,4 @@ Export-Package: org.abego.treelayout,
  org.antlr.v4.runtime.tree.gui,
  org.antlr.v4.runtime.tree.pattern,
  org.antlr.v4.runtime.tree.xpath
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
