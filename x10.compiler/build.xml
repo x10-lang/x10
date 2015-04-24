@@ -36,7 +36,7 @@
         <pathelement location="${lib}/${shrike.jar}"/>
     </path>
     <path id="x10.antlr.classpath">
-        <pathelement location="${x10.antlr.location}/${antlr-runtime.jar}"/>
+        <pathelement location="${x10.antlr.location}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
