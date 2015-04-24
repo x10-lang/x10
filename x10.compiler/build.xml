@@ -65,7 +65,6 @@
         </copy>
     </target>
     <target name="check-jar" depends="init">
-    	<echo message="classpath=${project.classpath}"/>
         <fileset id="compiler.classes" dir="${build}" includes="org/**,polyglot/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**,x10rose/**" excludes="${jar}"/>
         <fileset id="constraints.classes" dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         <fileset id="common.classes" dir="${x10.common.location}/classes" includes="x10/**"/>
@@ -95,6 +94,7 @@
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
+    	<echo message="${project.classpath}"/>
         <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" includes="polyglot/**,x10/**,x10c/**,x10cpp/**,x10cuda/**,x10rose/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
