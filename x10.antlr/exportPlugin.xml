@@ -16,8 +16,9 @@
 	
         <!-- Copy necessary resources -->
         <antcall target="plugin.copy.bin.parts"/>
-        <copy todir="${plugin.temp}" failonerror="true" overwrite="false">
-            <fileset dir="${build.result.folder}" excludes="**/*.properties,**/*.xml,**/META_INF"/>
+	   	<mkdir dir="${plugin.temp}/org"/>
+        <copy todir="${plugin.temp}/org" failonerror="true" overwrite="false">
+            <fileset dir="${build.result.folder}/org"/>
         </copy>
 	   	
 	        <mkdir dir="${build.result.folder}"/>
