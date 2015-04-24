@@ -1003,8 +1003,15 @@ public class LibraryVisitor extends NodeVisitor {
                     guard += ((IsRefTest)exp).firstChild() + " isref";
                 } else if (exp instanceof HasZeroTest_c) {
                     guard += ((HasZeroTest_c)exp).firstChild() + " haszero";
-                } else {
-                    throw new RuntimeException("Unsupported guard: " + exp.getClass() + ", " + exp);
+                } else if (exp instanceof Binary_c) {
+                    Binary_c bin = (Binary_c) exp;
+                    guard += bin.left() + " == " + bin.right();
+                } else if (exp instanceof SubtypeTest_c) {
+                    SubtypeTest_c subtype = (SubtypeTest_c) exp;
+                    guard += subtype.subtype() + (subtype.equals()? " == " : " <: ") + subtype.supertype();
+                }
+                else { // for other constraints, currently process it just as string value
+                    guard += exp;
                 }
             }
             JNI.cactionAttachGuard(guard, RoseTranslator.createJavaToken(n, n.name().id().toString()));
