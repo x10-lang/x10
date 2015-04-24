@@ -16,6 +16,7 @@
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="antlr-runtime.jar" value="antlr-runtime-4.5.jar"/>
+	<property name="antlr.jar" value="x10.antlr_2.5.2.jar"/>
     <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
@@ -36,7 +37,7 @@
         <pathelement location="${lib}/${shrike.jar}"/>
     </path>
     <path id="x10.antlr.classpath">
-        <pathelement location="${x10.antlr.location}"/>
+        <pathelement location="${x10.antlr.location}/${antlr.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
@@ -64,6 +65,7 @@
         </copy>
     </target>
     <target name="check-jar" depends="init">
+    	<echo message="classpath=${project.classpath}"/>
         <fileset id="compiler.classes" dir="${build}" includes="org/**,polyglot/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**,x10rose/**" excludes="${jar}"/>
         <fileset id="constraints.classes" dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         <fileset id="common.classes" dir="${x10.common.location}/classes" includes="x10/**"/>
