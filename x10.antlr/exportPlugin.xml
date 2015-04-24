@@ -14,12 +14,6 @@
 	        <delete dir="${plugin.temp}"/>
 	        <mkdir dir="${plugin.temp}"/>
 
-	        <!-- Copy necessary resources -->
-	        <antcall target="plugin.copy.bin.parts"/>
-	        <copy todir="${plugin.temp}" failonerror="true" overwrite="false">
-	            <fileset dir="${plugin.src.path}/" excludes="**/*.java,**/package.htm*"/>
-	        </copy>
-
 	        <mkdir dir="${build.result.folder}"/>
 	        <jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${plugin.temp}"
 	            manifest="${temp.folder}/MANIFEST.MF"/>
