@@ -16,9 +16,8 @@
 
         <!-- Copy necessary resources -->
         <antcall target="plugin.copy.bin.parts"/>
-        <copy todir="${plugin.temp}" failonerror="true" overwrite="false">
-            <fileset dir="${plugin.path}/" excludes="**/*.java,**/package.htm*"/>
-        </copy>
+	   	<copy file="${antlr-runtime.jar}" todir="${plugin.temp}" failonerror="true"/>
+        
 	   	
 	        <mkdir dir="${build.result.folder}"/>
 	        <jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${plugin.temp}"
