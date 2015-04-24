@@ -25,4 +25,63 @@
 	            manifest="${temp.folder}/MANIFEST.MF"/>
 	        <delete dir="${plugin.temp}"/>
 	    </target>
+	
+    <target name="plugin.copy.bin.parts">
+
+        <loadfile property="plugin.bin.files" srcfile="build.properties">
+             <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern=",\\[\r\n]* *" replace="," flags="gs"/>
+                </tokenfilter>
+                <containsregex pattern="bin.includes = "/>
+                <striplinebreaks/>
+                <replaceregex pattern="bin.includes = (.*)" replace="\1"/>
+                <replaceregex pattern="(.*)" replace="\1,"/>
+                <replaceregex pattern="[^/,]+/," replace="" flags="gs"/>
+                <replaceregex pattern="\.," replace=""/>
+                <replaceregex pattern="(.*)," replace="\1"/>
+            </filterchain>
+        </loadfile>
+        <condition property="plugin.bin.files" value="">
+            <not>
+                <isset property="plugin.bin.files"/>
+            </not>
+        </condition>
+    <echo message="plugin.bin.files = ${plugin.bin.files}"/>
+
+        <loadfile property="plugin.bin.dirs" srcfile="build.properties">
+             <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern=",\\[\r\n]* *" replace="," flags="gs"/>
+                </tokenfilter>
+                <containsregex pattern="bin.includes = "/>
+                <striplinebreaks/>
+                <replaceregex pattern="bin.includes = (.*)" replace="\1"/>
+                <replaceregex pattern="(.*)" replace="\1,"/>
+                <replaceregex pattern="[^,]+[^/]," replace="" flags="gs"/>
+                <!-- We'll take care of the "./" entry separately -->
+                <replaceregex pattern="\.," replace=""/>
+                <replaceregex pattern="(.*)," replace="\1"/>
+            </filterchain>
+        </loadfile>
+    <echo message="plugin.bin.dirs = ${plugin.bin.dirs}"/>
+
+
+        <!-- Now take care of any directories mentioned in bin.includes -->
+        <for param="dir" values="${plugin.bin.dirs}" separator=",">
+            <echo message="Copying directory ${dir}"/>
+            <mkdir dir="${plugin.temp}/${dir}"/>
+            <copy todir="${plugin.temp}/${dir}" failonerror="true" overwrite="false">
+                <fileset dir="${dir}/"/>
+            </copy>
+        </for>
+
+        <!-- Finally, take care of any files mentioned in bin.includes -->
+        <for param="file" values="${plugin.bin.files}" separator=",">
+            <echo message="Copying file ${file}"/>
+            <copy file="${file}" todir="${plugin.temp}" failonerror="true"/>
+        </for>
+    </target>
 </project>
