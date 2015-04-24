@@ -8,7 +8,7 @@ Require-Bundle: x10.common;visibility:=reexport,
  x10.constraints;visibility:=reexport,
  lpg.runtime.java;visibility:=reexport,
  com.ibm.wala.shrike,
- x10.antlr;visibility:=reexport
+ x10.antlr2
 Export-Package: polyglot.ast,
  polyglot.frontend,
  polyglot.lex,
