@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.antlr" default="build.update.jar" basedir=".">
-	<import file="../x10dt.update/buildCommon.xml"/>
-	<import file="../x10dt.update/buildPluginCommon.xml"/>
-</project>
