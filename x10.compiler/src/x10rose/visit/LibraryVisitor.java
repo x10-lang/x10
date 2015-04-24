@@ -131,6 +131,7 @@ import x10.ast.ForLoop_c;
 import x10.ast.FunctionTypeNode_c;
 import x10.ast.HasZeroTest_c;
 import x10.ast.Here_c;
+import x10.ast.IsRefTest;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
 import x10.ast.ParExpr_c;
@@ -175,6 +176,7 @@ import x10.ast.X10StringLit_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
 import x10.extension.X10Ext;
+import x10.types.ParameterType.Variance;
 
 public class LibraryVisitor extends NodeVisitor {
     private List<Import> imports;
@@ -524,10 +526,10 @@ public class LibraryVisitor extends NodeVisitor {
             if (m instanceof X10MethodDecl_c) {
                 X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
                 // TODO: remove this condition when parsing closure is supported 
-                if (RoseTranslator.hasFunctionType(methodDecl)) {
-                    --final_member_size;
-                    continue;
-                }
+//                if (RoseTranslator.hasFunctionType(methodDecl)) {
+//                    --final_member_size;
+//                    continue;
+//                }
                 StringBuffer param = new StringBuffer();
                 for (Formal f : methodDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
@@ -580,7 +582,7 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(FunctionTypeNode_c n) {
         toRose(n, "FunctionTypeNode_c in TypeVisitor:", n.toString());
-
+        JNI.cactionTypeReference("", n.toString(), this, RoseTranslator.createJavaToken(n, n.toString()));
     }
 
     public void visitDeclarations(X10ClassDecl_c n) throws SemanticException {
@@ -656,7 +658,6 @@ public class LibraryVisitor extends NodeVisitor {
             TypeNode intface = interfaces.get(i);
             if (RoseTranslator.DEBUG) System.out.println("Interface=" + intface);
             if (intface instanceof AmbTypeNode_c) {
-                System.out.println("111");
                 handleAmbType((AmbTypeNode_c) intface, interfaceNames, i);
             }
             // currently, not handle the function type
@@ -722,7 +723,7 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visitDeclarations(X10ClassDecl_c n, String parent) throws SemanticException {
         // public void visitDeclarations(Term_c n) {
-        toRose(n, "X10ClassDecl_c visitDeclarations in TypeVisitor:", n.toString());
+        toRose(n, "X10ClassDecl_c visitDeclarations in TypeVisitor:", n.toString(), ((X10ClassBody_c) ((X10ClassDecl_c) n).body()).members().size());
         X10ClassDecl_c decl = (X10ClassDecl_c) n;
         Flags flags = decl.flags().flags();
         List<TypeParamNode> typeParamList = decl.typeParameters();
@@ -816,9 +817,8 @@ public class LibraryVisitor extends NodeVisitor {
         
         int member_size = handleClassMembers(members, package_name, class_name);
 
-      JNI.cactionBuildClassSupportEnd(class_name, member_size, RoseTranslator.createJavaToken(n, class_name));
+        JNI.cactionBuildClassSupportEnd(class_name, member_size, RoseTranslator.createJavaToken(n, class_name));
 
-//        JNI.cactionBuildClassSupportEnd(class_name, members.size(), RoseTranslator.createJavaToken(n, class_name));
         if (package_name.length() != 0) {
             JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
             JNI.cactionPopPackage();
@@ -934,13 +934,13 @@ public class LibraryVisitor extends NodeVisitor {
     public void createTypeReferenceEnd() {
         JNI.cactionTypeDeclarationEnd(false, RoseTranslator.createJavaToken());
     }
-
-    void toRose(Node n, String name, String... extra) {
+    
+    void toRose(Node n, String name, Object... extra) {
         if (RoseTranslator.DEBUG) System.out.print("PRINT ");
         if (name != null)
             if (RoseTranslator.DEBUG) System.out.print(name);
         if (extra != null)
-            for (String s : extra) {
+            for (Object s : extra) {
                 if (RoseTranslator.DEBUG) System.out.print(s + " ");
             }
         if (RoseTranslator.DEBUG) System.out.println();
@@ -962,7 +962,7 @@ public class LibraryVisitor extends NodeVisitor {
     }
 
     public void previsit(X10MethodDecl_c n, String class_name) {
-        toRose(n, "TypeVisitor.Previsit method decl: ", n.name().id().toString());
+        toRose(n, "TypeVisitor.Previsit method decl: ", n.name().id().toString(), n.formals());
         List<Formal> formals = n.formals();
 
         String method_name = n.name().id().toString();
@@ -991,6 +991,39 @@ public class LibraryVisitor extends NodeVisitor {
         JNI.cactionBuildMethodSupportEnd(method_name, method_index, 
                 false, false, false, 0, formals.size(), true, 
                 RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        
+        if (n.guard() != null) {
+            String guard = "";
+            List<Expr> cond = n.guard().condition();
+            for (int i = 0; i < cond.size(); ++i) {
+                if (i > 0)
+                    guard += ", ";
+                Expr exp = cond.get(i);
+                if (exp instanceof IsRefTest) {
+                    guard += ((IsRefTest)exp).firstChild() + " isref";
+                } else if (exp instanceof HasZeroTest_c) {
+                    guard += ((HasZeroTest_c)exp).firstChild() + " haszero";
+                } else {
+                    throw new RuntimeException("Unsupported guard: " + exp.getClass() + ", " + exp);
+                }
+            }
+            JNI.cactionAttachGuard(guard, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        }
+        for (int i = 0; i < typeParamList.size(); ++i) {            
+            TypeParamNode node = typeParamList.get(i);
+//            Variance variance = node.type().getVariance();
+            String typeParam = typeParamList.get(i).name().toString(); 
+//            System.out.println("TypeParam=" + typeParam);
+            JNI.cactionAttachTypeParameterToMethodDecl(typeParam, RoseTranslator.createJavaToken(n, n.name().id().toString()));
+        }
+        List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
+        for (AnnotationNode a : annotations)  {
+            visitChild(n, a.annotationType());
+        }
+        
+        JNI.cactionAttachAnnotationsToMethodDecl(annotations.size(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
+
+        
         if (RoseTranslator.DEBUG) toRose(n, "TypeVisitor.Previsit method decl end: ", n.name().id().toString());
     }
 
@@ -1205,6 +1238,10 @@ public class LibraryVisitor extends NodeVisitor {
             visit((AmbTypeNode_c) n);
             return;
         }
+        if (n instanceof FunctionTypeNode_c) {
+            visit((FunctionTypeNode_c) n);
+            return;
+        }        
         if (n instanceof TypeNode_c) {
             visit((TypeNode_c) n);
             return;
@@ -1697,10 +1734,6 @@ public class LibraryVisitor extends NodeVisitor {
             visit((Node_c) n);
             return;
         }
-        if (n instanceof FunctionTypeNode_c) {
-            visit((FunctionTypeNode_c) n);
-            return;
-        }
         if (n instanceof Node) {
             visit((Node) n);
             return;
@@ -2072,23 +2105,12 @@ public class LibraryVisitor extends NodeVisitor {
             handleAmbType(n);
         }
     }
-
+    
     public void visit(X10Formal_c n) {
-        toRose(n, "TypeVisitor.formal: ", n.name().id().toString(), n.type().toString());
-
-        // args_location = createJavaToken(args[0], args[args.length - 1]);
-        //
-        // for (int j = 0; j < args.length; j++) {
-        // Argument arg = args[j];
-        // JavaToken arg_location = createJavaToken(arg);
-        // generateAndPushType(arg.type.resolvedType, arg_location);
-        // String argument_name = new String(arg.name);
-        // JavaParser.cactionBuildArgumentSupport(argument_name,
-        // arg.isVarArgs(),
-        // arg.binding.isFinal(),
-        // arg_location);
-        // }
+        toRose(n, "TypeVisitor.formal: ", n.name().toString(), n.vars().size(), n.type().toString());
+        System.out.println("0422 ===>" + n.type().getClass());
         visitChild(n, n.type());
+        System.out.println("0422 <===");
         JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
                                         n.flags().flags().isFinal(),
                                         RoseTranslator.createJavaToken(n, n.name().id().toString()));
