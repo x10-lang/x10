@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Antlr
 Bundle-SymbolicName: x10.antlr
 Bundle-Version: 2.5.2.qualifier
-Bundle-ClassPath: antlr-runtime-4.5.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.abego.treelayout,
  org.abego.treelayout.internal.util,
  org.abego.treelayout.internal.util.java.lang,
@@ -18,4 +18,3 @@ Export-Package: org.abego.treelayout,
  org.antlr.v4.runtime.tree.gui,
  org.antlr.v4.runtime.tree.pattern,
  org.antlr.v4.runtime.tree.xpath
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
