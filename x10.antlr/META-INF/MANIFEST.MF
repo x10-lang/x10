@@ -4,3 +4,17 @@ Bundle-Name: Antlr
 Bundle-SymbolicName: x10.antlr
 Bundle-Version: 2.5.2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.abego.treelayout,
+ org.abego.treelayout.internal.util,
+ org.abego.treelayout.internal.util.java.lang,
+ org.abego.treelayout.internal.util.java.lang.string,
+ org.abego.treelayout.internal.util.java.util,
+ org.abego.treelayout.util,
+ org.antlr.v4.runtime,
+ org.antlr.v4.runtime.atn,
+ org.antlr.v4.runtime.dfa,
+ org.antlr.v4.runtime.misc,
+ org.antlr.v4.runtime.tree,
+ org.antlr.v4.runtime.tree.gui,
+ org.antlr.v4.runtime.tree.pattern,
+ org.antlr.v4.runtime.tree.xpath
