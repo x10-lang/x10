@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10.antlr" default="build.update.jar" basedir=".">
 	<import file="../x10dt.update/buildCommon.xml"/>
-	<import file="../x10dt.update/buildPluginCommon.xml"/>
+	<import file="../x10dt.update/buildPluginCommon.xml"/> 
+	
+	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: ${plugin.name}.">
+			<available property="plugin.jar" file="${build.result.folder}/${plugin.jar.name}"/>
+	        <propertyRegexp name="all.builds.for.version" input="${plugin.version}" regexp="(.*).${build.qualifier}" value="\1.*"/>           
+			<antcall target="plugin.jar"/>
+		</target>
+	
+	   <target name="plugin.jar" depends="init,javaInit,munge.manifest" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
+	        <property name="plugin.temp" value="${temp.folder}/${plugin.jar.name}.bin"/>
+	        <delete dir="${plugin.temp}"/>
+	        <mkdir dir="${plugin.temp}"/>
+
+	        <!-- Copy necessary resources -->
+	        <antcall target="plugin.copy.bin.parts"/>
+	        <copy todir="${plugin.temp}" failonerror="true" overwrite="false">
+	            <fileset dir="${plugin.src.path}/" excludes="**/*.java,**/package.htm*"/>
+	        </copy>
+
+	        <mkdir dir="${build.result.folder}"/>
+	        <jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${plugin.temp}"
+	            manifest="${temp.folder}/MANIFEST.MF"/>
+	        <delete dir="${plugin.temp}"/>
+	    </target>
 </project>
