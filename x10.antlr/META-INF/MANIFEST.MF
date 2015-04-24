@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Antlr
+Bundle-SymbolicName: x10.antlr
+Bundle-Version: 2.5.2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
