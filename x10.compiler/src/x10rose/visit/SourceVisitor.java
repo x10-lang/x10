@@ -915,7 +915,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 String railString = t.toString();
                 String type = railString.substring(railString.indexOf('[') + 1, railString.indexOf(']'));
                 int lastDot = type.lastIndexOf(".");
-                arg_package_name = type.substring(0, lastDot);
+                arg_package_name = lastDot > 0 ? type.substring(0, lastDot) : "";
                 arg_type_name = type.substring(lastDot + 1);
 
                 if (RoseTranslator.isX10Primitive(arg_package_name, arg_type_name))
@@ -980,7 +980,11 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     || func_name.equals("parseLong"))
          || class_name.equals("x10.lang.Int")
                 && (   func_name.equals("parse")
-                    || func_name.equals("parseInt"))) {
+                    || func_name.equals("parseInt"))
+         || class_name.equals("x10.lang.Double") 
+                && (   func_name.equals("parse"))
+                    || func_name.equals("parseDouble")
+                ) {
 
             String callerClass = JNI.cactionGetCurrentClassName();
 
