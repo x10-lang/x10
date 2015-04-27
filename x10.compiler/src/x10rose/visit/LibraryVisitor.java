@@ -186,7 +186,6 @@ public class LibraryVisitor extends NodeVisitor {
     private List<String> package_ref;
     private String package_name;
     private String class_name;
-    // private FileSource source;
     private boolean isClassMatched;
     private boolean isPackageMatched = true; // so far, set true;
     private int memberIndex;
@@ -1002,22 +1001,17 @@ public class LibraryVisitor extends NodeVisitor {
 
         // handling of a super class and interfaces
         String superClassName = "";
-        System.out.println("0425 visit super class =" + superClass);
         if (superClass != null) {
-            System.out.println("0425A visit super class");
             if (superClass instanceof AmbTypeNode_c) {
-                System.out.println("0425B visit super class");
                 handleAmbType2((AmbTypeNode_c) superClass, null, -1);
                 superClassName = ((AmbTypeNode_c) superClass).name().toString();
                 // superClassName =
                 // currently, not handle the function type
                 // TODO: handle function type
             } else if (superClass instanceof AmbDepTypeNode_c) {
-                System.out.println("0425C visit super class");
                 handleAmbType2((AmbDepTypeNode_c) superClass, null, -1);
                 superClassName = ((AmbDepTypeNode_c) superClass).toString();
             } else if (superClass instanceof FunctionTypeNode_c) {
-                System.out.println("0425D visit super class");
                 superClass = null;                
                 throw new RuntimeException("Currently not support function type in library classes.");
             } else {
@@ -1082,7 +1076,7 @@ public class LibraryVisitor extends NodeVisitor {
             visitChild(prop, prop.type());
             boolean isRail = false;
             TypeNode type = prop.type();
-            if (type instanceof AmbTypeNode_c) {
+            if (type instanceof AmbTypeNode_c || type instanceof AmbDepTypeNode_c) {
                 String ambTypeName = prop.toString().replaceAll("\\{amb\\}", "");
                 /**
                  * Currently, eliminate GlobalRail
@@ -1110,71 +1104,11 @@ public class LibraryVisitor extends NodeVisitor {
         visitChild(n, n.superClass());
         visitChildren(n, n.interfaces());
         visitChild(n, n.body());
-        // JNI.cactionTypeDeclaration("", n.name().id().toString(), false,
-        // false, false, false, false, false, false, false, false, false);
 
         JNI.cactionTypeDeclarationEnd(false, RoseTranslator.createJavaToken(n, class_name));
 
         // JNI.cactionBuildClassSupportEnd(class_name, RoseTranslator.createJavaToken());
     }
-
-    // public void createTypeReference(Node_c n) {
-    // JNI.cactionInsertClassStart(class_name, false, false, false,
-    // createJavaToken(n, class_name));
-    // JNI.cactionInsertClassEnd(class_name, RoseTranslator.createJavaToken(n,
-    // class_name));
-    // node = n;
-    // JNI.cactionBuildClassSupportStart(class_name, "", true, // a
-    // user-defined class?
-    // false, false, false, false, RoseTranslator.createJavaToken(n, class_name));
-    //
-    // X10ClassDecl_c decl = (X10ClassDecl_c)n;
-    //
-    // List<ClassMember> members = ((X10ClassBody_c)decl.body()).members();
-    // for (int i = 0; i < members.size(); ++i) {
-    // JL m = members.get(i);
-    // if (m instanceof X10MethodDecl_c) {
-    // X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
-    // StringBuffer param = new StringBuffer();
-    // for (Formal f : methodDecl.formals()) {
-    // param.append(f.type().toString());
-    // }
-    // memberMap.put(methodDecl.name().toString()+"("+param+")", i);
-    // classMemberMap.put(class_name, memberMap);
-    // previsit(methodDecl);
-    // }
-    // else if (m instanceof X10ConstructorDecl_c) {
-    // X10ConstructorDecl_c constructorDecl = (X10ConstructorDecl_c) m;
-    // StringBuffer param = new StringBuffer();
-    // for (Formal f : constructorDecl.formals()) {
-    // param.append(f.type().toString());
-    // }
-    // memberMap.put(((X10ConstructorDecl_c) m).name().toString() + "(" +
-    // param + ")", i);
-    // classMemberMap.put(class_name, memberMap);
-    // previsit(constructorDecl);
-    // }
-    // else if (m instanceof X10FieldDecl_c) {
-    // X10FieldDecl_c fieldDecl = (X10FieldDecl_c)m;
-    // memberMap.put(((X10FieldDecl_c) m).name().toString(), i);
-    // classMemberMap.put(class_name, memberMap);
-    // previsit(fieldDecl);
-    // }
-    // else if (m instanceof TypeNode_c) { if (RoseTranslator.DEBUG)
-    // System.out.println("TypeNode_c : " + m); }
-    // else if (m instanceof TypeDecl_c) { if (RoseTranslator.DEBUG)
-    // System.out.println("TypeDecl_c : " + m); }
-    // else if (m instanceof X10ClassDecl_c) { if (RoseTranslator.DEBUG)
-    // System.out.println("X10ClassDecl_c : " + m); }
-    // else if (m instanceof ClassDecl_c) { if (RoseTranslator.DEBUG)
-    // System.out.println("ClassDecl_c : " + m); }
-    // else {
-    // if (RoseTranslator.DEBUG) System.out.println("Unhandled node : " + m);
-    // }
-    // }
-    // if (RoseTranslator.DEBUG)
-    // System.out.println("TypeVisitor : createTypeReference for " + n);
-    // }
 
     public void createTypeReferenceEnd() {
         JNI.cactionTypeDeclarationEnd(false, RoseTranslator.createJavaToken());
@@ -2238,46 +2172,6 @@ public class LibraryVisitor extends NodeVisitor {
         if (RoseTranslator.DEBUG)
             System.out.println("LibraryVisitor.searchFileList()for package=" + packageName + ", type=" + typeName);
         return;
-        // MH-20140901 comment out for skipping to lookup library classes
-        // from library classess
-        // for (Job job : jobList) {
-        // FileSource source = (FileSource) job.source();
-        // String sourceName = source.toString();
-        // boolean isFoundSourceFile = false;
-        // for (int i = 0; i <= fileIndex; ++i) { // including currently
-        // processing file
-        // String sourceFileGiven =
-        // x10rose.ExtensionInfo.X10Scheduler.sourceList.get(i).source().path();
-        // if (sourceName.equals(sourceFileGiven))
-        // isFoundSourceFile = true;
-        // }
-        // if (isFoundSourceFile)
-        // continue;
-        //
-        // Reader reader = source.open();
-        // ErrorQueue eq = job.extensionInfo().compiler().errorQueue();
-        // Parser p = job.extensionInfo().parser(reader, source, eq);
-        // Node ast = p.parse();
-        // TypeVisitor tVisitor = new TypeVisitor(packageName, typeName,
-        // (SourceFile_c) job.ast(), job);
-        //
-        // ast.visit(tVisitor);
-        // source.close();
-        // if (tVisitor.isFound()) {
-        // //////
-        // // for (int i = 0; i < 5; i++) {
-        // // if (RoseTranslator.DEBUG) System.out.println("loop test for parser " + i);
-        // // reader = source.open();
-        // // eq = job.extensionInfo().compiler().errorQueue();
-        // // p = job.extensionInfo().parser(reader, source, eq);
-        // // tVisitor = new TypeVisitor(packageName, typeName, source);
-        // // ast.visit(tVisitor);
-        // // }
-        // //////
-        // tVisitor.createTypeReferenceEnd();
-        // return;
-        // }
-        // }
     }
 
     private static HashMap<String, Node> astMap = new HashMap<String, Node>();
@@ -2460,7 +2354,6 @@ public class LibraryVisitor extends NodeVisitor {
         
         if (RoseTranslator.DEBUG)
             System.out.println("package=" + package_name + ", " + n.target());
-//        JNI.cactionMessageSend(package_name, n.target().type().name().toString(), n.name().id().toString(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
         JNI.cactionMessageSend(package_name, target_type_name, func_name, RoseTranslator.createJavaToken(n, n.name().id().toString()));
         visitChild(n, n.target());
 
@@ -2474,15 +2367,9 @@ public class LibraryVisitor extends NodeVisitor {
 
         for (int i = 0; i < args.size(); ++i) {
             Type t = args.get(i).type();
-            // if (RoseTranslator.DEBUG) System.out.println(i + ":" + t + ", " +
-            // args.get(i));
             Node n2 = args.get(i);
             JNI.cactionTypeReference(package_name, t.name().toString(), this, RoseTranslator.createJavaToken());
         }
-        // visitChildren(n, argTypes);
-        // visitChildren(n, n.typeArguments());
-        // visitChildren(n, n.arguments());
-//        JNI.cactionTypeReference(package_name, n.target().type().name().toString(), this, RoseTranslator.createJavaToken());
         if (RoseTranslator.isX10Primitive(package_name, target_type_name))
             JNI.cactionTypeReference("", target_type_name, this, RoseTranslator.createJavaToken());
         else
@@ -2491,7 +2378,6 @@ public class LibraryVisitor extends NodeVisitor {
         int num_parameters = n.arguments().size();
         int numTypeArguments = n.typeArguments().size();
         int numArguments = n.arguments().size();
-//        JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, n.name().toString(), num_parameters, numTypeArguments, numArguments, RoseTranslator.createJavaToken(n, n.name().id().toString()));
         JNI.cactionMessageSendEnd(n.methodInstance().flags().isStatic(), n.target() != null, func_name, num_parameters, numTypeArguments, numArguments, RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
 
@@ -2677,8 +2563,6 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(X10Local_c n) {
         toRose(n, "X10Local :", n.name().id().toString());
-        // JavaParser.cactionSingleNameReference(package_name, type_name,
-        // varRefName, javaParserSupport.createJavaToken(node));
         JNI.cactionSingleNameReference("", "", n.name().id().toString(), RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
 
@@ -2744,8 +2628,6 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(FieldAssign_c n) {
         toRose(n, "FieldAssign:", n.name().id().toString());
-        // if (RoseTranslator.DEBUG) System.out.println("target=" + n.target() + ", right="
-        // + n.right());
         String fieldName = n.name().id().toString();
         visitChild(n, n.target());
         JNI.cactionTypeReference("", n.target().type().name().toString(), this, RoseTranslator.createJavaToken());
@@ -2756,10 +2638,6 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(X10Field_c n) {
         toRose(n, "X10Field:", n.name().id().toString());
-        // if (RoseTranslator.DEBUG) System.out.println("target=" + n.target()
-        // + ", target type=" + n.target().type().name()
-        // + ", name=" + n.name().id()
-        // + ", instnace=" + n.fieldInstance());
         String fieldName = n.name().id().toString();
         visit(n.target());
         JNI.cactionTypeReference("", n.target().type().name().toString(), this, RoseTranslator.createJavaToken());
@@ -2774,7 +2652,6 @@ public class LibraryVisitor extends NodeVisitor {
 
     public void visit(X10LocalDecl_c n) {
         toRose(n, "X10LocalDecl:", n.name().id().toString());
-        // if (RoseTranslator.DEBUG) System.out.println("init=" + n.init());
         visitChild(n, n.type());
         JNI.cactionLocalDeclaration(0, n.name().id().toString(), false, RoseTranslator.createJavaToken(n, n.name().id().toString()));
         JNI.cactionLocalDeclarationEnd(n.name().id().toString(), false, RoseTranslator.createJavaToken(n, n.name().id().toString()));
