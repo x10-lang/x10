@@ -13,9 +13,10 @@ package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NoInline;
+import x10.compiler.Pragma;
+import x10.compiler.Uncounted;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
-import x10.compiler.Pragma;
 import x10.xrx.Runtime;
 
 /**
@@ -1043,7 +1044,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                    if (collType == COLL_ALLTOALL) {
 	                        val sourceIndex = myIndex;
 	                        val totalData = count*(myLinks.totalChildren+1);
-	                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        at (places(myLinks.parentIndex)) @Uncounted async {
 	                            waitForParentToReceive();
 	if (DEBUGINTERNALS) Runtime.println(here+ " alltoall gathering from offset "+(dst_off+(count*sourceIndex))+" to local_dst_off "+(Team.state(teamidcopy).local_dst_off+(count*sourceIndex))+" size " + totalData);
 	                            // copy my data, plus all the data filled in by my children, to my parent
@@ -1052,7 +1053,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                    } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
 	                        // copy reduced data to parent
 	                        val sourceIndex = places.indexOf(here);
-	                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        at (places(myLinks.parentIndex)) @Uncounted async {
 	                            waitForParentToReceive();
 	                            var target:Rail[T];
 	                            var off:Long;
@@ -1071,7 +1072,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                        }
 	                    } else if (collType == COLL_INDEXOFMAX) {
 	                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        at (places(myLinks.parentIndex)) @Uncounted async {
 	                            waitForParentToReceive();
 	                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
 	                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
@@ -1087,7 +1088,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                        }
 	                    } else if (collType == COLL_INDEXOFMIN) {
 	                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+	                        at (places(myLinks.parentIndex)) @Uncounted async {
 	                            waitForParentToReceive();
 	                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
 	                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
@@ -1098,7 +1099,7 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                         }
 	                    }
 	                } else {
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async { 
+	                    at (places(myLinks.parentIndex)) @Uncounted async { 
 	                        waitForParentToReceive();
 	                        incrementParentPhase();
 	                    }
