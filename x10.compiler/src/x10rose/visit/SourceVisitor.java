@@ -927,7 +927,16 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 }
                 JNI.cactionTypeReference(arg_package_name, arg_type_name, this, RoseTranslator.createJavaToken());
                 JNI.cactionArrayTypeReference(1, RoseTranslator.createJavaToken());
+            } else if (t instanceof FunctionType_c) {
+                if (arg_package_name.length() != 0) {
+                    JNI.cactionPushPackage(arg_package_name, RoseTranslator.createJavaToken());
+                    JNI.cactionPopPackage();
+                }
+                JNI.cactionTypeReference(arg_package_name, arg_type_name, this, RoseTranslator.createJavaToken());
             } else {
+                String[] names = getPackageAndTypeName(full);
+                arg_package_name = names[0];
+                arg_type_name = names[1];
                 if (arg_package_name.length() != 0) {
                     JNI.cactionPushPackage(arg_package_name, RoseTranslator.createJavaToken());
                     JNI.cactionPopPackage();
@@ -2258,9 +2267,12 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10Cast_c n) {
-        toRose(n, "X10Cast:");
+        toRose(n, "X10Cast:", n, n.castType(), n.expr());
+        JNI.cactionCastExpression(RoseTranslator.createJavaToken(n, n.toString()));
         visitChild(n, n.castType());
         visitChild(n, n.expr());
+        JNI.cactionCastExpressionEnd(RoseTranslator.createJavaToken(n, n.toString()));
+        toRose(n, "X10Cast end:", n);
     }
 
     public void visit(X10Instanceof_c n) {
