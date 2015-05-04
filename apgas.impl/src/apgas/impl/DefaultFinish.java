@@ -162,7 +162,7 @@ final class DefaultFinish implements Serializable, Finish {
   }
 
   @Override
-  public synchronized void tell(int p) {
+  public synchronized void tell() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     if (id == null || id.home.id == here) {
       // local or root finish

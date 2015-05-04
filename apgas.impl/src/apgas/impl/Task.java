@@ -87,7 +87,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
     } catch (final Throwable t) {
       finish.addSuppressed(t);
     }
-    finish.tell(parent);
+    finish.tell();
   }
 
   /**

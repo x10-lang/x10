@@ -41,7 +41,7 @@ final class NullFinish implements Serializable, Finish {
   }
 
   @Override
-  public void tell(int p) {
+  public void tell() {
   }
 
   @Override
