@@ -322,32 +322,24 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void async(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish;
-    if (worker == null) {
-      finish = NullFinish.SINGLETON;
-    } else {
-      finish = worker.task.finish;
-      finish.spawn(here);
-    }
+    final Finish finish = worker == null ? NullFinish.SINGLETON
+        : worker.task.finish;
+    finish.spawn(here);
     new Task(finish, f, here).async(worker);
   }
 
   @Override
   public void asyncat(Place p, SerializableJob f) {
     final Worker worker = currentWorker();
-    final Finish finish;
-    if (worker == null) {
-      finish = NullFinish.SINGLETON;
-    } else {
-      finish = worker.task.finish;
-      finish.spawn(p.id);
-    }
-    new Task(finish, f, here).asyncat(p);
+    final Finish finish = worker == null ? NullFinish.SINGLETON
+        : worker.task.finish;
+    finish.spawn(p.id);
+    new Task(finish, f, here).asyncat(p.id);
   }
 
   @Override
   public void uncountedasyncat(Place p, SerializableJob f) {
-    new UncountedTask(f).uncountedasyncat(p);
+    new UncountedTask(f).uncountedasyncat(p.id);
   }
 
   @Override

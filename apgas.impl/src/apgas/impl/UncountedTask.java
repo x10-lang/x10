@@ -15,9 +15,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.concurrent.RecursiveAction;
 
-import apgas.SerializableJob;
 import apgas.DeadPlaceException;
-import apgas.Place;
+import apgas.SerializableJob;
 
 /**
  * The {@link UncountedTask} class represents an uncounted task.
@@ -72,11 +71,11 @@ final class UncountedTask extends RecursiveAction implements
    * "true".
    *
    * @param p
-   *          the place of execution
+   *          the place ID
    */
-  void uncountedasyncat(Place p) {
+  void uncountedasyncat(int p) {
     try {
-      GlobalRuntimeImpl.getRuntime().transport.send(p.id, this);
+      GlobalRuntimeImpl.getRuntime().transport.send(p, this);
     } catch (final Throwable e) {
       if (GlobalRuntimeImpl.getRuntime().serializationException
           || e instanceof DeadPlaceException) {
@@ -84,9 +83,8 @@ final class UncountedTask extends RecursiveAction implements
       } else {
         final StackTraceElement elm = new Exception().getStackTrace()[3];
         System.err
-            .println("[APGAS] Failed to spawn an uncounted task at place "
-                + p.id + " (" + elm.getFileName() + ":" + elm.getLineNumber()
-                + ")");
+            .println("[APGAS] Failed to spawn an uncounted task at place " + p
+                + " (" + elm.getFileName() + ":" + elm.getLineNumber() + ")");
         System.err.println("[APGAS] Caused by: " + e.getCause());
         System.err.println("[APGAS] Ignoring...");
       }

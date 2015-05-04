@@ -20,7 +20,6 @@ import java.util.concurrent.RecursiveAction;
 
 import apgas.DeadPlaceException;
 import apgas.Job;
-import apgas.Place;
 import apgas.SerializableJob;
 
 /**
@@ -145,21 +144,20 @@ final class Task extends RecursiveAction implements SerializableRunnable {
    * APGAS_SERIALIZATION_EXCEPTION is set to "true".
    *
    * @param p
-   *          the place of execution
+   *          the place ID
    */
-  void asyncat(Place p) {
+  void asyncat(int p) {
     try {
-      GlobalRuntimeImpl.getRuntime().transport.send(p.id, this);
+      GlobalRuntimeImpl.getRuntime().transport.send(p, this);
     } catch (final Throwable e) {
-      finish.unspawn(p.id);
+      finish.unspawn(p);
       if (GlobalRuntimeImpl.getRuntime().serializationException
           || e instanceof DeadPlaceException) {
         throw e;
       } else {
         final StackTraceElement elm = new Exception().getStackTrace()[3];
-        System.err
-            .println("[APGAS] Failed to spawn a remote async at place " + p.id
-                + " (" + elm.getFileName() + ":" + elm.getLineNumber() + ")");
+        System.err.println("[APGAS] Failed to spawn a remote async at place "
+            + p + " (" + elm.getFileName() + ":" + elm.getLineNumber() + ")");
         System.err.println("[APGAS] Caused by: " + e.getCause());
         System.err.println("[APGAS] Ignoring...");
       }

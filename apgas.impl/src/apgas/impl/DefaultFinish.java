@@ -230,7 +230,7 @@ final class DefaultFinish implements Serializable, Finish {
       spawn(id.home.id);
       new Task(this, (SerializableJob) () -> {
         that.addSuppressed(t.t);
-      }, here).asyncat(id.home);
+      }, here).asyncat(id.home.id);
     }
   }
 
