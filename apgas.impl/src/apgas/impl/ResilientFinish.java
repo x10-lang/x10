@@ -135,14 +135,14 @@ class ResilientFinish implements Serializable, Finish {
   @Override
   public void unspawn(int p) {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    ResilientFinishState.update(id, state -> {
+    ResilientFinishState.submit(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();
       }
       if (state.deads != null && state.deads.contains(p)) {
-        // destination place has died, reject task
-        throw new DeadPlaceException(new Place(p));
+        // destination place has died, return
+        return null;
       }
       state.decr(here, p);
       return state;
@@ -152,7 +152,7 @@ class ResilientFinish implements Serializable, Finish {
   @Override
   public void tell() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    ResilientFinishState.update(id, state -> {
+    ResilientFinishState.submit(id, state -> {
       if (state == null || state.deads != null && state.deads.contains(here)) {
         // finish thinks this place is dead, exit
         throw new DeadPlaceError();

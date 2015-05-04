@@ -25,6 +25,7 @@ import apgas.util.GlobalID;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
@@ -179,7 +180,7 @@ final class ResilientFinishState implements Serializable {
     };
     for (final GlobalID id : GlobalRuntimeImpl.getRuntime().resilientFinishMap
         .keySet(predicate)) {
-      update(id, state -> {
+      submit(id, state -> {
         if (state == null) {
           // entry has been removed already, ignore
           return null;
@@ -233,50 +234,9 @@ final class ResilientFinishState implements Serializable {
    *          the function to apply
    */
   static void update(GlobalID id, Processor processor) {
-    final GlobalID pid = execute(
-        id,
-        entry -> {
-          final ResilientFinishState state = processor.process(entry.getValue());
-          if (state == null) {
-            return null;
-          }
-          if (state.counts.size() > 0 || state.cids != null
-              && !state.cids.isEmpty() || state.deads == null
-              || !state.deads.contains(id.home.id)) {
-            // state is still useful:
-            // finish is incomplete or we need to preserve its exceptions
-            entry.setValue(state);
-          } else {
-            // finish is complete and place of finish has died, remove entry
-            entry.setValue(null);
-          }
-          if (state.counts.size() > 0 || state.cids != null
-              && !state.cids.isEmpty()) {
-            return null;
-          } else {
-            return state.pid;
-          }
-        });
-    if (pid == null) {
-      return;
-    }
-    update(pid, state -> {
-      if (state == null) {
-        // parent has been purged already
-        // stop propagating termination
-        return null;
-      }
-      if (state.cids != null && state.cids.contains(id)) {
-        state.cids.remove(id);
-      } else {
-        if (state.dids == null) {
-          state.dids = new HashSet<GlobalID>();
-        }
-        if (!state.dids.contains(id)) {
-          state.dids.add(id);
-        }
-      }
-      return state;
+    execute(id, entry -> {
+      entry.setValue(processor.process(entry.getValue()));
+      return null;
     });
   }
 
@@ -346,6 +306,83 @@ final class ResilientFinishState implements Serializable {
       System.exit(42);
       throw e;
     }
+  }
+
+  /**
+   * Updates a resilient finish state asynchronously and propagates termination
+   * to parent if necessary.
+   *
+   * @param id
+   *          the finish state ID to update
+   * @param processor
+   *          the function to apply
+   */
+  static void submit(GlobalID id, Processor processor) {
+    GlobalRuntimeImpl.getRuntime().resilientFinishMap.submitToKey(id,
+        new AbstractEntryProcessor<GlobalID, ResilientFinishState>(true) {
+          private static final long serialVersionUID = 1754842053698962361L;
+
+          @Override
+          public GlobalID process(
+              Map.Entry<GlobalID, ResilientFinishState> entry) {
+            final ResilientFinishState state = processor.process(entry
+                .getValue());
+            if (state == null) {
+              return null;
+            }
+            if (state.counts.size() > 0 || state.cids != null
+                && !state.cids.isEmpty() || state.deads == null
+                || !state.deads.contains(id.home.id)) {
+              // state is still useful:
+              // finish is incomplete or we need to preserve its exceptions
+              entry.setValue(state);
+            } else {
+              // finish is complete and place of finish has died, remove entry
+              entry.setValue(null);
+            }
+            if (state.counts.size() > 0 || state.cids != null
+                && !state.cids.isEmpty()) {
+              return null;
+            } else {
+              return state.pid;
+            }
+          }
+        }, new ExecutionCallback<GlobalID>() {
+
+          @Override
+          public void onResponse(GlobalID pid) {
+            if (pid == null) {
+              return;
+            }
+            submit(pid, state -> {
+              if (state == null) {
+                // parent has been purged already
+                // stop propagating termination
+                return null;
+              }
+              if (state.cids != null && state.cids.contains(id)) {
+                state.cids.remove(id);
+              } else {
+                if (state.dids == null) {
+                  state.dids = new HashSet<GlobalID>();
+                }
+                if (!state.dids.contains(id)) {
+                  state.dids.add(id);
+                }
+              }
+              return state;
+            });
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            if (t instanceof DeadPlaceError
+                || t instanceof HazelcastInstanceNotActiveException) {
+              // this place is dead for the world
+              System.exit(42);
+            }
+          }
+        });
   }
 
   /**
