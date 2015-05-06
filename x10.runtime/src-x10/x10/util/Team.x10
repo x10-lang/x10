@@ -334,6 +334,9 @@ public struct Team {
      * horrible hack - we want to use native (MPI) implementations for builtin
      * struct types, but X10 implementations for user-defined struct types
      */
+    public def reduce(root:Place, src:Rail[Boolean], src_off:Long, dst:Rail[Boolean], dst_off:Long, count:Long, op:Int):void {
+        reduce_builtin(root, src, src_off, dst, dst_off, count, op);
+    }
     public def reduce(root:Place, src:Rail[Byte], src_off:Long, dst:Rail[Byte], dst_off:Long, count:Long, op:Int):void {
         reduce_builtin(root, src, src_off, dst, dst_off, count, op);
     }
@@ -387,6 +390,13 @@ public struct Team {
         @Native("c++", "x10rt_reduce(id, role, root, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
 
+    /** Performs a reduction on a single value, returning the result at the root */
+    public def reduce (root:Place, src:Boolean, op:Int):Boolean {
+        val chk = new Rail[Boolean](1, src);
+        val dst = new Rail[Boolean](1, src);
+        reduce_builtin(root, chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result at the root */
     public def reduce (root:Place, src:Byte, op:Int):Byte {
         val chk = new Rail[Byte](1, src);
@@ -493,6 +503,9 @@ public struct Team {
      * horrible hack - we want to use native (MPI) implementations for builtin
      * struct types, but X10 implementations for user-defined struct types
      */
+    public def allreduce(src:Rail[Boolean], src_off:Long, dst:Rail[Boolean], dst_off:Long, count:Long, op:Int):void {
+        allreduce_builtin(src, src_off, dst, dst_off, count, op);
+    }
     public def allreduce(src:Rail[Byte], src_off:Long, dst:Rail[Byte], dst_off:Long, count:Long, op:Int):void {
         allreduce_builtin(src, src_off, dst, dst_off, count, op);
     }
@@ -548,6 +561,13 @@ public struct Team {
         @Native("c++", "x10rt_allreduce(id, role, &src->raw[src_off], &dst->raw[dst_off], (x10rt_red_op_type)op, x10rt_get_red_type<TPMGL(T)>(), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
 
+    /** Performs a reduction on a single value, returning the result */
+    public def allreduce (src:Boolean, op:Int):Boolean {
+        val chk = new Rail[Boolean](1, src);
+        val dst = new Rail[Boolean](1, src);
+        allreduce_builtin(chk, 0, dst, 0, 1, op);
+        return dst(0);
+    }
     /** Performs a reduction on a single value, returning the result */
     public def allreduce (src:Byte, op:Int):Byte {
         val chk = new Rail[Byte](1, src);

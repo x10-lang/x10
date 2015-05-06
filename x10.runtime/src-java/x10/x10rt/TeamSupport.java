@@ -28,6 +28,7 @@ public class TeamSupport {
     private static final int RED_TYPE_DOUBLE = 8;
     private static final int RED_TYPE_FLOAT = 9;
     private static final int RED_TYPE_COMPLEX = 11;
+    private static final int RED_TYPE_LOGICAL = 12;
     
     private static int getTypeCode(Rail<?> chunk) {
         Object chunkRaw = chunk.getBackingArray();
@@ -43,6 +44,8 @@ public class TeamSupport {
             return RED_TYPE_DOUBLE;
         } else if (chunkRaw instanceof float[]) {
             return RED_TYPE_FLOAT;
+        } else if (chunkRaw instanceof boolean[]) {
+            return RED_TYPE_LOGICAL;
         } else if (chunkRaw instanceof Object[]) {
             Type<?> elemType = chunk.$getParam(0);
             if (elemType.equals(x10.lang.Complex.$RTT)) {

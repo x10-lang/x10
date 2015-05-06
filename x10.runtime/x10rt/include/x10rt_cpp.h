@@ -30,6 +30,8 @@ x10rt_red_type_info<some_type>::Type
 template<x10rt_red_type t> struct x10rt_red_type_info { /**The type*/ typedef void Type; };
 
 /** \copydoc x10rt_red_type_info */
+template<> struct x10rt_red_type_info<X10RT_RED_TYPE_LOGICAL>  { /**The type*/ typedef bool Type; };
+/** \copydoc x10rt_red_type_info */
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_U8>  { /**The type*/ typedef uint8_t Type; };
 /** \copydoc x10rt_red_type_info */
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_S8>  { /**The type*/ typedef int8_t Type; };
@@ -64,6 +66,8 @@ x10rt_red_type<some_type>()
  */
 template<class T> inline x10rt_red_type x10rt_get_red_type (void) { return T::error; }
 
+/** \copydoc x10rt_red_type */
+template<> inline x10rt_red_type x10rt_get_red_type<bool>  (void) { return X10RT_RED_TYPE_LOGICAL; }
 /** \copydoc x10rt_red_type */
 template<> inline x10rt_red_type x10rt_get_red_type<uint8_t>  (void) { return X10RT_RED_TYPE_U8; }
 /** \copydoc x10rt_red_type */

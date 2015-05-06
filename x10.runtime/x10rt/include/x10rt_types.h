@@ -176,7 +176,8 @@ typedef enum
     /** Double precision IEEE float*/ X10RT_RED_TYPE_DBL = 8,
     /** Single precision IEEE float*/ X10RT_RED_TYPE_FLT = 9,
     /** A pair of double and signed dword*/ X10RT_RED_TYPE_DBL_S32 = 10,
-    /** std::complex<double> */ X10RT_RED_TYPE_COMPLEX_DBL = 11    
+    /** std::complex<double> */ X10RT_RED_TYPE_COMPLEX_DBL = 11,
+    /** Boolean*/ X10RT_RED_TYPE_LOGICAL  = 12
 } x10rt_red_type;
 
 /** The list of optional x10rt_net features.

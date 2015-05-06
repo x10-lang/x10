@@ -2319,6 +2319,7 @@ int x10rt_red_type_length(x10rt_red_type dtype) {
     BORING(X10RT_RED_TYPE_FLT)
     BORING(X10RT_RED_TYPE_DBL_S32)
     BORING(X10RT_RED_TYPE_COMPLEX_DBL)
+    BORING(X10RT_RED_TYPE_LOGICAL)
 #undef BORING
     default:
         fprintf(stderr, "[%s:%d] unexpected argument. got: %d\n",
@@ -2398,6 +2399,8 @@ MPI_Datatype mpi_red_type(x10rt_red_type dtype) {
         return MPI_FLOAT;
     case X10RT_RED_TYPE_COMPLEX_DBL:
         return MPI_DOUBLE_COMPLEX;
+    case X10RT_RED_TYPE_LOGICAL:
+        return MPI_LOGICAL;
     default:
         fprintf(stderr, "[%s:%d] unexpected argument. got: %d\n",
                 __FILE__, __LINE__, dtype);
@@ -2451,6 +2454,22 @@ MPI_Op mpi_red_loc_op_type(x10rt_red_op_type op) {
     }
 }
 
+MPI_Op mpi_red_log_op_type(x10rt_red_op_type op) {
+    switch (op) {
+    case X10RT_RED_OP_AND:
+        return MPI_LAND;
+    case X10RT_RED_OP_OR:
+        return MPI_LOR;
+    case X10RT_RED_OP_XOR:
+        return MPI_LXOR;
+    default:
+        fprintf(stderr, "[%s:%d] unexpected argument. got: %d\n",
+                __FILE__, __LINE__, op);
+        abort();
+    }
+}
+
+
 MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
     switch (dtype) {
     case X10RT_RED_TYPE_U8:
@@ -2467,6 +2486,8 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
         return mpi_red_arith_op_type(op);
     case X10RT_RED_TYPE_DBL_S32:
         return mpi_red_loc_op_type(op);
+    case X10RT_RED_TYPE_LOGICAL:
+        return mpi_red_log_op_type(op);
     default:
         fprintf(stderr, "[%s:%d] unexpected argument. got: %d\n",
                 __FILE__, __LINE__, dtype);
@@ -3072,6 +3093,7 @@ static int sizeof_dtype(x10rt_red_type dtype)
         BORING_MACRO(X10RT_RED_TYPE_FLT);
         BORING_MACRO(X10RT_RED_TYPE_DBL_S32);
         BORING_MACRO(X10RT_RED_TYPE_COMPLEX_DBL);
+        BORING_MACRO(X10RT_RED_TYPE_LOGICAL);
         #undef BORING_MACRO
         default: fprintf(stderr, "Corrupted type? %x\n", dtype); abort();
     }
