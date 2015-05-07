@@ -832,7 +832,7 @@ static void team_create_dispatch (
 	    pami_endpoint_t      origin,
 	    pami_recv_t         * recv)        /**< OUT: receive message structure */
 {
-	uint32_t newTeamId = *((uint32_t*)header_addr);
+	pami_task_t newTeamId = *((pami_task_t*)header_addr);
 	if (newTeamId <= state.lastTeamIndex)
 		error("Place %u attempted to join team %u, but it is already a member of that team.  A place can not be in the same team more than once.", state.myPlaceId, newTeamId);
 
@@ -840,7 +840,7 @@ static void team_create_dispatch (
 	if (previousLastTeam+1 != newTeamId) error("misalignment detected in team_create_dispatch");
 
 	// save the members of the new team
-	state.teams[newTeamId].size = pipe_size/(sizeof(uint32_t));
+	state.teams[newTeamId].size = pipe_size/(sizeof(pami_task_t));
 	state.teams[newTeamId].places = (pami_task_t*)x10rt_malloc(pipe_size);
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
 
@@ -870,8 +870,26 @@ static void team_create_dispatch (
 			fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
 		#endif
 
+		// check to see if we are a member of the geometry or not
+		bool member = false;
 		pami_result_t   status = PAMI_ERROR;
-		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
+
+		for (int i=0; i<state.teams[newTeamId].size; i++)
+		{
+			if (state.teams[newTeamId].places[i] == state.myPlaceId)
+			{
+				member = true;
+				break;
+			}
+		}
+		if (!member)
+		{
+			state.teams[newTeamId].geometry = PAMI_GEOMETRY_NULL;
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, NULL, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, NULL, NULL);
+		}
+		else
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
+
 		if (status != PAMI_SUCCESS) error("Unable to create a new team");
 	}
 }
@@ -1573,10 +1591,9 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	cookie->arg = arg;
 	cookie->teamIndex = newTeamId;
 
-	bool inTeam = false;
-	for (unsigned i=0; i<placec; i++)
+	for (unsigned i=0; i<state.numPlaces; i++)
 	{
-		if (placev[i] != state.myPlaceId)
+		if (i != state.myPlaceId)
 		{
 			x10rt_post_send *post = (x10rt_post_send*)x10rt_malloc(sizeof(x10rt_post_send));
 			post->parameters.send.dispatch        = NEW_TEAM;
@@ -1589,7 +1606,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 			post->parameters.events.cookie        = NULL;
 			post->parameters.events.local_fn      = NULL;
 			post->parameters.events.remote_fn     = NULL;
-			post->parameters.send.dest = state.endpoints[placev[i]];
+			post->parameters.send.dest = state.endpoints[i];
 #ifdef POSTMESSAGES
 			status = PAMI_Context_post(state.context, &post->work, post_send, (void *)post);
 #else
@@ -1600,15 +1617,11 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 			if (status != PAMI_SUCCESS) error("Unable to post a send message");
 
 			#ifdef DEBUG
-				fprintf(stderr, "Place %u sending a NEW_TEAM message to place %u\n", state.myPlaceId, placev[i]);
+				fprintf(stderr, "Place %u sending a NEW_TEAM message to place %u\n", state.myPlaceId, i);
 			#endif
 		}
-		else
-			inTeam = true;
 	}
 	// at this point, all the places that are to be a part of this new team have been sent a message to join it.  We need to join too
-	if (!inTeam)
-		error("A team was created that did not include the creator");
 
 	#ifdef DEBUG
 		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
