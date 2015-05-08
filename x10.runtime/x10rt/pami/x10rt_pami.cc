@@ -42,7 +42,7 @@
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
 
-#if defined(__bgq__)
+#if defined(__bgq__) || defined(_ARCH_PPC) || defined(__PPC__)
 #define POSTMESSAGES 1
 #endif
 
