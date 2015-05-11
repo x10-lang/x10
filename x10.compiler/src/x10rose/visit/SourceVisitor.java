@@ -762,6 +762,15 @@ public class SourceVisitor extends X10DelegatingVisitor {
                 false, flags.isAbstract(), flags.isFinal(), flags.isPrivate(), flags.isPublic(), flags.isProtected(), 
                 flags.isStatic(), false, RoseTranslator.createJavaToken(n, class_name));
         
+        List<PropertyDecl> propList = n.properties();
+        for (PropertyDecl prop : propList) {
+            visitChild(prop, prop.type());
+            JNI.cactionAppendProperty(prop.name().id().toString(), prop.type().type().isRail(), 
+                                        prop.flags().flags().isFinal(), RoseTranslator.createJavaToken());
+        }
+        if (propList.size() > 0)
+            JNI.cactionSetProperties(propList.size(), RoseTranslator.createJavaToken());
+        
         JNI.cactionPushNestedClass(((package_name.length() == 0)? "" : package_name + ".") + parentClass_name + "." + class_name, 
                                     ((package_name.length() == 0)? "" : package_name + ".") + parentClass_name);
         
