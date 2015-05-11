@@ -288,8 +288,18 @@ public class SourceVisitor extends X10DelegatingVisitor {
 
     public int handleClassMembers(List<ClassMember> members, String package_name, String type_name) {
         int final_member_size = members.size();
+        
+        List<ClassMember> sorted_members = new ArrayList<ClassMember>();        
         for (int i = 0; i < members.size(); ++i) {
-            JL m = members.get(i);
+            ClassMember cm = members.get(i);
+            if (cm instanceof X10ClassDecl_c)
+                sorted_members.add(0, cm);
+            else
+                sorted_members.add(cm);
+        }
+        
+        for (int i = 0; i < sorted_members.size(); ++i) {
+            JL m = sorted_members.get(i);
             if (m instanceof X10MethodDecl_c) {
                 X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
                 StringBuffer param = new StringBuffer();
@@ -405,7 +415,6 @@ public class SourceVisitor extends X10DelegatingVisitor {
     public void visitDeclarations(X10ClassDecl_c n) {
         toRose(n, "X10ClassDecl in visitDeclarations:", n.name().id());
         Flags flags = n.flags().flags();
-        System.out.println("0218-0: class_name=" + n.name().id() + ": " + flags.isPublic());
         SourceFile_c srcfile = x10rose.ExtensionInfo.X10Scheduler.sourceList.get(RoseTranslator.fileIndex);  
         List<Import> imports = srcfile.imports();
         for (Import import_ : imports) {
@@ -433,6 +442,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             class_name = outer + "." + class_name;
         }
         
+        RoseTranslator.classes.put(class_name, package_name);
         JNI.cactionSetCurrentClassName((package_name.length() == 0 ? "" : package_name + ".") + class_name);
         
         JNI.cactionPushPackage(package_name, RoseTranslator.createJavaToken(n, class_name));
@@ -1492,7 +1502,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10CanonicalTypeNode_c n) {
-        toRose(n, "X10CanonicalTypeNode:", n.type(), n.type().fullName(), n.nameString(), n.node());
+        toRose(n, "X10CanonicalTypeNode:", n.type().fullName(), n.type(), n.nameString());
         String class_name = n.type().fullName().toString();
         String class_name_full = n.type().toString();
         String class_name_short = n.nameString();

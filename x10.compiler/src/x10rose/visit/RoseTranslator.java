@@ -235,6 +235,8 @@ public class RoseTranslator extends Translator {
      */
     public static HashMap<String, String> nestedClasses = new HashMap<String, String>();
     
+    public static HashMap<String, String> classes = new HashMap<String, String>();
+    
     public RoseTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
         super(job, ts, nf, tf);
         jobList.add(job);
@@ -249,11 +251,22 @@ public class RoseTranslator extends Translator {
     }
 
     public static boolean isNestedClass(String class_name, String[] package_name) {
-        for (String path : nestedClasses.keySet())
+        for (String path : nestedClasses.keySet()) {
             if (path.equals(class_name)) {
                 package_name[0] = nestedClasses.get(path);
                 return true;
             }
+        }
+        String outer = "";
+        int index = class_name.lastIndexOf('.');
+        if (index > 0)
+            outer = class_name.substring(0, index);
+        for (String path : classes.keySet()) {
+            if (path.equals(outer)) {
+                package_name[0] = classes.get(path);
+                return true;
+            }
+        }
 
         return false;
     }
