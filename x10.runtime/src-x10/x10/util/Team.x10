@@ -896,8 +896,13 @@ public struct Team {
             }
             val teamidcopy = this.teamid; // needed to prevent serializing "this"
             if (myLinks.parentIndex != -1) {
+                // go to the parent and verify that it has initialized the structures used for *this* team
                 @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-                    when (Team.state.size() > teamidcopy) {}
+                    if (Team.state.size() <= teamidcopy) {
+                        Runtime.increaseParallelism();
+                        while (Team.state.size() <= teamidcopy) System.threadSleep(0);
+                        Runtime.decreaseParallelism(1n);
+                    }
             }   }
             if (DEBUGINTERNALS) Runtime.println(here+":team"+this.teamid+", moving on to init barrier");
             collective_impl[Int](COLL_BARRIER, places(0), null, 0, null, 0, 0, 0n); // barrier
