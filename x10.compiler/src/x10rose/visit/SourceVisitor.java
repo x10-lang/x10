@@ -933,9 +933,9 @@ public class SourceVisitor extends X10DelegatingVisitor {
             else if (full.equals("x10.lang.Rail") || full.equals("x10.util.GrowableRail")) {
                 String railString = t.toString();
                 String type = railString.substring(railString.indexOf('[') + 1, railString.indexOf(']'));
-                int lastDot = type.lastIndexOf(".");
-                arg_package_name = lastDot > 0 ? type.substring(0, lastDot) : "";
-                arg_type_name = type.substring(lastDot + 1);
+                String[] railTypeSplit = getPackageAndTypeName(type);
+                arg_package_name = railTypeSplit[0];
+                arg_type_name = railTypeSplit[1];
 
                 if (RoseTranslator.isX10Primitive(arg_package_name, arg_type_name))
                     arg_package_name = "";
