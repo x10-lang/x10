@@ -886,15 +886,20 @@ public class LibraryVisitor extends NodeVisitor {
 
     public int handleClassMembers(List<ClassMember> members, String package_name, String type_name) throws SemanticException {
         int final_member_size = members.size();
+        
+        List<ClassMember> sorted_members = new ArrayList<ClassMember>();        
         for (int i = 0; i < members.size(); ++i) {
-            JL m = members.get(i);
+            ClassMember cm = members.get(i);
+            if (cm instanceof X10ClassDecl_c)
+                sorted_members.add(0, cm);
+            else
+                sorted_members.add(cm);
+        }
+        
+        for (int i = 0; i < sorted_members.size(); ++i) {
+            JL m = sorted_members.get(i);
             if (m instanceof X10MethodDecl_c) {
                 X10MethodDecl_c methodDecl = (X10MethodDecl_c) m;
-                // TODO: remove this condition when parsing closure is supported 
-//                if (RoseTranslator.hasFunctionType(methodDecl)) {
-//                    --final_member_size;
-//                    continue;
-//                }
                 StringBuffer param = new StringBuffer();
                 for (Formal f : methodDecl.formals()) {
                     param.append(f.type().toString().toLowerCase());
