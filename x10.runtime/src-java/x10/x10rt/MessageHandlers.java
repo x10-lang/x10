@@ -12,18 +12,23 @@ package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.core.fun.VoidFun_0_1;
+import x10.network.SocketTransport.CALLBACKID;
 import x10.xrx.FinishState;
 import x10.lang.Place;
+import x10.network.NetworkTransportCallbacks;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
 
 /**
  * A class to contain the Java portion of message send/receive pairs.
  */
-public class MessageHandlers {
+public class MessageHandlers implements NetworkTransportCallbacks {
     
     // values set in native method registerHandlers()
     private static int closureMessageID;
@@ -163,7 +168,68 @@ public class MessageHandlers {
     	}
     }
     
-    static void runPlaceAddedHandler(int placeId) {
+    /*
+     * Java forms
+     */
+    public static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
+    	byte[] data;
+    	if (bb.hasArray())
+    		data = bb.array();
+    	else {
+    		data = new byte[bb.remaining()];
+    		bb.get(data);
+    	}
+    	
+    	if (callbackId == CALLBACKID.closureMessageID.ordinal())
+			runClosureAtReceive(new ByteArrayInputStream(data));
+		else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
+			runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
+		else
+			System.err.println("Unknown message callback type: "+callbackId);
+    }
+
+    static void runClosureAtReceive(InputStream input) {
+        try {
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
+            actObj.$apply();
+        } catch (Throwable e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+    	FinishState finishState = (FinishState) deserializer.readObject();
+    	Place src = (Place) deserializer.readObject();
+        long epoch = deserializer.readLong();
+    	VoidFun_0_0 actObj;
+    	try {
+    	    actObj = (VoidFun_0_0) deserializer.readObject();
+    	} catch (Throwable e) {
+    	    // TODO: handle epoch?
+            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
+            return;
+    	}
+    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
+    }
+    
+    public void initDataStore(String connectTo) {
+    	X10RT.initDataStore(connectTo);
+    }
+    
+    public long getEpoch() {
+    	return x10.xrx.Runtime.epoch$O();
+    }
+    
+    public void setEpoch(long val) {
+    	X10RT.initialEpoch = val;
+    }
+    
+    public void runPlaceAddedHandler(int placeId) {
     	VoidFun_0_1<Place> handler = placeAddedHandler;
     	if (handler == null) return;
         
@@ -171,7 +237,7 @@ public class MessageHandlers {
     	x10.xrx.Runtime.submitUncounted(pcw);
     }
     
-    static void runPlaceRemovedHandler(int placeId) {
+    public void runPlaceRemovedHandler(int placeId) {
     	VoidFun_0_1<Place> handler = placeRemovedHandler;
     	if (handler == null) return;
     	

@@ -11,6 +11,7 @@
 
 package x10.x10rt;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
@@ -20,7 +21,10 @@ import com.hazelcast.core.HazelcastInstance;
 import x10.core.fun.VoidFun_0_1;
 import x10.lang.GlobalRail;
 import x10.lang.Place;
-import x10.x10rt.SocketTransport.RETURNCODE;
+import x10.network.SocketTransport;
+import x10.network.SocketTransport.Message;
+import x10.network.SocketTransport.PROBE_TYPE;
+import x10.network.SocketTransport.RETURNCODE;
 import x10.xrx.Configuration;
 
 public class X10RT {
@@ -64,7 +68,7 @@ public class X10RT {
         if (libName.equals("disabled"))
             forceSinglePlace = true;
         else if (libName.equalsIgnoreCase("JavaSockets")) {
-      	  	X10RT.javaSockets = new SocketTransport();
+      	  	X10RT.javaSockets = new SocketTransport(new MessageHandlers());
       	    state = State.INITIALIZED;
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
@@ -182,7 +186,7 @@ public class X10RT {
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
     	  int ret;
-    	  X10RT.javaSockets = new SocketTransport();
+    	  X10RT.javaSockets = new SocketTransport(new MessageHandlers());
     	  // check if we are joining an existing computation
   		  String join = System.getProperty(X10_JOIN_EXISTING);
   		  if (join != null)
@@ -251,6 +255,21 @@ public class X10RT {
 
       return true;
     }
+    
+    private static boolean probe_and_process(PROBE_TYPE probeType, boolean blocking) {
+    	Message m = javaSockets.x10rt_probe(probeType, blocking);
+    	if (m == null) return false; // nothing was available
+    	else if (m.callbackId == -1) return true; // something was processed within the probe.  No data available
+    	
+    	// there is a message to process
+    	try {
+    		MessageHandlers.runCallback(m.callbackId, m.data);
+    		return true;
+    	} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+    }
 
     /**
      * This is a non-blocking call.
@@ -258,8 +277,13 @@ public class X10RT {
      */
     public static int probe() {
         assert isBooted();
-        if (javaSockets != null)
-        	return javaSockets.x10rt_probe();
+        if (javaSockets != null) {
+        	boolean somethingProcessed;
+        	do somethingProcessed = probe_and_process(PROBE_TYPE.ALL, false);
+        	while (somethingProcessed);
+        	
+        	return RETURNCODE.X10RT_ERR_OK.ordinal();
+        }
         else if (!forceSinglePlace)
         	return x10rt_probe();
         else
@@ -276,8 +300,10 @@ public class X10RT {
      */
     public static int blockingProbe() {
         assert isBooted();
-        if (javaSockets != null)
-        	return javaSockets.x10rt_blocking_probe();
+        if (javaSockets != null) {
+        	probe_and_process(PROBE_TYPE.ALL, true);
+        	return RETURNCODE.X10RT_ERR_OK.ordinal();
+        }
         else if (!forceSinglePlace)
         	return x10rt_blocking_probe();
         else 
@@ -460,6 +486,7 @@ public class X10RT {
         	// go to all other places, and tell them to connect to my newly created hazelcast cluster (of one, so far)
 			try {
 				byte[] message = hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8);
+				javaSockets.setDataStoreLocation(message);
 	      	   	for (int i=1; i<numPlaces(); i++) {
 	          	   	javaSockets.sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, i, 0, ByteBuffer.wrap(message));
 	      	   	}

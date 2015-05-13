@@ -24,8 +24,8 @@ import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.serialization.X10JavaSerializer;
-import x10.x10rt.SocketTransport;
-import x10.x10rt.SocketTransport.RETURNCODE;
+import x10.network.SocketTransport;
+import x10.network.SocketTransport.RETURNCODE;
 import x10.x10rt.X10RT;
 
 public abstract class Runtime implements VoidFun_0_0 {
