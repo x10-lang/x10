@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import x10.network.NetworkTransportCallbacks;
+import apgas.Configuration;
 
 /**
  * The {@link SocketTransport} class manages the Hazelcast cluster and
@@ -33,6 +34,7 @@ public class SocketTransport extends Transport implements
   private final ExecutorService immediateThreads;
   private boolean running = true;
   private final GlobalRuntimeImpl runtime;
+  private final boolean useSnappy;
 
   // private final Kryo kryo;
 
@@ -44,7 +46,9 @@ public class SocketTransport extends Transport implements
     super(runtime, master == null ? null : master.split(",")[0], localhost,
         compact);
     this.runtime = runtime;
-    System.setProperty("apgas", "true");
+    this.useSnappy = System.getProperty(
+        Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION, "snappy").equals(
+        "snappy");
     localTransport = new x10.network.SocketTransport(this);
     if (master == null) {
       localTransport.establishLinks(0, null); // place 0
@@ -83,7 +87,6 @@ public class SocketTransport extends Transport implements
           final x10.network.SocketTransport.Message message = localTransport
               .x10rt_probe(x10.network.SocketTransport.PROBE_TYPE.ALL, true);
           if (message != null && message.callbackId != -1) {
-            // org.xerial.snappy.Snappy.compress(message.data, arg1)
             byte[] data;
             if (message.data.hasArray()) {
               data = message.data.array();
@@ -97,6 +100,9 @@ public class SocketTransport extends Transport implements
              */
 
             try {
+              if (useSnappy) {
+                data = org.xerial.snappy.Snappy.uncompress(data);
+              }
               final ObjectInputStream ois = new ObjectInputStream(
                   new ByteArrayInputStream(data));
               final SerializableRunnable f = (SerializableRunnable) ois
@@ -135,7 +141,11 @@ public class SocketTransport extends Transport implements
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(f);
-        localTransport.sendMessage(place, 0, baos.toByteArray());
+        byte[] data = baos.toByteArray();
+        if (useSnappy) {
+          data = org.xerial.snappy.Snappy.compress(baos.toByteArray());
+        }
+        localTransport.sendMessage(place, 0, data);
       } catch (final IOException e) {
         e.printStackTrace();
       }
