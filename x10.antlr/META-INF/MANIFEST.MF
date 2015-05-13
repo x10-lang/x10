@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Antlr
+Bundle-Name: ANTLR Parser for X10
 Bundle-SymbolicName: x10.antlr
-Bundle-Version: 2.5.2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Version: 2.5.3
+Bundle-ClassPath: antlr-runtime-4.5.jar
 Export-Package: org.abego.treelayout,
  org.abego.treelayout.internal.util,
  org.abego.treelayout.internal.util.java.lang,
@@ -18,3 +18,4 @@ Export-Package: org.abego.treelayout,
  org.antlr.v4.runtime.tree.gui,
  org.antlr.v4.runtime.tree.pattern,
  org.antlr.v4.runtime.tree.xpath
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
