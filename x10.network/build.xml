@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10.network" default="build" basedir=".">
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10network.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="x10/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
+            <src path="${src}"/>
+            <include name="x10/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+</project>

@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 Network
+Bundle-SymbolicName: x10.network
+Bundle-Version: 2.5.3
+Export-Package: x10.network
+Bundle-Vendor: x10-users@lists.sourceforge.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
