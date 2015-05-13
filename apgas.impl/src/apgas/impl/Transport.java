@@ -43,7 +43,7 @@ import com.hazelcast.spi.ExecutionService;
  * The {@link Transport} class manages the Hazelcast cluster and implements
  * active messages.
  */
-final class Transport implements com.hazelcast.core.ItemListener<Member>,
+class Transport implements com.hazelcast.core.ItemListener<Member>,
     InitialMembershipListener {
   private static String APGAS = "apgas";
   private static String APGAS_PLACES = "apgas:places";
@@ -53,7 +53,7 @@ final class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * The Hazelcast instance for this JVM.
    */
-  private final HazelcastInstance hazelcast;
+  protected final HazelcastInstance hazelcast;
 
   /**
    * The place ID for this JVM.

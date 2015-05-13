@@ -157,8 +157,21 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // initialize scheduler and transport
     pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
-    transport = new Transport(this, master, InetAddress.getLocalHost()
-        .getHostAddress(), compact);
+    final String transportClassName = System.getProperty(
+        Configuration.APGAS_TRANSPORT, "apgas.impl.SocketTransport");
+    @SuppressWarnings("rawtypes")
+    Class transportClass;
+    try {
+      transportClass = Class.forName(transportClassName);
+    } catch (final ClassNotFoundException e) {
+      // TODO: currently we fall back to the hazelcast transport. Should we
+      // throw an error and stop instead?
+      transportClass = Class.forName("apgas.impl.Transport");
+    }
+    transport = (Transport) transportClass.getDeclaredConstructor(
+        GlobalRuntimeImpl.class, String.class, String.class, boolean.class)
+        .newInstance(this, master, InetAddress.getLocalHost().getHostAddress(),
+            compact);
 
     // initialize here
     here = transport.here();
@@ -253,7 +266,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    * @param removed
    *          removed places
    */
-  void updatePlaces(List<Integer> added, List<Integer> removed) {
+  public void updatePlaces(List<Integer> added, List<Integer> removed) {
     for (final int id : added) {
       placeSet.add(new Place(id));
     }
