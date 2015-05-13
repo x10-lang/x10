@@ -6,7 +6,7 @@
         <get src="http://sourceforge.net/projects/x10/files/dependencies/hazelcast-src-3.4.zip" dest="lib/hazelcast-3.4.zip"/>
     </target>
 	<target name="snappy" depends="mkdir">
-	    <get src="http://x10-lang.org/dependencies/snappy-java-1.1.1.7.jar" dest="lib/snappy-java-1.1.1.7.jar"/>
+	    <get src="http://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.1.7/snappy-java-1.1.1.7.jar" dest="lib/snappy-java-1.1.1.7.jar"/>
 	</target>
     <target name="mkdir">
         <mkdir dir="lib"/>
