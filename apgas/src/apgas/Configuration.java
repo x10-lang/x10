@@ -33,7 +33,13 @@ public final class Configuration {
    * property). Currently "apgas.impl.Transport" and
    * "apgas.impl.SocketTransport" are supported. Defaults to SocketTransport
    */
-  public static final String APGAS_TRANSPORT = "apgas.networktransport";
+  public static final String APGAS_NETWORKTRANSPORT = "apgas.networktransport";
+
+  /**
+   * Enables or disables compression on the network links. Set to "none" or
+   * "snappy", which is the default.
+   */
+  public static final String APGAS_NETWORKTRANSPORT_COMPRESSION = "apgas.networktransport.compression";
 
   /**
    * Number of places to spawn (Integer property).
