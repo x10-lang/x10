@@ -41,6 +41,8 @@
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="common.jar" value="x10common.jar"/>
+    <property name="x10.network.location" location="${x10.home}/x10.network"/>
+    <property name="network.jar" value="x10network.jar"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
@@ -172,6 +174,7 @@
         -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+    	<ant antfile="${x10.network.location}/build.xml" target="clean" inheritAll="false" dir="${x10.network.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean-java" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
@@ -224,11 +227,11 @@
         <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
+    <target name="dist-java" depends="init,build,common-jar,network-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
-    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+    <target name="dist-par" depends="init,build,common-jar,network-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -445,7 +448,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime-java" depends="init,common-jar,constraints-jar">
+    <target name="runtime-java" depends="init,common-jar,network-jar,constraints-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -486,6 +489,12 @@
 	</ant>
     </target>
 
+    <target name="network-jar" depends="init">
+        <ant antfile="${x10.network.location}/build.xml" target="build" inheritAll="false" dir="${x10.network.location}">
+	       <property name="x10.version" value="${x10.version}" />
+	    </ant>
+    </target>
+	
     <target name="compiler-jar" depends="init,common-jar,constraints-jar">
         <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}">
 	  <property name="x10.version" value="${x10.version}" />
@@ -775,6 +784,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+        	<tarfileset prefix="x10.network" dir="${x10.network.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />
