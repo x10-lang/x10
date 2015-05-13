@@ -158,7 +158,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     // initialize scheduler and transport
     pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
     final String transportClassName = System.getProperty(
-        Configuration.APGAS_TRANSPORT, "apgas.impl.SocketTransport");
+        Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.SocketTransport");
     @SuppressWarnings("rawtypes")
     Class transportClass;
     try {
