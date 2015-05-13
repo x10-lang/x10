@@ -29,6 +29,13 @@ public final class Configuration {
   public static final String APGAS_RUNTIME = "apgas.runtime";
 
   /**
+   * Name of the network transport class implementation to instantiate (String
+   * property). Currently "apgas.impl.Transport" and
+   * "apgas.impl.SocketTransport" are supported. Defaults to SocketTransport
+   */
+  public static final String APGAS_TRANSPORT = "apgas.networktransport";
+
+  /**
    * Number of places to spawn (Integer property).
    * <p>
    * All the places are spawned on the localhost.
