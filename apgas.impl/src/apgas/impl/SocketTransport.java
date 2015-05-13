@@ -22,6 +22,8 @@ import java.util.concurrent.Executors;
 
 import x10.network.NetworkTransportCallbacks;
 import apgas.Configuration;
+import apgas.DeadPlaceException;
+import apgas.Place;
 
 /**
  * The {@link SocketTransport} class manages the Hazelcast cluster and
@@ -145,7 +147,9 @@ public class SocketTransport extends Transport implements
         if (useSnappy) {
           data = org.xerial.snappy.Snappy.compress(baos.toByteArray());
         }
-        localTransport.sendMessage(place, 0, data);
+        if (localTransport.sendMessage(place, 0, data) != 0) {
+          throw new DeadPlaceException(new Place(place));
+        }
       } catch (final IOException e) {
         e.printStackTrace();
       }
