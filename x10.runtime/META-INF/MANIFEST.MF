@@ -5,6 +5,7 @@ Bundle-SymbolicName: x10.runtime
 Bundle-Version: 2.5.2.qualifier
 Eclipse-AutoStart: true
 Bundle-Vendor: x10-users@lists.sourceforge.net
-Require-Bundle: x10.common
+Require-Bundle: x10.common,
+ x10.network
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 
