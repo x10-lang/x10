@@ -5,7 +5,6 @@
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
     <property name="lpg.location" location="${x10.home}/lpg.generator"/>
-    <property name="x10.antlr.location" location="${x10.home}/x10.antlr"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
@@ -15,7 +14,7 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="antlr-runtime.jar" value="antlr-runtime-4.5.jar"/>
+    <property name="antlr-runtime.jar" value="antlr-runtime_4.5.0.20150514.jar"/>
     <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
@@ -36,7 +35,7 @@
         <pathelement location="${lib}/${shrike.jar}"/>
     </path>
     <path id="x10.antlr.classpath">
-        <pathelement location="${x10.antlr.location}/${antlr-runtime.jar}"/>
+        <pathelement location="${lib}/${antlr-runtime.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
         <pathelement location="${x10.constraints.location}/classes"/>
