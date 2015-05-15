@@ -26,7 +26,7 @@ public class Classes9q2w extends x10Test {
     }
 
 
-// file Classes line 612
+// file Classes line 610
  static class Ret(n:Long) {
   static def met1(a:Long) : Ret{n==a} = new Ret(a);
   static def met2(a:Long)             = new Ret(a);

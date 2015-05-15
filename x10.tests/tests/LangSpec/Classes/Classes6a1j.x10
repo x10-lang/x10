@@ -26,7 +26,7 @@ public class Classes6a1j extends x10Test {
     }
 
 
-// file Classes line 1722
+// file Classes line 1720
  static  class Whatever {
 
 static  class Trace(n:Long){

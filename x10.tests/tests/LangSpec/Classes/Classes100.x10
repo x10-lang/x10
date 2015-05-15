@@ -26,7 +26,7 @@ public class Classes100 extends x10Test {
     }
 
 
-// file Classes line 822
+// file Classes line 820
  static class Example(x:Long, y:Long) {
    def this(x:Long, y:Long) { property(x,y); }
    property eq() = (x==y);

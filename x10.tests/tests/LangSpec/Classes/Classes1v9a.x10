@@ -26,7 +26,7 @@ public class Classes1v9a extends x10Test {
     }
 
 
-// file Classes line 1336
+// file Classes line 1334
  static class Ret(n:Long) {
    def this()    { property(1); }     // (A)
    def this(n:Long) : Ret{n==self.n} { // (B)

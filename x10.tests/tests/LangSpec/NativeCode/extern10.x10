@@ -30,7 +30,7 @@ public class extern10 extends x10Test {
  static class Son {
   @Native("c++", "printf(\"Hi!\")")
   @Native("java", "System.out.println(\"Hi!\")")
-  static def printNatively():void {};
+  static def printNatively():void {}
 }
 
  static class Hook {

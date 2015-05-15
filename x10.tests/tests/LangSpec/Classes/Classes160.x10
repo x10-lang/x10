@@ -26,7 +26,7 @@ public class Classes160 extends x10Test {
     }
 
 
-// file Classes line 1460
+// file Classes line 1458
  // Integral-coefficient polynomials of one variable.
  static  class Poly {
    public val coeff : Rail[Long];

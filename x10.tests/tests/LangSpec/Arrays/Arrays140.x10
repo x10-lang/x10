@@ -30,7 +30,7 @@ public class Arrays140 extends x10Test {
  static  class Example{
 static def addInto(src: Array[Long], dest:Array[Long])
   {src.region == dest.region}
-   {
+  {
     for (p in src.region)
        dest(p) += src(p);
   }

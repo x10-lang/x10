@@ -26,7 +26,7 @@ public class ClassCtor30_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 1259
+// file Classes line 1257
 
  
 // THIS CODE DOES NOT COMPILE

@@ -26,7 +26,7 @@ public class PlacesAtCopy extends x10Test {
     }
 
 
-// file Places line 823
+// file Places line 820
  static class example {
 static def Example() {
 
