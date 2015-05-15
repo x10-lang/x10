@@ -42,7 +42,6 @@ public class KMeans {
   }
 
   public static void main(String[] args) {
-    // Run with four places unless specified otherwise
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System
           .setProperty(Configuration.APGAS_PLACES, String.valueOf(NUM_PLACES));
