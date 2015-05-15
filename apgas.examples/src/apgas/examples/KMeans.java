@@ -29,8 +29,10 @@ import apgas.util.GlobalRef;
  * in the X10 Benchmarks (separate download from x10-lang.org)
  */
 public class KMeans {
-  static int DIM = 2;
-  static int CLUSTERS = 4;
+  static int DIM = 4;
+  static int CLUSTERS = 5;
+  static int NUM_PLACES = 8;
+  static int NUM_THREADS = 1;
 
   static class ClusterState implements Serializable {
     private static final long serialVersionUID = 1862268388246760008L;
@@ -42,11 +44,27 @@ public class KMeans {
   public static void main(String[] args) {
     // Run with four places unless specified otherwise
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
-      System.setProperty(Configuration.APGAS_PLACES, "4");
+      System
+          .setProperty(Configuration.APGAS_PLACES, String.valueOf(NUM_PLACES));
+    } else {
+      NUM_PLACES = Integer.valueOf(System
+          .getProperty(Configuration.APGAS_PLACES));
+    }
+    if (System.getProperty(Configuration.APGAS_THREADS) == null) {
+      System.setProperty(Configuration.APGAS_THREADS,
+          String.valueOf(NUM_THREADS));
+    } else {
+      NUM_THREADS = Integer.valueOf(System
+          .getProperty(Configuration.APGAS_THREADS));
     }
 
-    final int numPoints = args.length > 0 ? Integer.parseInt(args[0]) : 2000;
+    final int numPoints = args.length > 0 ? Integer.parseInt(args[0]) : 2000000;
     final int iterations = args.length > 1 ? Integer.parseInt(args[1]) : 50;
+
+    System.out
+        .printf(
+            "Resilient K-Means: %d clusters, %d points, %d dimensions, %d places, %d threads\n",
+            CLUSTERS, numPoints, DIM, NUM_PLACES, NUM_THREADS);
 
     final GlobalRef<ClusterState> globalClusterState = new GlobalRef<ClusterState>(
         places(), () -> {
@@ -81,8 +99,10 @@ public class KMeans {
       }
     }
 
-    for (int iter = 1; iter <= iterations; iter++) {
-      System.out.println("Iteration: " + iter);
+    long time = System.nanoTime();
+    int iter;
+    for (iter = 1; iter <= iterations; iter++) {
+      System.out.print(".");
 
       finish(() -> {
         for (final Place place : places()) {
@@ -180,7 +200,9 @@ public class KMeans {
       }
       Arrays.fill(centralClusterCounts, 0);
     }
+    time = System.nanoTime() - time;
 
+    System.out.println();
     for (int d = 0; d < DIM; d++) {
       for (int k = 0; k < CLUSTERS; k++) {
         if (k > 0) {
@@ -190,5 +212,7 @@ public class KMeans {
       }
       System.out.println();
     }
+
+    System.out.printf("time per iteration %.3f ms\n", time / 1e6 / iter);
   }
 }
