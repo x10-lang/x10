@@ -31,8 +31,8 @@ import apgas.util.GlobalRef;
 public class KMeans {
   static int DIM = 4;
   static int CLUSTERS = 5;
-  static final int DEFAULT_PLACES = 8;
-  static final int DEFAULT_THREADS = 1;
+  static final int DEFAULT_PLACES = 4;
+  static final int DEFAULT_THREADS = 2;
 
   static class ClusterState implements Serializable {
     private static final long serialVersionUID = 1862268388246760008L;
@@ -93,9 +93,10 @@ public class KMeans {
           return localPoints;
         });
 
+    final ClusterState centralClusterState = new ClusterState();
+    final GlobalRef<ClusterState> centralClusterStateGr = new GlobalRef<ClusterState>(
+        centralClusterState);
     final float[][] centralCurrentClusters = new float[CLUSTERS][DIM];
-    final float[][] centralNewClusters = new float[CLUSTERS][DIM];
-    final int[] centralClusterCounts = new int[CLUSTERS];
 
     // arbitrarily initialize central clusters to first few points
     for (int i = 0; i < CLUSTERS; i++) {
@@ -113,71 +114,77 @@ public class KMeans {
 
       finish(() -> {
         for (final Place place : places()) {
-          async(() -> {
-            final ClusterState placeClusters = at(place, () -> {
+          asyncat(
+              place,
+              () -> {
 
-              final float[][] currentClusters = globalCurrentClusters.get();
-              for (int i = 0; i < CLUSTERS; i++) {
-                for (int j = 0; j < DIM; j++) {
-                  currentClusters[i][j] = centralCurrentClusters[i][j];
+                final float[][] currentClusters = globalCurrentClusters.get();
+                for (int i = 0; i < CLUSTERS; i++) {
+                  for (int j = 0; j < DIM; j++) {
+                    currentClusters[i][j] = centralCurrentClusters[i][j];
+                  }
                 }
-              }
 
-              final ClusterState clusterState = globalClusterState.get();
-              final float[][] newClusters = clusterState.clusters;
-              for (int i = 0; i < CLUSTERS; i++) {
-                Arrays.fill(newClusters[i], 0.0f);
-              }
-              final int[] clusterCounts = clusterState.clusterCounts;
-              Arrays.fill(clusterCounts, 0);
+                final ClusterState clusterState = globalClusterState.get();
+                final float[][] newClusters = clusterState.clusters;
+                for (int i = 0; i < CLUSTERS; i++) {
+                  Arrays.fill(newClusters[i], 0.0f);
+                }
+                final int[] clusterCounts = clusterState.clusterCounts;
+                Arrays.fill(clusterCounts, 0);
 
-              /* compute new clusters and counters */
-              final float[][] points = globalPoints.get();
+                /* compute new clusters and counters */
+                final float[][] points = globalPoints.get();
 
-              for (int p = 0; p < points.length; p++) {
-                int closest = -1;
-                float closestDist = Float.MAX_VALUE;
-                for (int k = 0; k < CLUSTERS; k++) {
-                  float dist = 0;
+                for (int p = 0; p < points.length; p++) {
+                  int closest = -1;
+                  float closestDist = Float.MAX_VALUE;
+                  for (int k = 0; k < CLUSTERS; k++) {
+                    float dist = 0;
+                    for (int d = 0; d < DIM; d++) {
+                      final double tmp = points[p][d] - currentClusters[k][d];
+                      dist += tmp * tmp;
+                    }
+                    if (dist < closestDist) {
+                      closestDist = dist;
+                      closest = k;
+                    }
+                  }
+
                   for (int d = 0; d < DIM; d++) {
-                    final double tmp = points[p][d] - currentClusters[k][d];
-                    dist += tmp * tmp;
+                    newClusters[closest][d] += points[p][d];
                   }
-                  if (dist < closestDist) {
-                    closestDist = dist;
-                    closest = k;
-                  }
+                  clusterCounts[closest]++;
                 }
 
-                for (int d = 0; d < DIM; d++) {
-                  newClusters[closest][d] += points[p][d];
-                }
-                clusterCounts[closest]++;
-              }
-
-              return clusterState;
-            });
-
-            // combine place clusters to central
-            synchronized (centralNewClusters) {
-              for (int i = 0; i < CLUSTERS; i++) {
-                for (int j = 0; j < DIM; j++) {
-                  centralNewClusters[i][j] += placeClusters.clusters[i][j];
-                }
-              }
-            }
-            synchronized (centralClusterCounts) {
-              for (int j = 0; j < CLUSTERS; j++) {
-                centralClusterCounts[j] += placeClusters.clusterCounts[j];
-              }
-            }
-          });
+                asyncat(
+                    centralClusterStateGr.home(),
+                    () -> {
+                      // combine place clusters to central
+                      final float[][] centralNewClusters = centralClusterStateGr
+                          .get().clusters;
+                      synchronized (centralNewClusters) {
+                        for (int i = 0; i < CLUSTERS; i++) {
+                          for (int j = 0; j < DIM; j++) {
+                            centralNewClusters[i][j] += newClusters[i][j];
+                          }
+                        }
+                      }
+                      final int[] centralClusterCounts = centralClusterStateGr
+                          .get().clusterCounts;
+                      synchronized (centralClusterCounts) {
+                        for (int j = 0; j < CLUSTERS; j++) {
+                          centralClusterCounts[j] += clusterCounts[j];
+                        }
+                      }
+                    });
+              });
         }
       });
 
       for (int k = 0; k < CLUSTERS; k++) {
         for (int d = 0; d < DIM; d++) {
-          centralNewClusters[k][d] /= centralClusterCounts[k];
+          centralClusterState.clusters[k][d] /= centralClusterState.clusterCounts[k];
         }
       }
 
@@ -185,7 +192,8 @@ public class KMeans {
       boolean b = true;
       for (int i = 0; i < CLUSTERS; i++) {
         for (int j = 0; j < DIM; j++) {
-          if (Math.abs(centralCurrentClusters[i][j] - centralNewClusters[i][j]) > 0.0001) {
+          if (Math.abs(centralCurrentClusters[i][j]
+              - centralClusterState.clusters[i][j]) > 0.0001) {
             b = false;
             break;
           }
@@ -194,7 +202,7 @@ public class KMeans {
 
       for (int i = 0; i < CLUSTERS; i++) {
         for (int j = 0; j < DIM; j++) {
-          centralCurrentClusters[i][j] = centralNewClusters[i][j];
+          centralCurrentClusters[i][j] = centralClusterState.clusters[i][j];
         }
       }
 
@@ -203,9 +211,9 @@ public class KMeans {
       }
 
       for (int i = 0; i < CLUSTERS; i++) {
-        Arrays.fill(centralNewClusters[i], 0.0f);
+        Arrays.fill(centralClusterState.clusters[i], 0.0f);
       }
-      Arrays.fill(centralClusterCounts, 0);
+      Arrays.fill(centralClusterState.clusterCounts, 0);
     }
     time = System.nanoTime() - time;
 
