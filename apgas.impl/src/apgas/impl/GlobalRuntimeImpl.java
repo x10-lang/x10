@@ -267,14 +267,16 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    *          removed places
    */
   public void updatePlaces(List<Integer> added, List<Integer> removed) {
-    for (final int id : added) {
-      placeSet.add(new Place(id));
+    synchronized (placeSet) {
+      for (final int id : added) {
+        placeSet.add(new Place(id));
+      }
+      for (final int id : removed) {
+        placeSet.remove(new Place(id));
+      }
+      places = Collections.<Place> unmodifiableList(new ArrayList<Place>(
+          placeSet));
     }
-    for (final int id : removed) {
-      placeSet.remove(new Place(id));
-    }
-    places = Collections
-        .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
     if (removed.isEmpty()) {
       return;
     }
