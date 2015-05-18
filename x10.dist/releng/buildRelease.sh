@@ -124,6 +124,7 @@ for i in \
 	x10.dist \
 	x10.doc \
 	x10.gml \
+	x10.network \
 	x10.runtime \
 	x10.tests \
 	x10.wala
