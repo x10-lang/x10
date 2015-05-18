@@ -31,8 +31,8 @@ import apgas.util.GlobalRef;
 public class KMeans {
   static int DIM = 4;
   static int CLUSTERS = 5;
-  static int NUM_PLACES = 8;
-  static int NUM_THREADS = 1;
+  static final int DEFAULT_PLACES = 8;
+  static final int DEFAULT_THREADS = 1;
 
   static class ClusterState implements Serializable {
     private static final long serialVersionUID = 1862268388246760008L;
@@ -43,27 +43,33 @@ public class KMeans {
 
   public static void main(String[] args) {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
-      System
-          .setProperty(Configuration.APGAS_PLACES, String.valueOf(NUM_PLACES));
-    } else {
-      NUM_PLACES = Integer.valueOf(System
-          .getProperty(Configuration.APGAS_PLACES));
+      System.setProperty(Configuration.APGAS_PLACES,
+          String.valueOf(DEFAULT_PLACES));
     }
+
     if (System.getProperty(Configuration.APGAS_THREADS) == null) {
       System.setProperty(Configuration.APGAS_THREADS,
-          String.valueOf(NUM_THREADS));
-    } else {
-      NUM_THREADS = Integer.valueOf(System
-          .getProperty(Configuration.APGAS_THREADS));
+          String.valueOf(DEFAULT_THREADS));
     }
 
-    final int numPoints = args.length > 0 ? Integer.parseInt(args[0]) : 2000000;
     final int iterations = args.length > 1 ? Integer.parseInt(args[1]) : 50;
+    final int numPoints = args.length > 0 ? Integer.parseInt(args[0]) : 2000000;
 
-    System.out
-        .printf(
-            "Resilient K-Means: %d clusters, %d points, %d dimensions, %d places, %d threads\n",
-            CLUSTERS, numPoints, DIM, NUM_PLACES, NUM_THREADS);
+    System.out.println("Warmup...");
+
+    KMeans.run(numPoints, iterations, true);
+    KMeans.run(numPoints, iterations, false);
+  }
+
+  public static void run(int numPoints, int iterations, boolean warmup) {
+    if (!warmup) {
+      System.out
+          .printf(
+              "Resilient K-Means: %d clusters, %d points, %d dimensions, %d places, %d threads\n",
+              CLUSTERS, numPoints, DIM,
+              Integer.valueOf(System.getProperty(Configuration.APGAS_PLACES)),
+              Integer.valueOf(System.getProperty(Configuration.APGAS_THREADS)));
+    }
 
     final GlobalRef<ClusterState> globalClusterState = new GlobalRef<ClusterState>(
         places(), () -> {
@@ -101,7 +107,9 @@ public class KMeans {
     long time = System.nanoTime();
     int iter;
     for (iter = 1; iter <= iterations; iter++) {
-      System.out.print(".");
+      if (!warmup) {
+        System.out.print(".");
+      }
 
       finish(() -> {
         for (final Place place : places()) {
@@ -201,17 +209,19 @@ public class KMeans {
     }
     time = System.nanoTime() - time;
 
-    System.out.println();
-    for (int d = 0; d < DIM; d++) {
-      for (int k = 0; k < CLUSTERS; k++) {
-        if (k > 0) {
-          System.out.print(" ");
-        }
-        System.out.print(centralCurrentClusters[k][d]);
-      }
+    if (!warmup) {
       System.out.println();
-    }
+      for (int d = 0; d < DIM; d++) {
+        for (int k = 0; k < CLUSTERS; k++) {
+          if (k > 0) {
+            System.out.print(" ");
+          }
+          System.out.print(centralCurrentClusters[k][d]);
+        }
+        System.out.println();
+      }
 
-    System.out.printf("time per iteration %.3f ms\n", time / 1e6 / iter);
+      System.out.printf("time per iteration %.3f ms\n", time / 1e6 / iter);
+    }
   }
 }
