@@ -14,14 +14,14 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="antlr-runtime.jar" value="antlr-runtime_4.5.0.20150514.jar"/>
+    <property name="antlr-runtime.jar" value="antlr-runtime_4.5.0.201505151407.jar"/>
     <property name="antlr-complete.jar" value="antlr-4.5-complete.jar"/>
     <property name="shrike.jar" value="com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="shrike.classpath"/>
-        <path refid="x10.antlr.classpath"/>
+        <path refid="antlr.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
     </path>
@@ -34,7 +34,7 @@
     <path id="shrike.classpath">
         <pathelement location="${lib}/${shrike.jar}"/>
     </path>
-    <path id="x10.antlr.classpath">
+    <path id="antlr.classpath">
         <pathelement location="${lib}/${antlr-runtime.jar}"/>
     </path>
     <path id="x10.constraints.classpath">
@@ -198,7 +198,6 @@
         <arg value="-R"/>
         <arg value="--exclude=classes"/>
         <arg value="lpg.runtime.java"/>
-        <arg value="x10.antlr"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
         <arg value="x10.common"/>

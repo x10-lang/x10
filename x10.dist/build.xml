@@ -14,8 +14,8 @@
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="dependencies/lpg.runtime.java_2.0.22.jar"/>
-    <property name="antlr.jar" value="antlr-runtime_4.5.0.20150514.jar"/>
-    <property name="antlr.jar.url" value="dependencies/antlr-runtime_4.5.0.20150514.jar"/>
+    <property name="antlr.jar" value="antlr-runtime_4.5.0.201505151407.jar"/>
+    <property name="antlr.jar.url" value="dependencies/antlr-runtime_4.5.0.201505151407.jar"/>
     <property name="ecj.jar" value="ecj-4.4.2.jar"/>
     <property name="ecj.jar.url" value="dependencies/ecj-4.4.2.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
