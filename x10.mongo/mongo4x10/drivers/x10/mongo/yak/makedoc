@@ -1,3 +1,0 @@
-#!/bin/bash
-MONG=../../..
-x10doc -d $MONG/x10doc -sourcepath . -classpath $MONG/mongo-classes/mongo-2.7.3.jar *.x10
