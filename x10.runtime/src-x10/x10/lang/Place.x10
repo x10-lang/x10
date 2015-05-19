@@ -45,7 +45,7 @@ public final struct Place(
      * Invariant: Place.numPlaces() == Place.places().numPlaces().
      */
     @Native("java", "((long)x10.x10rt.X10RT.numPlaces())")
-    @Native("c++", "((x10_long)x10rt_nplaces())")
+    @Native("c++", "((x10_long)x10rt_nhosts())")
     public static native def numPlaces():Long;
     
     /** 
