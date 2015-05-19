@@ -130,7 +130,7 @@ final class Task extends RecursiveAction implements SerializableRunnable {
   void async(Worker worker) {
     finish.submit(parent);
     if (worker == null) {
-      GlobalRuntimeImpl.getRuntime().pool.execute((RecursiveAction) this);
+      GlobalRuntimeImpl.getRuntime().execute(this);
     } else {
       fork();
     }

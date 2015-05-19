@@ -49,7 +49,7 @@ final class UncountedTask extends RecursiveAction implements
    */
   @Override
   public void run() {
-    GlobalRuntimeImpl.getRuntime().pool.execute((RecursiveAction) this);
+    GlobalRuntimeImpl.getRuntime().execute(this);
   }
 
   @Override

@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
@@ -104,6 +105,11 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   private boolean dying;
 
   /**
+   * A dummy task used to increase parallelism on demand.
+   */
+  private final IdleTask dummy;
+
+  /**
    * The resilient map from finish IDs to finish states.
    */
   final IMap<GlobalID, ResilientFinishState> resilientFinishMap;
@@ -156,7 +162,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
     // initialize scheduler and transport
-    pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
+    pool = new ForkJoinPool(threads + 1, new WorkerFactory(), null, false);
+    dummy = new IdleTask();
+    pool.execute(dummy);
     final String transportClassName = System.getProperty(
         Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.SocketTransport");
     @SuppressWarnings("rawtypes")
@@ -285,7 +293,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
       return;
     }
     final Consumer<Place> handler = this.handler;
-    pool.execute(new RecursiveAction() {
+    execute(new RecursiveAction() {
       private static final long serialVersionUID = 1052937749744648347L;
 
       @Override
@@ -318,6 +326,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     if (launcher != null) {
       launcher.shutdown();
     }
+    dummy.kill();
     pool.shutdown();
     transport.shutdown();
   }
@@ -401,5 +410,17 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public ExecutorService getExecutorService() {
     return pool;
+  }
+
+  /**
+   * Submits a task to the pool making sure that a thread will be available to
+   * run it. run.
+   *
+   * @param task
+   *          the task
+   */
+  void execute(ForkJoinTask<?> task) {
+    pool.execute(task);
+    dummy.signal();
   }
 }
