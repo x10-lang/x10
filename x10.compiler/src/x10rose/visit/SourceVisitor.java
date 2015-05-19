@@ -662,7 +662,8 @@ public class SourceVisitor extends X10DelegatingVisitor {
          * JavaToken(n.name().id().toString()+"_args", new
          * JavaSourcePositionInformation(n.position().line())));
          */
-        JNI.cactionBuildMethodSupportEnd(method_name, method_index, false, false, false, 0, formals.size(), true, RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
+        Flags flags = n.flags().flags();
+        JNI.cactionBuildMethodSupportEnd(method_name, method_index, false, flags.isAbstract(), flags.isNative(), 0, formals.size(), true, RoseTranslator.createJavaToken(n, n.name().id().toString()), RoseTranslator.createJavaToken(n, n.name().id().toString() + "_args"));
         
         if (n.guard() != null) {
             String guard = "";
