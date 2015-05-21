@@ -1373,11 +1373,20 @@ struct TeamDB {
     {
     	assert(global_state.init);
         assert(!global_state.finalized);
+
+        int rc;
         for (x10rt_team t=0; t<teamc; t++) {
-        	X10RT_NET_DEBUG("freeing t = %d", t);
-        	LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-        	MPI_Comm_free(&(this->teamv[t]));
-        	UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        	if (this->teamv[t] != MPI_COMM_NULL) {
+        		X10RT_NET_DEBUG("freeing t = %d", t);
+            	LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+            	rc = MPI_Comm_free(&(this->teamv[t]));
+            	UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        		if (MPI_SUCCESS != rc) {
+        		    fprintf(stderr, "[%s:%d] Error freeing team %d comm \n", __FILE__, __LINE__, t);
+        		}
+        	} else {
+        		X10RT_NET_DEBUG("not freeing null t = %d", t);
+        	}
         }
     }
 
@@ -1386,10 +1395,18 @@ struct TeamDB {
         assert(global_state.init);
         assert(!global_state.finalized);
 
-        X10RT_NET_DEBUG("t = %d", t);
-        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-        MPI_Comm_free(&(this->teamv[t]));
-        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        int rc;
+        if (this->teamv[t] != MPI_COMM_NULL) {
+        	X10RT_NET_DEBUG("freeing t = %d", t);
+            LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+            rc = MPI_Comm_free(&(this->teamv[t]));
+            UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        	if (MPI_SUCCESS != rc) {
+        		fprintf(stderr, "[%s:%d] Error freeing team %d comm \n", __FILE__, __LINE__, t);
+        	}
+        } else {
+        	X10RT_NET_DEBUG("not freeing null t = %d", t);
+        }
     }
 
     bool isValidTeam (x10rt_team t)
@@ -1410,6 +1427,7 @@ struct TeamDB {
        MPI_Comm_dup(comm, &c);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         X10RT_NET_DEBUG("%s", "duped");
+        assert(this->teamv[t] == MPI_COMM_NULL);
        this->teamv[t] = c;
     }
 
@@ -1475,6 +1493,7 @@ private:
             MPI_Group_free(&grp);
             UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
+            assert(this->teamv[t] == MPI_COMM_NULL);
             this->teamv[t] = comm;
         }
 
@@ -1495,7 +1514,11 @@ void x10rt_net_finalize(void) {
     }
     coll_state.finalize();
     mpi_tdb.releaseAllTeams();
-    MPI_Comm_free(&global_state.mpi_comm);
+
+    if (MPI_SUCCESS != MPI_Comm_free(&global_state.mpi_comm)) {
+        fprintf(stderr, "[%s:%d] Error freeing global comm\n", __FILE__, __LINE__);
+        abort();
+    }
     if (MPI_SUCCESS != MPI_Finalize()) {
         fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
         abort();
