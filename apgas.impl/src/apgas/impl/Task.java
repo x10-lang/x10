@@ -14,13 +14,13 @@ package apgas.impl;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveAction;
 
 import apgas.DeadPlaceException;
 import apgas.Job;
 import apgas.SerializableJob;
+import apgas.pool.ForkJoinPool;
+import apgas.pool.ForkJoinTask;
+import apgas.pool.RecursiveAction;
 
 /**
  * The {@link Task} class represents an APGAS task.

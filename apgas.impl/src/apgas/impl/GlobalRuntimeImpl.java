@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -34,6 +31,9 @@ import apgas.MultipleException;
 import apgas.Place;
 import apgas.SerializableCallable;
 import apgas.SerializableJob;
+import apgas.pool.ForkJoinPool;
+import apgas.pool.ForkJoinTask;
+import apgas.pool.RecursiveAction;
 import apgas.util.GlobalID;
 import apgas.util.Launcher;
 
@@ -105,11 +105,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   private boolean dying;
 
   /**
-   * A dummy task used to increase parallelism on demand.
-   */
-  private final IdleTask dummy;
-
-  /**
    * The resilient map from finish IDs to finish states.
    */
   final IMap<GlobalID, ResilientFinishState> resilientFinishMap;
@@ -162,11 +157,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
     // initialize scheduler and transport
-    pool = new ForkJoinPool(threads + 1, new WorkerFactory(), null, false);
-    dummy = new IdleTask();
-    pool.execute(dummy);
+    pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
     final String transportClassName = System.getProperty(
-        Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.SocketTransport");
+        Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.Transport");
     @SuppressWarnings("rawtypes")
     Class transportClass;
     try {
@@ -326,7 +319,6 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
     if (launcher != null) {
       launcher.shutdown();
     }
-    dummy.kill();
     pool.shutdown();
     transport.shutdown();
   }
@@ -421,6 +413,5 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
    */
   void execute(ForkJoinTask<?> task) {
     pool.execute(task);
-    dummy.signal();
   }
 }

@@ -11,8 +11,8 @@
 
 package apgas.impl;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
+import apgas.pool.ForkJoinPool;
+import apgas.pool.ForkJoinWorkerThread;
 
 /**
  * The {@link WorkerFactory} class implements a thread factory for the thread
