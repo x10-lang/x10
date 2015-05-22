@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -1445,7 +1446,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 }
             }
             else if (r == 0)
-                r = ThreadLocalRandom.nextSecondarySeed();
+                r = nextSecondarySeed();
             else if (spins > 0) {
                 r ^= r << 6; r ^= r >>> 21; r ^= r << 7; // xorshift
                 if (r >= 0)
@@ -2088,7 +2089,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     private WorkQueue findNonEmptyStealQueue() {
         WorkQueue[] ws; int m;  // one-shot version of scan loop
-        int r = ThreadLocalRandom.nextSecondarySeed();
+        int r = nextSecondarySeed();
         if ((ws = workQueues) != null && (m = ws.length - 1) > 0) {
             for (int origin = r & m, k = origin, oldSum = 0, checkSum = 0;;) {
                 WorkQueue q; int b;
@@ -2334,9 +2335,9 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     private void externalSubmit(ForkJoinTask<?> task) {
         int r;                                    // initialize caller's probe
-        if ((r = ThreadLocalRandom.getProbe()) == 0) {
-            ThreadLocalRandom.localInit();
-            r = ThreadLocalRandom.getProbe();
+        if ((r = getProbe()) == 0) {
+            ThreadLocalRandom.current(); // force initialization
+            r = getProbe();
         }
         for (;;) {
             WorkQueue[] ws; WorkQueue q; int rs, m, k;
@@ -2404,7 +2405,7 @@ public class ForkJoinPool extends AbstractExecutorService {
             else
                 move = true;                   // move if busy
             if (move)
-                r = ThreadLocalRandom.advanceProbe(r);
+                r = advanceProbe(r);
         }
     }
 
@@ -2418,7 +2419,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final void externalPush(ForkJoinTask<?> task) {
         WorkQueue[] ws; WorkQueue q; int m;
-        int r = ThreadLocalRandom.getProbe();
+        int r = getProbe();
         int rs = runState;
         if ((ws = workQueues) != null && (m = (ws.length - 1)) > 0 &&
             (q = ws[m & r & SQMASK]) != null && r != 0 && rs > 0 &&
@@ -2463,7 +2464,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     static WorkQueue commonSubmitterQueue() {
         ForkJoinPool p = common;
-        int r = ThreadLocalRandom.getProbe();
+        int r = getProbe();
         WorkQueue[] ws; int m;
         return (p != null && (ws = p.workQueues) != null &&
                 (m = ws.length - 1) > 0) ?
@@ -2477,7 +2478,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final boolean tryExternalUnpush(ForkJoinTask<?> task) {
         WorkQueue[] ws; WorkQueue w; ForkJoinTask<?>[] a; int m;
-        int r = ThreadLocalRandom.getProbe();
+        int r = getProbe();
         if ((ws = workQueues) != null && (m = ws.length - 1) > 0 &&
             (w = ws[m & r & SQMASK]) != null &&
             (a = w.array) != null) {
@@ -2501,7 +2502,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      */
     final int externalHelpComplete(CountedCompleter<?> task, int maxTasks) {
         WorkQueue[] ws; int n;
-        int r = ThreadLocalRandom.getProbe();
+        int r = getProbe();
         return ((ws = workQueues) == null || (n = ws.length) == 0) ? 0 :
             helpComplete(ws[(n - 1) & r & SQMASK], task, maxTasks);
     }
@@ -3377,6 +3378,8 @@ public class ForkJoinPool extends AbstractExecutorService {
     private static final long QPARKER;
     private static final long QCURRENTSTEAL;
     private static final long QCURRENTJOIN;
+    private static final long PROBE;
+    private static final long SECONDARY;
 
     static {
         try {
@@ -3411,6 +3414,11 @@ public class ForkJoinPool extends AbstractExecutorService {
             if ((scale & (scale - 1)) != 0)
                 throw new Error("array index scale not a power of two");
             ASHIFT = 31 - Integer.numberOfLeadingZeros(scale);
+
+            PROBE = U.objectFieldOffset
+                (Thread.class.getDeclaredField("threadLocalRandomProbe"));
+            SECONDARY = U.objectFieldOffset
+                (Thread.class.getDeclaredField("threadLocalRandomSecondarySeed"));
         } catch (ReflectiveOperationException e) {
             throw new Error(e);
         }
@@ -3469,6 +3477,45 @@ public class ForkJoinPool extends AbstractExecutorService {
             parallelism = MAX_CAP;
         return new ForkJoinPool(parallelism, factory, handler, LIFO_QUEUE,
                                 "ForkJoinPool.commonPool-worker-");
+    }
+    
+    /**
+     * Returns the probe value for the current thread.
+     * Duplicated from ThreadLocalRandom because of packaging restrictions.
+     */
+    static final int getProbe() {
+        return U.getInt(Thread.currentThread(), PROBE);
+    }
+
+    /**
+     * Pseudo-randomly advances and records the given probe value for the
+     * given thread.
+     * Duplicated from ThreadLocalRandom because of packaging restrictions.
+     */
+    static final int advanceProbe(int probe) {
+        probe ^= probe << 13;   // xorshift
+        probe ^= probe >>> 17;
+        probe ^= probe << 5;
+        U.putInt(Thread.currentThread(), PROBE, probe);
+        return probe;
+    }
+
+    /**
+     * Returns the pseudo-randomly initialized or updated secondary seed.
+     * Copied from ThreadLocalRandom due to package access restrictions.
+     */
+    static final int nextSecondarySeed() {
+        int r;
+        Thread t = Thread.currentThread();
+        if ((r = U.getInt(t, SECONDARY)) != 0) {
+            r ^= r << 13;   // xorshift
+            r ^= r >>> 17;
+            r ^= r << 5;
+        }
+        else if ((r = ThreadLocalRandom.current().nextInt()) == 0)
+            r = 1; // avoid zero
+        U.putInt(t, SECONDARY, r);
+        return r;
     }
 
     /**
