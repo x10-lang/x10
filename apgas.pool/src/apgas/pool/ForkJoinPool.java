@@ -1407,6 +1407,7 @@ public class ForkJoinPool extends AbstractExecutorService {
 
     // Instance fields
     volatile long ctl;                   // main pool control
+    volatile int blockedCount;
     volatile int runState;               // lockable status
     final int config;                    // parallelism, mode
     int indexSeed;                       // to generate worker index
@@ -1821,10 +1822,10 @@ public class ForkJoinPool extends AbstractExecutorService {
             else if (!Thread.interrupted()) {
                 long c, prevctl, parkTime, deadline;
                 int ac = (int)((c = ctl) >> AC_SHIFT) + (config & SMASK);
-                if ((ac <= 0 && tryTerminate(false, false)) ||
+                if ((ac <= 0 && blockedCount == 0 && tryTerminate(false, false)) ||
                     (runState & STOP) != 0)           // pool terminating
                     return false;
-                if (ac <= 0 && ss == (int)c) {        // is last waiter
+                if (ac <= 0 && blockedCount == 0 && ss == (int)c) {        // is last waiter
                     prevctl = (UC_MASK & (c + AC_UNIT)) | (SP_MASK & pred);
                     int t = (short)(c >>> TC_SHIFT);  // shrink excess spares
                     if (t > 2 && U.compareAndSwapLong(this, CTL, c, prevctl))
@@ -1995,6 +1996,7 @@ public class ForkJoinPool extends AbstractExecutorService {
      * @param w caller
      */
     private boolean tryCompensate(WorkQueue w) {
+        U.getAndAddInt(this, BLOCKEDCOUNT, 1);
         boolean canBlock;
         WorkQueue[] ws; long c; int m, pc, sp;
         if (w == null || w.qlock < 0 ||           // caller terminating
@@ -2036,6 +2038,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 canBlock = add && createWorker(); // throws on exception
             }
         }
+        if (!canBlock) U.getAndAddInt(this, BLOCKEDCOUNT, -1);
         return canBlock;
     }
 
@@ -2073,6 +2076,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 if (tryCompensate(w)) {
                     task.internalWait(ms);
                     U.getAndAddLong(this, CTL, AC_UNIT);
+                    U.getAndAddInt(this, BLOCKEDCOUNT, -1);
                 }
             }
             U.putOrderedObject(w, QCURRENTJOIN, prevJoin);
@@ -3341,6 +3345,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                                      !blocker.block());
                     } finally {
                         U.getAndAddLong(p, CTL, AC_UNIT);
+                        U.getAndAddInt(p, BLOCKEDCOUNT, -1);
                     }
                     break;
                 }
@@ -3369,6 +3374,7 @@ public class ForkJoinPool extends AbstractExecutorService {
     private static final int  ABASE;
     private static final int  ASHIFT;
     private static final long CTL;
+    private static final long BLOCKEDCOUNT;
     private static final long RUNSTATE;
     private static final long STEALCOUNTER;
     private static final long PARKBLOCKER;
@@ -3388,6 +3394,8 @@ public class ForkJoinPool extends AbstractExecutorService {
             U = (sun.misc.Unsafe) field.get(null);
             CTL = U.objectFieldOffset
                 (ForkJoinPool.class.getDeclaredField("ctl"));
+            BLOCKEDCOUNT = U.objectFieldOffset
+                (ForkJoinPool.class.getDeclaredField("blockedCount"));
             RUNSTATE = U.objectFieldOffset
                 (ForkJoinPool.class.getDeclaredField("runState"));
             STEALCOUNTER = U.objectFieldOffset
