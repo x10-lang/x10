@@ -1536,7 +1536,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                     break;
                 }
             }
-        } while (((c = ctl) & ADD_WORKER) != 0L && (int)c == 0);
+        } while ((((c = ctl) & ADD_WORKER) != 0L || ((c + TC_UNIT) & ADD_WORKER) == 0L) && (int)c == 0);
     }
 
     /**
@@ -1623,7 +1623,7 @@ public class ForkJoinPool extends AbstractExecutorService {
                 if (tryRelease(c, ws[sp & m], AC_UNIT))
                     break;
             }
-            else if (ex != null && (c & ADD_WORKER) != 0L) {
+            else if (ex != null && ((c & ADD_WORKER) != 0L || ((c + TC_UNIT) & ADD_WORKER) == 0L)) {
                 tryAddWorker(c);                      // create replacement
                 break;
             }
@@ -1648,8 +1648,8 @@ public class ForkJoinPool extends AbstractExecutorService {
         long c; int sp, i; WorkQueue v; Thread p;
         while ((c = ctl) < 0L) {                       // too few active
             if ((sp = (int)c) == 0) {                  // no idle workers
-                /* if ((c & ADD_WORKER) != 0L) */      // too few workers
-                    tryAddWorker(c);                   // APGAS: add worker anyway
+                if ((c & ADD_WORKER) != 0L || ((c + TC_UNIT) & ADD_WORKER) == 0L) // too few workers
+                    tryAddWorker(c);
                 break;
             }
             if (ws == null)                            // unstarted/terminated
