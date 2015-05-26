@@ -35,6 +35,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     private static int simpleAsyncMessageID;
     static VoidFun_0_1<Place> placeAddedHandler = null;
     static VoidFun_0_1<Place> placeRemovedHandler = null;
+    private compressionCodec networkCompressor = ("snappy".equalsIgnoreCase(System.getProperty("X10RT_COMPRESSION", "snappy")))?compressionCodec.SNAPPY:compressionCodec.NONE;
 
 		
     /**
@@ -292,4 +293,9 @@ public class MessageHandlers implements NetworkTransportCallbacks {
 			this.handler.$apply(p, p.$getRTT());
 		}
     }
+
+	@Override
+	public compressionCodec useCompressionCodec() {
+		return networkCompressor;
+	}
 }

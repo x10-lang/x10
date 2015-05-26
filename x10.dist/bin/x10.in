@@ -149,7 +149,7 @@ fi
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
+classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${SNAPPY_JAR}"
 
 if [ -z "$dev" ]; then
   if [[ ! -a "${STDLIB_DIR}${FILE_SEP}x10.jar" ]]; then

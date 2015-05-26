@@ -20,6 +20,7 @@
     <property name="ecj.jar.url" value="dependencies/ecj-4.4.2.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
     <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.3.1.jar"/>
+    <property name="snappy-java.jar" value="snappy-java.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
@@ -42,7 +43,6 @@
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="common.jar" value="x10common.jar"/>
     <property name="x10.network.location" location="${x10.home}/x10.network"/>
-    <property name="network.jar" value="x10network.jar"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
@@ -227,11 +227,11 @@
         <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,network-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
+    <target name="dist-java" depends="init,build,common-jar,network,constraints-jar,compiler-jar,runtime-java,tools-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
-    <target name="dist-par" depends="init,build,common-jar,network-jar,constraints-jar,compiler-jar">
+    <target name="dist-par" depends="init,build,common-jar,network,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -448,7 +448,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime-java" depends="init,common-jar,network-jar,constraints-jar">
+    <target name="runtime-java" depends="init,common-jar,network,constraints-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -489,10 +489,11 @@
 	</ant>
     </target>
 
-    <target name="network-jar" depends="init">
-        <ant antfile="${x10.network.location}/build.xml" target="build" inheritAll="false" dir="${x10.network.location}">
-	       <property name="x10.version" value="${x10.version}" />
-	    </ant>
+    <target name="network" depends="init">
+        <ant antfile="${x10.network.location}/build.xml" target="build" inheritAll="false" dir="${x10.network.location}"/>
+    	<copy todir="${lib}">
+    	   <fileset file="${x10.network.location}/lib/${snappy-java.jar}"/>
+    	</copy>
     </target>
 	
     <target name="compiler-jar" depends="init,common-jar,constraints-jar">
@@ -653,6 +654,7 @@ LPG_JAR='${lpg.jar}'
 ANTLR_JAR='${antlr.jar}'
 ECJ_JAR='${ecj.jar}'
 HAZELCAST_JAR='${hazelcast.jar}'
+SNAPPY_JAR='${snappy-java.jar}'
 WALA_JAR='${wala.jar}'
 WALA2_JAR='${wala2.jar}'
 WALA3_JAR='${wala3.jar}'

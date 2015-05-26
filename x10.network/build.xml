@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.network" default="build" basedir=".">
-    <property name="x10.home" value="${basedir}/.."/>
-    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+<project name="x10.network" default="jar" basedir=".">
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
-    <property name="lib" location="${x10.dist.location}/lib"/>
-    <property name="jar" value="x10network.jar"/>
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="jar" value="${basedir}/x10network.jar"/>
+	<property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
     </path>
@@ -17,15 +16,12 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
+    	<mkdir dir="${lib}"/>
+	    <get src="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" dest="${snappy-java.jar}" skipexisting="true"/>
     </target>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
-    </target>
-    <target name="dist" depends="jar" description="generate part of the distribution">
-        <mkdir dir="${lib}"/>
-        <copy todir="${lib}">
-            <fileset dir="${build}" includes="${jar}"/>
-        </copy>
+    	<delete file="${snappy-java.jar}"/>
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
@@ -39,6 +35,7 @@
             <include name="x10/**"/>
             <classpath>
                 <path refid="project.classpath"/>
+            	<pathelement location="${snappy-java.jar}"/>
             </classpath>
         </javac>
     </target>

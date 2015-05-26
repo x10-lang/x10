@@ -9,4 +9,7 @@ public interface NetworkTransportCallbacks {
 	
 	public long getEpoch();
 	public void setEpoch(long epoch);
+	
+	static enum compressionCodec {NONE, SNAPPY};
+	public compressionCodec useCompressionCodec();
 }

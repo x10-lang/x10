@@ -102,9 +102,6 @@ public class SocketTransport extends Transport implements
              */
 
             try {
-              if (useSnappy) {
-                data = org.xerial.snappy.Snappy.uncompress(data);
-              }
               final ObjectInputStream ois = new ObjectInputStream(
                   new ByteArrayInputStream(data));
               final SerializableRunnable f = (SerializableRunnable) ois
@@ -143,10 +140,7 @@ public class SocketTransport extends Transport implements
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(f);
-        byte[] data = baos.toByteArray();
-        if (useSnappy) {
-          data = org.xerial.snappy.Snappy.compress(baos.toByteArray());
-        }
+        final byte[] data = baos.toByteArray();
         if (localTransport.sendMessage(place, 0, data) != 0) {
           throw new DeadPlaceException(new Place(place));
         }
@@ -216,5 +210,14 @@ public class SocketTransport extends Transport implements
   @Override
   public void setEpoch(long epoch) {
     // Epoch does not exist in apgas
+  }
+
+  @Override
+  public compressionCodec useCompressionCodec() {
+    if (useSnappy) {
+      return compressionCodec.SNAPPY;
+    } else {
+      return compressionCodec.NONE;
+    }
   }
 }

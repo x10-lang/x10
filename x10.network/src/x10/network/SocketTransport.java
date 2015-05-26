@@ -36,6 +36,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.xerial.snappy.Snappy;
+
+import x10.network.NetworkTransportCallbacks.compressionCodec;
+
 /**
  * Implementation of JavaSockets transport
  */
@@ -585,7 +589,7 @@ public class SocketTransport {
 								
 								// tell the new place to connect to the hazelcast cluster
 								if (dataStoreLocation != null) {
-					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(dataStoreLocation));
+					      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, dataStoreLocation);
 								}
 								
 								// notify the upper runtime of the new place
@@ -733,7 +737,7 @@ public class SocketTransport {
 									
 									// tell the new place to connect to the hazelcast cluster
 									if (dataStoreLocation != null) {
-						      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, ByteBuffer.wrap(dataStoreLocation));
+						      	   		sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, dataStoreLocation);
 									}
 									
 									// notify the upper runtime of the new place
@@ -772,6 +776,16 @@ public class SocketTransport {
 			    		return null;
 					}
 				}
+				if (toProcess != null && toProcess.data.capacity() > 0 && runtimeLink.useCompressionCodec() == compressionCodec.SNAPPY) {
+					try {
+						ByteBuffer uncompressed = ByteBuffer.allocateDirect(Snappy.uncompressedLength(toProcess.data));
+						Snappy.uncompress(toProcess.data, uncompressed);
+						toProcess.data = uncompressed;
+					} catch (Exception e) {
+						// pass the data along without decompressing it.
+						toProcess.data.rewind();
+					}
+				}
 				return toProcess;
 			}
 		} catch (CancelledKeyException e) {
@@ -783,15 +797,10 @@ public class SocketTransport {
     }
     
     public int sendMessage(int place, int msg_id, byte[] bytes) {
-/*    	ByteBuffer bb = ByteBuffer.allocateDirect(bytes.length);
-    	bb.put(bytes);
-    	bb.flip();
-*/
-    	ByteBuffer bb = ByteBuffer.wrap(bytes);
-    	return sendMessage(MSGTYPE.STANDARD, place, msg_id, bb);
+    	return sendMessage(MSGTYPE.STANDARD, place, msg_id, bytes);
     }
     
-    public int sendMessage(MSGTYPE msgtype, int place, int msg_id, ByteBuffer buffer) {
+    public int sendMessage(MSGTYPE msgtype, int place, int msg_id, byte[] incomingBuffer) {
     	if (isPlaceDead(place)) // don't send messages to dead or uninitialized places
     		return RETURNCODE.X10RT_ERR_OTHER.ordinal();
 
@@ -802,14 +811,26 @@ public class SocketTransport {
 			return RETURNCODE.X10RT_ERR_OTHER.ordinal();
 		}
     	
+    	// compress the buffer
+    	byte[] outgoingBuffer;
+        if (incomingBuffer != null && runtimeLink.useCompressionCodec() == compressionCodec.SNAPPY) {
+        	try {
+        		outgoingBuffer = Snappy.compress(incomingBuffer);
+        	} catch (Exception e) {
+        		outgoingBuffer = incomingBuffer;
+        	}
+        }
+        else
+        	outgoingBuffer = incomingBuffer;
+    	
     	// write out the x10SocketMessage data
     	// Format: type, p.type, p.len, p.msg
     	ByteBuffer controlData = ByteBuffer.allocateDirect(12);
     	controlData.putInt(msgtype.getValue());
     	controlData.putInt(msg_id);
     	int len = 0; 
-    	if (buffer != null)
-    		len = buffer.remaining();
+    	if (outgoingBuffer != null)
+    		len = outgoingBuffer.length;
     	controlData.putInt(len);
     	controlData.flip();
     	if (DEBUG) System.err.print("Place "+myPlaceId+" sending a message to place "+place+" of type "+msg_id+" and size "+len+"...");
@@ -819,7 +840,7 @@ public class SocketTransport {
 	    	try {
 		    	writeBytes(cl, controlData);
 		    	if (len > 0)
-	    			writeBytes(cl, buffer);
+	    			writeBytes(cl, ByteBuffer.wrap(outgoingBuffer));
 				if (DEBUG) System.err.println("Sent");
 	    	} 
 	    	finally {

@@ -488,7 +488,7 @@ public class X10RT {
 				byte[] message = hazelcastDatastore.getConnectionInfo().getBytes(SocketTransport.UTF8);
 				javaSockets.setDataStoreLocation(message);
 	      	   	for (int i=1; i<numPlaces(); i++) {
-	          	   	javaSockets.sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, i, 0, ByteBuffer.wrap(message));
+	          	   	javaSockets.sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, i, 0, message);
 	      	   	}
 
 			} catch (UnsupportedEncodingException e) {
