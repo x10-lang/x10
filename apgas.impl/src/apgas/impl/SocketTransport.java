@@ -106,8 +106,8 @@ public class SocketTransport extends Transport implements
                   new ByteArrayInputStream(data));
               final SerializableRunnable f = (SerializableRunnable) ois
                   .readObject();
-              immediateThreads.submit(f);
               ois.close();
+              immediateThreads.submit(f);
             } catch (final Exception e) {
               e.printStackTrace();
             }
