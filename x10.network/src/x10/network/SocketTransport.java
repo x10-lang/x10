@@ -90,7 +90,7 @@ public class SocketTransport {
 	public class Message {
 		private Message(int callbackId, int bufferSize) {
 			this.callbackId = callbackId;
-			data = ByteBuffer.allocateDirect(bufferSize);
+			data = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
 		}
 		public int callbackId;
 		public ByteBuffer data;
@@ -778,7 +778,7 @@ public class SocketTransport {
 				}
 				if (toProcess != null && toProcess.data.capacity() > 0 && runtimeLink.useCompressionCodec() == compressionCodec.SNAPPY) {
 					try {
-						ByteBuffer uncompressed = ByteBuffer.allocateDirect(Snappy.uncompressedLength(toProcess.data));
+						ByteBuffer uncompressed = ByteBuffer.allocateDirect(Snappy.uncompressedLength(toProcess.data)).order(ByteOrder.nativeOrder());
 						Snappy.uncompress(toProcess.data, uncompressed);
 						toProcess.data = uncompressed;
 					} catch (Exception e) {
