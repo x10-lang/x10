@@ -107,6 +107,7 @@ public class SocketTransport extends Transport implements
               final SerializableRunnable f = (SerializableRunnable) ois
                   .readObject();
               immediateThreads.submit(f);
+              ois.close();
             } catch (final Exception e) {
               e.printStackTrace();
             }
@@ -140,6 +141,7 @@ public class SocketTransport extends Transport implements
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(f);
+        oos.close();
         final byte[] data = baos.toByteArray();
         if (localTransport.sendMessage(place, 0, data) != 0) {
           throw new DeadPlaceException(new Place(place));
