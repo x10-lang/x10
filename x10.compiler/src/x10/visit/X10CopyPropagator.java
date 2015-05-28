@@ -512,6 +512,6 @@ public class X10CopyPropagator extends DataFlow {
             }
         }
 
-        return n;
+        return super.leaveCall(old, n, v);
     }
 }
