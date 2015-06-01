@@ -1,3 +1,5 @@
+Run "ant dependencies" to download prerequisites.
+
 This project requires Eclipse 4.4.2 or later.
 
 The apgas.dt.zip contains the "APGAS Development Toolkit" feature for Eclipse 4.4.2.

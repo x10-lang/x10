@@ -3,8 +3,8 @@
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${basedir}/lib"/>
-    <property name="jar" value="${basedir}/x10network.jar"/>
-	<property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
+    <property name="jar" value="apgas.jar"/>
+    <property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
     </path>
@@ -14,20 +14,20 @@
     <!-- get the environment variables -->
     <property environment="env"/>
 
-	<target name="check-dependencies">
-		<available file="${snappy-java.jar}" property="snappy.present"/>
-	</target>
+    <target name="check-dependencies">
+        <available file="${snappy-java.jar}" property="snappy.present"/>
+    </target>
     <target name="init" depends="check-dependencies" unless="snappy.present">
         <mkdir dir="${build}"/>
-    	<mkdir dir="${lib}"/>
-	    <get src="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" dest="${snappy-java.jar}"/>
+        <mkdir dir="${lib}"/>
+        <get src="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" dest="${snappy-java.jar}"/>
     </target>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
-    	<delete dir="${lib}" failonerror="false"/>
+        <delete dir="${lib}" failonerror="false"/>
     </target>
     <target name="jar" depends="build">
-        <jar jarfile="${build}/${jar}">
+        <jar jarfile="${lib}/${jar}">
             <fileset dir="${build}" includes="x10/**" excludes="${jar}"/>
         </jar>
     </target>
@@ -38,7 +38,7 @@
             <include name="x10/**"/>
             <classpath>
                 <path refid="project.classpath"/>
-            	<pathelement location="${snappy-java.jar}"/>
+                <pathelement location="${snappy-java.jar}"/>
             </classpath>
         </javac>
     </target>
