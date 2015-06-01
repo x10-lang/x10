@@ -1,28 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10.network" default="jar" basedir=".">
     <property name="build" location="${basedir}/bin"/>
+    <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${basedir}/lib"/>
+    <property name="doc" location="${basedir}/doc"/>
     <property name="jar" value="apgas.jar"/>
-    <property name="snappy-java.jar" value="${lib}/snappy-java-1.1.2-RC2.jar"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast-3.4.jar"/>
     <property name="hazelcast-sources.jar" value="${lib}/hazelcast-3.4-sources.jar"/>
-    <property name="hadoop-common.jar" value="${lib}/hadoop-common-2.6.0.jar"/>
-    <property name="hadoop-yarn-api.jar" value="${lib}/hadoop-yarn-api-2.6.0.jar"/>
-    <property name="hadoop-yarn-client.jar" value="${lib}/hadoop-yarn-client-2.6.0.jar"/>
     <target name="check-dependencies">
         <available file="${snappy-java.jar}" property="snappy.present"/>
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
         <available file="${hazelcast-sources.jar}" property="hazelcast-sources.present"/>
-        <available file="${hadoop-common.jar}" property="hadoop-common.present"/>
-        <available file="${hadoop-yarn-api.jar}" property="hadoop-yarn-api.present"/>
-        <available file="${hadoop-yarn-client.jar}" property="hadoop-yarn-client.present"/>
     </target>
     <target name="init">
         <mkdir dir="${build}"/>
         <mkdir dir="${lib}"/>
-    </target>
-    <target name="snappy-java" depends="check-dependencies" unless="snappy.present">
-        <get src="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" dest="${lib}"/>
     </target>
     <target name="hazelcast" depends="check-dependencies" unless="hazelcast.present">
         <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/3.4/hazelcast-3.4.jar" dest="${lib}"/>
@@ -30,16 +22,7 @@
     <target name="hazelcast-sources" depends="check-dependencies" unless="hazelcast-sources.present">
         <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/3.4/hazelcast-3.4-sources.jar" dest="${lib}"/>
     </target>
-    <target name="hadoop-common" depends="check-dependencies" unless="hadoop-common.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-common/2.6.0/hadoop-common-2.6.0.jar" dest="${lib}"/>
-    </target>
-    <target name="hadoop-yarn-api" depends="check-dependencies" unless="hadoop-yarn-api.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-api/2.6.0/hadoop-yarn-api-2.6.0.jar" dest="${lib}"/>
-    </target>
-    <target name="hadoop-yarn-client" depends="check-dependencies" unless="hadoop-yarn-client.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-client/2.6.0/hadoop-yarn-client-2.6.0.jar" dest="${lib}"/>
-    </target>
-    <target name="dependencies" depends="init,snappy-java,hazelcast,hazelcast-sources,hadoop-common,hadoop-yarn-api,hadoop-yarn-client"/>
+    <target name="dependencies" depends="init,hazelcast,hazelcast-sources"/>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
     </target>
@@ -49,32 +32,20 @@
     <target name="jar" depends="build">
         <jar jarfile="${lib}/${jar}">
             <fileset dir="${build}" includes="**"/>
-            <fileset dir="${basedir}/../apgas/src" includes="**"/>
-            <fileset dir="${basedir}/../apgas.impl/src" includes="**"/>
-            <fileset dir="${basedir}/../apgas.pool/src" includes="**"/>
-            <fileset dir="${basedir}/../apgas.yarn/src" includes="**"/>
-            <fileset dir="${basedir}/../x10.network/src" includes="**"/>
+            <fileset dir="${src}" includes="**"/>
         </jar>
     </target>
     <target name="build" depends="dependencies">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac destdir="${build}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
-            <src path="${basedir}/.."/>
-            <include name="apgas/src/**"/>
-            <include name="apgas.impl/src/**"/>
-            <include name="apgas.pool/src/**"/>
-            <include name="apgas.yarn/src/**"/>
-            <include name="x10.network/src/**"/>
+            <src path="${src}"/>
+            <include name="**"/>
             <classpath>
-                <pathelement location="${snappy-java.jar}"/>
                 <pathelement location="${hazelcast.jar}"/>
-                <pathelement location="${hadoop-common.jar}"/>
-                <pathelement location="${hadoop-yarn-api.jar}"/>
-                <pathelement location="${hadoop-yarn-client.jar}"/>
             </classpath>
         </javac>
     </target>
     <target name="javadoc">
-        <javadoc access="protected" author="true" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="src" splitindex="true" use="true" version="true"/>
+        <javadoc access="protected" author="false" classpath="${hazelcast.jar}" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" splitindex="true" use="true" version="true"/>
     </target>
 </project>
