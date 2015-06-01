@@ -37,6 +37,7 @@ import polyglot.ast.While;
 import polyglot.frontend.Job;
 import polyglot.main.Reporter;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.DataFlow;
@@ -500,7 +501,8 @@ public class X10CopyPropagator extends DataFlow {
             LocalDef li = l.localInstance().def();
             LocalDef root = in.getRoot(li);
             if (root == null || root == li) return n;
-            return l.name(l.name().id(root.name())).localInstance(root.asInstance());
+            LocalInstance ri = root.asInstance();
+            return l.name(l.name().id(root.name())).localInstance(ri).type(ri.type());
         }
 
         if (n instanceof LocalAssign) {
