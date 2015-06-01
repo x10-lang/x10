@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10.network" default="jar" basedir=".">
-    <property name="bin" location="${basedir}/bin"/>
+    <property name="build" location="${basedir}/bin"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="jar" value="apgas.jar"/>
     <property name="snappy-java.jar" value="${lib}/snappy-java-1.1.2-RC2.jar"/>
