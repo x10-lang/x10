@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2015
  */
 
-package apgas.impl;
+package apgas.sockets;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +24,9 @@ import x10.network.NetworkTransportCallbacks;
 import apgas.Configuration;
 import apgas.DeadPlaceException;
 import apgas.Place;
+import apgas.impl.GlobalRuntimeImpl;
+import apgas.impl.SerializableRunnable;
+import apgas.impl.Transport;
 
 /**
  * The {@link SocketTransport} class manages the Hazelcast cluster and
