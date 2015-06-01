@@ -45,6 +45,8 @@ import polyglot.visit.FlowGraph;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.util.CollectionFactory;
@@ -344,13 +346,7 @@ public class X10CopyPropagator extends DataFlow {
 
     protected DataFlowItem flow(Item in, FlowGraph graph, Term t, boolean entry) {
         DataFlowItem result = new DataFlowItem((DataFlowItem) in);
-        if (t instanceof Async) {
-            // Kill all variables
-            result.killall();
-        } else if (t instanceof AtStmt) {
-            // Kill all variables
-            result.killall();
-        } else if (t instanceof Closure) {
+        if (t instanceof Async || t instanceof AtStmt || t instanceof AtEach || t instanceof Closure) {
             // Kill all variables
             result.killall();
         }
