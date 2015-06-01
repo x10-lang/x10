@@ -43,7 +43,7 @@ import com.hazelcast.spi.ExecutionService;
  * The {@link Transport} class manages the Hazelcast cluster and implements
  * active messages.
  */
-class Transport implements com.hazelcast.core.ItemListener<Member>,
+public class Transport implements com.hazelcast.core.ItemListener<Member>,
     InitialMembershipListener {
   private static String APGAS = "apgas";
   private static String APGAS_PLACES = "apgas:places";
@@ -116,8 +116,8 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
    * @param compact
    *          reduces thread creation if set
    */
-  Transport(GlobalRuntimeImpl runtime, String master, String localhost,
-      boolean compact) {
+  protected Transport(GlobalRuntimeImpl runtime, String master,
+      String localhost, boolean compact) {
     this.runtime = runtime;
     // config
     final Config config = new Config();
@@ -174,7 +174,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * Starts monitoring cluster membership events.
    */
-  synchronized void start() {
+  protected synchronized void start() {
     regItemListener = allMembers.addItemListener(this, false);
     regMembershipListener = hazelcast.getCluster().addMembershipListener(this);
   }
@@ -212,7 +212,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
    *
    * @return an address in the form "ip:port"
    */
-  String getAddress() {
+  protected String getAddress() {
     final InetSocketAddress address = me.getSocketAddress();
     return address.getAddress().getHostAddress() + ":" + address.getPort();
   }
@@ -220,7 +220,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
   /**
    * Shuts down this Hazelcast instance.
    */
-  synchronized void shutdown() {
+  protected synchronized void shutdown() {
     hazelcast.getCluster().removeMembershipListener(regMembershipListener);
     allMembers.removeItemListener(regItemListener);
     hazelcast.shutdown();
@@ -231,7 +231,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
    *
    * @return a place ID.
    */
-  int maxPlace() {
+  protected int maxPlace() {
     return maxPlace;
   }
 
@@ -240,7 +240,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
    *
    * @return the place ID of this Hazelcast instance
    */
-  int here() {
+  protected int here() {
     return here;
   }
 
@@ -254,7 +254,7 @@ class Transport implements com.hazelcast.core.ItemListener<Member>,
    * @throws DeadPlaceException
    *           if the cluster does not contain this place
    */
-  void send(int place, SerializableRunnable f) {
+  protected void send(int place, SerializableRunnable f) {
     if (place == here) {
       f.run();
     } else {

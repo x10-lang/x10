@@ -12,7 +12,6 @@
 package apgas;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -42,10 +41,7 @@ public abstract class GlobalRuntime {
       try {
         final String className = System.getProperty(
             Configuration.APGAS_RUNTIME, "apgas.impl.GlobalRuntimeImpl");
-        final Constructor<?> constructor = Class.forName(className)
-            .getConstructor(new Class<?>[0]);
-        constructor.setAccessible(true);
-        runtime = (GlobalRuntime) constructor.newInstance(new Object[0]);
+        runtime = (GlobalRuntime) Class.forName(className).newInstance();
       } catch (final ReflectiveOperationException e) {
         throw new RuntimeException(e);
       }

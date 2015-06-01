@@ -1,8 +1,7 @@
 package apgas.impl;
 
 import java.util.List;
-
-import apgas.pool.ForkJoinPool;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * The {@link Finish} interface.

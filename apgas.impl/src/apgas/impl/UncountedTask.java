@@ -13,10 +13,10 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.concurrent.RecursiveAction;
 
 import apgas.DeadPlaceException;
 import apgas.SerializableJob;
-import apgas.pool.RecursiveAction;
 
 /**
  * The {@link UncountedTask} class represents an uncounted task.

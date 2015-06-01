@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
 import apgas.Configuration;
@@ -31,9 +34,6 @@ import apgas.MultipleException;
 import apgas.Place;
 import apgas.SerializableCallable;
 import apgas.SerializableJob;
-import apgas.pool.ForkJoinPool;
-import apgas.pool.ForkJoinTask;
-import apgas.pool.RecursiveAction;
 import apgas.util.GlobalID;
 
 import com.hazelcast.core.IMap;
@@ -42,7 +42,7 @@ import com.hazelcast.core.IMap;
  * The {@link GlobalRuntimeImpl} class implements the
  * {@link apgas.GlobalRuntime} class.
  */
-final class GlobalRuntimeImpl extends GlobalRuntime {
+public final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * The value of the APGAS_SERIALIZATION_EXCEPTION system property.
    */

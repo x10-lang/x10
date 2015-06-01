@@ -89,7 +89,7 @@ public class SocketTransport extends Transport implements
   }
 
   @Override
-  synchronized void start() {
+  protected synchronized void start() {
     // super.start();
     immediateThreads.execute(new Runnable() {
       @Override
@@ -127,22 +127,22 @@ public class SocketTransport extends Transport implements
   }
 
   @Override
-  String getAddress() {
+  protected String getAddress() {
     return super.getAddress() + ',' + localTransport.getLocalConnectionInfo();
   }
 
   @Override
-  int maxPlace() {
+  protected int maxPlace() {
     return localTransport.x10rt_nplaces();
   }
 
   @Override
-  int here() {
+  protected int here() {
     return localTransport.x10rt_here();
   }
 
   @Override
-  void send(int place, SerializableRunnable f) {
+  protected void send(int place, SerializableRunnable f) {
     if (place == here()) {
       f.run();
     } else {
@@ -169,7 +169,7 @@ public class SocketTransport extends Transport implements
   }
 
   @Override
-  synchronized void shutdown() {
+  protected synchronized void shutdown() {
     // super.shutdown();
     running = false;
     localTransport.shutdown();
