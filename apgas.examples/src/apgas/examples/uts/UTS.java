@@ -15,64 +15,30 @@ import static apgas.Constructs.*;
 
 import java.security.DigestException;
 import java.security.MessageDigest;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import apgas.Configuration;
 import apgas.DeadPlaceException;
-import apgas.GlobalRuntime;
-import apgas.Job;
 import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.PlaceLocalObject;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.TransactionalMap;
-import com.hazelcast.transaction.TransactionException;
-import com.hazelcast.transaction.TransactionalTask;
-import com.hazelcast.transaction.TransactionalTaskContext;
-
-final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
-  @Override
-  public synchronized void accept(Place place) {
-    // p is dead, unblock if waiting on p
-    if (place.id > 0) {
-      System.err.println(home + " observes that " + place + " failed!");
-    }
-    if (state == place.id) {
-      // attempt to extract loot from store
-      final Bag b = map.get(home);
-      if (b.size != 0) {
-        bag.merge(b);
-      }
-      state = -1;
-      notifyAll();
-    }
-  }
-
-  final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
-  final IMap<Place, Bag> map = hz.getMap("map");
+final class UTS extends PlaceLocalObject {
   final Place home = here();
   final int places = places().size();
   final Random random = new Random();
   final MessageDigest md = Bag.encoder();
   final Bag bag = new Bag(64);
-  long transfers;
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
   final AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
   int state = -2; // -2: inactive, -1: running, p: stealing from p
 
   void seed(int s, int d) {
     bag.seed(md, s, d);
-    map.set(home, bag.trim());
   }
 
-  @Override
   public void run() throws DigestException {
     System.err.println(home + " starting");
     synchronized (this) {
@@ -85,7 +51,6 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
         }
         distribute();
       }
-      map.set(home, bag.trim());
       steal();
     }
     synchronized (this) {
@@ -180,31 +145,6 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
     notifyAll();
   }
 
-  void transfer(Place p, Bag b) {
-    transfers++;
-    while (true) {
-      try {
-        hz.executeTransaction(new TransactionalTask<Object>() {
-          @Override
-          public Object execute(TransactionalTaskContext context)
-              throws TransactionException {
-            final TransactionalMap<Place, Bag> map = context.getMap("map");
-            map.set(home, bag.trim());
-            final Bag old = map.getForUpdate(p);
-            b.count = old == null ? 0 : old.count;
-            map.set(p, b);
-            return null;
-          }
-        });
-        return;
-      } catch (final Throwable t) {
-        System.err.println("Exception in transaction at " + home
-            + "... retrying");
-        t.printStackTrace();
-      }
-    }
-  }
-
   void distribute() {
     Place p;
     if (lifeline.get()) {
@@ -212,7 +152,6 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
       if (b != null) {
         p = place((home.id + 1) % places);
         lifeline.set(false);
-        transfer(p, b);
         try {
           asyncAt(p, () -> {
             lifelinedeal(b);
@@ -224,9 +163,6 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
     }
     while ((p = thieves.poll()) != null) {
       final Bag b = bag.split();
-      if (b != null) {
-        transfer(p, b);
-      }
       try {
         final Place h = home;
         uncountedAsyncAt(p, () -> {
@@ -253,42 +189,26 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
 
     // initialize uts and place failure handler in each place
     final UTS uts0 = PlaceLocalObject.make(places(), () -> new UTS());
-    finish(() -> {
-      for (final Place p : places()) {
-        asyncAt(p, () -> {
-          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts0);
-        });
-      }
-    });
 
     System.out.println("Warmup...");
     try {
       uts0.seed(19, depth - 2); // seed: 19
-      finish(uts0);
+      finish(uts0::run);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
       }
     }
 
-    uts0.map.clear();
-
     // initialize uts and place failure handler in each place
     final UTS uts = PlaceLocalObject.make(places(), () -> new UTS());
-    finish(() -> {
-      for (final Place p : places()) {
-        asyncAt(p, () -> {
-          GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
-        });
-      }
-    });
 
     System.out.println("Starting...");
     long time = System.nanoTime();
 
     try {
       uts.seed(19, depth); // seed: 19
-      finish(uts);
+      finish(uts::run);
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         throw e;
@@ -297,28 +217,15 @@ final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
 
     long count = 0;
     // collect all counts
-    // if places have died, process remaining nodes sequentially at place 0
-    for (final Map.Entry<Place, Bag> e : uts.map.entrySet()) {
-      final Bag b = e.getValue();
-      if (b.size != 0) {
-        System.err.println("Recovering " + e.getKey());
-        b.run(uts.md);
-      }
-      count += b.count;
+    for (final Place p : places()) {
+      count += at(p, () -> uts.bag.count);
     }
 
     time = System.nanoTime() - time;
     System.out.println("Finished.");
 
-    long transfers = 0;
-    // collect all counts
-    for (final Place p : places()) {
-      transfers += at(p, () -> uts.transfers);
-    }
-
     System.out.println("Depth: " + depth + ", Places: " + uts.places
         + ", Performance: " + count + "/" + Bag.sub("" + time / 1e9, 0, 6)
-        + " = " + Bag.sub("" + (count / (time / 1e3)), 0, 6)
-        + "M nodes/s using " + transfers + " transactions");
+        + " = " + Bag.sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
   }
 }
