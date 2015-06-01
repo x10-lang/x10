@@ -35,7 +35,6 @@ import apgas.pool.ForkJoinPool;
 import apgas.pool.ForkJoinTask;
 import apgas.pool.RecursiveAction;
 import apgas.util.GlobalID;
-import apgas.util.Launcher;
 
 import com.hazelcast.core.IMap;
 
@@ -227,8 +226,8 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
         }
         if (compact) {
           command.add("-D" + Configuration.APGAS_COMPACT + "=true");
-          command.add("-XX:CICompilerCount=3");
-          command.add("-XX:ParallelGCThreads=2");
+          // command.add("-XX:CICompilerCount=3");
+          // command.add("-XX:ParallelGCThreads=2");
         }
         if (factory != null) {
           command.add("-D" + Configuration.APGAS_FINISH + "=" + finishConfig);
@@ -345,7 +344,7 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void asyncat(Place p, SerializableJob f) {
+  public void asyncAt(Place p, SerializableJob f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? NullFinish.SINGLETON
         : worker.task.finish;
@@ -354,13 +353,13 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
-  public void uncountedasyncat(Place p, SerializableJob f) {
+  public void uncountedAsyncAt(Place p, SerializableJob f) {
     new UncountedTask(f).uncountedasyncat(p.id);
   }
 
   @Override
   public void at(Place p, SerializableJob f) {
-    Constructs.finish(() -> Constructs.asyncat(p, f));
+    Constructs.finish(() -> Constructs.asyncAt(p, f));
   }
 
   @SuppressWarnings("unchecked")
@@ -368,9 +367,9 @@ final class GlobalRuntimeImpl extends GlobalRuntime {
   public <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
     final GlobalID id = new GlobalID();
     final Place home = here();
-    Constructs.finish(() -> Constructs.asyncat(p, () -> {
+    Constructs.finish(() -> Constructs.asyncAt(p, () -> {
       final T result = f.call();
-      Constructs.asyncat(home, () -> id.putHere(result));
+      Constructs.asyncAt(home, () -> id.putHere(result));
     }));
     return (T) id.removeHere();
   }

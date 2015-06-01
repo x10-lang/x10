@@ -30,23 +30,24 @@ public final class Configuration {
 
   /**
    * Name of the network transport class implementation to instantiate (String
-   * property). Currently "apgas.impl.Transport" and
-   * "apgas.impl.SocketTransport" are supported. Defaults to SocketTransport
+   * property).
+   * <p>
+   * Currently "{@code apgas.impl.Transport}" and "
+   * {@code apgas.impl.SocketTransport}" are supported. Defaults to
+   * {@code Transport}.
    */
   public static final String APGAS_NETWORKTRANSPORT = "apgas.networktransport";
 
   /**
-   * Enables or disables compression on the network links. Set to "none" or
-   * "snappy", which is the default.
+   * Enables or disables compression on the network links when using
+   * {@code SocketTransport}.
+   * <p>
+   * Set to "none" or "snappy", which is the default.
    */
   public static final String APGAS_NETWORKTRANSPORT_COMPRESSION = "apgas.networktransport.compression";
 
   /**
    * Number of places to spawn (Integer property).
-   * <p>
-   * All the places are spawned on the localhost.
-   *
-   * @see GlobalRuntime
    */
   public static final String APGAS_PLACES = "apgas.places";
 
@@ -59,8 +60,7 @@ public final class Configuration {
   public static final String APGAS_THREADS = "apgas.threads";
 
   /**
-   * Reduces the number of threads used by the JVM and Hazelcast if set (Boolean
-   * property).
+   * Reduces the number of threads used by Hazelcast if set (Boolean property).
    */
   public static final String APGAS_COMPACT = "apgas.compact";
 
@@ -93,12 +93,12 @@ public final class Configuration {
   /**
    * Specifies the java command to run for spawning places (String property).
    * <p>
-   * Defaults to "java".
+   * Defaults to "{@code java}".
    */
   public static final String APGAS_JAVA = "apgas.java";
 
   /**
-   * Turns on resiliency.
+   * Enables or disables resiliency.
    */
   public static final String APGAS_RESILIENT = "apgas.resilient";
 

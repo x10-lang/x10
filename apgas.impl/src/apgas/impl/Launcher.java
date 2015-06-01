@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2015.
  */
 
-package apgas.util;
+package apgas.impl;
 
 import java.util.List;
 

@@ -37,7 +37,7 @@ import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
-final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
+final class UTS extends PlaceLocalObject implements Consumer<Place>, Job {
   @Override
   public synchronized void accept(Place place) {
     // p is dead, unblock if waiting on p
@@ -101,7 +101,7 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
       return;
     }
     try {
-      asyncat(place((home.id + places - 1) % places), () -> {
+      asyncAt(place((home.id + places - 1) % places), () -> {
         lifeline.set(true);
       });
     } catch (final DeadPlaceException e) {
@@ -126,7 +126,7 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
       state = p;
     }
     try {
-      uncountedasyncat(place(p), () -> {
+      uncountedAsyncAt(place(p), () -> {
         request(from);
       });
     } catch (final DeadPlaceException e) {
@@ -155,7 +155,7 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
     }
     try {
       final Place h = home;
-      uncountedasyncat(p, () -> {
+      uncountedAsyncAt(p, () -> {
         deal(h, null);
       });
     } catch (final DeadPlaceException e) {
@@ -214,7 +214,7 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
         lifeline.set(false);
         transfer(p, b);
         try {
-          asyncat(p, () -> {
+          asyncAt(p, () -> {
             lifelinedeal(b);
           });
         } catch (final DeadPlaceException e) {
@@ -229,7 +229,7 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
       }
       try {
         final Place h = home;
-        uncountedasyncat(p, () -> {
+        uncountedAsyncAt(p, () -> {
           deal(h, b);
         });
       } catch (final DeadPlaceException e) {
@@ -252,10 +252,10 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
     // initialize uts and place failure handler in each place
-    final GlobalUTS uts0 = PlaceLocalObject.make(places(), () -> new GlobalUTS());
+    final UTS uts0 = PlaceLocalObject.make(places(), () -> new UTS());
     finish(() -> {
       for (final Place p : places()) {
-        asyncat(p, () -> {
+        asyncAt(p, () -> {
           GlobalRuntime.getRuntime().setPlaceFailureHandler(uts0);
         });
       }
@@ -274,10 +274,10 @@ final class GlobalUTS extends PlaceLocalObject implements Consumer<Place>, Job {
     uts0.map.clear();
 
     // initialize uts and place failure handler in each place
-    final GlobalUTS uts = PlaceLocalObject.make(places(), () -> new GlobalUTS());
+    final UTS uts = PlaceLocalObject.make(places(), () -> new UTS());
     finish(() -> {
       for (final Place p : places()) {
-        asyncat(p, () -> {
+        asyncAt(p, () -> {
           GlobalRuntime.getRuntime().setPlaceFailureHandler(uts);
         });
       }

@@ -143,7 +143,7 @@ public class GlobalID implements Serializable {
     finish(() -> {
       for (final Place p : places) {
         try {
-          asyncat(p, () -> {
+          asyncAt(p, () -> {
             that.removeHere();
           });
         } catch (final DeadPlaceException e) {

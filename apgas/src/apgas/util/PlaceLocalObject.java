@@ -45,7 +45,7 @@ public class PlaceLocalObject implements Serializable {
     try {
       finish(() -> {
         for (final Place p : places) {
-          Constructs.asyncat(p, () -> {
+          Constructs.asyncAt(p, () -> {
             final T t = initializer.call();
             t.id = id;
             id.putHere(t);

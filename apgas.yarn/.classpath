@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/hadoop-yarn-api-2.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-yarn-client-2.6.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/apgas"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/apgas.impl"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

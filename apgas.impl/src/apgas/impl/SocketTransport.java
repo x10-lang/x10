@@ -41,7 +41,16 @@ public class SocketTransport extends Transport implements
   // private final Kryo kryo;
 
   /**
-   * @see Transport
+   * Initializes the {@link SocketTransport} for this global runtime instance.
+   *
+   * @param runtime
+   *          the global runtime instance
+   * @param master
+   *          member to connect to or null
+   * @param localhost
+   *          the preferred ip address of this host
+   * @param compact
+   *          reduces thread creation if set
    */
   SocketTransport(GlobalRuntimeImpl runtime, String master, String localhost,
       boolean compact) {

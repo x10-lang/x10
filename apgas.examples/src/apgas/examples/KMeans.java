@@ -114,7 +114,7 @@ public class KMeans {
 
       finish(() -> {
         for (final Place place : places()) {
-          asyncat(
+          asyncAt(
               place,
               () -> {
 
@@ -157,7 +157,7 @@ public class KMeans {
                   clusterCounts[closest]++;
                 }
 
-                asyncat(
+                asyncAt(
                     centralClusterStateGr.home(),
                     () -> {
                       // combine place clusters to central

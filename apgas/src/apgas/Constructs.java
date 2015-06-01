@@ -30,7 +30,7 @@ public final class Constructs {
    * to complete.
    * <p>
    * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
-   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * exceptions then {@code finish(f)} then throws a {@link MultipleException}
    * that collects these uncaught exceptions.
    *
    * @param f
@@ -62,8 +62,8 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void asyncat(Place p, SerializableJob f) {
-    GlobalRuntime.getRuntime().asyncat(p, f);
+  public static void asyncAt(Place p, SerializableJob f) {
+    GlobalRuntime.getRuntime().asyncAt(p, f);
   }
 
   /**
@@ -77,8 +77,8 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void uncountedasyncat(Place p, SerializableJob f) {
-    GlobalRuntime.getRuntime().uncountedasyncat(p, f);
+  public static void uncountedAsyncAt(Place p, SerializableJob f) {
+    GlobalRuntime.getRuntime().uncountedAsyncAt(p, f);
   }
 
   /**
@@ -88,10 +88,10 @@ public final class Constructs {
    * @param <SerializableT>
    *          the type of the result (must implement java.io.Serializable)
    * @param p
-   *          the requested place of execution
+   *          the place of execution
    * @param f
    *          the function to run
-   * @return the result
+   * @return the result of the evaluation
    */
   public static <SerializableT extends Serializable> SerializableT at(Place p,
       SerializableCallable<SerializableT> f) {
@@ -105,7 +105,7 @@ public final class Constructs {
    * Equivalent to {@code finish(()->asyncat(p, f))}
    *
    * @param p
-   *          the requested place of execution
+   *          the place of execution
    * @param f
    *          the function to run
    */
@@ -127,7 +127,7 @@ public final class Constructs {
    *
    * @param id
    *          the requested ID
-   * @return a {@link Place} instance with the given ID
+   * @return the place with the given ID
    */
   public static Place place(int id) {
     return GlobalRuntime.getRuntime().place(id);
@@ -135,9 +135,6 @@ public final class Constructs {
 
   /**
    * Returns the current list of places in the global runtime.
-   * <p>
-   * Subsequent calls to this method may return different lists as more places
-   * are added to the global runtime.
    *
    * @return the current list of places in the global runtime
    */

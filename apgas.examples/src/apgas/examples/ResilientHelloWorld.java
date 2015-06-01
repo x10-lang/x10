@@ -38,7 +38,7 @@ final class ResilientHelloWorld {
           final Collection<? extends Place> world = places();
           System.out.println(ii + ": There are " + world.size() + " places");
           for (final Place place : world) {
-            finish(() -> asyncat(
+            finish(() -> asyncAt(
                 place,
                 () -> finish(() -> System.out.println(ii + ": Hello from "
                     + here()))));

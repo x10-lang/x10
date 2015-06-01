@@ -16,13 +16,13 @@ import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-final class Bag implements Serializable {
+public final class Bag implements Serializable {
   private static final long serialVersionUID = 2200935927036145803L;
 
   // branching factor: 4
   private static final double den = Math.log(4.0 / (1.0 + 4.0));
 
-  static MessageDigest encoder() {
+  public static MessageDigest encoder() {
     try {
       return MessageDigest.getInstance("SHA-1");
     } catch (final NoSuchAlgorithmException e) {
@@ -34,13 +34,13 @@ final class Bag implements Serializable {
   private int[] depth;
   private int[] lower;
   private int[] upper;
-  int size; // number of nodes in the bag
-  long count; // number of nodes processed so far
+  public int size; // number of nodes in the bag
+  public long count; // number of nodes processed so far
 
-  Bag() {
+  public Bag() {
   }
 
-  Bag(int n) {
+  public Bag(int n) {
     hash = new byte[n * 20 + 4]; // slack for in-place SHA1 computation
     depth = new int[n];
     lower = new int[n];
@@ -69,7 +69,7 @@ final class Bag implements Serializable {
     }
   }
 
-  void seed(MessageDigest md, int s, int d) {
+  public void seed(MessageDigest md, int s, int d) {
     try {
       hash[16] = (byte) (s >> 24);
       hash[17] = (byte) (s >> 16);
@@ -81,7 +81,7 @@ final class Bag implements Serializable {
     }
   }
 
-  void expand(MessageDigest md) throws DigestException {
+  public void expand(MessageDigest md) throws DigestException {
     final int top = size - 1;
     final int d = depth[top];
     final int l = lower[top];
@@ -100,7 +100,7 @@ final class Bag implements Serializable {
     digest(md, d);
   }
 
-  void run(MessageDigest md) {
+  public void run(MessageDigest md) {
     try {
       while (size > 0) {
         expand(md);
@@ -109,7 +109,7 @@ final class Bag implements Serializable {
     }
   }
 
-  Bag trim() {
+  public Bag trim() {
     final Bag b;
     if (size == 0) {
       b = new Bag();
@@ -125,7 +125,7 @@ final class Bag implements Serializable {
     return b;
   }
 
-  Bag split() {
+  public Bag split() {
     int s = 0;
     for (int i = 0; i < size; ++i) {
       if ((upper[i] - lower[i]) >= 2) {
@@ -148,7 +148,7 @@ final class Bag implements Serializable {
     return b;
   }
 
-  void merge(Bag b) {
+  public void merge(Bag b) {
     final int s = size + b.size;
     while (s > depth.length) {
       grow();
@@ -176,7 +176,7 @@ final class Bag implements Serializable {
     upper = u;
   }
 
-  static String sub(String str, int start, int end) {
+  public static String sub(String str, int start, int end) {
     return str.substring(start, Math.min(end, str.length()));
   }
 

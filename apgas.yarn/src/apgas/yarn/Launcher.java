@@ -29,7 +29,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 /**
  * The {@link Launcher} class implements a launcher based on Yarn.
  */
-public class Launcher implements apgas.util.Launcher {
+public class Launcher implements apgas.impl.Launcher {
   private static void redirect(List<String> command) {
     command.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stdout");
     command.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/stderr");

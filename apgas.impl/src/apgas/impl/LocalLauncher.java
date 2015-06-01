@@ -15,8 +15,6 @@ import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 
-import apgas.util.Launcher;
-
 /**
  * The {@link Launcher} class implements a launcher on the localhost using a
  * {#link ProcessBuilder}.

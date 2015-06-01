@@ -22,7 +22,8 @@ import java.util.function.Consumer;
  * down the APGAS global runtime for the application.
  * <p>
  * The global runtime is implicitly initialized when first used. The current
- * runtime can be obtained from the {@link #getRuntime()} method.
+ * runtime can be obtained from the {@link #getRuntime()} method, which forces
+ * initialization.
  */
 public abstract class GlobalRuntime {
   /**
@@ -30,12 +31,12 @@ public abstract class GlobalRuntime {
    */
   private static class GlobalRuntimeWrapper {
     /**
-     * The {@link GlobalRuntime} instance for this application.
+     * The {@link GlobalRuntime} instance for this place.
      */
     private final GlobalRuntime runtime;
 
     /**
-     * Initializes the {@link GlobalRuntime} instance for this application.
+     * Initializes the {@link GlobalRuntime} instance for this place.
      */
     private GlobalRuntimeWrapper() {
       try {
@@ -52,7 +53,7 @@ public abstract class GlobalRuntime {
   }
 
   /**
-   * The {@link GlobalRuntimeWrapper} instance for this application.
+   * The {@link GlobalRuntimeWrapper} instance for this place.
    */
   private static GlobalRuntimeWrapper runtime;
 
@@ -63,7 +64,7 @@ public abstract class GlobalRuntime {
   }
 
   /**
-   * Returns the {@link GlobalRuntime} instance for this application.
+   * Returns the {@link GlobalRuntime} instance for this place.
    *
    * @return the GlobalRuntime instance
    */
@@ -128,7 +129,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void asyncat(Place p, SerializableJob f);
+  protected abstract void asyncAt(Place p, SerializableJob f);
 
   /**
    * Submits an uncounted task to the global runtime to be run at {@link Place}
@@ -141,7 +142,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void uncountedasyncat(Place p, SerializableJob f);
+  protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
@@ -166,7 +167,7 @@ public abstract class GlobalRuntime {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @return the result
+   * @return the result of the evaluation
    */
   protected abstract <T extends Serializable> T at(Place p,
       SerializableCallable<T> f);
@@ -183,15 +184,12 @@ public abstract class GlobalRuntime {
    *
    * @param id
    *          the requested ID
-   * @return a {@link Place} instance with the given ID
+   * @return the place with the given ID
    */
   protected abstract Place place(int id);
 
   /**
    * Returns the current list of places in the global runtime.
-   * <p>
-   * Subsequent calls to this method may return different lists as more places
-   * are added to the global runtime.
    *
    * @return the current list of places in the global runtime
    */

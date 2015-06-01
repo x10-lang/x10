@@ -93,7 +93,7 @@ public class GlobalRef<T> implements Serializable {
       finish(() -> {
         for (final Place p : places) {
           try {
-            asyncat(p, () -> {
+            asyncAt(p, () -> {
               id.putHere(initializer.call());
             });
           } catch (final DeadPlaceException e) {
