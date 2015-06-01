@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package apgas.examples.uts;
+package apgas.examples;
 
 import static apgas.Constructs.*;
 
@@ -25,12 +25,13 @@ import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.PlaceLocalObject;
 
-final class UTS extends PlaceLocalObject {
+@SuppressWarnings("serial")
+final class GlobalUTS extends PlaceLocalObject {
   final Place home = here();
   final int places = places().size();
   final Random random = new Random();
-  final MessageDigest md = Bag.encoder();
-  final Bag bag = new Bag(64);
+  final MessageDigest md = UTS.encoder();
+  final UTS bag = new UTS(64);
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
   final AtomicBoolean lifeline = new AtomicBoolean(home.id != places - 1);
   int state = -2; // -2: inactive, -1: running, p: stealing from p
@@ -128,12 +129,12 @@ final class UTS extends PlaceLocalObject {
     }
   }
 
-  void lifelinedeal(Bag b) throws DigestException {
+  void lifelinedeal(UTS b) throws DigestException {
     bag.merge(b);
     run();
   }
 
-  synchronized void deal(Place p, Bag b) {
+  synchronized void deal(Place p, UTS b) {
     if (state != p.id) {
       // thief is no longer waiting for this message, discard
       return;
@@ -148,7 +149,7 @@ final class UTS extends PlaceLocalObject {
   void distribute() {
     Place p;
     if (lifeline.get()) {
-      final Bag b = bag.split();
+      final UTS b = bag.split();
       if (b != null) {
         p = place((home.id + 1) % places);
         lifeline.set(false);
@@ -162,7 +163,7 @@ final class UTS extends PlaceLocalObject {
       }
     }
     while ((p = thieves.poll()) != null) {
-      final Bag b = bag.split();
+      final UTS b = bag.split();
       try {
         final Place h = home;
         uncountedAsyncAt(p, () -> {
@@ -188,7 +189,7 @@ final class UTS extends PlaceLocalObject {
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
     // initialize uts and place failure handler in each place
-    final UTS uts0 = PlaceLocalObject.make(places(), () -> new UTS());
+    final GlobalUTS uts0 = PlaceLocalObject.make(places(), () -> new GlobalUTS());
 
     System.out.println("Warmup...");
     try {
@@ -201,7 +202,7 @@ final class UTS extends PlaceLocalObject {
     }
 
     // initialize uts and place failure handler in each place
-    final UTS uts = PlaceLocalObject.make(places(), () -> new UTS());
+    final GlobalUTS uts = PlaceLocalObject.make(places(), () -> new GlobalUTS());
 
     System.out.println("Starting...");
     long time = System.nanoTime();
@@ -225,7 +226,7 @@ final class UTS extends PlaceLocalObject {
     System.out.println("Finished.");
 
     System.out.println("Depth: " + depth + ", Places: " + uts.places
-        + ", Performance: " + count + "/" + Bag.sub("" + time / 1e9, 0, 6)
-        + " = " + Bag.sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
+        + ", Performance: " + count + "/" + UTS.sub("" + time / 1e9, 0, 6)
+        + " = " + UTS.sub("" + (count / (time / 1e3)), 0, 6) + "M nodes/s");
   }
 }

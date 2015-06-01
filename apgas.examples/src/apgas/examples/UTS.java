@@ -9,14 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-package apgas.examples.uts;
+package apgas.examples;
 
 import java.io.Serializable;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public final class Bag implements Serializable {
+public final class UTS implements Serializable {
   private static final long serialVersionUID = 2200935927036145803L;
 
   // branching factor: 4
@@ -37,10 +37,10 @@ public final class Bag implements Serializable {
   public int size; // number of nodes in the bag
   public long count; // number of nodes processed so far
 
-  public Bag() {
+  public UTS() {
   }
 
-  public Bag(int n) {
+  public UTS(int n) {
     hash = new byte[n * 20 + 4]; // slack for in-place SHA1 computation
     depth = new int[n];
     lower = new int[n];
@@ -109,12 +109,12 @@ public final class Bag implements Serializable {
     }
   }
 
-  public Bag trim() {
-    final Bag b;
+  public UTS trim() {
+    final UTS b;
     if (size == 0) {
-      b = new Bag();
+      b = new UTS();
     } else {
-      b = new Bag(size);
+      b = new UTS(size);
       System.arraycopy(hash, 0, b.hash, 0, size * 20);
       System.arraycopy(depth, 0, b.depth, 0, size);
       System.arraycopy(lower, 0, b.lower, 0, size);
@@ -125,7 +125,7 @@ public final class Bag implements Serializable {
     return b;
   }
 
-  public Bag split() {
+  public UTS split() {
     int s = 0;
     for (int i = 0; i < size; ++i) {
       if ((upper[i] - lower[i]) >= 2) {
@@ -135,7 +135,7 @@ public final class Bag implements Serializable {
     if (s == 0) {
       return null;
     }
-    final Bag b = new Bag(s);
+    final UTS b = new UTS(s);
     for (int i = 0; i < size; ++i) {
       final int p = upper[i] - lower[i];
       if (p >= 2) {
@@ -148,7 +148,7 @@ public final class Bag implements Serializable {
     return b;
   }
 
-  public void merge(Bag b) {
+  public void merge(UTS b) {
     final int s = size + b.size;
     while (s > depth.length) {
       grow();
@@ -189,13 +189,13 @@ public final class Bag implements Serializable {
 
     final MessageDigest md = encoder();
 
-    Bag bag = new Bag(64);
+    UTS bag = new UTS(64);
 
     System.out.println("Warmup...");
     bag.seed(md, 19, depth - 2);
     bag.run(md);
 
-    bag = new Bag(64);
+    bag = new UTS(64);
 
     System.out.println("Starting...");
     long time = System.nanoTime();
