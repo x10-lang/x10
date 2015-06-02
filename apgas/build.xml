@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.network" default="jar" basedir=".">
+<project name="apgas" default="jar" basedir=".">
     <property name="build" location="${basedir}/bin"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${basedir}/lib"/>
@@ -8,7 +8,6 @@
     <property name="hazelcast.jar" value="${lib}/hazelcast-3.4.jar"/>
     <property name="hazelcast-sources.jar" value="${lib}/hazelcast-3.4-sources.jar"/>
     <target name="check-dependencies">
-        <available file="${snappy-java.jar}" property="snappy.present"/>
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
         <available file="${hazelcast-sources.jar}" property="hazelcast-sources.present"/>
     </target>
