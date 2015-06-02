@@ -14,6 +14,7 @@ package apgas.impl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -155,8 +156,13 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
     final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
-    // initialize scheduler and transport
-    pool = new ForkJoinPool(threads, new WorkerFactory(), null, false);
+    // initialize scheduler
+    pool = new ForkJoinPool(256, new WorkerFactory(), null, false);
+    final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
+    ctl.setAccessible(true);
+    ctl.setLong(pool, ctl.getLong(pool) + ((256L - threads) >> 48));
+
+    // initialize transport
     final String transportClassName = System.getProperty(
         Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.Transport");
     @SuppressWarnings("rawtypes")
