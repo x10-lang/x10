@@ -2456,10 +2456,8 @@ public class LibraryVisitor extends NodeVisitor {
     
     public void visit(X10Formal_c n) {
         toRose(n, "TypeVisitor.formal: ", n.name().toString(), n.vars().size(), n.type().toString());
-        System.out.println("0422 ===>" + n.type().getClass());
         visitChild(n, n.type());
-        System.out.println("0422 <===");
-        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
+        JNI.cactionBuildArgumentSupport(n.name().toString(), "", n.vars().size(),
                                         n.flags().flags().isFinal(),
                                         RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }

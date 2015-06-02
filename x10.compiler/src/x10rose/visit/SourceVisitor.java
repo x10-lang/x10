@@ -886,22 +886,27 @@ public class SourceVisitor extends X10DelegatingVisitor {
     }
 
     public void visit(X10Formal_c n) {
-        toRose(n, "formal: ", n);
+        toRose(n, "formal: ", n, n.type().nameString(), n.type().toString());
         
-        // args_location = createJavaToken(args[0], args[args.length - 1]);
-        //
-        // for (int j = 0; j < args.length; j++) {
-        // Argument arg = args[j];
-        // JavaToken arg_location = createJavaToken(arg);
-        // generateAndPushType(arg.type.resolvedType, arg_location);
-        // String argument_name = new String(arg.name);
-        // JavaParser.cactionBuildArgumentSupport(argument_name,
-        // arg.isVarArgs(),
-        // arg.binding.isFinal(),
-        // arg_location);
-        // }
-        visitChild(n, n.type());
-        JNI.cactionBuildArgumentSupport(n.name().toString(), n.vars().size() > 0, 
+        String[] names = getPackageAndTypeName(n.type().toString());
+        String typeName = names[0] + "." + names[1];
+        String formalName = n.name().toString();
+        
+        List<Formal> vars = n.vars();
+        if (typeName.indexOf("x10.lang.Point") == 0) {
+            typeName = "x10.lang.Point";
+            for (int i = 0; i < vars.size(); ++i) {
+                JNI.cactionTypeReference("", "long", this, RoseTranslator.createJavaToken());     
+                JNI.cactionBuildArgumentSupport(vars.get(i).name().toString(), "", 0, true, RoseTranslator.createJavaToken());
+            }
+            JNI.cactionPushPackage("x10.lang", RoseTranslator.createJavaToken());
+            JNI.cactionPopPackage();
+            JNI.cactionTypeReference("x10.lang", "Point", this, RoseTranslator.createJavaToken());
+        }
+        else 
+            visitChild(n, n.type());
+        
+        JNI.cactionBuildArgumentSupport(formalName, typeName, vars.size(),
                                         n.flags().flags().isFinal(),
                                         RoseTranslator.createJavaToken(n, n.name().id().toString()));
     }
@@ -1055,7 +1060,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
             JNI.cactionPushPackage("x10.lang", RoseTranslator.createJavaToken(n, helperName));
             JNI.cactionPopPackage();
             JNI.cactionTypeReference("x10.lang", "String", this, RoseTranslator.createJavaToken());
-            JNI.cactionBuildArgumentSupport(argName, false, false, RoseTranslator.createJavaToken(n, argName));
+            JNI.cactionBuildArgumentSupport(argName, "", 0, false, RoseTranslator.createJavaToken(n, argName));
 
             JNI.cactionBuildMethodSupportEnd(methodName, methodIndex, 
                     false, false, false, 0, 1, true, /* user-defined-method */
@@ -1812,7 +1817,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
                     
                 JNI.cactionTypeReference(argClass_package, argClass_type, this, RoseTranslator.createJavaToken());
                 JNI.cactionArrayTypeReference(1, RoseTranslator.createJavaToken());
-                JNI.cactionBuildArgumentSupport(argName, false, false, RoseTranslator.createJavaToken(n, argName));
+                JNI.cactionBuildArgumentSupport(argName, "", 0, false, RoseTranslator.createJavaToken(n, argName));
 
                 JNI.cactionBuildMethodSupportEnd(methodName, methodIndex,
                         false, false, false, 0, 1, true,
@@ -2425,7 +2430,7 @@ public class SourceVisitor extends X10DelegatingVisitor {
         List<VarInstance<? extends VarDef>> vardefList = cdef.capturedEnvironment();
         for (VarInstance<? extends VarDef> vins : vardefList) {
             visitType(vins.type().toString(), vins.type().toString(), vins.type().name().toString(),n);
-            JNI.cactionBuildArgumentSupport(vins.name().toString(), false, true, RoseTranslator.createJavaToken(n, vins.toString()));
+            JNI.cactionBuildArgumentSupport(vins.name().toString(), "", 0, true, RoseTranslator.createJavaToken(n, vins.toString()));
         }
         
         JNI.cactionBuildClosureMethodSupportEnd(method_name, closureIndex, false, false, false, 0, n.formals().size() + vardefList.size(),
