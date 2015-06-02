@@ -33,14 +33,15 @@ public final class Configuration {
    * property).
    * <p>
    * Currently "{@code apgas.impl.Transport}" and "
-   * {@code apgas.impl.SocketTransport}" are supported. Defaults to
-   * {@code Transport}.
+   * {@code apgas.sockets.SocketTransport}" are supported. Defaults to "
+   * {@code apgas.impl.Transport}".
+   *
    */
   public static final String APGAS_NETWORKTRANSPORT = "apgas.networktransport";
 
   /**
-   * Enables or disables compression on the network links when using
-   * {@code SocketTransport}.
+   * Enables or disables compression on the network links when using transport "
+   * {@code apgas.sockets.SocketTransport}".
    * <p>
    * Set to "none" or "snappy", which is the default.
    */
@@ -52,12 +53,20 @@ public final class Configuration {
   public static final String APGAS_PLACES = "apgas.places";
 
   /**
-   * Number of threads in the thread pool (Integer property).
+   * Desired level of parallelism (Integer property).
    * <p>
    * The return value of "{@code Runtime.getRuntime().availableProcessors()}" is
    * used if this property is not set.
    */
   public static final String APGAS_THREADS = "apgas.threads";
+
+  /**
+   * Upper bound on the number of persistent threads in the thread pool (Integer
+   * property).
+   * <p>
+   * Defaults to 256.
+   */
+  public static final String APGAS_MAX_THREADS = "apgas.max.threads";
 
   /**
    * Reduces the number of threads used by Hazelcast if set (Boolean property).
@@ -104,11 +113,16 @@ public final class Configuration {
 
   /**
    * Name of the finish implementation class to instantiate (String property).
+   * <p>
+   * Defaults to "{@code apgas.impl.DefaultFinish}" or "
+   * {@code apgas.impl.ResilientFinish}".
    */
   public static final String APGAS_FINISH = "apgas.finish";
 
   /**
    * Name of the launcher implementation class to instantiate (String property).
+   * <p>
+   * Defaults to "{@code apgas.impl.LocalLauncher}".
    */
   public static final String APGAS_LAUNCHER = "apgas.launcher";
 }

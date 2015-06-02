@@ -129,6 +129,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
     final int threads = Integer.getInteger(Configuration.APGAS_THREADS, Runtime
         .getRuntime().availableProcessors());
+    final int maxThreads = Integer.getInteger(Configuration.APGAS_THREADS, 256);
     final String master = System.getProperty(Configuration.APGAS_MASTER);
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
@@ -157,27 +158,37 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
     // initialize scheduler
-    pool = new ForkJoinPool(256, new WorkerFactory(), null, false);
+    pool = new ForkJoinPool(maxThreads, new WorkerFactory(), null, false);
     final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
     ctl.setAccessible(true);
-    ctl.setLong(pool, ctl.getLong(pool) + ((256L - threads) << 48));
+    ctl.setLong(pool, ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
 
     // initialize transport
-    final String transportClassName = System.getProperty(
-        Configuration.APGAS_NETWORKTRANSPORT, "apgas.impl.Transport");
-    @SuppressWarnings("rawtypes")
-    Class transportClass;
-    try {
-      transportClass = Class.forName(transportClassName);
-    } catch (final ClassNotFoundException e) {
-      // TODO: currently we fall back to the hazelcast transport. Should we
-      // throw an error and stop instead?
-      transportClass = Class.forName("apgas.impl.Transport");
+    Transport transport = null;
+    String transportClassName = System
+        .getProperty(Configuration.APGAS_NETWORKTRANSPORT);
+    if (transportClassName != null) {
+      try {
+        transport = (Transport) Class
+            .forName(transportClassName)
+            .getDeclaredConstructor(GlobalRuntimeImpl.class, String.class,
+                String.class, boolean.class)
+            .newInstance(this, master,
+                InetAddress.getLocalHost().getHostAddress(), compact);
+      } catch (InstantiationException | IllegalAccessException
+          | ExceptionInInitializerError | ClassNotFoundException
+          | NoClassDefFoundError | ClassCastException e) {
+        System.err.println("[APGAS] Unable to instantiate transport: "
+            + transportClassName + ". Using default transport.");
+        e.printStackTrace();
+      }
     }
-    transport = (Transport) transportClass.getDeclaredConstructor(
-        GlobalRuntimeImpl.class, String.class, String.class, boolean.class)
-        .newInstance(this, master, InetAddress.getLocalHost().getHostAddress(),
-            compact);
+    if (transport == null) {
+      transportClassName = null;
+      transport = new Transport(this, master, InetAddress.getLocalHost()
+          .getHostAddress(), compact);
+    }
+    this.transport = transport;
 
     // initialize here
     here = transport.here();
@@ -237,6 +248,16 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         }
         if (factory != null) {
           command.add("-D" + Configuration.APGAS_FINISH + "=" + finishConfig);
+        }
+        if (transportClassName != null) {
+          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT + "="
+              + transportClassName);
+        }
+        final String compression = System
+            .getProperty(Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION);
+        if (compression != null) {
+          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT + "="
+              + compression);
         }
         command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
         command.add("-D" + Configuration.APGAS_DAEMON + "=true");

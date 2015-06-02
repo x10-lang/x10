@@ -37,7 +37,7 @@ public interface Launcher {
   boolean healthy();
 
   /**
-   * Shuts down the {#link Launcher} instance.
+   * Shuts down the {@link Launcher} instance.
    */
   void shutdown();
 }

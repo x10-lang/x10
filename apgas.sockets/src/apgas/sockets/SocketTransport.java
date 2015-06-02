@@ -55,8 +55,8 @@ public class SocketTransport extends Transport implements
    * @param compact
    *          reduces thread creation if set
    */
-  SocketTransport(GlobalRuntimeImpl runtime, String master, String localhost,
-      boolean compact) {
+  public SocketTransport(GlobalRuntimeImpl runtime, String master,
+      String localhost, boolean compact) {
     super(runtime, master == null ? null : master.split(",")[0], localhost,
         compact);
     this.runtime = runtime;

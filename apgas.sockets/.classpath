@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/apgas.impl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.network"/>
 	<classpathentry kind="lib" path="/apgas/lib/hazelcast-3.4.jar" sourcepath="/apgas/lib/hazelcast-3.4-sources.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/apgas"/>
