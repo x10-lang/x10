@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="x10.network" default="dependencies" basedir=".">
+<project name="apgas.yarn" default="dependencies" basedir=".">
     <property name="lib" location="${basedir}/lib"/>
     <property name="hadoop-common.jar" value="${lib}/hadoop-common-2.6.0.jar"/>
     <property name="hadoop-yarn-api.jar" value="${lib}/hadoop-yarn-api-2.6.0.jar"/>
