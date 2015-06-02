@@ -160,7 +160,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     pool = new ForkJoinPool(256, new WorkerFactory(), null, false);
     final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
     ctl.setAccessible(true);
-    ctl.setLong(pool, ctl.getLong(pool) + ((256L - threads) >> 48));
+    ctl.setLong(pool, ctl.getLong(pool) + ((256L - threads) << 48));
 
     // initialize transport
     final String transportClassName = System.getProperty(
