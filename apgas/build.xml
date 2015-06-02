@@ -45,6 +45,6 @@
         </javac>
     </target>
     <target name="javadoc">
-        <javadoc access="protected" author="false" classpath="${hazelcast.jar}" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" splitindex="true" use="true" version="true"/>
+        <javadoc access="protected" author="false" classpath="${hazelcast.jar}" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
     </target>
 </project>
