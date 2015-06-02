@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10.network" default="dependencies" basedir=".">
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="hadoop-common.jar" value="${lib}/hadoop-common-2.6.0.jar"/>
+    <property name="hadoop-yarn-api.jar" value="${lib}/hadoop-yarn-api-2.6.0.jar"/>
+    <property name="hadoop-yarn-client.jar" value="${lib}/hadoop-yarn-client-2.6.0.jar"/>
+    <target name="check-dependencies">
+        <available file="${hadoop-common.jar}" property="hadoop-common.present"/>
+        <available file="${hadoop-yarn-api.jar}" property="hadoop-yarn-api.present"/>
+        <available file="${hadoop-yarn-client.jar}" property="hadoop-yarn-client.present"/>
+    </target>
+    <target name="init">
+        <mkdir dir="${lib}"/>
+    </target>
+    <target name="hadoop-common" depends="check-dependencies" unless="hadoop-common.present">
+        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-common/2.6.0/hadoop-common-2.6.0.jar" dest="${lib}"/>
+    </target>
+    <target name="hadoop-yarn-api" depends="check-dependencies" unless="hadoop-yarn-api.present">
+        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-api/2.6.0/hadoop-yarn-api-2.6.0.jar" dest="${lib}"/>
+    </target>
+    <target name="hadoop-yarn-client" depends="check-dependencies" unless="hadoop-yarn-client.present">
+        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-client/2.6.0/hadoop-yarn-client-2.6.0.jar" dest="${lib}"/>
+    </target>
+    <target name="dependencies" depends="init,hadoop-common,hadoop-yarn-api,hadoop-yarn-client"/>
+    <target name="dist-clean">
+        <delete dir="${lib}" failonerror="false"/>
+    </target>
+</project>
