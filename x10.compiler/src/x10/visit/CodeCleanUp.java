@@ -10,6 +10,7 @@
  */
 package x10.visit;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -115,10 +116,11 @@ public class CodeCleanUp extends ContextVisitor {
         
         if (n instanceof StmtExpr) {
             StmtExpr ste = (StmtExpr)n;
-            if (ste.statements().isEmpty()) {
+            if (isEmpty(ste.statements())) {
                 // Simplify StmtExpr({}, E) to just E
+                // Simplify StmtExpr({;, ;, ... ;}, E) to just E
                 return ste.result();
-            }
+             }
         }
         
         if (n instanceof Return && ((Return) n).expr() instanceof StmtExpr) {
@@ -139,6 +141,16 @@ public class CodeCleanUp extends ContextVisitor {
         b = clean(flattenBlock(b));
 
         return b;
+    }
+    
+    private boolean isEmpty(List<Stmt> stmts) {
+        if (stmts.isEmpty()) return true;
+        for (Stmt st : stmts) {
+            if (!(st instanceof Empty)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Eval(StmtExpr(Block(S), e) ===> B(S, Eval(e))
