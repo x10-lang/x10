@@ -1,5 +1,6 @@
 package apgas.ui;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,9 +28,18 @@ public class Initializer extends ClasspathContainerInitializer {
   public void initialize(IPath containerPath, IJavaProject project)
       throws CoreException {
     try {
-      final IClasspathEntry apgas = JavaCore.newLibraryEntry(new Path(
-          FileLocator.getBundleFile(Platform.getBundle("apgas")).getPath()),
-          null, null);
+      final File apgasFile = FileLocator.getBundleFile(Platform
+          .getBundle("apgas"));
+      final IClasspathEntry apgas;
+      if (apgasFile.isDirectory()) { // --- This case has been added so that we
+                                     // can launch a runtime eclipse.
+        apgas = JavaCore.newLibraryEntry(
+            (new Path(apgasFile.getPath()).append("bin")), null, null);
+      } else {
+        apgas = JavaCore.newLibraryEntry(new Path(apgasFile.getPath()), null,
+            null);
+      }
+
       final IClasspathEntry hazelcast = JavaCore.newLibraryEntry(new Path(
           FileLocator.getBundleFile(Platform.getBundle("com.hazelcast"))
               .getPath()), null, null);
