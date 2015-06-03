@@ -78,9 +78,6 @@ public final class Configuration extends x10.config.Configuration {
     public boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
     
-    public boolean CODE_CLEAN_UP = true;
-    private static final String CODE_CLEAN_UP_desc = "Code clean up - removing excess blocks and unreachable code";
-
     public String PLUGINS = "";
     private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
 
