@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="apgas.commands.category"
+            name="APGAS Commands">
+      </category>
+      <command
+            categoryId="apgas.commands.category"
+            id="apgas.commands.command"
+            name="Add APGAS to Build Path">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="apgas.ui.Handler"
+            commandId="apgas.commands.command">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+          <command
+                commandId="apgas.commands.command"
+                id="apgas.menus.command">
+       <visibleWhen
+             checkEnabled="false">
+          <with
+                variable="activeMenuSelection">
+                <iterate>
+                    <adapt type="org.eclipse.core.resources.IProject"/>
+             </iterate>
+                <count
+                      value="1">
+                </count>
+          </with>
+       </visibleWhen>
+          </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            id="apgas.APGAS_CONTAINER"
+            class="apgas.ui.Initializer">
+      </classpathContainerInitializer>
+   </extension>
+</plugin>
