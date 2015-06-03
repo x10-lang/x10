@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.ui.ISharedImages;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.text.java.ClasspathFixProcessor.ClasspathFixProposal;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.NullChange;
@@ -91,7 +93,9 @@ public class APGASClasspathFixProposal extends ClasspathFixProposal {
 
   @Override
   public Image getImage() {
-    return null;
+    final ISharedImages images = JavaUI.getSharedImages();
+    final Image image = images.getImage(ISharedImages.IMG_OBJS_LIBRARY);
+    return image;
   }
 
   @Override
