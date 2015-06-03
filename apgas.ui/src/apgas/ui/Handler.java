@@ -20,7 +20,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class Handler extends AbstractHandler {
   @Override
   public Object execute(ExecutionEvent event) throws ExecutionException {
-    final IPath containerPath = new Path("apgas.APGAS_CONTAINER");
+    final IPath containerPath = new Path(Initializer.APGAS_CONTAINER_ID);
     try {
       final IJavaProject javaProject = JavaCore
           .create((IProject) ((IAdaptable) ((IStructuredSelection) HandlerUtil
