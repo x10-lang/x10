@@ -1,6 +1,7 @@
 package apgas.ui.quickfix;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -28,13 +29,14 @@ public class APGASClasspathFixCorrelationProposal implements
 
   private final IJavaProject fJavaProject;
   private final ClasspathFixProposal fClasspathFixProposal;
-  private final ImportRewrite fImportRewrite;
+  private final List<ImportRewrite> fImportRewrites;
 
   public APGASClasspathFixCorrelationProposal(IJavaProject project,
-      ClasspathFixProposal classpathFixProposal, ImportRewrite importRewrite) {
+      ClasspathFixProposal classpathFixProposal,
+      List<ImportRewrite> importRewrites) {
     fJavaProject = project;
     fClasspathFixProposal = classpathFixProposal;
-    fImportRewrite = importRewrite;
+    fImportRewrites = importRewrites;
   }
 
   @Override
@@ -71,14 +73,15 @@ public class APGASClasspathFixCorrelationProposal implements
 
   protected Change createChange() throws CoreException {
     final Change change = fClasspathFixProposal.createChange(null);
-    if (fImportRewrite != null) {
-      final TextFileChange cuChange = new TextFileChange(
-          "Add import", (IFile) fImportRewrite.getCompilationUnit().getResource()); //$NON-NLS-1$
-      cuChange.setEdit(fImportRewrite.rewriteImports(null));
-
+    if (fImportRewrites != null) {
       final CompositeChange composite = new CompositeChange(getDisplayString());
       composite.add(change);
-      composite.add(cuChange);
+      for (final ImportRewrite ir : fImportRewrites) {
+        final TextFileChange cuChange = new TextFileChange(
+            "Add import", (IFile) ir.getCompilationUnit().getResource()); //$NON-NLS-1$
+        cuChange.setEdit(ir.rewriteImports(null));
+        composite.add(cuChange);
+      }
       return composite;
     }
     return change;

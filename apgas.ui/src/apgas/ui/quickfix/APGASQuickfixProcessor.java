@@ -1,6 +1,7 @@
 package apgas.ui.quickfix;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -27,7 +28,8 @@ public class APGASQuickfixProcessor implements IQuickFixProcessor {
   public boolean hasCorrections(ICompilationUnit unit, int problemId) {
     // return problemId == IProblem.UndefinedMethod
     // | problemId == IProblem.UndefinedType;
-    return problemId == IProblem.UnresolvedVariable;
+    return problemId == IProblem.UnresolvedVariable || problemId == 16777218
+        || problemId == 67108964;
   }
 
   @Override
@@ -111,10 +113,14 @@ public class APGASQuickfixProcessor implements IQuickFixProcessor {
     final ClasspathFixProposal[] fixProposals = ClasspathFixProcessor
         .getContributedFixImportProposals(project, name, null);
 
+    final List<ImportRewrite> importRewrites = new ArrayList<ImportRewrite>();
+    importRewrites.add(getImportRewrite(context.getASTRoot(), name));
+    importRewrites.add(getImportRewrite(context.getASTRoot(), "apgas.*"));
+
     final ArrayList<IJavaCompletionProposal> proposals = new ArrayList<IJavaCompletionProposal>();
     for (final ClasspathFixProposal fixProposal : fixProposals) {
       proposals.add(new APGASClasspathFixCorrelationProposal(project,
-          fixProposal, getImportRewrite(context.getASTRoot(), name)));
+          fixProposal, importRewrites));
     }
 
     final IJavaCompletionProposal[] propArr = new IJavaCompletionProposal[proposals
