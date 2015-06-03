@@ -56,7 +56,11 @@ public class HazelcastDatastore {
 	}
 	
 	void shutdown() {
-		hazelcast.shutdown();
+		try {
+			hazelcast.shutdown();
+		} catch (Exception e) {
+			// be quiet.
+		}
 	}
 
 	HazelcastInstance getHazelcastInstance() {
