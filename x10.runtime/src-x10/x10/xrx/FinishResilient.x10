@@ -84,10 +84,7 @@ abstract class FinishResilient extends FinishState {
             val p = (parent!=null) ? parent : getCurrentFS();
             val l = (latch!=null) ? latch : new SimpleLatch();
             val o = p as Any;
-            var r:FinishState = null;
-            @Native("java", "r = x10.xrx.managed.FinishResilientHC.make(o, l);")
-            { failJavaOnlyMode(); }
-            fs = r;
+            fs = makeFinishResilientHC(o, l);
             break;
         }
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
@@ -95,11 +92,8 @@ abstract class FinishResilient extends FinishState {
            val p = (parent!=null) ? parent : getCurrentFS();
            val l = (latch!=null) ? latch : new SimpleLatch();
            val o = p as Any;
-           var r:FinishState = null;
-           @Native("java", "r = x10.xrx.managed.FinishResilientHCopt.make(o, l);")
-        { failJavaOnlyMode(); }
-        fs = r;
-        break;
+           fs = makeFinishResilientHCopt(o, l);
+           break;
         }
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
         {
@@ -122,7 +116,19 @@ abstract class FinishResilient extends FinishState {
         if (verbose>=1) debug("FinishResilient.make returning, fs=" + fs);
         return fs;
     }
-    
+
+    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o, #l)")
+    private static def makeFinishResilientHC(o:Any, l:SimpleLatch):FinishState {
+        failJavaOnlyMode();
+        return null;
+    }
+    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o, #l)")
+    private static def makeFinishResilientHCopt(o:Any, l:SimpleLatch):FinishState {
+        failJavaOnlyMode();
+        return null;
+    }
+
+
     static def notifyPlaceDeath() {
         if (verbose>=1) debug("FinishResilient.notifyPlaceDeath called");
         switch (Runtime.RESILIENT_MODE) {
@@ -131,13 +137,9 @@ abstract class FinishResilient extends FinishState {
             FinishResilientPlace0.notifyPlaceDeath();
             break;
         case Configuration.RESILIENT_MODE_HC:
-            @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath();")
-            { failJavaOnlyMode(); }
-            break;
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
-        @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath();")
-        { failJavaOnlyMode(); }
-        break;
+            notifyPlaceDeath_HC();
+            break;
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
             FinishResilientPlace0opt.notifyPlaceDeath();
             break;
@@ -149,5 +151,10 @@ abstract class FinishResilient extends FinishState {
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
         if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
+    }
+
+    @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath()")
+    private static def notifyPlaceDeath_HC():void {
+        failJavaOnlyMode(); 
     }
 }
