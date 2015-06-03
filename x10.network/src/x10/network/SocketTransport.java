@@ -813,7 +813,7 @@ public class SocketTransport {
     	
     	// compress the buffer
     	byte[] outgoingBuffer;
-        if (incomingBuffer != null && runtimeLink.useCompressionCodec() == compressionCodec.SNAPPY) {
+        if (incomingBuffer != null && msgtype.compareTo(MSGTYPE.GET) <= 0 && runtimeLink.useCompressionCodec() == compressionCodec.SNAPPY) {
         	try {
         		outgoingBuffer = Snappy.compress(incomingBuffer);
         	} catch (Exception e) {
