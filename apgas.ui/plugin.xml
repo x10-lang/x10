@@ -49,4 +49,20 @@
             class="apgas.ui.Initializer">
       </classpathContainerInitializer>
    </extension>
+   <extension
+         point="org.eclipse.jdt.ui.quickFixProcessors">
+      <quickFixProcessor
+            class="apgas.ui.quickfix.APGASQuickfixProcessor"
+            id="apgas.ui.quickfix.APGASQuickfixProcessor"
+            name="APGAS Build Path Quickfix">
+      </quickFixProcessor>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.ui.classpathFixProcessors">
+      <classpathFixProcessor
+            class="apgas.ui.quickfix.APGASClasspathFixProcessor"
+            id="apgas.ui.quickfix.APGASClasspathFixProcessor"
+            name="APGAS ClasspathFix Processor">
+      </classpathFixProcessor>
+   </extension>
 </plugin>

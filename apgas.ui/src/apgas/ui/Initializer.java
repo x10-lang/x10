@@ -18,6 +18,9 @@ import org.eclipse.jdt.core.JavaCore;
  * Initializes the APGAS Library container.
  */
 public class Initializer extends ClasspathContainerInitializer {
+
+  public static final String APGAS_CONTAINER_ID = "apgas.APGAS_CONTAINER";
+
   /**
    * Public constructor.
    */
