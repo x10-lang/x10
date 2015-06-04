@@ -22,14 +22,14 @@ import org.eclipse.jdt.ui.text.java.IQuickFixProcessor;
 
 import apgas.ui.Initializer;
 
+@SuppressWarnings("javadoc")
 public class APGASQuickfixProcessor implements IQuickFixProcessor {
 
   @Override
   public boolean hasCorrections(ICompilationUnit unit, int problemId) {
-    // return problemId == IProblem.UndefinedMethod
-    // | problemId == IProblem.UndefinedType;
-    return problemId == IProblem.UnresolvedVariable || problemId == 16777218
-        || problemId == 67108964;
+    return problemId == IProblem.UnresolvedVariable
+        || problemId == IProblem.UndefinedType
+        || problemId == IProblem.UndefinedMethod;
   }
 
   @Override
@@ -37,8 +37,9 @@ public class APGASQuickfixProcessor implements IQuickFixProcessor {
       IProblemLocation[] locations) throws CoreException {
     for (final IProblemLocation problem : locations) {
       if (((problem.getProblemId() == IProblem.UnresolvedVariable || problem
-          .getProblemId() == 16777218) && isAPGAS(problem.getProblemArguments()[0]))
-          || (problem.getProblemId() == 67108964 && isAPGAS(problem
+          .getProblemId() == IProblem.UndefinedType) && isAPGAS(problem
+          .getProblemArguments()[0]))
+          || (problem.getProblemId() == IProblem.UndefinedMethod && isAPGAS(problem
               .getProblemArguments()[1]))) {
         if (!apgasInBuildPath(context.getCompilationUnit().getJavaProject())) {
           return getAddAPGASToBuildPathProposals(context);
@@ -70,7 +71,11 @@ public class APGASQuickfixProcessor implements IQuickFixProcessor {
     // APGAS Classes
     case "Configuration":
       break;
+    case "Constructs":
+      break;
     case "DeadPlaceException":
+      break;
+    case "GlobalRuntime":
       break;
     case "MultipleException":
       break;

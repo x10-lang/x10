@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.ui.text.java.ClasspathFixProcessor;
 
+@SuppressWarnings("javadoc")
 public class APGASClasspathFixProcessor extends ClasspathFixProcessor {
   @Override
   public ClasspathFixProposal[] getFixImportProposals(IJavaProject project,

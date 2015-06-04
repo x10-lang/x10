@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Image;
 
 import apgas.ui.Initializer;
 
+@SuppressWarnings("javadoc")
 public class APGASClasspathFixProposal extends ClasspathFixProposal {
 
   private final IJavaProject fProject;
@@ -34,7 +35,7 @@ public class APGASClasspathFixProposal extends ClasspathFixProposal {
     if (monitor == null) {
       monitor = new NullProgressMonitor();
     }
-    monitor.beginTask("Adding DoodleDebug library...", 1);
+    monitor.beginTask("Adding APGAS library...", 1);
     try {
       IClasspathEntry entry = null;
       entry = JavaCore.newContainerEntry(new Path(

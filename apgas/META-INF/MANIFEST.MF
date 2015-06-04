@@ -8,3 +8,4 @@ Export-Package: apgas,
  apgas.util
 Require-Bundle: com.hazelcast;bundle-version="3.4.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: x10-users@lists.sourceforge.net

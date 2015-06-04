@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PlatformUI;
 
+@SuppressWarnings("javadoc")
 public class APGASClasspathFixCorrelationProposal implements
     IJavaCompletionProposal {
 

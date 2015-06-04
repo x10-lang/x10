@@ -1,8 +1,0 @@
-Run "ant dependencies" to download prerequisites.
-
-This project requires Eclipse 4.4.2 or later.
-
-The apgas.dt.zip contains the "APGAS Development Toolkit" feature for Eclipse 4.4.2.
-This feature augments the Eclipse Java Compiler to generate additional warnings when:
-- a serializable lambda captures this,
-- a serializable lambda captures a non-serializable variable.
