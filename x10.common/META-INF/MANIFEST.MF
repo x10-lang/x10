@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Common components
 Bundle-SymbolicName: x10.common
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Export-Package: x10.config,
  x10.util
 Bundle-Vendor: x10-users@lists.sourceforge.net

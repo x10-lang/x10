@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common;visibility:=reexport,
  x10.constraints;visibility:=reexport,

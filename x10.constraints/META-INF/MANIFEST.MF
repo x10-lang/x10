@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Constraints
 Bundle-SymbolicName: x10.constraints
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Require-Bundle: x10.common;visibility:=reexport
 Export-Package: x10.constraint,
  x10.constraint.visitors,
