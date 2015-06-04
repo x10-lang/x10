@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="apgas" default="javadoc" basedir=".">
-    <property name="src" location="${basedir}/src"/>
-    <property name="doc" location="${basedir}/doc"/>
-    <target name="javadoc">
-        <javadoc access="protected" author="false" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
-    </target>
-</project>
