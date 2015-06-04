@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="apgas" default="dist">
-    <property name="build" location="${basedir}/bin"/>
+<project name="apgas" default="zip">
+    <property name="bin" location="${basedir}/bin"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${basedir}/lib"/>
+    <property name="samples" location="${basedir}/samples"/>
     <property name="doc" location="${basedir}/doc"/>
     <property name="jar" value="apgas.jar"/>
-    <property name="hazelcast.jar" value="${lib}/hazelcast-3.4.jar"/>
+    <property name="hazelcast.jar" value="hazelcast-3.4.jar"/>
+    <property name="apgas.zip" value="apgas.zip"/>
     <target name="check-dependencies">
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
     </target>
     <target name="init">
-        <mkdir dir="${build}"/>
+        <mkdir dir="${bin}"/>
         <mkdir dir="${lib}"/>
+        <mkdir dir="${samples}"/>
     </target>
     <target name="hazelcast" depends="init,check-dependencies" unless="hazelcast.present">
         <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/3.4/hazelcast-3.4.jar" dest="${lib}"/>
     </target>
     <target name="clean">
-        <delete dir="${build}" failonerror="false"/>
-    </target>
-    <target name="dist-clean" depends="clean">
+        <delete dir="${bin}" failonerror="false"/>
         <delete dir="${lib}" failonerror="false"/>
         <delete dir="${doc}" failonerror="false"/>
+        <delete dir="${samples}" failonerror="false"/>
     </target>
-    <target name="jar" depends="build">
-        <jar jarfile="${lib}/${jar}">
-            <fileset dir="${build}" includes="**"/>
-            <fileset dir="${src}" includes="**"/>
-        </jar>
+    <target name="jar" depends="compile">
+        <jar jarfile="${lib}/${jar}" basedir="${bin}"/>
     </target>
-    <target name="build" depends="hazelcast">
-        <javac destdir="${build}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
+    <target name="compile" depends="hazelcast">
+        <javac destdir="${bin}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
             <src path="${src}"/>
             <include name="**"/>
             <classpath>
-                <pathelement location="${hazelcast.jar}"/>
+                <pathelement location="${lib}/${hazelcast.jar}"/>
             </classpath>
         </javac>
+    </target>
+    <target name="samples" depends="init">
+        <copy todir="${samples}" failonerror="no">
+            <fileset dir="{$basedir}/../../apgas.examples/src/apgas/examples" excludes="package-info.java"/>
+        </copy>
+        <replace dir="${samples}" token="package apgas.examples;"/>
+    </target>
+    <target name="zip" depends="clean,jar,samples">
+        <zip destfile="${basedir}/${apgas.zip}" basedir="${basedir}" includes="README.txt,epl-v10.html,lib/**,samples/**"/>
     </target>
     <target name="javadoc">
         <javadoc access="protected" author="false" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
     </target>
-    <target name="dist" depends="jar,javadoc"/>
 </project>
