@@ -43,7 +43,7 @@
         </copy>
         <replace dir="${samples}" token="package apgas.examples;"/>
     </target>
-    <target name="zip" depends="clean,jar,samples">
+    <target name="zip" depends="clean,jar,samples,javadoc">
         <zip destfile="${basedir}/${apgas.zip}" basedir="${basedir}" includes="README.txt,epl-v10.html,lib/**,samples/**"/>
     </target>
     <target name="javadoc">

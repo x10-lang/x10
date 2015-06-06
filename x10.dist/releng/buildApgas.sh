@@ -9,9 +9,9 @@ cd eclipse.jdt.core
 svn update apgas.compiler apgas.runtime apgas.ui apgas.tools apgas.site apgas.parent
 svn co https://svn.code.sf.net/p/x10/code/trunk/apgas
 svn co https://svn.code.sf.net/p/x10/code/trunk/apgas.examples
-patch -p1 < ~/jdt/eclipse.jdt.core/apgas.compiler/R4_4_2.patch
+patch -p1 < apgas.compiler/R4_4_2.patch
 cd apgas
-ant zip javadoc
+ant
 cd ../apgas.parent
 mvn -P build-individual-bundles package
 cd /tmp
