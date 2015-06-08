@@ -1,32 +1,34 @@
-X10 Release 2.5.2
+X10 Release 2.5.3
 
 HIGHLIGHTS OF THIS RELEASE
+  We have switched to using an ANTLR generated parser in the X10
+  compiler.  This change has significantly improved the error
+  handling capabilities of the X10 compiler, enabling better
+  editing capabilities in X10DT.
 
-Although there were no X10 language changes in X10 2.5.2, this release
-does contain user-visible changes to the structure of the X10 class
-library.  
-   (1)  The implementation of the X10 Runtime was moved from the
-        x10.lang package to a new x10.xrx package.  Unlike x10.lang,
-	this package is not auto-imported into all programs. Programs
-	that make calls to x10.xrx.Runtime (or other impacted classes)
-	will need to be updated to import the used XRX classes. 
-   (2)  We continue to improve Resilient/Elastic X10 and have made a
-        number of API improvements to classes in the
-	x10.util.resilient package.
-   (3)  We have added built-in support for ghost regions to the
-        x10.regionarray.DistArray class.  Some mostly internal changes
-	to the DistArray API were made to enable this new
-	functionality (XTENLANG-3488,3489).
+  Improvements to the APGAS Java Library, including Eclipse
+  support for creating APGAS programs.
 
-This release also contains significant enhancements to the x10rt_mpi
-implementation, including exploitation of MPI-3 non-blocking
-collections by X10 Team operations to enable unrestricted mixing of
-APGAS asynchronous messaging with Team collective operations.
+MINOR LANGUAGE CHANGE
+  To improve the quality of compiler diagnostics for syntax errors
+  and the usability of the X10DT editor, two backwards incompatible 
+  syntax changes are being made in X10 2.5.3: 
+    (1) There is no implicit return in method definitions
+    (2) The body of a method or constructor cannot be a block
+        introduced by an "="
+  Therefore, the following method definition is now incorrect:
+     def f (x: long) = {
+       x + 1
+     }
+   It now should be rewritten to either:
+     def f (x: long) {
+       return x + 1;
+     }
+   or:
+     def f (x: long) = x + 1;
+  A tool converting programs to the new syntax is available:
+    http://x10.sourceforge.net/misc/x10-2.5.3-converter/
 
-This release is also the first time we are bundling the Lulesh proxy
-application with the X10 benchmarks. We continue to improve our Lulesh
-code, but believe it has now reached a level of stability and
-performance that make it generally usable as a X10 benchmark.
 
 LIMITATIONS OF THIS RELEASE
 
@@ -54,30 +56,22 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.5.2
+Below is a summary of JIRA issues addressed for the X10 2.5.3
 
-Release Notes - X10 - Version X10 2.5.2
+Release Notes - X10 - Version X10 2.5.3
 
-** New Features and Improvements
-    * [XTENLANG-1373] - Support for ghost cells in distributed arrays
-    * [XTENLANG-3447] - Splittable PNRG
-    * [XTENLANG-3479] - Add FileReader.offset()
-    * [XTENLANG-3480] - GML: add rank-one update (DGER)
-    * [XTENLANG-3484] - Move XRX runtime to x10.xrx package (out of x10.lang)
-    * [XTENLANG-3488] - Replace Dist.offset with Region.indexOf
-    * [XTENLANG-3490] - x10rt_mpi should default to MPI_THREAD_MULTIPLE
+** New Feature
+    * [XTENLANG-3382] - Switch MacOS build of X10DT to 64bit
 
-** Bugs
-    * [XTENLANG-3354] - asyncCopy deadlocks on BG/Q
-    * [XTENLANG-3355] - alltoall segfaults on BG/Q
-    * [XTENLANG-3485] - On MacOs the jblas library must have extension .jnilib and not .so
-    * [XTENLANG-3486] - GML: transpose DenseMatrix.T(DenseMatrix) should store to invocation target
-    * [XTENLANG-3489] - Replace x10.regionarray.PeriodicDist with x10.regionarray.PeriodicBoundaryConditions
-    * [XTENLANG-3492] - Team creation fails over SparsePlaceGroup
+** Bug
+    * [XTENLANG-3495] - Stack overflow compiling LULESH with x10c -O
+    * [XTENLANG-3496] - Remote reference counting causes DeadPlaceException
+    * [XTENLANG-3503] - Native backend generates invalid C++ code or calls wrong method for function interfaces
+    * [XTENLANG-3507] - Team.WORLD.split causes an error when using openMPI
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=20767
+  https://xtenlang.atlassian.net/jira/secure/ReleaseNote.jspa?projectId=10005&version=10160
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
-http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+  https://xtenlang.atlassian.net/projects/XTENLANG/issues
