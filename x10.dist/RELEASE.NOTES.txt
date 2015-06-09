@@ -6,9 +6,6 @@ HIGHLIGHTS OF THIS RELEASE
   handling capabilities of the X10 compiler, enabling better
   editing capabilities in X10DT.
 
-  Improvements to the APGAS Java Library, including Eclipse
-  support for creating APGAS programs.
-
 MINOR LANGUAGE CHANGE
   To improve the quality of compiler diagnostics for syntax errors
   and the usability of the X10DT editor, two backwards incompatible 
