@@ -17,6 +17,10 @@ HIGHLIGHTS OF THIS RELEASE
   Control-Space will pop-up a window showing the methods defined 
   on x10.lang.String.
 
+  Managed X10 now supports compression on the network communication links.  To
+  enable it, set the system property "X10RT_COMPRESSION" to "snappy" when you
+  launch your program.
+
 MINOR LANGUAGE CHANGE
   To improve the quality of compiler diagnostics for syntax errors
   and the usability of the X10DT editor, two backwards incompatible 
