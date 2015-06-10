@@ -102,7 +102,12 @@ if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
     if [ -f "$TOOLSJAR" ]; then
         classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
     else
-        echo "Warning: x10doc requires javadoc framework in JDK"
+        TOOLSJAR="${JAVA_JRE}${FILE_SEP}..${FILE_SEP}lib${FILE_SEP}tools.jar"
+        if [ -f "$TOOLSJAR" ]; then
+            classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
+        else
+            echo "Warning: x10doc requires javadoc framework in JDK"
+        fi
     fi
 fi
 

@@ -21,12 +21,12 @@
         <available file="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}"/>
     </condition>
     <condition property="tools.jar.location"
-            value="${java.home}${file.separator}lib{file.separator}${tools.jar}">
+            value="${java.home}${file.separator}lib${file.separator}${tools.jar}">
         <and>
             <not>
                 <isset property="tools.jar.location"/>
             </not>
-            <available file="${java.home}${file.separator}lib{file.separator}${tools.jar}"/>
+            <available file="${java.home}${file.separator}lib${file.separator}${tools.jar}"/>
         </and>
     </condition>
     <condition property="tools.jar.location"
