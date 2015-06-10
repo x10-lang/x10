@@ -6,6 +6,17 @@ HIGHLIGHTS OF THIS RELEASE
   handling capabilities of the X10 compiler, enabling better
   editing capabilities in X10DT.
 
+  X10DT now supports a limited form of content assist (suggestion
+  of methods/fields).  However unlike in the Eclipse JDT, the program 
+  fragment on which content assist is being applied must be recognized 
+  as a statement by the parser (must end in a semicolon). For example,
+  in the fragment 
+    val x = "Hello World";
+    x.;
+  putting the cursor on the "." in the second line and typing
+  Control-Space will pop-up a window showing the methods defined 
+  on x10.lang.String.
+
 MINOR LANGUAGE CHANGE
   To improve the quality of compiler diagnostics for syntax errors
   and the usability of the X10DT editor, two backwards incompatible 
@@ -25,7 +36,6 @@ MINOR LANGUAGE CHANGE
      def f (x: long) = x + 1;
   A tool converting programs to the new syntax is available:
     http://x10.sourceforge.net/misc/x10-2.5.3-converter/
-
 
 LIMITATIONS OF THIS RELEASE
 
