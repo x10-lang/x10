@@ -2,24 +2,16 @@ X10 Release 2.5.3
 
 HIGHLIGHTS OF THIS RELEASE
   We have switched to using an ANTLR generated parser in the X10
-  compiler.  This change has significantly improved the error
-  handling capabilities of the X10 compiler, enabling better
-  editing capabilities in X10DT.
+  compiler.  This change significantly improved compiler support
+  for X10DT features. The X10 Editor is now much more resilient to 
+  syntax errors: features such as outline, hyperlink, hover help, 
+  and content-assist continue to work in the face of compilation errors.
+  For the content-assist feature to work, the user must first enter a 
+  semicolon (';') at the end of the statement to be completed.
 
-  X10DT now supports a limited form of content assist (suggestion
-  of methods/fields).  However unlike in the Eclipse JDT, the program 
-  fragment on which content assist is being applied must be recognized 
-  as a statement by the parser (must end in a semicolon). For example,
-  in the fragment 
-    val x = "Hello World";
-    x.;
-  putting the cursor on the "." in the second line and typing
-  Control-Space will pop-up a window showing the methods defined 
-  on x10.lang.String.
-
-  Managed X10 now supports compression on the network communication links.  To
-  enable it, set the system property "X10RT_COMPRESSION" to "snappy" when you
-  launch your program.
+  Managed X10 now supports compression on the network communication links.
+  To enable it, set the system property "X10RT_COMPRESSION" to "snappy" 
+  when you launch your program.
 
 MINOR LANGUAGE CHANGE
   To improve the quality of compiler diagnostics for syntax errors
