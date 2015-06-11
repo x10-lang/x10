@@ -5,8 +5,10 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="jar" value="apgas.jar"/>
     <property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
+    <property name="snappy-jar-url" value="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
+        <pathelement location="${snappy-java.jar}"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
@@ -20,7 +22,7 @@
     <target name="init" depends="check-dependencies" unless="snappy.present">
         <mkdir dir="${build}"/>
         <mkdir dir="${lib}"/>
-        <get src="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" dest="${snappy-java.jar}"/>
+        <get src="${snappy-jar-url}" dest="${snappy-java.jar}"/>
     </target>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
@@ -38,7 +40,6 @@
             <include name="x10/**"/>
             <classpath>
                 <path refid="project.classpath"/>
-                <pathelement location="${snappy-java.jar}"/>
             </classpath>
         </javac>
     </target>
