@@ -37,6 +37,8 @@
     </target>
     <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
+        <pathconvert property="classpathProp" refid="project.classpath"/>
+        <echo message="Classpath is ${classpathProp}" />
         <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
             <src path="${src}"/>
             <include name="x10/**"/>
