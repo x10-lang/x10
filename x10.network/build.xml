@@ -22,7 +22,9 @@
     <target name="init" depends="check-dependencies" unless="snappy.present">
         <mkdir dir="${build}"/>
         <mkdir dir="${lib}"/>
-        <get src="${snappy-jar-url}" dest="${snappy-java.jar}"/>
+    	<retry retrycount="3">
+        	<get src="${snappy-jar-url}" dest="${snappy-java.jar}"/>
+    	</retry>
     </target>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
