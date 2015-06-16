@@ -102,6 +102,7 @@ struct x10rt_pami_team_create
 	x10rt_place *colors;
 	uint32_t teamIndex;
 	x10rt_place parent_role;
+	bool member;
 };
 
 struct x10rt_pami_team_callback
@@ -772,7 +773,7 @@ static void team_creation_complete (pami_context_t   context,
 		#ifdef DEBUG
 			fprintf(stderr, "New team %u created via split at place %u\n", team->teamIndex, state.myPlaceId);
 		#endif
-		determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
+		if (team->member) determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
 		team->cb2(team->teamIndex, team->arg);
 		free(team);
 	}
@@ -789,7 +790,11 @@ static void team_creation_complete_nocallback (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_creation_complete_nocallback");
 
-	determineCollectiveAlgorithms((x10rt_pami_team *)cookie);
+	if (cookie) // should always be true
+	{
+		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
+		if (team->member) determineCollectiveAlgorithms((x10rt_pami_team *)cookie);
+	}
 	#ifdef DEBUG
 		fprintf(stderr, "New Team created via team_new at place %u\n", state.myPlaceId);
 	#endif
@@ -866,10 +871,6 @@ static void team_create_dispatch (
 		config.name = PAMI_GEOMETRY_OPTIMIZE;
 		config.value.intval = 1;
 
-		#ifdef DEBUG
-			fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
-		#endif
-
 		// check to see if we are a member of the geometry or not
 		bool member = false;
 		pami_result_t   status = PAMI_ERROR;
@@ -882,6 +883,11 @@ static void team_create_dispatch (
 				break;
 			}
 		}
+
+		#ifdef DEBUG
+			fprintf(stderr, "creating a new team %u at place %u of size %u, member=%s\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size, member?"true":"false");
+		#endif
+
 		if (!member)
 		{
 			state.teams[newTeamId].geometry = PAMI_GEOMETRY_NULL;
@@ -1561,12 +1567,27 @@ void x10rt_net_register_mem (void *ptr, size_t len)
 }
 
 pami_result_t post_geometry_create (pami_context_t context, void* cookie) {
-	x10rt_post_general *post = (x10rt_post_general *)cookie;
 	pami_configuration_t config;
+	pami_result_t status = PAMI_ERROR;
+
+	x10rt_post_general *post = (x10rt_post_general *)cookie;
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *) post->ptr;
+
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 	config.value.intval = 1;
 
-	pami_result_t status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[post->val].geometry, state.teams[0].geometry, post->val, state.teams[post->val].places, state.teams[post->val].size, context, team_creation_complete, post->ptr);
+	#ifdef DEBUG
+		fprintf(stderr, "creating a new team %u at place %u of size %u, member=%s\n", cbd->teamIndex, state.myPlaceId, state.teams[cbd->teamIndex].size, cbd->member?"true":"false");
+	#endif
+
+	if (!cbd->member)
+	{
+		state.teams[cbd->teamIndex].geometry = PAMI_GEOMETRY_NULL;
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, NULL, state.teams[0].geometry, cbd->teamIndex, state.teams[cbd->teamIndex].places, state.teams[cbd->teamIndex].size, context, team_creation_complete, post->ptr);
+	}
+	else
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[cbd->teamIndex].geometry, state.teams[0].geometry, cbd->teamIndex, state.teams[cbd->teamIndex].places, state.teams[cbd->teamIndex].size, context, team_creation_complete, post->ptr);
+
 	if (status != PAMI_SUCCESS) error("Unable to create a new geometry");
 
 	free(cookie);
@@ -1621,14 +1642,20 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 			#endif
 		}
 	}
-	// at this point, all the places that are to be a part of this new team have been sent a message to join it.  We need to join too
 
-	#ifdef DEBUG
-		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
-	#endif
+	// at this point, all the places that are to be a part of this new team have been sent a message to join it.  We need to join too
+	// check to see if we are a member of the geometry or not
+	cookie->member = false;
+	for (int i=0; i<placec; i++)
+	{
+		if (placev[i] == state.myPlaceId)
+		{
+			cookie->member = true;
+			break;
+		}
+	}
 
 	x10rt_post_general *post = (x10rt_post_general*)x10rt_malloc(sizeof(x10rt_post_general));
-	post->val = newTeamId;
 	post->ptr = cookie;
 #ifdef POSTMESSAGES
 	status = PAMI_Context_post(state.context, &post->work, post_geometry_create, (void *)post);
@@ -1731,6 +1758,7 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	cbd->colors = colors;
 	cbd->teamIndex = parent;
 	cbd->parent_role = parent_role;
+	cbd->member = true;
 
 	x10rt_post_collective_create *post = (x10rt_post_collective_create*)x10rt_malloc(sizeof(x10rt_post_collective_create));
 	post->operation.cb_done = split_stage2;
