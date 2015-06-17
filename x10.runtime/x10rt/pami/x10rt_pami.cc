@@ -771,16 +771,12 @@ static void team_creation_complete (pami_context_t   context,
 	{
 		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
 		#ifdef DEBUG
-			fprintf(stderr, "New team %u created via split at place %u\n", team->teamIndex, state.myPlaceId);
+			fprintf(stderr, "New team %u created at place %u, member=%s\n", team->teamIndex, state.myPlaceId, team->member?"true":"false");
 		#endif
 		if (team->member) determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
 		team->cb2(team->teamIndex, team->arg);
 		free(team);
 	}
-	#ifdef DEBUG
-	else
-		fprintf(stderr, "New team created via split at place %u\n", state.myPlaceId);
-	#endif
 }
 
 static void team_creation_complete_nocallback (pami_context_t   context,
@@ -790,10 +786,14 @@ static void team_creation_complete_nocallback (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_creation_complete_nocallback");
 
-	if (cookie) // should always be true
+	x10rt_pami_team* team = (x10rt_pami_team *)cookie;
+	for (int i=0; i<team->size; i++)
 	{
-		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
-		if (team->member) determineCollectiveAlgorithms((x10rt_pami_team *)cookie);
+		if (team->places[i] == state.myPlaceId)
+		{
+			determineCollectiveAlgorithms(team);
+			break;
+		}
 	}
 	#ifdef DEBUG
 		fprintf(stderr, "New Team created via team_new at place %u\n", state.myPlaceId);
