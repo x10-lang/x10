@@ -39,6 +39,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean OPTIMIZE = false;
     private static final String OPTIMIZE_desc = "Generate optimized code";
 
+    public int OPT_LEVEL = -1;
+    private static final String OPT_LEVEL_desc = "Optimization level to use when invoking post compiler";
+
     public boolean CHECK_ERR_MARKERS = false;
     private static final String CHECK_ERR_MARKERS_desc = "Check for @ERR markers";
 

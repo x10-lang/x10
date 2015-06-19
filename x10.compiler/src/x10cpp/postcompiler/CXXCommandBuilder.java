@@ -134,7 +134,11 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I.");
 
         if (options.x10_config.OPTIMIZE) {
-            cxxCmd.add(usingXLC() ? "-O3" : "-O2");
+            if (options.x10_config.OPT_LEVEL != -1) {
+                cxxCmd.add("-O"+options.x10_config.OPT_LEVEL);
+            } else {
+                cxxCmd.add(usingXLC() ? "-O3" : "-O2");
+            }
             cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
             if (fx10()) {
