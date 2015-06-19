@@ -93,8 +93,6 @@ III. When all necessary fixes have been propagated to the release branch,
       /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
       create an updateSite subdir of the new directory and unzip the
       update site zip from the download section into it.
-      Also create an updateSite-EditorOnly subdir and unzip 
-      the X10DT Editor Only Edition update site into it.
 
    10. Make sure language manual has the right version, date, etc. 
       Tag the language manual
