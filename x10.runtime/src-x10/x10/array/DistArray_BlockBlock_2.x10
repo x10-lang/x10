@@ -197,8 +197,7 @@ public class DistArray_BlockBlock_2[T] extends DistArray[T]{this.rank()==2} impl
      */
     public final @Inline operator this(i:Long,j:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i,j);
-        Unsafe.uncheckedRailSet(raw, offset(i, j), v);
-        return v;
+        return Unsafe.uncheckedRailSet(raw, offset(i, j), v);
     }
 
 

@@ -199,8 +199,7 @@ public class DistArray_Block_3[T] extends DistArray[T]{this.rank()==3} implement
      */
     public final @Inline operator this(i:Long,j:Long,k:Long)=(v:T):T{self==v} {
         if (CompilerFlags.checkPlace() || CompilerFlags.checkBounds()) validateIndex(i,j,k);
-        Unsafe.uncheckedRailSet(raw, offset(i, j, k), v);
-        return v;
+        return Unsafe.uncheckedRailSet(raw, offset(i, j, k), v);
     }
 
 

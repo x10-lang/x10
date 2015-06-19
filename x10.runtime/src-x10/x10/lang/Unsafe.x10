@@ -38,7 +38,7 @@ public final class Unsafe {
     public static @Inline def uncheckedRailApply[T](r:Rail[T], i:Long):T = r(i);
 
     @Native("c++", "(#r)->unchecked_set(#i, #v)")
-    public static @Inline def uncheckedRailSet[T](r:Rail[T], i:Long, v:T):T {
+    public static @Inline def uncheckedRailSet[T](r:Rail[T], i:Long, v:T):T{self==v} {
         r(i) = v;
         return v;
     }

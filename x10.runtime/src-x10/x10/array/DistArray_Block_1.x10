@@ -183,8 +183,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
                 if (CompilerFlags.checkPlace()) raisePlaceError(i);
             }
         }
-        Unsafe.uncheckedRailSet(raw, i - minLocalIndex, v);
-        return v;
+        return Unsafe.uncheckedRailSet(raw, i - minLocalIndex, v);
     }
 
 
