@@ -26,7 +26,7 @@ public class Places4e7q extends x10Test {
     }
 
 
-// file Places line 978
+// file Places line 975
 
  static class Places10TestExp{
   def check(g:GlobalRef[Any]{here == g.home})  = g();  }

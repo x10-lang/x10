@@ -20,6 +20,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.DeadCodeEliminator;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
@@ -30,6 +31,7 @@ import x10.visit.CodeCleanUp;
 import x10.visit.ConstantPropagator;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
+import x10.visit.UnusedVariableEliminator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.X10CopyPropagator;
 import x10cpp.visit.TupleRemover;
@@ -107,14 +109,16 @@ public class Optimizer {
         if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
         }
-        if (config.CODE_CLEAN_UP && !config.DEBUG_ENABLE_LINEMAPS) {
+        if (!config.DEBUG_ENABLE_LINEMAPS) {
             goals.add(CodeCleanUp());
         }
         if (config.OPTIMIZE) {
             goals.add(ConstantProp());
-        }
-        if (config.COPY_PROPAGATION) {
             goals.add(CopyPropagation());
+            goals.add(UnusedVariableEliminator());
+            if (!config.DEBUG_ENABLE_LINEMAPS) {
+                goals.add(CodeCleanUp2());
+            }
         }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
             goals.add(DeadVariableEliminator());
@@ -159,6 +163,12 @@ public class Optimizer {
         Goal goal = new ValidatingVisitorGoal("Dead Variable Elimination", job, visitor);
         return goal.intern(scheduler);
     }
+    
+    public Goal UnusedVariableEliminator() {
+        NodeVisitor visitor = new UnusedVariableEliminator(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Unused Variable Elimination", job, visitor);
+        return goal.intern(scheduler);
+    }
 
     public Goal ConstructorSplitter() {
         NodeVisitor visitor = new ConstructorSplitterVisitor(job, ts, nf);
@@ -172,6 +182,12 @@ public class Optimizer {
         return goal.intern(scheduler);
     }
     
+    public Goal CodeCleanUp2() {
+        NodeVisitor visitor = new CodeCleanUp(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("CodeCleanUp Redux", job, visitor);
+        return goal.intern(scheduler);
+    }
+
     public Goal PreInlineConstantProp() {
         NodeVisitor visitor = new ConstantPropagator(job, ts, nf, true);
         Goal goal = new ValidatingVisitorGoal("Pre-inlining ConstantPropagation", job, visitor);

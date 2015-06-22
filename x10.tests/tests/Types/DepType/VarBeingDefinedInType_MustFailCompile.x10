@@ -18,12 +18,12 @@ import harness.x10Test;
  */
 public class VarBeingDefinedInType_MustFailCompile extends x10Test {
     
-	public def run(): boolean = {
+	public def run(): boolean {
 		var v: int{v ==0n} = 0n;
 		var w: int{w==v} = 0n; // ERR: cannot reference v in deptype, v is not final.
 	    return v==0n;
 	}
-	public static def main(Rail[String]): void = {
+	public static def main(Rail[String]): void {
 		new VarBeingDefinedInType_MustFailCompile().execute();
 	}
 }

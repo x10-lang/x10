@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.xrx.Runtime;
 
 // NUM_PLACES: 2
 // RESILIENT_X10_ONLY
@@ -62,13 +63,11 @@ public class TestRemoteFailSync extends x10Test {
 
         } catch (e:MultipleExceptions) {
 
-            assert e.exceptions.size == 1l : e.exceptions;
-
-            val e2 = e.exceptions(0);
-
-            val e3 = e2 as DeadPlaceException;
-
-            assert e3.place == p1;
+            val dpes = e.getExceptionsOfType[DeadPlaceException]();
+            assert dpes.size >= 1;
+            for (dpe in dpes) {
+                assert dpe.place == p1;
+            }
 
             good_dec();
 

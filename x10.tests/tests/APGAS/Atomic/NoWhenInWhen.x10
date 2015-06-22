@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class NoWhenInWhen extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
         	var lock1:boolean=false;
 			when (!lock1) 

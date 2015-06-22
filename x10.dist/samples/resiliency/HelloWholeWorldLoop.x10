@@ -18,6 +18,9 @@ class HelloWholeWorldLoop {
          return;
      }
      
+     System.registerPlaceAddedHandler((p:Place)=>{Console.OUT.println("I see that "+p+" was added");});
+     System.registerPlaceRemovedHandler((p:Place)=>{Console.OUT.println("I see that "+p+" was removed");});
+     
      for (i:Long in 0..(Long.parse(args(1)))){
          try {
              val world = Place.places();
@@ -26,8 +29,9 @@ class HelloWholeWorldLoop {
                  at (p) async Console.OUT.println(here+" says hello and "+args(0)+" "+i);
              }
          }
-         catch (e:DeadPlaceException) {
-             Console.OUT.println("Got DeadPlaceException from "+e.place+" in round "+i);
+         catch (me:MultipleExceptions) {
+             for (e in me.getExceptionsOfType[DeadPlaceException](true))
+                 Console.OUT.println("Got DeadPlaceException from "+e.place+" in round "+i);
          }
          
          System.sleep(10000);

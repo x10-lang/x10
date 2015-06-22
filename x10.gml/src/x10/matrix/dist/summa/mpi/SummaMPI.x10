@@ -15,10 +15,15 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
+
 import x10.matrix.Matrix;
-import x10.matrix.util.Debug;
+import x10.matrix.ElemType;
 import x10.matrix.DenseMatrix;
+
+import x10.matrix.util.Debug;
+
 import x10.matrix.block.Grid;
+
 import x10.matrix.dist.DistDenseMatrix;
 
 /**
@@ -26,6 +31,7 @@ import x10.matrix.dist.DistDenseMatrix;
  * The C-MPI implementation can be found at 
  * "Summa: Scalable universal matrix multiplication algorithm" 
  * by Robert A. Van De Geijn ,  Jerrell Watts
+  * vjTODO: Check for needfor native support for ElemType
  */
 @NativeCPPInclude("summa_api.h")
 @NativeCPPCompilationUnit("summa_api.cc")
@@ -38,7 +44,7 @@ public class SummaMPI {
     @Native("c++","reset_usetime()")
 		public static native def reset_usetime():void;
     @Native("c++","get_usetime((#1)->raw)")
- 		public static native def get_usetime(t:Rail[Double]):void;
+ 		public static native def get_usetime(t:Rail[ElemType]):void;
 
     @Native("c++","setup_grid_partition(#1, #2, #3, #4, #5)")
 		public static native def setup_grid_partition(
@@ -51,28 +57,28 @@ public class SummaMPI {
 	@Native("c++","summa_mult((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,(#8)->raw,(#9)->raw)")
 		public static native def summa_mult(
 				mat:Rail[Int], 
-				scal:Rail[Double],
+				scal:Rail[ElemType],
 				Arows:Rail[Int], 
 				Acols:Rail[Int], 
-				Adata:Rail[Double],
+				Adata:Rail[ElemType],
 				Brows:Rail[Int], 
 				Bcols:Rail[Int], 
-				Bdata:Rail[Double],
-				Cdata:Rail[Double]):void;
+				Bdata:Rail[ElemType],
+				Cdata:Rail[ElemType]):void;
 
 	@Native("c++","summa_mult_T((#1)->raw,(#2)->raw,(#3)->raw,(#4)->raw,(#5)->raw,(#6)->raw,(#7)->raw,(#8)->raw,(#9)->raw)")
 		public static native def summa_mult_T(
 				mat:Rail[Int], 
-				scal:Rail[Double],
+				scal:Rail[ElemType],
 				Arows:Rail[Int], 
 				Acols:Rail[Int], 
-				Adata:Rail[Double],
+				Adata:Rail[ElemType],
 				Brows:Rail[Int], 
 				//Bcols:Rail[Int], == Acols 
-				Bdata:Rail[Double],
+				Bdata:Rail[ElemType],
 				//Crows==Arows
 				Ccols:Rail[Int], 
-				Cdata:Rail[Double]):void;
+				Cdata:Rail[ElemType]):void;
 
 
     /** 
@@ -92,7 +98,7 @@ public class SummaMPI {
 	 * @return  -- output matrix C
 	 */
 	public static def mult(
-			ps:Long, beta:Double, 
+			ps:Long, beta:ElemType, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix, 
 			C:DistDenseMatrix): DistDenseMatrix(C) {
@@ -127,7 +133,7 @@ public class SummaMPI {
                     SummaMPI.convertToIntRail(B.grid.colBs), 
                     Bd, Cd);
 			//Debug.flushln("Place "+p+" Summa Done");
-			val tlist= new Rail[Double](2);
+			val tlist= new Rail[ElemType](2);
 			get_usetime(tlist);
 			C.distBs(here.id()).calcTime+=tlist(0) as long;
 			C.distBs(here.id()).commTime+=tlist(1) as long;
@@ -147,7 +153,7 @@ public class SummaMPI {
 	 * @return  -- output matrix C
 	 */
 	public static def multTrans(
-			ps:Long, beta:Double, 
+			ps:Long, beta:ElemType, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix, 
 			C:DistDenseMatrix):DistDenseMatrix(C) {
@@ -188,7 +194,7 @@ public class SummaMPI {
 						 Cd);
 			
 
-			val tlist = new Rail[Double](2);
+			val tlist = new Rail[ElemType](2);
 			get_usetime(tlist);
 			C.distBs(here.id()).calcTime+=tlist(0) as long;
 			C.distBs(here.id()).commTime+=tlist(1) as long;
@@ -197,7 +203,7 @@ public class SummaMPI {
 	}
 
 	public static def mult(
-			ps:Long, beta:Double, 
+			ps:Long, beta:ElemType, 
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix):DistDenseMatrix {
 		
@@ -210,7 +216,7 @@ public class SummaMPI {
 	}
 
 	public static def multTrans(
-			ps:Long, beta:Double,
+			ps:Long, beta:ElemType,
 			A:DistDenseMatrix, 
 			B:DistDenseMatrix):DistDenseMatrix {
 		

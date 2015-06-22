@@ -39,7 +39,7 @@ public class TypedefOverloading05 extends TypedefTest {
         static type A/*B*/[T] = Z[T,T];
         static type A/*C*/[T,U] = Z[T,U];
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         a1:A = new A();
         a2:A/*B*/[int] = new Z[int,int]();
@@ -48,7 +48,7 @@ public class TypedefOverloading05 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading05().execute();
     }
 }

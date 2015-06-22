@@ -33,7 +33,7 @@ public class GenericInference1_MustFailCompile extends GenericTest {
     def m[T](){T<:X} =
         T.name; // ERR: Cannot access static field of a type parameter	 Type Parameter: T
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         // must fail compile
         val a =
@@ -45,7 +45,7 @@ public class GenericInference1_MustFailCompile extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInference1_MustFailCompile().execute();
     }
 }

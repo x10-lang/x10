@@ -26,7 +26,7 @@ public class Classes160 extends x10Test {
     }
 
 
-// file Classes line 1460
+// file Classes line 1458
  // Integral-coefficient polynomials of one variable.
  static  class Poly {
    public val coeff : Rail[Long];
@@ -77,7 +77,7 @@ public class Classes160 extends x10Test {
         // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
       return s;
       };
-   public final def toString() = {
+   public final def toString() {
       var allZeroSoFar : Boolean = true;
       var s : String ="";
       for( i in 0L..this.degree() ) {
@@ -95,7 +95,7 @@ public class Classes160 extends x10Test {
       if (allZeroSoFar) s = "0";
       return s;
    }
-   private final def term(ai: Long, n:Long) = {
+   private final def term(ai: Long, n:Long) {
       val xpow = (n==0L) ? "" : (n==1L) ? "x" : "x^" + n ;
       return (ai == 1L) ? xpow : "" + Math.abs(ai) + xpow;
    }

@@ -26,7 +26,7 @@ public class Places60 extends x10Test {
     }
 
 
-// file Places line 1013
+// file Places line 1010
  static  class GR2 {
 
   public static def main(argv:Rail[String]) {

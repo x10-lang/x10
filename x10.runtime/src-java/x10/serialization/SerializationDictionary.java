@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.serialization;
@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 import x10.runtime.impl.java.Runtime.OSGI_MODES;
-
 import static x10.serialization.SerializationUtils.getBundleMethod;
 import static x10.serialization.SerializationUtils.getSymbolicNameMethod;
 import static x10.serialization.SerializationUtils.getVersionMethod;
@@ -143,8 +142,8 @@ abstract class SerializationDictionary implements SerializationConstants {
             short sid = super.getSerializationId(clazz, obj, dos);
             if (sid == NO_PREASSIGNED_ID) {
                 sid = Short.valueOf(nextId++);
-                dict.put(clazz, sid);
                 serializeIdAssignment(dos, sid, clazz);
+                dict.put(clazz, sid);
             }
             return sid;
         }

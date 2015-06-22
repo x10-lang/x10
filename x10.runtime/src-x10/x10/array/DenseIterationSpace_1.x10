@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.array;
@@ -29,6 +29,10 @@ public final class DenseIterationSpace_1 extends IterationSpace(1){rect} {
     }
 
     public static operator (r:LongRange) = new DenseIterationSpace_1(r.min, r.max);
+
+    public operator this * (that:LongRange):DenseIterationSpace_2{self!=null} {
+        return new DenseIterationSpace_2(min, that.min, max, that.max);
+    }
 
     public def min(i:Long):Long {
        if (i != 0) throw new IllegalOperationException(i +" is not a valid rank");

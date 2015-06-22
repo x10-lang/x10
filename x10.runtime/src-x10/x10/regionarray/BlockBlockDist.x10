@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -34,12 +34,12 @@ final class BlockBlockDist extends Dist {
     /**
      * The first axis along which the region is distributed
      */
-    private val axis0:Long;
+    val axis0:Long;
 
     /**
      * The second axis along which the region is distributed
      */
-    private val axis1:Long;
+    val axis1:Long;
 
     /**
      * Cached restricted region for the current place.
@@ -228,61 +228,6 @@ final class BlockBlockDist extends Dist {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis0), pt(axis1));
     }
-
-    public def offset(pt:Point(rank)):Long {
-        val r = get(here);
-        val offset = r.indexOf(pt);
-        if (offset == -1) {
-            if (CompilerFlags.checkBounds() && !region.contains(pt)) raiseBoundsError(pt);
-            if (CompilerFlags.checkPlace()) raisePlaceError(pt);
-        }
-        return offset;
-    }
-
-    public def offset(i0:Long){rank==1}:Long {
-        val r = get(here);
-        val offset = r.indexOf(i0);
-        if (offset == -1) {
-            if (CompilerFlags.checkBounds() && !region.contains(i0)) raiseBoundsError(i0);
-            if (CompilerFlags.checkPlace()) raisePlaceError(i0);
-        }
-        return offset;
-    }
-
-    public def offset(i0:Long, i1:Long){rank==2}:Long {
-        val r = get(here);
-	    val offset = r.indexOf(i0,i1);
-	    if (offset == -1) {
-	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1)) raiseBoundsError(i0,i1);
-            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1);
-        }
-        return offset;
-    }
-
-    public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long {
-        val r = get(here);
-	    val offset = r.indexOf(i0,i1,i2);
-	    if (offset == -1) {
-	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2)) raiseBoundsError(i0,i1,i2);
-            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2);
-        }
-        return offset;
-    }
-
-    public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long {
-        val r = get(here);
-	    val offset = r.indexOf(i0,i1,i2,i3);
-	    if (offset == -1) {
-	        if (CompilerFlags.checkBounds() && !region.contains(i0,i1,i2,i3)) raiseBoundsError(i0,i1,i2,i3);
-            if (CompilerFlags.checkPlace()) raisePlaceError(i0,i1,i2,i3);
-        }
-        return offset;
-    }
-
-    public def maxOffset() {
-        val r = get(here);
-        return r.size()-1;
-    }
         
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(this, r);
@@ -292,6 +237,9 @@ final class BlockBlockDist extends Dist {
         return new WrappedDistPlaceRestricted(this, p);
     }
 
+    public def getLocalGhostManager(ghostWidth:Long, periodic:Boolean) {
+        return new BlockBlockDistGhostManager(ghostWidth, this, periodic);
+    }
 
     public def equals(thatObj:Any):Boolean {
         if (!(thatObj instanceof BlockBlockDist)) return false;

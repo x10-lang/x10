@@ -477,7 +477,9 @@ public class Lowerer extends ContextVisitor {
 		}
 		
 		Block at_body = e.body();
-		at_body = atExceptionWrap(bPos, at_body, true, e.returnType().type());
+		if (isManagedX10) {
+		    at_body = atExceptionWrap(bPos, at_body, true, e.returnType().type());
+		}
 
 		if (AnnotationUtils.hasAnnotation(e, ts.RemoteInvocation())) {
 		    throw new UnsupportedOperationException("Usage error: RemoteInvocation annotations not supported on at expressions");
@@ -582,7 +584,12 @@ public class Lowerer extends ContextVisitor {
         
         place = getPlace(pos, place);
 		
-		Block closure_body = atExceptionWrap(pos, at_body, false, ts.Int());
+		Block closure_body;
+		if (isManagedX10) {
+		    closure_body = atExceptionWrap(pos, at_body, false, ts.Int());
+		} else {
+		   closure_body = synth.toBlock(at_body);		    
+		}
 		List<X10ClassType> annotations = AnnotationUtils.getAnnotations(a);
 
 		Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context(), annotations);
@@ -1167,7 +1174,7 @@ public class Lowerer extends ContextVisitor {
     }
 
     //  offer e ->
-    //  x10.lang.Runtime.offer(e);      
+    //  x10.xrx.Runtime.offer(e);      
     private Stmt visitOffer(Offer n) throws SemanticException {		
     	Position pos = n.position();
     	Expr offerTarget = n.expr();

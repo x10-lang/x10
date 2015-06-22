@@ -26,20 +26,20 @@ import harness.x10Test;
 public class NonFinalVariable_MustFailCompile extends x10Test {
 class Test(i: int) {
 	
-	   public def this(ii:int):Test = {
+	   public def this(ii:int):Test {
 	     property(ii);
 	   }
 	}
 	
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   var ii: int{self==52n} = 52n;
 	   var a:
 	    Test{i==ii} // ERR 
 	    = new Test(52n);
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NonFinalVariable_MustFailCompile().execute();
 	}
 }

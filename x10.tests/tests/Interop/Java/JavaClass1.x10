@@ -21,7 +21,7 @@ public class JavaClass1 extends x10Test {
         val n = o.getName();
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test();
         return true;
     }

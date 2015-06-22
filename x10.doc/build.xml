@@ -9,16 +9,36 @@
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10doc.jar"/>
     <property name="lpg.jar" value="lpg.jar"/>
+    <property name="antlr.jar" value="antlr-runtime_4.5.0.201505151407.jar"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <property name="tools.jar" value="tools.jar"/>
     <property name="bash.exe" value="bash"/>
     <!-- get the environment variables -->
     <property environment="env"/>
-    <property name="tools.jar.location" value="${env.JAVA_HOME}/lib/${tools.jar}"/>
-    <path id="project.classpath">
+    <condition property="tools.jar.location"
+            value="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}">
+        <available file="${env.JAVA_HOME}${file.separator}lib${file.separator}${tools.jar}"/>
+    </condition>
+    <condition property="tools.jar.location"
+            value="${java.home}${file.separator}lib${file.separator}${tools.jar}">
+        <and>
+            <not>
+                <isset property="tools.jar.location"/>
+            </not>
+            <available file="${java.home}${file.separator}lib${file.separator}${tools.jar}"/>
+        </and>
+    </condition>
+    <condition property="tools.jar.location"
+               value="${java.home}${file.separator}..${file.separator}lib${file.separator}${tools.jar}">
+        <not>
+            <isset property="tools.jar.location"/>
+        </not>
+    </condition>
+	<path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
+        <path refid="antlr.classpath"/>
         <path refid="compiler.classpath"/>
         <path refid="x10.runtime.classpath"/>
     </path>
@@ -27,6 +47,9 @@
     </path>
     <path id="lpg.classpath">
         <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="antlr.classpath">
+        <pathelement location="${lib}/${antlr.jar}"/>
     </path>
     <path id="compiler.classpath">
         <pathelement location="${lib}/${compiler.jar}"/>
@@ -42,6 +65,7 @@
         <mkdir dir="${build}"/>
     </target>
     <target name="clean">
+        <echo message="${ant.project.name}: ${tools.jar.location}"/>
         <delete dir="${build}" failonerror="false"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
@@ -67,6 +91,10 @@
             <available file="${lib}/${lpg.jar}"/>
         </condition>
         <fail message="Unable to find required file ${lib}/${lpg.jar}" unless="lpg.jar.present"/>
+        <condition property="antlr.jar.present">
+            <available file="${lib}/${antlr.jar}"/>
+        </condition>
+        <fail message="Unable to find required file ${lib}/${antlr.jar}" unless="antlr.jar.present"/>
         <condition property="compiler.jar.present">
             <available file="${lib}/${compiler.jar}"/>
         </condition>

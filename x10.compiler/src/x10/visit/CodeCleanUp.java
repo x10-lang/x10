@@ -10,6 +10,7 @@
  */
 package x10.visit;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -25,6 +26,8 @@ import polyglot.ast.For;
 import polyglot.ast.Id;
 import polyglot.ast.Labeled;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -33,6 +36,7 @@ import polyglot.ast.SwitchBlock;
 import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.frontend.Job;
+import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
@@ -115,12 +119,17 @@ public class CodeCleanUp extends ContextVisitor {
         
         if (n instanceof StmtExpr) {
             StmtExpr ste = (StmtExpr)n;
-            if (ste.statements().isEmpty()) {
+            if (isEmpty(ste.statements())) {
                 // Simplify StmtExpr({}, E) to just E
-                return ste.result();
+                // Simplify StmtExpr({;, ;, ... ;}, E) to just E
+                return ste.result().position(n.position());
+            }
+            if (ste.result() instanceof Local) {
+                // Simplify StmtExpr({ STMTS1; var tmp; STMTS2; tmp = E; }, tmp}) to StmtExpr({ STMTS1; var tmp; STMTS2; }, E})
+                n = eliminateTerminalAssign(ste);
             }
         }
-        
+
         if (n instanceof Return && ((Return) n).expr() instanceof StmtExpr) {
             Block b = sinkReturn((StmtExpr)((Return)n).expr(), n.position());
             return clean(flattenBlock(b));
@@ -139,6 +148,16 @@ public class CodeCleanUp extends ContextVisitor {
         b = clean(flattenBlock(b));
 
         return b;
+    }
+    
+    private boolean isEmpty(List<Stmt> stmts) {
+        if (stmts.isEmpty()) return true;
+        for (Stmt st : stmts) {
+            if (!(st instanceof Empty)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // Eval(StmtExpr(Block(S), e) ===> B(S, Eval(e))
@@ -180,7 +199,41 @@ public class CodeCleanUp extends ContextVisitor {
         return b;
     }
     
-    
+    // StmtExpr({ STMTS1; var tmp; STMTS2; tmp = E; }, tmp}) ===> StmtExpr({ STMTS1; var tmp; STMTS2; }, E})
+    private StmtExpr eliminateTerminalAssign(StmtExpr ste) {
+        LocalDef ld = ((Local)ste.result()).localInstance().def();
+        boolean definedHere = false;
+        Stmt lastStmt = null;
+        for (Stmt st : ste.statements()) {
+            if (st instanceof LocalDecl && ((LocalDecl) st).localDef().equals(ld)) {
+                definedHere = true;
+            }
+            lastStmt = st;
+        }
+        
+        if (!definedHere) return ste;
+        
+        // is the last stmt a localassign to the same local that used in the expr?
+        if (! (lastStmt instanceof Eval && ((Eval) lastStmt).expr() instanceof LocalAssign
+                &&  ((LocalAssign)((Eval) lastStmt).expr()).local().localInstance().def().equals(ld))) {
+            return ste;
+        }
+        
+        List<Stmt> stmtList = new LinkedList<Stmt>();
+        for (Stmt st : ste.statements()) {
+            if (st != lastStmt) stmtList.add(st);
+        }
+        assert stmtList.size() + 1 == ste.statements().size();
+        Expr res = ((LocalAssign)((Eval) lastStmt).expr()).right();
+        
+        ste = (StmtExpr)ste.statements(stmtList);
+        ste = ste.result(res);
+        ste = (StmtExpr)ste.type(res.type());
+
+        return ste;
+    }
+
+
     /**
      * Turns a Block into a list of Stmts.
      **/

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2010.
  */
 
@@ -225,7 +225,7 @@ public abstract class PlaceGroup implements Iterable[Place] {
             val message = ser.toRail();
             @Pragma(Pragma.FINISH_SPMD) finish for(var i:Long=numPlaces()-1; i>=0; i-=32) {
                 at (Place(i)) async {
-                    val max = Runtime.hereLong();
+                    val max = here.id;
                     val min = Math.max(max-31, 0);
                     @Pragma(Pragma.FINISH_SPMD) finish for (var j:Long=min; j<=max; ++j) {
                         at (Place(j)) async {

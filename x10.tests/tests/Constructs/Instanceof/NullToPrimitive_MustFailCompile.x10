@@ -18,11 +18,11 @@ import harness.x10Test;
  **/
 public class NullToPrimitive_MustFailCompile extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return !(null instanceof Int); // ERR
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NullToPrimitive_MustFailCompile().execute();
 	}
 }

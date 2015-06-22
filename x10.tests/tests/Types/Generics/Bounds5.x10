@@ -22,15 +22,15 @@ public class Bounds5 extends x10Test {
 
         class C[T]{T<:A} {
                 var x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
         }
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 val b = new B();
                 return new C[B](b).x == b;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Bounds5().execute();
 	}
 }

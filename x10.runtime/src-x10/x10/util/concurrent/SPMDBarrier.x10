@@ -6,10 +6,13 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util.concurrent;
+
+import x10.xrx.Runtime;
+import x10.xrx.Worker;
 
 /**
  * Simple cyclic SPMD barrier implementation.
@@ -38,7 +41,7 @@ package x10.util.concurrent;
  */
 public final class SPMDBarrier(count:Int) {
     private val alive = new AtomicInteger(count);
-    private val workers = new Rail[Runtime.Worker](count);
+    private val workers = new Rail[Worker](count);
     private val index = new AtomicInteger(0n);
     private val phase = new AtomicInteger(0n);
 
@@ -68,7 +71,7 @@ public final class SPMDBarrier(count:Int) {
             for (var i:Int=0n; i<count; ++i)
                 if (workers(i) != me) workers(i).unpark();
         } else {
-            while (p == phase.get()) Runtime.Worker.park();
+            while (p == phase.get()) Worker.park();
         }
     }
 }

@@ -1,1 +1,0 @@
-Run "ant -f hazelcast.xml" to download Hazelcast.

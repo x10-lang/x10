@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -62,16 +62,6 @@ final class WrappedDistRegionRestricted extends Dist {
 
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
-
-    public def offset(pt:Point(rank)):Long {
-        if (filter.contains(pt)) {
-            return base.offset(pt);
-        } else {
-            throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
-        }
-    }
-
-    public def maxOffset():Long = base.maxOffset();
 
     public def restriction(r:Region(rank)):Dist(rank) {
         return new WrappedDistRegionRestricted(base, filter.intersection(r)); 

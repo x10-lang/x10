@@ -21,7 +21,7 @@ import x10.regionarray.*;
 
 public class ArrayPointBinding_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         { val p[i,j]:Array[Point]{rank==1,size==2} = new Array[Point](2); }
         { val p[i,j]:Array[Point]{size==2} = new Array[Point](2); } // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
         { val p[i,j]:Array[Point]{rank==1} = new Array[Point](2); } // ERR: Semantic Error: You can exploded the Array only if its has the constraint {rank==1,size=2}
@@ -34,7 +34,7 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
         return (i(0) == 1 && j(1) == 4);  
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Rail[String]): void {
         new ArrayPointBinding_MustFailCompile().execute();
     }
 }

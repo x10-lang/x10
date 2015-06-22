@@ -17,13 +17,13 @@ import harness.x10Test;
  **/
 public class ObjectToNullablePrimitive extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var primitive:Any = 3;
 		// Type to check is transformed to BoxedLong
 		return (primitive instanceof Long);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ObjectToNullablePrimitive().execute();
 	}
 }

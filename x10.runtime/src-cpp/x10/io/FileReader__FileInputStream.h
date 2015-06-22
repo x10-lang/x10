@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10_IO_FILEINPUTSTREAM_H
@@ -48,6 +48,8 @@ namespace x10 {
                                  x10_int len);
 
             virtual void skip(x10_long bytes);
+
+            virtual long offset();
 
             ::x10::lang::String* readLine();
             

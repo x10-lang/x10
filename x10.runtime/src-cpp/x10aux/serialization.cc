@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2013.
  */
 
@@ -18,7 +18,7 @@
 #include <x10/lang/Reference.h>
 #include <x10/lang/Any.h>
 #include <x10/lang/Rail.h>
-#include <x10/lang/Runtime__Profile.h>
+#include <x10/xrx/Runtime__Profile.h>
 #include <x10/io/Serializer.h>
 #include <x10/io/SerializationException.h>
 

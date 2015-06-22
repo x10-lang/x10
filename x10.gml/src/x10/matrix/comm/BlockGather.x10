@@ -15,6 +15,8 @@ import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.MatrixBlock;
 
 /**
@@ -63,8 +65,7 @@ public class BlockGather extends BlockRemoteCopy {
 	}
 	
 	/**
-	 * Gather distrubuted vector (single-column) matrix to here
-	 * in a vector. Only dense format is allowed
+	 * Gather distributed single-column matrix to a local dense matrix.
 	 */
 	public static def gatherVector(src:BlocksPLH, dst:DenseMatrix{self.N==1L}): void {
 		val gp = src().getGrid();

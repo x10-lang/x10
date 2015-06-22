@@ -21,12 +21,12 @@ import x10.regionarray.*;
 
 public class DimCheckN extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val a1  = new Array[long](Region.make(0..2, 0..3), ([i,j]: Point) => i);
         return true;
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DimCheckN().execute();
     }
 }

@@ -19,7 +19,7 @@ import harness.x10Test;
 public class TypeArgInference1 extends x10Test {
         def choose[T] (a:T, b:T):T = a;
 
-	public def run(): boolean = {
+	public def run(): boolean {
            chk( HashSet[Int] <: Collection[Int], "pre-1");
            chk( ArrayList[Int] <: Collection[Int], "pre-2");
            chk( Sub <: Super, "pre-3");
@@ -30,7 +30,7 @@ public class TypeArgInference1 extends x10Test {
            return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new TypeArgInference1().execute();
 	}
     

@@ -14,6 +14,8 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.CompressArray;
 
@@ -50,7 +52,7 @@ public class ArrayRemoteCopy {
 	 * @param dataCnt  -- count of columns to be copied from source dense matrix
 	 */
 	public static def copy(
-			src:Rail[Double], srcOff:Long, 
+			src:Rail[ElemType]{self!=null}, srcOff:Long, 
 			dstplh:DataArrayPLH, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
 		
@@ -78,7 +80,7 @@ public class ArrayRemoteCopy {
 
 	// CopyTo PlaceLocalHandle access
 	protected static def mpiCopy(
-			src:Rail[Double], srcOff:Long, 
+			src:Rail[ElemType], srcOff:Long, 
 			dstplh:DataArrayPLH, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
 		
@@ -98,32 +100,33 @@ public class ArrayRemoteCopy {
 	
 
 	protected static def x10Copy(
-			src:Rail[Double], srcOff:Long, 
+			src:Rail[ElemType]{self!=null}, srcOff:Long, 
 			dstplh:DataArrayPLH, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
 
-		val srcpid = here.id();
-		val dstbuf = at(Place(dstpid)) 
-			new GlobalRail[Double](dstplh() as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
-		}
+        assert (srcOff+dataCnt) <= src.size;
+        val gr = GlobalRail[ElemType](src);
+        at(Place(dstpid)) {
+            val dst = dstplh() as Rail[ElemType]{self!=null};
+            assert (dstOff+dataCnt) <= dst.size;
+            finish Rail.asyncCopy[ElemType](gr, srcOff, dst, dstOff, dataCnt);
+        }
 	}
 	
 	//TODO: Check this code. Introduced to support a method in DistArrayScatter.
-	// unsure of how to get an Array[Double] at remote place from a 
+	// unsure of how to get an Array[ElemType] at remote place from a 
 	// DistDataArray.
 	protected static def x10Copy(
-			src:Rail[Double], srcOff:Long, 
+			src:Rail[ElemType]{self!=null}, srcOff:Long, 
 			dst:DistDataArray, dstpid:Long, dstOff:Long, 
 			dataCnt:Long) :void  {
-
-		val srcpid = here.id();
-		val dstbuf = at(Place(dstpid)) 
-		new GlobalRail[Double](dst.getLocalPortion()(0) as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](src, srcOff, dstbuf, dstOff, dataCnt);
-		}
+        assert (srcOff+dataCnt) <= src.size;
+        val gr = GlobalRail[ElemType](src);
+        at(Place(dstpid)) {
+            val dstLocal = dst.getLocalPortion()(0);
+            assert (dstOff+dataCnt) <= dstLocal.size;
+            finish Rail.asyncCopy[ElemType](gr, srcOff, dstLocal, dstOff, dataCnt);
+        }
 	}
 
 	/**
@@ -139,7 +142,7 @@ public class ArrayRemoteCopy {
 	 */
 	public static def copy(
 			srcplh:DataArrayPLH, srcpid:Long, srcOff:Long,
-			dst:Rail[Double], dstOff:Long, 
+			dst:Rail[ElemType]{self!=null}, dstOff:Long, 
 			dataCnt:Long): void {
 		
 		if (here.id() == srcpid) {
@@ -166,7 +169,7 @@ public class ArrayRemoteCopy {
 	
 	protected static def mpiCopy(
 			srcplh:DataArrayPLH, srcpid:Long, srcOff:Long,
-			dst:Rail[Double], dstOff:Long, 
+			dst:Rail[ElemType], dstOff:Long, 
 			dataCnt:Long): void {
 		
 	@Ifdef("MPI_COMMU") {
@@ -184,19 +187,16 @@ public class ArrayRemoteCopy {
 
 	protected static def x10Copy(
 			srcplh:DataArrayPLH, srcpid:Long, srcOff:Long,
-			dst:Rail[Double], dstOff:Long, 
+			dst:Rail[ElemType]{self!=null}, dstOff:Long, 
 			dataCnt:Long): void {
-		
-		val dstpid = here.id();
-		val srcbuf = at(Place(srcpid))
-			new GlobalRail[Double](srcplh() as Rail[Double]{self!=null});
-		finish {
-			Rail.asyncCopy[Double](srcbuf, srcOff, dst, dstOff, dataCnt);
-		}
+		assert (dstOff+dataCnt) <= dst.size;
+        val gr = GlobalRail[ElemType](dst);
+        at(Place(srcpid)) {
+            val src = srcplh();
+            assert (srcOff+dataCnt) <= src.size;
+            finish Rail.asyncCopy[ElemType](src, srcOff, gr, dstOff, dataCnt);
+        }
 	}
-	
-
-	// PlaceLocalHandle compress data access
 
 	/**
 	 * Copy compress array data from here to the specified remote 
@@ -271,18 +271,20 @@ public class ArrayRemoteCopy {
 			dstplh:CompArrayPLH, dstpid:Long, dstOff:Long, 
 			dataCnt:Long): void {
 
-		val idxbuf = src.index as Rail[Long]{self!=null};
-		val valbuf = src.value as Rail[Double]{self!=null};
-		val rmtidx = new GlobalRail[Long](idxbuf);
-		val rmtval = new GlobalRail[Double](valbuf);
+        assert (srcOff+dataCnt) <= src.index.size : "dataCnt overruns src.index";
+        assert (srcOff+dataCnt) <= src.value.size : "dataCnt overruns src.value";
+		val rmtidx = new GlobalRail[Long    ](src.index);
+		val rmtval = new GlobalRail[ElemType](src.value);
 
 		at(Place(dstpid)) {
 			//Implicit copy:dstlist, dataCnt, rmtidx, rmtval, srcOff dstOff
 			val dst = dstplh();
-			assert (dstOff+dataCnt <= dst.storageSize()) :
-                "Receiving side arrays overflow";
-			finish Rail.asyncCopy[Long  ](rmtidx, srcOff, dst.index, dstOff, dataCnt);
-			finish Rail.asyncCopy[Double](rmtval, srcOff, dst.value, dstOff, dataCnt);
+            assert (dstOff+dataCnt) <= dst.index.size : "dataCnt overruns dst.index";
+            assert (dstOff+dataCnt) <= dst.value.size : "dataCnt overruns dst.value";
+            finish {
+                Rail.asyncCopy[Long    ](rmtidx, srcOff, dst.index, dstOff, dataCnt);
+                Rail.asyncCopy[ElemType](rmtval, srcOff, dst.value, dstOff, dataCnt);
+            }
 		}
 	}
 
@@ -345,23 +347,24 @@ public class ArrayRemoteCopy {
 	}
 	}
 	
-	//Sparse matrix remote copyt from
+    /** Sparse matrix remote copy from */
 	protected static def x10Copy(
 			srcplh:CompArrayPLH, srcpid:Long, srcOff:Long,
 			dst:CompressArray, dstOff:Long, 
 			dataCnt:Long): void {
 
-		val rmt:RemotePair = at(Place(srcpid)) { 
-			//Need: srclist
-			val src = srcplh();
-			val idxbuf = src.index as Rail[Long]{self!=null};
-			val valbuf = src.value as Rail[Double]{self!=null};
-			val rmtidx = new GlobalRail[Long](idxbuf);
-			val rmtval = new GlobalRail[Double](valbuf);
-			RemotePair(rmtidx, rmtval)
-		};
-
-		finish Rail.asyncCopy[Long  ](rmt.first,  srcOff, dst.index, dstOff, dataCnt);
-		finish Rail.asyncCopy[Double](rmt.second, dstOff, dst.value, dstOff, dataCnt);
+        assert (dstOff+dataCnt) <= dst.index.size : "dataCnt overruns dst.index";
+        assert (dstOff+dataCnt) <= dst.value.size : "dataCnt overruns dst.value";
+        val rmt = RemotePair(new GlobalRail[Long    ](dst.index),
+                             new GlobalRail[ElemType](dst.value));
+        at(Place(srcpid)) {
+            val src = srcplh();
+            finish {
+                assert (srcOff+dataCnt) <= src.index.size : "dataCnt overruns src.index";
+                assert (srcOff+dataCnt) <= src.value.size : "dataCnt overruns src.value";
+                Rail.asyncCopy[Long   ](src.index,  srcOff, rmt.first, dstOff, dataCnt);
+                Rail.asyncCopy[ElemType](src.value, srcOff, rmt.second, dstOff, dataCnt);
+            }
+        }
 	}
 }

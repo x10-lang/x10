@@ -27,7 +27,7 @@ public class AtomicOrdered extends x10Test {
 
 	val A = new Rail[int](CACHESIZE*(MAX_ASSOC+2));
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val r  = new pair();
 		finish {
 			async  {

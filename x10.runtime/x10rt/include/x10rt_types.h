@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10RT_TYPES_H
@@ -94,9 +94,6 @@ struct x10rt_msg_params {
 
     /** The length of the message in bytes.  If #msg is NULL then #len shall be 0. */
     uint32_t len;
-
-    /** The endpoint where the message will be delivered at the dest place. */
-    x10rt_endpoint dest_endpoint;
 };
 
 /** A callback for processing a newly received message.
@@ -179,7 +176,8 @@ typedef enum
     /** Double precision IEEE float*/ X10RT_RED_TYPE_DBL = 8,
     /** Single precision IEEE float*/ X10RT_RED_TYPE_FLT = 9,
     /** A pair of double and signed dword*/ X10RT_RED_TYPE_DBL_S32 = 10,
-    /** std::complex<double> */ X10RT_RED_TYPE_COMPLEX_DBL = 11    
+    /** std::complex<double> */ X10RT_RED_TYPE_COMPLEX_DBL = 11,
+    /** Boolean*/ X10RT_RED_TYPE_LOGICAL  = 12
 } x10rt_red_type;
 
 /** The list of optional x10rt_net features.

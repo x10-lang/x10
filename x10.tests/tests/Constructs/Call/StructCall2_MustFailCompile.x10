@@ -30,7 +30,7 @@ static struct S1 {
 		  val a: S1 = S1(1n, 3n, "You looked like you were loathing the simple cobweb."); // ERR: Method or static constructor not found for given call.
           return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new StructCall2_MustFailCompile().execute();
 	}
 }

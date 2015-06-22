@@ -30,7 +30,7 @@ public class Overview50_Bad42_MustFailCompile extends x10Test {
 //OPTIONS: -STATIC_CHECKS
 abstract static  class Mat(rows:Long, cols:Long) {
   static type Mat(r:Long, c:Long) = Mat{rows==r&&cols==c};
-  public def this(r:Long, c:Long) : Mat(r,c) = {property(r,c);}
+  public def this(r:Long, c:Long) : Mat(r,c) {property(r,c);}
   static def makeMat(r:Long,c:Long) : Mat(r,c) = null;
   abstract  operator this + (y:Mat(this.rows,this.cols)):Mat(this.rows, this.cols);
   abstract  operator this * (y:Mat) {this.cols == y.rows} : Mat(this.rows, y.cols);

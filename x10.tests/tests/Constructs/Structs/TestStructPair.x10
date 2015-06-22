@@ -30,7 +30,7 @@ public class TestStructPair extends x10Test {
         return true;
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Rail[String]): void {
         new TestStructPair().execute();
     }
 }

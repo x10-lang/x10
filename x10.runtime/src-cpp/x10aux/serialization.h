@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10AUX_SERIALIZATION_H
@@ -88,7 +88,7 @@
 #include <x10aux/deserialization_buffer.h>
 #include <x10/lang/RuntimeNatives.h>
 
-namespace x10 { namespace lang { class Runtime__Profile; } }
+namespace x10 { namespace xrx { class Runtime__Profile; } }
 
 namespace x10aux {
 

@@ -17,7 +17,7 @@ import x10.util.Box;
  **/
  public class UnboxNullablePrimitiveConstrained extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var res1: boolean = false;
 		
       var ni: Box[int(4n)] = new Box[Int(4n)](4n);

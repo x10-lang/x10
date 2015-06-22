@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class NullableObjectEqualsPrimitive extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val x:Any = null;
 	        val y:Any = 3;
 		val res1 = (3).equals(x);

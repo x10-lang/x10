@@ -7,6 +7,8 @@
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.util.VerifyTool;
@@ -63,7 +65,7 @@ class RunDistDenseBench{
 		}
 	}
 
-	public def compMFPS(t:Double) = 2.0*M*N*K/(t*1000*1000*aPart.size);
+	public def compMFPS(t:ElemType) = 2.0*M*N*K/(t*1000*1000*aPart.size);
     public def run(): void {
 		Console.OUT.println("Starting dist dense multiply benchamrks tests on "+
 							M+"x"+K+" * "+K+"x"+N+" matrices over "+nplace+" places");

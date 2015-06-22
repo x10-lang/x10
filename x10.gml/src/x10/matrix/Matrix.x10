@@ -13,6 +13,7 @@ package x10.matrix;
 
 import x10.util.StringBuilder;
 import x10.matrix.util.VerifyTool;
+import x10.matrix.util.ElemTypeTool;
 
 public type Matrix(M:Long)=Matrix{self.M==M};
 public type Matrix(M:Long, N:Long)=Matrix{self.M==M, self.N==N};
@@ -53,8 +54,8 @@ public abstract class Matrix(M:Long, N:Long) {
     /**
      * Initial matrix data with function, mapping (row index, column index) to double. 
      */
-    abstract public def init(f:(Long, Long)=>Double):Matrix(this);
-    abstract public def init(dv:Double):Matrix(this);
+    abstract public def init(f:(Long, Long)=>ElemType):Matrix(this);
+    abstract public def init(dv:ElemType):Matrix(this);
     abstract public def initRandom():Matrix(this);
     abstract public def initRandom(lowBound:Long, upperBound:Long):Matrix(this);
     
@@ -101,7 +102,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param y   column index
      * @return    element value
      */
-    abstract public operator this(x:Long, y:Long):Double;
+    abstract public operator this(x:Long, y:Long):ElemType;
     
     /**
      * Set the element's value at the specified row and column in matrix.
@@ -110,7 +111,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param y   column index
      * @param v   the new value for the element
      */
-    abstract public operator this(x:Long, y:Long)=(v:Double):Double;
+    abstract public operator this(x:Long, y:Long)=(v:ElemType):ElemType;
     
     /**
      * Access an element of the matrix using columnwise positioning method.
@@ -119,7 +120,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param a   index of the column major position in the storage
      * @return    element value
      */
-    public operator this(a:Long):Double = this(a%M, a/M);
+    public operator this(a:Long):ElemType = this(a%M, a/M);
     
     /**
      * Set an element's value at specified location using column major positioning method.
@@ -127,7 +128,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param a   index of column major position in the storage
      * @param d   new element value
      */
-    public operator this(a:Long)=(d:Double):Double {
+    public operator this(a:Long)=(d:ElemType):ElemType {
         this(a%M, a/N) = d;
         return d;
     }
@@ -139,7 +140,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param     alpha    scaling factor
      * @return             this instance which holds the result
      */
-    abstract public def scale(alpha:Double): Matrix(this);
+    abstract public def scale(alpha:ElemType): Matrix(this);
 
     /**
      * Cellwise addition this = this + x.
@@ -152,7 +153,7 @@ public abstract class Matrix(M:Long, N:Long) {
     /**
      * Cellwise add
      */
-    abstract public def cellAdd(d:Double): Matrix(this); 
+    abstract public def cellAdd(d:ElemType): Matrix(this); 
     
     /**
      * Cellwise operation x = x + this 
@@ -177,11 +178,6 @@ public abstract class Matrix(M:Long, N:Long) {
      * @return    result matrix instance
      */
     abstract protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x);
-    
-    /**
-     * Cell-wise subtraction this = x - this
-     */
-    abstract protected def cellSubFrom(dv:Double):Matrix(this);
     
     /**
      * Compute cell-wise multiplication on "this" and given matrix x: this= this &#42 x
@@ -250,7 +246,7 @@ public abstract class Matrix(M:Long, N:Long) {
 
     //Cellwise operators
 
-    public operator - this = clone().scale(-1.0) as Matrix(M,N);
+    public operator - this = clone().scale(-(1 as ElemType)) as Matrix(M,N);
     
     /**
      * Scaling operator overloading: this = this &#42 dblv
@@ -258,7 +254,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param dblv        scaling factor in double
      * @return            result of operation 
      */
-    public operator this * (dv:Double) = this.clone().scale(dv) as Matrix(M,N);
+    public operator this * (dv:ElemType) = this.clone().scale(dv) as Matrix(M,N);
     
     /**
      * Scaling operator overloading: this = dblv &#42 this
@@ -266,7 +262,7 @@ public abstract class Matrix(M:Long, N:Long) {
      * @param dblv        scaling factor in double
      * @return            result of operation 
      */
-    public operator (dv:Double) * this = this.clone().scale(dv) as Matrix(M,N);
+    public operator (dv:ElemType) * this = this.clone().scale(dv) as Matrix(M,N);
     
     /**
      * Cell-wise add operator overloading. Return cell-wise matrix add of this+that 
@@ -278,7 +274,7 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     public operator this + (that:Matrix(M,N)) = this.clone().cellAdd(that) as Matrix(M,N);
     
-    public operator this + (dv:Double)        = this.clone().cellAdd(dv) as Matrix(M,N);
+    public operator this + (dv:ElemType)        = this.clone().cellAdd(dv) as Matrix(M,N);
     
     /**
      * Cell-wise subtraction operator overloading. Return matrix cell-wise subtraction of
@@ -300,7 +296,7 @@ public abstract class Matrix(M:Long, N:Long) {
      */
     public operator this * (that:Matrix(M,N)) = this.clone().cellMult(that) as Matrix(M,N);
 
-    public operator this - (dv:Double)        = this.clone().cellAdd(-dv) as Matrix(M,N);
+    public operator this - (dv:ElemType)        = this.clone().cellAdd(-dv) as Matrix(M,N);
     
     /**
      * Cell-wise division operator overload. Return cell-wise matrix division of this / that 
@@ -341,7 +337,7 @@ public abstract class Matrix(M:Long, N:Long) {
     /**
      * Return true if every element in this matrix is equal to v.
      */    
-    public def equals(v:Double):Boolean = VerifyTool.testSame(this, v);
+    public def equals(v:ElemType):Boolean = VerifyTool.testSame(this, v);
     
     /** 
      * Instance type check 
@@ -358,7 +354,7 @@ public abstract class Matrix(M:Long, N:Long) {
         for (var r:Long=0; r<M; r++) {
             dstr.add(r.toString()+"\t[ ");
             for (var c:Long=0; c<N; c++)
-                dstr.add(String.format("%05.3f ", [this(r,c) as Any]));
+                dstr.add(this(r,c).toString()+" ");
             dstr.add("]\n");
         }
         dstr.add("---------------------------------------");

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -17,6 +17,8 @@ import x10.compiler.NativeCPPInclude;
 import x10.io.Console;
 import x10.util.Map;
 import x10.util.Timer;
+
+import x10.xrx.Runtime;
 
 @NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public class System {
@@ -60,6 +62,86 @@ public class System {
      */
     public static def killThere(victim:Place) {
         at (victim) @x10.compiler.Immediate("killThere") async killHere();
+    }
+    
+    /**
+     * Requests the launcher to create N additional places asynchronously.
+     * Please note that since this is an asynchronous operation, a return 
+     * code greater than zero does not guarantee those places have actually
+     * started, as they may fail for reasons outside of the launcher's control
+     * 
+     * @param newPlaces the number of new places to add
+     * @return The number of new places that this request attempted to spawn.
+     * May be less than the number requested, if resources are not available, 
+     * or if the current launcher does not support adding places after startup.
+     */
+    
+    @Native("java", "x10.x10rt.X10RT.addPlaces(#newPlaces)")
+    public static def addPlaces(newPlaces:Long): Long {
+        return 0;
+    }
+
+    /**
+     * Requests the launcher to create N additional places synchronously, 
+     * waiting up to 'timeout' milliseconds for the places to join before 
+     * returning.
+     * 
+     * @param newPlaces the number of new places to add
+     * @param timeout how many milliseconds to wait for the places to join
+     * @return The number of new places that joined successfully.  This may be 
+     * fewer than the requested number of places if we timed out, or more than 
+     * the requested number of places if there were multiple overlapping calls
+     * to this method
+     */
+    public static def addPlacesAndWait(newPlaces:Long, timeout:Long): Long {
+        val initialPlaceCount = Place.numPlaces();
+        val launcherAdded = addPlaces(newPlaces);
+        if (launcherAdded == 0) return 0; // the launcher can't add places.  Don't bother waiting.
+
+        // clumsy wait for newPlaces to join
+        val timePlacesRequested = currentTimeMillis();
+        while (Place.numPlaces() < initialPlaceCount + launcherAdded) {
+            if (currentTimeMillis() > timePlacesRequested+timeout) {
+                // timeout
+                return (Place.numPlaces() - initialPlaceCount);
+            }
+            System.sleep(100);
+        }
+        return launcherAdded;
+    }
+    
+    /*
+     * Registers a user-defined function to execute when a place has been added.  Normally
+     * there is no callback, and a user has to call Place.numPlaces() to see how many places
+     * exist at that moment.  As an alternative, the user can register their own function
+     * which the runtime will execute once whenever a place has been added.
+     * 
+     * If this method is called more than once, only the most recent registration will execute.
+     * 
+     * When a place is added, the runtime pushes the registered handler along with the associated 
+     * place onto the work queue, so the user is free to use anything in their handler, and is not 
+     * required to execute quickly.
+     */
+    @Native("java", "x10.x10rt.X10RT.registerPlaceAddedHandler(#handler)")
+    public static def registerPlaceAddedHandler(handler:(Place)=>void): void {
+        return; // not yet supported in native X10
+    }
+
+    /*
+     * Registers a user-defined function to execute when a place has been removed.  Normally
+     * there is no callback, and a user has to call Place.isDead() to find out if a place has
+     * died.  As an alternative, the user can register their own function which the runtime will 
+     * execute once whenever a place has been marked as dead.
+     * 
+     * If this method is called more than once, only the most recent registration will execute.
+     * 
+     * When a place is removed, the runtime pushes the registered handler along with the associated 
+     * place onto the work queue, so the user is free to use anything in their handler, and is not 
+     * required to execute quickly.
+     */
+    @Native("java", "x10.x10rt.X10RT.registerPlaceRemovedHandler(#handler)")
+    public static def registerPlaceRemovedHandler(handler:(Place)=>void): void {
+        return; // not yet supported in native X10
     }
 
 
@@ -161,15 +243,7 @@ public class System {
      * @return true if completed normally, false if interrupted
      */
     public static def sleep(millis:Long):Boolean {
-        try {
-            Runtime.increaseParallelism();
-            Thread.sleep(millis);
-            Runtime.decreaseParallelism(1n);
-            return true;
-        } catch (e:InterruptedException) {
-            Runtime.decreaseParallelism(1n);
-            return false;
-        }
+        return x10.xrx.Runtime.sleep(millis);
     }
 
     /**
@@ -178,11 +252,6 @@ public class System {
      * @return true if completed normally, false if interrupted
      */
     public static def threadSleep(millis:Long):Boolean {
-        try {
-            Thread.sleep(millis);
-            return true;
-        } catch (e:InterruptedException) {
-            return false;
-        }
+        return x10.xrx.Runtime.threadSleep(millis);
     }
 }

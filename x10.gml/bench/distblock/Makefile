@@ -16,7 +16,7 @@ target_list = DistDenseBlockSUMMA DistSparseBlockSUMMA
 
 #-------------------------------------
 # GML path
-gml_path    = ../../
+gml_path    = ../..
 
 # build path
 build_path	= build

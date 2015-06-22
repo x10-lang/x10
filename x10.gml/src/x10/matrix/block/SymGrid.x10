@@ -19,36 +19,36 @@ public type SymGrid(m:Long,bM:Long)=SymGrid{self.M==m,self.N==m,self.numRowBlock
  * This class represents a grid-based decomposition of a symmetric block matrix.
  */
 public class SymGrid extends Grid{self.M==self.N,self.numRowBlocks==self.numColBlocks} {
-	/**
-	 * Create instance of symmetric partitioning of n x n matrix in nbks x nbks blocks 
-	 */
-	public def this(n:Long, nblks:Long) {
-		super(n, nblks);
-	}
+    /**
+     * Create instance of symmetric partitioning of n x n matrix in nbks x nbks blocks 
+     */
+    public def this(n:Long, nblks:Long) {
+	super(n, nblks);
+    }
+    
+    public def this(n:Long, Bs:Rail[Long]) {
+	super(n, Bs);
+    }
+    
+    public def equals(that:SymGrid) : Boolean {
+	if (this == that) return true;
+	if (!likeMe(that)) return false;
 	
-	public def this(n:Long, Bs:Rail[Long]) {
-		super(n, Bs);
-	}
-
-	public def equals(that:SymGrid) : Boolean {
-		if (this == that) return true;
-		if (!likeMe(that)) return false;
-
-		return (match(this.rowBs, that.rowBs));
-	}
-	
-	public static def isSymmetric(g:Grid):Boolean {
-		var ret:Boolean = true;
-		if (g.M!=g.N) return false;
-		if (g.numRowBlocks!=g.numColBlocks) return false;
-		
-		for (var i:Long=0; i<g.numRowBlocks&&ret; i++)
-			ret &=(g.rowBs(i)==g.colBs(i));
-		return ret;
-	}
-	
-
-	public def toString() : String {
-		return "Symmetric " + super.toString();
-	}
+	return (match(this.rowBs, that.rowBs));
+    }
+    
+    public static def isSymmetric(g:Grid):Boolean {
+	var ret:Boolean = true;
+	if (g.M!=g.N) return false;
+	if (g.numRowBlocks!=g.numColBlocks) return false;
+        
+	for (var i:Long=0; i<g.numRowBlocks&&ret; i++)
+	    ret &=(g.rowBs(i)==g.colBs(i));
+	return ret;
+    }
+    
+    
+    public def toString() : String {
+	return "Symmetric " + super.toString();
+    }
 }

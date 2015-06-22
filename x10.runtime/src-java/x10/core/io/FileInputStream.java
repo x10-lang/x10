@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.core.io;
@@ -19,6 +19,7 @@ import x10.rtt.Type;
  * NOTE: In X10, all FileInputStreams are buffered (matches libC)
  */
 public class FileInputStream extends InputStream {
+    java.io.FileInputStream fis;
 
     // constructor just for allocation
     public FileInputStream(java.lang.System[] $dummy) {
@@ -27,7 +28,8 @@ public class FileInputStream extends InputStream {
 
     public final FileInputStream x10$io$FileReader$FileInputStream$$init$S(String name) {
         try {
-            super.x10$io$InputStreamReader$InputStream$$init$S(new java.io.BufferedInputStream(new java.io.FileInputStream(name)));
+            this.fis = new java.io.FileInputStream(name);
+            super.x10$io$InputStreamReader$InputStream$$init$S(new java.io.BufferedInputStream(fis));
             return this;
         } catch (java.io.FileNotFoundException e) {
             throw new x10.io.FileNotFoundException(e.getMessage());
@@ -40,6 +42,9 @@ public class FileInputStream extends InputStream {
         x10$io$FileReader$FileInputStream$$init$S(name);
     }
 
+    public long offset() throws java.io.IOException {
+        return fis.getChannel().position();
+    }
 
     //
     // Runtime type information

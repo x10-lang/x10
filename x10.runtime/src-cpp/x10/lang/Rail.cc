@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #include <x10/lang/Rail.h>
@@ -45,7 +45,7 @@ namespace x10 {
 
         
         void Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
-            x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+            x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
             place src = buf.read<place>();
             // Perform the actions of both notifyActivityCreation and
             // notifyActivityTermination in a single non-blocking action.
@@ -56,7 +56,7 @@ namespace x10 {
         void Rail_serialize_finish_state(place dst, serialization_buffer &buf) {
             // dst is the place where the finish update will occur, i.e. where the notifier runs
             dst = parent(dst);
-            x10::lang::FinishState* fs = Runtime::activity()->finishState();
+            x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
             fs->notifySubActivitySpawn(Place::_make(dst));
             buf.write(fs);
             buf.write(x10aux::here);

@@ -28,7 +28,7 @@ public class ULongToString2 extends x10Test {
 	}
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val u = 0xFFFFffffFFFFfffful;
 	val s0 = (-1l).toString();

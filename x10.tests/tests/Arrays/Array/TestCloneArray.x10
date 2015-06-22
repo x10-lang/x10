@@ -21,7 +21,7 @@ public class TestCloneArray extends x10Test {
     public def this(N : Int) {
         this.N = N;
     }
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val N = this.N;
 
         // test Char
@@ -80,7 +80,7 @@ public class TestCloneArray extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         var n : Int = 10n;
         if (args.size > 0) {
             n = Int.parseInt(args(0));

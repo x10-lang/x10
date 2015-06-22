@@ -387,10 +387,6 @@ public class ForLoopOptimizer extends ContextVisitor {
                 Position position = body.position();
                 body = syn.createLabeledStmt(position, label, body);
             }
-            if (false) {
-                // 3/11/2011.  Dave G.  Disabled because transformation doesn't properly update closure environment.
-                body = explodePoint(formal, indexLDecl, varLDecls, body);
-            }
             if (label() != null) {
                 body = syn.createLabeledStmt(pos, label(), body);
             }
@@ -461,58 +457,6 @@ public class ForLoopOptimizer extends ContextVisitor {
     }
 
     /**
-     * Replace calls to the apply method on point with corresponding calls to the corresponding method on rail throughout the body.
-     * 
-     * 3/10/2011.  Dave G.  This transformation is not complete, therefore disabled.
-     *                      The issue is that if the call is within a closure, then the captured environment
-     *                      information for the closure (and all lexcially enclosing closures up to the for loop)
-     *                      must be updated to reflect the additional variables being captured.
-     * 
-     * @param point a Point formal variable
-     * @param rail the underlying Rail defining point
-     * @param body the AST containing the usses of point to be replaced 
-     * @return a copy of body with every call to point.apply() replaced by a call to rail.apply()
-     */
-    private Stmt explodePoint(final X10Formal point, final LocalDecl rail, final LocalDecl[] indices, final Stmt body) {
-        assert false : "This transformation is not enabled because it is incomplete";
-        ContextVisitor pointExploder = new ContextVisitor(job, xts, nodeFactory()) {
-            /* (non-Javadoc)
-             * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node)
-             */
-            @Override
-            protected Node leaveCall(Node n) {
-                if (n instanceof Call) {
-                    X10Formal p = point;
-                    LocalDecl r = rail;
-                    LocalDecl[] is = indices;
-                    Call call = (Call) n;
-                    Receiver target = call.target();
-                    if (target instanceof Local && call.methodInstance().name().equals(ClosureCall.APPLY)) {
-                        if (((Local) target).localInstance().def() == point.localDef()) {
-                            List<Expr> args = call.arguments();
-                            assert (1 == args.size());
-                            Expr arg = args.get(0);
-                            if (arg.isConstant()) {
-                                int i = ((IntegralValue) arg.constantValue()).intValue();
-                                return syn.createLocal(n.position(), indices[i]);
-                            }
-                            call = call.target(syn.createLocal(target.position(), rail));
-                            call = call.methodInstance(syn.createMethodInstance( rail.type().type(),
-                                                                                 ClosureCall.APPLY,
-                                                                                 context, 
-                                                                                 Collections.<Type>emptyList(),
-                                                                                 call.methodInstance().formalTypes()));
-                            return call;
-                        }
-                    }
-                }
-                return n;
-            }
-        };
-        return (Stmt) body.visit(pointExploder.begin());
-    }
-
-    /**
      * Change free unlabeled breaks in the body to refer to a given label.
      * 
      * @param body the body of a ForLoop
@@ -540,8 +484,6 @@ public class ForLoopOptimizer extends ContextVisitor {
         });
     }
 
-    // General helper methods
-
     /** 
      * Obtain the constant value of a property of an expression, if that value is known at compile time.
      * 
@@ -557,33 +499,4 @@ public class ForLoopOptimizer extends ContextVisitor {
         if (null == propertyExpr) return null;
         return ConstantValue.toJavaObject(ConstantPropagator.constantValue(propertyExpr));
     }
-
-   
-
-    /**
-     * Add a constraint to the type that binds a given property to a given value.
-     * 
-     * @param type the Type to be constrained
-     * @param name the Name of a property of type
-     * @param value the value of the named property for this type
-     * @return the type with the additional constraint {name==value}, or null if no such property
-     * TODO: move into Synthesizer
-     */
-   /* public static Type addPropertyConstraint(Type type, Name name, Object value) {
-        return addPropertyConstraint(type, name, XTerms.makeLit(value));
-    }*/
-
-    /**
-     * Add a self constraint to the type that binds self to a given value.
-     * 
-     * @param type the Type to be constrained
-     * @param value the value of self for this type
-     * @return the type with the additional constraint {self==value}, or null if the proposed
-     * binding is inconsistent
-     * TODO: move into Synthesizer
-     */
-    public static Type addSelfConstraint(Type type, XTerm value) {
-        return Types.addSelfBinding(type, value);
-    }
-
 }

@@ -24,14 +24,14 @@ public class TypedefOverloading12 extends TypedefTest {
 
     static class A[T] {}
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type A = int;
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading12().execute();
     }
 }

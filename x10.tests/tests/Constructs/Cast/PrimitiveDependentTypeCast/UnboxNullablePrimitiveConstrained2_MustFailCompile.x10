@@ -18,7 +18,7 @@ import x10.util.Box;
  **/
  public class UnboxNullablePrimitiveConstrained2_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var res4: boolean = false;
 		
       var ni: Box[int(4n)] = new Box[int(4n)](4n);
@@ -35,7 +35,7 @@ import x10.util.Box;
 	}
 	
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new UnboxNullablePrimitiveConstrained2_MustFailCompile().execute();
 	}
 }

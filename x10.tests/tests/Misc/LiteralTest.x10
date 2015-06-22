@@ -36,9 +36,9 @@ public class LiteralTest extends x10Test {
 	var foo: String = "a\r\n";
 
 	// necessary to run this in the TestCompiler harness.
-	public def this(): LiteralTest = { }
+	public def this(): LiteralTest { }
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		chk(i1 == i2 && i2 == i3);
 		chk(i1 == -i1);
 		chk(i4 == i5 && i5 == i6);
@@ -60,7 +60,7 @@ public class LiteralTest extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new LiteralTest().execute();
 	}
 }

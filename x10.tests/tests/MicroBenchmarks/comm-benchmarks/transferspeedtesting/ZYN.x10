@@ -133,7 +133,7 @@ public class ZYN {
 	    	} else {
 	    		for(var i:Long=P-1; i>=0; i-=32) {
 	    			at (Place(i)) async {
-	    				val max = Runtime.hereLong();
+	    				val max = here.id;
 	    				val min = Math.max(max-31, 0);
 	    				for (var j:Long=min; j<=max; ++j) {
 	    					at (Place(j)) async {

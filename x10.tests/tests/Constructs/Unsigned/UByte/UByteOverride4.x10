@@ -37,7 +37,7 @@ public class UByteOverride4 extends x10Test {
 	public def f(x:UByte) { return "N:UByte"; }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val ji = new J[Byte]();
 	val ju = new J[UByte]();
 	val k = new K();

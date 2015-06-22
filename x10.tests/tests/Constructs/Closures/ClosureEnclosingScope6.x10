@@ -35,14 +35,14 @@ public class ClosureEnclosingScope6 extends x10Test {
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         chk(new C().new D().sum() == 11, "new C().new D().sum");
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureEnclosingScope6().execute();
     }
 }

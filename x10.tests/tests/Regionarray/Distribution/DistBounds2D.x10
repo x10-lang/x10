@@ -26,7 +26,7 @@ import x10.regionarray.*;
 
 public class DistBounds2D extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val COUNT: int = 200n;
         val L: int = 10n;
         val K: int = 3n;
@@ -54,7 +54,7 @@ public class DistBounds2D extends x10Test {
         var lb1: int, var ub1: int, 
         var lb2: int, var ub2: int, val i: int, val j: int, 
         var distType: int
-    ): boolean = {
+    ): boolean {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j+" "+distType);
 
@@ -83,18 +83,18 @@ public class DistBounds2D extends x10Test {
     /**
      * print a string
      */
-    private static def pr(var s: String): void = {
+    private static def pr(var s: String): void {
         x10.io.Console.OUT.println(s);
     }
 
     /**
      * true iff (x if and only if y)
      */
-    private static def iff(var x: boolean, var y: boolean): boolean = {
+    private static def iff(var x: boolean, var y: boolean): boolean {
         return x == y;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DistBounds2D().execute();
     }
 
@@ -113,7 +113,7 @@ public class DistBounds2D extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(val distType: int, val r: Region): Dist{region==r} = {
+        public static def getDist(val distType: int, val r: Region): Dist{region==r} {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 case BLOCKBLOCK: return Dist.makeBlockBlock(r, 0, 1);

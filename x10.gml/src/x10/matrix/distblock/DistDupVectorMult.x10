@@ -1,5 +1,4 @@
 /*
- * 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -7,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix.distblock;
@@ -29,16 +28,14 @@ public class DistDupVectorMult  {
         var offb:Long = 0;
         val rootpid = here.id();
         finish for (var p:Long=0; p<places.size(); offb+=vB.segSize(p), p++) {
-            val pid = p;
             val offsetB = offb;
-            at(places(pid)) async {
+            at(places(p)) async {
                 if (here.id() != rootpid || plus == false) vC.local().reset();
                 BlockVectorMult.comp(mA.handleBS(), vB.distV(), offsetB, vC.local(), 0, true);
             }
         }
         vC.calcTime += Timer.milliTime() - stt;
-        //vC.printAllCopies();
-        vC.reduceSum();
+        vC.allReduceSum();
         return vC;
     }
     
@@ -49,9 +46,8 @@ public class DistDupVectorMult  {
         val places = mA.getPlaces();        
         var offc:Long = 0;
         finish for (var p:Long=0; p<places.size(); offc+=vC.segSize(p), p++) {
-            val pid = p;
             val offsetC = offc;
-            at(places(pid)) async {
+            at(places(p)) async {
                 BlockVectorMult.comp(mA.handleBS(), vB.local(), 0, vC.distV(), offsetC, plus);
             }
         }
@@ -68,16 +64,15 @@ public class DistDupVectorMult  {
         var offb:Long=0;
         val rootpid = here.id();
         finish for (var p:Long=0; p<places.size(); offb+=vB.segSize(p), p++) {
-            val pid = p;
             val offsetB = offb;
-            at(places(pid)) async {
+            at(places(p)) async {
                 if (here.id() != rootpid || plus == false) vC.local().reset();
 
                 BlockVectorMult.comp(vB.distV(), offsetB, mA.handleBS(), vC.local(), 0, true);
             }
         }
         vC.calcTime += Timer.milliTime() - stt;        
-        vC.reduceSum();
+        vC.allReduceSum();
         return vC;
     }
     
@@ -88,9 +83,8 @@ public class DistDupVectorMult  {
         val places = mA.getPlaces();
         var offc:Long = 0;
         finish for (var p:Long=0; p<places.size(); offc+=vC.segSize(p), p++) {
-            val pid = p;
             val offsetC = offc;
-            at(places(pid)) async {
+            at(places(p)) async {
                 BlockVectorMult.comp(vB.local(), 0, mA.handleBS(), vC.distV(), offsetC, plus);
             }
         }
@@ -127,6 +121,7 @@ public class DistDupVectorMult  {
             vC.calcTime += Timer.milliTime() - stt;
             vC.reduceSum();
         }
+        vC.sync();
         return vC;
     }
     
@@ -158,6 +153,7 @@ public class DistDupVectorMult  {
             vC.calcTime += Timer.milliTime() - stt;
             vC.reduceSum();    
         }
+        vC.sync();
         return vC;
     }
 }

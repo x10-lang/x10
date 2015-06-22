@@ -17,12 +17,12 @@ import harness.x10Test;
  **/
  public class CastNullToNullablePrimitiveConstrained extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
       var i: x10.util.Box[int(3n)] = null as x10.util.Box[int(3n)];
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastNullToNullablePrimitiveConstrained().execute();
 	}
 }

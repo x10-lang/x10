@@ -24,7 +24,7 @@ public class ClosureEnclosingScope1n extends x10Test {
 
     val  a = 1;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val  b = 1;
 

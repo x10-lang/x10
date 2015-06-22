@@ -25,12 +25,12 @@ import harness.x10Test;
  */
 public class UninitializedProperty_MustFailCompile(i:int, j:int) extends x10Test {
 
-	public def this(i:int, j:int):UninitializedProperty_MustFailCompile = {
+	public def this(i:int, j:int):UninitializedProperty_MustFailCompile {
 	    property(i); // ERR
 	}
 	public def run()=true;
 	
-	public static def main(Rail[String]):void = {
+	public static def main(Rail[String]):void {
 		new UninitializedProperty_MustFailCompile(2n,3n).execute();
 	}
 }

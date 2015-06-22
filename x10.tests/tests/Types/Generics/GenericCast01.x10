@@ -25,7 +25,7 @@ public class GenericCast01 extends GenericTest {
         public def m(long) = 0;
     }
 
-    public def run() = {
+    public def run() {
 
         var a:Any = new A();
         var i:I[long] = a as I[long]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
@@ -34,7 +34,7 @@ public class GenericCast01 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericCast01().execute();
     }
 }

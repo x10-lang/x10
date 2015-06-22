@@ -19,10 +19,10 @@
  */
 
  public class CLV1(i:int, j:int)  {
-     public def this(i:int, j:int):CLV1{self.i==i, self.j==j} = {
+     public def this(i:int, j:int):CLV1{self.i==i, self.j==j} {
 	    property(i,j);
      }
-     public def m():void = {
+     public def m():void {
 	 var f: CircularLV{k==3n} = new CircularLV(3n) as CircularLV{k==3n} ;
      }
  

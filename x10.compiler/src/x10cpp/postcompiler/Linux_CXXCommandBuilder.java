@@ -39,19 +39,21 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     public void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
 
-        for (PrecompiledLibrary pcl:options.x10libs) {
-            if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
+        if(!sharedLibProps.staticLib) {
+            for (PrecompiledLibrary pcl:options.x10libs) {
+                if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
+                    cxxCmd.add("-Wl,--rpath");
+                    cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib-dbg");
+                }
                 cxxCmd.add("-Wl,--rpath");
-                cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib-dbg");
+                cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
             }
-            cxxCmd.add("-Wl,--rpath");
-            cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
-        }
-        
-        // x10rt
-        cxxCmd.add("-Wl,--rpath");
-        cxxCmd.add("-Wl,"+options.distPath()+"/lib");
 
-        cxxCmd.add("-Wl,-export-dynamic");
+            // x10rt
+            cxxCmd.add("-Wl,--rpath");
+            cxxCmd.add("-Wl,"+options.distPath()+"/lib");
+
+            cxxCmd.add("-Wl,-export-dynamic");
+        }
     }
 }

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
@@ -112,7 +112,8 @@ void Launcher::initialize(int argc, char ** argv)
 	}
 
 	if (NULL==realpath(argv[0], _realpath)) {
-        perror("Resolving absolute path of executable");
+        // couldn't resolve realpath; assume executable is in $PATH
+        strncpy(_realpath, argv[0], PATH_MAX);
     }
 	if (!getenv(X10_NPLACES))
 	{
@@ -127,8 +128,8 @@ void Launcher::initialize(int argc, char ** argv)
 	{
 		_myproc = atoi(getenv(X10_LAUNCHER_PLACE));
 		char* host = getenv(X10_LAUNCHER_HOST);
-		if (host) strcpy(_runtimePort, host);
-		else strcpy(_runtimePort, "localhost");
+		if (host) strncpy(_runtimePort, host, PORT_MAX);
+		else strncpy(_runtimePort, "localhost", PORT_MAX);
 	}
 
 	/* -------------------------------------------- */
@@ -310,8 +311,10 @@ void Launcher::readHostFile()
 
 			char * p = strtok(buffer, " \t\n\r");
 			int plen = p ? strlen(p) : 0;
-			if (plen <= 0)
+			if (plen <= 0) {
+				fprintf(stderr, "Launcher %d: detected a line %i is blank in hostfile!  Please verify hostfile contents.\n", _myproc, lineNumber);
 				break;
+			}
 
 			char * host = (char *) malloc(plen + 10);
 			if (!host)

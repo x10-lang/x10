@@ -54,7 +54,7 @@ abstract public class TestArray extends x10Test {
 
     class R {
 
-        def this(o:Printer, test: String, run: ()=>String ): R = {
+        def this(o:Printer, test: String, run: ()=>String ): R {
             var r: String;
             try {
                 r = (run)();
@@ -69,23 +69,23 @@ abstract public class TestArray extends x10Test {
     	private val root = GlobalRef[Grid](this);
         transient var os: Rail[Any] = new Rail[Any](10);
 
-        @Pinned def set(i0: long, vue: double): void = {
+        @Pinned def set(i0: long, vue: double): void {
             os(i0) = new Box[Double](vue);
         }
 
-        @Pinned def set(i0: long, i1: long, vue: double): void = {
+        @Pinned def set(i0: long, i1: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        @Pinned def set(i0: long, i1: long, i2: long, vue: double): void = {
+        @Pinned def set(i0: long, i1: long, i2: long, vue: double): void {
             if (os(i0)==null) os(i0) = new Grid();
             val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
-        @Pinned def pr(rank: int): void = {
+        @Pinned def pr(rank: int): void {
             var min: long = os.size;
             var max: long = 0L;
             for (var i: long = 0L; i<os.size; i++) {
@@ -126,11 +126,11 @@ abstract public class TestArray extends x10Test {
         }
     } // Grid
 
-    @Global def prArray(test: String, r: Region): DistArray[double]{rank==r.rank} = {
+    @Global def prArray(test: String, r: Region): DistArray[double]{rank==r.rank} {
         return prArray(test, r, false);
     }
 
-    @Global def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} = {
+    @Global def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} {
 
         val init1 = (pt: Point) => {
             var v: long = 1;
@@ -147,7 +147,7 @@ abstract public class TestArray extends x10Test {
         return a as DistArray[double]{rank==r.rank};
     }
 
-    @Global def prDistributed(test:String, a: DistArray[double]): void = {
+    @Global def prDistributed(test:String, a: DistArray[double]): void {
         for (p in a.dist.places()) {
             val root = this.root;
             finish {
@@ -163,7 +163,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    @Global def prUnbounded(test: String, r: Region): void = {
+    @Global def prUnbounded(test: String, r: Region): void {
         try {
             prRegion(test, r);
             val i = r.iterator();
@@ -173,7 +173,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    @Global def prRegion(test: String, r: Region): void = {
+    @Global def prRegion(test: String, r: Region): void {
 
         pr("--- " + testName + ": " + test);
 
@@ -189,11 +189,11 @@ abstract public class TestArray extends x10Test {
 
     }
 
-   @Global def prArray(test: String, a: DistArray[double]): void = {
+   @Global def prArray(test: String, a: DistArray[double]): void {
         prArray(test, a, false);
     }
 
-    @Global def prArray(test: String, a: DistArray[double], bump: boolean): void = {
+    @Global def prArray(test: String, a: DistArray[double], bump: boolean): void {
 
         val r: Region = a.region;
 
@@ -204,7 +204,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    @Global def prArray1(a: DistArray[double], bump: boolean): void = {
+    @Global def prArray1(a: DistArray[double], bump: boolean): void {
         var grid: Grid = new Grid();
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
@@ -225,7 +225,7 @@ abstract public class TestArray extends x10Test {
         grid.pr(a.rank as int);
     }
 
-    @Global def prPoint(test: String, p: Point): void = {
+    @Global def prPoint(test: String, p: Point): void {
         var sum: long = 0;
         for (var i: int = 0n; i<p.rank; i++)
             sum += p(i);
@@ -233,7 +233,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    @Global def prDist(test: String, d: Dist): void = {
+    @Global def prDist(test: String, d: Dist): void {
 
         pr("--- " + test + ": " + d);
 
@@ -252,7 +252,7 @@ abstract public class TestArray extends x10Test {
     }
         
 
-    def pr(s: String): void = {
+    def pr(s: String): void {
         out.println(s);
     }
 

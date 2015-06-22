@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 2.5.0.qualifier
+Bundle-Version: 2.5.3.qualifier
 Bundle-Localization: plugin
 Require-Bundle: x10.common;visibility:=reexport,
  x10.constraints;visibility:=reexport,
  lpg.runtime.java;visibility:=reexport,
- com.ibm.wala.shrike
+ com.ibm.wala.shrike,
+ antlr-runtime
 Export-Package: polyglot.ast,
  polyglot.frontend,
  polyglot.lex,
@@ -26,6 +27,8 @@ Export-Package: polyglot.ast,
  x10.optimizations,
  x10.optimizations.inlining,
  x10.parser,
+ x10.parser.antlr,
+ x10.parser.antlr.generated,
  x10.plugin,
  x10.query,
  x10.types,

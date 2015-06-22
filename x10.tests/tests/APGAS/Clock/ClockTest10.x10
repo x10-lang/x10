@@ -38,9 +38,9 @@ public class ClockTest10 extends x10Test {
     public static N: long = 10;
     public static pipeDepth: long = 2;
 
-    static def ph(var x: long): long = { return x % 2; }
+    static def ph(var x: long): long { return x % 2; }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	finish async {
 	    val a: Clock = Clock.make();
 	    val b: Clock = Clock.make();
@@ -54,14 +54,14 @@ public class ClockTest10 extends x10Test {
 	return true;
     }
 
-    def taskA(val a: Clock): void = {
+    def taskA(val a: Clock): void {
 	for (k in 1..N) {
 	    varA(ph(k)) = k;
 	    x10.io.Console.OUT.println( " " + k + " A producing " + varA(ph(k)));
 	    Clock.advanceAll();
 	}
     }
-    def taskB(val a: Clock, val b: Clock): void = {
+    def taskB(val a: Clock, val b: Clock): void {
 	for (k in 1..N) {
 	    val tmp = new boxedLong();
 	    finish tmp.value = varA(ph(k-1))+varA(ph(k-1));
@@ -72,7 +72,7 @@ public class ClockTest10 extends x10Test {
 	    Clock.advanceAll();
 	}
     }
-    def taskC(val a: Clock, val c: Clock): void = {
+    def taskC(val a: Clock, val c: Clock): void {
 	for (k in 1 ..N) {
 	    val tmp  = new boxedLong();
 	    finish tmp.value = varA(ph(k-1))*varA(ph(k-1));
@@ -83,7 +83,7 @@ public class ClockTest10 extends x10Test {
 	    Clock.advanceAll();
 	}
     }
-    def taskD(val b: Clock, val c: Clock): void = {
+    def taskD(val b: Clock, val c: Clock): void {
 	for (k in 1 ..N) {
 	    val tmp  = new boxedLong();
 	    finish tmp.value = varB(ph(k-1))+varC(ph(k-1))+10;
@@ -97,7 +97,7 @@ public class ClockTest10 extends x10Test {
 	    Clock.advanceAll();
 	}
     }
-    def taskE(val c: Clock): void = {
+    def taskE(val c: Clock): void {
 	for (k in 1 ..N) {
 	    val tmp  = new boxedLong();
 	    finish tmp.value = varC(ph(k-1))*7;
@@ -111,7 +111,7 @@ public class ClockTest10 extends x10Test {
 	}
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
 	new ClockTest10().execute();
     }
 

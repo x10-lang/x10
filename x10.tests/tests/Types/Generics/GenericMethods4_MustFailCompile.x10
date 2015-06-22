@@ -19,16 +19,16 @@ import harness.x10Test;
 
 public class GenericMethods4_MustFailCompile extends GenericTest {
 
-    def m[T](T) = {};
+    def m[T](T) {};
 
-    public def run() = {
+    public def run() {
 
         m[long]("1"); // ERR: Method m[T](id$45: T): void in GenericMethods4_MustFailCompile{self==GenericMethods4_MustFailCompile#this} cannot be called with arguments [x10.lang.Long](x10.lang.String{self=="1"});    Invalid Parameter.
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericMethods4_MustFailCompile().execute();
     }
 }

@@ -14,6 +14,7 @@ package x10.matrix.util;
 import x10.io.File;
 import x10.util.Timer;
 import x10.util.StringBuilder;
+import x10.matrix.ElemType;
 
 /**
  * For debugging purposes, this class provides methods to serialize the printout
@@ -43,7 +44,7 @@ public class PConsole {
 		return "<P"+here.id().toString()+" "+pt+"ms>:";
 	}
 
-	public def toString(d:Rail[Double], st:Long, cnt:Long, inc:Long):String {
+	public def toString(d:Rail[ElemType], st:Long, cnt:Long, inc:Long):String {
 		var output:StringBuilder = new StringBuilder(); 
 		output.add("[ ");
 		for (var i:Long=st, c:Long=0; i<d.size && c<cnt; i+=inc, c++)
@@ -113,7 +114,7 @@ public class PConsole {
 	}
 
 	public def print(d:Rail[Int])    { print(this.toString(d, 0, d.size, 1));}
-	public def print(d:Rail[Double]) { print(this.toString(d, 0, d.size, 1));}
+	public def print(d:Rail[ElemType]) { print(this.toString(d, 0, d.size, 1));}
 
 	public def println(str:String) {
 		if (!disable) {
@@ -125,5 +126,5 @@ public class PConsole {
 	}
 
 	public def println(d:Rail[Int])    { println(this.toString(d, 0, d.size, 1));}
-	public def println(d:Rail[Double]) { println(this.toString(d, 0, d.size, 1));}
+	public def println(d:Rail[ElemType]) { println(this.toString(d, 0, d.size, 1));}
 }

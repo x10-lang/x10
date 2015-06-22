@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef __X10_LANG_GLOBALREF
@@ -18,7 +18,7 @@
 
 namespace x10 {
     namespace lang { 
-        extern x10_long globalref_getInitialEpoch();
+        x10_long globalref_getInitialEpoch();
 
         template<class T> class GlobalRef  {
             
@@ -141,8 +141,8 @@ namespace x10 {
 
 namespace x10 {
     namespace lang {
-        extern void logGlobalReference(::x10::lang::Reference* obj);
-        extern void forgetGlobalReference(::x10::lang::Reference* obj);
+        void logGlobalReference(::x10::lang::Reference* obj);
+        void forgetGlobalReference(::x10::lang::Reference* obj);
     }
 }
 

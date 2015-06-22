@@ -54,7 +54,7 @@ public class TestForeach2D(N:Long) extends x10Test {
         }
     }
 
-	public static def main(args:Rail[String]): void = {
+	public static def main(args:Rail[String]): void {
         var size:Long = 143;
         var print:Boolean = false;
         if (args.size > 0) {

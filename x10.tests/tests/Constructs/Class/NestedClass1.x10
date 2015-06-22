@@ -16,7 +16,7 @@ public class NestedClass1[T] extends x10Test {
     static abstract class Base {}
     static class Sub[U] extends Base {}
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         return true;
     }
 

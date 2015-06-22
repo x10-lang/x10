@@ -25,7 +25,7 @@ public class TypedefConstraint2c1_MustFailCompile extends TypedefTest {
         //val name = T.name;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type C[T]{T<:Y} = FOO[T];
         val c:C[X]; // ERR
@@ -34,7 +34,7 @@ public class TypedefConstraint2c1_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint2c1_MustFailCompile().execute();
     }
 }

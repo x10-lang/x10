@@ -26,13 +26,13 @@ public class Classes240 extends x10Test {
     }
 
 
-// file Classes line 2087
+// file Classes line 2085
  static  class Poly {
    public val coeff : Rail[Long];
    public def this(coeff: Rail[Long]) { this.coeff = coeff;}
    public def degree() = (coeff.size-1);
    public def  a(i:Long) = (i<0 || i>this.degree()) ? 0L : coeff(i);
-   public final def toString() = {
+   public final def toString() {
       var allZeroSoFar : Boolean = true;
       var s : String ="";
       for( i in 0L..this.degree() ) {
@@ -50,7 +50,7 @@ public class Classes240 extends x10Test {
       if (allZeroSoFar) s = "0";
       return s;
    }
-   private final def term(ai: Long, n:Long) = {
+   private final def term(ai: Long, n:Long) {
       val xpow = (n==0L) ? "" : (n==1L) ? "x" : "x^" + n ;
       return (ai == 1L) ? xpow : "" + Math.abs(ai) + xpow;
    }

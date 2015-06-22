@@ -35,7 +35,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
     public static COUNT = 200n;
     public static L = 5n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var passed:Boolean = true;
         for (tries in 1n..COUNT) {
             val lb1: int = ranInt(-L, L);
@@ -91,7 +91,7 @@ public class BlockDistWithPlaceGroup extends x10Test {
         return new SparsePlaceGroup(places.toRail());
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new BlockDistWithPlaceGroup().execute();
     }
 }

@@ -15,7 +15,7 @@ import harness.x10Test;
  * Check that the error message from a class cast is correct
  */
 public class GetMessage extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
         val s = new Empty();
         try {
             val tmp = s as Any as Comparable[Int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
@@ -40,7 +40,7 @@ public class GetMessage extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new GetMessage().execute();
 	}
 

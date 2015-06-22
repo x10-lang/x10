@@ -27,25 +27,25 @@ import harness.x10Test;
 public class SamePropertyAncestor_MustFailCompile extends x10Test {
 	class Test(i: int, j:int) {
 		 
-		def this(i:int, j:int):Test = {
+		def this(i:int, j:int):Test {
 			property(i,j);
 		}
 	}
 	
 	class Test2(i: int) extends Test {  // ERR ([Semantic Error: Class cannot override property of superclass.])
 		 
-		def this(i:int):Test2 = {
+		def this(i:int):Test2 {
 		    super(i,i);
 			property(i);
 		}
 	}
 		
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 		val a = new Test2(1n);
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new SamePropertyAncestor_MustFailCompile().execute();
 	}
 }

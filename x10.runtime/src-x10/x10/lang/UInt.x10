@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -349,6 +349,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      */
     @Native("java", "((int)(float)(#x))")
     @Native("c++",  "::x10::lang::FloatNatives::toUInt(#x)")
+    @Native("cuda", "((x10_uint) (#x))")
     public static native operator (x:Float) as UInt; /*  = UInt(x as Int); */
 
     /**
@@ -358,6 +359,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      */
     @Native("java", "((int)(double)(#x))")
     @Native("c++",  "::x10::lang::DoubleNatives::toUInt(#x)")
+    @Native("cuda", "((x10_uint) (#x))")
     public static native operator (x:Double) as UInt; /*  {
         val temp : Long = x as Long;
         if (temp > 0xffffffff) return UInt(0xffffffff as Int);

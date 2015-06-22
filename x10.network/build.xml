@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10.network" default="jar" basedir=".">
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${basedir}/lib"/>
+    <property name="jar" value="apgas.jar"/>
+    <property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
+    <property name="snappy-jar-url" value="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" />
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <pathelement location="${snappy-java.jar}"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <target name="check-dependencies">
+        <available file="${snappy-java.jar}" property="snappy.present"/>
+    </target>
+    <target name="init" depends="check-dependencies" unless="snappy.present">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${lib}"/>
+    	<retry retrycount="3">
+        	<get src="${snappy-jar-url}" dest="${snappy-java.jar}"/>
+    	</retry>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+        <delete dir="${lib}" failonerror="false"/>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${lib}/${jar}">
+            <fileset dir="${build}" includes="x10/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
+            <src path="${src}"/>
+            <include name="x10/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+</project>

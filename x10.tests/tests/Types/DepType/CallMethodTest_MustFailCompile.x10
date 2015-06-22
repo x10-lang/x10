@@ -20,13 +20,13 @@ import x10.regionarray.Region;
  */
 public class CallMethodTest_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r3:Region{rank==3} = Region.makeRectangular(1..10,1..10) as Region(2); // ERR
         val r2:Region{rank==2} = Region.makeRectangular(1..10, 1..10) as Region(2);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new CallMethodTest_MustFailCompile().execute();
     }
 }

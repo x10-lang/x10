@@ -26,7 +26,7 @@ public class MethodResolution10_Bad58_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 3297
+// file Classes line 3295
  // This depends on https://jira.codehaus.org/browse/XTENLANG-2696
  static class Res {
   public static  interface Surface {}

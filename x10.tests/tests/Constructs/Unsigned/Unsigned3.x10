@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class Unsigned3 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val a = 0u < 1u;
         val b = 1u < 2u;
         val c = 0u < 0xffffffffu;
@@ -76,7 +76,7 @@ public class Unsigned3 extends x10Test {
             && s && t && u && v && w && x;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Unsigned3().execute();
     }
 }

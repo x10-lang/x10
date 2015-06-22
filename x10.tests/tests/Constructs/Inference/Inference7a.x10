@@ -29,13 +29,13 @@ public class Inference7a extends x10Test {
         // Need the casts, since the type of x is A1{self==x}, of z is C1{self==z}.
         // Cannot establish A1{self==x} <: C1{self==z}.
         
-	public def run(): boolean = {
+	public def run(): boolean {
                 val x = n(new AA(), new BB(), new CC());   
                
 		return x instanceof AA;  
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Inference7a().execute();
 	}
 }

@@ -36,7 +36,7 @@ public class NonResilientHeatTransfer {
     public static def main(args:Rail[String]) {
         val n = (args.size>=1) ? Long.parseLong(args(0)) : 10L;
         Console.OUT.println("HeatTransfer for " + n + "x" + n + ", epsilon=" + epsilon);
-        for (p in Place.places()) at (p) Console.OUT.println(here+" running in "+Runtime.getName());
+        for (p in Place.places()) at (p) Console.OUT.println(here+" running in "+x10.xrx.Runtime.getName());
         
         /*
          * Initialize the data

@@ -21,7 +21,7 @@ public class ForLoop3 extends x10Test {
 
 	public static N: int = 100n;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		//Ensure iterator works in lexicographic order
 		var n: long = 0L;
 		var prev: long = -1L;
@@ -44,7 +44,7 @@ public class ForLoop3 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ForLoop3().execute();
 	}
 }

@@ -6,11 +6,12 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.compiler.ws;
 
+import x10.xrx.*;
 import x10.compiler.Ifdef;
 
 public final class ThrowFrame extends Frame {

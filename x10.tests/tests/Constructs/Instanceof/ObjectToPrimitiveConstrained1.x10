@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class ObjectToPrimitiveConstrained1 extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var primitive: Any = 3;
 		return (primitive instanceof Long(3));
 	}

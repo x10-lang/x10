@@ -20,7 +20,7 @@ import x10.regionarray.*;
 
 public class PointSub extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val p = [2 as long, 2, 2, 2, 2] as Point;
         val q = [1 as long, 1, 1, 1, 1] as Point;
@@ -29,7 +29,7 @@ public class PointSub extends x10Test {
         return (a+q).equals(p);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PointSub().execute();
     }
 }

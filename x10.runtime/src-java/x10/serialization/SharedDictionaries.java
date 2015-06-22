@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.serialization;
@@ -74,9 +74,21 @@ class SharedDictionaries implements SerializationConstants {
                 /* "x10.lang.Rail", */                 // TODO: @NativeRep to x10.core.Rail
 
                 /* XRX: core implementation classes */
-                "x10.lang.FinishState",
-                "x10.lang.FinishState$Finish",
-                "x10.lang.Runtime$RemoteControl",
+                "x10.xrx.FinishState",
+                "x10.xrx.FinishState$Finish",
+                "x10.xrx.Runtime$RemoteControl",
+                
+                /* Core class library: x10.regionarray */
+                "x10.array.Array_1",
+                "x10.array.Array_2",
+                "x10.array.Array_3",
+                "x10.array.Array_4",
+                "x10.array.DistArray_Block_1",
+                "x10.array.DistArray_Block_2",
+                "x10.array.DistArray_Block_3",
+                "x10.array.DistArray_BlockBlock_2",
+                "x10.array.DistArray_BlockBlock_3",
+                "x10.array.DistArray_Unique",
                 
                 /* Core class library: x10.regionarray */
                 "x10.regionarray.Array",
@@ -84,13 +96,7 @@ class SharedDictionaries implements SerializationConstants {
                 "x10.regionarray.DistArray$LocalState",
                 "x10.regionarray.RectRegion1D",
                 "x10.regionarray.RemoteArray",
-               
-                /* Core class library: x10.io */
-                "x10.io.SerialData",
-                
-                /* Core class library: x10.util */
-                "x10.util.Pair",
-                
+
                 /* Managed X10 implementation classes */
                 // TODO: For mixed mode, we need to map these to the
                 //       backend neutral concepts (eg, x10.lang.GlobalRef not x10.core.GlobalRef)
@@ -116,46 +122,46 @@ class SharedDictionaries implements SerializationConstants {
                 
                 /* Types that correspond to closures in XRX annotated with @RemoteInvocation */
                 /* TODO: This list should be machine generated; this is way too fragile! */
-                "x10.lang.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_1",
-                "x10.lang.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_2",
+                "x10.xrx.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_1",
+                "x10.xrx.FinishState$RemoteFinishSPMD$$Closure_notifyActivityTermination_2",
 
-                "x10.lang.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_1",
-                "x10.lang.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_2",
+                "x10.xrx.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_1",
+                "x10.xrx.FinishState$RemoteFinishAsync$$Closure_notifyActivityTermination_2",
                 
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_1",
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_2",
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_3",
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_4",
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_5",
-                "x10.lang.FinishState$RemoteFinish$$Closure_notifyActivityTermination_6",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_1",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_2",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_3",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_4",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_5",
+                "x10.xrx.FinishState$RemoteFinish$$Closure_notifyActivityTermination_6",
       
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_1",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_2",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_3",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_4",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_5",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_6",
-                "x10.lang.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_7",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_1",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_2",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_3",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_4",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_5",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_6",
+                "x10.xrx.FinishState$DenseRemoteFinish$$Closure_notifyActivityTermination_7",
                 
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_1",
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_2",
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_3",
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_4",
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_5",
-                "x10.lang.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_6",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_1",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_2",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_3",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_4",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_5",
+                "x10.xrx.FinishState$RemoteCollectingFinish$$Closure_notifyActivityTermination_6",
 
-                "x10.lang.Runtime$$Closure_start_1",
-                "x10.lang.Runtime$$Closure_start_2",
-                "x10.lang.Runtime$$Closure_start_3",
-                "x10.lang.Runtime$$Closure_runAsync",
-                "x10.lang.Runtime$$Closure_runUncountedAsync",
-                "x10.lang.Runtime$$Closure_runAt_1",
-                "x10.lang.Runtime$$Closure_runAt_2",
-                "x10.lang.Runtime$$Closure_runAtSimple_1",
-                "x10.lang.Runtime$$Closure_runAtSimple_2",
-                "x10.lang.Runtime$$Closure_runAtSimple_3",
-                "x10.lang.Runtime$$Closure_evalAt_1",
-                "x10.lang.Runtime$$Closure_evalAt_2"
+                "x10.xrx.Runtime$$Closure_start_1",
+                "x10.xrx.Runtime$$Closure_start_2",
+                "x10.xrx.Runtime$$Closure_start_3",
+                "x10.xrx.Runtime$$Closure_runAsync",
+                "x10.xrx.Runtime$$Closure_runUncountedAsync",
+                "x10.xrx.Runtime$$Closure_runAt_1",
+                "x10.xrx.Runtime$$Closure_runAt_2",
+                "x10.xrx.Runtime$$Closure_runAtSimple_1",
+                "x10.xrx.Runtime$$Closure_runAtSimple_2",
+                "x10.xrx.Runtime$$Closure_runAtSimple_3",
+                "x10.xrx.Runtime$$Closure_evalAt_1",
+                "x10.xrx.Runtime$$Closure_evalAt_2"
         };
         
         for (String type : builtInTypes) {

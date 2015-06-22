@@ -16,12 +16,12 @@ import harness.x10Test;
  */
 public class Unsigned5 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val b = 0xffffffffu < 0u;
         return ! b;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new Unsigned5().execute();
     }
 }

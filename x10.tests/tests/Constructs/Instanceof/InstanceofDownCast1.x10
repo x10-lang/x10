@@ -19,12 +19,12 @@ import harness.x10Test;
  **/
 public class InstanceofDownCast1 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var upcast: Any = new X10DepTypeSubClassOneB(1,2);
 		return !(upcast instanceof X10DepTypeSubClassOneB{p==2&&a==2});
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new InstanceofDownCast1().execute();
 	}
 }

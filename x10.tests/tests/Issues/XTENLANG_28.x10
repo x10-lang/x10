@@ -21,7 +21,7 @@ class XTENLANG_28 extends x10Test {
     
     public class AL[T] {
     
-        public def add(T) = {}
+        public def add(T) {}
     }
     
     class PL extends AL[P] {

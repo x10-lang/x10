@@ -19,21 +19,21 @@ import harness.x10Test;
 public class ThisPropogatedToReturnType extends x10Test {
 
 	 class Test(i:int, j:int) {
-		def this(i:int, j:int):Test{self.i==i&&self.j==j} = { 
+		def this(i:int, j:int):Test{self.i==i&&self.j==j} { 
 			property(i,j);
 			}
 		
-		def test():int{self==this.i} = {
+		def test():int{self==this.i} {
 			return  i;
 		}
 	}
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 		var t: Test{i==1n} = new Test(1n,2n);
 		var one: int{self==1n} = t.test();
 		return true;
 	}
-	public static def main(Rail[String]): void = {
+	public static def main(Rail[String]): void {
 		 new ThisPropogatedToReturnType().execute();
 	}
 }

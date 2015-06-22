@@ -11,41 +11,35 @@
 
 package x10cpp.visit;
 
-import java.io.File;
+import static x10cpp.visit.ASTQuery.getCppRep;
+import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import polyglot.ast.Assert;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
-import polyglot.ast.CompoundStmt;
 import polyglot.ast.ConstructorCall.Kind;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.Formal;
-import polyglot.ast.If;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
@@ -59,16 +53,12 @@ import polyglot.ast.SwitchBlock;
 import polyglot.ast.Term;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
-
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
-import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
-
 import polyglot.main.Options;
 import polyglot.main.Reporter;
-
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.MemberDef;
@@ -87,9 +77,7 @@ import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.Translator;
-import x10.ast.Closure;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorCall;
@@ -98,24 +86,17 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.util.ClassifiedStream;
+import x10.util.CollectionFactory;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
 import x10.visit.StaticNestedClassRemover;
-import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.X10CPPJobExt;
 import x10cpp.debug.LineNumberMap;
-import x10cpp.postcompiler.AIX_CXXCommandBuilder;
 import x10cpp.postcompiler.CXXCommandBuilder;
-import x10cpp.postcompiler.Cygwin_CXXCommandBuilder;
-import x10cpp.postcompiler.Linux_CXXCommandBuilder;
 import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.SharedLibProperties;
-import x10cpp.postcompiler.SunOS_CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
-import static x10cpp.visit.ASTQuery.getCppRep;
-import static x10cpp.visit.ASTQuery.getStringPropertyInit;
-import static x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
 	

@@ -28,7 +28,7 @@ public class UByteToString extends x10Test {
 	}
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val u = 1uy;
 	val s1 = u.toString();
 	val s2 = toString(u);

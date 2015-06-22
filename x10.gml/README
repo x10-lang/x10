@@ -1,15 +1,14 @@
-#
-#  This file is part of the X10 project (http://x10-lang.org).
-#
-#  This file is licensed to You under the Eclipse Public License (EPL);
-#  You may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#      http://www.opensource.org/licenses/eclipse-1.0.php
-#
-#  (C) Copyright IBM Corporation 2006-2014.
-#
+This is a distribution of the X10 Global Matrix Library.
+http://x10-lang.org/
 
-============== X10 Global Matrix Library (GML) =================
+(C) Copyright IBM Corporation 2006-2014.
+
+This program is controlled by the Eclipse Public License v1.0.
+http://www.eclipse.org/legal/epl-v10.html
+
+
+X10 Global Matrix Library (GML)
+-------------------------------
 
 The X10 Global Matrix Library implements double-precision dense and
 sparse matrices, partitioned into blocks and distributed across
@@ -22,19 +21,19 @@ exploiting available parallelism.
 
 The library runs on both Native and Managed backends using the X10RT
 transport; on Native X10 it can also run using a combination of X10RT
-and Native MPI calls. It has been tested on clusters of multi-core x86
+and Native MPI calls. It has been tested on clusters of multicore x86
 nodes connected with Infiniband and Ethernet and on the IBM Power775
 system.
 
-Some example application programs are provided, including Gaussian
-non-negative matrix factorization, PageRank, linear regression and
-logistic regression.
+Some example application programs are provided, including non-negative
+matrix factorization, PageRank, linear regression and logistic regression.
 
 
-=============================================================
 Instructions
+------------
 
 1) System dependencies and settings
+
    * BLAS (basic linear algebra subprograms). 
      An optimized BLAS implementation is usually available on high-performance
      computing systems.
@@ -48,17 +47,20 @@ Instructions
      an exception will be thrown if the corresponding solver method is called.
      The environment variable DISABLE_LAPACK controls this build option.
     
-     In system_setting.mk, uncomment "add_lapack=yes" line to build GML with 
-     LAPACK library.  
-     Also make sure "lapack_path" and "lapack_name" are defined correctly.
-
      The file scripts/system_setting.mk defines build variables POST_CXXFLAGS
      and POST_LDFLAGS to compile against several commonly used BLAS and LAPACK 
      implementations, including:
       - NetLib reference implementation - http://netlib.org/blas
+      - OpenBLAS - http://www.openblas.net/
       - GotoBLAS2 - http://www.tacc.utexas.edu/tacc-projects/gotoblas2
+      - ATLAS - http://math-atlas.sourceforge.net/
       - IBM ESSL
       - Intel MKL
+
+     To select one of these BLAS implementations for build, set the BLASLIB
+     variable for Make i.e.
+     $ make native BLASLIB=[OpenBLAS|GotoBLAS|ATLAS|ESSL|MKL].
+     The default is NetLIB.
     
      If GML fails to compile against the BLAS implementation on your system,
      you can modify the values of POST_CXXFLAGS and POST_LDFLAGS accordingly.
@@ -71,7 +73,8 @@ Instructions
 
 
 2) Build libraries
-make help       -- Print help and make instruction for different transport and backend
+
+make help       -- Print make options for different transports and backends
 make native     -- Make native backend library
 make managed    -- Make managed backend library
 make native_mpi -- Make native backend for MPI transport
@@ -105,17 +108,18 @@ path of the gml library.
 - Managed backend
   Add managed_gml.jar to "-classpath"
   Add gml library path to "-libpath"
-  [absolute path]/X10Launcher -np [number of places] x10 -classpath [managed_gml.jar] -libpath [gml lib] [app name] [args] 
-   
+  [absolute path]/X10Launcher -np [number of places] x10 -classpath \
+    [managed_gml.jar] -libpath [gml lib] [app name] [args] 
 
-==============================================================
-1) Matrix types:
+
+Matrix types
+------------
 
 The current implementation of X10 parallel matrix library supports
 two matrix structures: dense and sparse, which are compatible with
 column-major and CSC-LT format.
  
-1.1) Basic types
+1) Basic types
   - Dense matrix: matrix elements are stored in column-major order in 
     a continuous memory space. 
   - Symmetric and triangular matrix. Current implementation supports
@@ -126,7 +130,7 @@ column-major and CSC-LT format.
 
 Matrix data can be partitioned into blocks in a grid. Each 
 block stores data in dense or sparse structure.
-1.2) Block-partitioned matrix
+2) Block-partitioned matrix
   - Dense block matrix: matrix is partitioned in (m x n) blocks, where m 
     is number of row blocks and n is number of column blocks. Each block 
     uses dense matrix format to store matrix data.
@@ -138,12 +142,14 @@ Partitioned matrix can distribute blocks to all places.  The current
 implementation is restricted to 1-to-1 mapping between blocks and places. 
 Future versions may remove this restriction.
 
-1.3) Distributed matrix
+3) Distributed matrix
   - Distributed dense matrix: matrix is partitioned and each place is 
     assigned with one dense block only.
   - Distributed sparse matrix: similar to distributed dense block.
 
-2) Matrix operations
+
+Matrix operations
+-----------------
 
 Some commonly used operations are implemented, including cell-wise add, 
 subtract, multiply, division, cell-wise sum, Euclidean distance, max norm,
@@ -159,11 +165,10 @@ Common rules:
  - Operands of must have the same distribution if they are distributed matrix
  
 
-1.1) Cell-wise operations
+1) Cell-wise operations
 
 Cell-wise operations are defined as add-on operations, which means the 
-output also serves as input operand in the operation.  
-
+output also serves as input operand in the operation.
   - scaling
   - add
   - subtract
@@ -171,15 +176,29 @@ output also serves as input operand in the operation.
   - divide
   - sum
 
-1.2) Matrix properties
+2) Matrix properties
   - Euclidean distance
   - max norm
   - trace
 
-1.3) Matrix multiplication
-    - multiply
-    - multiply with first operand transposed
-    - multiply with second operand transposed
+3) Matrix multiplication
+  - multiply
+  - multiply with first operand transposed
+  - multiply with second operand transposed
 
 
+Performance
+-----------
+
+GML can operate with a number of optimized BLAS libraries; the quality of the
+BLAS implementation can significantly affect the performance of GML operations
+like matrix multiplication. We encourage you to experiment to determine the
+best-performing BLAS library for your target platform.
+
+By default, GML builds with all checks enabled; this is the preferred setting
+for application development.  When you are sure that the code is correct, you
+may choose to compile with -NO_CHECKS (see X10FLAGS variable in the Makefile).
+
+For more information, see 
+http://x10-lang.org/documentation/practical-x10-programming/performance-tuning.html
 

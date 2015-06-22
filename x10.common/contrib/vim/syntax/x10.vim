@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:    X10
 " Maintainer:  Nate Nystrom
-" Last Change: 2009 Mar 14
+" Last Change: 2014 Dec 2
 "
 " Based on:
 " Language:    Scala
@@ -18,7 +18,7 @@ syn case match
 syn sync minlines=50
 
 " most X10 keywords
-syn keyword x10Keyword abstract as assert async at ateach atomic break case catch class clocked continue def default do else extends false final finally finish for goto haszero here if implements import in instanceof interface native new next null offer offers operator package private property protected public resume return self static struct super switch this throw transient true try type val var void when while
+syn keyword x10Keyword abstract as assert async at ateach atomic break case catch class clocked continue def default do else extends false final finally finish for goto haszero here if implements import in instanceof interface native new null offer offers operator package private property protected public return self static struct super switch this throw transient true try type val var void when while
 syn match x10Keyword "=>"
 syn match x10Keyword "<-"
 syn match x10Keyword "_"
@@ -77,7 +77,7 @@ syn match x10StringEscape "\\u[0-9a-f][0-9a-f][0-9a-f][0-9a-f]" contained
 syn match x10StringEscape "\\[nrfvb\\\"]" contained
 
 " number literals
-syn match x10Number "\<\(0[0-7]*\|0[xX]\x\+\|\d\+\)[lL]\=\>"
+syn match x10Number "\<\(0[0-7]*\|0[xX]\x\+\|\d\+\)[uU]\=[lLnNsSyY]\=\>"
 syn match x10Number "\(\<\d\+\.\d*\|\.\d\+\)\([eE][-+]\=\d\+\)\=[fFdD]\="
 syn match x10Number "\<\d\+[eE][-+]\=\d\+[fFdD]\=\>"
 syn match x10Number "\<\d\+\([eE][-+]\=\d\+\)\=[fFdD]\>"

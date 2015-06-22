@@ -27,7 +27,7 @@ abstract class GenericTest extends x10Test {
 
     var result:boolean = true;
 
-    def genericCheck(test:String, actual:long, expected:long) = {
+    def genericCheck(test:String, actual:long, expected:long) {
 
         var result:boolean = actual == expected;
 
@@ -38,7 +38,7 @@ abstract class GenericTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def genericCheck(test:String, actual:String, expected:String) = {
+    def genericCheck(test:String, actual:String, expected:String) {
 
         var result:boolean = actual.equals(expected);
 
@@ -49,7 +49,7 @@ abstract class GenericTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def genericCheck(test:String, actual:Any, expected:Any) = {
+    def genericCheck(test:String, actual:Any, expected:Any) {
 
         var result:boolean = actual.equals(expected);
 
@@ -60,7 +60,7 @@ abstract class GenericTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def pr(s:String):void = {
+    def pr(s:String):void {
         x10.io.Console.OUT.println(s);
     }
 

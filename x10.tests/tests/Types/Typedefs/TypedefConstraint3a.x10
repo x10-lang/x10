@@ -19,7 +19,7 @@ class TypedefConstraint3a extends TypedefTest {
 
     class A(x:long) {def this(x:long):A{self.x==x} = property(x);}
 
-    public def run():boolean = {
+    public def run():boolean {
 
         type T(x:long){x==1} = A{self.x==x};
         val one = 1;
@@ -29,7 +29,7 @@ class TypedefConstraint3a extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint3a().execute();
     }
 }

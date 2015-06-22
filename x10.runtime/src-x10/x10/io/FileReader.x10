@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.io;
@@ -49,6 +49,16 @@ public class FileReader extends InputStreamReader implements Unserializable {
         buf.clear();
         return ans;
     }
+
+    /**
+     * Return the current offset in the file.
+     * For binary files, this is equal to the number of bytes from the
+     * beginning of the file.
+     * @return the current offset in the file stream
+     */
+    @Native("c++", "reinterpret_cast< ::x10::io::FileReader__FileInputStream* >((#this)->FMGL(stream))->offset()")
+    @Native("java", "((x10.core.io.FileInputStream) #this.stream).offset()")
+    public native def offset():Long;
 
     // Specialize code path to call readLine directly since
     // that will get to the efficient @Native impl for Native X10

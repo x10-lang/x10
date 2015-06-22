@@ -23,7 +23,7 @@ public class ForLoop2 extends x10Test {
 
 	public static N: long = 3;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val r  = Region.make(0, N-1);
 		val r3 = r*r*r;
 		val P0 = here;
@@ -50,7 +50,7 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[Point], var p: Point): boolean = {
+	static def successor(var prev: Box[Point], var p: Point): boolean {
 		if (prev == null) return true;
 		val pt = prev();
 		var i: long = pt(0);
@@ -74,7 +74,7 @@ public class ForLoop2 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ForLoop2().execute();
 	}
 }

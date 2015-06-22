@@ -17,7 +17,7 @@ import x10.util.concurrent.Future;
  */
 public class NoFutureForceInWhen extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 	   try {
 		 val b=true;
 		 val x = Future.make[long](()=>0);

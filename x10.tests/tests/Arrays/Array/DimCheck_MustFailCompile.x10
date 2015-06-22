@@ -22,7 +22,7 @@ import x10.regionarray.*;
 
 public class DimCheck_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         // The compiler should check the type of the distribution in the array constructor.
         // If  the type does not specify a constraint on the arity of the underlying region
         // then the initializer cannot specify the arity of the point. Otherwise the arity of the
@@ -34,7 +34,7 @@ public class DimCheck_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DimCheck_MustFailCompile().execute();
     }
 }

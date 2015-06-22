@@ -1,13 +1,13 @@
 # Makefile for X10 global matrix library - GML
 
-include scripts/system_setting.mk
-
 src_path	=src
 lib_path	=lib
 build_path	=include
-
 # Output libs, properties, and tar files
-target		= native_gml
+gml_path        = .
+
+include scripts/system_setting.mk
+include scripts/build_common.mk
 
 default	: help 
 
@@ -20,30 +20,39 @@ native_mpi	: native_mpi_gml
 managed		: managed_gml
 
 ## Source files
+matrix_path =$(src_path)/x10/matrix
 bwrap_path =$(src_path)/x10/matrix/blas
 lwrap_path =$(src_path)/x10/matrix/lapack
 
 base_src=\
+	x10/matrix/DenseMatrix.x10 \
 	x10/matrix/DenseMultXTen.x10 \
+	x10/matrix/ElemType.x10 \
+	x10/matrix/Matrix.x10 \
+	x10/matrix/MatrixMultXTen.x10  \
 	x10/matrix/SymDense.x10 \
 	x10/matrix/TriDense.x10 \
 	x10/matrix/Vector.x10 \
-	x10/matrix/Matrix.x10 \
-	x10/matrix/DenseMatrix.x10 \
 	x10/matrix/VectorMult.x10 \
-	x10/matrix/MatrixMultXTen.x10  \
+    x10/matrix/regression/RegressionInputData.x10 \
 	x10/matrix/util/Debug.x10 \
 	x10/matrix/util/DistPConsole.x10	\
+	x10/matrix/util/ElemTypeTool.x10 \
 	x10/matrix/util/MathTool.x10 \
 	x10/matrix/util/PConsole.x10 \
-	x10/matrix/util/RandTool.x10 \
-	x10/matrix/util/VerifyTool.x10 \
 	x10/matrix/util/PlaceGroupBuilder.x10 \
+	x10/matrix/util/RandTool.x10 \
+	x10/matrix/util/StringTool.x10 \
+	x10/matrix/util/VerifyTool.x10 \
 	x10/util/resilient/DistObjectSnapshot.x10 \
 	x10/util/resilient/ResilientExecutor.x10 \
 	x10/util/resilient/ResilientIterativeApp.x10 \
 	x10/util/resilient/ResilientStoreForApp.x10 \
-	x10/util/resilient/Snapshottable.x10
+	x10/util/resilient/Snapshot.x10 \
+	x10/util/resilient/Snapshottable.x10 \
+	x10/util/resilient/VectorSnapshotInfo.x10 \
+	x10/util/resilient/BlockSetSnapshotInfo.x10 \
+	x10/util/resilient/PlaceHammer.x10
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \
@@ -56,8 +65,6 @@ comm_src=\
 	x10/matrix/comm/MatrixScatter.x10 \
 	x10/matrix/comm/MatrixBcast.x10 \
 	x10/matrix/comm/MatrixRemoteCopy.x10 \
-	x10/matrix/comm/SparseRemoteDestInfo.x10 \
-	x10/matrix/comm/DenseRemoteDestInfo.x10 \
 	x10/matrix/comm/MatrixGather.x10 \
 	x10/matrix/comm/MatrixRingCast.x10 \
     x10/matrix/comm/RemotePair.x10 \
@@ -83,7 +90,8 @@ bwrap_src=\
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
-	x10/matrix/lapack/DriverLAPACK.x10
+	x10/matrix/lapack/DriverLAPACK.x10 \
+    x10/matrix/lapack/LAPACKException.x10
 
 sparse_src=\
 	x10/matrix/sparse/Compress1D.x10 \
@@ -180,7 +188,7 @@ lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
 
 
-X10FLAGS	+= -VERBOSE_CHECKS -O -NO_CHECKS -g
+override X10FLAGS += -VERBOSE_CHECKS -O -g # -NO_CHECKS
 ifdef COVERAGE
     X10CXXFLAGS += --coverage
 endif
@@ -195,28 +203,37 @@ MPI_X10CXXFLAGS = -x10rt mpi -define MPI_COMMU -cxx-prearg -DMPI_COMMU
 
 ### build dist lib, multi-place parallel execution 
 ## build for managed backend
-jlib : $(src) chk_dir $(add_jblas) $(add_jlapack)
-	@echo "------------------ build lib for $(target) on $(HOSTNAME)-------------------"
-	cd $(src_path) && $(X10C) $(X10FLAGS) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
-	@echo "------------ making properties file for $(target) ------------"
-	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(target).properties
+jlib : $(src) chk_elem_type chk_dir $(add_jblas) $(add_jlapack)
+	@echo "------------------ build lib for $(target)_$(GML_ELEM_TYPE) on $(HOSTNAME)-------------------"
+	cd $(src_path) && $(X10C) $(X10FLAGS) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target)_$(GML_ELEM_TYPE).jar
+	@echo "------------ making properties file for $(target)_$(GML_ELEM_TYPE) ------------"
+	@echo "X10LIB_SRC_JAR=lib/$(target)_$(GML_ELEM_TYPE).jar" >> $(target)_$(GML_ELEM_TYPE).properties
 
 
 ## build for native backend
-clib : $(clib_src) chk_dir
-	@echo "------------------ build lib for $(target) on $(HOSTNAME) -------------------"
-	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../. $(src) -d ../include -o $(target)
-	@echo "-------- Packaging source files into jar for $(target)--------"
-	cd $(src_path) && $(JAR) -cf ../lib/$(target).jar $(src)
-	@echo "------------ making properties file for $(target) ------------"
-	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(target).properties
+clib : $(clib_src) chk_elem_type chk_dir
+	cp $(matrix_path)/elem_type.h $(build_path_elem)/x10/matrix/	
+	cp $(matrix_path)/lapack/wrap_lapack_float.cc $(build_path_elem)/x10/matrix/lapack
+	cp $(matrix_path)/lapack/wrap_lapack_double.cc $(build_path_elem)/x10/matrix/lapack
+	cp $(matrix_path)/blas/wrap_blas_float.cc $(build_path_elem)/x10/matrix/blas
+	cp $(matrix_path)/blas/wrap_blas_double.cc $(build_path_elem)/x10/matrix/blas
+	cp $(matrix_path)/lapack/jni_lapack_float.cc $(build_path_elem)/x10/matrix/lapack
+	cp $(matrix_path)/lapack/jni_lapack_double.cc $(build_path_elem)/x10/matrix/lapack
+	cp $(matrix_path)/blas/jni_blas_double.cc $(build_path_elem)/x10/matrix/blas
+	cp $(matrix_path)/blas/jni_blas_float.cc $(build_path_elem)/x10/matrix/blas
+	@echo "------------------ build lib for $(base_dir_elem) on $(HOSTNAME) -------------------"
+	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../$(base_dir_elem) -d ../$(build_path_elem) -o $(target) $(src) 
+	@echo "-------- Packaging source files into jar for $(base_dir_elem) --------"
+	cd $(src_path) && $(JAR) -cf ../$(base_dir_elem)/lib/$(target).jar $(src) $(mpi_wrap) # bundle mpi source
+	@echo "------------ making properties file for $(target)_$(GML_ELEM_TYPE) ------------"
+	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(base_dir_elem)/$(target).properties
 
 ##-----------------------------------------------------------------------
 managed_gml		: $(lib_src)
-		@($(MAKE) jlib target=$@ src="$(lib_src)") 
+		@($(MAKE) jlib target=managed_gml src="$(lib_src)") 
 ## native on socket
-native_gml		: $(lib_src)
-		@($(MAKE) clib target=$@ src="$(lib_src)")
+native_gml		: $(lib_src) 
+		@($(MAKE) clib target=native_gml src="$(lib_src)")
 
 native_mpi_gml	: $(lib_src) $(mpi_wrap) 
 		@($(MAKE) clib target=$@ src="$(lib_src) $(mpi_wrap)" extra_opts='$(MPI_X10CXXFLAGS)')
@@ -233,41 +250,52 @@ native_seq_gml	: $(seq_src)
 ### BLAS lib for java backend
 
 chk_jblas	: chk_blas jblas 
+		@echo "---This is the chk_jblas script.---"
 			cp $(bwrap_path)/WrapBLAS.java $(build_path)/x10/matrix/blas
 
 chk_blas	: 
-			mkdir -p $(build_path)/x10/matrix/blas 
+		@echo "---This is the chk_blas script.---"
+			mkdir -p $(build_path_elem)/x10/matrix/blas 
 
-wrap_blas.o	: wrap_blas.cc
+$(GML_ELEM_TYPE)_wrap_blas.o	: wrap_blas.cc
+		@echo "---This is the $(GML_ELEM_TYPE)_wrap_blas.o script.---"
 			$(CXX) -c -fPIC -DENABLE_BLAS $< -o $@
 
-jni_blas.o 	: jni_blas.cc
-			$(CXX) $(JNI_INCLUDES) -c -fPIC $< -o $@
+jni_blas_$(GML_ELEM_TYPE).o 	: jni_blas.cc
+		@echo "---This is the jni_blas_$(GML_ELEM_TYPE).o script.---"
+			$(CXX) $(JNI_INCLUDES) -c -fPIC $< -o $@ 
 
-libjblas.so	: wrap_blas.o jni_blas.o
+$(JBLAS_JNILIB)	: $(GML_ELEM_TYPE)_wrap_blas.o jni_blas_$(GML_ELEM_TYPE).o
+		@echo "---This is the $(JBLAS_JNILIB) script.---"
 			$(CXX) $(JNI_INCLUDES) -shared -fPIC $^ $(X10CXX_POSTARGS:-cxx-postarg=) -o $@ 
 
-jblas		: libjblas.so
-			cp $< $(lib_path)/.
+jblas		: $(JBLAS_JNILIB)
+		@echo "---This is the jblas script.---"
+			cp $< $(base_dir_elem)/lib/.
 
 ###------------------------------------------------
 chk_jlapack	: chk_lapack jlapack
+		@echo "---This is the chk_jlapack recipe.---"
 			cp $(lwrap_path)/WrapLAPACK.java $(build_path)/x10/matrix/lapack
 
 chk_lapack	:
-			mkdir -p $(build_path)/x10/matrix/lapack
+		@echo "---This is the chk_lapack recipe.---"
+			mkdir -p $(build_path_elem)/x10/matrix/lapack
 
-wrap_lapack.o: wrap_lapack.cc
+$(GML_ELEM_TYPE)_wrap_lapack.o: wrap_lapack.cc
+		@echo "---This is the $(GM_ELEM_TYPE)_wrap_lapack.o script.---"
 			g++ -c -fPIC -DENABLE_LAPACK $< -o $@
 
-jni_lapack.o: jni_lapack.cc
+jni_lapack_$(GML_ELEM_TYPE).o: jni_lapack.cc
+		@echo "---This is the jni_lapack_$(GM_ELEM_TYPE).o script.---"
 			g++ $(JNI_INCLUDES) -c -fPIC $< -o $@
 
-libjlapack.so: wrap_lapack.o jni_lapack.o
+$(JLAPACK_JNILIB): $(GML_ELEM_TYPE)_wrap_lapack.o jni_lapack_$(GML_ELEM_TYPE).o
+		@echo "---This is the $(JLAPACK_JNILIB) script.---"
 			g++ -shared -fPIC $^ -o $@ $(X10CXX_POSTARGS:-cxx-postarg=)
 
-jlapack		: libjlapack.so
-			cp $< $(lib_path)/.
+jlapack		: $(JLAPACK_JNILIB)
+			cp $< $(base_dir_elem)/lib/.
 
 ###------------------------------------------------
 X10_VERSION ?= HEAD
@@ -275,9 +303,28 @@ srctar		: $(lib_src)
 			tar -cjvf x10-gml-$(X10_VERSION)-src.tar.bz2 --exclude=*.svn* --exclude=*~ src tests examples Makefile scripts doc/Makefile 
 
 ###------------------------------------------------
+chk_elem_type:
+	@echo "In chk elem"
+	@echo "GLM_ELEM_TYPE=$(GML_ELEM_TYPE)"
+ifeq ($(GML_ELEM_TYPE),double)
+	@echo "---Building with ELEM_TYPE=DOUBLE---"
+	cp $(matrix_path)/elem_type.h.double $(matrix_path)/elem_type.h
+	cp $(matrix_path)/ElemType.x10.double $(matrix_path)/ElemType.x10
+else 
+	@echo "---Building with ELEM_TYPE=float---"
+	cp $(matrix_path)/elem_type.h.float $(matrix_path)/elem_type.h
+	cp $(matrix_path)/ElemType.x10.float $(matrix_path)/ElemType.x10
+endif
+
+
 chk_dir:
-		mkdir -p lib
-		mkdir -p include/x10/matrix/comm/mpi
+		mkdir -p $(base_dir_elem)/lib
+		mkdir -p $(build_path)/x10/matrix/blas
+		mkdir -p $(build_path)/x10/matrix/lapack
+		mkdir -p $(build_path_elem)/x10/matrix/comm/mpi
+		mkdir -p $(build_path_elem)/x10/matrix/blas
+		mkdir -p $(build_path_elem)/x10/matrix/lapack
+
 
 ###------------------------------------------------
 clean	::

@@ -20,13 +20,13 @@ import harness.x10Test;
  */
 public class IfElseFinishBug extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		if (true) x10.io.Console.OUT.println("True branch");
 		else finish for (i in 0..1) async { throw new Exception("Throwing "+i); }
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new IfElseFinishBug().execute();
 	}
 }

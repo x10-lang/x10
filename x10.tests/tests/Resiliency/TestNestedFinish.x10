@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.xrx.Runtime;
 
 // NUM_PLACES: 3
 // RESILIENT_X10_ONLY
@@ -73,13 +74,11 @@ public class TestNestedFinish extends x10Test  {
 	        
         } catch (e:MultipleExceptions) {
 	    
-            assert e.exceptions.size == 1l : e.exceptions;
-
-            val e2 = e.exceptions(0) as MultipleExceptions;
-
-            val e3 = e2.exceptions(0) as DeadPlaceException;
-
-            assert e3.place == p2;
+            val dpes = e.getExceptionsOfType[DeadPlaceException]();
+            assert dpes.size >= 1;
+            for (dpe in dpes) {
+                assert dpe.place == p2 : dpe.place;
+            }
 
             good_dec();
         }

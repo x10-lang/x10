@@ -14,10 +14,13 @@
     <property name="stdlib" location="${basedir}/stdlib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="dependencies/lpg.runtime.java_2.0.22.jar"/>
-    <property name="ecj.jar" value="ecj-4.4.1.jar"/>
-    <property name="ecj.jar.url" value="dependencies/ecj-4.4.1.jar"/>
+    <property name="antlr.jar" value="antlr-runtime_4.5.0.201505151407.jar"/>
+    <property name="antlr.jar.url" value="dependencies/antlr-runtime_4.5.0.201505151407.jar"/>
+    <property name="ecj.jar" value="ecj-4.4.2.jar"/>
+    <property name="ecj.jar.url" value="dependencies/ecj-4.4.2.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
     <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.3.1.jar"/>
+    <property name="snappy-java.jar" value="snappy-java.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
@@ -28,8 +31,8 @@
     <property name="shrike.jar.url" value="dependencies/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
     <property name="equinox.jar.url" value="dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
-    <property name="math.jar" value="commons-math3-3.3.jar"/>
-    <property name="math.jar.url" value="dependencies/commons-math3-3.3.jar"/>
+    <property name="math.jar" value="commons-math3-3.5.jar"/>
+    <property name="math.jar.url" value="dependencies/commons-math3-3.5.jar"/>
     <property name="log.jar" value="commons-logging-1.2.jar"/>
     <property name="log.jar.url" value="dependencies/commons-logging-1.2.jar"/>
     <property name="logging.properties" value="logging.properties"/>
@@ -39,6 +42,7 @@
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="common.jar" value="x10common.jar"/>
+    <property name="x10.network.location" location="${x10.home}/x10.network"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
@@ -50,6 +54,7 @@
     <property name="bash.exe" value="bash"/>
     <property name="CROSS_COMPILE_BGQ" value="false" />
     <property name="CROSS_COMPILE_FX10" value="false" />
+    <property name="CROSS_COMPILE_MODULES" value="false" />
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PAMI_IS_DEFAULT" value="false" />
@@ -94,6 +99,9 @@
         <mkdir dir="${stdlib}" />
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
+        </condition>
+        <condition property="local.antlr.jar" value="${env.LOCAL_ANTLR_JAR}">
+            <isset property="env.LOCAL_ANTLR_JAR"/>
         </condition>
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
@@ -166,6 +174,7 @@
         -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+    	<ant antfile="${x10.network.location}/build.xml" target="clean" inheritAll="false" dir="${x10.network.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean-java" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
@@ -218,11 +227,11 @@
         <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
+    <target name="dist-java" depends="init,build,common-jar,network,constraints-jar,compiler-jar,runtime-java,tools-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
-    <target name="dist-par" depends="init,build,common-jar,constraints-jar,compiler-jar">
+    <target name="dist-par" depends="init,build,common-jar,network,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -235,6 +244,7 @@
     </target>
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
@@ -247,6 +257,7 @@
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
+                <isset property="antlr.jar.present"/>
                 <isset property="ecj.jar.present"/>
                 <isset property="hazelcast.jar.present"/>
                 <isset property="wala.jar.present"/>
@@ -261,7 +272,7 @@
     </target>
 
     <target name="xrx-xdoc" depends="dist-x10doc">
-        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**,**/compiler/tests/**" />
+        <fileset id="xrx.files" dir="${xrx.src.dir}" includes="**/*.x10" excludes="**/compiler/ws/**,**/compiler/tests/**,**/managed/**" />
         <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
             <map from="${xrx.src.dir}${file.separator}" to=""/>
         </pathconvert>
@@ -290,6 +301,19 @@
         <copy file="${local.lpg.jar}" tofile="${lib}/${lpg.jar}"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to find ${lpg.jar} at ${local.lpg.jar}" unless="lpg.jar.present"/>
+    </target>
+
+    <target name="antlr-jar" depends="init,antlr-local-jar" unless="local.antlr.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${antlr.jar.url}" dest="${lib}/${antlr.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
+        <fail message="Unable to get ${antlr.jar} from ${antlr.jar.url}" unless="antlr.jar.present"/>
+    </target>
+    <target name="antlr-local-jar" depends="init" if="local.antlr.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.antlr.jar}" tofile="${lib}/${antlr.jar}"/>
+        <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
+        <fail message="Unable to find ${antlr.jar} at ${local.antlr.jar}" unless="antlr.jar.present"/>
     </target>
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
@@ -409,7 +433,7 @@
         <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,antlr-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
 
 	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -424,7 +448,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime-java" depends="init,common-jar,constraints-jar">
+    <target name="runtime-java" depends="init,common-jar,network,constraints-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}">
 	  <property name="x10.version" value="${x10.version}" />
 	</ant>
@@ -465,6 +489,13 @@
 	</ant>
     </target>
 
+    <target name="network" depends="init">
+        <ant antfile="${x10.network.location}/build.xml" target="build" inheritAll="false" dir="${x10.network.location}"/>
+    	<copy todir="${lib}">
+    	   <fileset file="${x10.network.location}/lib/${snappy-java.jar}"/>
+    	</copy>
+    </target>
+	
     <target name="compiler-jar" depends="init,common-jar,constraints-jar">
         <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}">
 	  <property name="x10.version" value="${x10.version}" />
@@ -620,8 +651,10 @@ if [ -n "$IS_CYGWIN" ]; then JAVA="$(cygpath -au "$JAVA")"; JAR="$(cygpath -au "
 
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
+ANTLR_JAR='${antlr.jar}'
 ECJ_JAR='${ecj.jar}'
 HAZELCAST_JAR='${hazelcast.jar}'
+SNAPPY_JAR='${snappy-java.jar}'
 WALA_JAR='${wala.jar}'
 WALA2_JAR='${wala2.jar}'
 WALA3_JAR='${wala3.jar}'
@@ -631,6 +664,7 @@ LOG_JAR='${log.jar}'
 LOGGING_PROPERTIES='${logging.properties}'
 CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 CROSS_COMPILE_FX10='${CROSS_COMPILE_FX10}'
+CROSS_COMPILE_MODULES='${CROSS_COMPILE_MODULES}'
 X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
 
 </echo>
@@ -752,6 +786,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
             <tarfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <tarfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.common" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <tarfileset prefix="x10.network" dir="${x10.network.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <tarfileset prefix="x10.wala" dir="${x10.bridge.location}" excludes="releng/**,**/.*.swp,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,bin/**"/>
             <tarfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**" includes="bin/*" filemode="755" />

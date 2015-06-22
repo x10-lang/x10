@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.core;
@@ -147,7 +147,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         }
     }
 
-    public Rail(Type T, long size, x10.lang.Runtime.MemoryAllocator alloc) {
+    public Rail(Type T, long size, x10.xrx.Runtime.MemoryAllocator alloc) {
         this(T, size);
     }
 
@@ -222,7 +222,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         // If the T is a java primitive type, we use default java serialization here
         // cause its much faster than reading a single element at a time
         if (Types.isPrimitiveType(obj.T)) {
-            obj.value = deserializer.readUsingObjectInputStream();
+            obj.value = deserializer.readUsingObjectInputStream(false);
         } else if (Types.isStringType(obj.T)) {
             String[] values = (String[]) obj.T.makeArray(allocCheckSize(obj.size));
             for (int i = 0; i < (int)obj.size; i++) {
@@ -372,7 +372,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (dst.rail.home.id == x10.lang.Runtime.home().id) {
+        if (dst.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
             return;
         }
@@ -390,7 +390,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
 
         VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst, dstIndex, numElems, null);
 
-        x10.lang.Runtime.runAsync(dst.rail.home, copyBody, null);
+        x10.xrx.Runtime.runAsync(dst.rail.home, copyBody, null);
     }
 
     // static nested class version of copyBody
@@ -462,7 +462,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (dst.rail.home.id == x10.lang.Runtime.home().id) {
+        if (dst.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
             notifier.$apply();
             return;
@@ -481,7 +481,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
 
         VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst, dstIndex, numElems, notifier);
 
-        x10.lang.Runtime.runUncountedAsync(dst.rail.home, copyBody, null);
+        x10.xrx.Runtime.runUncountedAsync(dst.rail.home, copyBody, null);
     }
 
     public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, final GlobalRail<T> src, final long srcIndexL, Rail<T> dst, final long dstIndexL, final long numElemsL) {
@@ -489,7 +489,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (src.rail.home.id == x10.lang.Runtime.home().id) {
+        if (src.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
             return;
         }
@@ -498,7 +498,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
 
         VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, null);
 
-        x10.lang.Runtime.runAsync(src.rail.home, copyBody1, null);
+        x10.xrx.Runtime.runAsync(src.rail.home, copyBody1, null);
     }
 
     // static nested class version of copyBody1
@@ -541,9 +541,9 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
             VoidFun_0_0 copyBody2 = new $Closure$0(dataToCopy, dstWrapper, dstIndex, numElems, notifier);
 
             if (notifier != null) {
-                x10.lang.Runtime.runUncountedAsync(dstWrapper.rail.home, copyBody2, null);
+                x10.xrx.Runtime.runUncountedAsync(dstWrapper.rail.home, copyBody2, null);
             } else {
-                x10.lang.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
+                x10.xrx.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
             }
         }
         public static final RuntimeType<$Closure$1<?>> $RTT = StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
@@ -586,7 +586,7 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
         // synchronous version for the same place
-        if (src.rail.home.id == x10.lang.Runtime.home().id) {
+        if (src.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
             notifier.$apply();
             return;
@@ -596,6 +596,6 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
 
         VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, notifier);
 
-        x10.lang.Runtime.runUncountedAsync(src.rail.home, copyBody1, null);
+        x10.xrx.Runtime.runUncountedAsync(src.rail.home, copyBody1, null);
     }
 }

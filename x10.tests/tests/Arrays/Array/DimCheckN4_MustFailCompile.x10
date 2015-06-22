@@ -20,17 +20,17 @@ import x10.regionarray.*;
  */
 public class DimCheckN4_MustFailCompile extends x10Test {
 
-    def m(d: Dist(2)): void = {
+    def m(d: Dist(2)): void {
         val a1 = DistArray.make[int](d, (p[i,j,k]: Point(3)): int => { return i as int; }); // ERR (dimension mismatch)
         val a2 = DistArray.make[int](d, (p[i,j,k]: Point(2)): int => { return i as int; }); // ERR
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         m(Region.make(0..2, 0..3) -> here);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DimCheckN4_MustFailCompile().execute();
     }
 }

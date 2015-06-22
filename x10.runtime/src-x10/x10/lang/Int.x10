@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -268,6 +268,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      */
     @Native("java", "((int)(double)(#x))")
     @Native("c++",  "::x10::lang::DoubleNatives::toInt(#x)")
+    @Native("cuda",  "((x10_int)(#x))")
     public native static operator (x:Double) as Int;
 
     /**

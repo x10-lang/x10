@@ -50,6 +50,7 @@ import x10doc.ExtensionInfo;
 import x10doc.doc.X10ClassDoc;
 import x10doc.doc.X10PackageDoc;
 import x10doc.doc.X10RootDoc;
+import x10doc.X10DocOptions;
 
 public class X10DocGenerator extends X10DelegatingVisitor {
 
@@ -81,11 +82,13 @@ public class X10DocGenerator extends X10DelegatingVisitor {
         assert (job.source() instanceof FileSource);
         FileSource source = (FileSource) job.source();
         this.source = (X10SourceFile_c) n;
-        try {
-            this.parser = (X10SemanticRules) job.extensionInfo().parser(source.open(), source,
+        if (!((X10DocOptions)job.extensionInfo().getOptions()).x10_config.ANTLR_PARSER){
+        	try {
+        		this.parser = (X10SemanticRules) job.extensionInfo().parser(source.open(), source,
                                                                         new SilentErrorQueue(0, "Ignored"));
-        } catch (IOException e) {
-            assert false : "Cannot reparse file " + source;
+        	} catch (IOException e) {
+        		assert false : "Cannot reparse file " + source;
+        	}
         }
 
         // List<TopLevelDecl> decls = n.decls();
@@ -102,13 +105,18 @@ public class X10DocGenerator extends X10DelegatingVisitor {
         ((ExtensionInfo) job.extensionInfo()).setRoot(this.rootDoc);
 
         // rootDoc.printStats();
-        this.parser = null;
+        if (!((X10DocOptions)job.extensionInfo().getOptions()).x10_config.ANTLR_PARSER){
+        	this.parser = null;
+        }
     }
 
     private String getDocComments(Node n) {
         String s = ((X10Ext) n.ext()).comment();
         if (s != null) return s;
-        return printDocComments(n.position().offset());
+        if (!((X10DocOptions)job.extensionInfo().getOptions()).x10_config.ANTLR_PARSER){
+        	return printDocComments(n.position().offset());
+        }
+        return null;
     }
 
     @Override

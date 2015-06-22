@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r = [1n, 2n, 3n];
         val a = [0n as Int{self!=0n}, // ERR: Cannot cast expression to type
                  1n as Int{self!=0n},2n as Int{self!=0n},3n as Int{self!=0n}];
@@ -44,7 +44,7 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
 	static class A {}
 
 
-    public static def main(Rail[String]): void = {
+    public static def main(Rail[String]): void {
         new ArrayLiteralTest1_MustFailCompile().execute();
     }
 }

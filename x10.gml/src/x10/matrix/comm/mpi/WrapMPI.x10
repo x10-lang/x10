@@ -36,6 +36,7 @@ import x10.matrix.util.Debug;
  * 
  * <p> Third, collective communication methods including bcast, scatter, gather
  * and reduce sum are available.  X10.team collective communication can be used. 
+ * vjTODO: Need to convert Double to ElemType and deal with the native code.
  */
 @NativeCPPInclude("mpi_api.h")
 @NativeCPPCompilationUnit("mpi_api.cc")

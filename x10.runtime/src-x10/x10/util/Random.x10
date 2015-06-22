@@ -6,43 +6,51 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util;
-import x10.compiler.NonEscaping;
+
+import x10.util.concurrent.AtomicLong;
+import x10.compiler.Inline;
 
 /** 
  * Generate pseudo-random numbers.
  *
- * The underlying pseudo-random bit stream is generated 
- * using the Mersenne Twister as described in the paper:
- *   M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-dimensionally
- *   equidistributed uniform pseudorandom number generator", ACM Trans. on
- *   Modeling and Computer Simulation, 8(1), January, pp. 3--30 (1998)
+ * The underlying pseudo-random stream is generated 
+ * using the SplittableRandom algorithm described by Steele, Lea, and Flood
+ * in "Fast Splittable Pseudorandom Number Generators", OOPSLA 2014.
  */
-public class Random {
-    private static val N = 624;
-    private static val M = 397;
+public final class Random {
+    private static val defaultGen = new AtomicLong(System.nanoTime());
+    private static val GOLDEN_GAMMA = 0x9e3779b97f4a7c15;
+    private static val FLOAT_ULP = 1.0f / (1 << 24);
+    private static val DOUBLE_ULP = 1.0 / (1 << 53);
 
-    private var index:Long;
-    private val mt:Rail[Int]{self!=null,self.size==N};
+    private var seed:Long;
+    private val gamma:Long;
 
-    public def this() {
-        this(System.nanoTime());
+    private def this(seed:Long, gamma:Long) {
+        this.seed = seed;
+        this.gamma = gamma;
     }
 
     public def this(seed:Long) {
-        mt = Unsafe.allocRailUninitialized[Int](N); // No need to zero; initialized by init
-        init(seed);
+        this(seed, GOLDEN_GAMMA);
     }
+
+    public def this() {
+        val s = defaultGen.getAndAdd(2 * GOLDEN_GAMMA);
+        seed = mix64(s);
+        gamma = mixGamma(s + GOLDEN_GAMMA);
+    }
+
+    /** Split and return a new Random instance derived from this one */
+    public def split() = new Random(mix64(nextSeed()), mixGamma(nextSeed()));
     
-    public final def setSeed(seed:Long):void {
-        init(seed);
-    }
      
     /** Return a 32-bit random integer */
-    public def nextInt():Int = random();
+    public @Inline def nextInt():Int = mix32(nextSeed());
 
     /** Return a 32-bit random integer in the range 0 to maxPlus1-1
      * when maxPlus1 > 0. Return 0 if maxPlus1 <= 0 instead of throwing 
@@ -77,21 +85,21 @@ public class Random {
     }
 
     public def nextBytes(buf:Rail[Byte]):void {
-        var i:Int = 0n;
+        var i:Long = 0;
         while (true) {
-            var x:Int = nextInt();
-            for (var j:Int = 0n; j < 4n; j++) {
+            var x:Long = nextLong();
+            for (1..8) {
                 if (i >= buf.size)
                     return;
                 buf(i) = (x & 0xff) as Byte;
                 i++;
-                x >>= 8n;
+                x >>= 8;
             }
         }
     }
      
     /** Return a 64-bit random (Long) integer */
-    public def nextLong():Long = ((nextInt() as Long) << 32n) | (nextInt() & 0xFFFFFFFFL);
+    public @Inline def nextLong():Long = mix64(nextSeed());
 
     public def nextLong(maxPlus1:Long):Long {
         if (maxPlus1 <= 0n)
@@ -122,71 +130,42 @@ public class Random {
     }
 
     /** Return a random boolean. */
-    public def nextBoolean():Boolean = nextInt() < 0n;
+    public @Inline def nextBoolean():Boolean = nextInt() < 0n;
 
     /** Return a random float between 0.0f and 1.0f. */
-    public def nextFloat():Float = (nextInt() >>> (32n-24n)) / ((1<<24n) as Float);
+    public @Inline def nextFloat():Float = (nextInt() >>> 8) * FLOAT_ULP;
 
     /** Return a random double between 0.0 and 1.0. */
-    public def nextDouble():Double = (nextLong() >>> (64n-53n)) / ((1<<53n) as Double);
+    public @Inline def nextDouble():Double = (nextLong() >>> 11) * DOUBLE_ULP;
 
-/*
- * Mersenne twister implementation.
- *
- * Based on the public domain implementation by Michael Brundage at:
- *
- * http://www.qbrundage.com/michaelb/pubs/essays/random_number_generation.html
- * (Note: this implementation does not include tempering, which is critical if
- * initializing the buffer with a LCG.)
- *
- * and the implementation described in the original paper:
- *
- * M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-dimensionally
- * equidistributed uniform pseudorandom number generator", ACM Trans. on
- * Modeling and Computer Simulation, 8(1), January, pp. 3--30 (1998)
- */
-
-    @NonEscaping public final def init(seed:Long):void {
-	// If provided seed was 0, use 4357 instead.
-        mt(0) = seed == 0 ? 4357n : (seed as Int);
-
-        // Set the initial mt buffer using a PRNG from
-        // Knuth, vol 2, 2nd ed, p. 102
-        for (i in 1..(N-1)) {
-            mt(i) = 69069n * mt(i-1) + 1n;
-        }
-
-        // make sure we twist once.
-        index = 0;
-        twist();
+    private @Inline def nextSeed() {
+        return (seed += gamma);
     }
 
-    public def random():Int {
-        if (index == N) {
-            index = 0;
-            twist();
-        }
-        var y:Int = mt(index++);
-        y ^= (y >>> 11n);
-        y ^= (y <<  7n) & 0x9D2C5680n;
-        y ^= (y << 15n) & 0xEFC60000n;
-        y ^= (y >>> 18n);
-        return y;
+    private static @Inline def mix64(var z:long) {
+        z = (z ^ (z >>> 33)) * 0xff51afd7ed558ccd;
+        z = (z ^ (z >>> 33)) * 0xc4ceb9fe1a85ec53;
+        return z ^ (z >>> 33);
     }
 
-    private def twist():void {
-        var i:Long = 0;
-        var s:Int;
-        for (; i < N - M; i++) {
-            s = (mt(i) & 0x80000000n) | (mt(i+1) & 0x7FFFFFFFn);
-            mt(i) = mt(i+M) ^ (s >>> 1n) ^ ((s & 1n) * 0x9908B0DFn);
+    private static @Inline def mix32(var z:long) {
+        z = (z ^ (z >>> 33)) * 0xff51afd7ed558ccd;
+        z = (z ^ (z >>> 33)) * 0xc4ceb9fe1a85ec53;
+        return (z >>> 32) as Int; 
+    }
+
+    private static def mix64variant13(var z:long) {
+        z = (z ^ (z >>> 30)) * 0xbf58476d1ce4e5b9;
+        z = (z ^ (z >>> 27)) * 0x94d049bb133111eb;
+        return z ^ (z >>> 31); 
+    }
+
+    private static def mixGamma(var z:long) {
+        z = mix64variant13(z) | 1;
+        val n = (z ^ (z >>> 1)).bitCount();
+        if (n >= 24) { 
+            z ^= 0xaaaaaaaaaaaaaaaa;
         }
-        for (; i < N-1; i++) {
-            s = (mt(i) & 0x80000000n) | (mt(i+1) & 0x7FFFFFFFn);
-            mt(i) = mt(i-(N-M)) ^ (s >>> 1n) ^ ((s & 1n) * 0x9908B0DFn);
-        }
-    
-        s = (mt(N-1) & 0x80000000n) | (mt(0) & 0x7FFFFFFFn);
-        mt(N-1) = mt(M-1) ^ (s >>> 1n) ^ ((s & 1n) * 0x9908B0DFn);
+        return z; 
     }
 }

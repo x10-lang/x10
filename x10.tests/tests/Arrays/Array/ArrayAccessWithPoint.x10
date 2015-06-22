@@ -21,7 +21,7 @@ public class ArrayAccessWithPoint extends x10Test {
 
     def a(b:int) {}
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val e = Region.make(1, 10);
         val ia = new Array[int](e, (Point)=>0n); // will infer ia:Array[int](1)
@@ -32,7 +32,7 @@ public class ArrayAccessWithPoint extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new ArrayAccessWithPoint().execute();
     }
 }

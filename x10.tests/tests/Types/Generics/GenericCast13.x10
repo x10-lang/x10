@@ -34,7 +34,7 @@ public class GenericCast13 extends GenericTest {
         public def m(String) = 1;
     }
 
-    public def run() = {
+    public def run() {
         
         var a:Any = new A();
 
@@ -55,7 +55,7 @@ public class GenericCast13 extends GenericTest {
         return exceptions==2;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericCast13().execute();
     }
 }

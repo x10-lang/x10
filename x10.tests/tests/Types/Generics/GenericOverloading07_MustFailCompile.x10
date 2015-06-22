@@ -28,7 +28,7 @@ public class GenericOverloading07_MustFailCompile extends GenericTest {
 
     public def run(): boolean = true;
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverloading07_MustFailCompile().execute();
     }
 }

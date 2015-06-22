@@ -21,7 +21,7 @@ import harness.x10Test;
  * the type argument corresponding to T is inferred to be the least
  * common ancestor of the types of any formal parameters of type T.
  *
- *// Closures are no longer permitted to take type parameters.
+ * // Closures are no longer permitted to take type parameters.
  
  * @author bdlucas 8/2008
  */
@@ -34,7 +34,7 @@ public class ClosureCall1b_MustFailCompile extends x10Test {
     class Y extends X {val name = "Y";}
     class Z extends X {val name = "Z";}
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val v = [T](t:T){T<:X} => t.name;
         val y = v(new Y());
 	chk(y.equals("Y"), "Y expected, obtained " + y);
@@ -43,7 +43,7 @@ public class ClosureCall1b_MustFailCompile extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureCall1b_MustFailCompile().execute();
     }
 }

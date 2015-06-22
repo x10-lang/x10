@@ -20,11 +20,11 @@ import harness.x10Test;
  */
 public class ClassPathTest extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return T1.m1(49n);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClassPathTest().execute();
 	}
 }

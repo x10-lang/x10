@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.runtime.impl.java;
@@ -20,19 +20,19 @@ public abstract class InitDispatcher {
     public static final int EXCEPTION_RAISED = 3;
 
     public static void lockInitialized() {
-        x10.lang.Runtime.StaticInitBroadcastDispatcherLock();
+        x10.xrx.Runtime.StaticInitBroadcastDispatcherLock();
     }
 
     public static void unlockInitialized() {
-        x10.lang.Runtime.StaticInitBroadcastDispatcherUnlock();
+        x10.xrx.Runtime.StaticInitBroadcastDispatcherUnlock();
     }
 
     public static void awaitInitialized() {
-        x10.lang.Runtime.StaticInitBroadcastDispatcherAwait();
+        x10.xrx.Runtime.StaticInitBroadcastDispatcherAwait();
     }
 
     public static void notifyInitialized() {
-        x10.lang.Runtime.StaticInitBroadcastDispatcherNotify();
+        x10.xrx.Runtime.StaticInitBroadcastDispatcherNotify();
     }
 
     public static void printStaticInitMessage(String message) {

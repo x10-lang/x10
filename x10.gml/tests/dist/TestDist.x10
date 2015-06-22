@@ -13,38 +13,41 @@ import harness.x10Test;
 
 import x10.matrix.block.Grid;
 import x10.matrix.dist.DistMatrix;
+import x10.matrix.ElemType;
 
 public class TestDist extends x10Test {
-	public val nzp:Double;
-	public val M:Long;
-	public val N:Long;
-	public val K:Long;	
-
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
+    public val nzp:Float;
+    public val M:Long;
+    public val N:Long;
+    public val K:Long;	
+    
     public def this(args:Rail[String]) {
-		M = args.size > 0 ? Long.parse(args(0)):4;
-		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
-		N = args.size > 2 ? Long.parse(args(2)):M+1;
-		K = args.size > 3 ? Long.parse(args(3)):M+2;	
-	}
-
-	public def run():Boolean {
-		var status:Boolean=true;
-		val grid = Grid.make(M, N, Place.numPlaces());
-		val m1  = DistMatrix.makeDense(grid);
-		m1.initRandom();
-		val m2 = m1.clone(); 
- 		val m3 = m1 - m2;
- 		status= m3.equals(0.0);
-// 		
-// 		val m4 = DistMatrix.makeDense(grid);
-// 		val m5 = m4.clone();
-// 		val m6 = (m4 + m5) - (m5 + m4);
-// 		status &= m6.equals(0.0);
-		
-		return status;
-	}
-
+	M = args.size > 0 ? Long.parse(args(0)):4;
+	nzp = args.size > 1 ?Float.parse(args(1)):0.5f;
+	N = args.size > 2 ? Long.parse(args(2)):M+1;
+	K = args.size > 3 ? Long.parse(args(3)):M+2;	
+    }
+    
+    public def run():Boolean {
+	var status:Boolean=true;
+	val grid = Grid.make(M, N, Place.numPlaces());
+	val m1  = DistMatrix.makeDense(grid);
+	m1.initRandom();
+	val m2 = m1.clone(); 
+	val m3 = m1 - m2;
+	status= m3.equals(ET(0.0));
+	// 		
+	// 		val m4 = DistMatrix.makeDense(grid);
+	// 		val m5 = m4.clone();
+	// 		val m6 = (m4 + m5) - (m5 + m4);
+	// 		status &= m6.equals(0.0);
+	
+	return status;
+    }
+    
     public static def main(args:Rail[String]) {
-		new TestDist(args).execute();
-	}
+	new TestDist(args).execute();
+    }
 } 

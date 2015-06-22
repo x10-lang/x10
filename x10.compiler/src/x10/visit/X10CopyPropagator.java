@@ -37,6 +37,7 @@ import polyglot.ast.While;
 import polyglot.frontend.Job;
 import polyglot.main.Reporter;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.DataFlow;
@@ -44,6 +45,8 @@ import polyglot.visit.FlowGraph;
 import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.util.CollectionFactory;
@@ -343,13 +346,7 @@ public class X10CopyPropagator extends DataFlow {
 
     protected DataFlowItem flow(Item in, FlowGraph graph, Term t, boolean entry) {
         DataFlowItem result = new DataFlowItem((DataFlowItem) in);
-        if (t instanceof Async) {
-            // Kill all variables
-            result.killall();
-        } else if (t instanceof AtStmt) {
-            // Kill all variables
-            result.killall();
-        } else if (t instanceof Closure) {
+        if (t instanceof Async || t instanceof AtStmt || t instanceof AtEach || t instanceof Closure) {
             // Kill all variables
             result.killall();
         }
@@ -500,7 +497,8 @@ public class X10CopyPropagator extends DataFlow {
             LocalDef li = l.localInstance().def();
             LocalDef root = in.getRoot(li);
             if (root == null || root == li) return n;
-            return l.name(l.name().id(root.name())).localInstance(root.asInstance());
+            LocalInstance ri = root.asInstance();
+            return l.name(l.name().id(root.name())).localInstance(ri).type(ri.type());
         }
 
         if (n instanceof LocalAssign) {
@@ -512,6 +510,6 @@ public class X10CopyPropagator extends DataFlow {
             }
         }
 
-        return n;
+        return super.leaveCall(old, n, v);
     }
 }

@@ -44,7 +44,7 @@ public class ULongCall extends x10Test {
 	return "long" + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val i0 = 0l;
 	val u1 = 1ul;

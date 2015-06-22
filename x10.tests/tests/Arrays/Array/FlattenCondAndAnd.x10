@@ -39,7 +39,7 @@ public class FlattenCondAndAnd extends x10Test {
 
     def m(x: boolean)= x;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x: boolean = (m(a(1, 1)) && a(0, 0))&& a(-1, -1); // the second expression will throw an exception if it is evaluated.
         return !x;
     }

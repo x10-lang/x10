@@ -6,13 +6,17 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util.resilient;
 
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
+import x10.util.NoSuchElementException;
+
+import x10.util.Collection;
+import x10.util.Map;
+import x10.util.Set;
 
 /**
  * The ResilientMap abstract class defines an interface for resilient stores.
@@ -20,7 +24,7 @@ import x10.compiler.NativeRep;
  * implements this interface for managed X10.  Native implementations are also
  * possible (but not yet implemented).
  */
-public abstract class ResilientMap[K,V] {V haszero} {
+public abstract class ResilientMap[K,V] {V haszero} implements ResilientBaseMap[K,V], Map[K,V] {
 
     /**
      * Factory method to create resilient map.
@@ -48,12 +52,18 @@ public abstract class ResilientMap[K,V] {V haszero} {
      */
     public abstract def containsValue(v:V):Boolean;
 
-    /**
-     * Applies the user defined EntryProcessor to the all entries in the map.
-     * Returns the results mapped by each key in the map.
+	/**
+     * Remove any value associated with key k from the resilient map.
+	 * Unlike {@link #remove(K)}, this methods does not return the old value,
+     * and so may be more efficient.
+	 * @see #remove(K)
      */
-//  TODO: add
-//  public abstract def executeOnEntries(entryProcessor:(Entry[K,V])=>Any, predicate:(Entry[K,V])=>Boolean):void;
+	public abstract def deleteVoid(k:K):void;
+
+	// Note that deleteVoid is more efficient
+	public def delete(k:K):boolean {
+		return remove(k) != null;
+	}
 
     /**
      * Release the lock for the specified key regardless of the lock owner.
@@ -67,6 +77,25 @@ public abstract class ResilientMap[K,V] {V haszero} {
      * Get the value of key k in the resilient map.
      */
     public abstract def get(k:K):V;
+
+	/**
+     * Shorthand for {@link #get}
+     */
+    public operator this(k:K):V
+		= get(k);
+
+	public def getOrElse(k:K, orElse:V):V {
+		val v = get(k);
+		return v == null ? orElse : v;
+	}
+
+	public def getOrThrow(k:K):V {
+		val v = get(k);
+		if(v == null) {
+			throw new NoSuchElementException();
+		}
+		return v;
+	}
 
     /**
      * Check if the resilient map contains any mappings.
@@ -111,19 +140,26 @@ public abstract class ResilientMap[K,V] {V haszero} {
      */
     public abstract def put(k:K, v:V):V;
 
+	 /**
+     * Shorthand for {@link #put}
+     */
+    public operator this(k:K)=(v:V):V
+		= put(k,v);
+	
     /**
      * Asynchronously put value v with key k in the resilient map returning
      * a future that when forced will return the previous value (if any) 
      * that was stored for key k.  
-     */
-    public abstract def asyncPutFuture(k:K, v:V):()=>V;
-
-    /**
-     * Asynchronously put value v with key k in the resilient map.
-     * The activity created to do the put will be registered with the
+     * The activity created to do the remove will be registered with the
      * dynamically enclosing finish.
      */
-    public abstract def asyncPut(k:K, v:V):void;
+    public abstract def asyncPut(k:K, v:V):()=>V;
+
+	/**
+     * If key k does not have a value, associate value v with key k
+	 * in the resilient map.
+     */
+    public abstract def putIfAbsent(k:K, v:V):V;
 
     /**
      * Remove any value associated with key k from the resilient map.
@@ -133,16 +169,38 @@ public abstract class ResilientMap[K,V] {V haszero} {
     /**
      * Asynchronously remove the given key from the resilient map returning
      * a future that when forced will return the previous value (if any) 
-     * that was stored for key k.  
-     */
-    public abstract def asyncRemoveFuture(k:K):()=>V;
-
-    /**
-     * Asynchronously remove the given key.
+     * that was stored for key k.
      * The activity created to do the remove will be registered with the
      * dynamically enclosing finish.
      */
-    public abstract def asyncRemove(k:K):void;
+    public abstract def asyncRemove(k:K):()=>V;
+
+
+	/**
+     * Remove any value associated with key k from the resilient map if the
+	 * associate value is equal to value v.
+     */
+    public abstract def remove(k:K, v:V):boolean;
+
+	/**
+     * If key k is associate with a value, update the resilient map,
+	 * associating key k with value v.
+     */
+    public abstract def replace(k:K, v:V):V;
+
+	/**
+     * If key k is associate with value oldValue, update the resilient map,
+	 * associating key k with value newValue.
+     */
+    public abstract def replace(k:K, oldValue:V, newValue:V):boolean;
+
+	/**
+     * Associate value v with key k in the resilient map.
+     * Similar to {@link #put(K,V)}, but does not return 
+	 * the old value (and so can be more efficient).
+     * @see #put(K,V)
+     */
+    public abstract def set(k: K, v: V):void;
 
     /**
      * Return number of key-value pairs in the resilient map.
@@ -154,51 +212,61 @@ public abstract class ResilientMap[K,V] {V haszero} {
      * with specified ExecutionCallback to listen event status and returns
      * immediately.
      */
-    public abstract def submitToKey(k:K, entryProcessor:(Entry[K,V])=>Any, callback:(Any)=>void):void;
+    public abstract def submitToKey(k:K, entryProcessor:(Entry[K,V])=>Any):Any;
+
+	/**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately with a future. When forced, it will wait until the operation is done
+	 * and return the result of the entryProcessor.
+     *
+     */
+    public abstract def asyncSubmitToKey(k:K, entryProcessor:(Entry[K,V])=>Any):()=>Any;
 
     /**
      * Releases the lock for the specified key.
      */
     public abstract def unlock(k:K):void;
 
-
-    /** The following methods are for iterating over/examining all entries in the map */
-
-    /**
-     * Get key from map entry.
+	/**
+     * Return a set of all keys in the map.
      */
-    public abstract def getKey(): K;
+    public abstract def keySet():Set[K];
 
-    /**
-     * Get value from map entry.
+	/**
+	 * Returns a set of all the entries in the map.
+	 */
+    public abstract def entrySet():Set[Entry[K,V]];
+
+	/**
+	 * Returns a set of all the entries in the map.
+	 */
+	public def entries():Set[Entry[K,V]]
+		= entrySet();
+
+	/**
+	 * Returns a set of all the values in the map.
+	 */
+	public abstract def values():Collection[V];
+
+	/**
+     * Return a set of all the keys in the map whose entry satisfies a given predicate.
      */
-    public abstract def getValue(): V;
+	public abstract def keySet(predicate:(Entry[K,V])=>boolean):Set[K];
 
-    /**
-     * Initialize iterator for iterating over elements of map.
+	/**
+     * Return a set of all the entries that satisfy a given predicate.
      */
-    public abstract def initializeIterator(): void;
+    public abstract def entrySet(predicate:(Entry[K,V])=>boolean):Set[Entry[K,V]];
 
-    /**
-     * Determine if iteration has finished yet.
+	/**
+     * Return a set of all the entries that satisfy a given predicate.
      */
-    public abstract def iteratorHasNext(): Boolean;
+	public def entries(predicate:(Entry[K,V])=>boolean):Set[Entry[K,V]]
+		= entrySet(predicate);
 
-    /**
-     * Get next element of iterator.
+	/**
+     * Return a set of all the values in the map whose entry satisfies a given predicate.
      */
-    public abstract def iteratorNext(): void;
-
-
-    @NativeRep("java", "java.util.Map.Entry<#K$box,#V$box>", null, null) // TODO: fix rtt
-    public static interface Entry[K,V] {
-        @Native("java", "#this.getKey()")
-        public def getKey():K;
-
-        @Native("java", "#this.getValue()")
-        public def getValue():V;
-
-        @Native("java", "#this.setValue(#v)")
-        public def setValue(v:V):V;
-    }
+	public abstract def values(predicate:(Entry[K,V])=>boolean):Collection[V];
 }

@@ -26,7 +26,7 @@ public class Classes5l3r_Bad34_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 1129
+// file Classes line 1127
 //gone!\\  // FOR-ERR-CASE-DELETE: def recip(m:Long){true} = 1.0/m;
  static class Super {
   def recip(n:Long){n != 0} = 1.0/n;

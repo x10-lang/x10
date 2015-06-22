@@ -25,14 +25,14 @@ import harness.x10Test;
 
 public class TypedefNew11_MustFailCompile extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class X {}
         class Y {}
 
         class A[C] {
-            def this() = {};
-            def this(i:long){C<:X}:A[C] = {};
+            def this() {};
+            def this(i:long){C<:X}:A[C] {};
         }
         
         type T[C] = A[C];
@@ -45,7 +45,7 @@ public class TypedefNew11_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefNew11_MustFailCompile().execute();
     }
 }

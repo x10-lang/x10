@@ -7,10 +7,7 @@ target		= DistBlockExample
 
 # test source
 x10src		= $(target).x10
-
-# lib source
-gml_path    = ../..
-
+gml_path    = $(X10_HOME)/x10.gml
 
 # build path
 build_path	= build
@@ -59,5 +56,4 @@ help ::
 	@echo "Trouble shooting tips";
 	@echo " If runtime shows \"NoClassDefFoundError: x10/matrix/Matrix\"";
 	@echo " replace \"~\" by relative directory path or absolute explicit directory path name";
-	@echo "";
-	
+	@echo "";	

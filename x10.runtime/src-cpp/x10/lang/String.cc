@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #include <x10aux/config.h>
@@ -338,6 +338,7 @@ class MyBuf {
     }
 };    
 
+/* FIXME: positional arguments support */
 String* String::format(String* format, x10::lang::Rail<Any*>* parms) {
     nullCheck(format);
     nullCheck(parms);

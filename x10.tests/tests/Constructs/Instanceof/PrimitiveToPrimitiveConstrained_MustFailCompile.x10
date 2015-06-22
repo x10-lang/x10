@@ -21,7 +21,7 @@ public class PrimitiveToPrimitiveConstrained_MustFailCompile extends x10Test {
 	public def run() =
 	    3n instanceof int{self==4n}; // ERR
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new PrimitiveToPrimitiveConstrained_MustFailCompile().execute();
 	}
 }

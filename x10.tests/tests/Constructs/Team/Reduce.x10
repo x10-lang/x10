@@ -90,10 +90,36 @@ public class Reduce extends x10Test {
             }
         }
 
+        // reduce on user-defined Arithmetic type
+        val src3 = new Rail[MyData](count, (i:long)=>MyData((here.id+1) as Double * i * i));
+        val dst3 = new Rail[MyData](count, (i:long)=>MyData(-i as Double));     
+        {
+            team.reduce(root, src3, 0L, dst3, 0L, count, Team.ADD);
 
+            if (here == root) {
+                val oracle_base = ((team.size()*team.size() + team.size())/2) as Double;
+                for (i in 0..(count-1)) {
+                    val oracle:double = oracle_base * i * i;
+                    if (dst3(i).v != oracle) {
+                        Console.OUT.printf("Team %d place %d received invalid sum %f at %d instead of %f\n",
+                                           team.id(), here.id, dst3(i).v, i, oracle);
+                        success = false;
+                    }
+                }
+            }
+        }
 
 
         if (!success) at (res.home) res().set(false);
+    }
+
+    static struct MyData(v:Double) implements Arithmetic[MyData] {
+        public operator + this = this;
+        public operator - this = MyData(-this.v);
+        public operator this + (x:MyData) = MyData(this.v + x.v);
+        public operator this - (x:MyData) = MyData(this.v - x.v);
+        public operator this * (x:MyData) = MyData(this.v * x.v);
+        public operator this / (x:MyData) = MyData(this.v / x.v);
     }
 
     public def run(): Boolean {

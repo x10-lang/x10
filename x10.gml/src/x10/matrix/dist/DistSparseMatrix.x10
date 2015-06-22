@@ -17,6 +17,8 @@ import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.block.Grid;
@@ -95,7 +97,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param  g        matrix partitioning grid
      * @param  nzd     nonzero elements sparsity
      */
-    public static def make(g:Grid, d:Dist(1), nzd:Double) {
+    public static def make(g:Grid, d:Dist(1), nzd:Float) {
         val dsm:DistSparseMatrix(g.M, g.N) = new DistSparseMatrix(g, d);
         finish for([p] in dsm.dist) {
             val r = dsm.grid.getRowBlockId(p);
@@ -114,7 +116,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param  d        blocks partition distribution 
      * @param  nzd     nonzero elements sparsity
      */
-    public static def make(g:Grid, nzd:Double) =
+    public static def make(g:Grid, nzd:Float) =
         make(g,  Dist.makeUnique(), nzd);
     
     /**
@@ -125,7 +127,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param  n       matrix columns
      * @param  nzd     nonzero elements sparsity
      */
-    public static def make(m:Long, n:Long, nzd:Double) =
+    public static def make(m:Long, n:Long, nzd:Float) =
         make(Grid.make(m, n, Place.numPlaces()), 
              Dist.makeUnique(), nzd);
 
@@ -162,7 +164,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param n     number of columns
      * @param nzd     nonzero sparsity 
      */
-    public static def makeRand(m:Long, n:Long, nzd:Double) {
+    public static def makeRand(m:Long, n:Long, nzd:Float) {
         val g =  Grid.make(m, n, Place.numPlaces());
         val d =  Dist.makeUnique();
         val dsm = make(g, d, nzd);
@@ -181,7 +183,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param nzd     nonzero sparsity for all distributed blocks
      *
      */
-    public static def makeRand(g:Grid,  nzd:Double) {
+    public static def makeRand(g:Grid,  nzd:Float) {
         val d =  Dist.makeUnique();
         val dsm:DistSparseMatrix(g.M, g.N) = make(g, d, nzd);
         dsm.initRandom();
@@ -190,7 +192,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 
     public static def make(rowbs:Rail[Long], 
                            colbs:Rail[Long],
-                           nzd:Double) {
+                           nzd:Float) {
         val g = new Grid(rowbs, colbs);
         return DistSparseMatrix.make(g, Dist.makeUnique(), nzd);
     }
@@ -202,7 +204,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      *
      * @param   ival        The constant value
      */
-    public def init(ival:Double) : DistSparseMatrix(this) {
+    public def init(ival:ElemType) : DistSparseMatrix(this) {
         finish ateach([p] in this.dist) {
             distBs(p).init(ival);
         }
@@ -213,7 +215,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * Initialize distributed matrix using global row and column indexes as inputs to
      * a given initial function.
      */
-    public def init(f:(Long,Long)=>Double): DistSparseMatrix(this) {
+    public def init(f:(Long,Long)=>ElemType): DistSparseMatrix(this) {
         finish for (var cb:Long=0; cb<grid.numColBlocks; cb++) {
             for (var rb:Long=0; rb<grid.numRowBlocks; rb++) {
                 val pid = grid.getBlockId(rb, cb);
@@ -236,14 +238,14 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * @param ub      upper bound of random value 
      * @param sp     sparsity used for initialization
      */
-    public def initRandom(lb:Long, ub:Long, sp:Double) :DistSparseMatrix(this) {
+    public def initRandom(lb:Long, ub:Long, sp:Float) :DistSparseMatrix(this) {
         finish ateach([p] in this.dist) {
             distBs(p).sparse.initRandom(lb, ub, sp);
         }
         return this;
     }
     
-    public def initRandom(sp:Double) : DistSparseMatrix(this) {
+    public def initRandom(sp:Float) : DistSparseMatrix(this) {
         finish ateach([p] in this.dist) {
             distBs(p).sparse.initRandom(sp);
         }
@@ -258,7 +260,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      *
      * @param lb     lower bound of random value
      * @param up     upper bound of random value
-     * @see initRandom(Double)
+     * @see initRandom(ElemType)
      */
     public def initRandom(lb:Long, ub:Long) :DistSparseMatrix(this) {
         finish ateach([p] in this.dist) {
@@ -291,7 +293,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * Allocate memory space for distributed sparse matrix.
      *
      */
-    public def alloc(m:Long, n:Long, nzd:Double):DistSparseMatrix(m,n) {
+    public def alloc(m:Long, n:Long, nzd:Float):DistSparseMatrix(m,n) {
         val g =  Grid.make(m, n, Place.numPlaces());
         val nm = DistSparseMatrix.make(g, this.dist, nzd);
         return nm;
@@ -426,7 +428,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     /**
      * Access data at(x,y). Override the super class method for better performance
      */
-    public operator this(x:Long, y:Long):Double {
+    public operator this(x:Long, y:Long):ElemType {
         val loc = grid.find(x, y);
         val bid = grid.getBlockId(loc(0), loc(1));
         val dv = at(this.distBs.dist(bid)) this.local()(loc(2), loc(3));
@@ -438,7 +440,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      * Set data value v to position at(x, y). (x, y) is absolute
      * coordination in the matrix.
      */
-    public operator this(x:Long,y:Long)=(v:Double):Double {
+    public operator this(x:Long,y:Long)=(v:ElemType):ElemType {
         val loc = grid.find(x, y);
         val bid = grid.getBlockId(loc(0), loc(1));
         
@@ -468,7 +470,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     /**
      * Scaling method
      */
-     public def scale(a:Double) {
+     public def scale(a:ElemType) {
         finish ateach([p] in this.dist) {
             local().scale(a);
         }        
@@ -478,7 +480,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     /**
      * Scaling operation return this * double
      */
-    public operator this * (dblv:Double):DistSparseMatrix(M,N) {
+    public operator this * (dblv:ElemType):DistSparseMatrix(M,N) {
         val x = clone();
         x.scale(dblv);
         return x;
@@ -488,10 +490,10 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
      */
     public operator this * (intv:Int):DistSparseMatrix(M,N) {
         val x = clone();
-        x.scale(intv as Double);
+        x.scale(intv as ElemType);
         return x;
     }
-    public operator (dblv:Double) * this = this * dblv;
+    public operator (dblv:ElemType) * this = this * dblv;
     public operator (intv:Int) * this = this * intv;
 
 
@@ -512,7 +514,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         throw new UnsupportedOperationException("No implementation of cellwise add-in for DistSparseMatrix");
     }
 
-    public def cellAdd(d:Double):DistSparseMatrix(this) {
+    public def cellAdd(d:ElemType):DistSparseMatrix(this) {
         throw new UnsupportedOperationException("No implementation of cellwise add-in for DistSparseMatrix");
     }
 
@@ -533,13 +535,6 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     public def cellSub(x:Matrix(M,N)):DistSparseMatrix(this) {
         throw new UnsupportedOperationException("Not support using sparse matrix to store result");
     }
-
-    /**
-     * Perform cell-wise subtraction  this = dv - this. Not support;
-     */
-    public def cellSubFrom(dv:Double):DistSparseMatrix(this) {
-        throw new UnsupportedOperationException("Not support using sparse matrix to store result");
-    }    
     
     /**
      * Perform cell-wise subtraction  x = x - this.
@@ -639,7 +634,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
     /**
      * Return the average sparsity of all distributed blocks.
      */
-    public def compSparsity():Double = 1.0 * countNonZero()/M/N;
+    public def compSparsity():Float = 1.0f * countNonZero()/M/N;
 
     /**
      * Compute total number of nonzero in all blocks
@@ -666,11 +661,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         return tnz;
     }
 
-    public def getAvgColumnSize() = 1.0*this.countNonZero() / this.N;
+    public def getAvgColumnSize() = (1.0*this.countNonZero() / this.N) as ElemType;
     
-    public def getColumnSizeStdDvn() : Double {
-        var stdd:Double = 0;
-        val avg:Double = this.getAvgColumnSize();
+    public def getColumnSizeStdDvn() : ElemType {
+        var stdd:ElemType = 0 as ElemType;
+        val avg:ElemType = this.getAvgColumnSize();
         for (var c:Long=0; c<this.N; c++) {
             val d = getColNonZeroCount(c) - avg;
             stdd += d*d;
@@ -696,7 +691,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         for (val [p]:Point in this.dist) {
             memsz = at(distBs.dist(p)) { 
                 this.distBs(p).sparse.getStorageSize() };
-            val stsz:Double = 8.0 * memsz /1024/1024;    
+            val stsz:ElemType = (8.0 * memsz /1024/1024) as ElemType;    
             output += "At place " + p +" mem alloc:"+stsz+" MB\n";
         }
         Debug.flushln(output);
@@ -723,8 +718,8 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         }
     }
 
-    public def compAvgIndexDst():Double {
-        var ad:Double = 0;
+    public def compAvgIndexDst():ElemType {
+        var ad:ElemType = 0 as ElemType;
         for ([p] in this.dist) {
             ad += at(distBs.dist(p))
                 this.getMatrix(p).ccdata.compAvgIndexDst();
@@ -732,10 +727,10 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         return ad / this.grid.size ;
     }
 
-    public def compIndexDstStdDvn() : Double {
-        var tdd:Double = 0.0;
+    public def compIndexDstStdDvn() : ElemType {
+        var tdd:ElemType = 0.0 as ElemType;
         var cnt:Long = 0;
-        val avg:Double = compAvgIndexDst();
+        val avg:ElemType = compAvgIndexDst();
         for ([p] in this.dist) {
             tdd += at(distBs.dist(p))
                 this.getMatrix(p).ccdata.compIndexDstSumDvn(avg);

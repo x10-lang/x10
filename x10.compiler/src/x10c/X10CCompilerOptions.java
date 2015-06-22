@@ -26,9 +26,9 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
     // read system properties
     public static final String x10_dist = System.getProperty("x10.dist");
     public static final String x10_jar = "x10.jar"; // FIXME: is this overridable?
-    public static final String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.3.jar");
+    public static final String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.5.jar");
     public static final String log_jar = System.getProperty("x10c.log.jar",  "commons-logging-1.2.jar");
-    public static final String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.4.1.jar");
+    public static final String ecj_jar = System.getProperty("x10c.ecj.jar", "ecj-4.4.2.jar");
     public static final boolean preferSystemJavaCompiler = Boolean.getBoolean("x10c.prefer.javac");
 
     public String main_source = null;

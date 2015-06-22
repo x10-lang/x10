@@ -23,7 +23,7 @@ import harness.x10Test;
 
 public class TypedefBasic1 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type T1 = String;
         type T2 = String;
@@ -43,7 +43,7 @@ public class TypedefBasic1 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefBasic1().execute();
     }
 }

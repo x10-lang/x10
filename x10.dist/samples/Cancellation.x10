@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
+import x10.xrx.Runtime;
+
 /**
  * Demonstrate how to instantiate the X10 runtime as an executor service
  * submit jobs to the runtime, wait jobs to complete and cancel all jobs
@@ -16,7 +18,6 @@
  * Compile with: x10c -O -EXECUTOR_MODE=true Cancellation.x10
  * Run with:     X10_CANCELLABLE=true X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets Cancellation
  */
-
 class Cancellation {
     static def job(id:Long, iterations:Long) = ()=>{
         at (Place.places().next(here)) async {

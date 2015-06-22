@@ -30,6 +30,10 @@ public class TestForeach(N:Long) extends x10Test {
         };
 
         reset(x);
+        Foreach.sequential(0, N-1, body);
+        check(x);
+
+        reset(x);
         Foreach.basic(0, N-1, body);
         check(x);
 
@@ -60,7 +64,7 @@ public class TestForeach(N:Long) extends x10Test {
         }
     }
 
-	public static def main(args:Rail[String]): void = {
+	public static def main(args:Rail[String]): void {
         var size:Long = 1000;
         var print:Boolean = false;
         if (args.size > 0) {

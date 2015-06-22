@@ -33,13 +33,13 @@ public class FlattenCondOr extends x10Test {
 
     val a: Array[Boolean](2);
 
-    public def this(): FlattenCondOr = {
+    public def this(): FlattenCondOr {
         a = new Array[Boolean](Region.make(1..10, 1..10), ([i,j]: Point) => true);
     }
 
     def m(x: boolean)=x;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val  x= m(a(1, 1)) || a(0, 0); // the second expression will throw an exception if it is evaluated.
         return x;
     }

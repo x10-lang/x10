@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util;
@@ -19,10 +19,10 @@ import x10.compiler.Native;
 public class CUDAUtilities {
 
     /**
-	 * Automatically choose enough blocks to saturate the GPU.  This takes
+     * Automatically choose enough blocks to saturate the GPU.  This takes
      * account features of the GPU and kernel in question.  If running on the CPU
      * it returns a fixed number of blocks.  Intended to be used with autoThreads().
-	 * <p><blockquote><pre>
+     * <p><blockquote><pre>
      * async at (gpu) &#064;CUDA {
      *     val threads = CUDAUtilities.autoThreads(), blocks = CUDAUtilities.autoBlocks();
      *     finish for (block in 0n..(blocks-1n)) async {
@@ -30,7 +30,7 @@ public class CUDAUtilities {
      *         clocked finish for (thread in 0n..(threads-1n)) clocked async { ... }
      *     }
      * }
-	 * </pre></blockquote><p>
+     * </pre></blockquote><p>
      * @see autoThreads
      */
     public static def autoBlocks() : Int = 8n;
@@ -113,6 +113,19 @@ public class CUDAUtilities {
 
     @Native("cuda","__mul24(#a, #b)")
     public static def mul24(a:Int, b:Int) : Int = a * b;
+
+
+    /**
+     * This is needed to copy the shared FIFO used by printf device system call to host
+     * before launching another kernel on the same CUDA device.
+     */
+    public static def syncDevice(place:Place):void
+    {
+        if (place.isCUDA()) {
+            @Native("c++", "::x10aux::device_sync(place.FMGL(id));") { }
+        }
+    }
+
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

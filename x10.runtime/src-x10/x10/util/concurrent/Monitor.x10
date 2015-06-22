@@ -6,13 +6,15 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util.concurrent;
 
 import x10.compiler.Pinned;
 import x10.util.GrowableRail;
+import x10.xrx.Runtime;
+import x10.xrx.Worker;
 
 /**
  * Lock with wait/notify capabilities.
@@ -20,8 +22,6 @@ import x10.util.GrowableRail;
  */
 @Pinned public class Monitor extends Lock {
     public def this() { super(); }
-
-    static type Worker = Runtime.Worker;
 
     /**
      * Parked workers

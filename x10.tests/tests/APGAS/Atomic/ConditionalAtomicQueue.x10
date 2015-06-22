@@ -30,7 +30,7 @@ public class ConditionalAtomicQueue extends x10Test {
     // at tail of queue
     transient private var head: int; // pointer to item to remove from the front
 
-    public def this(): ConditionalAtomicQueue = {
+    public def this(): ConditionalAtomicQueue {
         val sz = 3n;
         Q = new Rail[T](sz);
         siz = sz;
@@ -42,7 +42,7 @@ public class ConditionalAtomicQueue extends x10Test {
     /**
      * insert i at the tail end of fifo queue.
      */
-    @Pinned def insert(var i: T): void = {
+    @Pinned def insert(var i: T): void {
         Q(tail) = i;
         tail = inc(tail, siz);
         nelems++;
@@ -51,7 +51,7 @@ public class ConditionalAtomicQueue extends x10Test {
     /**
      * remove an item from the queue
      */
-    @Pinned def remove(): T = {
+    @Pinned def remove(): T {
         var t: T = Q(head);
         head = inc(head, siz);
         nelems--;
@@ -60,7 +60,7 @@ public class ConditionalAtomicQueue extends x10Test {
     /**
      * increment x modulo n
      */
-    static def inc(var x: int, var n: int): int = {
+    static def inc(var x: int, var n: int): int {
         var y: int = x+1n;
         return y == n ? 0n : y;
     }
@@ -68,7 +68,7 @@ public class ConditionalAtomicQueue extends x10Test {
     /**
      * true iff queue is empty
      */
-    @Pinned def empty(): boolean = {
+    @Pinned def empty(): boolean {
         chk(nelems> -1n);
         return nelems <= 0n;
     }
@@ -76,12 +76,12 @@ public class ConditionalAtomicQueue extends x10Test {
     /**
      * true iff queue is full
      */
-    @Pinned def full(): boolean = {
+    @Pinned def full(): boolean {
         chk(nelems < siz+1n);
         return nelems >= siz;
     }
 
-    @Pinned public def run(): boolean = {
+    @Pinned public def run(): boolean {
         val N = T.N;
         val NP = Place.numPlaces();
         val D2  = MyDist.val_(N*NP);
@@ -136,14 +136,14 @@ public class ConditionalAtomicQueue extends x10Test {
 
         var val_: int; // the id of the item
 
-        def this(var i: int, var j: int) = { // produce a T
+        def this(var i: int, var j: int) { // produce a T
             val_ = N*i+j;
         }
 
-        public def consume(): void = { // consume a T
+        public def consume(): void { // consume a T
         }
 
-        public def getval(): int = { return val_; }
+        public def getval(): int { return val_; }
     }
 
     /**
@@ -153,20 +153,20 @@ public class ConditionalAtomicQueue extends x10Test {
         /**
          * create a simple 1D blocked dist
          */
-        static def block(arraySize: long) = {
+        static def block(arraySize: long) {
             return Dist.makeBlock(Region.make(0, arraySize-1), 0);
         }
         /**
          * create a unique dist (mapping each i to place i)
          */
-        static def unique() =  {
+        static def unique()  {
             return Dist.makeUnique();
         }
 
         /**
          * create a constant-Here dist
          */
-        static def val_(arraySize: long) = {
+        static def val_(arraySize: long) {
             return Region.make(0, arraySize-1)->here;
         }
     }

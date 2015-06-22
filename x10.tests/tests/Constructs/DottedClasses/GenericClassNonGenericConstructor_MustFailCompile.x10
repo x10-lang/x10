@@ -35,7 +35,7 @@ public class GenericClassNonGenericConstructor_MustFailCompile extends x10Test {
 		// Console.OUT.println("a as A[Int]=" + b);
 	}
  
-  public def run()={ m(); true}
+  public def run(){ m(); return true;}
   public static def main(Rail[String]) {
       new GenericClassNonGenericConstructor_MustFailCompile().execute();
   }

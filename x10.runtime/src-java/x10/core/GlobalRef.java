@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 package x10.core;
 
@@ -19,8 +19,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import x10.core.fun.Fun_0_0;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.DeadPlaceException;
 import x10.lang.Place;
-import x10.lang.Runtime.Mortal;
+import x10.xrx.Runtime.Mortal;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
@@ -61,7 +62,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     private static void GlobalGCDebug(String msg) {
         //if (level > GLOBALGC_DEBUG) return; // XTENLANG-3168: debug level should be checked in caller
         long time = System.nanoTime();
-        int placeId = (int)x10.lang.Runtime.home().id;
+        int placeId = (int)x10.xrx.Runtime.home().id;
         String output = "[GlobalGC(time=" + time + ",place=" + placeId + ")] " + msg;
         synchronized (debugSync) {
             System.err.println(output); System.err.flush();
@@ -326,7 +327,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         
         private static RemoteReferenceTracker get(GlobalRef<?> gr) { // get corresponding RemoteReferenceTracker for the remote GlobalRef
             if (gr.id < 0) return null; // do not track global refs of mortal objects
-            assert(gr.home.id != x10.lang.Runtime.home().id);
+            assert(gr.home.id != x10.xrx.Runtime.home().id);
             RemoteReferenceTracker rrt = new RemoteReferenceTracker(gr, 0);
             RemoteReferenceTracker existingRrt = rrtTable.get(rrt);
             assert(existingRrt != null);
@@ -354,17 +355,25 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", Mortal -> do nothing");
                 return;
             }
-            if (place.id == x10.lang.Runtime.home().id) { // local GlobalRef
+            if (place.id == x10.xrx.Runtime.home().id) { // local GlobalRef
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", local -> adjust directly");
                 GlobalizedObjectTracker.changeRemoteCount(id, delta);
             } else if (delta > 0) { // remote GlobalRef, increment
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", remote -> call runAt and wait");
-                //x10.lang.Runtime.runAt(placeId, new $Closure$0(id, delta)/*should be KIND_NOT_ASYNC*/); // this does not work inside deserializer
-                //x10.runtime.impl.java.Runtime.runClosureAt(placeId, new $Closure$0(id, delta)); // this does not wait for the execution
-                x10.lang.Runtime.runAtSimple(place, new $Closure$0(id, delta), true/*wait*/); // special simplified version of runAt
+                try {
+                    //x10.lang.Runtime.runAt(placeId, new $Closure$0(id, delta)/*should be KIND_NOT_ASYNC*/); // this does not work inside deserializer
+                    //x10.runtime.impl.java.Runtime.runClosureAt(placeId, new $Closure$0(id, delta)); // this does not wait for the execution
+                    x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), true/*wait*/); // special simplified version of runAt
+                } catch (DeadPlaceException e) {
+                    if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: place=" + place.id + " is dead");
+                }
             } else { // remote GlobalRef, decrement can be asynchronous
                 if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: id=" + id + " at place=" + place.id + " delta=" + delta + ", remote -> call runAt and not-wait");
-                x10.lang.Runtime.runAtSimple(place, new $Closure$0(id, delta), false/*not-wait*/);
+                try {
+                    x10.xrx.Runtime.runAtSimple(place, new $Closure$0(id, delta), false/*not-wait*/);
+                } catch (DeadPlaceException e) {
+                    if(GLOBALGC_DEBUG>=2)GlobalGCDebug("RemoteReferenceTracker.changeRemoteCount: place=" + place.id + " is dead");
+                }
             }
         }
         
@@ -456,9 +465,9 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     public final GlobalRef<T> x10$lang$GlobalRef$$init$S(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.$init(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
         this.T = T;
-        x10.lang.Activity activity = x10.lang.Runtime.activity();
-        this.epoch = activity == null ? x10.lang.Runtime.epoch$O() : activity.epoch;
-        this.home = x10.lang.Runtime.home();
+        x10.xrx.Activity activity = x10.xrx.Runtime.activity();
+        this.epoch = activity == null ? x10.xrx.Runtime.epoch$O() : activity.epoch;
+        this.home = x10.xrx.Runtime.home();
         this.obj = obj;
         return this;
     }
@@ -466,9 +475,9 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     public GlobalRef(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.<init>(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
         this.T = T;
-        x10.lang.Activity activity = x10.lang.Runtime.activity();
-        this.epoch = activity == null ? x10.lang.Runtime.epoch$O() : activity.epoch;
-        this.home = x10.lang.Runtime.home();
+        x10.xrx.Activity activity = x10.xrx.Runtime.activity();
+        this.epoch = activity == null ? x10.xrx.Runtime.epoch$O() : activity.epoch;
+        this.home = x10.xrx.Runtime.home();
         this.obj = obj;
     }
     // zero value constructor
@@ -547,7 +556,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     final public boolean _struct_equals(GlobalRef<T> other) {
         //if (T != other.T || home != other.home) return false;
         if (!T.equals(other.T) || home.id != other.home.id) return false;
-        if (home.id == x10.lang.Runtime.home().id) { // local GlobalRefs
+        if (home.id == x10.xrx.Runtime.home().id) { // local GlobalRefs
             return obj == other.obj;
         } else { // remote GlobalRefs
             return id == other.id;
@@ -555,7 +564,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     }
 
     public boolean isNull() { // isNull support (kawatiya 2013/09/09)
-        if (home.id == x10.lang.Runtime.home().id) { // local GlobalRef
+        if (home.id == x10.xrx.Runtime.home().id) { // local GlobalRef
             return obj == null;
         } else { // remote GlobalRefs
             return id >= GlobalizedObjectTracker.NULL_ID_START;
@@ -595,7 +604,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         $_obj.epoch = $deserializer.readLong();
         int weight = $deserializer.readInt(); // weight got from sender
         assert((id > 0 && weight > 0) || (id < 0 && weight == 0)); // weight should be > 0 for non-Mortal GlobalRef
-        if ($_obj.home.id == x10.lang.Runtime.home().id) { // local GlobalRef
+        if ($_obj.home.id == x10.xrx.Runtime.home().id) { // local GlobalRef
             $_obj.obj = GlobalizedObjectTracker.getObject(id);
             if(GLOBALGC_DEBUG>=3)GlobalGCDebug("GlobalRef.$_deserialize_body: id=" + $_obj.id + " deserialized, weight=" + weight + ", localObj=" + $_obj.obj);
             GlobalizedObjectTracker.changeRemoteCount($_obj.id, -weight); // decrement speculatively-incremented remoteCount, this must be done after the object is got
@@ -625,7 +634,7 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
     
     private int adjustWeight() {
         if (id < 0) return 0; // No weight for Mortal GlobalRef
-        if (home.id == x10.lang.Runtime.home().id) { // local GlobalRef
+        if (home.id == x10.xrx.Runtime.home().id) { // local GlobalRef
             int weight = GLOBALGC_WEIGHT;
             GlobalizedObjectTracker.changeRemoteCount(id, +weight); // add the initial weight
             if(GLOBALGC_DEBUG>=2)GlobalGCDebug("GlobalRef.adjustWeight(local): id=" + id + " at place=" + home.id + ", weight=" + weight);
@@ -678,19 +687,19 @@ public final class GlobalRef<T> extends Struct implements X10JavaSerializable {
         
 
 	public static <$T, $U> $U evalAtHome(Type $T, Type $U, GlobalRef<$T> ref, Fun_0_1<$T,$U> eval) {
-	    if (x10.lang.Runtime.home().id == ref.home.id) {
+	    if (x10.xrx.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
+                return x10.xrx.Runtime.<$U>evalAt__1$1x10$xrx$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
 	    }
 	}
         
         
 	public static <$T> $T getLocalOrCopy(Type $T, GlobalRef<$T> ref) {
-            if (x10.lang.Runtime.home().id == ref.home.id) {
+            if (x10.xrx.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
-                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
+                return x10.xrx.Runtime.<$T>evalAt__1$1x10$xrx$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
 	    }
 	}
 

@@ -15,12 +15,17 @@ import x10.regionarray.DistArray;
 import x10.util.Timer;
 
 import x10.matrix.util.Debug;
-import x10.matrix.Matrix;
 import x10.matrix.util.MathTool;
+
+import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseMultDenseToDense;
+
 import x10.matrix.block.Grid;
+
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 
@@ -32,7 +37,7 @@ import x10.matrix.dist.DistSparseMatrix;
  * @see SummaDense
  */
 public class SummaSparseMultDense {
-    val beta:Double;
+    val beta:ElemType;
     val panelSize:Long;
     val A:DistSparseMatrix;
     val B:DistDenseMatrix;
@@ -43,7 +48,7 @@ public class SummaSparseMultDense {
     /**
      * Construct instance and initialize panel, beta, and matrix fields.
      */
-    protected def this(ps:Long, be:Double,
+    protected def this(ps:Long, be:ElemType,
                     a:DistSparseMatrix, 
                     b:DistDenseMatrix, 
                     c:DistDenseMatrix) {
@@ -52,7 +57,7 @@ public class SummaSparseMultDense {
                              Math.min(ps, b.grid.getMinRowSize()));
         A = a; B=b; C=c;
         //alpha = al;
-        if (MathTool.isZero(be)) beta = 0.0;
+        if (MathTool.isZero(be)) beta = 0.0 as ElemType;
         else beta  = be;
         //            
         rowBsPsMap = a.grid.getRowBsPsMap();
@@ -85,7 +90,7 @@ public class SummaSparseMultDense {
      * @see SummaDense.parallelMult(wk1, wk2)
      */
     public static def mult(var ps:Long,
-                           beta:Double, 
+                           beta:ElemType, 
                            A:DistSparseMatrix, 
                            B:DistDenseMatrix, 
                            C:DistDenseMatrix) {
@@ -93,14 +98,14 @@ public class SummaSparseMultDense {
         
         val s = new SummaSparseMultDense(ps, beta, A, B, C);
 
-        val wk1:DistArray[SparseCSC](1) = DistArray.make[SparseCSC](C.dist);
-        val wk2:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
+        val wk1 <: DistArray[SparseCSC](1) = DistArray.make[SparseCSC](C.dist);
+        val wk2 <: DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
         finish for ([placeId] in C.dist) {
             val p = placeId as Long;
             val rn = A.grid.getRowSize(p);
             val cn = B.grid.getColSize(p);
             at(C.dist(p)) async {
-                wk1(here.id()) = SparseCSC.make(rn, s.panelSize, 1.0);
+                wk1(here.id()) = SparseCSC.make(rn, s.panelSize, 1.0f);
                 wk2(here.id()) = DenseMatrix.make(s.panelSize, cn);
             }
         }
@@ -118,16 +123,16 @@ public class SummaSparseMultDense {
      * @param C        the input/result distributed dense matrix
      */    
     public static def multTrans(var ps:Long,
-                                beta:Double, 
+                                beta:ElemType, 
                                 A:DistSparseMatrix, 
                                 B:DistDenseMatrix, 
                                 C:DistDenseMatrix) {
         if (ps < 1) ps = estPanelSize(A, B);
         val s = new SummaSparseMultDense(ps, beta, A, B, C);
 
-        val wk1:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
-        val wk2:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
-        val tmp:DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
+        val wk1 <: DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
+        val wk2 <: DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
+        val tmp <: DistArray[DenseMatrix](1) = DistArray.make[DenseMatrix](C.dist);
 
         finish for ([placeId] in C.dist) {
             val p = placeId as Long;

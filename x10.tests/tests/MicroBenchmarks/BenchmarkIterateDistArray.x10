@@ -22,7 +22,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Long) extends x10Test 
         property(elementsPerPlace);
     }
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val arraySize = elementsPerPlace * Place.numPlaces();
 
         val a = DistArray.make[Long](Dist.makeBlock(Region.make(0, arraySize-1)));
@@ -88,7 +88,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Long) extends x10Test 
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
         var elementsPerPlace:long = 1000;
         if (args.size > 0) {
             elementsPerPlace = Long.parse(args(0));

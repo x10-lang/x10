@@ -18,7 +18,7 @@ import x10.regionarray.*;
    @author vj 09/2008
  */
 public class PropertyPropagationTest extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
         val R = Region.make(1..10, 1..10);
         val R2 = Region.make(1..101, 1..101);
         val D = Dist.makeBlock(R);
@@ -29,7 +29,7 @@ public class PropertyPropagationTest extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new PropertyPropagationTest().execute();
     }
 }

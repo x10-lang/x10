@@ -26,7 +26,7 @@ public class Places40 extends x10Test {
     }
 
 
-// file Places line 891
+// file Places line 888
 
  static class Trans {
    val a : Long = 1;

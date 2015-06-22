@@ -18,7 +18,7 @@ import x10.regionarray.*;
 
 public class ArrayOpAssign extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var result: boolean = true;
         val R = Region.make(1..10, 1..10);
         var ia: Array[long](2) = new Array[long](R, (Point)=>0);
@@ -39,7 +39,7 @@ public class ArrayOpAssign extends x10Test {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayOpAssign().execute();
     }
 }

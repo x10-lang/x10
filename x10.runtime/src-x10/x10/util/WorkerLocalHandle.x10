@@ -6,11 +6,13 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2013.
  */
 
 package x10.util;
+
+import x10.xrx.Runtime;
 
 /**
  * A handle to place-local lazy-initialised worker-local storage.
@@ -82,11 +84,12 @@ public class WorkerLocalHandle[T]{T isref, T haszero} implements ()=>T,(T)=>void
     public def reduceLocal(op:(a:T,b:T)=>T):T {
         val localState = state();
         val localStore = localState.store;
-        var result:T = localState.init();
+        var result:T = null;
         for (i in 0..(localStore.size-1)) {
             val t = localStore(i);
             if (t != null) {
-                result = op(result, t);
+                if (result == null) result = t;
+                else result = op(result, t);
             }
         }
         return result;

@@ -18,7 +18,7 @@ import x10.util.Box;
  */
 public class NullableObjectEqualsPrimitive2_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var x: Box[Any] = null;
 		// This use of == must generate a compiler error
 		var res1: boolean = 3==x; // ERR

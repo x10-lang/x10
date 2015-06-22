@@ -16,6 +16,9 @@ import x10.util.Timer;
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
+
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.sparse.SparseMultDenseToDense;
 import x10.matrix.dist.DistDenseMatrix;
@@ -144,14 +147,14 @@ public class DistMultDupToDist {
 		Debug.assure(C.grid.numColBlocks==1L, "Matrix output is not 1-column block partitioning");
 		
 		finish ateach([p] in C.dist) {
-			val dmA = A.getMatrix(p);
-			val dmB = B.getMatrix() as DenseMatrix(dmA.N);
-			val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.N);
-		    val alpha = 1.0;
-		    val beta = plus?1.0:0.0;
-			/* TIMING */ val stt = Timer.milliTime();
-			DenseMatrixBLAS.comp(alpha, dmA, dmB, beta, dmC);
-			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
+		    val dmA = A.getMatrix(p);
+		    val dmB = B.getMatrix() as DenseMatrix(dmA.N);
+		    val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.N);
+		    val alpha = 1.0 as ElemType;
+		    val beta = (plus?1.0:0.0) as ElemType;
+		    /* TIMING */ val stt = Timer.milliTime();
+		    DenseMatrixBLAS.comp(alpha, dmA, dmB, beta, dmC);
+		    /* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
 		}
 		return C;
 	}
@@ -172,22 +175,22 @@ public class DistMultDupToDist {
 			C:DistDenseMatrix(A.M,B.M),
 			plus:Boolean) : DistDenseMatrix(C) {
 										
-		Debug.assure(A.M==C.M&&A.N==B.N&&B.M==C.N, "Matrix dimension mismatch");
-		Debug.assure(A.grid.numColBlocks==1L, "Matrix input A is not 1-column block partitioning");
-		Debug.assure(C.grid.numColBlocks==1L, "Matrix output is not 1-column block partitioning");
+	    Debug.assure(A.M==C.M&&A.N==B.N&&B.M==C.N, "Matrix dimension mismatch");
+	    Debug.assure(A.grid.numColBlocks==1L, "Matrix input A is not 1-column block partitioning");
+	    Debug.assure(C.grid.numColBlocks==1L, "Matrix output is not 1-column block partitioning");
 		
-        finish ateach([p] in C.dist) {
-			val dmA = A.getMatrix(p);
-			val dmB = B.getMatrix() as DenseMatrix{self.N==dmA.N};
-			val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.M);
-			
-	    	val alpha = 1.0;
-    		val beta = plus?1.0:0.0;
-			/* TIMING */ val stt = Timer.milliTime();
-			DenseMatrixBLAS.compMultTrans(alpha, dmA, dmB, beta, dmC);
-			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
-		}
-		return C;
+	    finish ateach([p] in C.dist) {
+		val dmA = A.getMatrix(p);
+		val dmB = B.getMatrix() as DenseMatrix{self.N==dmA.N};
+		val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.M);
+		
+	    	val alpha = 1.0 as ElemType;
+    		val beta = (plus?1.0:0.0) as ElemType;
+		/* TIMING */ val stt = Timer.milliTime();
+		DenseMatrixBLAS.compMultTrans(alpha, dmA, dmB, beta, dmC);
+		/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
+	    }
+	    return C;
 	}
 
 	public static def compMultTrans(
@@ -207,21 +210,21 @@ public class DistMultDupToDist {
 			C:DistDenseMatrix(A.N,B.N),
 			plus:Boolean) : DistDenseMatrix(C) {
 				
-		Debug.assure(A.N==C.M&&A.M==B.M&&B.N==C.N, "Matrix dimension mismatch");
-		Debug.assure(A.grid.numRowBlocks==1L, "Matrix input A is not 1-row block partitioning");
-		Debug.assure(C.grid.numRowBlocks==1L, "Matrix output is not 1-row block partitioning");
+	    Debug.assure(A.N==C.M&&A.M==B.M&&B.N==C.N, "Matrix dimension mismatch");
+	    Debug.assure(A.grid.numRowBlocks==1L, "Matrix input A is not 1-row block partitioning");
+	    Debug.assure(C.grid.numRowBlocks==1L, "Matrix output is not 1-row block partitioning");
 		
-		finish ateach(val [p]:Point in C.dist) {
-			val dmA = A.local();
-			val dmB = B.local() as DenseMatrix{self.M==dmA.M};
-			val dmC = C.local() as DenseMatrix(dmA.N, dmB.N);
-			
-	    	val alpha = 1.0;
-    		val beta = plus?1.0:0.0;
-			/* TIMING */ val stt = Timer.milliTime();
-			DenseMatrixBLAS.compTransMult(alpha, dmA, dmB, beta, dmC);
-			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
-		}
-		return C;
+	    finish ateach(val [p]:Point in C.dist) {
+		val dmA = A.local();
+		val dmB = B.local() as DenseMatrix{self.M==dmA.M};
+		val dmC = C.local() as DenseMatrix(dmA.N, dmB.N);
+		
+	    	val alpha = 1.0 as ElemType;
+    		val beta = (plus?1.0:0.0) as ElemType;
+		/* TIMING */ val stt = Timer.milliTime();
+		DenseMatrixBLAS.compTransMult(alpha, dmA, dmB, beta, dmC);
+		/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
+	    }
+	    return C;
 	}
 }

@@ -9,10 +9,12 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-import x10.matrix.Vector;
+import x10.util.Option;
+import x10.util.OptionsParser;
+import x10.util.Timer;
 
-import pagerank.PageRank;
-import pagerank.SeqPageRank;
+import x10.matrix.Vector;
+import x10.matrix.util.Debug;
 import x10.matrix.util.PlaceGroupBuilder;
 import x10.matrix.util.VerifyTool;
 
@@ -20,52 +22,97 @@ import x10.matrix.util.VerifyTool;
  * Page Rank demo
  * <p>
  * Execution input parameters:
- * <p> (1) Rows and columns of G. Default 10000
- * <p> (2) Iterations number. Default 20
- * <p> (3) Verification flag. Default 0 or false.
- * <p> (4) Row-wise partition of G. Default Place.numPlaces(), or number of places
- * <p> (5) Column-wise partition of G. Default 1.
- * <p> (6) Nonzero density of G: Default 0.001
- * <p> (7) Print output flag: Default false. 
+ * <ol>
+ * <li>Rows and columns of G. Default 10000</li>
+ * <li>Iterations number. Default 20</li>
+ * <li>Verification flag. Default 0 or false.</li>
+ * <li>Row-wise partition of G. Default number of places</li>
+ * <li>Column-wise partition of G. Default 1.</li>
+ * <li>Nonzero density of G: Default 0.001f</li>
+ * <li>Print output flag: Default false.</li>
+ * </ol>
  */
 public class RunPageRank {
     public static def main(args:Rail[String]): void {
-        val mG = args.size > 0 ? Long.parse(args(0)):100; // Rows and columns of G
-        val iT = args.size > 1 ? Long.parse(args(1)):20; // Iterations
-        val vf = args.size > 2 ? Int.parse(args(2)):0n; // Verify result or not
-        val rG = args.size > 3 ? Long.parse(args(3)):Place.numPlaces();
-        val cG = args.size > 4 ? Long.parse(args(4)):1;
-        val nZ = args.size > 5 ? Double.parse(args(5)):0.9001; //G's nonzero density
-        val pP = args.size > 6 ? Int.parse(args(6)):0n; //Print out input and output matrices
-        val sP = args.size > 7 ? Int.parse(args(7)):0n; // skip places count (at least 1 place should remain)
-        val cI = args.size > 8 ? Int.parse(args(8)):-1n; // checkpoint iteration frequency
-        
-        Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iterations:"+iT);
-        if (mG<=0 || iT<1 || nZ<0.0 || sP < 0 || sP >= Place.numPlaces())
+        val opts = new OptionsParser(args, [
+            Option("h","help","this information"),
+            Option("v","verify","verify the parallel result against sequential computation"),
+            Option("p","print","print matrix V, vectors d and w on completion")
+        ], [
+            Option("m","rows","number of rows, default = 100000"),
+            Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
+            Option("c","colBlocks","number of columnn blocks; default = 1"),
+            Option("d","density","nonzero density, default = 0.001"),
+            Option("i","iterations","number of iterations, default = 20"),
+            Option("s","skip","skip places count (at least one place should remain), default = 0"),
+            Option("", "checkpointFreq","checkpoint iteration frequency")
+        ]);
+
+        if (opts.filteredArgs().size!=0) {
+            Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
+            Console.ERR.println("Use -h or --help.");
+            System.setExitCode(1n);
+            return;
+        }
+        if (opts("h")) {
+            Console.OUT.println(opts.usage(""));
+            return;
+        }
+
+        val mG = opts("m", 100000);
+        val nonzeroDensity = opts("d", 0.001f);
+        val iterations = opts("i", 20n);
+        val verify = opts("v");
+        val print = opts("p");
+        val skipPlaces = opts("s", 0n);
+        val checkpointFreq = opts("checkpointFreq", -1n);
+
+        Console.OUT.printf("G: rows/cols %d density: %.3f (non-zeros: %d) iterations: %d\n",
+                            mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
+		if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || skipPlaces < 0 || skipPlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
-            val places:PlaceGroup = (sP==0n? Place.places() :PlaceGroupBuilder.makeTestPlaceGroup(sP));
-            val paraPR = PageRank.make(mG, nZ, iT, rG, cG, cI, places);
-            paraPR.init();
+            val places = (skipPlaces==0n) ? Place.places() 
+                                          : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+            val rowBlocks = opts("r", places.size());
+            val colBlocks = opts("c", 1);
 
-            paraPR.printInfo();
+            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, rowBlocks, colBlocks, checkpointFreq, places);
+            paraPR.init(nonzeroDensity);
 
-            val orgP = paraPR.P.local().clone(); //for verification purpose
+            if (print) paraPR.printInfo();
 
+            var origP:Vector(mG) = null;
+            if (verify) {
+                origP = paraPR.P.local().clone();
+            }
+
+			val startTime = Timer.milliTime();
             val paraP = paraPR.run();
+			val totalTime = Timer.milliTime() - startTime;
+
+			Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, seq: %8d ms, commu time: %8d ms\n",
+					totalTime, paraPR.paraRunTime, paraPR.seqTime, paraPR.commTime); 
             
-            if (pP > 0) {
+            if (print) {
                 Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
                 Console.OUT.println("Output vector P\n" + paraP);
             }
             
-            if (vf > 0){
+            if (verify) {
                 val g = paraPR.G;
-                val seqPR = new SeqPageRank(g.toDense(), orgP, 
-                        paraPR.E, paraPR.U, iT);
+                val localU = Vector.make(g.N);
+                paraPR.U.copyTo(localU);
+                
+                val seqPR = new SeqPageRank(g.toDense(), origP, 
+                        localU, iterations);
+		        Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
-                if (VerifyTool.testSame(paraP, seqP as Vector(paraP.M))) 
-                    Console.OUT.println("Result verified");
+                Debug.flushln("Verifying results against sequential version");
+                val localP = Vector.make(g.N);
+                paraP.copyTo(localP);
+                if (VerifyTool.testSame(localP, seqP)) 
+                    Console.OUT.println("Verification passed.");
                 else
                     Console.OUT.println("Verification failed!!!!");
             }

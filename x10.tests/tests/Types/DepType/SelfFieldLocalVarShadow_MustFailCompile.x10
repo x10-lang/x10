@@ -21,20 +21,20 @@ import harness.x10Test;
  */
 public class SelfFieldLocalVarShadow_MustFailCompile extends x10Test {
     class Test(i: int, j:int) {
-        def this(i:int, j:int):Test = {
+        def this(i:int, j:int):Test {
             property(i,j);
         }
     }
-    public def m(var t: Test{i==j}): boolean = { // the type is Test(:self.i==self.j).
+    public def m(var t: Test{i==j}): boolean { // the type is Test(:self.i==self.j).
         return true;
     }
-    public def run(): boolean = {
+    public def run(): boolean {
         val j: int = 0n;
         var t: Test{self.i==self.j} =  new Test(0n,3n) as Test{i==j}; // ERR: here j goes to the local variable, not self.j
         // should fail to compile since Test(:self.i==j) is not a subtype of Test(:self.i==self.j)
         return m(t); 
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new SelfFieldLocalVarShadow_MustFailCompile().execute();
     }
 }

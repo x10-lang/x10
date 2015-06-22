@@ -38,7 +38,7 @@ import harness.x10Test;
  */
 public class ClockTest16 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val x = new X();
 		try {
 			finish async {
@@ -79,7 +79,7 @@ public class ClockTest16 extends x10Test {
 				}
 
 				val f0 = new foo() {
-					public operator this(): void = {
+					public operator this(): void {
 						val cx = ca(x.zero());
 						async clocked(cx) { // clock use error
 							Clock.advanceAll();
@@ -88,7 +88,7 @@ public class ClockTest16 extends x10Test {
 				};
 
 				val f1= new foo() {
-					public operator this(): void = {
+					public operator this(): void {
 						val cx = ca(x.one());
 						async clocked(cx) { // no clock use error
 							Clock.advanceAll();
@@ -134,7 +134,7 @@ public class ClockTest16 extends x10Test {
 	 * A class to invoke a 'function pointer' inside of async
 	 */
 	static class Y {
-		static def test(f: foo, c: Clock): void = {
+		static def test(f: foo, c: Clock): void {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f(); // it is hard to determine f does an async clocked(c2) S, where c2 != c
@@ -166,6 +166,6 @@ public class ClockTest16 extends x10Test {
 		public val z = [1,0];
 		def zero() = z(z(1)); 
 		def one() = z(z(z(0)));
-		def modify(): void = { z(0) += 1; }
+		def modify(): void { z(0) += 1; }
 	}
 }

@@ -319,7 +319,7 @@ public class MatVecMult {
                     }
                     v_dst_block.multiplyIn(g_block, v_src_block);
                     count++;
-                    if (count%30 == 0) Runtime.probe();
+                    if (count%30 == 0) x10.xrx.Runtime.probe();
                 }
             }
             after = System.nanoTime();
@@ -505,7 +505,7 @@ public class MatVecMult {
                 if (magic2 != 0xdcdcdcdcn) throw new Exception("File corrupted midway through: "+name);
             } catch (e:EOFException) { break; }
             r.add(new MatrixBlockCSC(fr));
-            if (r.size() % 10 == 0) Runtime.probe();
+            if (r.size() % 10 == 0) x10.xrx.Runtime.probe();
         }
         return r.toRail();
     }

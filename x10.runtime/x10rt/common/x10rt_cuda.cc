@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifdef __CYGWIN__
@@ -825,12 +825,14 @@ bool x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 CUdeviceptr cmem = ctx->cbs[type].kernel_cbs.cmem;
                 if (kop->cmemc > 0 && cmem!=0)
                     CU_SAFE(cuMemcpyHtoD(cmem, kop->cmemv, kop->cmemc));
+                void *kernel_params[5] =
+                {
+                    CU_LAUNCH_PARAM_BUFFER_POINTER, &kop->argv[0],
+                    CU_LAUNCH_PARAM_BUFFER_SIZE,    &kop->argc,
+                    CU_LAUNCH_PARAM_END
+                };
                 // y and z params we leave as 1, as threads can vary from 1 to 512
-                CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
-                CU_SAFE(cuParamSetv(k, 0, &kop->argv[0], kop->argc));
-                CU_SAFE(cuParamSetSize(k, kop->argc));
-                CU_SAFE(cuFuncSetSharedSize(k, kop->shm));
-                CU_SAFE(cuLaunchGridAsync(k, kop->blocks, 1, ctx->kernel_q.stream));
+                CU_SAFE(cuLaunchKernel(k, kop->blocks, 1, 1, kop->threads, 1, 1, kop->shm, ctx->kernel_q.stream, NULL, kernel_params));
                 kop->begun = true;
                 assert(ctx->kernel_q.current == NULL);
                 ctx->kernel_q.current = kop;

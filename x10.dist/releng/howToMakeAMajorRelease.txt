@@ -18,9 +18,9 @@ I. Just before creating the release branch of X10 and X10DT
    1. Update the version information in x10.compiler/src/x10/Version.java
 
    2. Update the plugin manifest version in all MANIFEST.MF files in 
-      X10 core projects. Also update product files and common.properties.
-      (do recursive find/grep to find previous verison number and 
-       change it)
+      X10 and X10DT core projects. Also update product files, properties
+      etc. in X10DT (do recursive find/grep to find previous verison number 
+      and change it)
 
 II. Create the release branch and enter into final testing phase
 
@@ -47,6 +47,9 @@ III. When all necessary fixes have been propagated to the release branch,
    2. Edit and commit release notes to the trunk. Release notes can be
       mostly generated from JIRA.  Use svn merge to get the release
       notes from the trunk to the release branch.
+      
+      Also put highlights from the release notes into x10dt.help/html/whatsNew
+      and update the toc to include the new page you just created.
 
    3. Tag the release by using x10.dist/releng/makeTag.sh 
       Use a svn revision number that matches one reported as good 
@@ -72,12 +75,9 @@ III. When all necessary fixes have been propagated to the release branch,
           ./masterBuildRelease.sh -skip_source -version 2.5.0 -tag SF_RELEASE_2_5_0 -nodebug -hosts bgqfen1
 
    6. Once the X10 tarballs are available on orquesta, you can build X10DT.
-      Using the RTC build server, edit the build defintions for the X10DT 
-      and X10DT Editor Only Edition to match the tags you just created.  
-      Also login to orquesta as x10dt and do an svn update in x10dt.build
-      and x10dt.editor.edition.build to make sure they are in synch.  
-      Finally, request builds of X10DT and X10DT Editor Only Edition from 
-      the build server.
+      This is also done using Jenkins. Select the "X10DT-Release-Build" job
+      and then select "Build With Parameters". Fill in the tags for X10,X10DT,
+      and the version number then hit the 'Build' button. 
 
    7. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
@@ -93,8 +93,6 @@ III. When all necessary fixes have been propagated to the release branch,
       /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
       create an updateSite subdir of the new directory and unzip the
       update site zip from the download section into it.
-      Also create an updateSite-EditorOnly subdir and unzip 
-      the X10DT Editor Only Edition update site into it.
 
    10. Make sure language manual has the right version, date, etc. 
       Tag the language manual

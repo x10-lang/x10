@@ -25,7 +25,7 @@ public class GenericVariance01 extends GenericTest {
 
     class A[T] {}
 
-    public def run() = {
+    public def run() {
 
         val ay:Any = new A[Y]();
         genericCheck("ay instanceof A[X]", ay instanceof A[X], false);
@@ -35,7 +35,7 @@ public class GenericVariance01 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericVariance01().execute();
     }
 }

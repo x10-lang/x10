@@ -25,7 +25,7 @@ public class Overloading extends x10Test {
         public def g(d: Dist) = "dist";
         public def g(r: Region) = "region";
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 r: Region = Region.make(0,1);
                 d: Dist = r->here;
 
@@ -40,7 +40,7 @@ public class Overloading extends x10Test {
                     && r4.equals("dist");
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Overloading().execute();
 	}
 }

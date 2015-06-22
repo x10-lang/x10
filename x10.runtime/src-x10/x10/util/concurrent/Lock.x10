@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util.concurrent;
@@ -30,5 +30,5 @@ import x10.io.Unserializable;
 
     public native def unlock():void;
 
-    public native def getHoldCount():Int; // only supported on some platforms
+    public native def getHoldCount():Int; // only supported on Managed X10. Always returns -1 on NativeX10
 }

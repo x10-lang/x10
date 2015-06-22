@@ -1,16 +1,16 @@
 diff -ur a/Makefile.in b/Makefile.in
---- a/Makefile.in		 2014-06-04 05:09:25.000000000 +0900
-+++ b/Makefile.in		 2014-10-06 21:17:26.000000000 +0900
+--- a/Makefile.in		2014-06-03 16:09:25.000000000 -0400
++++ b/Makefile.in		2015-04-08 13:39:49.724705400 -0400
 @@ -2426,10 +2426,10 @@
- 		 uninstall-pkgincludeHEADERS
+ 	uninstall-pkgincludeHEADERS
  
  .s.lo:
--		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
-+		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
+-	$(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
++	$(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
  
  .S.lo:
--		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
-+		 $(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
+-	$(LTCOMPILE) $(ASM_CPP_OPTIONS) -c $<
++	$(LTCOMPILE) $(ASM_CPP_OPTIONS) -c -o $@ $<
  
  #
  # :GOTCHA: GNU make rule for making .s out of .S is flawed,

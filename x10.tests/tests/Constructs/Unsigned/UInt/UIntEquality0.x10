@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author Salikh Zakirov 5/2011
  */
 public class UIntEquality0 extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r:Boolean = true;
         val u1:UInt = 1un;
 	val u1any:Any = u1 as Any;

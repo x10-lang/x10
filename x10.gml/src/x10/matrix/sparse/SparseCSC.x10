@@ -19,6 +19,7 @@ import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.util.VerifyTool;
 import x10.matrix.builder.SparseCSCBuilder;
+import x10.matrix.ElemType;
 
 public type SparseCSC(M:Long)=SparseCSC{self.M==M};
 public type SparseCSC(M:Long,N:Long)=SparseCSC{self.M==M, self.N==N};
@@ -42,8 +43,8 @@ public class SparseCSC extends Matrix {
 		
 	// Temporary memory space used for type conversion and
 	// data compression
-	private var tmprow:Rail[Double];
-	private var tmpcol:Rail[Double];
+	private var tmprow:Rail[ElemType];
+	private var tmpcol:Rail[ElemType];
 
 	// Used for serialization index value, reset or build 
 	private var copyColOff:Long;
@@ -65,8 +66,8 @@ public class SparseCSC extends Matrix {
 
 		ccdata = cd;
 		//No memory allocation for temp space
-		tmprow = new Rail[Double](0);
-		tmpcol = new Rail[Double](0);
+		tmprow = new Rail[ElemType](0);
+		tmpcol = new Rail[ElemType](0);
 	}
 
 	/**
@@ -80,8 +81,8 @@ public class SparseCSC extends Matrix {
 		super(m, n);
 		ccdata = Compress2D.make(n, ca);
 
-		tmprow = new Rail[Double](0);
-		tmpcol = new Rail[Double](0);
+		tmprow = new Rail[ElemType](0);
+		tmpcol = new Rail[ElemType](0);
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class SparseCSC extends Matrix {
 	 * @param n     Number of columns in the CSC sparse matrix
 	 * @param nzd     The nonzero density or sparsity.
 	 */
-	public static def make(m:Long, n:Long, nzd:Double) : SparseCSC(m,n) {
+	public static def make(m:Long, n:Long, nzd:Float) : SparseCSC(m,n) {
 		val cnt = compAllocSize(m, n, nzd);
 		val spa = SparseCSC.make(m, n, cnt);
 
@@ -134,9 +135,9 @@ public class SparseCSC extends Matrix {
 	 *              to its surface index at the same position in ja.
 	 */
 	public static def make(m:Long,n:Long,	
-						   ia:Rail[Long],
-						   ja:Rail[Long],
-						   av:Rail[Double]{self.size==ja.size}
+						   ia:Rail[Long]{self!=null},
+						   ja:Rail[Long]{self!=null},
+						   av:Rail[ElemType]{self!=null,self.size==ja.size}
 						   ):SparseCSC{
 		val ccd = Compress2D.make(ia, ja, av);
 		return new SparseCSC(m, n, ccd);
@@ -169,7 +170,7 @@ public class SparseCSC extends Matrix {
      * @param sp     Nonzero sparsity
      * @see Compress2D.initConst()
      */
-	public def init(v:Double, sp:Double):SparseCSC(this) {
+	public def init(v:ElemType, sp:Float):SparseCSC(this) {
 		val cnt = ccdata.initConst(M, v, sp);
 		return this;
 	}
@@ -180,10 +181,10 @@ public class SparseCSC extends Matrix {
 	 *
 	 * @param v     initial value for all nonzero elements.
 	 */
-	public def init(v:Double):SparseCSC(this) {
-		val nzd = 1.0*getStorageSize()/M/N;
-		init(v, nzd);
-		return this;
+	public def init(v:ElemType):SparseCSC(this) {
+	    val nzd = 1.0f*getStorageSize()/M/N;
+	    init(v, nzd);
+	    return this;
 	}
 	
 	/**
@@ -196,14 +197,14 @@ public class SparseCSC extends Matrix {
 	 * @param lb     lower bound of random value
 	 * @param up     upper bound of random value
 	 * @param sp     Nonzero sparsity
-	 * @see init(v:Double, sp:Double)
+	 * @see init(v:ElemType, sp:ElemType)
 	 */
-	public def initRandom(lb:Long, ub:Long, sp:Double) : SparseCSC(this) {
+	public def initRandom(lb:Long, ub:Long, sp:Float) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp, lb, ub);
 		return this;
 	}
 	
-	public def initRandom(sp:Double) : SparseCSC(this) {
+	public def initRandom(sp:Float) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp);
 		return this;
 	}
@@ -215,31 +216,31 @@ public class SparseCSC extends Matrix {
      * 
      * @param lb     lower bound of random value
      * @param up     upper bound of random value
-     * @see initRandom(lb:Long, ub:Long, sp:Double)
+     * @see initRandom(lb:Long, ub:Long, sp:ElemType)
      */
 	public def initRandom(lb:Long, ub:Long): SparseCSC(this) { 
-		val nzd = 1.0 * getStorageSize() /M/N;
-		initRandom(lb, ub, nzd);
-		return this;
+	    val nzd = 1.0f * getStorageSize() /M/N;
+	    initRandom(lb, ub, nzd);
+	    return this;
 	}
 	
 	public def initRandom(): SparseCSC(this) { 
-		val nzd = 1.0 * getStorageSize() /M/N;
-		initRandom(nzd);
-		return this;
+	    val nzd = 1.0f * getStorageSize() /M/N;
+	    initRandom(nzd);
+	    return this;
 	}
 
 	/**
 	 * Initialize with given function with range [0..M, 0..N]
 	 */
-	public def init(f:(Long, Long)=>Double): SparseCSC(this) {
+	public def init(f:(Long, Long)=>ElemType): SparseCSC(this) {
 		var offset:Long=0;
 		val ca = getStorage();
 		for (var c:Long=0; c<N; c++) {
 			val ccol = ccdata.cLine(c);
 			ccol.offset = offset;
 			for (var r:Long=0; r<M&&offset<ca.index.size; r++) {
-				val nzval:Double = f(r, c);
+				val nzval  = f(r, c);
 				if (! MathTool.isZero(nzval)) {
 					ca.index(offset)=r;
 					ca.value(offset)=nzval;
@@ -258,7 +259,7 @@ public class SparseCSC extends Matrix {
 	 * @param fidx     Nonzero row indexing, must be ascending function. Given values (r, c), compute the r-th nonzero row index in column c.
 	 * @param fval     value generating function, given row and column index.
 	 */
-	public def init(fidx:(Long, Long)=>Long, fval:(Long, Long)=>Double): SparseCSC(this) {
+	public def init(fidx:(Long, Long)=>Long, fval:(Long, Long)=>ElemType): SparseCSC(this) {
 		var offset:Long=0;
 		val ca = getStorage();
 		for (var c:Long=0; c<N; c++) {
@@ -283,7 +284,7 @@ public class SparseCSC extends Matrix {
 	/**
 	 * Initial sparse matrix using function and row and column offsets.
 	 */
-	public def init(rowoff:Long, coloff:Long, f:(Long, Long)=>Double): SparseCSC(this) {
+	public def init(rowoff:Long, coloff:Long, f:(Long, Long)=>ElemType): SparseCSC(this) {
 		
 		var offset:Long=0;
 		val ca = getStorage();
@@ -291,7 +292,7 @@ public class SparseCSC extends Matrix {
 			val ccol = ccdata.cLine(c);
 			ccol.offset = offset;
 			for (var r:Long=0; r<M&&offset<ca.index.size; r++) {
-				val nzval:Double = f(r+rowoff, c+coloff);
+				val nzval = f(r+rowoff, c+coloff);
 				if (! MathTool.isZero(nzval)) {
 					ca.index(offset)=r;
 					ca.value(offset)=nzval;
@@ -315,7 +316,7 @@ public class SparseCSC extends Matrix {
 	 * @param nzd     Nonzero sparsity
 	 * @see make() and initRandom() 
 	 */
-	public static def makeRand(m:Long, n:Long, nzd:Double) : SparseCSC(m,n) {
+	public static def makeRand(m:Long, n:Long, nzd:Float) : SparseCSC(m,n) {
 		val csc = SparseCSC.make(m, n, nzd);
 		csc.initRandom(nzd);
 
@@ -378,8 +379,8 @@ public class SparseCSC extends Matrix {
 	/**
 	 * Return the matrix element value at the r-th row and c-th column.
 	 */
-	public operator this(r:Long, c:Long):Double = ccdata(c, r);
-	public operator this(a:Long):Double = ccdata(a/M,a%M);
+	public operator this(r:Long, c:Long):ElemType = ccdata(c, r);
+	public operator this(a:Long):ElemType = ccdata(a/M,a%M);
 	
 
 
@@ -394,8 +395,8 @@ public class SparseCSC extends Matrix {
 	 *
 	 * Modifying sparse matrix after creation should be avoided
 	 */
-	public operator this(r:Long, c:Long) = (v:Double):Double {
-	    ccdata(c)=Pair[Long,Double](r,v);
+	public operator this(r:Long, c:Long) = (v:ElemType):ElemType {
+	    ccdata(c)=Pair[Long,ElemType](r,v);
 	    return v;
 	}
 	
@@ -404,7 +405,7 @@ public class SparseCSC extends Matrix {
 	public def setCol(c:Long, ln:Compress1D) { 
 		ccdata.setLine(c, ln);
 	}
-	public def compressAt(c:Long, off:Long, d:Rail[Double]) =
+	public def compressAt(c:Long, off:Long, d:Rail[ElemType]) =
 		ccdata.cLine(c).compressAt(off, d);
 
 	// No setRow method available
@@ -560,27 +561,27 @@ public class SparseCSC extends Matrix {
 
 	// Access temporary space
 
-	public def getTempCol() : Rail[Double] {
+	public def getTempCol() : Rail[ElemType] {
 		if (tmpcol.size == 0L)
-			tmpcol = new Rail[Double](this.M);
+			tmpcol = new Rail[ElemType](this.M);
 		else {
-			for (var i:Long=0; i<this.M; i++) tmpcol(i)=0.0;
+			for (var i:Long=0; i<this.M; i++) tmpcol(i)=0.0 as ElemType;
 		}
 		return tmpcol;
 	}
 
-	public def getTempRow() : Rail[Double] {
+	public def getTempRow() : Rail[ElemType] {
 		if (tmprow.size == 0L) 
-			tmprow = new Rail[Double](this.N);
+			tmprow = new Rail[ElemType](this.N);
 		else {
 			// reset the temp Rail
-			for (var i:Long=0; i<this.N; i++) tmprow(i) = 0.0;
+			for (var i:Long=0; i<this.N; i++) tmprow(i) = 0.0 as ElemType;
 		}
 		return tmprow;
 	}
 
-	public def getTemp(n:Long) : Rail[Double] {
-		if (n > tmpcol.size) tmpcol = new Rail[Double](n);
+	public def getTemp(n:Long) : Rail[ElemType] {
+		if (n > tmpcol.size) tmpcol = new Rail[ElemType](n);
 		return tmpcol;
 	}
 
@@ -654,7 +655,7 @@ public class SparseCSC extends Matrix {
 	// Target is CompressArray
 	// Copy cnt columns starting from col to CompressArray
 	// There is no sizes info for each column 
-	// Return the number of data (Index, Double) copied
+	// Return the number of data (Index, ElemType) copied
 	private def copyColsToCArray(start:Long,              // Starting column
 								cnt:Long,                // Number of columns
 								ca:CompressArray // Target memory storage
@@ -695,23 +696,23 @@ public class SparseCSC extends Matrix {
 
 	// Get decompressed column in an array
 	// The target ln array needs to be reset first
-	public def extractCol(col:Long, ln:Rail[Double]) {
+	public def extractCol(col:Long, ln:Rail[ElemType]) {
 		ccdata.getLine(col).extract(ln);
 	}
 	
-	public def extractRow(row:Long, cl:Rail[Double]):void {
+	public def extractRow(row:Long, cl:Rail[ElemType]):void {
 		for (var i:Long=0; i<this.N; i++) cl(i) = this(row, i);
 	}
 
 
 	// Using tmp storage place
-	public def extractCol(col:Long):Rail[Double] {
+	public def extractCol(col:Long):Rail[ElemType] {
 		val tc = getTempCol();
 		extractCol(col, tc);
 		return tc;
 	}
 
-	public def extractRow(row:Long):Rail[Double] {
+	public def extractRow(row:Long):Rail[ElemType] {
 		val tr = getTempRow();
 		extractRow(row, tr);
 		return tr;
@@ -783,9 +784,9 @@ public class SparseCSC extends Matrix {
 	/**
 	 * Compute nonzero sparsity in storage
 	 */
-	public def compSparsity():Double {
-		val nz:Double = ccdata.countNonZero() as Double;
-		return nz/(this.M*this.N as Double);
+	public def compSparsity():Float {
+		val nz:Float = ccdata.countNonZero();
+		return nz/(this.M*this.N);
 	}
 
 	/**
@@ -956,7 +957,7 @@ public class SparseCSC extends Matrix {
 	 * @param alpha     scaling factor
 	 * @return          return matrix of this instance
      */
-	public def scale(alpha:Double):SparseCSC(this) {
+	public def scale(alpha:ElemType):SparseCSC(this) {
 		val ca = getStorage();
 		for (var c:Long=0; c<N; c++) {
 			val cl = getCol(c);
@@ -966,8 +967,8 @@ public class SparseCSC extends Matrix {
 		return this;
 	}
 
-	public def sum():Double {
-		var tt:Double=0.0;
+	public def sum():ElemType {
+		var tt:ElemType=0.0 as ElemType;
 		val ca = getStorage();
 		for (var c:Long=0; c<N; c++) {
 			val cl = getCol(c);
@@ -988,7 +989,7 @@ public class SparseCSC extends Matrix {
     	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
     }
     
-    public def cellAdd(d:Double):SparseCSC(this) {
+    public def cellAdd(d:ElemType):SparseCSC(this) {
     	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
     }
     
@@ -1002,9 +1003,6 @@ public class SparseCSC extends Matrix {
 		SparseAddToDense.comp(this, x);
 		return x;
 	}
-
-
-	// Subtract operation
 
     /**
      * Return this = this - x, not supported
@@ -1023,14 +1021,6 @@ public class SparseCSC extends Matrix {
 		SparseSubToDense.comp(x, this);
 		return x;
 	}
-	
-	public def cellSubFrom(dv:Double): SparseCSC(this) {
-		throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");		
-	}
-	
-
-	// Cellwise multiplication
-
 
     /**
      * Return this = this &#42 x, not supported
@@ -1107,13 +1097,13 @@ public class SparseCSC extends Matrix {
     /**
      * Scaling operation return this &#42 double
      */
-    public operator this * (dblv:Double):SparseCSC(M,N) {
+    public operator this * (dblv:ElemType):SparseCSC(M,N) {
         val x = clone();
         x.scale(dblv);
         return x;
     }
  
-	public operator (dblv:Double) * this = this * dblv;
+	public operator (dblv:ElemType) * this = this * dblv;
 
 	// Add method
 	
@@ -1153,8 +1143,8 @@ public class SparseCSC extends Matrix {
 	public operator this + (that:SparseCSR(M,N))  :DenseMatrix(M,N) = this.add(that);
 	public operator this + (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.add(that);
 	public operator (that:DenseMatrix(M,N)) + this:DenseMatrix(M,N) = this.add(that);
-	public operator this + (dv:Double)            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
-	public operator (dv:Double) + this            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	public operator this + (dv:ElemType)            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	public operator (dv:ElemType) + this            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
 	
 
 	/**
@@ -1199,8 +1189,7 @@ public class SparseCSC extends Matrix {
 		return dm;
 	}
 	
-	public operator this - (dv:Double)  :DenseMatrix(M,N) = this.toDense().cellSub(dv);
-	public operator (dv:Double) - this  :DenseMatrix(M,N) = this.toDense().cellSubFrom(dv);
+	public operator this - (dv:ElemType)  :DenseMatrix(M,N) = this.toDense().cellSub(dv);
 	
 
 	// Cellwise mult method
@@ -1256,7 +1245,7 @@ public class SparseCSC extends Matrix {
 		return dm;
 	}
 	
-	public operator this / (dv:Double) :DenseMatrix(M,N) = this.toDense().cellDiv(dv);
+	public operator this / (dv:ElemType) :DenseMatrix(M,N) = this.toDense().cellDiv(dv);
 	
 	/**
 	 * Perform matrix multiply between two sparse csc matrices
@@ -1291,13 +1280,13 @@ public class SparseCSC extends Matrix {
 		return outstr;
 	}
 
-	// X10 Long MAX_VALUE, change M*N to Double, in case
+	// X10 Long MAX_VALUE, change M*N to ElemType, in case
 	// exceeding MAX_VALUE
-	public static def compAllocSize(m:Long, n:Long, nz:Double):Long {
-		var nzd:Double = nz;
+	public static def compAllocSize(m:Long, n:Long, nz:Float):Long {
+		var nzd:Float = nz;
 		if (nzd > 1.0) {
 			Debug.flushln("Nonzero density "+nzd+" > 1.0, reset to 1.0");
-			nzd = 1.0;
+			nzd = 1.0f;
 		}
 		
 		var tc:Double = nzd * n * m;

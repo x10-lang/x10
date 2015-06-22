@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2013.
  */
 
@@ -180,7 +180,7 @@ int main (int argc, char **argv)
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
             //if (x10rt_is_place_dead(i)) continue;
-            x10rt_msg_params p = {i, QUIT_ID, NULL, 0, 0};
+            x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(&p);
         }
         finished = true;

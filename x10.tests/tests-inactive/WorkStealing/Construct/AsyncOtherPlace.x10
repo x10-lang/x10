@@ -21,7 +21,7 @@ public class AsyncOtherPlace extends x10Test{
         transient var val_:Any;
     }
     
-    public def run(): boolean = {
+    public def run(): boolean {
         val Other: Place = Place.places().next(here);
         val t = new T();
         val troot = t.root;

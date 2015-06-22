@@ -25,7 +25,7 @@ public class TypedefExample1 extends TypedefTest {
     static class Map[K,V] { }
     static class List[T] { }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         type StringSet = Set[String];
         type MapToList[K,V] = Map[K,List[V]];
@@ -42,7 +42,7 @@ public class TypedefExample1 extends TypedefTest {
 
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefExample1().execute();
     }
 }

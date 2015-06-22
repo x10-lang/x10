@@ -15,6 +15,8 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.distblock.BlockSet;
@@ -159,8 +161,8 @@ public class BlockRemoteCopy {
 	protected static def x10CopyOffset(src:DenseMatrix, srcIdxOff:Long, 
 			dstBS:BlocksPLH, dstpid:Long, bid:Long, dstIdxOff:Long, datCnt:Long): void {
 		
-		val buf = src.d as Rail[Double]{self!=null};
-		val srcbuf = new GlobalRail[Double](buf);
+		val buf = src.d as Rail[ElemType]{self!=null};
+		val srcbuf = new GlobalRail[ElemType](buf);
 
 		at(Place(dstpid)) {
 			//Remote copy: dst, srcbuf, srcIdxOff, dstIdxOff, datCnt,
@@ -169,7 +171,7 @@ public class BlockRemoteCopy {
             assert (dstIdxOff+datCnt <= dstden.d.size) :
                 "Receive buffer offset:"+dstIdxOff+" plus data count:"+datCnt+
                 " is larger than receive buffer size:"+dstden.d.size;
-			finish Rail.asyncCopy[Double](srcbuf, srcIdxOff, dstden.d, dstIdxOff, datCnt);
+			finish Rail.asyncCopy[ElemType](srcbuf, srcIdxOff, dstden.d, dstIdxOff, datCnt);
 		}
 	}
 
@@ -253,7 +255,7 @@ public class BlockRemoteCopy {
 			new DenseRemoteSourceInfo(srcden.d, srcIdxOff, datCnt)
 
 		};
-		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dst.d, dstIdxOff, rmt.length);
+		finish Rail.asyncCopy[ElemType](rmt.valbuf, rmt.offset, dst.d, dstIdxOff, rmt.length);
 	}
 
 
@@ -336,10 +338,10 @@ public class BlockRemoteCopy {
         if (datcnt == 0L) return 0L;
 		
 		val idxbuf = src.getIndex() as Rail[Long]{self!=null};
-		val valbuf = src.getValue() as Rail[Double]{self!=null};
+		val valbuf = src.getValue() as Rail[ElemType]{self!=null};
 		val datoff = src.getNonZeroOffset(srcColOff);
 		val rmtidx = new GlobalRail[Long](idxbuf);
-		val rmtval = new GlobalRail[Double](valbuf);
+		val rmtval = new GlobalRail[ElemType](valbuf);
 
 		at(Place(dstpid)) {
 			//Remote capture: datcnt, rmtidx, rmtval, datoff			
@@ -351,7 +353,7 @@ public class BlockRemoteCopy {
 			dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datcnt);
 			val dstoff = dstspa.getNonZeroOffset(dstColOff);
 			finish Rail.asyncCopy[Long  ](rmtidx, datoff, dstspa.getIndex(), dstoff, datcnt);
-			finish Rail.asyncCopy[Double](rmtval, datoff, dstspa.getValue(), dstoff, datcnt);
+			finish Rail.asyncCopy[ElemType](rmtval, datoff, dstspa.getValue(), dstoff, datcnt);
 			dstspa.finalizeRemoteCopyAtDest();
 		}
 
@@ -461,7 +463,7 @@ public class BlockRemoteCopy {
 		val dstoff = dst.getNonZeroOffset(dstColOff);
 		dst.initRemoteCopyAtDest(dstColOff, colCnt, rmt.length);
 		finish Rail.asyncCopy[Long  ](rmt.idxbuf, rmt.offset, dst.getIndex(), dstoff, rmt.length);
-		finish Rail.asyncCopy[Double](rmt.valbuf, rmt.offset, dst.getValue(), dstoff, rmt.length);
+		finish Rail.asyncCopy[ElemType](rmt.valbuf, rmt.offset, dst.getValue(), dstoff, rmt.length);
 
 		finish {
 			at(Place(srcpid)) async {

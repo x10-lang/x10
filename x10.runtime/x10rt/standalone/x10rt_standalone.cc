@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  *
@@ -790,7 +790,6 @@ x10rt_error x10rt_net_probe (void)
 
 		// reconstruct the x10rt_msg_params structure
 		x10rt_msg_params mp;
-		mp.dest_endpoint = 0;
 		mp.dest_place = state.myPlaceId;
 		mp.type = entry->type;
 		mp.len = entry->msgLen;

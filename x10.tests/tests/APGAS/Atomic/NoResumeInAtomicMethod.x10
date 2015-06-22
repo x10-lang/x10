@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class NoResumeInAtomicMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
         	val c = Clock.make();
 			atomic 

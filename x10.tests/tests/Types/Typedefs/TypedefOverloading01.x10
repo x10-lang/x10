@@ -31,14 +31,14 @@ public class TypedefOverloading01 extends TypedefTest {
     static type C(a: long) = D{x==a};
     static type C(a: long, b: long) = C(a){self.y==b};
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x:D = new D(0,0);
         var y:C(2) = new D(2,3);
         var z:C(0,5) = new D(0,5);
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading01().execute();
     }
 }

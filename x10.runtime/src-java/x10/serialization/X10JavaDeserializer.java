@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.serialization;
@@ -172,6 +172,13 @@ public final class X10JavaDeserializer implements SerializationConstants {
 
         if (serializationID == JAVA_ARRAY_ID) {
             return (T)deserializeArray();
+        }
+        
+        if (serializationID == JAVA_OBJECT_STREAM_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserializing an object using Java deserialization");
+            }
+            return (T)readUsingObjectInputStream(true);
         }
         
         if (Runtime.TRACE_SER) {
@@ -393,10 +400,13 @@ public final class X10JavaDeserializer implements SerializationConstants {
     
     // Read an object using java serialization. 
     // This is used to optimize the serialization of primitive arrays
-    public Object readUsingObjectInputStream() throws IOException {
+    // and to allow optional forcing of usage of Java serialization for Java types.
+    public Object readUsingObjectInputStream(boolean recordReference) throws IOException {
         ObjectInputStream ois = new ObjectInputStream(this.in);
         try {
-            return ois.readObject();
+            Object ans = ois.readObject();
+            if (recordReference) record_reference(ans);
+            return ans;
         } catch (ClassNotFoundException e) {
             throw new SerializationException(e);
         }

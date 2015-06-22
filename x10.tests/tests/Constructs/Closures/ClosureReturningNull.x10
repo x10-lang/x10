@@ -19,7 +19,7 @@ import harness.x10Test;
 public class ClosureReturningNull extends x10Test {
     val cls = ()=>null;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val t = cls();
         chk(t == null);
         chk (test1(cls) == null);
@@ -31,7 +31,7 @@ public class ClosureReturningNull extends x10Test {
     public def test1(c:()=>Any) = c();
     public def test2(c:()=>String) = c();
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureReturningNull().execute();
     }
 }

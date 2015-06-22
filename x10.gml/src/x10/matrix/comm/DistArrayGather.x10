@@ -14,6 +14,8 @@ package x10.matrix.comm;
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
 
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 
 /**
@@ -40,7 +42,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def gather(
 			src:DistDataArray, 
-			dst:Rail[Rail[Double]]) : void {
+			dst:Rail[Rail[ElemType]]) : void {
 		
 		val nb = src.region.size();
         assert (nb==dst.size) :
@@ -77,7 +79,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def gather(
 			src:DistDataArray, 
-			dst:Rail[Double],
+			dst:Rail[ElemType],
 			szlist:Rail[Long]):void {
 
 		@Ifdef("MPI_COMMU") {
@@ -98,7 +100,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def mpiGather(
 			src:DistDataArray, 
-			dst:Rail[Double], 
+			dst:Rail[ElemType], 
 			szlist:Rail[Int]):void {
 		
 		@Ifdef("MPI_COMMU") {
@@ -114,7 +116,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 							//val tmpbuf= null; //fake
 							//val tmplst=null;//   //fake
 							/*******************************************/
-							val tmpbuf = new Array[Double](0); //fake
+							val tmpbuf = new Array[ElemType](0); //fake
 							val tmplst = new Array[Int](0);   //fake
 							WrapMPI.world.gatherv(srcbuf, 0, datcnt, tmpbuf, 0, tmplst, root);
 						}
@@ -143,7 +145,7 @@ public class DistArrayGather extends DistArrayRemoteCopy {
 	 */
 	public static def x10Gather(
 			src:DistDataArray, 
-			dstbuf:Rail[Double],
+			dstbuf:Rail[ElemType],
 			gp:Rail[Long]): void {
 
 		val root = here.id();

@@ -17,14 +17,14 @@ import harness.x10Test;
  * @author nystrom 8/2008
  */
 public class Assign1 extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
                 val r = new Rail[int](1, 0n);
                 r(0) = 0n;
                 r(r(0)) += 5n;
                 return r(0) == 5n;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Assign1().execute();
 	}
 }

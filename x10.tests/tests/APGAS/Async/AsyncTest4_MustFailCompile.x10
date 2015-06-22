@@ -19,7 +19,7 @@ public class AsyncTest4_MustFailCompile extends x10Test {
 
     public static N: int = 20n;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         finish {
             var s: int = 0n;
             for (var i: int = 0n; i < N; i++) {

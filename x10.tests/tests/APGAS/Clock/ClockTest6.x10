@@ -69,7 +69,7 @@ public class ClockTest6 extends x10Test {
 
         public var quiet:boolean = false;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		finish async {
 			// create and register with multiple clocks
 			val c: Clock = Clock.make();
@@ -130,7 +130,7 @@ public class ClockTest6 extends x10Test {
 	/**
 	 * Each activity increments a global counter and prints a message
 	 */
-	def doWork(var kind: String, var instance: int, var clocks: String, var tick: int): void = {
+	def doWork(var kind: String, var instance: int, var clocks: String, var tick: int): void {
 		atomic globalCounter++;
 		if (!quiet) x10.io.Console.OUT.println("Activity "+kind+instance+" in phase "+tick+" of clocks "+clocks);
 	}
@@ -139,13 +139,13 @@ public class ClockTest6 extends x10Test {
 	 * This verifies that in the prior phase all
 	 * activities have incremented the counter
 	 */
-	def verify(var kind: String, var instance: int, var tick: int): void = {
+	def verify(var kind: String, var instance: int, var tick: int): void {
 		var tmp: int;
 		atomic { tmp = globalCounter; }
 		chk((tick+1n) * N_KINDS * N_INSTANCES == tmp);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest6().executeAsync();
 	}
 }

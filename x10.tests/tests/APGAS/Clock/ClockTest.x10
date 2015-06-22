@@ -17,14 +17,14 @@ import harness.x10Test;
  * compile or hang.
  */
 public class ClockTest extends x10Test {
-    public def run(): boolean = {
+    public def run(): boolean {
     		clocked finish {
     			Clock.advanceAll();
     		}
 	        return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
 	new ClockTest().execute();
     }
 }

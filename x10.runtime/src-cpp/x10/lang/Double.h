@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10_LANG_DOUBLE_H
@@ -31,14 +31,14 @@ namespace x10 {
             static String* toString(x10_double value);
             static x10_double parseDouble(String* s);
             static x10_boolean isNaN(x10_double value) {
-#if defined(_AIX) || defined(__FCC_VERSION)
+#if defined(__FCC_VERSION)
 				return isnan(value);
 #else
 				return std::isnan(value);
 #endif
             }
             static x10_boolean isInfinite(x10_double value) {
-#if defined(_AIX) || defined(__FCC_VERSION)
+#if defined(__FCC_VERSION)
 				return isinf(value);
 #else
 				return std::isinf(value);

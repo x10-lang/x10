@@ -149,7 +149,7 @@ fi
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
+classpath=".${PATH_SEP}${classpath}${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${SNAPPY_JAR}"
 
 if [ -z "$dev" ]; then
   if [[ ! -a "${STDLIB_DIR}${FILE_SEP}x10.jar" ]]; then
@@ -264,25 +264,49 @@ java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${j
 
 java_args=("${java_args[@]}" ${defs})
 
-
+java_version=
 # skip loading test in case of executable jar
 if [ -z "$noclassloadtest" -a -n "$main" ]; then
-command=("$JAVA" "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
+command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
-dummy=`(unset X10_NPLACES; "${command[@]}" 2>&1)`
+java_version=`(
+unset X10_NPLACES
+"${command[@]}" 2>&1
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
 fi
+)`
 fi
 
+# detect broadly which JVM we are using
+ibmj9vm=
+hotspotjvm=
+case "${java_version}" in
+    *IBM\ J9\ VM*) ibmj9vm=true ;;
+esac
+case "${java_version}" in
+    *Java\ HotSpot*) hotspotjvm=true ;;
+esac
+case "${java_version}" in
+    *OpenJDK*) hotspotjvm=true ;;
+esac
+
+# reduce garbage collector threads when X10_NTHREADS is set
+# the IBM jvm needs this, but the hotspot JVM is more reasonable, and arguably does not need adjusting
+if [ -n "$X10_NTHREADS" ]; then
+    [ -n "${ibmj9vm}" ] && java_args=("-Xgcthreads$X10_NTHREADS" "${java_args[@]}")
+    [ -n "${hotspotjvm}" ] && java_args=("-XX:ParallelGCThreads=$X10_NTHREADS" "${java_args[@]}")
+fi
 
 [ "${x10rt_impl}" = "local" ] && args=("x10.x10rt.Launcher" "${args[@]}")
 if [ "${x10rt_impl}" = "yarn" ]; then
+  yarn_args=(-classpath "$classpath${PATH_SEP}`yarn classpath`")
+  [ -n "$yarnupload" ] && yarn_args=(${yarn_args[@]} "$yarnupload")  
   if [ -z "$nativeyarn" ]; then
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "x10.x10rt.yarn.Client" "${java_args[@]}")
+    java_args=("${yarn_args[@]}" "x10.x10rt.yarn.Client" "${java_args[@]}")
   else
-    java_args=(-classpath "$classpath${PATH_SEP}`yarn classpath` $yarnupload" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
+    java_args=("${yarn_args[@]}" "-DX10_YARN_NATIVE=true" "x10.x10rt.yarn.Client" "-Djava.class.path=$extra_cp")
   fi
 fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")

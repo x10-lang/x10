@@ -48,17 +48,17 @@ public class Stencil1D extends x10Test {
        return true;
     }
 
-    public static def block(R:LongRange, P:Long):Rail[LongRange] = {
+    public static def block(R:LongRange, P:Long):Rail[LongRange] {
         assert P >=0;
         val low = R.min;
         val high = R.max;
         val count = high-low+1;
         val baseSize = count/P;
         val extra = count - baseSize*P;
-        new Rail[LongRange](P, (i:long):LongRange => {
+        return new Rail[LongRange](P, (i:long):LongRange => {
           val start = low+i*baseSize+ (i < extra? i : extra);
           start..(start+baseSize+(i < extra ? 0 : -1))
-        })
+        });
     }
 
     public static def main(args: Rail[String]) {

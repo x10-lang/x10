@@ -21,7 +21,7 @@ import harness.x10Test;
  */
 public class ClosureConstraint5_MustFailCompile extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val g = (x:long,y:long){x==1 && y==-1} => x+y;
 
@@ -31,7 +31,7 @@ public class ClosureConstraint5_MustFailCompile extends x10Test {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureConstraint5_MustFailCompile().execute();
     }
 }

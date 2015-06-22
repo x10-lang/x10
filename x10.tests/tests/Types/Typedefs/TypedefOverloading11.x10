@@ -40,7 +40,7 @@ public class TypedefOverloading11 extends TypedefTest {
         static type A/*C*/[T] = Z[T,long];
         static type A/*D*/[T](i:long) = V{self.i==i};
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         a1:A = 1;
         a2:A/*B*/(1) = "1";
@@ -50,7 +50,7 @@ public class TypedefOverloading11 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading11().execute();
     }
 }

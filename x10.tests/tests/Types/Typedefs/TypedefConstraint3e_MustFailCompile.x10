@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class TypedefConstraint3e_MustFailCompile extends TypedefTest {
 
-    public def run():boolean = {
+    public def run():boolean {
 
         type T(x:long){x==1} = long;
         val zero = 0;
@@ -26,7 +26,7 @@ class TypedefConstraint3e_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefConstraint3e_MustFailCompile().execute();
     }
 }

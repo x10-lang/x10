@@ -6,10 +6,12 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util;
+
+import x10.xrx.Runtime;
 
 /**
  * We want to get highly efficient code for reductions on both Managed 
@@ -44,6 +46,8 @@ class TeamReductionHelper {
             reduce(src as Any as Rail[Short], src_off, dst as Any as Rail[Short], dst_off, count, operation);
         } else if ((src as Any) instanceof Rail[Byte]) {
             reduce(src as Any as Rail[Byte], src_off, dst as Any as Rail[Byte], dst_off, count, operation);
+        } else if ((src as Any) instanceof Rail[Boolean]) {
+            reduce(src as Any as Rail[Boolean], src_off, dst as Any as Rail[Boolean], dst_off, count, operation);
         } else {
             reduce(src, src_off, dst, dst_off, count, operation);
         }
@@ -322,6 +326,28 @@ class TeamReductionHelper {
                     val a = dst(i+dst_off);
                     val b = src(i+src_off);
                     dst(i+dst_off) = a < b ? a : b;
+                }       
+            break;
+            default:
+                Runtime.println("ERROR: Unknown reduction operation: "+operation);
+        }
+    }
+
+    private static def reduce(src:Rail[Boolean], src_off:Long, dst:Rail[Boolean], dst_off:Long, count:Long, operation:Int) {
+        switch (operation) {
+            case Team.AND:
+                for (i in 0..(count-1)) {
+                    dst(i+dst_off) = dst(i+dst_off) & src(i+src_off);
+                }       
+            break;
+            case Team.OR:
+                for (i in 0..(count-1)) {
+                    dst(i+dst_off) = dst(i+dst_off) | src(i+src_off);
+                }       
+            break;
+            case Team.XOR:
+                for (i in 0..(count-1)) {
+                    dst(i+dst_off) = dst(i+dst_off) ^ src(i+src_off);
                 }       
             break;
             default:

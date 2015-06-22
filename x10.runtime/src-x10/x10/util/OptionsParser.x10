@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util;
@@ -197,7 +197,7 @@ public class OptionsParser {
         (key:String, props:OptionsMap, args:Rail[String], first:Int, values:Int) => { 
 	        val init = (n: Long) => args(first + (n as Int));
 	        val valueArray = new Rail[String](values, init);
-	        Console.ERR.println("Duplicated "+key+", It's value now: "+valueArray(0));
+	        Console.ERR.println("Duplicated "+key+", its value now: "+valueArray(0));
         	props.put(key, valueArray);      
         };
 

@@ -28,14 +28,14 @@ public class TypedefNew08 extends TypedefTest {
     static class Y {}
 
     static class A[C] {
-        def this() = {};
-        def this(i:long):A[C] = {};
+        def this() {}
+        def this(i:long):A[C] {}
     }
 
     static type T[C] = A[C];
     static type TX = A[X];
     static type TY = A[Y];
-    public def run(): boolean = {
+    public def run(): boolean {
         // sanity check
         val a1 = new A[X]();
         val a2 = new A[X](0);

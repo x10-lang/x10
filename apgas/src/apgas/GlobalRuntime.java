@@ -11,65 +11,81 @@
 
 package apgas;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
  * down the APGAS global runtime for the application.
  * <p>
- * The global runtime is implicitly initialized when this class is loaded.
- * <p>
- * If the system property APGAS_PLACES is set to an integer 'n' greater than 1,
- * this initialization will spawn 'n-1' additional JVMs. These additional JVMs
- * will execute the same main method as the current one.
- * <p>
- * The current runtime can be obtained from the {@link #getRuntime()} method.
+ * The global runtime is implicitly initialized when first used. The current
+ * runtime can be obtained from the {@link #getRuntime()} method, which forces
+ * initialization.
  */
 public abstract class GlobalRuntime {
   /**
-   * The {@link GlobalRuntime} instance for this application.
+   * A wrapper class for implementing double-checked locking.
    */
-  private static final GlobalRuntime runtime;
+  private static class GlobalRuntimeWrapper {
+    /**
+     * The {@link GlobalRuntime} instance for this place.
+     */
+    private final GlobalRuntime runtime;
 
-  /**
-   * Throws {@code UnsupportedOperationException}.
-   *
-   * @throws UnsupportedOperationException
-   *           when invoked
-   */
-  protected GlobalRuntime() {
-    if (runtime != null) {
-      throw new UnsupportedOperationException();
+    /**
+     * Initializes the {@link GlobalRuntime} instance for this place.
+     */
+    private GlobalRuntimeWrapper() {
+      try {
+        final String className = System.getProperty(
+            Configuration.APGAS_RUNTIME, "apgas.impl.GlobalRuntimeImpl");
+        runtime = (GlobalRuntime) Class.forName(className).newInstance();
+      } catch (final ReflectiveOperationException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
   /**
-   * Returns the {@link GlobalRuntime} instance for this application.
+   * The {@link GlobalRuntimeWrapper} instance for this place.
+   */
+  private static GlobalRuntimeWrapper runtime;
+
+  /**
+   * Constructs a new {@link GlobalRuntime} instance.
+   */
+  protected GlobalRuntime() {
+  }
+
+  /**
+   * Returns the {@link GlobalRuntime} instance for this place.
    *
    * @return the GlobalRuntime instance
    */
   public static GlobalRuntime getRuntime() {
-    return runtime;
+    GlobalRuntimeWrapper r = runtime;
+    if (r == null) {
+      synchronized (GlobalRuntime.class) {
+        if (runtime == null) {
+          runtime = new GlobalRuntimeWrapper();
+        }
+        r = runtime;
+      }
+    }
+    return r.runtime;
   }
 
-  static {
-    try {
-      final String className = System.getProperty(Configuration.APGAS_RUNTIME,
-          "apgas.impl.GlobalRuntimeImpl");
-      final Constructor<?> constructor = Class.forName(className)
-          .getConstructor(new Class<?>[0]);
-      constructor.setAccessible(true);
-      try {
-        runtime = (GlobalRuntime) constructor.newInstance(new Object[0]);
-      } catch (final InvocationTargetException e) {
-        throw e.getCause();
-      }
-    } catch (final Throwable t) {
-      throw new ExceptionInInitializerError(t);
-    }
-  }
+  /**
+   * Registers a place failure handler.
+   * <p>
+   * The handler is invoked for each failed place.
+   *
+   * @param handler
+   *          the handler to register or null to deregister the current handler
+   */
+  public abstract void setPlaceFailureHandler(Consumer<Place> handler);
 
   /**
    * Shuts down the {@link GlobalRuntime} instance.
@@ -109,7 +125,20 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void asyncat(Place p, Job f);
+  protected abstract void asyncAt(Place p, SerializableJob f);
+
+  /**
+   * Submits an uncounted task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately. The termination of
+   * this task is not tracked by the enclosing finish. If an exception is thrown
+   * by the task it is logged to System.err and ignored.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
+  protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
@@ -122,7 +151,7 @@ public abstract class GlobalRuntime {
    * @param f
    *          the function to run
    */
-  protected abstract void at(Place p, Job f);
+  protected abstract void at(Place p, SerializableJob f);
 
   /**
    * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
@@ -134,9 +163,10 @@ public abstract class GlobalRuntime {
    *          the requested place of execution
    * @param f
    *          the function to run
-   * @return the result
+   * @return the result of the evaluation
    */
-  protected abstract <T> T at(Place p, Fun<T> f);
+  protected abstract <T extends Serializable> T at(Place p,
+      SerializableCallable<T> f);
 
   /**
    * Returns the current {@link Place}.
@@ -150,26 +180,31 @@ public abstract class GlobalRuntime {
    *
    * @param id
    *          the requested ID
-   * @return a {@link Place} instance with the given ID
+   * @return the place with the given ID
    */
   protected abstract Place place(int id);
 
   /**
    * Returns the current list of places in the global runtime.
-   * <p>
-   * Subsequent calls to this method may return different lists as more places
-   * are added to the global runtime.
    *
    * @return the current list of places in the global runtime
    */
   protected abstract List<? extends Place> places();
 
   /**
-   * Starts the global runtime and waits for incoming tasks.
+   * Returns the executor service for the place.
+   *
+   * @return the executor service
+   */
+  public abstract ExecutorService getExecutorService();
+
+  /**
+   * Intializes the global runtime.
    *
    * @param args
    *          ignored
    */
   public static void main(String[] args) {
+    getRuntime();
   }
 }

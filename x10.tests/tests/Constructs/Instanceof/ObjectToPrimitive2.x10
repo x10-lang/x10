@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class ObjectToPrimitive2 extends x10Test {
      
-    public def run(): boolean = {
+    public def run(): boolean {
         var array: Rail[X10DepTypeClassOneB] = new Rail[X10DepTypeClassOneB](1);
         var var_: x10.lang.Any = array(0);
         return !(var_ instanceof X10DepTypeClassOneB);

@@ -22,7 +22,7 @@ import harness.x10Test;
 
 public class ConstructorsWithInferredTypes extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
        val s0 : Spot{x==0n} = new Spot();
        val s1 : Spot{x==1n} = new Spot(1n);
        val q0 : Spot2{x==0n} = new Spot2();

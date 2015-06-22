@@ -19,7 +19,7 @@ import harness.x10Test;
  **/
 public class Long_ConstraintDeclaredAsLong extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var j: long = 2147493646L;
 		// the constraint is represented as a long
 		var i: long{self == 2147493647L} = 2147493647L;
@@ -27,7 +27,7 @@ public class Long_ConstraintDeclaredAsLong extends x10Test {
 		return ((j == 2147493647L) && (i==2147493647L));
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Long_ConstraintDeclaredAsLong().execute();
 	}
 

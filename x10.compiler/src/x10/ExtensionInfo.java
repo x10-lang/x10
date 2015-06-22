@@ -14,6 +14,7 @@ package x10;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -35,6 +36,8 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+
 import polyglot.ast.ClassMember;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -55,6 +58,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
+import polyglot.frontend.ParserCleanupGoal;
 import polyglot.frontend.ParserGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
@@ -76,7 +80,8 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
+import x10.util.CollectionFactory;
 import polyglot.visit.ConformanceChecker;
 import polyglot.visit.ConstructorCallChecker;
 import polyglot.visit.ContextVisitor;
@@ -100,6 +105,7 @@ import x10.extension.X10Ext;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
+import x10.parser.antlr.ASTBuilder;
 import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
@@ -191,12 +197,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-    // ###
-//        if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-//        	return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-//        }
+        if (getOptions().x10_config.ANTLR_PARSER) {
+            return parserANTLR(reader, source, eq);
+        } else {
+            return parserLPG(reader, source, eq);
+        }
+    }
 
-    	try {
+    public Parser parserANTLR(Reader reader, FileSource source, ErrorQueue eq) {
+        try {
+            ANTLRInputStream inputStream = source.resource().getClass() == FileResource.class ? new ANTLRInputStream(new FileInputStream(source.path())) : new ANTLRInputStream(
+                    reader);
+            return new ASTBuilder(inputStream, getOptions(), ts, nf, source, eq);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not parse " + source.path());
+        }
+    }
+
+    public Parser parserLPG(Reader reader, FileSource source, ErrorQueue eq) {
+        // ###
+        // if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+        // return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+        // }
+
+        try {
             //
             // X10Lexer may be invoked using one of two constructors.
             // One constructor takes as argument a string representing
@@ -208,7 +232,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // we depend on Polyglot to provide us with a fully qualified
             // name for the file. In Version 1.3.0, source.name() yielded a
             // fully-qualied name. In 1.3.2, source.path() yields a fully-
-            // qualified name. If this assumption still holds then the 
+            // qualified name. If this assumption still holds then the
             // first constructor will work.
             // The advantage of using the Reader constructor is that it
             // will always work, though not as efficiently.
@@ -216,13 +240,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
             //
             // FIXME: HACK! Unwrap the escaping unicode reader, because LPG will do its own decoding
-//          if (reader instanceof polyglot.lex.EscapedUnicodeReader)
-//              reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
+            // if (reader instanceof polyglot.lex.EscapedUnicodeReader)
+            // reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
             X10Lexer x10_lexer =
-                // Optimization: it's faster to read from a file
-                source.resource().getClass() == FileResource.class ?
-                                new X10Lexer(source.path()) :
-                                new X10Lexer(reader, source.toString());
+            // Optimization: it's faster to read from a file
+            source.resource().getClass() == FileResource.class ? new X10Lexer(source.path()) : new X10Lexer(reader, source.toString());
             X10SemanticRules x10_parser = new X10SemanticRules(x10_lexer, ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser.getIPrsStream());
             return x10_parser; // Parse the token stream to produce an AST
@@ -503,7 +525,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        private void addSemanticCheckSourceGoals(Job job, List<Goal> goals) {
     	   addTypecheckSourceGoals(job, goals);
 
-           goals.add(ConformanceChecked(job));
+    	   Goal conformanceGoal = ConformanceChecked(job);
+    	   goals.add(conformanceGoal);
+
+    	   Goal parserCleanupGoal = ParserCleanuped(job);
+    	   goals.add(parserCleanupGoal);
+    	   parserCleanupGoal.addPrereq(conformanceGoal);
 
            // Data-flow analyses
            goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
@@ -521,7 +548,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
-	       goals.add(CommunicationOptimizer(job));
+           goals.add(CommunicationOptimizer(job));
            goals.add(MoveFieldInitializers(job)); // should do this before desugaring
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
@@ -961,6 +988,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new X10ParserGoal(extInfo.compiler(), job).intern(this);
        }
        
+        public Goal ParserCleanuped(Job job) {
+            return new ParserCleanupGoal(job).intern(this);
+        }
+
        public Goal DotOutputted(Job job, String name) {
     	   Goal cg = new OutputGoal(job, new DotTranslator(job, extInfo.typeSystem(), extInfo.nodeFactory(), extInfo.targetFactory(), name), name);
     	   return cg.intern(this);

@@ -29,7 +29,7 @@ public class JavaSerializationObject extends x10Test {
         return true;
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         return testObject();
     }
 

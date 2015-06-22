@@ -35,6 +35,9 @@ public class TestForeachReduce(N:Long) extends x10Test {
 
         val sum = (a:Double,b:Double) => a+b;
 
+        val sequential = Foreach.sequentialReduce(0, N-1, body, sum, 0.0);
+        chk(sequential == singleThreadedResult);
+
         val block = Foreach.blockReduce(0, N-1, body, sum, 0.0);
         chk(block == singleThreadedResult);
 
@@ -47,7 +50,7 @@ public class TestForeachReduce(N:Long) extends x10Test {
         return true;
 	}
 
-	public static def main(args:Rail[String]): void = {
+	public static def main(args:Rail[String]): void {
         var size:Long = 1017;
         var print:Boolean = false;
         if (args.size > 0) {

@@ -19,13 +19,13 @@ import harness.x10Test;
 public class Variance2 extends x10Test {
         class Get[T] {
                 val x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
                 def get(): T = x; }
 
         class A { }
         class B extends A { }
 
-        public def run(): boolean = {
+        public def run(): boolean {
                 val ga = new Get[A](new A());
                 val a = ga.get();
 
@@ -35,7 +35,7 @@ public class Variance2 extends x10Test {
                 return gx == ga && x == a;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Variance2().execute();
 	}
 }

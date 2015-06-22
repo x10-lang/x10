@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
@@ -45,7 +45,7 @@
 /* *********************************************************************** */
 /*     utility methods, called outside of the launcher					   */
 /* *********************************************************************** */
-const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE"};
+const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE", "LAUNCH_REQUEST", "LAUNCH_RESPONSE"};
 
 int Launcher::setPort(uint32_t place, int port)
 {
@@ -232,7 +232,7 @@ void Launcher::startChildren()
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
-	char masterPort[1024];
+	char masterPort[PORT_MAX];
 	if (_myproc == 0xFFFFFFFF)	// the initial launcher is not in the hostlist.  Get the hostname from the socket
 	{
 		TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
@@ -240,7 +240,7 @@ void Launcher::startChildren()
 	}
 	else
 	{ // get hostname from the X10_LAUNCHER_HOST environment variable
-		strcpy(masterPort, getenv(X10_LAUNCHER_HOST));
+		strncpy(masterPort, getenv(X10_LAUNCHER_HOST), PORT_MAX);
 		sockaddr_in addr;
 		socklen_t len = sizeof(addr);
 		if (getsockname(_listenSocket, (sockaddr *) &addr, &len) < 0)
@@ -852,8 +852,15 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %d: captured exit code %s, %i of child %u\n", _myproc, (WIFEXITED(status)?"true":"false"), WEXITSTATUS(status), childNo);
 	#endif
+
+	// check for failure to launch, via special ssh exit code 255
+	if (childNo < _numchildren && WIFEXITED(status) && WEXITSTATUS(status)==255) {
+		_exitcode = 255;
+		DIE("Launcher %d: Error launching place %u on host \"%s\".  Please verify hostnames are specified correctly.", _myproc, _firstchildproc+childNo, _hostlist[childNo]);
+	}
+	// launch was ok, this is the program exiting.
 	// save this return code if it's worth saving.  The local runtime overwrites other runtimes if there are multiple errors (runtime 0 is top dog).
-	if (_exitcode == (int)0xFEEDC0DE || (childNo == _numchildren && !(WIFSIGNALED(status) && WTERMSIG(status)==SIGTERM)))
+	else if (_exitcode == (int)0xFEEDC0DE || (childNo == _numchildren && !(WIFSIGNALED(status) && WTERMSIG(status)==SIGTERM)))
 	{
 		if (childNo == _numchildren)
 		{
@@ -1006,6 +1013,20 @@ int Launcher::handleControlMessage(int fd)
 				#endif
 				TCP::write(_childControlLinks[_numchildren], &m, sizeof(struct ctrl_msg));
 				TCP::write(_childControlLinks[_numchildren], data, m.datalen);
+			}
+			break;
+			case LAUNCH_REQUEST:
+			{
+				m.to = m.from;
+				m.from = _myproc;
+				m.type = LAUNCH_RESPONSE;
+				int zero = 0;
+				m.datalen = sizeof(zero);
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %d responding to an unsupported launch request \n", _myproc);
+				#endif
+				TCP::write(fd, &m, sizeof(struct ctrl_msg));
+				TCP::write(fd, &zero, m.datalen);
 			}
 			break;
 			default:
@@ -1386,7 +1407,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 		DIE("Launcher %d: Unable to exec ssh because argv[0] is null", _myproc);
 	z = execvp(argv[0], argv);
 
-	if (z)
-		DIE("Launcher %d: ssh exec failed", _myproc);
+	if (z != 0)
+		DIE("Launcher %d: ssh exec failed.  errno=%i", _myproc, errno);
 	abort();
 }

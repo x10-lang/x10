@@ -1070,7 +1070,7 @@ public interface TypeSystem {
     X10ClassType RegionDistArray();
 
     /**
-     * Return the ClassType object for the x10.lang.Runtime.Mortal interface.
+     * Return the ClassType object for the x10.xrx.Runtime.Mortal interface.
      */
     X10ClassType Mortal();
 

@@ -25,7 +25,7 @@ public class UShortCallStatic extends x10Test {
 	return "short = " + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val i0 = 0s;
 	val u1 = 1us;
 	val s0 = f(i0);

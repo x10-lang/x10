@@ -19,7 +19,7 @@ public class BenchmarkBcast extends x10Test {
     private static ITERS = 10;
     private static MAX_SIZE = 2<<19;
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val root = Place(Place.numPlaces()-1);
         finish for (place in Place.places()) at (place) async {
             for (var s:Long= 1; s <= MAX_SIZE; s *= 2) {
@@ -43,7 +43,7 @@ public class BenchmarkBcast extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new BenchmarkBcast().execute();
 	}
 }

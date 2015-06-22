@@ -13,14 +13,14 @@ import harness.x10Test;
 
 public class MissingReturn_MustFailCompile extends x10Test {
 
-	def foo(): boolean = { // ERR
+	def foo(): boolean { // ERR
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new MissingReturn_MustFailCompile().execute();
 	}
 }

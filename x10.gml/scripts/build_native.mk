@@ -16,7 +16,7 @@
 #$(X10CXX)      ## X10 compiler
 #$(POST_PATH)   ## Post compiling include path
 #$(POST_LIBS)   ## Post compiling include libs.
-
+#$(GML_ELEM_TYPE) ## float or double
 
 ###################################################
 x10src		= $(target).x10
@@ -28,25 +28,34 @@ x10src		= $(target).x10
 
 ##----------------------------------
 ## This directory is required for building native backend
-GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gml.properties
+GML_NATIVE_JAR  = $(base_dir_elem)/lib/native_gml.jar
+GML_NAT_OPT	= -classpath $(GML_NATIVE_JAR) -x10lib $(base_dir_elem)/native_gml.properties
 
 ###################################################
 # X10 file built rules
 ################################################### 
 
-$(target)_sock	: $(x10src) $(depend_src) $(gml_inc)
+# enable CPU profiling with google-perftools
+PROFILE ?=
+ifdef PROFILE
+  X10_FLAG += -gpt
+endif
+
+#vj: used to depend on gml_inc
+$(target)_sock_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
+	        @echo "X10_HOME is |$(X10_HOME)|"
 		$(X10CXX) -g -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
-$(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
+$(target)_pami_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
 		$(X10CXX) -g -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
 ###short-keys
 #Build in native for socket transport
-sock		: $(target)_sock
+sock		: $(target)_sock_$(GML_ELEM_TYPE)
 #build in native for pami transport
-pami		: $(target)_pami
+pami		: $(target)_pami_$(GML_ELEM_TYPE)
 
 ###
 all_sock	:
@@ -58,10 +67,10 @@ all_pami	:
 ##--------
 ## clean
 clean	::
-		rm -f $(target)_sock $(target)_pami
+		rm -f $(target)_sock* $(target)_pami*
 
 clean_all ::
-		$(foreach f, $(target_list), rm -f $(f)_sock $(f)_pami; )
+		$(foreach f, $(target_list), rm -rf $(f)_sock* $(f)_pami*; )
 
 ###----------
 help	::

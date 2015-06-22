@@ -25,13 +25,13 @@ public class DefaultValueTypeDefTest extends x10Test {
          property(n,s);
        }
     }
-    public def run() = {
+    public def run() {
         val b:Box[String] = new Box[String]("a");
         val x:Foo[String]{self.n==2n && self.s==b} = Foo[String](2n,b);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new DefaultValueTypeDefTest().execute();
     }
 }

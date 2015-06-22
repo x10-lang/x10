@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.serialization;
@@ -269,14 +269,18 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
         }
 
-        writeSerializationId(sid);
         if (obj instanceof X10JavaSerializable) {
-             if (Runtime.TRACE_SER) {
+            writeSerializationId(sid);
+            if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
             }
             ((X10JavaSerializable)obj).$_serialize(this);
+        } else if (Runtime.USE_JAVA_SERIALIZATION && obj instanceof java.io.Serializable) {
+            writeSerializationId(JAVA_OBJECT_STREAM_ID);
+            writeUsingObjectOutputStream(obj); 
         } else {
             try {
+                writeSerializationId(sid);
                 SerializerThunk st = SerializerThunk.getSerializerThunk(objClass);
                 st.serializeObject(obj, objClass, this);
             } catch (SecurityException e) {
@@ -298,7 +302,6 @@ public final class X10JavaSerializer implements SerializationConstants {
                 e.printStackTrace();
                 throw new SerializationException(e);
             }
-
         }
     }
 
@@ -446,7 +449,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     private void serializeSpecialType(short sid, Object obj) throws IOException {
         switch (sid) {
         case STRING_ID:
-            // Preseve reference identity for Strings by looking for repeated objects
+            // Preserve reference identity for Strings by looking for repeated objects
             Integer pos = previous_position(obj, true);
             if (pos != null) {
                 return; 
@@ -551,6 +554,7 @@ public final class X10JavaSerializer implements SerializationConstants {
 
     // Write an object using java serialization. 
     // This is used by Rail to optimize the serialization of primitive arrays
+    // and to allow optional forcing of usage of Java serialization for Java types.
     public void writeUsingObjectOutputStream(Object obj) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(this.out);
         oos.writeObject(obj);

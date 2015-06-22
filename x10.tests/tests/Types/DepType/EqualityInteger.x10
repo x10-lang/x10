@@ -18,14 +18,14 @@ import harness.x10Test;
 */
 public class EqualityInteger extends x10Test {
   
-	public def run(): boolean = {
+	public def run(): boolean {
 		var un: int{self==1n} = 1n;
 		var deux: int{self==2n} = 2n;
 		
 		return !(un == deux) && (un != deux);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new EqualityInteger().execute();
 	}
 }

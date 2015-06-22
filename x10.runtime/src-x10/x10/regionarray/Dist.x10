@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -291,94 +291,6 @@ public abstract class Dist(
      */
     public operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Place = this(Point.make(i0,i1,i2,i3));
 
-
-
-    /**
-     * Return the offset in linearized place-local storage of the given point.
-     * Throw a BadPlaceException if the given point is not mapped to 
-     * the current place.  Primarily intended to be used by the DistArray implementation,
-     * but may be useful for other data structures as well that need to associate 
-     * Points in a Distribution with a dense, zero-based numbering.
-     *
-     * @param pt the given point
-     * @return the storage offset assigned to pt by this distribution
-     */
-    abstract public def offset(pt:Point(rank)):Long;
-
-    /**
-     * Return the offset in linearized place-local storage of the point [i0]
-     * Throw a BadPlaceException if the given point is not mapped to 
-     * the current place.  Primarily intended to be used by the DistArray implementation,
-     * but may be useful for other data structures as well that need to associate 
-     * Points in a Distribution with a dense, zero-based numbering.
-     *
-     * Only applies to one-dimensional distributions.
-     *
-     * @param i0 the given index in the first dimension
-     * @return the storage offset assigned to [i0] by this distribution
-     * @see #offset(Point)
-     */
-    public def offset(i0:Long){rank==1}:Long = offset(Point.make(i0));
-
-    /**
-     * Return the offset in linearized place-local storage of the point [i0,i1].
-     * Throw a BadPlaceException if the given point is not mapped to 
-     * the current place.  Primarily intended to be used by the DistArray implementation,
-     * but may be useful for other data structures as well that need to associate 
-     * Points in a Distribution with a dense, zero-based numbering.
-     *
-     * Only applies to two-dimensional distributions.
-     *
-     * @param i0 the given index in the first dimension
-     * @param i1 the given index in the second dimension
-     * @return the storage offset assigned to [i0,i1] by this distribution
-     * @see #offset(Point)
-     */
-    public def offset(i0:Long, i1:Long){rank==2}:Long = offset(Point.make(i0, i1));
-
-    /**
-     * Return the offset in linearized place-local storage of the point [i0,i1,i2].
-     * Throw a BadPlaceException if the given point is not mapped to 
-     * the current place.  Primarily intended to be used by the DistArray implementation,
-     * but may be useful for other data structures as well that need to associate 
-     * Points in a Distribution with a dense, zero-based numbering.
-     *
-     * Only applies to three-dimensional distributions.
-     *
-     * @param i0 the given index in the first dimension
-     * @param i1 the given index in the second dimension
-     * @param i2 the given index in the third dimension
-     * @return the storage offset assigned to [i0,i1,i2] by this distribution
-     * @see #offset(Point)
-     */
-    public def offset(i0:Long, i1:Long, i2:Long){rank==3}:Long = offset(Point.make(i0, i1, i2));
-
-    /**
-     * Return the offset in linearized place-local storage of the point [i0,i1,i2,i3].
-     * Throw a BadPlaceException if the given point is not mapped to 
-     * the current place.  Primarily intended to be used by the DistArray implementation,
-     * but may be useful for other data structures as well that need to associate 
-     * Points in a Distribution with a dense, zero-based numbering.
-     *
-     * Only applies to four-dimensional distributions.
-     *
-     * @param i0 the given index in the first dimension
-     * @param i1 the given index in the second dimension
-     * @param i2 the given index in the third dimension
-     * @param i3 the given index in the fourth dimension
-     * @return the storage offset assigned to [i0,i1,i2,i3] by this distribution
-     * @see #offset(Point)
-     */
-    public def offset(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}:Long = offset(Point.make(i0,i1,i2,i3));
-
-    /**
-     * @return the maximum value returned by the offset method for
-     *         the current place for any possible argument Point
-     * @see #offset(Point)
-     */
-    public abstract def maxOffset():Long;
-
-
     //
     //
     //
@@ -602,6 +514,14 @@ public abstract class Dist(
     public operator this - (r:Region(rank)):Dist(rank) = difference(r);
 */
 
+    /** 
+     * @param ghostWidth the width of the ghost region in all dimensions
+     * @param periodic whether periodic boundary conditions apply
+     * @return a ghost manager for this distribution at the current place 
+     */
+    public def getLocalGhostManager(ghostWidth:Long, periodic:Boolean):GhostManager {
+        throw new UnsupportedOperationException("" + this.typeName() + ".getLocalGhostManager()");
+    }
 
     public def toString():String {
         var s:String = "Dist(";
@@ -643,22 +563,7 @@ public abstract class Dist(
     protected static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
     }    
-
-    protected static @NoInline @NoReturn def raisePlaceError(i0:Long) {
-        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
-    }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
-    }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
-    }    
-    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long, i3:Long) {
-        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
-    }    
-    protected static @NoInline @NoReturn def raisePlaceError(pt:Point) {
-        throw new BadPlaceException("point " + pt + " not defined at " + here);
-    }    
+   
 }
 public type Dist(r:Long) = Dist{self.rank==r};
 public type Dist(r:Region) = Dist{self.region==r};

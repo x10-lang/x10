@@ -39,7 +39,7 @@ echo "Using local X10 svn checkout: \"$TOP\""
 
 echo "Compiling the frontend test suite architecture"
 
-"$JAVAC" -cp "$TOP/x10.dist/lib/x10c.jar:../x10.dist/lib/lpg.jar" -d . "$TOP/x10.compiler/src/x10/util/RunTestSuite.java"
+"$JAVAC" -cp "$TOP/x10.dist/lib/x10c.jar:../x10.dist/lib/lpg.jar:../x10.dist/lib/antlr-runtime-4.5.jar" -d . "$TOP/x10.compiler/src/x10/util/RunTestSuite.java"
 
 echo "Running the tests..."
 
@@ -48,7 +48,7 @@ export X10_DIST="$TOP/x10.dist"
 time nice "$JAVA" \
     -Xmx1G \
     -ea \
-    -cp "$TOP:$X10_DIST/lib/x10c.jar:$X10_DIST/lib/lpg.jar" \
+    -cp "$TOP:$X10_DIST/lib/x10c.jar:$X10_DIST/lib/lpg.jar:$X10_DIST/lib/antlr-runtime-4.5.jar" \
     -Dx10.dist="$TOP/x10.dist" \
     x10.util.RunTestSuite \
     "$TESTS" \

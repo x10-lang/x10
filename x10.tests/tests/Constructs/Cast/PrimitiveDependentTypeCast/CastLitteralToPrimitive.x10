@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class CastLitteralToPrimitive extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var boolt: boolean = true as boolean;
 		var boolf: boolean = false as boolean;
 		var b: byte = 1 as byte;
@@ -29,7 +29,7 @@ public class CastLitteralToPrimitive extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new CastLitteralToPrimitive().execute();
 	}
 }

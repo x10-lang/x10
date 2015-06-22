@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.array;
@@ -30,6 +30,10 @@ public final class DenseIterationSpace_2 extends IterationSpace(2){rect} {
         this.min1 = min1;
         this.max0 = max0;
         this.max1 = max1;
+    }
+
+    public operator this * (that:LongRange):DenseIterationSpace_3{self!=null} {
+        return new DenseIterationSpace_3(min0, min1, that.min, max0, max1, that.max);
     }
 
     public def min(i:Long):Long {

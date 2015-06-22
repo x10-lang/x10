@@ -28,21 +28,21 @@ public class FlattenArray2 extends x10Test {
 
     var a: Array[int](2);
 
-    public def this(): FlattenArray2 = {
+    public def this(): FlattenArray2 {
         a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
 
-    def m(var x: int): int = {
+    def m(var x: int): int {
         return x;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var x: int = m(3n) + m(a(1, 1)); // being called in a method to force flattening.
         var y: int = m(4n) + m(a(2, 2));
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new FlattenArray2().execute();
     }
 }

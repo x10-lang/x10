@@ -21,7 +21,7 @@ public class BenchmarkReduce extends x10Test {
 
     val root = Place(Place.numPlaces()-1);
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         finish for (place in Place.places()) at (place) async {
             for (var s:Long= 1; s <= MAX_SIZE; s *= 2) {
                 val src = new Rail[Double](s, (i:Long) => i as Double);
@@ -45,7 +45,7 @@ public class BenchmarkReduce extends x10Test {
         return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new BenchmarkReduce().execute();
 	}
 }

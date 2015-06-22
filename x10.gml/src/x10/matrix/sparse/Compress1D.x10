@@ -16,6 +16,8 @@ import x10.util.Pair;
 import x10.util.StringBuilder;
 
 import x10.matrix.util.MathTool;
+import x10.matrix.util.ElemTypeTool;
+import x10.matrix.ElemType;
 
 /**
  * This class provides abstraction of compressed 1-dimension array or
@@ -51,10 +53,10 @@ public class Compress1D {
 	 * @param ca     The storage for the compressed data
 	 */
 	@Inline
-	public def initConst(ldm:Long, v:Double, nzp:Double, off:Long, ca:CompressArray):void {
+	public def initConst(ldm:Long, v:ElemType, nzp:Float, off:Long, ca:CompressArray):void {
 		initConst(0, ldm, v, nzp, off, ca);
 	}
-	public def initConst(sttIndex:Long, ldm:Long, v:Double, nzp:Double, off:Long, ca:CompressArray):void {
+	public def initConst(sttIndex:Long, ldm:Long, v:ElemType, nzp:Float, off:Long, ca:CompressArray):void {
 		val cnt = ca.initConstValue(sttIndex, off, ldm, v, nzp);
 		this.offset = off;
 		this.length = cnt;
@@ -68,11 +70,11 @@ public class Compress1D {
 	 * @param off     Offset for the storage
 	 * @param ca     The storage of compressed array
 	 */
-	@Inline	public def initRandom(maxIndex:Long, nzp:Double, offset:Long, ca:CompressArray):void {
+	@Inline	public def initRandom(maxIndex:Long, nzp:Float, offset:Long, ca:CompressArray):void {
 		initRandom(0, maxIndex, nzp, offset, ca);
 	}
 	
-	public def initRandom(sttIndex:Long, maxIndex:Long, nzp:Double, offset:Long, ca:CompressArray):void {
+	public def initRandom(sttIndex:Long, maxIndex:Long, nzp:Float, offset:Long, ca:CompressArray):void {
 		val cnt=ca.initRandom(offset, sttIndex, maxIndex, nzp);
 		this.offset = offset;
 		this.length = cnt;		
@@ -84,7 +86,7 @@ public class Compress1D {
 	 * @see initRandom()
 	 */
 	public static def makeRand(maxIndex:Long, 
-							   nzp:Double, 
+							   nzp:Float, 
 							   offset:Long,
 							   ca:CompressArray):Compress1D {
 		val cnt=ca.initRandom(offset, maxIndex, nzp);
@@ -103,7 +105,7 @@ public class Compress1D {
 	 * @param up      upper bound
 	 */
 	public def initRandomFast(ldm:Long,      // Maximum index
-							  nzp:Double,   // Nonzero percentage
+							  nzp:Float,   // Nonzero percentage
 							  off:Long,      // Offset for the storage
 							  ca:CompressArray, // The shared storage 
 							  lb:Long, ub:Long):void {
@@ -114,7 +116,7 @@ public class Compress1D {
 	
 	public def initRandomFast(sttIndex:Long, //Starting index value,
 			ldm:Long,      // Maximum index
-			nzp:Double,   // Nonzero percentage
+			nzp:Float,   // Nonzero percentage
 			off:Long,      // Offset for the storage
 			ca:CompressArray, // The shared storage 
 			lb:Long, ub:Long):void {
@@ -132,11 +134,11 @@ public class Compress1D {
 	 * @param off     Offset for the storage
 	 * @param ca      The shared storage
 	 */
-	public def initRandomFast(ldm:Long, nzp:Double, off:Long, ca:CompressArray):void {
+	public def initRandomFast(ldm:Long, nzp:Float, off:Long, ca:CompressArray):void {
 		initRandomFast(0, ldm, nzp, off, ca, 0, 0);
 	}
 	
-	public def initRandomFast(sttIndex:Long, ldm:Long, nzp:Double, off:Long, ca:CompressArray):void {
+	public def initRandomFast(sttIndex:Long, ldm:Long, nzp:Float, off:Long, ca:CompressArray):void {
 		initRandomFast(sttIndex, ldm, nzp, off, ca, 0, 0);
 	}
 	/**
@@ -145,7 +147,7 @@ public class Compress1D {
 	 * @see initRandomFast()
 	 */
 	public static def makeRandomFast(maxIndex:Long, 
-									 nzp:Double, 
+									 nzp:Float, 
 									 offset:Long,
 									 ca:CompressArray):Compress1D {
 		val cnt=ca.initRandomFast(offset, maxIndex, nzp);
@@ -171,7 +173,7 @@ public class Compress1D {
 
 
 	// Memory disjointed compress
-	public static def compress(src:Rail[Double] //The data array to be compressed
+	public static def compress(src:Rail[ElemType] //The data array to be compressed
 							   ):Compress1D {
 		val ca = CompressArray.compress(src);
 		return new Compress1D(0, ca.count, ca);
@@ -182,7 +184,7 @@ public class Compress1D {
 	 * Compress src array into this compressed 1D line.
 	 */
 	public def compressAt(off:Long,   //The offset in storage to hold compress data
-						  d:Rail[Double] //The source data to be compressed
+						  d:Rail[ElemType] //The source data to be compressed
 						  ):Long {  // Return number of data compressed
 		offset = off;
 		length = cArray.compressAt(offset, d);
@@ -213,11 +215,11 @@ public class Compress1D {
 	 * This method allows random access of data in column/row given
 	 * the surface index, however expensive.
 	 */
-	public operator this(idx:Long):Double {
+	public operator this(idx:Long):ElemType {
 		val pos = find(idx);
 		if (pos >= 0 ) 
 			return cArray.getValue(offset+pos);
-		return 0.0D;
+		return 0.0D as ElemType;
 	}
 
 	// Using relative position
@@ -236,7 +238,7 @@ public class Compress1D {
 	 * use this method. We do not advice to modify the compressed
 	 * data or modify sparse matrix after it is created.
 	 */
-	public operator this(pos:Long)=(w:Pair[Long,Double]) :void {
+	public operator this(pos:Long)=(w:Pair[Long,ElemType]) :void {
 		cArray(offset+pos)=w;
 	}
 		
@@ -446,7 +448,7 @@ public class Compress1D {
 	public def extract(startIndex:Long, 
 					   length:Long, 
 					   destOffset:Long, 
-					   dest:Rail[Double]):void {
+					   dest:Rail[ElemType]):void {
 		val r = findIndexRange(startIndex, startIndex+length-1);
 		val startPos = r.first;
 		val count   = r.second;
@@ -454,7 +456,7 @@ public class Compress1D {
 		cArray.extract(startPos, count, destOffset, dest);
 	}
 
-	public def extract(dst:Rail[Double]) :void {
+	public def extract(dst:Rail[ElemType]) :void {
 		if (length > 0L)
 			cArray.extract(offset, length, 0L, dst);
 	}
@@ -465,7 +467,7 @@ public class Compress1D {
 	 * @param dstoff      Destination array offset
 	 * @param dst         Destination arra
 	 */
-   	public def extract(dstoff:Long, dst:Rail[Double]) {
+   	public def extract(dstoff:Long, dst:Rail[ElemType]) {
 		cArray.extract(offset, length, dstoff, dst);
 	}
 
@@ -473,7 +475,7 @@ public class Compress1D {
    	 * Add a compressed line to the uncompressed array.
 	 * This method is used for SUMMA transposed multiplication
    	 */
-	public def addToArray(dstoff:Long, dst:Rail[Double]):void {
+	public def addToArray(dstoff:Long, dst:Rail[ElemType]):void {
 		//Set the source 1 (dest) compress line cline
 		for (var i:Long=0; i<this.length; i++) {
 			val dstpos = dstoff+getIndex(i);
@@ -517,7 +519,7 @@ public class Compress1D {
 		return true;
 	}
 
-	public def testIn(al:Rail[Double]):Boolean {
+	public def testIn(al:Rail[ElemType]):Boolean {
 		for (var i:Long=0; i<this.length; i++) {
 			if (MathTool.equals(al(getIndex(i)), getValue(i)))
 				continue;
@@ -530,15 +532,15 @@ public class Compress1D {
 
 	// Randomness info
 
-	public def compAvgIndexDst():Double {
+	public def compAvgIndexDst():ElemType {
 		val lpos = this.length-1;
-		if (lpos <= 0) return 0.0;
-		return 1.0*(this.getIndex(lpos) - this.getIndex(0))/(this.length-1);
+		if (lpos <= 0) return 0.0 as ElemType;
+		return (1.0*(this.getIndex(lpos) - this.getIndex(0))/(this.length-1)) as ElemType;
 	}
 
-	public def compIndexDstSumDvn(avg:Double):Double {
+	public def compIndexDstSumDvn(avg:ElemType):ElemType {
 		var df:Long=0;
-		var dv:Double=0;
+		var dv:ElemType=0;
 		for (var i:Long=0; i<this.length-1; i++) {
 			df = this.getIndex(i+1) - this.getIndex(i);
 			assert df > 0;
@@ -547,9 +549,9 @@ public class Compress1D {
 		return dv;
 	}
 
-	public def compIndexDstStdDvn() : Double {
-		if (this.length <= 1) return 0.0;
+	public def compIndexDstStdDvn() : ElemType {
+		if (this.length <= 1) return 0.0 as ElemType;
 		val d =compIndexDstSumDvn(compAvgIndexDst());
-		return x10.lang.Math.sqrt(d / (this.length-1));
+		return x10.lang.Math.sqrt(d / (this.length-1)) as ElemType;
 	}
 }

@@ -24,11 +24,11 @@ public class TypedefOverloading10_MustFailCompile extends TypedefTest {
     static interface A {}
     static type A = String; // ERR
 
-    public def run(): boolean = {
+    public def run(): boolean {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading10_MustFailCompile().execute();
     }
 }

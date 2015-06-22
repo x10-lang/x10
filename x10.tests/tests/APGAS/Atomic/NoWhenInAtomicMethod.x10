@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class NoWhenInAtomicMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
         	var lock1:boolean=false;
 			atomic 

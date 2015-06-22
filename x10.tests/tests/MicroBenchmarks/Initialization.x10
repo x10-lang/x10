@@ -23,7 +23,7 @@ public class Initialization extends x10Test {
 	var x_javaArray: Array[double];
 	var x_intArray1D: DistArray[int];
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var start: long;
                 var stop: long;
 		val OneDSize: int = kArraySize * kArraySize;

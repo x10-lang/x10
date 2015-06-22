@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.core;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import x10.core.fun.VoidFun_0_0;
+import x10.lang.DeadPlaceException;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.StaticVoidFunType;
@@ -48,7 +49,7 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
         public RuntimeType<?> $getRTT() { return $RTT; }
         public Type<?> $getParam(int i) { return null; }
         public static void cleanup(long grefId) {
-            if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: Sentinel.cleanup called at " + x10.lang.Runtime.home() + " for grefId=" + grefId);
+            if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: Sentinel.cleanup called at " + x10.xrx.Runtime.home() + " for grefId=" + grefId);
             PlaceLocalHandle.deleteDataAtAllPlaces(grefId);
         }
     }
@@ -84,7 +85,7 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
 
     public final PlaceLocalHandle x10$core$PlaceLocalHandle$$init$S() {
         initSentinel();
-        if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: PlaceLocalHandle created at " + x10.lang.Runtime.home() + " -> " + getId());
+        if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: PlaceLocalHandle created at " + x10.xrx.Runtime.home() + " -> " + getId());
         return this;
     }
 
@@ -114,10 +115,10 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
         Id id = getId();
         synchronized(data) {
             if (null == value) {
-                if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data removed explicitly for " + id + " at " + x10.lang.Runtime.home());
+                if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data removed explicitly for " + id + " at " + x10.xrx.Runtime.home());
                 data.remove(id);
             } else {
-                if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data set for " + id + " at " + x10.lang.Runtime.home());
+                if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data set for " + id + " at " + x10.xrx.Runtime.home());
                 data.put(id, value);
             }
         }
@@ -154,20 +155,25 @@ public final class PlaceLocalHandle<T> implements X10JavaSerializable {
      */
     // Delete a PLH data at all places
     private static void deleteDataAtAllPlaces(long grefId) {
-        long hereId = x10.lang.Runtime.home().id;
+        long hereId = x10.xrx.Runtime.home().id;
+        // TODO numPlaces or maxPlaces?
         long numPlaces = x10.lang.Place.numPlaces$O();
         for (long placeId = 0; placeId < numPlaces; placeId++) {
             if (placeId == hereId) {
                 deleteLocalData(hereId, grefId);
             } else {
-                x10.lang.Runtime.runAtSimple(new x10.lang.Place(placeId), new $Closure$0(hereId, grefId), false/*not-wait*/);
+                try {
+                    x10.xrx.Runtime.runAtSimple(new x10.lang.Place(placeId), new $Closure$0(hereId, grefId), false/*not-wait*/);
+                } catch (DeadPlaceException e) {
+                    if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: place=" + placeId + " is dead");
+                }
             }
         }
     }
     // Delete local data, this should be consistent with PlaceLocalHandle.set(T)
     private static void deleteLocalData(long id1, long id2) {
         Id id = new Id(id1, id2);
-        if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data removed automatically for " + id + " at " + x10.lang.Runtime.home());
+        if (PLH_DEBUG>=1) System.err.println("PLH_DEBUG: local data removed automatically for " + id + " at " + x10.xrx.Runtime.home());
         synchronized(data) { data.remove(id); } // This should work if the data is already deleted explicitly.
     }
     // Closure for calling PlaceLocalHandle.deleteLocalData(id1, id2)

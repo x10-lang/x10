@@ -571,16 +571,14 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
         return new AnnotationDesc[0];
     }
 
-//    /**
-//     * Note that AnnotatedType is introduced in 1.8.
-//     * (uncomment this method to build x10doc with Java 8)
-//     * @since 1.8
-//     * @return
-//     */
-//    public com.sun.javadoc.AnnotatedType asAnnotatedType() {
-//        // TODO Auto-generated method stub
-//        return null;        
-//    }
+    /**
+     * @since 1.8
+     * @return
+     */
+    public com.sun.javadoc.AnnotatedType asAnnotatedType() {
+        // TODO Auto-generated method stub
+        return null;        
+    }
 
     // Return this type as an AnnotationTypeDoc if it represents an annotation
     // type, null otherwise.

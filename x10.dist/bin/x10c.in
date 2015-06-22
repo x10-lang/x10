@@ -7,6 +7,7 @@ rtdev=""
 java_args=""
 args=""
 optimize=""
+optlevel=""
 debug=""
 flatexprs=""
 
@@ -14,6 +15,8 @@ if [ "$CROSS_COMPILE_BGQ" = "true" ]; then
     x10rt_impl="pami"
 elif [ "$X10RT_PAMI_IS_DEFAULT" = "true" ]; then
     x10rt_impl="pami"
+elif [ "$CROSS_COMPILE_MODULES" = "true" ]; then
+    x10rt_impl="mpi"
 else
     x10rt_impl="sockets"
 fi
@@ -38,6 +41,12 @@ while [ -n "$1" ]; do
         -extclass) shift; ext=$1;;
         -x10rt) shift; x10rt_impl=$1;;
         -O|-optimize) optimize="true";;
+        -O0) optimize="false"; optlevel="0";;
+        -O1) optimize="true"; optlevel="1";;
+        -O2) optimize="true"; optlevel="2";;
+        -O3) optimize="true"; optlevel="3";;
+        -O4) optimize="true"; optlevel="4";;
+        -O5) optimize="true"; optlevel="5";;
         -g|-DEBUG) debug="true";;
         -DEBUG=*) debug='${1##-DEBUG=}';;
         -FLATTEN_EXPRESSIONS) flatexprs="true";;
@@ -67,6 +76,9 @@ where [options] includes:
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
     -O -optimize             generate optimized code
+    -O0                      generate unoptimized code
+    -O1 -O2 -O3 -O4 -O5      generate optimized code and 
+                               invoke post compiler at specified level
     -g                       generate debug information
 
     Use "x10c -- -help" to get more detailed help on compiler options
@@ -100,11 +112,16 @@ if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
     if [ -f "$TOOLSJAR" ]; then
         classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
     else
-        echo "Warning: x10doc requires javadoc framework in JDK"
+        TOOLSJAR="${JRE_HOME}${FILE_SEP}..${FILE_SEP}lib${FILE_SEP}tools.jar"
+        if [ -f "$TOOLSJAR" ]; then
+            classpath="${classpath}${TOOLSJAR}${PATH_SEP}"
+        else
+            echo "Warning: x10doc requires javadoc framework in JDK"
+        fi
     fi
 fi
 
-classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${WALA_JARS}"
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${ANTLR_JAR}${PATH_SEP}${WALA_JARS}"
 classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
 classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
 
@@ -114,6 +131,7 @@ classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
 
 # Set flags to generate optimized code if we've been asked to do so.
 [ "$optimize" = "true" ] && args="-OPTIMIZE=true $args"
+[ "$optlevel" != "" ] && args="-OPT_LEVEL=${optlevel} $args"
 
 # Set flags to generate debug information if we've been asked to do so.
 [ -n "$debug" ] && args="-DEBUG=$debug $args"
@@ -130,7 +148,7 @@ export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx1024m -Xss1m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+command="\"$JAVA\" -Xmx1024m -Xss2m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 
 [ -n "$verbose" ] && echo "$command"
 

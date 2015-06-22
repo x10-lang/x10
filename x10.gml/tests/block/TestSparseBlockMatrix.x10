@@ -13,24 +13,27 @@ import harness.x10Test;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
 import x10.matrix.block.SparseBlockMatrix;
 
 public class TestSparseBlockMatrix extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 	public val M:Long;
 	public val N:Long;
 	public val R:Long;
 	public val C:Long;
 	public val grid:Grid;
-	public val nzd:Double;
+	public val nzd:Float;
 
     public def this(args:Rail[String]) {
 		M = args.size > 0 ? Long.parse(args(0)):40;
 		N = args.size > 1 ? Long.parse(args(1)):(M as Int)+2;
 		R = args.size > 2 ? Long.parse(args(2)):2;
 		C = args.size > 3 ? Long.parse(args(3)):3;
-		nzd =  args.size > 4 ?Double.parse(args(4)):0.9;
+		nzd =  args.size > 4 ? Float.parse(args(4)):0.9f;
 		grid = new Grid(M, N, R, C);
 	}
 
@@ -64,9 +67,17 @@ public class TestSparseBlockMatrix extends x10Test {
 		if (!ret)
 			Console.OUT.println("--------Sparse block matrix Clone test failed!--------");
 
-        sbm(1, 1) = sbm1(2,2) = 10.0;
+        // find non-zero indices in first and second columns
+        var firstNonzeroIndex:Long = 1;
+        while (sbm(firstNonzeroIndex, 1) == 0.0) firstNonzeroIndex++;
 
-        if ((sbm(1,1)==sbm1(2,2)) && (sbm(1,1)==10.0)) {
+        var secondNonzeroIndex:Long = 1;
+        while (sbm(secondNonzeroIndex, 2) == 0.0) secondNonzeroIndex++;
+
+		sbm(firstNonzeroIndex, 1) = sbm1(secondNonzeroIndex, 2) = ET(10.0);
+
+        if ((sbm(firstNonzeroIndex, 1) == sbm1(secondNonzeroIndex, 2)) 
+         && (sbm(firstNonzeroIndex, 1) == ET(10.0))) {
                 ret &= true;
         } else {
                 ret &= false;
@@ -111,10 +122,10 @@ public class TestSparseBlockMatrix extends x10Test {
 		Console.OUT.println("Sparse block matrix scaling test, nzd:"+nzd);
 		val dm = SparseBlockMatrix.make(grid, nzd);
 		dm.initRandom(nzd);
-		val dm1  = dm * 2.5;
+		val dm1  = dm * ET(2.5);
 		val m = dm.toDense();
 		
-		m.scale(2.5);
+		m.scale(ET(2.5));
 		val ret = m.equals(dm1 as Matrix(M,N));
 		if (!ret)
 			Console.OUT.println("--------Sparse block matrix Scaling test failed!--------");	

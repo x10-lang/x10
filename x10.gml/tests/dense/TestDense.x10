@@ -6,7 +6,7 @@
  */
 
 import harness.x10Test;
-
+import x10.matrix.ElemType;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.util.MathTool;
@@ -15,6 +15,8 @@ import x10.matrix.util.MathTool;
  * This class contains test cases for dense matrix operations.
  */
 public class TestDense extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 	public val M:Long;
 	public val N:Long;
 
@@ -29,6 +31,7 @@ public class TestDense extends x10Test {
 		ret &= (testClone());
 		ret &= (testInit());
 		ret &= (testTrans());
+		ret &= (testTransInPlace());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -37,9 +40,9 @@ public class TestDense extends x10Test {
 		ret &= (testCellMult());
 		ret &= (testCellDiv());
 
-        ret &= (testNorm());
-        ret &= (testMaxNorm());
-        ret &= (testTrace());
+		ret &= (testNorm());
+		ret &= (testMaxNorm());
+		ret &= (testTrace());
 
 		return ret;
 	}
@@ -55,8 +58,8 @@ public class TestDense extends x10Test {
 		if (!ret)
 			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
 		
-		dm(1, 1) = dm(M-1,N-1) = 10.0;
-		if ((dm(1,1)==dm(M-1,N-1)) && (dm(1,1)==10.0)) {
+		dm(1, 1) = dm(M-1,N-1) = ET(10.0);
+		if ((dm(1,1)==dm(M-1,N-1)) && (dm(1,1)==ET(10.0))) {
 			ret &= true;
 		} else {
 			ret &= false;
@@ -69,11 +72,11 @@ public class TestDense extends x10Test {
 	public def testInit():Boolean {
 		Console.OUT.println("Dense Matrix initialization test");
 		var ret:Boolean = true;
-		val den = DenseMatrix.make(M,N).init((r:Long, c:Long)=>(1.0+r+c));
+		val den = DenseMatrix.make(M,N).init((r:Long, c:Long)=>ET(1.0+r+c));
 		
 		for (var c:Long=0; c<N; c++)
 			for (var r:Long=0; r<M; r++)
-				ret &= (den(r,c) == 1.0+r+c);
+			    ret &= (den(r,c) == ET(1.0+r+c));
 		
 		if (!ret)
 			Console.OUT.println("--------Dense matrix initialization func failed!--------");
@@ -84,7 +87,7 @@ public class TestDense extends x10Test {
 	public def testTrans():Boolean {
 		Console.OUT.println("Dense Matrix transpose test");
 		var ret:Boolean = true;
-		val src = DenseMatrix.make(M,N).init((r:Long,c:Long)=>1.0+r+c*M);
+		val src = DenseMatrix.make(M,N).init((r:Long,c:Long)=>ET(1.0+r+c*M));
 		val srcT = src.T();
 		for (var c:Long=0; c<N; c++)
 			for (var r:Long=0; r<M; r++)
@@ -95,12 +98,27 @@ public class TestDense extends x10Test {
 
 		return ret;
 	}
+
+	public def testTransInPlace():Boolean {
+		Console.OUT.println("Dense Matrix in-place transpose test");
+
+		val src = DenseMatrix.makeRand(N, N);
+		val srcT = src.T();
+
+        src.selfT();
+        var ret:Boolean = src.equals(srcT as Matrix(N,N));
+
+		if (!ret)
+			Console.OUT.println("--------Dense matrix in-place transpose failed!--------");
+
+		return ret;
+	}
 	
 	public def testScale():Boolean{
 		Console.OUT.println("Dense matrix scaling test");
 		val dm = DenseMatrix.makeRand(M, N);
-		val dm1  = dm * 2.5;
-		dm1.scale(1.0/2.5);
+		val dm1  = dm * ET(2.5);
+		dm1.scale(ET(1.0/2.5));
 		val ret = dm.equals(dm1);
 		if (!ret)
 			Console.OUT.println("--------Dense matrix Scaling test failed!--------");
@@ -113,7 +131,7 @@ public class TestDense extends x10Test {
 		val dm = DenseMatrix.makeRand(M, N);
 		val dm1 = -dm;
 		val dm0 = dm + dm1;
-		val ret = dm0.equals(0.0);
+		val ret = dm0.equals(ET(0.0));
 		if (!ret)
 			Console.OUT.println("--------Add: dm + dm*-1 test failed--------");
 		return ret;
@@ -152,8 +170,8 @@ public class TestDense extends x10Test {
 
 		val a = DenseMatrix.makeRand(M, N);
 		val b = DenseMatrix.makeRand(M, N);
-		val a1= a * 0.2;
-		val a2= a * 0.8;
+		val a1= a * ET(0.2);
+		val a2= a * ET(0.8);
 		val ret = a.equals(a1+a2);
 		if (!ret)
 			Console.OUT.println("--------Dense matrix scaling-add test failed!--------");
@@ -193,7 +211,7 @@ public class TestDense extends x10Test {
         Console.OUT.println("Dense Matrix norm test");
 
         val a = DenseMatrix.makeRand(M, N);
-        val alpha = 2.5;
+        val alpha = ET(2.5);
         val b = a * alpha;
         val aNorm = a.norm();
         val bNorm = b.norm();

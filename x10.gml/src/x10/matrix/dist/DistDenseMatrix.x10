@@ -17,6 +17,8 @@ import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlock;
 import x10.matrix.block.DenseBlockMatrix;
@@ -145,7 +147,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param  da     Distributed arrays in all placese
 	 */
 	public static def make(gp:Grid, 
-						da:DistArray[Rail[Double]](1)): DistDenseMatrix(gp.M,gp.N) {
+						da:DistArray[Rail[ElemType]](1)): DistDenseMatrix(gp.M,gp.N) {
 		val ddb = DistArray.make[DenseBlock](da.dist);
 		finish for([p] in da.dist) {
 			val rid = gp.getRowBlockId(p);
@@ -155,7 +157,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			val roff= gp.startRow(rid);
 			val coff= gp.startCol(cid);
 			at(ddb.dist(p)) async {
-				val den = new DenseMatrix(m, n, da(p) as Rail[Double]);
+				val den = new DenseMatrix(m, n, da(p) as Rail[ElemType]{self!=null});
 				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
 			}
 		}
@@ -167,7 +169,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * 
 	 * @param ival     initial value for all elements in matrix
 	 */
-	public def init(ival:Double):DistDenseMatrix(this) {
+	public def init(ival:ElemType):DistDenseMatrix(this) {
 		finish ateach(p in distBs) {
 			distBs(p).dense.init(ival);
 		}
@@ -180,7 +182,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param f    The function to use to initialize the matrix, given global row and column index
 	 * @return this object
 	 */
-	public def init(f:(Long,Long)=>Double): DistDenseMatrix(this) {
+	public def init(f:(Long,Long)=>ElemType): DistDenseMatrix(this) {
 		finish for (var cb:Long=0; cb<grid.numColBlocks; cb++) {
 			for (var rb:Long=0; rb<grid.numRowBlocks; rb++) {
 				val pid = grid.getBlockId(rb, cb);
@@ -409,7 +411,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Return element value at(x, y)
 	 */
-    public  operator this(x:Long, y:Long):Double {
+    public  operator this(x:Long, y:Long):ElemType {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		val dv = at(this.distBs.dist(bid)) this.distBs(bid)(loc(2), loc(3));
@@ -419,7 +421,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Set value v at(x, y) 
 	 */
-	public  operator this(x:Long,y:Long)=(v:Double):Double {
+	public  operator this(x:Long,y:Long)=(v:ElemType):ElemType {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		at(this.distBs.dist(bid)) this.getMatrix(bid)(loc(2), loc(3))=v;
@@ -447,7 +449,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * For each i,j, replace this(i,j) with this(i,j)*a.
 	 */
- 	public def scale(a:Double) {
+ 	public def scale(a:ElemType) {
 		finish ateach([p] in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
 			local().scale(a);
@@ -484,7 +486,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	    return this;
 	}
 
-	public def cellAdd(d:Double) {
+	public def cellAdd(d:ElemType) {
 
 		finish ateach([p]  in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
@@ -533,15 +535,6 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
-
-	public def cellSubFrom(dv:Double):DistDenseMatrix(this) {
-		finish ateach([p] in this.dist) {
-			//Remote capture: dv
-		   val d = this.local();
-		   d.cellSubFrom(dv);
-		}
-		return this;
-	}	
 
 	/**
 	 * Cellwise multiplication. Input A must be a DistDenseMatrix instance
@@ -684,7 +677,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaDense.estPanelSize(A, B);
-		SummaDense.mult(ps, plus?1.0:0.0, A, B, this);
+		SummaDense.mult(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}
 	
@@ -694,7 +687,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaDense.estPanelSize(A, B);
-		SummaDense.multTrans(ps, plus?1.0:0.0, A, B, this);
+		SummaDense.multTrans(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}	
 	
@@ -711,7 +704,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaDenseMultSparse.estPanelSize(A, B);
-		SummaDenseMultSparse.mult(ps, plus?1.0:0.0, A, B, this);
+		SummaDenseMultSparse.mult(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}
 	
@@ -725,7 +718,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaDenseMultSparse.estPanelSize(A, B);
-		SummaDenseMultSparse.multTrans(ps, plus?1.0:0.0, A, B, this);
+		SummaDenseMultSparse.multTrans(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}	
 
@@ -741,7 +734,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaSparse.estPanelSize(A, B);
-		SummaSparse.mult(ps, plus?1.0:0.0, A, B, this);
+		SummaSparse.mult(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}		
 	
@@ -755,7 +748,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaSparse.estPanelSize(A, B);
-		SummaSparse.multTrans(ps, plus?1.0:0.0, A, B, this);
+		SummaSparse.multTrans(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}	
 	
@@ -772,7 +765,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaSparseMultDense.estPanelSize(A, B);
-		SummaSparseMultDense.mult(ps, plus?1.0:0.0, A, B, this);
+		SummaSparseMultDense.mult(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}
 
@@ -786,7 +779,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			plus:Boolean):DistDenseMatrix(this) {
 		
 		val ps = SummaSparseMultDense.estPanelSize(A, B);
-		SummaSparseMultDense.multTrans(ps, plus?1.0:0.0, A, B, this);
+		SummaSparseMultDense.multTrans(ps, (plus?1.0:0.0) as ElemType, A, B, this);
 		return this;
 	}	
 	
@@ -839,18 +832,17 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 
 	// Operator overload			 
 
-	public operator - this = this.clone().scale(-1.0) as DistDenseMatrix(M,N);
-	public operator (v:Double) + this = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
-	public operator this + (v:Double) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+	public operator - this = this.clone().scale((-1.0) as ElemType) as DistDenseMatrix(M,N);
+	public operator (v:ElemType) + this = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+	public operator this + (v:ElemType) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
 
-	public operator this - (v:Double) = this.clone().cellAdd(-v) as DistDenseMatrix(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DistDenseMatrix(M,N);
+	public operator this - (v:ElemType) = this.clone().cellAdd(-v) as DistDenseMatrix(M,N);
 	
-	public operator this / (v:Double) = this.clone().scale(1.0/v) as DistDenseMatrix(M,N);
-	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);
+	public operator this / (v:ElemType) = this.clone().scale((1.0/v) as ElemType) as DistDenseMatrix(M,N);
+	//public operator (v:ElemType) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);
 	
-	public operator this * (alpha:Double) = this.clone().scale(alpha) as DistDenseMatrix(M,N);
-	public operator (alpha:Double) * this : DistDenseMatrix(M,N) = this * alpha;
+	public operator this * (alpha:ElemType) = this.clone().scale(alpha) as DistDenseMatrix(M,N);
+	public operator (alpha:ElemType) * this : DistDenseMatrix(M,N) = this * alpha;
 	
 	public operator this + (that:DistDenseMatrix(M,N)) = this.clone().cellAdd(that) as DistDenseMatrix(M,N);
 	public operator this - (that:DistDenseMatrix(M,N)) = this.clone().cellSub(that) as DistDenseMatrix(M,N);

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.rtt;
@@ -123,7 +123,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     
     // Note: function types override this
     protected Variance getVariance(int i) {
-    	return Variance.INVARIANT;
+            return Variance.INVARIANT;
     }
     
     protected final int numParams() {
@@ -265,12 +265,41 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
 
-    // TODO consolidate
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
+    private static Type<?> resolveUnresolvedType(RuntimeType<?> rtt, Object o_or_any_or_subParams, Type<?> origTypeArgument) {
+        Type<?> t = origTypeArgument;
+        while (t instanceof UnresolvedType) {
+            int index = ((UnresolvedType) t).getIndex();
+            if (o_or_any_or_subParams instanceof Any) {
+                Any any = (Any) o_or_any_or_subParams;
+                t = index == -1 ? rtt : any.$getParam(index);
+            } else if (o_or_any_or_subParams instanceof Type<?>[]) {
+                Type<?>[] paramsRTT = (Type<?>[]) o_or_any_or_subParams;
+                t = index == -1 ? rtt : paramsRTT[index];
+            } else {
+                assert(index == -1);
+                t = rtt;                
+            }
+        }
+        if (t instanceof ParameterizedType<?>) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) t;
+            Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
+            Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
+            for (int i = 0; i < origTypeArgumentsT.length; i++) {
+                resolvedTypeArgumentsT[i] = resolveUnresolvedType(rtt, o_or_any_or_subParams, origTypeArgumentsT[i]);
+            }
+            if (origTypeArgumentsT.length == 1) {
+                t = ParameterizedType.make(pt.getRawType(), resolvedTypeArgumentsT[0]);
+            } else if (origTypeArgumentsT.length == 2) {
+                t = ParameterizedType.make(pt.getRawType(), resolvedTypeArgumentsT[0], resolvedTypeArgumentsT[1]);                
+            } else {
+                t = ParameterizedType.make(pt.getRawType(), resolvedTypeArgumentsT);
+            }
+        }
+        return t;
+    }
+
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
-    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o) {
+    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o_or_any_or_subParams) {
         if (rtt.parents != null) {
             for (Type<?> t : rtt.parents) {
                 if (javaClass.isAssignableFrom(t.getJavaClass())) {
@@ -279,14 +308,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                         Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
                         Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
                         for (int i = 0; i < origTypeArgumentsT.length; i++) {
-                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
-                                assert(index == -1);
-                                resolvedTypeArgumentsT[i] = rtt;
-                            }
-                            else {
-                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
-                            }
+                            resolvedTypeArgumentsT[i] = resolveUnresolvedType(rtt, o_or_any_or_subParams, origTypeArgumentsT[i]);
                         }
                         if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
                             return true;
@@ -298,76 +320,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
 
-    // TODO consolidate
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
-    // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
-    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) {
-        if (rtt.parents != null) {
-            for (Type<?> t : rtt.parents) {
-                if (javaClass.isAssignableFrom(t.getJavaClass())) {
-                    if (t instanceof ParameterizedType<?>) {
-                        ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                        Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
-                        Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
-                        for (int i = 0; i < origTypeArgumentsT.length; i++) {
-                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
-                                resolvedTypeArgumentsT[i] = index == -1 ? rtt : any.$getParam(index);
-                            }
-                            else {
-                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
-                            }
-                        }
-                        if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
-                            return true;
-                        }
-                    }
-                    if (t instanceof RuntimeType && equals(t)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
-    // TODO consolidate
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
-    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
-    // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
-    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT) {
-        if (rtt.parents != null) {
-            for (Type<?> t : rtt.parents) {
-                if (javaClass.isAssignableFrom(t.getJavaClass())) {
-                    if (t instanceof ParameterizedType<?>) {
-                        ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                        Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
-                        Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
-                        for (int i = 0; i < origTypeArgumentsT.length; i++) {
-                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
-                                resolvedTypeArgumentsT[i] = index == -1 ? rtt : paramsRTT[index];
-                            }
-                            else {
-                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
-                            }
-                        }
-                        if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
-                            return true;
-                        }
-                    }
-                    if (t instanceof RuntimeType && equals(t)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
     // check "subType and subParams" <: "this and thisParams"
     final boolean isAssignableFrom(Type<?>[] thisParams, RuntimeType<?> subType, Type<?>[] subParams) {
         if (javaClass == subType.getJavaClass()) {
@@ -397,15 +349,15 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     public Object makeArray(int dim0, int dim1) {
-    	return Array.newInstance(javaClass, new int[] { dim0, dim1 });
+        return Array.newInstance(javaClass, new int[] { dim0, dim1 });
     }
     
     public Object makeArray(int dim0, int dim1, int dim2) {
-    	return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2 });
+        return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2 });
     }
     
     public Object makeArray(int dim0, int dim1, int dim2, int dim3) {
-    	return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2, dim3 });
+        return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2, dim3 });
     }
     
     public Object makeArray(int... dims) {

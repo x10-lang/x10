@@ -39,7 +39,7 @@ public class TypedefOverloading03 extends TypedefTest {
         static type A[T] = String;
         static type A[T,U] = Y[U];
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         a1:A = 1;
         a2:A[long] = "1";
@@ -48,7 +48,7 @@ public class TypedefOverloading03 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading03().execute();
     }
 }

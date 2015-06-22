@@ -8,6 +8,8 @@ import harness.x10Test;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.SymDense;
 import x10.matrix.sparse.SymSparseCSC;
 import x10.matrix.builder.SparseCSCBuilder;
@@ -15,10 +17,13 @@ import x10.matrix.builder.SymDenseBuilder;
 import x10.matrix.builder.SymSparseBuilder;
 
 public class TestSymBuilder extends x10Test {
-	public val M:Long;
-	public val nzd:Double;
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
 
-	public def this(m:Long, d:Double) {
+	public val M:Long;
+	public val nzd:Float;
+
+	public def this(m:Long, d:Float) {
 		M = m; nzd = d;
 	}
 
@@ -41,8 +46,8 @@ public class TestSymBuilder extends x10Test {
 
     	val sbld = SymDenseBuilder.make(M);
     	
-    	val src = DenseMatrix.make(M,M).init((r:Long,c:Long)=>1.0+r+2*c);
-    	val tgt = DenseMatrix.make(M,M).init((r:Long,c:Long)=>(r>c)?1.0+r+2*c:1.0+c+2*r);
+    	val src = DenseMatrix.make(M,M).init((r:Long,c:Long)=>ET(1.0+r+2*c));
+    	val tgt = DenseMatrix.make(M,M).init((r:Long,c:Long)=>(r>c)?ET(1.0+r+2*c):ET(1.0+c+2*r));
 
     	val sden = sbld.init(false, src).toSymDense();
     	ret &= sbld.checkSymmetric();
@@ -61,7 +66,7 @@ public class TestSymBuilder extends x10Test {
     	symbld.initRandom(nzd).toSymSparseCSC();
     	ret = symbld.checkSymmetric();
     	
-    	val src = SparseCSCBuilder.make(M,M).init((r:Long,c:Long)=>(r>c)?(1.0+r+2*c):(1.0+c+2*r)).toSparseCSC();
+    	val src = SparseCSCBuilder.make(M,M).init((r:Long,c:Long)=>(r>c)?ET(1.0+r+2*c):ET(1.0+c+2*r)).toSparseCSC();
     	val spb = SymSparseBuilder.make(M).init(false, src);
         val spa = spb.toSymSparseCSC();
 
@@ -73,7 +78,7 @@ public class TestSymBuilder extends x10Test {
 
     public static def main(args:Rail[String]) {
 		val m = (args.size > 0) ? Long.parse(args(0)):4;
-		val d = (args.size > 1) ? Double.parse(args(1)):0.5;
+		val d = (args.size > 1) ? Float.parse(args(1)):0.5f;
 		new TestSymBuilder(m, d).execute();
 	}
 }

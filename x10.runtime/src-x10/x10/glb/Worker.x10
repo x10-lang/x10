@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.glb;
@@ -15,6 +15,8 @@ import x10.compiler.*;
 import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Random;
+import x10.xrx.Runtime;
+
 /**
  * The local runner for the GLB framework. An instance of this class runs at each
  * place and provides the context within which user-specified tasks execute and

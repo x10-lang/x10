@@ -18,7 +18,7 @@ import x10.util.concurrent.Future;
  */
 public class FutureTest2 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val ret = Future.make( () => at (here) this.m());
 		return ret();
 	}

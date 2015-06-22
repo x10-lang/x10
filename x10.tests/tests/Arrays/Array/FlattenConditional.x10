@@ -22,11 +22,11 @@ public class FlattenConditional extends x10Test {
 
     var a: Array[int](2);
 
-    public def this(): FlattenConditional = {
+    public def this(): FlattenConditional {
         a = new Array[int](Region.make(1..10, 1..10), ([i,j]: Point) => { return (i+j) as int;});
     }
     
-    def m(a: int): int = {
+    def m(a: int): int {
         if (a == 2n) throw new Exception();
         return a;
     }
@@ -34,7 +34,7 @@ public class FlattenConditional extends x10Test {
     // m(a[1,1]) should not be executed. If the conditional is flattened
     // so that the body is moved out before the if, then it will be executed
     // and the test will fail.
-    public def run(): boolean = {
+    public def run(): boolean {
         var b: int = 0n;
         if (a(2, 2) == 0n)
             b = m(a(1, 1));

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -126,6 +126,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "((#this) % (#x))")
     @Native("c++",  "::x10::lang::FloatNatives::mod(#this, #x)")
+    @Native("cuda", "::fmodf(#this, #x)")
     public native operator this % (x:Float): Float;
 
     /**
@@ -237,7 +238,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     // TODO: hexadecimal floating-point literal 0x0.000002P-126f
     @Native("java", "java.lang.Float.MIN_VALUE")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x00000001)")
-    @Native("cuda", "1.401298464E-45")
+    @Native("cuda", "::__int_as_float(0x00000001)")
     public static MIN_VALUE: Float = Float.fromIntBits(0x00000001n);
 
     /**
@@ -248,7 +249,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     // TODO: hexadecimal floating-point literal 0x1.0P-126f
     @Native("java", "java.lang.Float.intBitsToFloat(0x00800000)")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x00800000)")
-    @Native("cuda", "FLT_MIN")
+    @Native("cuda", "::__int_as_float(0x00800000)")
     public static MIN_NORMAL: Float = Float.fromIntBits(0x00800000n);
 
     /**
@@ -259,7 +260,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
     // TODO: hexadecimal floating-point literal 0x1.fffffeP+127f
     @Native("java", "java.lang.Float.MAX_VALUE")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x7f7fffff)")
-    @Native("cuda", "FLT_MAX")
+    @Native("cuda", "::__int_as_float(0x7f7fffff)")
     public static MAX_VALUE: Float = Float.fromIntBits(0x7f7fffffn);
 
     /**
@@ -268,6 +269,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x7f800000)")
+    @Native("cuda", "::__int_as_float(0x7f800000)")
     public static POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000n);
 
     /**
@@ -276,6 +278,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0xff800000)")
+    @Native("cuda", "::__int_as_float(0xff800000)")
     public static NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000n);
 
     /**
@@ -284,6 +287,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.NaN")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(0x7fc00000)")
+    @Native("cuda", "::__int_as_float(0x7fc00000)")
     public static NaN: Float = Float.fromIntBits(0x7fc00000n);
 
 
@@ -330,6 +334,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.isNaN(#this)")
     @Native("c++", "::x10::lang::FloatNatives::isNaN(#this)")
+    @Native("cuda", "::isnan(#this)")
     public native def isNaN(): Boolean;
 
     /**
@@ -338,6 +343,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.isInfinite(#this)")
     @Native("c++", "::x10::lang::FloatNatives::isInfinite(#this)")
+    @Native("cuda", "::isinf(#this)")
     public native def isInfinite(): Boolean;
 
 
@@ -352,6 +358,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.floatToIntBits(#this)")
     @Native("c++", "::x10::lang::FloatNatives::toIntBits(#this)")
+    @Native("cuda", "::__float_as_int(#this)")
     public native def toIntBits(): Int;
 
     /**
@@ -363,6 +370,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.floatToRawIntBits(#this)")
     @Native("c++", "::x10::lang::FloatNatives::toRawIntBits(#this)")
+    @Native("cuda", "::__float_as_int(#this)")
     public native def toRawIntBits(): Int;
 
     /**
@@ -382,6 +390,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      */
     @Native("java", "java.lang.Float.intBitsToFloat(#x)")
     @Native("c++", "::x10::lang::FloatNatives::fromIntBits(#x)")
+    @Native("cuda", "::__int_as_float(#x)")
     public static native def fromIntBits(x:Int): Float;
 
 

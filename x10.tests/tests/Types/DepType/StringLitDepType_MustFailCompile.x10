@@ -15,12 +15,12 @@ import harness.x10Test;
  * Check that a float literal can be cast as float.
  */
 public class StringLitDepType_MustFailCompile extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var f: String{self=="abc"} = "abd"; // ERR
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new StringLitDepType_MustFailCompile().execute();
 	}
 

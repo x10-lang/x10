@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2010-2014.
+ *  (C) Copyright IBM Corporation 2010-2015.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  */
@@ -17,7 +17,7 @@
 #include <string.h>
 #include <unistd.h> // sleep()
 #include <errno.h> // for the strerror function
-#include <pthread.h> // for lock on the team mapping table
+#include <pthread.h> // for lock on the team mapping table, and context opening thread
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include <pami.h>
@@ -26,10 +26,11 @@
 #endif
 
 //#define DEBUG 1
+//#define DEBUG_MESSAGING 1
 
 // locally defined environment variables
 #define X10RT_PAMI_ASYNC_PROGRESS "X10RT_PAMI_ASYNC_PROGRESS"
-#define X10RT_PAMI_BLOCKING_SEND "X10RT_PAMI_BLOCKING_SEND"
+#define X10RT_PAMI_NUM_CONTEXTS "X10RT_PAMI_NUM_CONTEXTS" // if set, limits the number of parallel contexts we open.
 #define X10RT_PAMI_DISABLE_HFI "X10RT_PAMI_DISABLE_HFI"
 #define X10RT_PAMI_BARRIER_ALG "X10RT_PAMI_BARRIER_ALG"
 #define X10RT_PAMI_BCAST_ALG "X10RT_PAMI_BCAST_ALG"
@@ -39,6 +40,11 @@
 #define X10RT_PAMI_REDUCE_ALG "X10RT_PAMI_REDUCE_ALG"
 #define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
+#define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
+
+#if defined(__bgq__) || defined(_ARCH_PPC) || defined(__PPC__)
+#define POSTMESSAGES 1
+#endif
 
 enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE, NEW_TEAM}; // PAMI doesn't send messages with type=0... it just silently eats them.
 
@@ -65,8 +71,8 @@ typedef pami_result_t (* async_progress_disable_function) (pami_context_t contex
 // the values for pami_dt are mapped to the indexes of x10rt_red_type
 pami_type_t DATATYPE_CONVERSION_TABLE[] = {PAMI_TYPE_UNSIGNED_CHAR, PAMI_TYPE_SIGNED_CHAR, PAMI_TYPE_SIGNED_SHORT, PAMI_TYPE_UNSIGNED_SHORT, PAMI_TYPE_SIGNED_INT,
                                            PAMI_TYPE_UNSIGNED_INT, PAMI_TYPE_SIGNED_LONG_LONG, PAMI_TYPE_UNSIGNED_LONG_LONG, PAMI_TYPE_DOUBLE, PAMI_TYPE_FLOAT,
-                                           PAMI_TYPE_LOC_DOUBLE_INT, PAMI_TYPE_DOUBLE_COMPLEX};
-size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12,16}; // the number of bytes used for each entry in the table above.
+                                           PAMI_TYPE_LOC_DOUBLE_INT, PAMI_TYPE_DOUBLE_COMPLEX, PAMI_TYPE_LOGICAL1};
+size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12,16,1}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_data_function OPERATION_CONVERSION_TABLE[] = {PAMI_DATA_SUM, PAMI_DATA_PROD, PAMI_DATA_NOOP, PAMI_DATA_BAND, PAMI_DATA_BOR, PAMI_DATA_BXOR, PAMI_DATA_MAX, PAMI_DATA_MIN};
 // values of x10rt_op_type are mapped to pami_atomic_t.
@@ -96,6 +102,7 @@ struct x10rt_pami_team_create
 	x10rt_place *colors;
 	uint32_t teamIndex;
 	x10rt_place parent_role;
+	bool member;
 };
 
 struct x10rt_pami_team_callback
@@ -103,6 +110,7 @@ struct x10rt_pami_team_callback
 	teamCallback tcb;
 	void *arg;
 	pami_xfer_t operation;
+	pami_work_t work;
 };
 
 struct x10rt_pami_team
@@ -132,6 +140,7 @@ struct x10rt_pami_internal_alltoall
 	size_t currentChunkOffset;
 	size_t currentPlaceOffset;
 	pami_put_simple_t parameters;
+	pami_work_t work;
 };
 
 struct x10rt_buffered_data
@@ -140,26 +149,66 @@ struct x10rt_buffered_data
 	void* data;
 };
 
+struct x10rt_post_send
+{
+	pami_work_t work;
+	pami_send_t parameters;
+};
+
+#if !defined(__bgq__)
+struct x10rt_post_hfi_update
+{
+	pami_work_t work;
+	hfi_remote_update_info_t remote_info;
+};
+
+struct x10rt_post_hfi_updates
+{
+	pami_work_t work;
+	size_t numOps;
+	hfi_remote_update_info_t *remote_infos;
+};
+#endif
+
+struct x10rt_post_rmw
+{
+	pami_work_t work;
+	pami_rmw_t operation;
+};
+
+struct x10rt_post_general
+{
+	pami_work_t work;
+	void *ptr;
+	size_t val;
+};
+
+struct x10rt_post_collective_create
+{
+	pami_work_t work;
+	pami_xfer_t operation;
+};
+
 struct x10rt_pami_state
 {
-	uint32_t numPlaces;
-	uint32_t myPlaceId;
-	uint32_t sendImmediateLimit;
+	pami_task_t numPlaces;
+	pami_task_t myPlaceId;
+	pami_endpoint_t *endpoints; // today we only support sending data to a single remote context per place
 	x10rtCallback* callBackTable;
 	x10rt_msg_type callBackTableSize;
 	pami_client_t client; // the PAMI client instance used for this place
 	pthread_key_t contextLookupTable; // thread local storage to map a worker thread to a context.
-	pami_context_t *context; // PAMI context associated with the client
+	pami_context_t context; // PAMI context associated with the client.  This is created and owned by the first immediate thread
+
 	x10rt_pami_team *teams;
 	uint32_t lastTeamIndex;
+	size_t a2achunks;
 	pthread_mutex_t stateLock; // used when creating a new context or a new team
-	int numParallelContexts; // When X10_STATIC_THREADS=true, this is set to the value of X10_NTHREADS. Otherwise it's 0.
 #if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
 #endif
 	pami_extension_t async_extension; // for async progress
-	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
 	pami_task_t *stepOrder; // this array is allocated and used only when the internal all-to-all collective has been specified
 	char errorMessageBuffer[1200]; // buffer to hold the most recent error message
 } state;
@@ -177,18 +226,17 @@ static void team_create_dispatch (pami_context_t context, void* cookie, const vo
 
 
 /*
- * Encapsulate PAMI_Context_advance calls to work around observed difference in 
- *  return code behavior on BG/Q
+ * Encapsulate malloc, to allow for different alignment on different machines
  */
-pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum) {
+inline void * x10rt_malloc(size_t n)
+{
 #if defined(__bgq__)
-  // Temporary workaround observed behavior on BG/Q.  
-  // PAMI_Context_advance seems to always return PAMI_SUCCESS
-  // So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
-  pami_result_t tmp = PAMI_Context_advance(context, maximum == 1 ? 100 : maximum);
-  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : tmp;
+    void *ptr;
+    size_t alignment = 32; // 128 might be better since that ensures every heap allocation starts on a L2 cache-line boundary
+    posix_memalign(&ptr, alignment, n);
+    return ptr;
 #else
-  return PAMI_Context_advance(context, maximum);
+    return malloc(n);
 #endif
 }
 
@@ -260,26 +308,28 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 	if (userChoiceInt < 0)
 	{
 		userChoice = getenv(X10RT_PAMI_ALLTOALL_CHUNKS);
-		team->algorithm[PAMI_XFER_ALLTOALL] = -1*(userChoice?atoi(userChoice):1); // default to 1 chunk
+		team->algorithm[PAMI_XFER_ALLTOALL] = PAMI_ALGORITHM_NULL;
+		state.a2achunks = userChoice?atoi(userChoice):1; // default to 1 chunk
 		// initialize random order array
-		state.stepOrder = (pami_task_t *)malloc(state.numPlaces*sizeof(pami_task_t));
+		state.stepOrder = (pami_task_t *)x10rt_malloc(state.numPlaces*sizeof(pami_task_t));
 		if (state.stepOrder == NULL) error("Unable to allocate memory for internal alltoall step order");
 		srand(state.myPlaceId);
-		for (int i=0; i<state.numPlaces; i++)
+		for (uint32_t i=0; i<state.numPlaces; i++)
 			state.stepOrder[i] = i;
 		// shuffle values around the array randomly
-		for (int i=state.numPlaces-1; i>0; --i) {
+		for (uint32_t i=state.numPlaces-1; i>0; --i) {
 			int j=rand()%(i+1);
 			int tmp = state.stepOrder[j];
 			state.stepOrder[j] = state.stepOrder[i];
 			state.stepOrder[i] = tmp;
 		}
 		#ifdef DEBUG
-			fprintf(stderr, "Switching AllToAll to internal implementation, chunksize = %u bytes\n", -1*team->algorithm[PAMI_XFER_ALLTOALL]);
+			fprintf(stderr, "Switching AllToAll to internal implementation, messages will be sent as %lu parallel chunks\n", state.a2achunks);
 		#endif
 	}
 	else {
 		queryAvailableAlgorithms(team, PAMI_XFER_ALLTOALL, userChoiceInt);
+		state.a2achunks = 0;
 		state.stepOrder = NULL;
 	}
 
@@ -303,7 +353,7 @@ unsigned expandTeams(unsigned numNewTeams)
 		void* oldTeams = state.teams;
 		int oldSize = (state.lastTeamIndex+1)*sizeof(x10rt_pami_team);
 		int newSize = (state.lastTeamIndex+1+numNewTeams)*sizeof(x10rt_pami_team);
-		void* newTeams = malloc(newSize);
+		void* newTeams = x10rt_malloc(newSize);
 		if (newTeams == NULL) error("Unable to allocate memory to add more teams");
 		memcpy(newTeams, oldTeams, oldSize);
 		memset(((char*)newTeams)+oldSize, 0, newSize-oldSize);
@@ -315,12 +365,12 @@ unsigned expandTeams(unsigned numNewTeams)
 	return r;
 }
 
-void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
+void registerHandlers(pami_context_t context)
 {
 	pami_result_t status = PAMI_ERROR;
 
 	pami_dispatch_hint_t hints;
-	memset(&hints, 0, sizeof(pami_send_hint_t));
+	memset(&hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
@@ -349,18 +399,6 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	if ((status = PAMI_Dispatch_set(context, NEW_TEAM, fn5, NULL, hints)) != PAMI_SUCCESS)
 		error("Unable to register team_create_dispatch handler");
 
-	if (setSendImmediateLimit)
-	{
-		pami_configuration_t config;
-		config.name = PAMI_DISPATCH_SEND_IMMEDIATE_MAX;
-		if ((status = PAMI_Dispatch_query(context, STANDARD, &config, 1)) != PAMI_SUCCESS)
-			error("Unable to query PAMI_DISPATCH_SEND_IMMEDIATE_MAX");
-		state.sendImmediateLimit = config.value.intval;
-		#ifdef DEBUG
-			fprintf(stderr, "send immediate size is %u bytes\n", state.sendImmediateLimit);
-		#endif
-	}
-
 	if (state.async_extension)
 	{
 		pami_configuration_t configuration;
@@ -387,44 +425,6 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	}
 }
 
-/*
- * This method returns the context associated with this thread
- */
-pami_context_t getConcurrentContext()
-{
-	if (state.numParallelContexts == 1) // no lookup needed when only one thread is used
-		return state.context[0];
-
-	pami_context_t context = pthread_getspecific(state.contextLookupTable);
-	if (context) return context;
-
-	// this is a thread that we've never seen before.  We need to create a context for it.
-	pthread_mutex_lock(&state.stateLock);
-	for (int i=0; i<state.numParallelContexts; i++)
-	{
-		if (state.context[i] == NULL)
-		{
-			pami_result_t status = PAMI_ERROR;
-			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[i], 1)) != PAMI_SUCCESS)
-				error("Unable to initialize the PAMI context: %i\n", status);
-
-			pthread_mutex_unlock(&state.stateLock);
-
-			#ifdef DEBUG
-				fprintf(stderr, "New worker thread %lu detected at place %u.  Assigning it context %i\n", pthread_self(), state.myPlaceId, i);
-			#endif
-			registerHandlers(state.context[i], !i);
-			pthread_setspecific(state.contextLookupTable, state.context[i]);
-			return state.context[i];
-		}
-	}
-
-	// we should never reach this code
-	pthread_mutex_unlock(&state.stateLock);
-	error("Unknown thread looking for its context");
-	return NULL;
-}
-
 static void cookie_free (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
@@ -432,14 +432,6 @@ static void cookie_free (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in cookie_free");
 	free(cookie);
-}
-
-static void cookie_decrement (pami_context_t   context,
-                       void          * cookie,
-                       pami_result_t    result)
-{
-	unsigned * active = (unsigned *) cookie;
-	(*active)--;
 }
 
 static void free_buffered_data (pami_context_t   context,
@@ -478,7 +470,7 @@ static void std_msg_complete (pami_context_t   context,
 		error("Error detected in std_msg_complete");
 
 	struct x10rt_msg_params *hdr = (struct x10rt_msg_params*) cookie;
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u processing delayed standard message %i, len=%u\n", state.myPlaceId, hdr->type, hdr->len);
 	#endif
 	handlerCallback hcb = state.callBackTable[hdr->type].handler;
@@ -504,15 +496,14 @@ static void local_msg_dispatch (
 {
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
 	{
-		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
+		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)x10rt_malloc(sizeof(struct x10rt_msg_params));
 		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
-		hdr->dest_endpoint = 0; // TODO endpoints
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
-		hdr->msg = malloc(pipe_size);
+		hdr->msg = x10rt_malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
 		hdr->type = *((x10rt_msg_type*)header_addr);
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGING
 			fprintf(stderr, "Place %u waiting on a partially delivered message %i, len=%lu\n", state.myPlaceId, hdr->type, pipe_size);
 		#endif
 		recv->local_fn = std_msg_complete;
@@ -526,20 +517,19 @@ static void local_msg_dispatch (
 	{	// all the data is available, and ready to process
 		x10rt_msg_params mp;
 		mp.dest_place = state.myPlaceId;
-		mp.dest_endpoint = 0; // TODO endpoints
 		mp.type = *((x10rt_msg_type*)header_addr);
 		mp.len = pipe_size;
 		if (mp.len > 0)
 		{
 			mp.msg = alloca(pipe_size);
 			if (mp.msg == NULL)
-				error("Unable to alloca a msg buffer of size %u", pipe_size);
+				error("Unable to allocate a msg buffer of size %u", pipe_size);
 			memcpy(mp.msg, pipe_addr, pipe_size);
 		}
 		else
 			mp.msg = NULL;
 
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGING
 			fprintf(stderr, "Place %u processing standard message %i, len=%u\n", state.myPlaceId, mp.type, mp.len);
 		#endif
 		handlerCallback hcb = state.callBackTable[mp.type].handler;
@@ -559,7 +549,7 @@ static void put_handler_complete (pami_context_t   context,
 		error("put_handler_complete discovered a communication error");
 
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) cookie;
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u issuing put notifier callback, type=%i, msglen=%u, datalen=%u\n", state.myPlaceId, header->x10msg.type, header->x10msg.len, header->data_len);
 	#endif
 	notifierCallback ncb = state.callBackTable[header->x10msg.type].notifier;
@@ -591,7 +581,7 @@ static void local_put_dispatch (
 		error("non-immediate put dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
 	if (localParameters == NULL) error("Unable to allocate memory for a local_put_dispatch header");
 	struct x10rt_pami_header_data* incomingParameters = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->x10msg.dest_place = state.myPlaceId;
@@ -601,14 +591,14 @@ static void local_put_dispatch (
 	localParameters->x10msg.len = pipe_size;
 	if (pipe_size > 0)
 	{
-		localParameters->x10msg.msg = malloc(pipe_size);
-		if (localParameters->x10msg.msg == NULL) error("Unable to malloc a buffer to hold incoming PUT data");
+		localParameters->x10msg.msg = x10rt_malloc(pipe_size);
+		if (localParameters->x10msg.msg == NULL) error("Unable to allocate a buffer to hold incoming PUT data");
 		memcpy(localParameters->x10msg.msg, pipe_addr, pipe_size); // save the message for later
 	}
 	else
 		localParameters->x10msg.msg = NULL;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u processing PUT message %i from %u, msglen=%u, len=%u, remote buf=%p, remote cookie=%p\n", state.myPlaceId, localParameters->x10msg.type, origin, localParameters->x10msg.len, localParameters->data_len, incomingParameters->data_ptr, incomingParameters->x10msg.msg);
 	#endif
 
@@ -649,7 +639,7 @@ static void get_handler_complete (pami_context_t   context,
 
 	x10rt_msg_params* header = (x10rt_msg_params*) cookie;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u running get_handler_complete, dest=%u type=%i, remote cookie=%p\n", state.myPlaceId, header->dest_place, header->type, header->msg);
 	#endif
 
@@ -663,7 +653,7 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_base   = NULL;
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	memset(&parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
 	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = cookie;
 	parameters.events.local_fn      = cookie_free;
@@ -672,7 +662,7 @@ static void get_handler_complete (pami_context_t   context,
 	if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
 		error("Unable to send a GET_COMPLETE message from %u to %u: %i\n", state.myPlaceId, header->dest_place, status);
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "(%u) get_handler_complete\n", state.myPlaceId);
 	#endif
 }
@@ -698,11 +688,10 @@ static void local_get_dispatch (
 		error("non-immediate get dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
-	x10rt_msg_params* localParameters = (x10rt_msg_params*) malloc(sizeof(x10rt_msg_params));
+	x10rt_msg_params* localParameters = (x10rt_msg_params*) x10rt_malloc(sizeof(x10rt_msg_params));
 	if (localParameters == NULL) error("Unable to allocate memory for a local_get_dispatch header");
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->dest_place = state.myPlaceId;
-	localParameters->dest_endpoint = 0; // TODO
 	localParameters->type = header->x10msg.type;
 	localParameters->msg = (void*)pipe_addr;
 	localParameters->len = pipe_size;
@@ -732,7 +721,7 @@ static void local_get_dispatch (
 		parameters.addr.remote = header->data_ptr;
 		if ((status = PAMI_Put (context, &parameters)) != PAMI_SUCCESS)
 			error("Error sending data for GET response");
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGING
 			fprintf(stderr, "Place %u pushing out %u bytes of GET message data\n", state.myPlaceId, header->data_len);
 		#endif
 	}
@@ -755,7 +744,7 @@ static void get_complete_dispatch (
 {
 	struct x10rt_pami_header_data* header = *(struct x10rt_pami_header_data**)header_addr;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u got GET_COMPLETE from %u, header=%p\n", state.myPlaceId, origin, (void*)header);
 		fprintf(stderr, "     type=%i, datalen=%u. Calling notifier\n", header->x10msg.type, header->data_len);
 	#endif
@@ -763,7 +752,7 @@ static void get_complete_dispatch (
 	notifierCallback ncb = state.callBackTable[header->x10msg.type].notifier;
 	ncb(&header->x10msg, header->data_len);
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u finished GET message\n", state.myPlaceId);
 	#endif
 	if (header->x10msg.len > 0)
@@ -782,16 +771,12 @@ static void team_creation_complete (pami_context_t   context,
 	{
 		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
 		#ifdef DEBUG
-			fprintf(stderr, "New team %u created via split at place %u\n", team->teamIndex, state.myPlaceId);
+			fprintf(stderr, "New team %u created at place %u, member=%s\n", team->teamIndex, state.myPlaceId, team->member?"true":"false");
 		#endif
-		determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
+		if (team->member) determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
 		team->cb2(team->teamIndex, team->arg);
 		free(team);
 	}
-	#ifdef DEBUG
-	else
-		fprintf(stderr, "New team created via split at place %u\n", state.myPlaceId);
-	#endif
 }
 
 static void team_creation_complete_nocallback (pami_context_t   context,
@@ -801,7 +786,15 @@ static void team_creation_complete_nocallback (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_creation_complete_nocallback");
 
-	determineCollectiveAlgorithms((x10rt_pami_team *)cookie);
+	x10rt_pami_team* team = (x10rt_pami_team *)cookie;
+	for (int i=0; i<team->size; i++)
+	{
+		if (team->places[i] == state.myPlaceId)
+		{
+			determineCollectiveAlgorithms(team);
+			break;
+		}
+	}
 	#ifdef DEBUG
 		fprintf(stderr, "New Team created via team_new at place %u\n", state.myPlaceId);
 	#endif
@@ -844,7 +837,7 @@ static void team_create_dispatch (
 	    pami_endpoint_t      origin,
 	    pami_recv_t         * recv)        /**< OUT: receive message structure */
 {
-	uint32_t newTeamId = *((uint32_t*)header_addr);
+	pami_task_t newTeamId = *((pami_task_t*)header_addr);
 	if (newTeamId <= state.lastTeamIndex)
 		error("Place %u attempted to join team %u, but it is already a member of that team.  A place can not be in the same team more than once.", state.myPlaceId, newTeamId);
 
@@ -852,8 +845,8 @@ static void team_create_dispatch (
 	if (previousLastTeam+1 != newTeamId) error("misalignment detected in team_create_dispatch");
 
 	// save the members of the new team
-	state.teams[newTeamId].size = pipe_size/(sizeof(uint32_t));
-	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
+	state.teams[newTeamId].size = pipe_size/(sizeof(pami_task_t));
+	state.teams[newTeamId].places = (pami_task_t*)x10rt_malloc(pipe_size);
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
 
 	if (recv)
@@ -863,7 +856,7 @@ static void team_create_dispatch (
 		#endif
 
 		recv->local_fn = team_create_dispatch_part2;
-		recv->cookie   = malloc(sizeof(uint32_t));
+		recv->cookie   = x10rt_malloc(sizeof(uint32_t));
 		memcpy(recv->cookie, &newTeamId, sizeof(uint32_t));
 		recv->type     = PAMI_TYPE_BYTE;
 		recv->addr     = state.teams[newTeamId].places;
@@ -878,12 +871,31 @@ static void team_create_dispatch (
 		config.name = PAMI_GEOMETRY_OPTIMIZE;
 		config.value.intval = 1;
 
+		// check to see if we are a member of the geometry or not
+		bool member = false;
+		pami_result_t   status = PAMI_ERROR;
+
+		for (int i=0; i<state.teams[newTeamId].size; i++)
+		{
+			if (state.teams[newTeamId].places[i] == state.myPlaceId)
+			{
+				member = true;
+				break;
+			}
+		}
+
 		#ifdef DEBUG
-			fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+			fprintf(stderr, "creating a new team %u at place %u of size %u, member=%s\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size, member?"true":"false");
 		#endif
 
-		pami_result_t   status = PAMI_ERROR;
-		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
+		if (!member)
+		{
+			state.teams[newTeamId].geometry = PAMI_GEOMETRY_NULL;
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, NULL, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, NULL, NULL);
+		}
+		else
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
+
 		if (status != PAMI_SUCCESS) error("Unable to create a new team");
 	}
 }
@@ -938,54 +950,66 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			error("Unable to initialize the PAMI client: %i\n", status);
 	}
 
-	pami_configuration_t configuration[3];
+	pami_configuration_t configuration[2];
 	configuration[0].name = PAMI_CLIENT_TASK_ID;
 	configuration[1].name = PAMI_CLIENT_NUM_TASKS;
-	configuration[2].name = PAMI_CLIENT_NUM_CONTEXTS;
 
-	if ((status = PAMI_Client_query(state.client, configuration, 3)) != PAMI_SUCCESS)
+	if ((status = PAMI_Client_query(state.client, configuration, 2)) != PAMI_SUCCESS)
 		error("Unable to query the PAMI_CLIENT: %i\n", status);
 	state.myPlaceId = configuration[0].value.intval;
 	state.numPlaces = configuration[1].value.intval;
-	state.numParallelContexts = configuration[2].value.intval;
+	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the state lock");
 
-	// determine the level of parallelism we need to support
-	char* value = getenv("X10_STATIC_THREADS");
-	char* nthreads = getenv("X10_NTHREADS");
-	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts >= atoi(nthreads))
-	{
-		state.numParallelContexts = atoi(nthreads); // use specified nthreads, not possible nthreads
-		// We have as many endpoints as we have X10_NTHREADS
-		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
-		if (state.context == NULL) error("Unable to allocate memory for the context map");
-		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
-		if (state.numParallelContexts == 1)
-		{   // pre-initialize when only one context is used, since no lookup is needed
-			if ((status = PAMI_Context_createv(state.client, &config, 1, &state.context[0], 1)) != PAMI_SUCCESS)
-				error("Unable to initialize the PAMI context: %i\n", status);
-			registerHandlers(state.context[0], true);
-		}
-		else
-		{
-			if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
-				error("Unable to allocate the thread-local-storage context lookup table");
-			getConcurrentContext(); // associate this thread with context 0
+#ifdef POSTMESSAGES
+	// if multi-threaded, we require at least one immediate thread
+	// set the num immediate threads environment variable if not already set
+	// this overrides the default used by Configuration.x10, which would otherwise choose 0 because we don't support blocking probe
+	setenv(X10_NUM_IMMEDIATE_THREADS, "1", 0);
+	// check the value, to ensure it's at least one
+	if (atoi(getenv(X10_NUM_IMMEDIATE_THREADS)) < 1) {
+		// no immediate threads.  But a single thread is ok too.  Check.
+		char* sthreads = getenv("X10_STATIC_THREADS");
+		char* nthreads = getenv("X10_NTHREADS");
+		if ( !(checkBoolEnvVar(sthreads) && nthreads && atoi(nthreads) == 1)) {
+			// not a valid configuration
+			if (state.myPlaceId == 0)
+				printf("Configuration error: when using PAMI with multiple threads, you must have at least one immediate thread.  Please change or unset "X10_NUM_IMMEDIATE_THREADS"\n");
+			exit(1);
 		}
 	}
-	else
-	{
-		// We have multiple threads sharing a single endpoint/context
-		state.numParallelContexts = 0;
-		state.context = (pami_context_t*)malloc(sizeof(pami_context_t));
-		if (state.context == NULL) error("Unable to allocate memory for the context map");
-		#ifdef DEBUG
-			fprintf(stderr, "Place %u initializing 1 context to be used by all non-static worker threads\n", state.myPlaceId);
-		#endif
-		if ((status = PAMI_Context_createv(state.client, &config, 1, state.context, 1)) != PAMI_SUCCESS)
-			error("Unable to initialize the PAMI context: %i\n", status);
-		registerHandlers(state.context[0], true);
+#endif
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u init called from thread %lu\n", state.myPlaceId, pthread_self());
+	#endif
+	
+	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context, 1)) != PAMI_SUCCESS)
+		error("Unable to initialize PAMI context: %i\n", status);
+	registerHandlers(state.context);
+
+	// preallocate a single endpoint for each destination
+	state.endpoints = (pami_endpoint_t *) x10rt_malloc(sizeof(pami_endpoint_t) * state.numPlaces);
+	for (pami_task_t i=0; i<state.numPlaces; i++) {
+		if ((status = PAMI_Endpoint_create(state.client, i, 0, &state.endpoints[i])) != PAMI_SUCCESS)
+			error("Unable to create target endpoint %u for sending a message from %u to %u: %i\n", 0, state.myPlaceId, i, status);
 	}
-    #ifdef DEBUG
+	
+	// associate the context with this thread
+	if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
+		error("Unable to allocate the thread-local-storage context lookup table");
+	pthread_setspecific(state.contextLookupTable, state.context);
+
+	// create the world geometry
+	state.teams = (x10rt_pami_team*)x10rt_malloc(sizeof(x10rt_pami_team));
+	if (state.teams == NULL) error("Unable to allocate memory for teams data");
+	state.lastTeamIndex = 0;
+	state.teams[0].size = state.numPlaces;
+	state.teams[0].places = NULL;
+	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
+	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
+	determineCollectiveAlgorithms(state.teams);
+
+	#ifdef DEBUG
         fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
     #endif
 
@@ -1014,23 +1038,6 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 #endif // power CPU
 #endif // not BlueGeneQ
 
-	// create the world geometry
-	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
-	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
-	if (state.teams == NULL) error("Unable to allocate memory for teams data");
-	state.lastTeamIndex = 0;
-	state.teams[0].size = state.numPlaces;
-	state.teams[0].places = NULL;
-	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
-	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
-	determineCollectiveAlgorithms(state.teams);
-
-	// check if we should have send block until all data is out
-	if (checkBoolEnvVar(getenv(X10RT_PAMI_BLOCKING_SEND)))
-		state.blockingSend = true;
-	else
-		state.blockingSend = false;
-
 	return X10RT_ERR_OK;
 }
 
@@ -1056,7 +1063,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	state.callBackTable[msg_type].finder = NULL;
 	state.callBackTable[msg_type].notifier = NULL;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		fprintf(stderr, "Place %u registered standard message handler %u\n", state.myPlaceId, msg_type);
 	#endif
 }
@@ -1127,124 +1134,56 @@ x10rt_place x10rt_net_here (void)
 	return state.myPlaceId;
 }
 
+pami_result_t post_send(pami_context_t context, void * cookie) {
+	pami_result_t   status = PAMI_ERROR;
+	if ((status = PAMI_Send(context, &((x10rt_post_send *)cookie)->parameters)) != PAMI_SUCCESS)
+		error("Unable to send an immediate message from %u: %i\n", state.myPlaceId, status);
+	free(cookie);
+	return PAMI_SUCCESS;
+}
+
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.
  */
 void x10rt_net_send_msg (x10rt_msg_params *p)
 {
-	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
-	#ifdef DEBUG
-		fprintf(stderr, "Preparing to send a message from place %u to %u, endpoint %u\n", state.myPlaceId, p->dest_place, p->dest_endpoint);
+	#ifdef DEBUG_MESSAGING
+		fprintf(stderr, "Preparing to send a message from place %u to %u, endpoint %u\n", state.myPlaceId, p->dest_place, 0);
 	#endif
 
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
-		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+	x10rt_post_send *post = (x10rt_post_send *)x10rt_malloc(sizeof(x10rt_post_send));
+	post->parameters.send.dispatch        = STANDARD;
+	post->parameters.send.header.iov_len  = sizeof(p->type);
+	post->parameters.send.data.iov_len    = p->len;
+	post->parameters.send.dest 			= state.endpoints[p->dest_place];
+	memset(&post->parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
+	post->parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
+	post->parameters.events.remote_fn     = NULL;
 
-	if (p->len + sizeof(p->type) <= state.sendImmediateLimit)
-	{
-		pami_send_immediate_t parameters;
-		parameters.dispatch        = STANDARD;
-		parameters.header.iov_base = &p->type;
-		parameters.header.iov_len  = sizeof(p->type);
-		parameters.data.iov_base   = p->msg;
-		parameters.data.iov_len    = p->len;
-		parameters.dest            = target;
-		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
+	x10rt_buffered_data *bd = (x10rt_buffered_data *)x10rt_malloc(sizeof(x10rt_buffered_data));
+	bd->header = x10rt_malloc(sizeof(p->type));
+	memcpy(bd->header, &p->type, sizeof(p->type));
+	bd->data = x10rt_malloc(p->len);
+	memcpy(bd->data, p->msg, p->len);
 
-		#ifdef DEBUG
-			fprintf(stderr, "(%u) send immediate\n", state.myPlaceId);
-		#endif
+	post->parameters.send.header.iov_base = bd->header;
+	post->parameters.send.data.iov_base   = bd->data;
+	post->parameters.events.cookie        = bd;
+	post->parameters.events.local_fn      = free_buffered_data;
 
-		if (state.numParallelContexts)
-		{
-			if ((status = PAMI_Send_immediate(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-		}
-		else
-		{
-			status = PAMI_Context_lock(state.context[0]);
-			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-			if ((status = PAMI_Send_immediate(state.context[0], &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-			PAMI_Context_unlock(state.context[0]);
-		}
-	}
-	else
-	{
-		pami_send_t parameters;
-		parameters.send.dispatch        = STANDARD;
-		parameters.send.header.iov_len  = sizeof(p->type);
-		parameters.send.data.iov_len    = p->len;
-		parameters.send.dest 			= target;
-		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
-		parameters.events.remote_fn     = NULL;
+	#ifdef DEBUG_MESSAGING
+		fprintf(stderr, "(%u) send_msg, headerlen=%u, datalen=%u\n", state.myPlaceId, post->parameters.send.header.iov_len, post->parameters.send.data.iov_len);
+	#endif
 
-		#ifdef DEBUG
-			fprintf(stderr, "(%u) send_msg\n", state.myPlaceId);
-		#endif
-
-		if (state.blockingSend)
-		{
-			volatile unsigned sendActive = 1;
-
-			parameters.send.header.iov_base = &p->type;
-			parameters.send.data.iov_base   = p->msg;
-			parameters.events.cookie        = (void *)&sendActive;
-			parameters.events.local_fn      = cookie_decrement;
-
-			if (state.numParallelContexts)
-			{
-				pami_context_t context = getConcurrentContext();
-				if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-				while(sendActive)
-					x10rt_PAMI_Context_advance(context, 1);
-			}
-			else
-			{
-				status = PAMI_Context_lock(state.context[0]);
-				if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-				if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
-					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-				while(sendActive)
-					x10rt_PAMI_Context_advance(state.context[0], 1);
-
-				PAMI_Context_unlock(state.context[0]);
-			}
-		}
-		else
-		{
-			x10rt_buffered_data *bd = (x10rt_buffered_data *)malloc(sizeof(x10rt_buffered_data));
-			bd->header = malloc(sizeof(p->type));
-			memcpy(bd->header, &p->type, sizeof(p->type));
-			bd->data = malloc(p->len);
-			memcpy(bd->data, p->msg, p->len);
-
-			parameters.send.header.iov_base = bd->header;
-			parameters.send.data.iov_base   = bd->data;
-			parameters.events.cookie        = bd;
-			parameters.events.local_fn      = free_buffered_data;
-
-			if (state.numParallelContexts)
-			{
-				pami_context_t context = getConcurrentContext();
-				if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-			}
-			else
-			{
-				status = PAMI_Context_lock(state.context[0]);
-				if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-				if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
-					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-				PAMI_Context_unlock(state.context[0]);
-			}
-		}
-	}
+#ifdef POSTMESSAGES
+	status = PAMI_Context_post(state.context, &post->work, post_send, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	status = post_send(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a send message");
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -1255,98 +1194,49 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
  */
 void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
-	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
-		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-	if (sizeof(struct x10rt_pami_header_data) + p->len <= state.sendImmediateLimit)
+	struct x10rt_pami_header_data *header = (struct x10rt_pami_header_data *)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
+	if (header == NULL) error("Unable to allocate memory for a PUT header");
+	if (p->len > 0)
 	{
-		struct x10rt_pami_header_data header;
-		header.x10msg.type = p->type;
-		header.x10msg.dest_place = p->dest_place;
-		header.x10msg.dest_endpoint = 0; // TODO
-		header.x10msg.len = p->len;
-		header.data_len = len;
-		header.data_ptr = buf;
-
-		pami_send_immediate_t parameters;
-		parameters.dispatch        = PUT;
-		parameters.header.iov_base = &header;
-		parameters.header.iov_len  = sizeof(struct x10rt_pami_header_data);
-		parameters.data.iov_base   = p->msg;
-		parameters.data.iov_len    = p->len;
-		parameters.dest            = target;
-		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
-
-		#ifdef DEBUG
-			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, p->type, p->len, len, buf);
-		#endif
-
-		if (state.numParallelContexts)
-		{
-			if ((status = PAMI_Send_immediate(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-		}
-		else
-		{
-			status = PAMI_Context_lock(state.context[0]);
-			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
-			if ((status = PAMI_Send_immediate(state.context[0], &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-			PAMI_Context_unlock(state.context[0]);
-		}
+		header->x10msg.msg = x10rt_malloc(p->len);
+		if (header->x10msg.msg == NULL) error("Unable to allocate memory for a PUT header message");
+		memcpy(header->x10msg.msg, p->msg, p->len);
 	}
 	else
-	{
-		struct x10rt_pami_header_data *header = (struct x10rt_pami_header_data *)malloc(sizeof(struct x10rt_pami_header_data));
-		if (header == NULL) error("Unable to allocate memory for a PUT header");
-		if (p->len > 0)
-		{
-			header->x10msg.msg = malloc(p->len);
-			if (header->x10msg.msg == NULL) error("Unable to allocate memory for a PUT header message");
-			memcpy(header->x10msg.msg, p->msg, p->len);
-		}
-		else
-			header->x10msg.msg = NULL;
-		header->x10msg.type = p->type;
-		header->x10msg.dest_place = p->dest_place;
-		header->x10msg.len = p->len;
-		header->data_len = len;
-		header->data_ptr = buf;
+		header->x10msg.msg = NULL;
+	header->x10msg.type = p->type;
+	header->x10msg.dest_place = p->dest_place;
+	header->x10msg.len = p->len;
+	header->data_len = len;
+	header->data_ptr = buf;
 
-		pami_send_t parameters;
-		parameters.send.dispatch        = PUT;
-		parameters.send.header.iov_base = header;
-		parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
-		parameters.send.data.iov_base   = header->x10msg.msg;
-		parameters.send.data.iov_len    = header->x10msg.len;
-		parameters.send.dest 			= target;
-		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
-		parameters.events.cookie		= (void*)header;
-		parameters.events.local_fn		= free_header_data;
-		parameters.events.remote_fn     = NULL;
+	x10rt_post_send *post = (x10rt_post_send *)x10rt_malloc(sizeof(x10rt_post_send));
+	post->parameters.send.dispatch        = PUT;
+	post->parameters.send.header.iov_base = header;
+	post->parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
+	post->parameters.send.data.iov_base   = header->x10msg.msg;
+	post->parameters.send.data.iov_len    = header->x10msg.len;
+	post->parameters.send.dest 			= state.endpoints[p->dest_place];
+	memset(&post->parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
+	post->parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
+	post->parameters.events.cookie		= (void*)header;
+	post->parameters.events.local_fn		= free_header_data;
+	post->parameters.events.remote_fn     = NULL;
 
-		#ifdef DEBUG
-			fprintf(stderr, "Preparing to send a PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_endpoint, p->dest_place, p->type, p->len, len, buf);
-		#endif
+	#ifdef DEBUG_MESSAGING
+		fprintf(stderr, "Preparing to send a PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, 0, p->type, p->len, len, buf);
+	#endif
 
-		if (state.numParallelContexts)
-		{
-			if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-		}
-		else
-		{
-			status = PAMI_Context_lock(state.context[0]);
-			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a PUT message");
-			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-			PAMI_Context_unlock(state.context[0]);
-		}
-	}
+#ifdef POSTMESSAGES
+	status = PAMI_Context_post(state.context, &post->work, post_send, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	status = post_send(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a put message");
 }
 
 /** \see #x10rt_lgl_send_msg
@@ -1357,92 +1247,81 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 	// GET is implemented as a send msg, followed by a PUT
-	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
-		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-
-	// note: this malloc gets freed when the response comes in
-	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
+	// note: this allocation gets freed when the response comes in
+	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*)x10rt_malloc(sizeof(struct x10rt_pami_header_data));
 	if (header == NULL) error("Unable to allocate memory for a send_get header");
 	header->data_len = len;
 	header->data_ptr = buf;
 	header->x10msg.type = p->type;
 	header->x10msg.dest_place = p->dest_place;
-	header->x10msg.dest_endpoint = 0; // TODO
 	header->x10msg.len = p->len;
 	// save the msg data for the notifier
 	if (p->len > 0)
 	{
-		header->x10msg.msg = malloc(p->len);
-		if (header->x10msg.msg == NULL) error("Unable to malloc msg space for a GET");
+		header->x10msg.msg = x10rt_malloc(p->len);
+		if (header->x10msg.msg == NULL) error("Unable to allocate msg space for a GET");
 		memcpy(header->x10msg.msg, p->msg, p->len);
 	}
 	else
 		header->x10msg.msg = NULL;
 	header->callbackPtr = header; // sending this along with the data
 
-	#ifdef DEBUG
-		fprintf(stderr, "Preparing to send a GET message from place %u to %u endpoint %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, len, buf, (void*)header);
+	#ifdef DEBUG_MESSAGING
+		fprintf(stderr, "Preparing to send a GET message from place %u to %u endpoint %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, 0, len, buf, (void*)header);
 	#endif
 
-	pami_send_t parameters;
-	parameters.send.dispatch        = GET;
-	parameters.send.header.iov_base = header;
-	parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
-	parameters.send.data.iov_base   = header->x10msg.msg;
-	parameters.send.data.iov_len    = header->x10msg.len;
-	parameters.send.dest 			= target;
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
-	parameters.events.cookie        = NULL;
-	parameters.events.local_fn      = NULL;
-	parameters.events.remote_fn     = NULL;
+	x10rt_post_send *post = (x10rt_post_send *)x10rt_malloc(sizeof(x10rt_post_send));
+	post->parameters.send.dispatch        = GET;
+	post->parameters.send.header.iov_base = header;
+	post->parameters.send.header.iov_len  = sizeof(struct x10rt_pami_header_data);
+	post->parameters.send.data.iov_base   = header->x10msg.msg;
+	post->parameters.send.data.iov_len    = header->x10msg.len;
+	post->parameters.send.dest 			= state.endpoints[p->dest_place];
+	memset(&post->parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
+	post->parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
+	post->parameters.events.cookie        = NULL;
+	post->parameters.events.local_fn      = NULL;
+	post->parameters.events.remote_fn     = NULL;
 
-	if (state.numParallelContexts)
-	{
-		if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
-			error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-	}
-	else
-	{
-		status = PAMI_Context_lock(state.context[0]);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a GET message");
-		if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
-			error("Unable to send a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
-		PAMI_Context_unlock(state.context[0]);
-	}
-	#ifdef DEBUG
-		fprintf(stderr, "GET message sent from place %u to %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, (void*)header);
-	#endif
+#ifdef POSTMESSAGES
+	status = PAMI_Context_post(state.context, &post->work, post_send, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	status = post_send(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a get message");
 }
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
  */
 x10rt_error x10rt_net_probe()
 {
-	// TODO - return proper error codes upon failure, in place of calling the error() method.
 	pami_result_t status = PAMI_ERROR;
-	if (state.numParallelContexts)
-	{
-		pami_context_t context = getConcurrentContext();
-		do { status = x10rt_PAMI_Context_advance(context, 1);
-		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-		if (status == PAMI_ERROR) error ("Problem advancing the current context");
-	}
-	else
-	{
-		status = PAMI_Context_trylock(state.context[0]);
-		if (status == PAMI_EAGAIN) return X10RT_ERR_OK; // context is already in use
-		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 
-		do { status = x10rt_PAMI_Context_advance(state.context[0], 1);
-		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+#ifdef POSTMESSAGES
+	if (pthread_getspecific(state.contextLookupTable)) {
+#else
+	PAMI_Context_lock(state.context);
+#endif
+		#if defined(__bgq__)
+			// Temporary workaround observed behavior on BG/Q.
+			// PAMI_Context_advance seems to always return PAMI_SUCCESS
+			// So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
+			status = PAMI_Context_advance(state.context, 100);
+		#else
+//			fprintf(stderr, "Place %u probed\n", state.myPlaceId);
+			do { status = PAMI_Context_advance(state.context, 1);
+			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+		#endif
 		if (status == PAMI_ERROR) error ("Problem advancing the context");
-
-		if (PAMI_Context_unlock(state.context[0]) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
+#ifdef POSTMESSAGES
 	}
+#else
+	PAMI_Context_unlock(state.context);
+#endif
 	return X10RT_ERR_OK;
 }
 
@@ -1470,8 +1349,11 @@ void x10rt_net_finalize()
 	pami_result_t status = PAMI_ERROR;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u shutting down\n", state.myPlaceId);
+		fprintf(stderr, "Place %u shutting down via thread %lu\n", state.myPlaceId, pthread_self());
 	#endif
+	
+	// flush out any pending work
+	x10rt_net_probe();
 
 #if !defined(__bgq__)
 	if (state.hfi_update != NULL)
@@ -1487,26 +1369,16 @@ void x10rt_net_finalize()
 		__extension__
 		#endif
 		async_progress_disable_function PAMIX_Context_async_progress_disable = (async_progress_disable_function) PAMI_Extension_symbol (state.async_extension, "disable");
-		if (state.numParallelContexts)
-			for (int i=0; i<state.numParallelContexts; i++)
-				PAMIX_Context_async_progress_disable (state.context[i], PAMIX_ASYNC_ALL);
-		else
-			PAMIX_Context_async_progress_disable (state.context[0], PAMIX_ASYNC_ALL);
+		PAMIX_Context_async_progress_disable (state.context, PAMIX_ASYNC_ALL);
 		PAMI_Extension_close (state.async_extension);
 		state.async_extension = NULL;
 	}
 
-	if (state.numParallelContexts)
-	{
-		// TODO - below should be state.numParallelContexts, not state.numParallelContexts-1, but this is a PAMI bug workaround.
-		if ((status = PAMI_Context_destroyv(state.context, state.numParallelContexts-1)) != PAMI_SUCCESS)
-			fprintf(stderr, "Error closing PAMI context: %i\n", status);
-	}
-	else
-	{
-		if ((status = PAMI_Context_destroyv(state.context, 1)) != PAMI_SUCCESS)
-			fprintf(stderr, "Error closing PAMI context: %i\n", status);
-	}
+#if !defined(__bgq__)
+	if ((status = PAMI_Context_destroyv(&state.context, 1)) != PAMI_SUCCESS)
+		fprintf(stderr, "Error closing PAMI context: %i\n", status);
+#endif
+
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
 
@@ -1518,6 +1390,8 @@ void x10rt_net_finalize()
 	free(state.teams);
 	if (state.stepOrder != NULL)
 		free(state.stepOrder);
+
+	pthread_mutex_destroy(&state.stateLock);
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
@@ -1532,155 +1406,192 @@ bool x10rt_net_remoteop_support () {
 #endif
 }
 
+#if !defined(__bgq__)
+pami_result_t post_hfi_update (pami_context_t context, void* cookie) {
+	pami_result_t status = state.hfi_update(context, 1, &((x10rt_post_hfi_update*)cookie)->remote_info);
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote hfi update");
+	free(cookie);
+	return PAMI_SUCCESS;
+}
+
+pami_result_t post_hfi_updates (pami_context_t context, void* cookie) {
+	pami_result_t status = state.hfi_update(context, ((x10rt_post_hfi_updates*)cookie)->numOps, ((x10rt_post_hfi_updates*)cookie)->remote_infos);
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote operations");
+	free(cookie);
+	return PAMI_SUCCESS;
+}
+#endif
+
+
+pami_result_t post_rmw (pami_context_t context, void* cookie) {
+	pami_result_t status = PAMI_Rmw(context, &((x10rt_post_rmw *)cookie)->operation);
+	if (status != PAMI_SUCCESS)
+		error("Unable to execute the remote operation");
+	free(cookie);
+	return PAMI_SUCCESS;
+}
+
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-	pami_result_t status = PAMI_ERROR;
 #if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
-		hfi_remote_update_info_t remote_info;
-		remote_info.dest = place;
-		remote_info.op = type;
-		remote_info.atomic_operand = value;
-		remote_info.dest_buf = victim;
+		x10rt_post_hfi_update* post = (x10rt_post_hfi_update*)x10rt_malloc(sizeof(x10rt_post_hfi_update));
+		post->remote_info.dest = place;
+		post->remote_info.op = type;
+		post->remote_info.atomic_operand = value;
+		post->remote_info.dest_buf = victim;
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u using HFI\n", state.myPlaceId, type, (void*)victim, place);
 		#endif
-		if (state.numParallelContexts)
-			status = state.hfi_update (getConcurrentContext(), 1, &remote_info);
-		else
-		{
-			PAMI_Context_lock(state.context[0]);
-			status = state.hfi_update (state.context[0], 1, &remote_info);
-			PAMI_Context_unlock(state.context[0]);
-		}
-		if (status != PAMI_SUCCESS)
-		{
-			state.hfi_update = NULL;
-			#ifdef DEBUG
-				fprintf(stderr, "Place %u discovered HFI is not available.  Disabling.\n", state.myPlaceId);
-			#endif
-			// redo the call, but this time hfi_update will be null, and we'll use the else path below
-			x10rt_net_remote_op(place, victim, type, value);
-			return;
-		}
+
+#ifdef POSTMESSAGES
+		pami_result_t status = PAMI_Context_post(state.context, &post->work, post_hfi_update, (void *)post);
+#else
+		PAMI_Context_lock(state.context);
+		pami_result_t status = post_hfi_update(state.context, post);
+		PAMI_Context_unlock(state.context);
+#endif
+		if (status != PAMI_SUCCESS) error("Unable to post a hfi_update");
 	}
 	else
 #endif
 	{
-		pami_rmw_t operation;
-		memset(&operation, 0, sizeof(pami_rmw_t));
-		if ((status = PAMI_Endpoint_create(state.client, place, 0, &operation.dest)) != PAMI_SUCCESS)
-			error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", place, status);
-		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
-		operation.remote = (void *)victim;
-		operation.value = &value;
-		operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
-		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
+		x10rt_post_rmw* post = (x10rt_post_rmw *)x10rt_malloc(sizeof(x10rt_post_rmw));
+		memset(&post->operation, 0, sizeof(pami_rmw_t));
+		post->operation.dest = state.endpoints[place];
+		post->operation.hints.buffer_registered = PAMI_HINT_ENABLE;
+		post->operation.remote = (void *)victim;
+		post->operation.value = &value;
+		post->operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
+		post->operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
+			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, post->operation.remote, place);
 		#endif
-		if (state.numParallelContexts)
-			status = PAMI_Rmw(getConcurrentContext(), &operation);
-		else
-		{
-			PAMI_Context_lock(state.context[0]);
-			status = PAMI_Rmw(state.context[0], &operation);
-			PAMI_Context_unlock(state.context[0]);
-		}
+
+#ifdef POSTMESSAGES
+		pami_result_t status = PAMI_Context_post(state.context, &post->work, post_rmw, (void *)post);
+#else
+		PAMI_Context_lock(state.context);
+		pami_result_t status = post_rmw(state.context, post);
+		PAMI_Context_unlock(state.context);
+#endif
+		if (status != PAMI_SUCCESS) error("Unable to post a rmw");
 	}
-	if (status != PAMI_SUCCESS)
-		error("Unable to execute the remote operation");
 }
 
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
-	pami_result_t status = PAMI_ERROR;
 #if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote %u operations using HFI\n", state.myPlaceId, numOps);
+			fprintf(stderr, "Place %u executing a remote %lu operations using HFI\n", state.myPlaceId, numOps);
 		#endif
-		if (state.numParallelContexts)
-			status = state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
-		else
-		{
-			PAMI_Context_lock(state.context[0]);
-			status = state.hfi_update(state.context[0], numOps, (hfi_remote_update_info_t*)ops);
-			PAMI_Context_unlock(state.context[0]);
-		}
-		if (status != PAMI_SUCCESS)
-		{
-			state.hfi_update = NULL;
-			#ifdef DEBUG
-				fprintf(stderr, "Place %u discovered HFI is not available... disabling.\n", state.myPlaceId);
-			#endif
-			// redo the call, but this time hfi_update will be null, and we'll use the else path below
-			x10rt_net_remote_ops(ops, numOps);
-			return;
-		}
+
+		x10rt_post_hfi_updates* post = (x10rt_post_hfi_updates*)x10rt_malloc(sizeof(x10rt_post_hfi_updates));
+		post->numOps = numOps;
+		post->remote_infos = (hfi_remote_update_info_t*)ops;
+
+#ifdef POSTMESSAGES
+		pami_result_t status = PAMI_Context_post(state.context, &post->work, post_hfi_updates, (void *)post);
+#else
+		PAMI_Context_lock(state.context);
+		pami_result_t status = post_hfi_updates(state.context, post);
+		PAMI_Context_unlock(state.context);
+#endif
+		if (status != PAMI_SUCCESS) error("Unable to post a hfi_update");
 	}
 	else
 #endif
 	{
-		pami_rmw_t operation;
-		memset(&operation, 0, sizeof(pami_rmw_t));
-		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
-		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
-
-		pami_context_t context;
-		if (state.numParallelContexts)
-			context = getConcurrentContext();
-		else
-		{
-			context = state.context[0];
-			PAMI_Context_lock(context);
-		}
-
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote operations\n", state.myPlaceId);
+			fprintf(stderr, "Place %u executing %u remote operations\n", state.myPlaceId, numOps);
 		#endif
 		for (size_t i=0; i<numOps; i++)
 		{
-			if ((status = PAMI_Endpoint_create(state.client, ops[i].dest, 0, &operation.dest)) != PAMI_SUCCESS)
-				error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", ops[i].dest, status);
-			operation.remote = (void*)ops[i].dest_buf;
-			operation.value = &ops[i].value;
-			operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[ops[i].op];
-			if ((status = PAMI_Rmw(context, &operation) )!= PAMI_SUCCESS)
-		        error("Unable to execute the remote operation");
+			x10rt_post_rmw* post = (x10rt_post_rmw *)x10rt_malloc(sizeof(x10rt_post_rmw));
+			memset(&post->operation, 0, sizeof(pami_rmw_t));
+			post->operation.hints.buffer_registered = PAMI_HINT_ENABLE;
+			post->operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
+			post->operation.dest = state.endpoints[ops[i].dest];
+			post->operation.remote = (void*)ops[i].dest_buf;
+			post->operation.value = &ops[i].value;
+			post->operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[ops[i].op];
+#ifdef POSTMESSAGES
+			pami_result_t status = PAMI_Context_post(state.context, &post->work, post_rmw, (void *)post);
+#else
+			PAMI_Context_lock(state.context);
+			pami_result_t status = post_rmw(state.context, post);
+			PAMI_Context_unlock(state.context);
+#endif
+			if (status != PAMI_SUCCESS) error("Unable to post a rmw");
         }
-		if (!state.numParallelContexts)
-			PAMI_Context_unlock(state.context[0]);
 	}
+}
+
+pami_result_t post_register_mem (pami_context_t context, void* cookie) {
+	pami_memregion_t registration;
+	size_t registeredSize;
+
+	pami_result_t status = PAMI_Memregion_create(context, ((x10rt_post_general *)cookie)->ptr, ((x10rt_post_general *)cookie)->val, &registeredSize, &registration);
 	if (status != PAMI_SUCCESS)
-		error("Unable to execute the remote operation");
+		error("Unable to register memory for remote access");
+	if (registeredSize < ((x10rt_post_general *)cookie)->val)
+		error("Only able to allocate %u out of %lu requested bytes for remote access", registeredSize, ((x10rt_post_general *)cookie)->val);
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u registered %lu bytes at %p for remote operations\n", state.myPlaceId, ((x10rt_post_general *)cookie)->val, ((x10rt_post_general *)cookie)->ptr);
+	#endif
+	free(cookie);
+	return PAMI_SUCCESS;
 }
 
 void x10rt_net_register_mem (void *ptr, size_t len)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_memregion_t registration;
-	size_t registeredSize;
-	if (state.numParallelContexts)
-		status = PAMI_Memregion_create(getConcurrentContext(), ptr, len, &registeredSize, &registration);
-	else
-	{
-		PAMI_Context_lock(state.context[0]);
-		status = PAMI_Memregion_create(state.context[0], ptr, len, &registeredSize, &registration);
-		PAMI_Context_unlock(state.context[0]);
-	}
+	x10rt_post_general* post = (x10rt_post_general *)x10rt_malloc(sizeof(x10rt_post_general));
+	post->ptr = ptr;
+	post->val = len;
 
-	if (status != PAMI_SUCCESS)
-		error("Unable to register memory for remote access");
-	if (registeredSize < len)
-		error("Only able to allocate %u out of %lu requested bytes for remote access", registeredSize, len);
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &post->work, post_register_mem, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_register_mem(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a memory registration");
+}
+
+pami_result_t post_geometry_create (pami_context_t context, void* cookie) {
+	pami_configuration_t config;
+	pami_result_t status = PAMI_ERROR;
+
+	x10rt_post_general *post = (x10rt_post_general *)cookie;
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *) post->ptr;
+
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
+
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u registered %lu bytes at %p for remote operations\n", state.myPlaceId, len, ptr);
+		fprintf(stderr, "creating a new team %u at place %u of size %u, member=%s\n", cbd->teamIndex, state.myPlaceId, state.teams[cbd->teamIndex].size, cbd->member?"true":"false");
 	#endif
+
+	if (!cbd->member)
+	{
+		state.teams[cbd->teamIndex].geometry = PAMI_GEOMETRY_NULL;
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, NULL, state.teams[0].geometry, cbd->teamIndex, state.teams[cbd->teamIndex].places, state.teams[cbd->teamIndex].size, context, team_creation_complete, post->ptr);
+	}
+	else
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[cbd->teamIndex].geometry, state.teams[0].geometry, cbd->teamIndex, state.teams[cbd->teamIndex].places, state.teams[cbd->teamIndex].size, context, team_creation_complete, post->ptr);
+
+	if (status != PAMI_SUCCESS) error("Unable to create a new geometry");
+
+	free(cookie);
+	return PAMI_SUCCESS;
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
@@ -1688,83 +1599,72 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 {
 	pami_result_t status = PAMI_ERROR;
 
-	// This bit of removable code is here to verify that the runtime is NOT requesting a team with the same place in it more than once.
-	// TODO - remove when satisfied as stable
-/*	for (unsigned i=0; i<placec; i++)
-		for (unsigned j=i+1; j<placec; j++)
-			if (placev[i] == placev[j])
-				error("Request to create a team with duplicate members");
-*/
 	// create a definition for the new team
 	uint32_t newTeamId = expandTeams(1)+1;
 	state.teams[newTeamId].size = placec;
-	state.teams[newTeamId].places = (pami_task_t*)malloc(placec*sizeof(pami_task_t));
+	state.teams[newTeamId].places = (pami_task_t*)x10rt_malloc(placec*sizeof(pami_task_t));
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in x10rt_net_team_new");
 	memcpy(state.teams[newTeamId].places, placev, placec*sizeof(pami_task_t));
 
-	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)malloc(sizeof(x10rt_pami_team_create));
+	x10rt_pami_team_create *cookie = (x10rt_pami_team_create*)x10rt_malloc(sizeof(x10rt_pami_team_create));
 	if (cookie == NULL) error("Unable to allocate memory for a team_new header");
 	cookie->cb2 = ch;
 	cookie->arg = arg;
 	cookie->teamIndex = newTeamId;
 
-	pami_send_t parameters;
-	parameters.send.dispatch        = NEW_TEAM;
-	parameters.send.header.iov_base = &cookie->teamIndex;
-	parameters.send.header.iov_len  = sizeof(cookie->teamIndex);
-	parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
-	parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
-	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
-	parameters.events.cookie        = NULL;
-	parameters.events.local_fn      = NULL;
-	parameters.events.remote_fn     = NULL;
-
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
+	for (unsigned i=0; i<state.numPlaces; i++)
 	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
-	bool inTeam = false;
-	for (unsigned i=0; i<placec; i++)
-	{
-		if (placev[i] != state.myPlaceId)
+		if (i != state.myPlaceId)
 		{
-			if ((status = PAMI_Endpoint_create(state.client, placev[i], 0, &parameters.send.dest)) != PAMI_SUCCESS)
-				error("Unable to create an endpoint for team creation");
-
-			if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a NEW_TEAM message from %u to %u: %i\n", state.myPlaceId, placev[i], status);
+			x10rt_post_send *post = (x10rt_post_send*)x10rt_malloc(sizeof(x10rt_post_send));
+			post->parameters.send.dispatch        = NEW_TEAM;
+			post->parameters.send.header.iov_base = &cookie->teamIndex;
+			post->parameters.send.header.iov_len  = sizeof(cookie->teamIndex);
+			post->parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
+			post->parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
+			memset(&post->parameters.send.hints, PAMI_HINT_DEFAULT, sizeof(pami_send_hint_t));
+			post->parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
+			post->parameters.events.cookie        = NULL;
+			post->parameters.events.local_fn      = NULL;
+			post->parameters.events.remote_fn     = NULL;
+			post->parameters.send.dest = state.endpoints[i];
+#ifdef POSTMESSAGES
+			status = PAMI_Context_post(state.context, &post->work, post_send, (void *)post);
+#else
+			PAMI_Context_lock(state.context);
+			status = post_send(state.context, post);
+			PAMI_Context_unlock(state.context);
+#endif
+			if (status != PAMI_SUCCESS) error("Unable to post a send message");
 
 			#ifdef DEBUG
-				fprintf(stderr, "Place %u sent a NEW_TEAM message to place %u\n", state.myPlaceId, placev[i]);
+				fprintf(stderr, "Place %u sending a NEW_TEAM message to place %u\n", state.myPlaceId, i);
 			#endif
 		}
-		else
-			inTeam = true;
 	}
+
 	// at this point, all the places that are to be a part of this new team have been sent a message to join it.  We need to join too
-	if (!inTeam)
-		error("A team was created that did not include the creator");
+	// check to see if we are a member of the geometry or not
+	cookie->member = false;
+	for (int i=0; i<placec; i++)
+	{
+		if (placev[i] == state.myPlaceId)
+		{
+			cookie->member = true;
+			break;
+		}
+	}
 
-	pami_configuration_t config;
-	config.name = PAMI_GEOMETRY_OPTIMIZE;
-	config.value.intval = 1;
-
-	#ifdef DEBUG
-		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
-	#endif
-
-	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, placec, context, team_creation_complete, cookie);
-	if (status != PAMI_SUCCESS) error("Unable to create a new team");
-
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+	x10rt_post_general *post = (x10rt_post_general*)x10rt_malloc(sizeof(x10rt_post_general));
+	post->ptr = cookie;
+#ifdef POSTMESSAGES
+	status = PAMI_Context_post(state.context, &post->work, post_geometry_create, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	status = post_geometry_create(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post creation of a new team");
 }
 
 static void split_stage2 (pami_context_t   context,
@@ -1794,7 +1694,7 @@ static void split_stage2 (pami_context_t   context,
 	// save the members of the team that matches my color.  Skip the other teams
 	unsigned myNewTeamIndex = expandTeams(numNewTeams)+cbd->colors[cbd->parent_role]+1;
 	state.teams[myNewTeamIndex].size = myNewTeamSize;
-	state.teams[myNewTeamIndex].places = (pami_task_t*)malloc(myNewTeamSize*sizeof(pami_task_t));
+	state.teams[myNewTeamIndex].places = (pami_task_t*)x10rt_malloc(myNewTeamSize*sizeof(pami_task_t));
 	if (state.teams[myNewTeamIndex].places == NULL) error("Unable to allocate memory to hold the team member list");
 	int index = 0;
 	for (unsigned i=0; i<parentTeamSize; i++)
@@ -1822,11 +1722,15 @@ static void split_stage2 (pami_context_t   context,
 	pami_result_t   status = PAMI_ERROR;
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
 	cbd->teamIndex = myNewTeamIndex;
-	// TODO - interestingly, the context that comes in via the method call is sometimes null.  Probably a PAMI bug.
-	if (context == NULL)
-		context = (state.numParallelContexts<=1)?state.context[0]:getConcurrentContext();
-	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, context, team_creation_complete, cbd);
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[myNewTeamIndex].geometry, parentGeometry, myNewTeamIndex, state.teams[myNewTeamIndex].places, myNewTeamSize, state.context, team_creation_complete, cbd);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
+}
+
+pami_result_t post_collective_create (pami_context_t context, void* cookie) {
+	pami_result_t status = PAMI_Collective(context, &((x10rt_post_collective_create *)cookie)->operation);
+	if (status != PAMI_SUCCESS) error("Unable to execute collective operation");
+	free(cookie);
+	return PAMI_SUCCESS;
 }
 
 void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
@@ -1840,72 +1744,73 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	#endif
 	unsigned parentTeamSize = x10rt_net_team_sz(parent);
 	// allocate a buffer to hold the color for each place
-	x10rt_place *colors = (x10rt_place*) malloc(sizeof(x10rt_place) * parentTeamSize);
+	x10rt_place *colors = (x10rt_place*) x10rt_malloc(sizeof(x10rt_place) * parentTeamSize);
 	if (colors == NULL) error("Unable to allocate memory for the team colors buffer");
 	colors[parent_role] = color;
 
 	// determine an algorithm for the all-to-all
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
 
 	// Issue the collective
-	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)malloc(sizeof(x10rt_pami_team_create));
+	x10rt_pami_team_create *cbd = (x10rt_pami_team_create *)x10rt_malloc(sizeof(x10rt_pami_team_create));
 	if (cbd == NULL) error("Unable to allocate memory for a team split structure");
 	cbd->cb2 = ch;
 	cbd->arg = arg;
 	cbd->colors = colors;
 	cbd->teamIndex = parent;
 	cbd->parent_role = parent_role;
+	cbd->member = true;
 
-	pami_xfer_t operation;
-	operation.cb_done = split_stage2;
-	operation.cookie = cbd;
-	operation.algorithm = state.teams[parent].algorithm[PAMI_XFER_ALLGATHER];
-	operation.cmd.xfer_allgather.rcvbuf = (char*)colors;
-	operation.cmd.xfer_allgather.rtype = PAMI_TYPE_BYTE;
-	operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place);// *parentTeamSize;
-	operation.cmd.xfer_allgather.sndbuf = (char*)&color;
-	operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
-	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
+	x10rt_post_collective_create *post = (x10rt_post_collective_create*)x10rt_malloc(sizeof(x10rt_post_collective_create));
+	post->operation.cb_done = split_stage2;
+	post->operation.cookie = cbd;
+	post->operation.algorithm = state.teams[parent].algorithm[PAMI_XFER_ALLGATHER];
+	post->operation.cmd.xfer_allgather.rcvbuf = (char*)colors;
+	post->operation.cmd.xfer_allgather.rtype = PAMI_TYPE_BYTE;
+	post->operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place);// *parentTeamSize;
+	post->operation.cmd.xfer_allgather.sndbuf = (char*)&color;
+	post->operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
+	post->operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
 
-	status = PAMI_Collective(context, &operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all for team_split");
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &post->work, post_collective_create, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective_create(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post an allgather for team_split");
+}
+
+pami_result_t post_geometry_destroy (pami_context_t context, void* cookie) {
+	x10rt_post_general *post = (x10rt_post_general *)cookie;
+
+	pami_result_t status = PAMI_Geometry_destroy(state.client, &state.teams[post->val].geometry, context, team_destroy_complete, post->ptr);
+	if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
+
+	free(cookie);
+	return PAMI_SUCCESS;
 }
 
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-
-	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)malloc(sizeof(x10rt_pami_team_destroy));
+	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)x10rt_malloc(sizeof(x10rt_pami_team_destroy));
 	ptd->teamid = team;
 	ptd->arg = arg;
 	ptd->tch = ch;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
 
-	status = PAMI_Geometry_destroy(state.client, &state.teams[team].geometry, context, team_destroy_complete, ptd);
-	if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
+	x10rt_post_general *post = (x10rt_post_general*)x10rt_malloc(sizeof(x10rt_post_general));
+	post->val = team;
+	post->ptr = ptd;
 
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &post->work, post_geometry_destroy, (void *)post);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_geometry_destroy(state.context, post);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a geometry destroy");
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
@@ -1944,7 +1849,7 @@ static void internal_alltoall_complete (pami_context_t   context,
 	#endif
 	// Done!  block on a barrier, followed by the original x10-level callback
 
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
 	tcb->tcb = cbd->tch;
 	tcb->arg = cbd->arg;
@@ -1987,21 +1892,17 @@ static void internal_alltoall_step (pami_context_t   context,
 	if (status != PAMI_SUCCESS) error("Error with the remote Put in internal all-to-all %u\n", status);
 }
 
+pami_result_t post_collective (pami_context_t context, void* cookie) {
+	pami_result_t status = PAMI_Collective(context, &((x10rt_pami_team_callback*)cookie)->operation);
+	if (status != PAMI_SUCCESS) error("Unable to execute a collective operation");
+	// do not free the cookie, as it's used (and freed) later
+	return PAMI_SUCCESS;
+}
+
 void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2010,35 +1911,28 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	tcb->operation.cookie = tcb;
 	tcb->operation.algorithm = state.teams[team].algorithm[PAMI_XFER_BARRIER];
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u, role %u executing barrier. cookie=%p\n", state.myPlaceId, role, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing barrier via thread %u. cookie=%p\n", state.myPlaceId, role, pthread_self(), (void*)tcb);
 	#endif
 
-	status = PAMI_Collective(context, &tcb->operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue a barrier on team %u", team);
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a barrier on team %u", team);
 }
 
 void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing broadcast of %lu %lu-byte elements on team %u, with role=%u, root=%u\n", state.myPlaceId, count, el, team, role, root);
 	#endif
 
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a broadcast callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2058,10 +1952,14 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	else
 		tcb->operation.cmd.xfer_broadcast.buf = (char*)dbuf;
 
-	status = PAMI_Collective(context, &tcb->operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue a broadcast on team %u", team);
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a broadcast on team %u", team);
 
 	// copy the data for the root separately.  PAMI does not do this for us.
 	if (role == root)
@@ -2071,19 +1969,8 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
 		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a scatter callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2105,44 +1992,30 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing scatter: role=%u, root=%u\n", state.myPlaceId, role, root);
 	#endif
-	status = PAMI_Collective(context, &tcb->operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue a scatter on team %u", team);
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
 
-/*  The local copy is not needed.  PAMI handles this for us.
-	if (role == root)
-	{
-		// copy the root data from src to dst locally
-		int blockSize = el*count;
-		memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
-	}
-*/
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a scatter on team %u", team);
+    // The local copy is not needed.  PAMI handles this for us.
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
-	if (((int)state.teams[team].algorithm[PAMI_XFER_ALLTOALL]) < 0) // use our own algorithm, not PAMI's.  The value is -1*chunksize
+	if (state.teams[team].algorithm[PAMI_XFER_ALLTOALL] == PAMI_ALGORITHM_NULL) // use our own algorithm, not PAMI's.  The value is -1*chunksize
 	{
 		// TODO - the code below only works with world, and only when the src and dst arrays are symmetric!
 		if (team != 0) error("Internal implementation of ALLTOALL only works with world\n");
 
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u, role %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, role, team, el*count);
+			fprintf(stderr, "Place %u, role %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, role, team, el*count/state.a2achunks);
 		#endif
-		x10rt_pami_internal_alltoall *tcb = (x10rt_pami_internal_alltoall *)malloc(sizeof(x10rt_pami_internal_alltoall));
+		x10rt_pami_internal_alltoall *tcb = (x10rt_pami_internal_alltoall *)x10rt_malloc(sizeof(x10rt_pami_internal_alltoall));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
 		tcb->tch = ch;
 		tcb->arg = arg;
@@ -2150,7 +2023,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		tcb->dbuf = dbuf;
 		tcb->teamid = team;
 		tcb->dataSize = el*count;
-		tcb->chunksize = tcb->dataSize / (-1*((int)state.teams[team].algorithm[PAMI_XFER_ALLTOALL]));
+		tcb->chunksize = tcb->dataSize / state.a2achunks;
 		tcb->currentChunkOffset = 0;
 		tcb->currentPlaceOffset = 0;
 		memset(&tcb->parameters, 0, sizeof (tcb->parameters));
@@ -2167,16 +2040,20 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing pre-alltoall barrier. cookie=%p\n", state.myPlaceId, (void*)tcb);
 		#endif
-		status = PAMI_Collective(context, &operation);
-		if (status != PAMI_SUCCESS) error("Unable to issue pre-alltoall barrier on team %u", team);
 
-		if (!state.numParallelContexts)
-			PAMI_Context_unlock(context);
+#ifdef POSTMESSAGES
+		pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+		PAMI_Context_lock(state.context);
+		pami_result_t status = post_collective(state.context, tcb);
+		PAMI_Context_unlock(state.context);
+#endif
+		if (status != PAMI_SUCCESS) error("Unable to post a pre-alltoall barrier on team %u", team);
 	}
 	else
 	{
 		// Issue the PAMI collective
-		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
 		tcb->tcb = ch;
 		tcb->arg = arg;
@@ -2194,16 +2071,16 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u, role %u executing AllToAll with team %u. cookie=%p\n", state.myPlaceId, role, team, (void*)tcb);
 		#endif
-		status = PAMI_Collective(context, &tcb->operation);
-		if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
-		if (!state.numParallelContexts)
-			PAMI_Context_unlock(context);
 
-	/*  The local copy is not needed.  PAMI handles this for us.
-		// copy the local section of data from src to dst
-		int blockSize = el*count;
-		memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
-	*/
+#ifdef POSTMESSAGES
+		pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+		PAMI_Context_lock(state.context);
+		pami_result_t status = post_collective(state.context, tcb);
+		PAMI_Context_unlock(state.context);
+#endif
+		if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
+	    // The local copy is not needed.  PAMI handles this for us.
 	}
 }
 
@@ -2214,19 +2091,8 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
                         size_t count,
                         x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a reduce callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2260,28 +2126,22 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing reduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif
-	status = PAMI_Collective(context, &tcb->operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue a reduce on team %u", team);
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a reduce on team %u", team);
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
-	pami_result_t status = PAMI_ERROR;
-	pami_context_t context;
-	if (state.numParallelContexts)
-		context = getConcurrentContext();
-	else
-	{
-		context = state.context[0];
-		status = PAMI_Context_lock(context);
-		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-	}
-
 	// Issue the collective
-	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a allreduce callback header");
 	tcb->tcb = ch;
 	tcb->arg = arg;
@@ -2311,8 +2171,13 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing allreduce, with type=%u and op=%u\n", state.myPlaceId, dtype, op);
 	#endif
-	status = PAMI_Collective(context, &tcb->operation);
-	if (status != PAMI_SUCCESS) error("Unable to issue an allreduce on team %u", team);
-	if (!state.numParallelContexts)
-		PAMI_Context_unlock(context);
+
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post an allreduce on team %u", team);
 }

@@ -20,14 +20,14 @@ import harness.x10Test;
 
 public class ClosureFormalParameters1a extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         chk((()=>0)() == 0, "(()=>0)()");
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureFormalParameters1a().execute();
     }
 }

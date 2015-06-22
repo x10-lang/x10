@@ -19,7 +19,7 @@ import x10.regionarray.*;
  */
 public class TestPointHash extends x10Test {
 
-	public def run(): Boolean = {
+	public def run(): Boolean {
         val b = Point.make(1,1,1);
         val c = Point.make(1,1,1);
         chk (b.equals(c));

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10RT_SER_H
@@ -71,7 +71,6 @@ static inline void x10rt_serbuf_init (x10rt_serbuf *b, x10rt_place dest, x10rt_m
 {
     b->p.msg = NULL;
     b->p.dest_place = dest;
-    b->p.dest_endpoint = 0;
     b->p.type = id;
     b->p.len = 0;
     b->cap = 0;

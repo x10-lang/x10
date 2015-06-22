@@ -25,8 +25,8 @@ import org.junit.Test;
 import apgas.Configuration;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
+import apgas.DeadPlaceException;
 import apgas.Place;
-import apgas.util.BadPlaceException;
 import apgas.util.GlobalRef;
 
 @SuppressWarnings("javadoc")
@@ -69,8 +69,8 @@ public class ApgasTest {
   public void testGlobalRef() {
     final int a[] = new int[1];
     final GlobalRef<int[]> _a = new GlobalRef<>(a);
-    finish(() -> asyncat(place(1),
-        () -> asyncat(_a.home(), () -> _a.get()[0] = 42)));
+    finish(() -> asyncAt(place(1),
+        () -> asyncAt(_a.home(), () -> _a.get()[0] = 42)));
     assertEquals(a[0], 42);
     _a.free();
   }
@@ -83,14 +83,14 @@ public class ApgasTest {
     }
   }
 
-  @Test(expected = BadPlaceException.class)
-  public void testBadPlaceException() {
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalArgumentException() {
     place(-1);
   }
 
-  @Test(expected = BadPlaceException.class)
+  @Test(expected = DeadPlaceException.class)
   public void testBadPlaceExceptionAsyncAt() {
-    asyncat(new Place(-1), () -> {
+    asyncAt(new Place(places().size()), () -> {
     });
   }
 
@@ -110,12 +110,12 @@ public class ApgasTest {
 
   @Test(expected = MultipleException.class)
   public void testMultipleExceptionAsyncAt() {
-    finish(() -> asyncat(place(1), () -> {
+    finish(() -> asyncAt(place(1), () -> {
       throw new RuntimeException();
     }));
   }
 
-  public int fib(int n) {
+  public static int fib(int n) {
     if (n < 2) {
       return n;
     }
@@ -132,11 +132,12 @@ public class ApgasTest {
     assertEquals(fib(10), 55);
   }
 
+  @SuppressWarnings("serial")
   @Test(expected = RuntimeException.class)
   public void testSerializationException() throws Throwable {
     try {
       final Object obj = new Object();
-      asyncat(place(1), () -> obj.toString());
+      asyncAt(place(1), () -> obj.toString());
     } catch (final MultipleException e) {
       assertEquals(e.getSuppressed().length, 1);
       throw e.getSuppressed()[0];
@@ -152,11 +153,12 @@ public class ApgasTest {
     }
   }
 
+  @SuppressWarnings("serial")
   @Test(expected = NotSerializableException.class)
   public void testDeserializationException() throws Throwable {
     final Object obj = new Foo();
     try {
-      finish(() -> asyncat(place(1), () -> obj.toString()));
+      finish(() -> asyncAt(place(1), () -> obj.toString()));
     } catch (final MultipleException e) {
       assertEquals(e.getSuppressed().length, 1);
       throw e.getSuppressed()[0];
@@ -172,7 +174,7 @@ public class ApgasTest {
   @Test(expected = NotSerializableException.class)
   public void testNotSerializableException() throws Throwable {
     try {
-      finish(() -> asyncat(place(1), () -> {
+      finish(() -> asyncAt(place(1), () -> {
         throw new FooException();
       }));
     } catch (final MultipleException e) {

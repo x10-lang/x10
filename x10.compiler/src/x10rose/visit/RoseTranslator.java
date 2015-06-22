@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,7 @@ import polyglot.ast.Cast_c;
 import polyglot.ast.CharLit_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall.Kind;
+import polyglot.ast.Assign;
 import polyglot.ast.Block_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Case_c;
@@ -146,6 +148,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.AmbDepTypeNode_c;
+import x10.ast.AnnotationNode;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
@@ -210,6 +213,7 @@ import x10.ast.X10StringLit_c;
 import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
 import x10.extension.X10Del;
+import x10.extension.X10Ext;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
 import x10.types.X10ClassDef;
@@ -218,17 +222,20 @@ import x10.util.StringResource;
 import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10TypeChecker;
 import x10rose.ExtensionInfo;
-import x10rose.ExtensionInfo.FileStatus;
 
 public class RoseTranslator extends Translator {
 
     public static Set<String> package_traversed = new HashSet<String>();
 
+    public static int uniqMemberIndex = 0;
+    
     /** 
      * Key represents full path for a class, and the value for a key represents
      * the package name for the class
      */
     public static HashMap<String, String> nestedClasses = new HashMap<String, String>();
+    
+    public static HashMap<String, String> classes = new HashMap<String, String>();
     
     public RoseTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
         super(job, ts, nf, tf);
@@ -244,11 +251,22 @@ public class RoseTranslator extends Translator {
     }
 
     public static boolean isNestedClass(String class_name, String[] package_name) {
-        for (String path : nestedClasses.keySet())
+        for (String path : nestedClasses.keySet()) {
             if (path.equals(class_name)) {
                 package_name[0] = nestedClasses.get(path);
                 return true;
             }
+        }
+        String outer = "";
+        int index = class_name.lastIndexOf('.');
+        if (index > 0)
+            outer = class_name.substring(0, index);
+        for (String path : classes.keySet()) {
+            if (path.equals(outer)) {
+                package_name[0] = classes.get(path);
+                return true;
+            }
+        }
 
         return false;
     }
@@ -401,8 +419,6 @@ public class RoseTranslator extends Translator {
 
     static List<Job> jobList = new ArrayList<Job>();
 
-    static HashMap<String, HashMap<String, Integer>> classMemberMap = new HashMap<String, HashMap<String, Integer>>();
-
     static HashMap<String, Integer> memberMap = new HashMap<String, Integer>();
 
     static int fileIndex;
@@ -513,7 +529,8 @@ public class RoseTranslator extends Translator {
 
     private static HashMap<Binary.Operator, Integer> binaryOpTable = new HashMap<Binary.Operator, Integer>();
     private static HashMap<Unary.Operator, Integer> unaryOpTable = new HashMap<Unary.Operator, Integer>();
-
+    private static HashMap<Assign.Operator, Integer> assignOpTable = new HashMap<Assign.Operator, Integer>();
+    
     /**
      * 
      * operator code values are directly derived from ECJ.
@@ -530,6 +547,7 @@ public class RoseTranslator extends Translator {
             unaryOpTable.put(Unary.Operator.POST_DEC, 13);
             unaryOpTable.put(Unary.Operator.PRE_INC, 14);
             unaryOpTable.put(Unary.Operator.POST_INC, 14);
+            unaryOpTable.put(Unary.Operator.NEG, 13);
         }
         return unaryOpTable.get(op);
     }
@@ -564,9 +582,26 @@ public class RoseTranslator extends Translator {
             binaryOpTable.put(Binary.Operator.USHR, 19);
             binaryOpTable.put(Binary.Operator.DOT_DOT, 20);
             binaryOpTable.put(Binary.Operator.EQ, 21);
+            binaryOpTable.put(Binary.Operator.NE, 22);
             binaryOpTable.put(Binary.Operator.COND_OR, 100);
             binaryOpTable.put(Binary.Operator.COND_AND, 101);
         }
         return binaryOpTable.get(op);
+    }
+    
+    static int getOperatorKind(Assign.Operator op) {
+        if (assignOpTable.isEmpty()) {
+            assignOpTable.put(Assign.Operator.BIT_AND_ASSIGN, 2);
+            assignOpTable.put(Assign.Operator.BIT_OR_ASSIGN, 3);
+            assignOpTable.put(Assign.Operator.BIT_XOR_ASSIGN, 8);
+            assignOpTable.put(Assign.Operator.DIV_ASSIGN, 9);
+            assignOpTable.put(Assign.Operator.SHL_ASSIGN, 10);
+            assignOpTable.put(Assign.Operator.SUB_ASSIGN, 13);
+            assignOpTable.put(Assign.Operator.ADD_ASSIGN, 14);
+            assignOpTable.put(Assign.Operator.MUL_ASSIGN, 15);
+            assignOpTable.put(Assign.Operator.MOD_ASSIGN, 16);
+            assignOpTable.put(Assign.Operator.SHR_ASSIGN, 17);
+        }
+        return assignOpTable.get(op);
     }
 }

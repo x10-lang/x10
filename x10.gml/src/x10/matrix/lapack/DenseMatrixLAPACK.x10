@@ -6,14 +6,17 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2011-2014.
  */
 
 package x10.matrix.lapack;
 
+import x10.util.StringBuilder;
+
 import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
+import x10.matrix.ElemType;
 
 /**
  * This class provides static methods to perform LAPACK routines using dense
@@ -26,20 +29,24 @@ import x10.matrix.Vector;
 public class DenseMatrixLAPACK {
 	/**
 	 * Solve linear equations:  A &#42  X = B
-     *
-     * @param matrix A(MxN)
-     * @param matrix B(LDBxNRHS); on exit, contains matrix X(N*NRHS)
-     * @param permutation vector; on exit, contains pivot indices defining permutation matrix P
+	 *
+	 * @param matrix A(MxN)
+	 * @param matrix B(LDBxNRHS); on exit, contains matrix X(N*NRHS)
+	 * @param permutation vector; on exit, contains pivot indices defining permutation matrix P
 	 */	
-	public static def solveLinearEquation(A:DenseMatrix, BX:DenseMatrix(A.N), ipiv:Rail[Int]{self.size==A.N}):Int {
-        Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-        Debug.assure(BX.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-		return DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, BX.N as Int]);
+	public static def solveLinearEquation(A:DenseMatrix, BX:DenseMatrix(A.N), ipiv:Rail[Int]{self.size==A.N}) {
+	    Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
+	    Debug.assure(BX.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
+	    val info = DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, BX.N as Int]);
+
+	    if (info > 0) throw new LAPACKException(info, "solveLinearEquation");
 	}
 
-    public static def solveLinearEquation(A:DenseMatrix, BX:Vector(A.N), ipiv:Rail[Int]{self.size==A.N}):Int {
+    public static def solveLinearEquation(A:DenseMatrix, BX:Vector(A.N), ipiv:Rail[Int]{self.size==A.N}) {
         Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-		return DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, 1n]);
+	val info = DriverLAPACK.solveLinearEquation(A.d, BX.d, ipiv, [A.N as Int, 1n]);
+
+        if (info > 0) throw new LAPACKException(info, "solveLinearEquation");
  	}
 /*	
 	public static def solveLinearEquation(A:DenseMatrix, BX:DenseMatrix(A.N), ipvec:Vector(A.M)):Int {
@@ -48,17 +55,73 @@ public class DenseMatrixLAPACK {
 	}
 */
 	/**
-	 * Solve matrix A &#42  X = B
+	 * Compute all eigenvalues of the real symmetric matrix A.
+	 * @param A a real symmetric matrix. Only the upper half is used.
+	 * @param W on return, the eigenvalues of A in ascending order
+	 * @param work a work array, size >= 8*A.N
+	 * @param iwork a work array, size == 5*A.N
 	 */
-	public static def compEigenValue(A:DenseMatrix, W:Vector(A.N), tmp:Rail[Double]):Int {
+	public static def compEigenvalues(A:DenseMatrix, W:Vector(A.N), work:Rail[ElemType], iwork:Rail[Int]) {
         Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-		Debug.assure(tmp.size >= 3*A.N-1, "Temp space used to compute eigen values is too small");
-		return DriverLAPACK.compEigenValue(A.d, W.d, tmp, [A.N as Int, tmp.size as Int]);
+		Debug.assure(work.size >= 8*A.N, "Work space used to compute eigenvalues is too small");
+		Debug.assure(iwork.size >= 5*A.N, "Integer work space used to compute eigenvalues is too small");
+		val info = DriverLAPACK.compEigenvalues(A.d, W.d, work, iwork, [A.N as Int, work.size as Int]);
+
+        if (info > 0) throw new LAPACKException(info, "compEigenvalues");
+	}
+
+	/**
+	 * Compute all eigenvalues of the real symmetric matrix A.
+	 * @param A a real symmetric matrix. Only the upper half is used.
+	 * @param W on return, the eigenvalues of A in ascending order
+	 */
+	public static def compEigenvalues(A:DenseMatrix, W:Vector(A.N)) {
+	    val work = new Rail[ElemType](8*A.N);
+	    val iwork = new Rail[Int](5*A.N);
+	    compEigenvalues(A, W, work, iwork);
 	}
 	
-	public static def compEigenVector(A:DenseMatrix, W:Vector(A.N), tmp:Rail[Double]):Int {
-        Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
-		Debug.assure(tmp.size >= 3*A.N-1, "Temp space used to compute eigen values is too small");
-		return DriverLAPACK.compEigenVector(A.d, W.d, tmp, [A.N as Int, tmp.size as Int]);
+	/**
+	 * Compute all eigenvalues and eigenvectors of the real symmetric matrix A.
+	 * @param A a real symmetric matrix. Only the upper half is used.
+	 *   On return, the upper half of A is destroyed.
+	 * @param W on return, the eigenvalues of A in ascending order
+	 * @param Z on return, the eigenvectors of A corresponding to eigenvalues
+	 * @param work a work array, size >= 8*A.N
+	 * @param iwork a work array, size == 5*A.N
+	 */
+	public static def compEigenvectors(A:DenseMatrix, W:Vector(A.N), Z:DenseMatrix(A.M,A.N), work:Rail[ElemType], iwork:Rail[Int]) {
+	    Debug.assure(A.N < Int.MAX_VALUE, "32-bit LAPACK only supports matrix dimension < 2^31");
+	    Debug.assure(work.size >= 8*A.N, "Work space used to compute eigenvectors is too small");
+	    Debug.assure(iwork.size >= 5*A.N, "Integer work space used to compute eigenvectors is too small");
+	    val ifail = new Rail[Int](A.N);
+	    val info = DriverLAPACK.compEigenvectors(A.d, W.d, Z.d, work, iwork, ifail, [A.N as Int, work.size as Int]);
+
+	    if (info > 0) {
+		val convergeMessage = new StringBuilder();
+		convergeMessage.add("compEigenvectors: the following eigenvectors failed to converge:");
+		for (i in 0..(A.N-1)) {
+		    if (ifail(i) >= 0) {
+			convergeMessage.add(" ").add(ifail(i));
+		    }
+		}
+		
+		throw new LAPACKException(info, convergeMessage.toString());
+	    }
 	}
+
+    /**
+     * Compute all eigenvalues and eigenvectors of the real symmetric matrix A.
+     * @param A a real symmetric matrix. Only the upper half is used.
+     *   On return, the upper half of A is destroyed.
+     * @param W on return, the eigenvalues of A in ascending order
+     * @param Z on return, the eigenvectors of A corresponding to eigenvalues
+     */
+    public static def compEigenvectors(A:DenseMatrix, W:Vector(A.N), Z:DenseMatrix(A.M,A.N)) {
+        val work = new Rail[ElemType](8*A.N);
+        val iwork = new Rail[Int](5*A.N);
+	compEigenvectors(A, W, Z, work, iwork);
+    }
 }
+
+// vim:tabstop=4:shiftwidth=4:expandtab

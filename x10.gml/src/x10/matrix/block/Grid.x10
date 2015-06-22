@@ -17,6 +17,7 @@ import x10.compiler.Inline;
 import x10.util.StringBuilder;
 
 import x10.matrix.util.Debug;
+import x10.matrix.ElemType;
 
 public type Grid(bM:Long,bN:Long)=Grid{self.numRowBlocks==bM, self.numColBlocks==bN};
 public type Grid(m:Long,n:Long,bM:Long,bN:Long)=Grid{self.M==m,self.N==n,self.numRowBlocks==bM,self.numColBlocks==bN};

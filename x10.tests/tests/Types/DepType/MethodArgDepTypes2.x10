@@ -20,7 +20,7 @@ import x10.regionarray.*;
  */
 public class MethodArgDepTypes2 extends x10Test {
 	public static def arraycopy(val a_dest: DistArray[double], 
-	                            val a_src: DistArray[double]{rank==a_dest.rank}): void = {	
+	                            val a_src: DistArray[double]{rank==a_dest.rank}): void {	
     	  val R: Region{rank==a_dest.rank} = a_src.region&& a_dest.region; 
     	  finish for (val p: Point{rank==a_dest.rank} in R) async {
     	  //finish for( point p : R){	  
@@ -29,7 +29,7 @@ public class MethodArgDepTypes2 extends x10Test {
     	  //for( point p : R) a_dest[p]=a_src[p]; //implicit syntax
 	}
   
-	public def m(val a: DistArray[double]): void = {
+	public def m(val a: DistArray[double]): void {
 		var result: DistArray[double] = a;
 		val buffDest: DistArray[double] = a;
 		
@@ -39,7 +39,7 @@ public class MethodArgDepTypes2 extends x10Test {
 	}
 	public def run()=true;
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new MethodArgDepTypes2().execute();
 	}
 }

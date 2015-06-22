@@ -12,6 +12,8 @@ import x10.regionarray.DistArray;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;		
@@ -25,9 +27,12 @@ import x10.matrix.comm.BlockSetReduce;
    This class contains test cases P2P communication for matrix over different places.
  */
 public class TestBlockSetComm extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
+
 	public val M:Long;
 	public val N:Long;
-	public val nzdensity:Double;
+	public val nzdensity:Float;
 	public val bM:Long;
 	public val bN:Long;
 	public val grid:Grid;
@@ -42,7 +47,7 @@ public class TestBlockSetComm extends x10Test {
 	
 	public val rootbid:Long = 0;
 	
-    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Double) {
+    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Float) {
 		M=m; N=n;
 		nzdensity = d;
 		bM = bm; bN = bn;
@@ -116,7 +121,7 @@ public class TestBlockSetComm extends x10Test {
 		Console.OUT.println("\nTest P2P copyFrom dup blockset matrix ("+M+","+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		src.reset();
-		src.local().init((r:Long,c:Long)=>1.0*((r+c)%3));
+		src.local().init((r:Long,c:Long)=>ET(1.0*((r+c)%3)));
 		for (var p:Long=1; p<numplace; p++) {
 			st =  Timer.milliTime();
 			val pid = p;
@@ -125,7 +130,6 @@ public class TestBlockSetComm extends x10Test {
 			};
 			tt += Timer.milliTime() - st;
 		}
-		//src.printAllCopies();		
 		ret = src.checkSync();
 		val avgt = 1.0*tt/(numplace-1);
 		Console.OUT.printf("P2P copyFrom %d bytes: %.3f ms, thput: %2.2f MB/s per iteration\n", 
@@ -149,12 +153,11 @@ public class TestBlockSetComm extends x10Test {
 			Console.OUT.flush();
 			bmat.reset();
 			at(Place(p)) {
-				bmat.local().init((r:Long, c:Long)=>(1.0+r+c)*((r+c)%3));
+			    bmat.local().init((r:Long, c:Long)=>ET((1.0+r+c)*((r+c)%3)));
 			}
 			val st:Long =  Timer.milliTime();
 			BlockSetBcast.bcast(bmat.handleDB, p);
 			avgt += (Timer.milliTime() - st);
-			//bmat.printAllMatrixCopies();
 			ret &= bmat.checkSync();
 		}
 	
@@ -177,7 +180,7 @@ public class TestBlockSetComm extends x10Test {
 		for (var p:Long=0; p < numplace&&ret; p++) {
 			Console.OUT.println("Reduce to root place "+p);
 			dmat.reset();
-			dmat.init(1.0);
+			dmat.init(ET(1.0));
 			val st:Long =  Timer.milliTime();
 			BlockSetReduce.reduceSum(dmat.handleDB, dmat.tmpDB, p);
 			avgt += (Timer.milliTime() - st);
@@ -195,7 +198,7 @@ public class TestBlockSetComm extends x10Test {
 		val n = args.size > 1 ? Long.parse(args(1)):40;
 		val bm= args.size > 2 ? Long.parse(args(2)):3;
 		val bn= args.size > 3 ? Long.parse(args(3)):7;
-		val d = args.size > 4 ? Double.parse(args(4)):0.99;
+		val d = args.size > 4 ? Float.parse(args(4)):0.99f;
 		new TestBlockSetComm(m, n, bm, bn, d).execute();
 	}
 }

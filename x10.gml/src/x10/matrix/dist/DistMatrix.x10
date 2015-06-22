@@ -16,6 +16,8 @@ import x10.regionarray.DistArray;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.DenseBlock;
@@ -120,7 +122,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  gp      Matrix partitioning
      * @param  nzd     nonzero sparsity of each block
      */    
-    public static def makeSparse(gp:Grid, nzd:Double) : DistMatrix(gp.M, gp.N) {
+    public static def makeSparse(gp:Grid, nzd:Float) : DistMatrix(gp.M, gp.N) {
         val ddm = new DistMatrix(gp);
         ddm.allocSparseBlocks(nzd);
         return ddm;
@@ -136,7 +138,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  nzd      nonzero sparsity    of each block
      * @return
      */    
-    public static def makeSparse(m:Long, n:Long, nzd:Double) : DistMatrix(m, n) {
+    public static def makeSparse(m:Long, n:Long, nzd:Float) : DistMatrix(m, n) {
         val g =  Grid.make(m, n, Place.numPlaces());
         return makeSparse(g, nzd);
     }
@@ -159,7 +161,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      *
      * @param  nzd      Nonzero sparsity of each block
      */
-    public def allocSparseBlocks(nzd:Double):void {
+    public def allocSparseBlocks(nzd:Float):void {
         finish for([p] in this.dist) {
             val rid = this.grid.getRowBlockId(p);
             val cid = this.grid.getColBlockId(p);
@@ -174,7 +176,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * as either dense blocks or sparse blocks.
      *
      */    
-    public def init(ival:Double) : DistMatrix(this) {
+    public def init(ival:ElemType) : DistMatrix(this) {
         finish ateach([p] in this.dist) {
             distBs(p).init(ival);
         }
@@ -187,7 +189,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param f    The function to use to initialize the matrix, given global row and column index
      * @return this object
      */
-    public def init(f:(Long,Long)=>Double): DistMatrix(this) {
+    public def init(f:(Long,Long)=>ElemType): DistMatrix(this) {
         finish for (var cb:Long=0; cb<grid.numColBlocks; cb++) {
             for (var rb:Long=0; rb<grid.numRowBlocks; rb++) {
                 val pid = grid.getBlockId(rb, cb);
@@ -317,7 +319,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  y  the c-th column of the matrix
      * @return value of matrix at(x, y)
     */
-    public operator this(x:Long, y:Long):Double {
+    public operator this(x:Long, y:Long):ElemType {
         val loc = grid.find(x, y);
         val bid = grid.getBlockId(loc(0), loc(1));
         val dv = at(this.distBs.dist(bid)) this.distBs(bid)(loc(2), loc(3));
@@ -332,7 +334,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
      * @param  y  the c-th column of the matrix
      * @param  v  the value
      */
-    public  operator this(x:Long,y:Long)=(v:Double):Double {
+    public  operator this(x:Long,y:Long)=(v:ElemType):ElemType {
         val loc = grid.find(x, y);
         val bid = grid.getBlockId(loc(0), loc(1));
         at(distBs.dist(bid)) getMatrix(bid)(loc(2), loc(3))=v;
@@ -360,7 +362,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
     /**
      * Multiply each element in matrix by a
      */    
-    public def scale(a:Double) {
+    public def scale(a:ElemType) {
         finish ateach([p] in this.dist) {
             local().scale(a);
         }
@@ -390,7 +392,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         return this;
     }
 
-    public def cellAdd(d:Double) {
+    public def cellAdd(d:ElemType) {
         finish ateach([p] in this.dist) {
             val m = local();
             m.cellAdd(d);
@@ -451,17 +453,6 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
             m.cellSubFrom(dst.local() as DenseMatrix(m.M,m.N));
         }
         return dst;
-    }
-     
-    /**
-     * dst = dv - this
-     */
-    public def cellSubFrom(dv:Double):DistMatrix(this) {
-        finish ateach([p] in this.dist) {
-            val m = local();
-            m.cellSubFrom(dv);
-        }
-        return this;
     }
 
     /**
@@ -578,17 +569,16 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 
     // Operator overloading
 
-    public operator - this = this.clone().scale(-1.0) as DistMatrix(M,N);
-    public operator (v:Double) + this = makeDense(this).cellAdd(v) as DistMatrix(M,N);
-    public operator this + (v:Double) = v + this;
+    public operator - this = this.clone().scale((-1.0) as ElemType) as DistMatrix(M,N);
+    public operator (v:ElemType) + this = makeDense(this).cellAdd(v) as DistMatrix(M,N);
+    public operator this + (v:ElemType) = v + this;
 
-    public operator this - (v:Double) = makeDense(this).cellAdd(-v) as DistMatrix(M,N);
-    public operator (v:Double) - this = makeDense(this).cellSubFrom(v) as DistMatrix(M,N);
-    public operator this / (v:Double) = makeDense(this).scale(1.0/v) as DistMatrix(M,N);
-    //public operator (v:Double) / this = makeDense(this).cellDivBy(v) as DistMatrix(M,N);
+    public operator this - (v:ElemType) = makeDense(this).cellAdd(-v) as DistMatrix(M,N);
+    public operator this / (v:ElemType) = makeDense(this).scale((1.0/v) as ElemType) as DistMatrix(M,N);
+    //public operator (v:ElemType) / this = makeDense(this).cellDivBy(v) as DistMatrix(M,N);
             
-    public operator this * (alpha:Double) = this.clone().scale(alpha) as DistMatrix(M,N);
-    public operator (alpha:Double) * this = this * alpha;
+    public operator this * (alpha:ElemType) = this.clone().scale(alpha) as DistMatrix(M,N);
+    public operator (alpha:ElemType) * this = this * alpha;
 
     public operator this + (that:DistMatrix(M,N)) = makeDense(this).cellAdd(that) as DistMatrix(M,N);
     public operator this - (that:DistMatrix(M,N)) = makeDense(this).cellSub(that) as DistMatrix(M,N);

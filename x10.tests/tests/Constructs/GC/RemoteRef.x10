@@ -29,7 +29,7 @@ public class RemoteRef extends x10Test {
        var success:Boolean = false;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val iterCount = 20n;
         val c = Clock.make();
         val res = GlobalRef[ResultHolder](new ResultHolder());
@@ -77,7 +77,7 @@ public class RemoteRef extends x10Test {
         }
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new RemoteRef().execute();
     }
 }

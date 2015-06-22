@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10AUX_NETWORK_H
@@ -18,10 +18,10 @@
 #include <x10rt_cpp.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
-namespace x10 { namespace lang { class FinishState; } }
+namespace x10 { namespace xrx { class FinishState; } }
 namespace x10 { namespace lang { class Reference; } }
 namespace x10 { namespace lang { class String; } }
-namespace x10 { namespace lang { class Runtime__Profile; } }
+namespace x10 { namespace xrx { class Runtime__Profile; } }
 
 namespace x10aux {
 
@@ -51,8 +51,6 @@ namespace x10aux {
     extern msg_type kernel_put;
 
     // caches to avoid repeatedly calling into x10rt for trivial things
-    extern place num_places;
-    extern place num_hosts;
     extern place here;
 
     // can be used to test whether the above caches contain valid data
@@ -186,11 +184,11 @@ namespace x10aux {
 namespace x10aux {
 
     void run_closure_at(place p, ::x10::lang::VoidFun_0_0* body,
-                        ::x10::lang::Runtime__Profile *prof,
+                        ::x10::xrx::Runtime__Profile *prof,
                         ::x10::lang::VoidFun_0_0* preSendAction);
     void run_async_at(place p, ::x10::lang::VoidFun_0_0* body,
-                      ::x10::lang::FinishState* fs,
-                      ::x10::lang::Runtime__Profile *prof,
+                      ::x10::xrx::FinishState* fs,
+                      ::x10::xrx::Runtime__Profile *prof,
                       ::x10::lang::VoidFun_0_0* preSendAction);
 
     class serialization_buffer;

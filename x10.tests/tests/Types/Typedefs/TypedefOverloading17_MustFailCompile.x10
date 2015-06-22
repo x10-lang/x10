@@ -25,14 +25,14 @@ public class TypedefOverloading17_MustFailCompile extends TypedefTest {
     static type A[T] = int;
     static type A[U] = int; // ERR
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         type A = String;
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading17_MustFailCompile().execute();
     }
 }

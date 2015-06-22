@@ -20,19 +20,19 @@ import harness.x10Test;
 public class NumericExpressionToPrimitiveDepType_1 extends x10Test {
 	public var j: int = -1n;
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 		var i: int{self == 0n} = 0n;
 		i = incr().j as int{self == 0n};
 
 		return j == 0n;
 	}
 	
-	private def incr(): NumericExpressionToPrimitiveDepType_1 = {
+	private def incr(): NumericExpressionToPrimitiveDepType_1 {
 		j++;
 		return this;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new NumericExpressionToPrimitiveDepType_1().execute();
 	}
 

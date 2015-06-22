@@ -9,20 +9,8 @@
 #include <x10rt_front.h>
 #include <x10rt_ser.h>
 
-#ifdef _AIX
-#define PAGESIZE_4K  0x1000
-#define PAGESIZE_64K 0x10000
-#define PAGESIZE_16M 0x1000000
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/vminfo.h>
-#endif
-
 // what follows is some stuff copied from x10.runtime/src-cpp/x10aux/alloc.cc
 
-#ifdef _AIX
-#include <sys/vminfo.h>
-#endif
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
@@ -109,10 +97,6 @@ void *congruent_alloc (size_t size)
         }
         fclose(f);
 
-        #elif defined(__aix)
-
-        page = 16 * 1024 * 1024; // 16MB
-
         #else
 
         fprintf(stderr, "Using huge pages for congruent memory is not supported on your platform.  Please unset X10_CONGRUENT_HUGE.\n");
@@ -133,15 +117,12 @@ void *congruent_alloc (size_t size)
     if (getenv("X10_CONGRUENT_HUGE")!=NULL) {
 
         // huge pages are useful for performance, e.g. due to reducing TLB misses
-        // they are non-standard, currently aix and linux are supported.
+        // they are non-standard, currently only linux is supported.
 
         // we are assuming that huge pages (being very special) are going to always occupy the same virtual address space
 
         #if defined(__linux__) && !defined(SHM_HUGETLB)
             fprintf(stderr, "Using huge pages for congruent memory is only supported on Linux >= 2.6.  Please unset X10_CONGRUENT_HUGE.\n");
-            abort();
-        #elif defined(_AIX) && !defined(SHM_PAGESIZE)
-            fprintf(stderr, "This AIX system appears not to have SHM_PAGESIZE.  Please unset X10_CONGRUENT_HUGE.\n");
             abort();
         #else
             // ok let's go
@@ -159,16 +140,6 @@ void *congruent_alloc (size_t size)
                 abort();
             }
 
-            #ifdef __aix
-            // on AIX we ask for pages of a particular size
-            struct shmid_ds shm_buf = { 0 };
-            shm_buf.shm_pagesize = page;
-            if (shmctl(shm_id, SHM_PAGESIZE, &shm_buf) != 0) {
-                fprintf(stderr, "Could not get 16M pages\n");
-                abort();
-            }
-            #endif
-
             obj = shmat(shm_id,0,0);  // 'attach' the shared memory at any arbitrary address (seemingly, this is always the same)
             shmctl(shm_id, IPC_RMID, NULL); // mark for destruction, will be deallocated when shmdt is called (for x10, never)
         #endif
@@ -180,7 +151,7 @@ void *congruent_alloc (size_t size)
         // we're not using huge pages, however we still need an address that is consistent across all places
         // so we use mmap with a fixed address
 
-        #if !defined(_AIX) && !defined(__linux__) && !defined(__APPLE__)
+        #if !defined(__linux__) && !defined(__APPLE__)
 
             // in particular, cygwin can fall in this trap
             // other platforms have yet to be investigated for possible support
@@ -318,7 +289,7 @@ void decrement (unsigned long place)
     if (x10rt_here()==place) {
         pongs_outstanding--;
     } else {
-        x10rt_msg_params p2 = {0, PONG_ID, NULL, 0, 0};
+        x10rt_msg_params p2 = {0, PONG_ID, NULL, 0};
         x10rt_send_msg(&p2);
     }
 }
@@ -401,7 +372,7 @@ void validate (void)
 {
     pongs_outstanding=x10rt_nhosts();
     for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
-        x10rt_msg_params params = {p, VALIDATE_ID, NULL, 0, 0};
+        x10rt_msg_params params = {p, VALIDATE_ID, NULL, 0};
         x10rt_send_msg(&params);
     }
     do_validate();
@@ -492,7 +463,7 @@ int main(int argc, char **argv)
         }
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
-            x10rt_msg_params p = {i, QUIT_ID, NULL, 0, 0};
+            x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(&p);
         }
         finished = true;

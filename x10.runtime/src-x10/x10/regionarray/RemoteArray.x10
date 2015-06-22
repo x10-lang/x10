@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -117,7 +117,7 @@ public final class RemoteArray[T](
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} = {
+    public operator this(p:Point{self.rank==this.rank})=(v:T) {here==home} {
         return this()(p)=v;
     }
 

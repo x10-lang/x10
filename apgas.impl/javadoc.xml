@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="javadoc">
     <target name="javadoc">
-        <javadoc access="private" author="true" classpath="lib/hazelcast-3.3.1.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="src:../apgas/src" splitindex="true" use="true" version="true"/>
+        <javadoc access="private" author="true" classpath="lib/hazelcast-3.4.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="src:../apgas/src" splitindex="true" use="true" version="true"/>
     </target>
 </project>

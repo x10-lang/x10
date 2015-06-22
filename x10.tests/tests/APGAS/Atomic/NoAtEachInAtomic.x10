@@ -20,7 +20,7 @@ public class NoAtEachInAtomic extends x10Test {
 
 	var b: boolean;
 	
-	public def run(): boolean = {
+	public def run(): boolean {
 			try { 
 		      atomic 
 		        ateach (p in Region.make(1,10) -> here) 

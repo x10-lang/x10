@@ -14,8 +14,8 @@ package apgas.util;
 import apgas.Place;
 
 /**
- * A {@link BadPlaceException} is thrown by {@link GlobalRef} instances when
- * accessed from the wrong {@link Place}.
+ * A {@link BadPlaceException} is thrown by a {@link GlobalRef} instance when
+ * accessed from {@link Place} where it is not defined.
  */
 public class BadPlaceException extends RuntimeException {
   private static final long serialVersionUID = 8639251079580877933L;

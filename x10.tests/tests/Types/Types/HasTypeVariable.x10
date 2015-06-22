@@ -19,7 +19,7 @@ import harness.x10Test;
 public class HasTypeVariable extends x10Test {
 
 	def m(x:Long{self==1}) = x;
-	public def run(): boolean = {
+	public def run(): boolean {
 		val x <: Long = 1; 
 		m(x);
 		return true;

@@ -6,27 +6,37 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import x10.core.fun.VoidFun_0_0;
-import x10.lang.FinishState;
+import x10.core.fun.VoidFun_0_1;
+import x10.network.SocketTransport.CALLBACKID;
+import x10.xrx.FinishState;
 import x10.lang.Place;
+import x10.network.NetworkTransportCallbacks;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
 
 /**
  * A class to contain the Java portion of message send/receive pairs.
  */
-public class MessageHandlers {
+public class MessageHandlers implements NetworkTransportCallbacks {
     
     // values set in native method registerHandlers()
     private static int closureMessageID;
     private static int simpleAsyncMessageID;
+    static VoidFun_0_1<Place> placeAddedHandler = null;
+    static VoidFun_0_1<Place> placeRemovedHandler = null;
+    private compressionCodec networkCompressor = ("snappy".equalsIgnoreCase(System.getProperty("X10RT_COMPRESSION", "none")))?compressionCodec.SNAPPY:compressionCodec.NONE;
+
 		
     /**
      * Register the native methods that will invoke runClosureAtReceive
@@ -87,8 +97,10 @@ public class MessageHandlers {
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is done !");
     	} catch(Throwable ex){
-            System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-            ex.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                ex.printStackTrace();
+            }
     	}
     }
 
@@ -145,13 +157,145 @@ public class MessageHandlers {
             }
     		
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.lang.Runtime.submitRemoteActivity(actObj, src, finishState);
+    		x10.xrx.Runtime.submitRemoteActivity(actObj, src, finishState);
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after submitRemoteActivity");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");
     	} catch(Exception ex){
-    		System.out.println("runSimpleAsyncAtReceive error !!!");
-    		ex.printStackTrace();
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("runSimpleAsyncAtReceive error !!!");
+                ex.printStackTrace();
+            }
     	}
     }
+    
+    /*
+     * Java forms
+     */
+    public static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
+    	byte[] data;
+    	if (bb.hasArray())
+    		data = bb.array();
+    	else {
+    		data = new byte[bb.remaining()];
+    		bb.get(data);
+    	}
+    	
+    	if (callbackId == CALLBACKID.closureMessageID.ordinal())
+			runClosureAtReceive(new ByteArrayInputStream(data));
+		else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
+			runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
+		else
+			System.err.println("Unknown message callback type: "+callbackId);
+    }
+
+    static void runClosureAtReceive(InputStream input) {
+        try {
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
+            actObj.$apply();
+        } catch (Throwable e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+    	FinishState finishState = (FinishState) deserializer.readObject();
+    	Place src = (Place) deserializer.readObject();
+        long epoch = deserializer.readLong();
+    	VoidFun_0_0 actObj;
+    	try {
+    	    actObj = (VoidFun_0_0) deserializer.readObject();
+    	} catch (Throwable e) {
+    	    // TODO: handle epoch?
+            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
+            return;
+    	}
+    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
+    }
+    
+    public void initDataStore(String connectTo) {
+    	X10RT.initDataStore(connectTo);
+    }
+    
+    public long getEpoch() {
+    	return x10.xrx.Runtime.epoch$O();
+    }
+    
+    public void setEpoch(long val) {
+    	X10RT.initialEpoch = val;
+    }
+    
+    public void runPlaceAddedHandler(int placeId) {
+    	VoidFun_0_1<Place> handler = placeAddedHandler;
+    	if (handler == null) return;
+        
+    	PlaceChangeWrapper pcw = new PlaceChangeWrapper(handler, placeId);
+    	x10.xrx.Runtime.submitUncounted(pcw);
+    }
+    
+    public void runPlaceRemovedHandler(int placeId) {
+    	VoidFun_0_1<Place> handler = placeRemovedHandler;
+    	if (handler == null) return;
+    	
+    	PlaceChangeWrapper pcw = new PlaceChangeWrapper(handler, placeId);
+    	x10.xrx.Runtime.submitUncounted(pcw);
+    }
+    
+    final public static class PlaceChangeWrapper extends x10.core.Ref implements x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable
+    {
+    	private VoidFun_0_1<Place> handler;
+    	private long place;
+    	
+        public PlaceChangeWrapper(VoidFun_0_1<Place> handler, long place) {
+        	this.handler = handler;
+        	this.place = place;
+        }
+
+        public static final x10.rtt.RuntimeType<PlaceChangeWrapper> $RTT = 
+            x10.rtt.StaticVoidFunType.<PlaceChangeWrapper> make(PlaceChangeWrapper.class, new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
+        
+        public x10.rtt.RuntimeType<?> $getRTT() { return $RTT; }
+        
+        public x10.rtt.Type<?> $getParam(int i) { return null; }
+        
+        private Object writeReplace() throws java.io.ObjectStreamException {
+            return new x10.serialization.SerializationProxy(this);
+        }
+        
+        public static x10.serialization.X10JavaSerializable $_deserialize_body(x10.x10rt.MessageHandlers.PlaceChangeWrapper $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        	$_obj.handler = $deserializer.readObject();
+            $_obj.place = $deserializer.readLong();
+            return $_obj;
+        }
+        
+        public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
+        	x10.x10rt.MessageHandlers.PlaceChangeWrapper $_obj = new x10.x10rt.MessageHandlers.PlaceChangeWrapper((java.lang.System[]) null);
+            $deserializer.record_reference($_obj);
+            return $_deserialize_body($_obj, $deserializer);
+        }
+        
+        public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
+        	$serializer.write(this.handler);
+        	$serializer.write(this.place);
+        }
+        
+        // constructor just for allocation
+        public PlaceChangeWrapper(final java.lang.System[] $dummy) {}
+        
+		@Override
+		public void $apply() {
+			Place p = new Place(this.place);
+			this.handler.$apply(p, p.$getRTT());
+		}
+    }
+
+	@Override
+	public compressionCodec useCompressionCodec() {
+		return networkCompressor;
+	}
 }

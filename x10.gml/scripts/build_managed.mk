@@ -15,14 +15,14 @@
 #$(X10CXX)      ## X10 compiler
 #$(POST_PATH)   ## Post compiling include path
 #$(POST_LIBS)   ## Post compiling include libs.
-
+#$(GML_ELEM_TYPE) ## float or double
 ###################################################
 # Source files and paths
 ###################################################
 x10src		= $(target).x10
 
 ##----------------------------------
-GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties
+GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml_$(GML_ELEM_TYPE).properties
 
 ###################################################
 # X10 file built rules

@@ -20,6 +20,7 @@ import polyglot.visit.Translator;
 import x10.X10CompilerOptions;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.util.StreamWrapper;
 import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.visit.DebugCodeWriter;
@@ -44,7 +45,8 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 			if (jl() instanceof Node) {
 				Node n = (Node) jl();
 				X10Ext ext = (X10Ext) n.ext();
-				if (ext != null && ext.comment() != null)
+				if (ext != null && ext.comment() != null
+				        && !(w instanceof StreamWrapper && ((StreamWrapper) w).currentStream() == null))
 					w.writeln(ext.comment());
 			}
 			if (((X10CompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG_CODEGEN

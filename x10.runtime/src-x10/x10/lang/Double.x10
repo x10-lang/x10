@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -127,6 +127,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "((#this) % (#x))")
     @Native("c++",  "::x10::lang::DoubleNatives::mod(#this, #x)")
+    @Native("cuda", "::fmod(#this, #x)")
     public native operator this % (x:Double): Double;
 
     /**
@@ -238,6 +239,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
     // TODO: hexadecimal floating-point literal 0x0.0000000000001P-1022
     @Native("java", "java.lang.Double.MIN_VALUE")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x1LL)")
+    @Native("cuda", "::__longlong_as_double(0x1LL)")
     public static MIN_VALUE: Double = Double.fromLongBits(0x1);
 
     /**
@@ -248,6 +250,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
     // TODO: hexadecimal floating-point literal 0x1.0P-1022
     @Native("java", "java.lang.Double.longBitsToDouble(0x0010000000000000L)")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x0010000000000000LL)")
+    @Native("cuda", "::__longlong_as_double(0x0010000000000000LL)")
     public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000);
 
     /**
@@ -258,6 +261,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
     // TODO: hexadecimal floating-point literal 0x1.fffffffffffffP+1023
     @Native("java", "java.lang.Double.MAX_VALUE")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7fefffffffffffffLL)")
+    @Native("cuda", "::__longlong_as_double(0x7fefffffffffffffLL)")
     public static MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffff);
 
     /**
@@ -266,6 +270,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.POSITIVE_INFINITY")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7ff0000000000000LL)")
+    @Native("cuda", "::__longlong_as_double(0x7ff0000000000000LL)")
     public static POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000);
 
     /**
@@ -274,6 +279,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.NEGATIVE_INFINITY")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0xfff0000000000000LL)")
+    @Native("cuda", "::__longlong_as_double(0xfff0000000000000LL)")
     public static NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000);
 
     /**
@@ -282,6 +288,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.NaN")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(0x7ff8000000000000LL)")
+    @Native("cuda", "::__longlong_as_double(0x7ff8000000000000LL)")
     public static NaN: Double = Double.fromLongBits(0x7ff8000000000000);
 
 
@@ -328,6 +335,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.isNaN(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::isNaN(#this)")
+    @Native("cuda", "::isnan(#this)")
     public native def isNaN(): Boolean;
 
     /**
@@ -336,6 +344,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.isInfinite(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::isInfinite(#this)")
+    @Native("cuda", "::isinf(#this)")
     public native def isInfinite(): Boolean;
 
 
@@ -350,6 +359,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.doubleToLongBits(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::toLongBits(#this)")
+    @Native("cuda", "::__double_as_longlong(#this)")
     public native def toLongBits(): Long;
 
     /**
@@ -361,6 +371,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.doubleToRawLongBits(#this)")
     @Native("c++", "::x10::lang::DoubleNatives::toRawLongBits(#this)")
+    @Native("cuda", "::__double_as_longlong(#this)")
     public native def toRawLongBits(): Long;
 
     /**
@@ -380,6 +391,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      */
     @Native("java", "java.lang.Double.longBitsToDouble(#x)")
     @Native("c++", "::x10::lang::DoubleNatives::fromLongBits(#x)")
+    @Native("cuda", "::__longlong_as_double(#x)")
     public static native def fromLongBits(x:Long): Double;
 
 

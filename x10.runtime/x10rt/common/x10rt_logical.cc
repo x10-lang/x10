@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #if defined(__CYGWIN__) || defined(__FreeBSD__)
@@ -259,8 +259,8 @@ namespace {
     x10rt_error blocking_barrier (void)
     {
         CHECK_ERR_AND_RETURN;
-        int finished = 0;
-        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+        volatile int finished = 0;
+        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, (void *) &finished);
         while (!finished) {
             x10rt_emu_coll_probe();
             X10RT_NET_PROBE_PROP_ERR;

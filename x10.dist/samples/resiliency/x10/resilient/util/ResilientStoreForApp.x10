@@ -24,9 +24,11 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
         return v;
     }
     public static def make[K,V](){V haszero}:ResilientStoreForApp[K,V] {
+        if (verbose>=1) Console.OUT.println("ResilientStoreForApp.make: mode="+mode);
         switch (mode) {
         case 0N: return new ResilientStoreForAppPlace0[K,V]();
         case 1N: return new ResilientStoreForAppDistributed[K,V]();
+        case 2N: return new ResilientStoreForAppHC[K,V]();
         default: throw new Exception("unknown mode");
         }
     }
@@ -34,7 +36,13 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
     public abstract def load(key:K):V;
     public abstract def delete(key:K):void;
     public abstract def deleteAll():void;
- 
+
+    // HashMap-like I/F
+    public def put(key:K, value:V) { save(key, value); }
+    public def getOrThrow(key:K) { return load(key); }
+    public def get(key:K) { try { return load(key); } catch (e:x10.util.NoSuchElementException) { return Zero.get[V](); } }
+    public def getOrElse(key:K, orelse:V) { try { return load(key); } catch (e:x10.util.NoSuchElementException) { return orelse; } }
+    
     /**
      * Place0 implementation of ResilientStore
      */
@@ -157,6 +165,37 @@ public abstract class ResilientStoreForApp[K,V]{V haszero} {
                 if (pl.isDead()) continue;
                 at (pl) async atomic { hm().clear(); }
             }
+        }
+    }
+    
+    /**
+     * Hazelcast-based implementation of ResilientStore
+     */
+    static class ResilientStoreForAppHC[K,V]{V haszero} extends ResilientStoreForApp[K,V] {
+        private static seqNum = new x10.util.concurrent.AtomicLong();
+        private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
+        private val uniqueName:String;
+        private transient var map:x10.util.resilient.ResilientMap[K,V] = null; // must be initialized at each place
+        private def this() { uniqueName = "ResilientStoreForAppHC_"+here.id+"_"+seqNum.incrementAndGet(); }
+        private def getMap() = (map!=null) ? map : x10.util.resilient.ResilientMap.getMap[K,V](uniqueName);
+
+        public def save(key:K, value:V) {
+            if (verbose>=1) DEBUG("save: key=" + key);
+            getMap().put(key, value);
+        }
+        public def load(key:K) {
+            if (verbose>=1) DEBUG("load: key=" + key);
+            val value = getMap().get(key); //TODO: throw NoSuchElementException?
+            if (verbose>=1) DEBUG("load returning "+value);
+            return value; 
+        }
+        public def delete(key:K):void {
+            if (verbose>=1) DEBUG("delete: key=" + key);
+            getMap().remove(key);
+        }
+        public def deleteAll() {
+            if (verbose>=1) DEBUG("deleteAll");
+            getMap().clear();
         }
     }
     

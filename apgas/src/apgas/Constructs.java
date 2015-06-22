@@ -11,6 +11,7 @@
 
 package apgas;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public final class Constructs {
    * to complete.
    * <p>
    * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
-   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * exceptions then {@code finish(f)} then throws a {@link MultipleException}
    * that collects these uncaught exceptions.
    *
    * @param f
@@ -61,8 +62,40 @@ public final class Constructs {
    * @param f
    *          the function to run
    */
-  public static void asyncat(Place p, Job f) {
-    GlobalRuntime.getRuntime().asyncat(p, f);
+  public static void asyncAt(Place p, SerializableJob f) {
+    GlobalRuntime.getRuntime().asyncAt(p, f);
+  }
+
+  /**
+   * Submits an uncounted task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately. The termination of
+   * this task is not tracked by the enclosing finish. If an exception is thrown
+   * by the task it is logged to System.err and ignored.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
+  public static void uncountedAsyncAt(Place p, SerializableJob f) {
+    GlobalRuntime.getRuntime().uncountedAsyncAt(p, f);
+  }
+
+  /**
+   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
+   * transitively spawned by {@code f}, and returns the result.
+   *
+   * @param <SerializableT>
+   *          the type of the result (must implement java.io.Serializable)
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   * @return the result of the evaluation
+   */
+  public static <SerializableT extends Serializable> SerializableT at(Place p,
+      SerializableCallable<SerializableT> f) {
+    return GlobalRuntime.getRuntime().at(p, f);
   }
 
   /**
@@ -72,28 +105,12 @@ public final class Constructs {
    * Equivalent to {@code finish(()->asyncat(p, f))}
    *
    * @param p
-   *          the requested place of execution
+   *          the place of execution
    * @param f
    *          the function to run
    */
-  public static void at(Place p, Job f) {
+  public static void at(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().at(p, f);
-  }
-
-  /**
-   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
-   * transitively spawned by {@code f}, and returns the result.
-   *
-   * @param <T>
-   *          the type of the result
-   * @param p
-   *          the requested place of execution
-   * @param f
-   *          the function to run
-   * @return the result
-   */
-  public static <T> T at(Place p, Fun<T> f) {
-    return GlobalRuntime.getRuntime().at(p, f);
   }
 
   /**
@@ -110,7 +127,7 @@ public final class Constructs {
    *
    * @param id
    *          the requested ID
-   * @return a {@link Place} instance with the given ID
+   * @return the place with the given ID
    */
   public static Place place(int id) {
     return GlobalRuntime.getRuntime().place(id);
@@ -118,9 +135,6 @@ public final class Constructs {
 
   /**
    * Returns the current list of places in the global runtime.
-   * <p>
-   * Subsequent calls to this method may return different lists as more places
-   * are added to the global runtime.
    *
    * @return the current list of places in the global runtime
    */

@@ -25,7 +25,7 @@ import harness.x10Test;
 
 public class TypedefNew01 extends TypedefTest {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         class A(k:int) {
             def this():A{self.k==0n} = property(0n);

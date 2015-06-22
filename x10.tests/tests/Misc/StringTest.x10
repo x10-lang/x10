@@ -17,11 +17,11 @@ import harness.x10Test;
 public class StringTest extends x10Test {
 
     public var v: int;
-    public def this(): StringTest = {
+    public def this(): StringTest {
         v = 10n;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         var foo: String = "the number is "+v;
         if (!(v == 10n && foo.equals("the number is "+"10"))) return false;
         if (foo.charAt(2n) != 'e') return false;
@@ -43,7 +43,7 @@ public class StringTest extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new StringTest().execute();
     }
 }

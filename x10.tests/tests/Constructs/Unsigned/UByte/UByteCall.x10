@@ -44,7 +44,7 @@ public class UByteCall extends x10Test {
 	return "byte" + a;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val i0 = 0y;
 	val u1 = 1uy;

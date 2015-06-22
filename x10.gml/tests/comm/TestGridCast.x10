@@ -13,11 +13,15 @@ import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.summa.AllGridCast;
+import x10.matrix.ElemType;
 
 public class TestGridCast extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
+
 	public val M:Long;
 	public val N:Long;
-	public val nzdensity:Double;
+	public val nzdensity:Float;
 	public val bM:Long;
 	public val bN:Long;
 	
@@ -32,7 +36,7 @@ public class TestGridCast extends x10Test {
 	
 	public val rootbid:Long = 0;
 	
-    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Double) {
+    public def this(m:Long, n:Long, bm:Long, bn:Long, d:Float) {
 		M=m; N=n;
 		nzdensity = d;
 		bM = bm; bN = bn;
@@ -41,8 +45,8 @@ public class TestGridCast extends x10Test {
 		tmpmat = DistBlockMatrix.makeDense(m*bm, n*bn, bm, bn);
 		sbmat = DistBlockMatrix.makeSparse(m*bm, n*bn, bm, bn, nzdensity);
 		
-		dbmat.initBlock(rootbid, (x:Long, y:Long)=>(1.0+x+y));
-		sbmat.initBlock(rootbid, (x:Long, y:Long)=>1.0*(x+y)*((x+y)%2));
+		dbmat.initBlock(rootbid, (x:Long, y:Long)=>ET(1.0+x+y));
+		sbmat.initBlock(rootbid, (x:Long, y:Long)=>ET(1.0*(x+y)*((x+y)%2)));
 		
 		dblks = BlockMatrix.makeDense(dbmat.getGrid());
 		sblks = BlockMatrix.makeSparse(sbmat.getGrid(), nzdensity);
@@ -78,7 +82,7 @@ public class TestGridCast extends x10Test {
 		val dmap = distmat.getMap();
 		
 		val tmp = distmat.makeTempFrontColBlocks(1);
- 		distmat.init((r:Long,c:Long)=>1.0*(r+c));
+ 		distmat.init((r:Long,c:Long)=>ET(1.0*(r+c)));
  		
 		for (var colId:Long=0; colId<grid.numColBlocks&&retval; colId++) {
 			finish AllGridCast.startRowCast(0, 1, colId, distmat, tmp);
@@ -97,7 +101,7 @@ public class TestGridCast extends x10Test {
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
 		val tmp = distmat.makeTempFrontRowBlocks(1);
-		distmat.init((r:Long,c:Long)=>1.0*(r+c)%2);
+		distmat.init((r:Long,c:Long)=>ET(1.0*(r+c)%2));
 		
 		for (var rowId:Long=0; rowId < grid.numRowBlocks&&retval; rowId++) {
 			finish AllGridCast.startColCast(0, 1, rowId, distmat, tmp);
@@ -114,7 +118,7 @@ public class TestGridCast extends x10Test {
 		val n = args.size > 1 ? Long.parse(args(1)):2;
 		val bm= args.size > 2 ? Long.parse(args(2)):2;
 		val bn= args.size > 3 ? Long.parse(args(3)):3;
-		val d = args.size > 4 ? Double.parse(args(4)):0.9;
+		val d = args.size > 4 ? Float.parse(args(4)):0.9f;
 		new TestGridCast(m, n, bm, bn, d).execute();
 	}
 }

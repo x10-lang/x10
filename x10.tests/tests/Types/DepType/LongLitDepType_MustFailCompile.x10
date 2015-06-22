@@ -15,12 +15,12 @@ import harness.x10Test;
  * Check that an int lit generates the correct dep clause.
  */
 public class LongLitDepType_MustFailCompile extends x10Test {
-	public def run(): boolean = {
+	public def run(): boolean {
 		var f: long{self==100L} = 200L; // ERR
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new LongLitDepType_MustFailCompile().execute();
 	}
 

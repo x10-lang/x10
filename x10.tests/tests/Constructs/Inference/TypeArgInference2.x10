@@ -14,7 +14,7 @@ import x10.util.*;
 public class TypeArgInference2 extends x10Test {
         def choose[T] (a:T, b:T):T = a;
 
-    public def run(): boolean = {
+    public def run(): boolean {
            chk( Set[Int] <: Collection[Int], "pre-1");
            chk( List[Int] <: Collection[Int], "pre-2");
            chk( Sub <: Super, "pre-3");

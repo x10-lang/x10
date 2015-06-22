@@ -38,7 +38,7 @@ import harness.x10Test;
  */
 public class ClockTest8 extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		try {
 		finish async {
 			var bc: BoxedClock = new BoxedClock(Clock.make());
@@ -65,13 +65,13 @@ public class ClockTest8 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new ClockTest8().executeAsync();
 	}
 
 	static class BoxedClock {
 		public var value: Clock;
-		public def this(val x: Clock): BoxedClock = {
+		public def this(val x: Clock): BoxedClock {
 			value = x;
 		}
 	}

@@ -22,7 +22,7 @@ public class BenchmarkIterateDistArrayNew(elementsPerPlace : Long) extends x10Te
         property(elementsPerPlace);
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         val arraySize = elementsPerPlace * Place.numPlaces();
 
         val a = new DistArray_Block_1[Long](arraySize);
@@ -57,7 +57,7 @@ public class BenchmarkIterateDistArrayNew(elementsPerPlace : Long) extends x10Te
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         var elementsPerPlace : Long = 1000;
         if (args.size > 0) {
             elementsPerPlace = Long.parse(args(0));

@@ -17,7 +17,7 @@ import x10.util.concurrent.Future;
  */
 public class NoFutureMakeInWhenMethod extends x10Test {
 	
-	public def run(): boolean = {
+	public def run(): boolean {
         try {
 			val b=true;
 			when (b==true)

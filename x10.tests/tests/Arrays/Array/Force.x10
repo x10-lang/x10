@@ -20,7 +20,7 @@ import x10.util.concurrent.Future;
 
 public class Force extends x10Test {
    
-    static def rd(val e: Future[Int], val i: int, val j: int): int = {
+    static def rd(val e: Future[Int], val i: int, val j: int): int {
         val x: int = e();
         return Future.make[int](()=> x)();
     }

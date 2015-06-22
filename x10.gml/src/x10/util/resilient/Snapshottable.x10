@@ -10,7 +10,11 @@
  */
 package x10.util.resilient;
 
+/**
+ * A Snapshottable object provides methods to create a snapshot of its
+ * (distributed) state and restore to a previous snapshotted state.
+ */
 public interface Snapshottable {
-    public def makeSnapshot():DistObjectSnapshot[Any,Any];
-    public def restoreSnapshot(snapshot:DistObjectSnapshot[Any,Any]):void;    
+    public def makeSnapshot():DistObjectSnapshot;
+    public def restoreSnapshot(snapshot:DistObjectSnapshot):void;
 }

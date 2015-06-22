@@ -20,7 +20,7 @@ import harness.x10Test;
  **/
 public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		
 		try { 
          val j = 1n as Int(0n); // ERR

@@ -32,20 +32,20 @@ public class GuardedMethodAccess_MustFailCompile extends x10Test {
 
   class Test(i:int, j:int) {
 		public var v: int = 5n;
-		def this(i:int, j:int):Test{self.i==i,self.j==j} = {
+		def this(i:int, j:int):Test{self.i==i,self.j==j} {
 			property(i,j);
 		}
 		public def  key(){i==j}=5n;
 	}
 	
 		
-	public def run(): boolean = {
+	public def run(): boolean {
 		var t: Test = new Test(5n, 6n);
 		t.v = t.key() + 1n; // ERR should fail typecheck. 
 	   return true;
 	}  
 	
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GuardedMethodAccess_MustFailCompile().execute();
     }
    

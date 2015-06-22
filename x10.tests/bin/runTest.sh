@@ -82,17 +82,17 @@ function parseCmdLine {
 	    tcreportdir=$2
 	    shift 2
 	elif [[ "$1" == "-debug" ]]; then
-	    tccompiler_options="$tccompile_options -DEBUG"
+	    tccompiler_options="$tccompiler_options -DEBUG"
 	    shift
 	elif [[ "$1" == "-noopt" ]]; then
             # nothing to do
 	    shift
 	elif [[ "$1" == "-opt" ]]; then
-	    tccompiler_options="$tccompile_options -O"
+	    tccompiler_options="$tccompiler_options -O"
 	    shift
 	elif [[ "$1" == "-x10lib" ]]; then
 	    if (( $# >= 2 )); then
-		tccompiler_options="$tccompile_options -x10lib $2"
+		tccompiler_options="$tccompiler_options -x10lib $2"
 		shift 2
 	    else
 		printf "\n[${prog}: err]: Option $1 needs argument\n\n"
@@ -263,10 +263,12 @@ function resolveParams {
     fi
     ${EGREP} -q 'RESILIENT_X10_ONLY' $1
     if [[ $? == 0 ]]; then
-    tcresilient_x10_only=1
-    if [[ "$tcresilient_modes" == "0" ]]; then
-        tcvcode=SKIPPED
-    fi
+        tcresilient_x10_only=1
+        if [[ "$tcresilient_modes" == "0" ]]; then
+            tcvcode=SKIPPED
+        fi
+    else 
+        tcresilient_x10_only=0
     fi
 
     # update expected counters
@@ -326,7 +328,7 @@ prog=runTest.sh
 # platform independent abstraction for certain commands
 EGREP=egrep
 egrep --version 2>/dev/null 1>/dev/null
-if [[ $? == 0 && $(uname -s) != Sun* && $(uname -s) != CYGWIN* && $(uname -s) != Linux* ]]; then
+if [[ $? == 0 && $(uname -s) != CYGWIN* && $(uname -s) != Linux* ]]; then
     EGREP="egrep -E"
 fi
 
@@ -361,7 +363,7 @@ thrunstate="UNKNOWN_STATE"
 tcbackend="native"
 
 # resiliency modes
-tc_all_resilient_modes="0 1 99"
+tc_all_resilient_modes="0 1 12 22 99"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
@@ -754,6 +756,12 @@ function main {
 		11) 
 		    mode_name="place_zero_resilient_finish"
 		    ;;
+		12) 
+		    mode_name="hc_resilient_finish"
+		    ;;
+		22) 
+		    mode_name="hc_opt_resilient_finish"
+		    ;;
 		99) 
 		    mode_name="resilient_x10rt"
 		    ;;
@@ -761,6 +769,16 @@ function main {
 		    mode_name="resilient_mode_${jen_resiliency_mode}"
 		    ;;
 	    esac
+
+	    if [[ $tcresilient_x10_only == 1 && ( "$mode_name" == "main" || "$mode_name" == "resilient_x10rt" ) ]]; then
+		printf "\nSupressing execution of RESILIENT_X10_ONLY test case in mode $mode_name\n";
+		continue;
+	    fi
+
+            if [[ "$tcbackend" == "native" && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
+		printf "\nSkipping hazelcast-based mode for Native X10\n";
+		continue;
+	    fi
 
 	    __jen_test_start_time=$(perl -e 'print time;')
 
@@ -788,18 +806,6 @@ function main {
 	    else
 		__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 	    fi
-
-        if [[ $tcresilient_x10_only == 1 && ( "$mode_name" == "main" || "$mode_name" == "resilient_x10rt" ) ]]; then
-        printf "\n ++ E [EXECUTION]"
-        let 'tcsexeccnt += 1'
-        printf "\n *** S ***"
-		__jen_test_result_explanation="${className} met expectation: Skipped."
-		__jen_test_result="SKIPPED"
-		__jen_test_exit_code=0
-		printf "\n****** $tDir $className skipped.\n" >> $tcoutdat
-		junitLog $mode_name $tccompdat $tcoutdat
-        continue
-        fi
 
 	    printf "\n ++ E [EXECUTION]"
 	    ( \

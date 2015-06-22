@@ -26,11 +26,11 @@ public class GenericConstraint02_MustFailCompile extends GenericTest {
 
     var a:A[X,X1];
 
-    public def run(): boolean = {
+    public def run(): boolean {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericConstraint02_MustFailCompile().execute();
     }
 }

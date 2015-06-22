@@ -21,17 +21,17 @@ depend_src  = SeqLinearRegression.x10 LinearRegression.x10
 #-------------------------------------
 # build path
 build_path	= build
-
-# GML path
-gml_path    = ../..
+gml_path    = $(X10_HOME)/x10.gml
 
 # compile options
-X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -g -O -NO_CHECKS
+
+HAMMER_FILE ?= ./hammer_iter.txt
 
 # runtime settings
 runtime_list = mpi sock java
-numplaces = 4
-test_args = -m 1000 -n 1000 --rowBlocks 4 --colBlocks 1 --density 0.6 --iterations 10 --verify --skip 2
+numplaces = 8
+test_args = -m 1000 -n 1000 --density 0.09 --iterations 30 --verify
 
 ###################################################
 # Build rules

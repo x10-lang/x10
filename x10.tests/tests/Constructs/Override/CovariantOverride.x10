@@ -28,7 +28,7 @@ public class CovariantOverride extends x10Test {
 	def h() : UInt = 3un;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	val b = new B();
 	chk(b.f() == 2n);
 	chk(b.g().equals("efg"));
@@ -36,7 +36,7 @@ public class CovariantOverride extends x10Test {
 	return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Rail[String]) {
         new CovariantOverride().execute();
     }
 }

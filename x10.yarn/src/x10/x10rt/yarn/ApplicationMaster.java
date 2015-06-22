@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +53,7 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
+import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -76,9 +79,14 @@ public class ApplicationMaster {
 	public static final String X10_HDFS_JARS = "X10_HDFS_JARS";
 	public static final String X10_YARN_NATIVE = "X10_YARN_NATIVE";
 	public static final String X10_YARN_MAIN = "X10_YARN_MAIN";
+	public static final String X10_YARN_KILL = "X10_YARN_KILL";
 	public static final String X10_YARNUPLOAD = "X10_YARNUPLOAD";
-	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE}; // Correspond to values in Launcher.h
+	public static final String X10YARNENV_ = "X10YARNENV_";
+	private static final String DEAD = "DEAD";
+	static enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE, LAUNCH_REQUEST, LAUNCH_RESPONSE}; // Correspond to values in Launcher.h
 	private static final int headerLength = 16;
+	private static final int PORT_UNKNOWN = -1;
+	private static final int PORT_DEAD = -2;
 	
 	private Configuration conf;
 	private String appMasterHostname;
@@ -88,17 +96,21 @@ public class ApplicationMaster {
 	private volatile boolean running = true; // flag for when to shut everything down
 	private final String[] args;
 	private final String appName;
+	private final ScheduledThreadPoolExecutor placeKiller; 
+	
 
 	// information about a specific place.
 	private class CommunicationLink {
-		private CommunicationLink(String hostname) {
+		private CommunicationLink(NodeId node, ContainerId container) {
 			super();
-			this.hostname = hostname;
+			this.node = node;
+			this.container = container;
 			this.sc = null;
-			this.port = -1;
+			this.port = PORT_UNKNOWN;
 			this.pendingPortRequests = null;
 		}
-		final String hostname;
+		final NodeId node;
+		final ContainerId container;
 		SocketChannel sc;
     	int port;
     	ArrayList<Integer> pendingPortRequests;
@@ -107,7 +119,9 @@ public class ApplicationMaster {
 //	private int appMasterX10LauncherPort; // Port used by X10 places to communicate directly with the AM
 	private final Selector selector;
 	private final HashMap<Integer, CommunicationLink> links;
+	private final HashMap<ContainerId, Integer> places; // map of containers to places
 	private final HashMap<SocketChannel, ByteBuffer> pendingReads;
+	private final HashMap<Integer, Integer> pendingKills;
 	
 	private AMRMClientAsync<ContainerRequest> resourceManager; // Handle to communicate with the Resource Manager
 	private NMClientAsync nodeManager; // Handle to communicate with the Node Manager
@@ -118,17 +132,17 @@ public class ApplicationMaster {
 	private int coresPerPlace;
 	private int memoryPerPlaceInMb;
 	
-	// Counter for completed containers ( complete denotes successful or failed )
+	// these are all atomic, since they get updated in callbacks
+	// count of requests we make for new places
+	private AtomicInteger numRequestedContainers = new AtomicInteger();
+	// count of allocated containers we start places in.
+	private AtomicInteger numAllocatedContainers = new AtomicInteger();
+	// count of containers that were allocated to us but not requested (bug in yarn v2.5.1)
+	private AtomicInteger numExtraContainers = new AtomicInteger();
+	// count of completed containers, will eventually reach allocated+extra
 	private AtomicInteger numCompletedContainers = new AtomicInteger();
-	// Allocated container count so that we know how many containers has the RM allocated to us
-	protected AtomicInteger numAllocatedContainers = new AtomicInteger();
 	// Count of failed containers
 	private AtomicInteger numFailedContainers = new AtomicInteger();
-	// Count of containers already requested from the RM
-	// Needed as once requested, we should not request for containers again.
-	// Only request for more if the original requirement changes.
-	protected AtomicInteger numRequestedContainers = new AtomicInteger();
-
 	
 	public static void main(String[] args) {
 		ApplicationMaster appMaster;
@@ -160,6 +174,7 @@ public class ApplicationMaster {
 		initialNumPlaces = Integer.parseInt(envs.get(X10_NPLACES));
 		coresPerPlace = Integer.parseInt(envs.get(X10_NTHREADS));
 		links = new HashMap<Integer, ApplicationMaster.CommunicationLink>(initialNumPlaces);
+		places = new HashMap<ContainerId, Integer>(initialNumPlaces);
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
 		selector = Selector.open();
 		this.args = args;
@@ -170,9 +185,11 @@ public class ApplicationMaster {
 		for (int i=0; i<args.length; i++) {
 			try {
 				if (args[i].startsWith("-Xmx")) {
-					if (args[i].endsWith("m"))
+					if (args[i].toLowerCase().endsWith("g"))
+						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1))*1024;
+					else if (args[i].toLowerCase().endsWith("m"))
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1));
-					else if (args[i].endsWith("k"))
+					else if (args[i].toLowerCase().endsWith("k"))
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4, args[i].length()-1))/1024;
 					else
 						this.memoryPerPlaceInMb = Integer.parseInt(args[i].substring(4))/1024/1024;
@@ -182,6 +199,25 @@ public class ApplicationMaster {
 				// ignore, use default value
 				e.printStackTrace();
 			}
+		}
+		
+		if (envs.containsKey(X10YARNENV_+X10_YARN_KILL)) {
+			placeKiller = new ScheduledThreadPoolExecutor(1);
+			// things to kill takes the form place:delayInSeconds,place:delayInSeconds,etc.  e.g. "2:2,3:3" will kill place 2 after 2 seconds, 3 after 3 seconds
+	 		String thingsToKill = System.getenv(X10YARNENV_+X10_YARN_KILL);
+			// TODO: format error checking
+			String[] sets = thingsToKill.split(",");
+			pendingKills = new HashMap<Integer, Integer>(sets.length);
+			for (String set : sets) {
+				String [] place_delay = set.split(":");
+				int place = Integer.parseInt(place_delay[0]);
+				int delay = Integer.parseInt(place_delay[1]);
+				pendingKills.put(place, delay);
+			}
+		}
+		else {
+			placeKiller = null;
+			pendingKills = null;
 		}
 	}
 	
@@ -265,6 +301,7 @@ public class ApplicationMaster {
 		 appMasterPort = launcherChannel.socket().getLocalPort();
 		 launcherChannel.register(selector, SelectionKey.OP_ACCEPT);
 		 
+		 numRequestedContainers.set(initialNumPlaces);
 		 // Send request for containers to RM
 		 for (int i = 0; i < numTotalContainersToRequest; ++i) {
 			 Resource capability = Resource.newInstance(memoryPerPlaceInMb, coresPerPlace);
@@ -272,7 +309,6 @@ public class ApplicationMaster {
 			 LOG.info("Requested container ask: " + request.toString());
 			 resourceManager.addContainerRequest(request);
 		 }
-		 numRequestedContainers.set(initialNumPlaces);
 	}
 	
 
@@ -363,7 +399,7 @@ public class ApplicationMaster {
 		msg.rewind(); // reset the buffer for reading from the beginning
 		CTRL_MSG_TYPE type = CTRL_MSG_TYPE.values()[msg.getInt()];
 		int destination = msg.getInt();
-		int source = msg.getInt();
+		final int source = msg.getInt();
 		int datalen = msg.getInt();
 		assert(datalen == msg.remaining());
 		
@@ -377,8 +413,8 @@ public class ApplicationMaster {
 			case HELLO:
 			{
 				// read the port information, and update the record for this place
-				assert(datalen == 4 && source < initialNumPlaces && source >= 0);
-				CommunicationLink linkInfo;
+				assert(datalen == 4 && source < numRequestedContainers.get() && source >= 0);
+				final CommunicationLink linkInfo;
 				LOG.info("Getting link for place "+source);
 				synchronized (links) {
 					linkInfo = links.get(source);
@@ -389,7 +425,7 @@ public class ApplicationMaster {
 				// check if there are pending port requests for this place
 				if (linkInfo.pendingPortRequests != null) {
 					// prepare response message
-					String linkString = linkInfo.hostname+":"+linkInfo.port;
+					String linkString = linkInfo.node.getHost()+":"+linkInfo.port;
 					byte[] linkBytes = linkString.getBytes(); // matches existing code.  TODO: switch to UTF8
 					ByteBuffer response = ByteBuffer.allocateDirect(headerLength+linkBytes.length).order(ByteOrder.nativeOrder());
 					response.putInt(CTRL_MSG_TYPE.PORT_RESPONSE.ordinal());
@@ -412,14 +448,26 @@ public class ApplicationMaster {
 					linkInfo.pendingPortRequests = null;
 				}
 				LOG.info("HELLO from place "+source+" at port "+linkInfo.port);
+				
+				if (pendingKills != null && pendingKills.containsKey(source)) {
+					int delay = pendingKills.remove(source);
+					LOG.info("Scheduling a takedown of place "+source+" in "+delay+" seconds");
+					placeKiller.schedule(new Runnable(){
+						@Override
+						public void run() {
+							LOG.info("KILLING CONTAINER FOR PLACE "+source);
+							nodeManager.stopContainerAsync(linkInfo.container, linkInfo.node);
+						}}, delay, TimeUnit.SECONDS);
+				}
 			}
 			break;
 			case GOODBYE:
 			{
 				try {
-					CommunicationLink link = links.remove(source);
+					CommunicationLink link = links.get(source);
 					assert(link.pendingPortRequests == null);
 					sc.close();
+					link.port = PORT_DEAD;
 				} catch (IOException e) {
 					LOG.warn("Error closing socket channel", e);
 				}
@@ -431,8 +479,12 @@ public class ApplicationMaster {
 				LOG.info("Got PORT_REQUEST from place "+source+" for place "+destination);
 				// check to see if we know the requested information
 				CommunicationLink linkInfo = links.get(destination);
-				if (linkInfo.port != -1) {
-					String linkString = linkInfo.hostname+":"+linkInfo.port;
+				if (linkInfo.port != PORT_UNKNOWN) {
+					String linkString;
+					if (linkInfo.port == PORT_DEAD)
+						linkString = DEAD;
+					else
+						linkString = linkInfo.node.getHost()+":"+linkInfo.port;
 					LOG.info("Telling place "+source+" that place "+destination+" is at "+linkString);
 					byte[] linkBytes = linkString.getBytes(); // matches existing code.  TODO: switch to UTF8
 					ByteBuffer response = ByteBuffer.allocateDirect(headerLength+linkBytes.length).order(ByteOrder.nativeOrder());
@@ -458,6 +510,33 @@ public class ApplicationMaster {
 				}
 			}
 			break;
+			case LAUNCH_REQUEST:
+			{
+				assert(datalen == 8);
+				int numPlacesRequested = (int) msg.getLong();
+
+				int oldvalue = numRequestedContainers.getAndAdd((int)numPlacesRequested);
+
+				// Send request for containers to RM
+				for (int i = 0; i < numPlacesRequested; i++) {
+					Resource capability = Resource.newInstance(memoryPerPlaceInMb, coresPerPlace);
+					ContainerRequest request = new ContainerRequest(capability, null, null, Priority.newInstance(0));
+					LOG.info("Adding a new container request " + request.toString());
+					resourceManager.addContainerRequest(request);
+				}
+
+				LOG.info("Requested an increase of "+numPlacesRequested+" places on top of the previous "+oldvalue+" places");
+				msg.rewind();
+				msg.putInt(CTRL_MSG_TYPE.LAUNCH_RESPONSE.ordinal());
+				msg.rewind();
+				try {
+					while (msg.hasRemaining())
+						sc.write(msg);
+				} catch (IOException e) {
+					LOG.warn("Unable to send out launch response to place "+source, e);
+				}
+			}
+			break;
 			default:
 				LOG.warn("unknown message type "+type);
 		}
@@ -473,6 +552,7 @@ public class ApplicationMaster {
 			// shutting down... ignore
 		}
 		links.clear();
+		places.clear();
 		
 		// When the application completes, it should stop all running containers
 		LOG.info("X10 program "+appName+" completed. Stopping running containers");
@@ -483,14 +563,15 @@ public class ApplicationMaster {
 		FinalApplicationStatus appStatus;
 		String appMessage = null;
 		boolean success = true;
-		if (numFailedContainers.get() == 0 && numCompletedContainers.get() == initialNumPlaces) {
+		if (numFailedContainers.get() == 0) {
 			appStatus = FinalApplicationStatus.SUCCEEDED;
 		} else {
 			appStatus = FinalApplicationStatus.FAILED;
-			appMessage = "Diagnostics." + ", total=" + initialNumPlaces
+			appMessage = "Diagnostics." + ", total=" + numRequestedContainers.get()
 					+ ", completed=" + numCompletedContainers.get() + ", allocated="
 					+ numAllocatedContainers.get() + ", failed="
-					+ numFailedContainers.get();
+					+ numFailedContainers.get() + ", extra="
+					+ numExtraContainers.get();
 			success = false;
 		}
 		try {
@@ -509,18 +590,27 @@ public class ApplicationMaster {
 		@Override
 		public float getProgress() {
 			// ramp up to 50% as places start up, then up to 100% as they shut down
-			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()) / (initialNumPlaces*2);
+			return (float) (numAllocatedContainers.get()+numCompletedContainers.get()-numExtraContainers.get()) / (numRequestedContainers.get()*2);
 		}
 
 		@Override
 		public void onContainersAllocated(List<Container> allocatedContainers) {
 			LOG.info("Got response from RM for container ask, allocatedCnt="+ allocatedContainers.size());
-			for (Container allocatedContainer : allocatedContainers) {
-				int placeId = numAllocatedContainers.getAndIncrement();
-				String hostname = allocatedContainer.getNodeId().getHost();
+			for (final Container allocatedContainer : allocatedContainers) {
+				if (numAllocatedContainers.get() >= numRequestedContainers.get()) {
+					// There is currently a bug in yarn, where it will allocate more
+					// containers than requested, if the request comes in later.  Workaround.
+					LOG.info("Dropping unexpected container "+allocatedContainer.getId());
+					numExtraContainers.incrementAndGet();
+					resourceManager.releaseAssignedContainer(allocatedContainer.getId());
+					continue;
+				}
+				
+				final int placeId = numAllocatedContainers.getAndIncrement();
+				final NodeId node = allocatedContainer.getNodeId();
 				LOG.info("Launching place on a new container."
 						+ ", containerId=" + allocatedContainer.getId()
-						+ ", containerNode=" + hostname
+						+ ", containerNode=" + node.getHost()
 						+ ":" + allocatedContainer.getNodeId().getPort()
 						+ ", containerNodeURI=" + allocatedContainer.getNodeHttpAddress()
 						+ ", containerResourceMemory"
@@ -558,12 +648,12 @@ public class ApplicationMaster {
 					Map<String, String> env = new HashMap<String, String>();
 					//env.putAll(System.getenv()); // copy all environment variables from the client side to the application side
 					// copy over existing environment variables
+					final int prefixlen = X10YARNENV_.length();
 					for (String key : System.getenv().keySet()) {
-						//if (key.startsWith("X10_") || key.startsWith("X10RT_"))
-						if (!key.startsWith("BASH_FUNC_"))
-							env.put(key, System.getenv(key));
+						if (key.startsWith(X10YARNENV_))
+							env.put(key.substring(prefixlen), System.getenv(key));
 					}
-					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(initialNumPlaces));
+					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(Math.max(initialNumPlaces, numRequestedContainers.get())));
 					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));
 					env.put(ApplicationMaster.X10_LAUNCHER_HOST, allocatedContainer.getNodeId().getHost());
@@ -618,7 +708,8 @@ public class ApplicationMaster {
 					ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
 							localResources, env, commands, null, allTokens.duplicate(), null);
 					LOG.info("Storing link for place "+placeId);
-					links.put(placeId, new CommunicationLink(hostname)); // save the hostname of the machine with this place
+					links.put(placeId, new CommunicationLink(node, allocatedContainer.getId())); // save the hostname of the machine with this place
+					places.put(allocatedContainer.getId(), placeId);
 					nodeManager.startContainerAsync(allocatedContainer, ctx);
 				}
 				catch (IOException e) {
@@ -638,28 +729,34 @@ public class ApplicationMaster {
 						+ containerStatus.getDiagnostics());
 
 				// increment counters for completed/failed containers
+				numCompletedContainers.incrementAndGet();
 				int exitStatus = containerStatus.getExitStatus();
+				Integer placeId = places.get(containerStatus.getContainerId());
+				if (placeId != null) {
+					CommunicationLink l = links.get(placeId);
+					if (l != null) l.port = PORT_DEAD; // mark the place as dead
+				}
 				if (0 != exitStatus) {
 					// container failed
-					if (ContainerExitStatus.ABORTED != exitStatus) {
-						numCompletedContainers.incrementAndGet();
-						numFailedContainers.incrementAndGet();
+					if (ContainerExitStatus.ABORTED == exitStatus) {
+						// killed by framework, not really a failure?
+						LOG.info("Container aborted");
+					} else if (placeId != null && pendingKills != null && pendingKills.containsKey(placeId))  {
+						// TODO: ensure that the pending kill actually executed
+						LOG.info("Container was killed and exited with exit code "+exitStatus);
 					} else {
-						// container was killed by framework, possibly preempted
-						// TODO: re-spawn a new place, to replace the one which was killed?
-						numAllocatedContainers.decrementAndGet();
-						numRequestedContainers.decrementAndGet();
-						// we do not need to release the container as it would be done by the RM
+						numFailedContainers.incrementAndGet();
+						LOG.info("Container exited with exit code "+exitStatus);
 					}
 				} else {
 					// nothing to do
 					// container completed successfully
-					numCompletedContainers.incrementAndGet();
 					LOG.info("Container completed successfully." + ", containerId="+ containerStatus.getContainerId());
 				}
 			}
 			// check to see if everything is down, and if so, exit ourselves
-			if (numCompletedContainers.get() == numRequestedContainers.get()) {
+			if (numCompletedContainers.get() == (numAllocatedContainers.get()+numExtraContainers.get())) {
+				LOG.info("Shutting down now that all "+numRequestedContainers.get()+" containers have exited");
 				running = false;
 				selector.wakeup();
 			}

@@ -18,13 +18,13 @@ import harness.x10Test;
 
  public class ClassDepClause(i:int, j:int){i == j}  extends x10Test { 
   public static type ClassDepClause(i:int, j:int)=ClassDepClause{self.i==i,self.j==j};
-  public def this(i: int, j: int){i==j}: ClassDepClause(i,j) = { property(i,j);}
-  public def run(): boolean = { 
+  public def this(i: int, j: int){i==j}: ClassDepClause(i,j) { property(i,j);}
+  public def run(): boolean { 
 	  var x: ClassDepClause(2n,2n) =  new ClassDepClause(2n,2n);
       return true;
     }
     
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Rail[String]): void {
         new ClassDepClause(1n,1n).execute();
     }
  }

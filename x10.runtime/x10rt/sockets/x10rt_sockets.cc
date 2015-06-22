@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  *
@@ -76,7 +76,6 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
-	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
 	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand.  It gets flipped after all links are up.
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
 	uint32_t nextSocketToCheck; // this is used in the socket read loop so that we don't give preference to the low-numbered places
@@ -328,8 +327,9 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 			currentSlot->next = pendingData;
 		}
 		pthread_mutex_unlock(&context.pendingWriteLock);
-		if (context.yieldAfterProbe)
-			sched_yield();
+
+		// kick the current thread, if any, out of the blocking probe, so it picks up the need to flush these buffers
+		x10rt_net_unblock_probe();
 	}
 	return cnt;
 }
@@ -643,7 +643,6 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
      *
      * On OSX (and presumably BSD) one can use OPT_NOSIGPIPE when creating the socket.
      * On Linux, one can use MSG_NOSIGNAL in the send() call.
-     * On AIX, neither of these options are available
      *
      * So we choose to catch SIGPIPE on all platforms.
      */
@@ -661,7 +660,6 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		#ifdef DEBUG		
 			fprintf(stderr, "There are %u places!\n", context.numPlaces);
 		#endif		
-		context.yieldAfterProbe = true;
 		context.nextSocketToCheck = 0;
 		context.linkAtStartup = false;
 		context.state = RUNNING_LIBRARY;
@@ -734,23 +732,20 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		}
 
 		if (context.numPlaces == 1)
-		{
 			context.myPlaceId = 0;
-            return X10RT_ERR_OK; // If there is only 1 place, then there are no sockets to set up.
-		}
-
-		// determine my place ID
-		char* ID = getenv(X10_LAUNCHER_PLACE);
-		if (ID == NULL) {
-			context.errorCode = X10RT_ERR_OTHER;
-			return fatal_error(X10_LAUNCHER_PLACE" not set!");
-		}
 		else
-			context.myPlaceId = atol(ID);
+		{
+			// determine my place ID
+			char* ID = getenv(X10_LAUNCHER_PLACE);
+			if (ID == NULL) {
+				context.errorCode = X10RT_ERR_OTHER;
+				return fatal_error(X10_LAUNCHER_PLACE" not set!");
+			}
+			else
+				context.myPlaceId = atol(ID);
+		}
 
-		context.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
 		context.linkAtStartup = !checkBoolEnvVar(getenv(X10_LAZYLINKS));
-
 		context.nextSocketToCheck = 0;
 		pthread_mutex_init(&context.readLock, NULL);
 		context.socketLinks = safe_malloc<pollfd>(context.numPlaces+1);
@@ -791,9 +786,9 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 				return fatal_error("failed to get the local socket information");
 			}
 			pthread_mutex_lock(&context.writeLocks[context.myPlaceId]);
-			if (Launcher::setPort(context.myPlaceId, addr.sin_port) < 0) {
+			if (Launcher::setPort(context.myPlaceId, addr.sin_port) < 0 && context.numPlaces > 1) {
 				context.errorCode = X10RT_ERR_OTHER;
-				return fatal_error("failed to connect to the local runtime");
+				return fatal_error("failed to connect to the local launcher");
 			}
 			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
 		}
@@ -1184,7 +1179,6 @@ bool probe (bool onlyProcessAccept, bool block)
 				#endif
 
 				x10rt_msg_params mp;
-				mp.dest_endpoint = 0;
 				mp.dest_place = context.myPlaceId;
 				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
 					return fatal_error("reading x10rt_msg_params.type"), false;
@@ -1212,6 +1206,10 @@ bool probe (bool onlyProcessAccept, bool block)
 				}
 				else
 					mp.msg = NULL;
+
+				#ifdef DEBUG_MESSAGING
+					fprintf(stderr, "X10rt.Sockets: place %u processing message of type %d from place %u\n", context.myPlaceId, (int)mp.type, whichPlaceToHandle);
+				#endif
 
 				switch (t)
 				{
@@ -1367,8 +1365,6 @@ bool probe (bool onlyProcessAccept, bool block)
 	{
 		pthread_mutex_unlock(&context.readLock);
 		bool dataRemains = flushPendingData();
-		if (context.yieldAfterProbe) // This would be a good time for a yield in some systems.
-			sched_yield();
 		return dataRemains && block;
 	}
 }

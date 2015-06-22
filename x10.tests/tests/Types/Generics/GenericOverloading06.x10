@@ -31,7 +31,7 @@ public class GenericOverloading06 extends GenericTest {
 
     val a = new A[long]();
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         genericCheck("a.m()", a.m(), 0);
         genericCheck("a.m(0)", a.m(0), 1);
@@ -40,7 +40,7 @@ public class GenericOverloading06 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverloading06().execute();
     }
 }

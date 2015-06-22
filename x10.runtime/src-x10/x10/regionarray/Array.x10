@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -1157,6 +1157,99 @@ public final class Array[T] (
         Rail.copy(src.raw, srcIndex, dst.raw, dstIndex, numElems);
     }
     
+
+    /**
+     * Copy the specified region from the source Array to this array.
+     * If the specified region is not contained in the region for the source
+     * array or this array, then an ArrayIndexOutOfBoundsError is raised.
+     * 
+     * @param src the source array.
+     * @param region the region of the array to copy to this array
+     * 
+     * @see Region#indexOf
+     * 
+     * @throws ArrayIndexOutOfBoundsException if the specified region is not
+     *        contained in the source array or this array
+     */
+    public def copy(src:Array[T](this.rank), r:Region(this.rank)) {
+        if (CompilerFlags.checkBounds()) {
+            if (!src.region.contains(r)) {
+                throw new ArrayIndexOutOfBoundsException("region to copy: " + r + " not contained in source: " + src.region);
+            } else if (!region.contains(r)) {
+                throw new ArrayIndexOutOfBoundsException("region to copy: " + r + " not contained in this array: " + region);
+            }
+        }
+        if (this.rank==3 && r.rect) {
+            (this as Array[T](3)).copy3(src as Array[T](3), r as Region(3){self.rect});
+            return;
+        }
+
+        val srcRaw = src.raw;
+        if (region == src.region) {
+            // fast path - offset in both arrays is the same
+            for (p in r) {
+                val offset = region.indexOf(p);
+                raw(offset) = srcRaw(offset);
+            }
+        } else {
+            // different offset in each array
+            val min = region.min();
+            val max = region.max();
+            val delta = new Array[Long](rank, (i:Long) => region.max(i) - region.min(i) + 1);
+            val srcMin = src.region.min();
+            val srcMax = src.region.max();
+            val srcDelta = new Array[Long](rank, (i:Long) => src.region.max(i) - src.region.min(i) + 1);
+            for (p in r) {
+                var offset:Long = p(0) - min(0);
+                var srcOffset:Long = p(0) - srcMin(0);
+                for (i in 1..(rank-1)) {
+                    offset = offset*delta(i) + p(i) - min(i);
+                    srcOffset = srcOffset*srcDelta(i) + p(i) - srcMin(i);
+                }
+                raw(offset) = srcRaw(srcOffset);
+            }
+        }
+    }
+
+    private def copy3(src:Array[T](3), r:Region(3){self.rect}){this.rank==3} {
+        val srcRaw = src.raw;
+        if (region == src.region) {
+            // fast path - offset in both arrays is the same
+            for ([i,j,k] in r) {
+                val offset = region.indexOf([i,j,k]);
+                raw(offset) = srcRaw(offset);
+            }
+        } else {
+            val layout_stride2 = layout(0);
+            val layout_stride3 = layout(1);
+
+            val crh = new LayoutHelper(src.region);
+            val src_min0 = crh.min0;
+            val src_max0 = src.region.max(0);
+            val src_stride1 = crh.stride1;
+            val src_min1 = crh.min1;
+            val src_max1 = src.region.max(1);
+            val src_layout = crh.layout;
+            val src_stride2 = src_layout(0);
+            val src_stride3 = src_layout(1);
+            val src_min2 = src.region.min(2);
+            val src_max2 = src.region.max(2);
+
+            for (i0 in src_min0..src_max0) {
+                val offset = (i0 - layout_min0) * layout_stride1;
+                val srcOffset = (i0 - src_min0) * src_stride1;
+                for (i1 in src_min1..src_max1) {
+                    val offset1 = (offset + i1 - layout_min1) * layout_stride2;
+                    val srcOffset1 = (srcOffset + i1 - src_min1) * src_stride2;
+                    for (i2 in src_min2..src_max2) {
+                        val offset2 = offset1 + i2 - layout_stride3;
+                        val srcOffset2 = srcOffset1 + i2 - src_stride3;
+                        raw(offset2) = srcRaw(srcOffset2);
+                    }
+                }
+            }
+        }
+    }
     
     private static @NoInline @NoReturn def raiseBoundsError(i0:Long) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");

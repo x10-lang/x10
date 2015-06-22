@@ -13,7 +13,9 @@ package x10.visit;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -660,7 +662,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
         }
 
-        // print the custom serializer
+        // Generate compiler-supported serialization/deserialization code
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);            
         } else if (subtypeOfUnserializable(def)) {
@@ -674,9 +676,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
         } else {
             if (!def.flags().isInterface()) {
-                // Prints out custom serialization/deserialization code, the implementation resembles closely what the C++ backend does\
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
+                // Cannonical ordering of fields by sorting by name.
+                FieldInstance[] orderedFields = new FieldInstance[ct.fields().size()];
+                for (int i=0; i<ct.fields().size(); i++) {
+                    orderedFields[i] = ct.fields().get(i);
+                }
+                Arrays.sort(orderedFields, new Comparator<FieldInstance>() {
+                    public int compare(FieldInstance arg0, FieldInstance arg1) {
+                        return arg0.name().toString().compareTo(arg1.name().toString());
+                    }});
 
                 //_deserialize_body method
                 w.write("public static ");
@@ -709,11 +719,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.writeln(" = (" + X10_RTT_TYPE + ") $deserializer.readObject();");
                 }
 
-                // Deserialize the public variables of this class , we do not serialize transient or static variables
+                // Deserialize the instance variables of this class , we do not serialize transient or static variables
                 List<FieldInstance> specialTransients = null;
-                for (int i = 0; i < ct.fields().size(); i++) {
+                for (FieldInstance f : orderedFields) {
                     String str;
-                    FieldInstance f = ct.fields().get(i);
                     if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                     if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                         continue;
@@ -857,8 +866,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
 
                 // Serialize the public variables of this class , we do not serialize transient or static variables
-                for (int i = 0; i < ct.fields().size(); i++) {
-                    FieldInstance f = ct.fields().get(i);
+                for (FieldInstance f : orderedFields) {
                     if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
                     if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                         continue;
@@ -2780,6 +2788,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
                 w.write(".");
             }
+            else {
+                tr.print(n, target, w);
+                w.write(".");
+            }
             tr.print(n, n.name(), w);
             if (closeParen) w.write(")");
             w.end();
@@ -3227,7 +3239,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         boolean runAsync = false;
         MethodInstance_c mi = (MethodInstance_c) n.methodContainer();
         if (mi != null && mi.container().isClass()
-                && mi.container().toClass().fullName().toString().equals("x10.lang.Runtime")
+                && mi.container().toClass().fullName().toString().equals("x10.xrx.Runtime")
                 && mi.signature().startsWith("runAsync")) {
             runAsync = true;
         }
@@ -3358,7 +3370,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //        if (runAsync) {
 //            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, "ex", new Expander(er) {
 //                public void expand(Translator tr) {
-//                    w.write("x10.lang.Runtime.pushException(ex);");
+//                    w.write("x10.xrx.Runtime.pushException(ex);");
 //                }
 //            });
 //        }
@@ -3380,7 +3392,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t));");
+        // w.write("x10.xrx.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t));");
         // }
         // });
         // } else {
@@ -3406,7 +3418,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex));");
+        // w.write("x10.xrx.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex));");
         // }
         // });
         // } else {

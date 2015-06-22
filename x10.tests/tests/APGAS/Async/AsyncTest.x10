@@ -22,7 +22,7 @@ public class AsyncTest extends x10Test {
 	var flag: boolean = false;
 	static N: long = 1000000000;
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var b: boolean = false;
 		async  { atomic { this.flag = true; } }
 		for (var i: long = 0; i < N*100; i++) {

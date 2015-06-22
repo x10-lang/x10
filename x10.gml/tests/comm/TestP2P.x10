@@ -13,6 +13,8 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DupSparseMatrix;
@@ -22,17 +24,20 @@ import x10.matrix.comm.MatrixRemoteCopy;
    This class contains test cases P2P communication for matrix over different places.
  */
 public class TestP2P extends x10Test {
+    static def ET(a:Double)= a as ElemType;
+    static def ET(a:Float)= a as ElemType;
+
 	public val M:Long;
 	public val N:Long;
 	public val iter:Long;
-	public val nzdensity:Double;
+	public val nzdensity:Float;
 
 	public val numplace:Long;
 
 	public val dmat:DupDenseMatrix;
 	public val smat:DupSparseMatrix;
 
-    public def this(m:Long, n:Long, d:Double, i:Long) {
+    public def this(m:Long, n:Long, d:Float, i:Long) {
 		M=m; N=n; iter=i;
 		nzdensity = d;
 		
@@ -139,7 +144,6 @@ public class TestP2P extends x10Test {
 				}
 			}
 		}
-		//smat.printAll("Copy result");
 		val tt =  Timer.milliTime() - st;
 		
 		val avgt = 1.0*tt/iter/(numplace-1);
@@ -192,7 +196,7 @@ public class TestP2P extends x10Test {
     public static def main(args:Rail[String]) {
 		val m = args.size > 0 ? Long.parse(args(0)):50;
 		val n = args.size > 1 ? Long.parse(args(1)):50;
-		val d = args.size > 2 ? Double.parse(args(2)):0.5;
+		val d = args.size > 2 ? Float.parse(args(2)):0.5f;
 		val i = args.size > 3 ? Long.parse(args(3)):1;
 		new TestP2P(m, n, d, i).execute();
 	}

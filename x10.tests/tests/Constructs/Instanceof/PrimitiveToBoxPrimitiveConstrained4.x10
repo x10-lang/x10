@@ -18,12 +18,12 @@ import harness.x10Test;
  **/
 public class PrimitiveToBoxPrimitiveConstrained4 extends x10Test {
 	 
-	public def run(): boolean = {
+	public def run(): boolean {
 		val a:Any = 3;
 		return !(a instanceof Box[Long(4)]);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new PrimitiveToBoxPrimitiveConstrained4().execute();
 	}
 }

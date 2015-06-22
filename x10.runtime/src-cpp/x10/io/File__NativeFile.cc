@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #include <x10aux/config.h>
@@ -117,9 +117,6 @@ File__NativeFile::isHidden() {
 #if defined (__APPLE__)
 #   define STAT_TIME_SEC(type) st_##type##timespec.tv_sec
 #   define STAT_TIME_NSEC(type) st_##type##timespec.tv_nsec
-#elif defined (_AIX)
-#   define STAT_TIME_SEC(type) st_##type##time
-#   define STAT_TIME_NSEC(type) st_##type##time_n
 #elif defined (__FreeBSD__)
 #   define STAT_TIME_SEC(type) st_##type##timespec.tv_sec
 #   define STAT_TIME_NSEC(type) st_##type##timespec.tv_nsec

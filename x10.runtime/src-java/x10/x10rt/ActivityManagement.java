@@ -6,21 +6,22 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.x10rt;
 
-import x10.lang.Activity;
-import x10.lang.FinishState;
+import x10.xrx.Activity;
+import x10.xrx.FinishState;
 
 public class ActivityManagement {
     
     public static FinishState activityCreationBookkeeping() {
-        Activity activity = x10.lang.Runtime.activity();
+        Activity activity = x10.xrx.Runtime.activity();
         FinishState fs = activity.finishState();
-        fs.notifySubActivitySpawn(x10.lang.Runtime.home());
-        fs.notifyActivityCreation$O(x10.lang.Runtime.home(), null); // DG: FIXME: Suspicious...we're doing something dodgy here
+        fs.notifyRemoteContinuationCreated();
+        fs.notifySubActivitySpawn(x10.xrx.Runtime.home());
+        fs.notifyActivityCreation$O(x10.xrx.Runtime.home(), null);
         return fs;
     }
 

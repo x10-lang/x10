@@ -11,6 +11,8 @@ import x10.matrix.util.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 //
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
@@ -51,7 +53,7 @@ public class PageRankMatMat {
 
 	static val pN:Long = 1;
 	public val iteration:Long;
-	public val alpha:Double= 0.85;
+	public val alpha:ElemType= 0.85 as ElemType;
 
 	
 
@@ -94,7 +96,7 @@ public class PageRankMatMat {
 		UP    = BlockMatrix.makeDense(gridUP) as BlockMatrix(P.N, P.N);
 	}
 
-	public static def make(gM:Long, nzd:Double, it:Int, gRowBs:Int, gColBs:Int) {
+	public static def make(gM:Long, nzd:Float, it:Int, gRowBs:Int, gColBs:Int) {
 
 		val gN = gM;
 		val pColBs = 1;
@@ -109,7 +111,7 @@ public class PageRankMatMat {
 		return new PageRankMatMat(g, p, e, u, it);
 	}
 	
-	public static def make(gridG:Grid, blockMap:DistMap, gridP:Grid, gridE:Grid, gridU:Grid,  nzd:Double, it:Int) {
+	public static def make(gridG:Grid, blockMap:DistMap, gridP:Grid, gridE:Grid, gridU:Grid,  nzd:Float, it:Int) {
 		//gridG, distG, gridP, gridE and gridU are remote captured in all places
 		val g = DistBlockMatrix.makeSparse(gridG, blockMap, nzd) as DistBlockMatrix(gridG.M, gridG.N);
 		val p = DupBlockMatrix.makeDense(gridP) as DupBlockMatrix(g.N, pN);
@@ -170,8 +172,8 @@ public class PageRankMatMat {
 
 	public def printInfo() {
 		//
-		val nzc:Float =  G.getTotalNonZeroCount() as Float;
-		val nzd:Float =  nzc / (G.M * G.N as Float);
+		val nzc =  G.getTotalNonZeroCount();
+		val nzd =  nzc / (G.M * G.N);
 		Console.OUT.printf("Input G:(%dx%d), partition:(%dx%d) blocks, ",
 				G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
 		Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 

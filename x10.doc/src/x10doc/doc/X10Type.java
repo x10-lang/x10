@@ -70,16 +70,14 @@ public class X10Type implements Type {
         return null;
     }
 
-//    /**
-//     * Note that AnnotatedType is introduced in 1.8.
-//     * (uncomment this method to build x10doc with Java 8)
-//     * @since 1.8
-//     * @return
-//     */
-//    public com.sun.javadoc.AnnotatedType asAnnotatedType() {
-//        // TODO Auto-generated method stub
-//        return null;        
-//    }
+    /**
+     * @since 1.8
+     * @return
+     */
+    public com.sun.javadoc.AnnotatedType asAnnotatedType() {
+        // TODO Auto-generated method stub
+        return null;        
+    }
 
     public ClassDoc asClassDoc() {
         return null;

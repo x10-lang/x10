@@ -18,20 +18,20 @@ public class AtomicReturn extends x10Test {
     var a: long = 0;
     static N: long = 100;
 
-    def update1(): long = {
+    def update1(): long {
         atomic {
             a++;
             return a;
         }
     }
 
-    def update3(): long = {
+    def update3(): long {
         atomic {
             return a++;
         }
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         update1();
         update3();
         //x10.io.Console.OUT.println(a);

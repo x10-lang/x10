@@ -14,6 +14,8 @@ package x10.compiler;
 import x10.array.BlockingUtils;
 import x10.array.DenseIterationSpace_2;
 
+import x10.xrx.Runtime;
+
 /**
  * Parallel iteration over a set of indices using different patterns of
  * local activity creation; this is intended to be used by the compiler to
@@ -38,6 +40,112 @@ import x10.array.DenseIterationSpace_2;
  */
 public final class Foreach {
     /**
+     * Iterate over a range of indices in sequence in a single activity.
+     * This may be used for debugging purposes or as a compiler target where
+     * there is no benefit to be gained from parallelizing an iteration.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param body a closure that executes over a single value of the index
+     */
+    public static @Inline def sequential(min:Long, max:Long,
+                                    body:(i:Long)=>void) {
+        for (i in min..max) body(i);
+    }
+
+    /**
+     * Iterate over a range of indices in sequence in a single activity.
+     * @param min0 the minimum value of the first index dimension
+     * @param max0 the maximum value of the first index dimension
+     * @param min1 the minimum value of the second index dimension
+     * @param max1 the maximum value of the second index dimension
+     * @param body a closure that executes over a single value of the index [i,j]
+     */
+    public static @Inline def sequential(min0:Long, max0:Long,
+                                    min1:Long, max1:Long,
+                                    body:(i:Long, j:Long)=>void) {
+        for (i in min0..max0) {
+            for (j in min1..max1) {
+                body(i, j);
+            }
+        }
+    }
+
+    /**
+     * Iterate over a range of indices in sequence in a single activity.
+     * This may be used for debugging purposes or as a compiler target where
+     * there is no benefit to be gained from parallelizing an iteration.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param body a closure that executes over a contiguous range of indices
+     */
+    public static @Inline def sequential(min:Long, max:Long,
+                                    body:(min:Long, max:Long)=>void) {
+        body(min, max);
+    }
+
+    /**
+     * Iterate over a dense rectangular block of indices in single sequence in a
+     * single activity.
+     * @param space the 2D dense space over which to iterate
+     * @param body a closure that executes over a single index [i,j]
+     */
+    public static @Inline def sequential(space:DenseIterationSpace_2,
+                                    body:(i:Long, j:Long)=>void) {
+        Foreach.sequential(space.min0, space.max0, space.min1, space.max1, body);
+    }
+
+    /**
+     * Reduce over a range of indices in sequence in a single activity.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param body a closure that executes over a single value of the index
+     * @param reduce the reduction operation
+     * @param identity the identity value for the reduction operation such that reduce(identity,f)=f
+     */
+    public static @Inline def sequentialReduce[T](min:Long, max:Long,
+                                    body:(i:Long)=>T,
+                                    reduce:(a:T,b:T)=>T, identity:T):T{
+        var myRes:T = identity;
+        for (i in min..max) {
+            myRes = reduce(myRes, body(i));
+        }
+        return myRes;
+    }
+
+    /**
+     * Reduce over a range of indices in sequence in a single activity.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param body a closure that executes over a contiguous range of indices, 
+     *   returning the reduced value for that range
+     * @param reduce the reduction operation
+     */
+    public static @Inline def sequentialReduce[T](min:Long, max:Long,
+                                    body:(min:Long, max:Long)=>T,
+                                    reduce:(a:T,b:T)=>T):T{
+        return body(min, max);
+    }
+
+    /**
+     * Reduce over a range of indices in sequence in a single activity.
+     * @param space the 2D dense space over which to reduce
+     * @param body a closure that executes over a single index [i,j]
+     * @param reduce the reduction operation
+     * @param identity the identity value for the reduction operation such that reduce(identity,f)=f
+     */
+    public static @Inline def sequentialReduce[T](space:DenseIterationSpace_2,
+                                    body:(i:Long, j:Long)=>T,
+                                    reduce:(a:T,b:T)=>T, identity:T):T{
+        var myRes:T = identity;
+        for (i in space.min0..space.max0) {
+            for (j in space.min1..space.max1) {
+                myRes = reduce(myRes, body(i, j));
+            }
+        }
+        return myRes;
+    }
+
+    /**
      * Iterate over a range of indices in parallel using a basic async
      * transformation. A separate async is started for every index in min..max
      * @param min the minimum value of the index
@@ -46,7 +154,10 @@ public final class Foreach {
      */
     public static @Inline def basic(min:Long, max:Long,
                                     body:(i:Long)=>void) {
-        finish for (i in min..max) async body(i);
+        if (Runtime.NTHREADS == 1n)
+            sequential(min, max, body);
+        else
+            finish for (i in min..max) async body(i);
     }
 
     /**
@@ -61,9 +172,13 @@ public final class Foreach {
     public static @Inline def basic(min0:Long, max0:Long,
                                     min1:Long, max1:Long,
                                     body:(i:Long, j:Long)=>void) {
-        finish for (i in min0..max0) {
-            for (j in min1..max1) {
-                async body(i, j);
+        if (Runtime.NTHREADS == 1n) {
+            sequential(min0, max0, min1, max1, body);
+        } else {
+            finish for (i in min0..max0) {
+                for (j in min1..max1) {
+                    async body(i, j);
+                }
             }
         }
     }
@@ -79,11 +194,21 @@ public final class Foreach {
      */
     public static @Inline def block(min:Long, max:Long,
                                     body:(min:Long, max:Long)=>void) {
-        finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
-            val myT = t;
-            async {
-                val block = BlockingUtils.partitionBlock(min, max, Runtime.NTHREADS, myT);
-                body(block.min, block.max);
+        val nthreads = Runtime.NTHREADS;
+        if (nthreads == 1n) {
+            sequential(min, max, body);
+        } else {
+            val numElems = max - min + 1;
+	        if (numElems < 1) return;
+            val blockSize = numElems/nthreads;
+            val leftOver = numElems - nthreads*blockSize;
+            finish for (var t:Long = nthreads-1; t >= 0; t--) {
+                val myT = t;
+                async {
+                    val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
+                    val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
+                    body(lo, hi);
+                }
             }
         }
     }
@@ -99,9 +224,7 @@ public final class Foreach {
      */
     public static @Inline def block(min:Long, max:Long,
                                     body:(i:Long)=>void) {
-        val executeRange = (start:Long, end:Long) => {
-            for (i in start..end) body(i);
-        };
+        val executeRange = (start:Long, end:Long)=> { sequential(start, end, body); };
         Foreach.block(min, max, executeRange);
     }
 
@@ -119,19 +242,29 @@ public final class Foreach {
     public static @Inline def blockReduce[T](min:Long, max:Long,
                                     body:(min:Long, max:Long)=>T,
                                     reduce:(a:T,b:T)=>T):T{
-        val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
-        finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
-            val myT = t;
-            async {
-                val block = BlockingUtils.partitionBlock(min, max, Runtime.NTHREADS, myT);
-                results(myT) = body(block.min, block.max);
+        val nthreads = Runtime.NTHREADS;
+        if (nthreads == 1n) {
+            return body(min, max); // sequential
+        } else {
+            val numElems = max - min + 1;
+	        if (numElems < 1) return body(min, max);
+            val blockSize = numElems/nthreads;
+            val leftOver = numElems - nthreads*blockSize;
+            val results = Unsafe.allocRailUninitialized[T](nthreads);
+            finish for (var t:Long = nthreads-1; t >= 0; t--) {
+                val myT = t;
+                async {
+                    val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
+                    val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
+                    results(myT) = body(lo, hi);
+                }
             }
+            var res:T = results(0);
+            for (myT in 1..(nthreads-1)) {
+                res = reduce(res, results(myT));
+            }
+            return res;
         }
-        var res:T = results(0);
-        for (myT in 1..(Runtime.NTHREADS-1)) {
-            res = reduce(res, results(myT));
-        }
-        return res;
     }
 
     /**
@@ -142,6 +275,8 @@ public final class Foreach {
      * @param min the minimum value of the index
      * @param max the maximum value of the index
      * @param body a closure that executes over a single value of the index
+     * @param reduce the reduction operation
+     * @param identity the identity value for the reduction operation such that reduce(identity,f)=f
      */
     public static @Inline def blockReduce[T](min:Long, max:Long,
                                     body:(i:Long)=>T,
@@ -185,13 +320,15 @@ public final class Foreach {
      */
     public static @Inline def block(space:DenseIterationSpace_2,
                                     body:(i:Long, j:Long)=>void) {
-        finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
-            val myT = t;
-            async {
-                val block = BlockingUtils.partitionBlockBlock(space, Runtime.NTHREADS, myT);
-                for (i in block.min0..block.max0)
-                    for (j in block.min1..block.max1)
-                        body(i, j);
+        if (Runtime.NTHREADS == 1n) {
+            sequential(space, body);
+        } else {
+            finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
+                val myT = t;
+                async {
+                    val block = BlockingUtils.partitionBlockBlock(space, Runtime.NTHREADS, myT);
+                    Foreach.sequential(block, body);
+                }
             }
         }
     }
@@ -209,25 +346,21 @@ public final class Foreach {
     public static @Inline def blockReduce[T](space:DenseIterationSpace_2,
                                     body:(i:Long, j:Long)=>T,
                                     reduce:(a:T,b:T)=>T, identity:T):T{
-        val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
-        finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
-            val myT = t;
-            async {
-                var myRes:T = identity;
+        if (Runtime.NTHREADS == 1n) {
+            return sequentialReduce(space, body, reduce, identity);
+        } else {
+            val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
+            finish for (var t:Long = Runtime.NTHREADS-1; t >= 0; t--) {
+                val myT = t;
                 val block = BlockingUtils.partitionBlockBlock(space, Runtime.NTHREADS, myT);
-                for (i in block.min0..block.max0) {
-                    for (j in block.min1..block.max1) {
-                        myRes = reduce(myRes, body(i, j));
-                    }
-                }
-                results(myT) = myRes;
+                async results(myT) = Foreach.sequentialReduce(block, body, reduce, identity);
             }
+            var res:T = results(0);
+            for (myT in 1..(Runtime.NTHREADS-1)) {
+                res = reduce(res, results(myT));
+            }
+            return res;
         }
-        var res:T = results(0);
-        for (myT in 1..(Runtime.NTHREADS-1)) {
-            res = reduce(res, results(myT));
-        }
-        return res;
     }
 
     /**
@@ -241,9 +374,13 @@ public final class Foreach {
      */
     public static @Inline def cyclic(min:Long, max:Long,
                                      body:(i:Long)=>void) {
-        finish for (t in 0..(Runtime.NTHREADS-1)) async {
-            for (var i:Long = min+t; i <= max; i += Runtime.NTHREADS) {
-                body(i);
+        if (Runtime.NTHREADS == 1n) {
+            sequential(min, max, body);
+        } else {
+            finish for (t in 0..(Runtime.NTHREADS-1)) async {
+                for (var i:Long = min+t; i <= max; i += Runtime.NTHREADS) {
+                    body(i);
+                }
             }
         }
     }
@@ -262,19 +399,23 @@ public final class Foreach {
     public static @Inline def cyclicReduce[T](min:Long, max:Long,
                                     body:(i:Long)=>T,
                                     reduce:(a:T,b:T)=>T, identity:T):T{
-        val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
-        finish for (t in 0..(Runtime.NTHREADS-1)) async {
-            var myRes:T = identity;
-            for (var i:Long = min+t; i <= max; i += Runtime.NTHREADS) {
-                myRes = reduce(myRes, body(i));
+        if (Runtime.NTHREADS == 1n) {
+            return sequentialReduce(min, max, body, reduce, identity);
+        } else {
+            val results = Unsafe.allocRailUninitialized[T](Runtime.NTHREADS);
+            finish for (t in 0..(Runtime.NTHREADS-1)) async {
+                var myRes:T = identity;
+                for (var i:Long = min+t; i <= max; i += Runtime.NTHREADS) {
+                    myRes = reduce(myRes, body(i));
+                }
+                results(t) = myRes;
             }
-            results(t) = myRes;
+            var res:T = results(0);
+            for (myT in 1..(Runtime.NTHREADS-1)) {
+                res = reduce(res, results(myT));
+            }
+            return res;
         }
-        var res:T = results(0);
-        for (myT in 1..(Runtime.NTHREADS-1)) {
-            res = reduce(res, results(myT));
-        }
-        return res;
     }
 
     /**
@@ -290,7 +431,11 @@ public final class Foreach {
     public static @Inline def bisect(min:Long, max:Long,
                                      grainSize:Long,
                                      body:(min:Long, max:Long)=>void) {
-        finish doBisect1D(min, max+1, grainSize, body);
+        if (Runtime.NTHREADS == 1n) {
+            sequential(min, max, body);
+        } else {
+            finish doBisect1D(min, max+1, grainSize, body);
+        }
     }
 
     /**
@@ -321,11 +466,15 @@ public final class Foreach {
     public static @Inline def bisect(min:Long, max:Long,
                                      grainSize:Long,
                                      body:(i:Long)=>void) {
-        // convert single index closure into execution over range
-        val executeRange = (start:Long, end:Long) => {
-            for (i in start..end) body(i);
-        };
-        finish doBisect1D(min, max+1, grainSize, executeRange);
+        if (Runtime.NTHREADS == 1n) {
+            sequential(min, max, body);
+        } else {
+            // convert single index closure into execution over range
+            val executeRange = (start:Long, end:Long) => {
+                for (i in start..end) body(i);
+            };
+            finish doBisect1D(min, max+1, grainSize, executeRange);
+        }
     }
 
     /**
@@ -363,6 +512,8 @@ public final class Foreach {
      * @param max the maximum value of the index
      * @param grainSize the maximum grain size for an activity
      * @param body a closure that executes over a single value of the index
+     * @param reduce the reduction operation
+     * @param identity the identity value for the reduction operation such that reduce(identity,f)=f
      */
     public static @Inline def bisectReduce[T](min:Long, max:Long,
                                      grainSize:Long,
@@ -376,7 +527,48 @@ public final class Foreach {
             }
             myRes
         };
-        return doBisectReduce1D(min, max+1, grainSize, executeRange, reduce);
+        return bisectReduce(min, max, grainSize, executeRange, reduce);
+    }
+
+    /**
+     * Reduce over a range of indices in parallel using recursive bisection.
+     * The range is divided into two approximately equal pieces, with each 
+     * piece constituting an activity. Bisection recurs until each activity is
+     * less than or equal to a maximum grain size.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param grainSize the maximum grain size for an activity
+     * @param body a closure that executes over a contiguous range of indices, 
+     *   returning the reduced value for that range
+     * @param reduce the reduction operation
+     */
+    public static @Inline def bisectReduce[T](min:Long, max:Long,
+                                     grainSize:Long,
+                                     body:(i:Long, j:Long)=>T,
+                                     reduce:(a:T,b:T)=>T):T {
+        if (Runtime.NTHREADS == 1n) {
+            return sequentialReduce(min, max, body, reduce);
+        } else {
+            return doBisectReduce1D(min, max+1, grainSize, body, reduce);
+        }
+    }
+
+    /**
+     * Reduce over a range of indices in parallel using recursive bisection.
+     * The range is divided into two approximately equal pieces, with each 
+     * piece constituting an activity. Bisection recurs until a minimum grain
+     * size of (max-min+1) / (Runtime.NTHREADS &times; 8) is reached.
+     * @param min the minimum value of the index
+     * @param max the maximum value of the index
+     * @param body a closure that executes over a contiguous range of indices, 
+     *   returning the reduced value for that range
+     * @param reduce the reduction operation
+     */
+    public static @Inline def bisectReduce[T](min:Long, max:Long,
+                                     body:(i:Long, j:Long)=>T,
+                                     reduce:(a:T,b:T)=>T):T {
+        val grainSize = Math.max(1, (max-min) / (Runtime.NTHREADS*8));
+        return Foreach.bisectReduce(min, max, grainSize, body, reduce);
     }
 
     /**
@@ -431,7 +623,11 @@ public final class Foreach {
                                      min1:Long, max1:Long,
                                      grainSize0:Long, grainSize1:Long,
                                      body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
-        finish doBisect2D(min0, max0+1, min1, max1+1, grainSize0, grainSize1, body);
+        if (Runtime.NTHREADS == 1n) {
+            body(min0, max0, min1, max1); // sequential
+        } else {
+            finish doBisect2D(min0, max0+1, min1, max1+1, grainSize0, grainSize1, body);
+        }
     }
 
     /**
@@ -549,17 +745,21 @@ public final class Foreach {
                                            grainSize0:Long, grainSize1:Long,
                                            body:(i:Long, j:Long)=>T,
                                            reduce:(a:T,b:T)=>T, identity:T):T {
-        // convert single index closure into execution over range
-        val reduceRange = (min0:Long, max0:Long, min1:Long, max1:Long) => {
-            var myResult:T = identity; 
-            for (i in min0..max0) {
-                for (j in min1..max1) {
-                    myResult = reduce(myResult, body(i, j));
+        if (Runtime.NTHREADS == 1n) {
+            return sequentialReduce(new DenseIterationSpace_2(min0, min1, max0, max1), body, reduce, identity);
+        } else {
+            // convert single index closure into execution over range
+            val reduceRange = (min0:Long, max0:Long, min1:Long, max1:Long) => {
+                var myResult:T = identity; 
+                for (i in min0..max0) {
+                    for (j in min1..max1) {
+                        myResult = reduce(myResult, body(i, j));
+                    }
                 }
-            }
-            myResult
-        };
-        return doBisectReduce2D(min0, max0+1, min1, max1+1, grainSize0, grainSize1, reduceRange, reduce);
+                myResult
+            };
+            return doBisectReduce2D(min0, max0+1, min1, max1+1, grainSize0, grainSize1, reduceRange, reduce);
+        }
     }
 
     /**

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -349,6 +349,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((long)(float)(#x))")
     @Native("c++",  "::x10::lang::FloatNatives::toULong(#x)")
+    @Native("cuda", "((x10_ulong) (#x))")
     public static native operator (x:Float) as ULong; /* = ULong(x as Long); */
 
     /**
@@ -358,6 +359,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "((long)(double)(#x))")
     @Native("c++",  "::x10::lang::DoubleNatives::toULong(#x)")
+    @Native("cuda", "((x10_ulong) (#x))")
     public static native operator (x:Double) as ULong; /* = ULong(x as Long); */
 
     /**

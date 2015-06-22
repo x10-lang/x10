@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -344,6 +344,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "x10.runtime.impl.java.FloatUtils.toUShort(#x)")
     @Native("c++",  "::x10::lang::FloatNatives::toUShort(#x)")
+    @Native("cuda", "((x10_ushort) (#x))")
     public native static operator (x:Float) as UShort; /*  {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);
@@ -358,6 +359,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "x10.runtime.impl.java.DoubleUtils.toUShort(#x)")
     @Native("c++",  "::x10::lang::DoubleNatives::toUShort(#x)")
+    @Native("cuda", "((x10_ushort) (#x))")
     public native static operator (x:Double) as UShort; /*  {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);

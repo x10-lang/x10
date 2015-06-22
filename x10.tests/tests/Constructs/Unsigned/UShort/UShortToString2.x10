@@ -28,7 +28,7 @@ public class UShortToString2 extends x10Test {
 	}
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 	var r : Boolean = true;
 	val u = 0xFFFFus;
 	val s1 = u.toString();

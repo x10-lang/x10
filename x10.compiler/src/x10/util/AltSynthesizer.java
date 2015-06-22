@@ -997,6 +997,23 @@ public class AltSynthesizer {
                              formal.name(),
                              init ).localDef(formal.localDef());
     }
+    
+    /**
+     * Create a declaration of a local variable from a formal parameter.
+     * The formal parameter is transformed into the local variable.
+     * 
+     * @param formal the parameter to be transformed
+     * @param init an expression representing the initial value of new local variable
+     * @return the declaration for a local variable with the same behavior as formal
+     */
+    public LocalDecl createLocalDecl(Position pos, X10Formal formal, Expr init) {
+        return nf.LocalDecl( pos,
+                             formal.flags(),
+                             formal.type().typeRef(formal.localDef().type()), // adjust ref
+                             formal.name(),
+                             init ).localDef(formal.localDef());
+    }
+
 
     // Helper methods for dealing with properties and constraints
 

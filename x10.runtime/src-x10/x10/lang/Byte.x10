@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -256,6 +256,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      */
     @Native("java", "x10.runtime.impl.java.FloatUtils.toByte(#x)")
     @Native("c++",  "::x10::lang::FloatNatives::toByte(#x)")
+    @Native("cuda", "((x10_byte) (#x))")
     public native static operator (x:Float) as Byte;
 
     /**
@@ -265,6 +266,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      */
     @Native("java", "x10.runtime.impl.java.DoubleUtils.toByte(#x)")
     @Native("c++",  "::x10::lang::DoubleNatives::toByte(#x)")
+    @Native("cuda", "((x10_byte) (#x))")
     public native static operator (x:Double) as Byte;
 
     /**

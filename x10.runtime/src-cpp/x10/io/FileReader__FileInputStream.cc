@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #include <x10/io/FileReader__FileInputStream.h>
@@ -82,6 +82,10 @@ x10::lang::String* FileReader__FileInputStream::readLine() {
 
 void FileReader__FileInputStream::skip(x10_long bytes) {
     ::fseek(FMGL(file), bytes, SEEK_CUR);
+}
+
+long FileReader__FileInputStream::offset() {
+    return ::ftell(FMGL(file));
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 

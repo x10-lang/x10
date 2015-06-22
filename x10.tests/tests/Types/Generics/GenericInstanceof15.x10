@@ -23,11 +23,11 @@ public class GenericInstanceof15 extends GenericTest {
 
     class A implements I[Long,Double] {}
     
-    public def run() = {
+    public def run() {
         return new A() instanceof I[Long, Double];
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericInstanceof15().execute();
     }
 }

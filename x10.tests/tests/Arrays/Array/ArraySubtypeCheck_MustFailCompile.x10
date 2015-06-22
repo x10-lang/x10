@@ -22,14 +22,14 @@ public class ArraySubtypeCheck_MustFailCompile extends x10Test {
 
     class Sub extends Sup {}
     
-    public def run(): boolean = {
+    public def run(): boolean {
         val R:Region = Region.make(0,3);
         var subarr00: Array[Sub] = new Array[Sub](R, (Point)=>null);
         var suparr00: Array[Sup] = subarr00; // ERR
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArraySubtypeCheck_MustFailCompile().execute();
     }
 }

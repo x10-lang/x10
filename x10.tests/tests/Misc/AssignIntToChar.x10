@@ -19,7 +19,7 @@ public class AssignIntToChar extends x10Test {
 	/**
 	 * Testing comments for run
 	 */
-	public def run(): boolean = {
+	public def run(): boolean {
 	    val a = new Rail[char](4, 0 as char);
 	    var bit1: boolean = true;
 	    var bit2: boolean = false;
@@ -30,7 +30,7 @@ public class AssignIntToChar extends x10Test {
 	/**
 	 * Testing comments for main
 	 */
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new AssignIntToChar().execute();
 	}
 }

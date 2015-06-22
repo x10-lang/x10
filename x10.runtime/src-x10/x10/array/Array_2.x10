@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.array;
@@ -171,8 +171,7 @@ public final class Array_2[T] (
                                             j < 0 || j >= numElems_2)) {
             raiseBoundsError(i, j);
         }
-        Unsafe.uncheckedRailSet(raw, offset(i, j), v);
-        return v;
+        return Unsafe.uncheckedRailSet(raw, offset(i, j), v);
     }
 
     /**

@@ -25,11 +25,11 @@ public class TypedefOverloading06 extends TypedefTest {
     static interface A[T] {};
     static type A = String;
 
-    public def run(): boolean = {
+    public def run(): boolean {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new TypedefOverloading06().execute();
     }
 }

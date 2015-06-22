@@ -5,8 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.InterfacesConfig;
 import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -34,6 +36,7 @@ public class HazelcastDatastore {
 		JoinConfig join = netconfig.setPortAutoIncrement(true).getJoin();
 		join.getMulticastConfig().setEnabled(false);
 		join.getTcpIpConfig().setEnabled(true).setRequiredMember(leader);
+		config.addMapConfig(new MapConfig("FinishResilientHC").setInMemoryFormat(InMemoryFormat.OBJECT));
 		hazelcast = Hazelcast.newHazelcastInstance(config);
 		InetSocketAddress addr = (InetSocketAddress) hazelcast.getLocalEndpoint().getSocketAddress();
 		publicAddress = addr.getAddress().getHostAddress()+':'+addr.getPort();
@@ -53,6 +56,14 @@ public class HazelcastDatastore {
 	}
 	
 	void shutdown() {
-		hazelcast.shutdown();
+		try {
+			hazelcast.shutdown();
+		} catch (Exception e) {
+			// be quiet.
+		}
+	}
+
+	HazelcastInstance getHazelcastInstance() {
+		return hazelcast;
 	}
 }

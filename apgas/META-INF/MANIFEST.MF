@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: apgas
+Bundle-SymbolicName: apgas
+Bundle-Version: 1.0.0.qualifier
+Export-Package: apgas,
+ apgas.impl,
+ apgas.util
+Require-Bundle: com.hazelcast;bundle-version="3.4.0";visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: x10-users@lists.sourceforge.net

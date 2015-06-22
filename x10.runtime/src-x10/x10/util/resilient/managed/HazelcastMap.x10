@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.util.resilient.managed;
@@ -20,9 +20,11 @@ import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.util.resilient.ResilientMap;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.Future;
+import x10.util.AbstractCollection;
+import x10.util.Collection;
+import x10.util.HashSet;
+import x10.util.Map;
+import x10.util.Set;
 
 /**
  * The HazelcastMap class implements a resilient Map using Hazelcast as the underlying implementation.
@@ -31,14 +33,8 @@ import java.util.concurrent.Future;
 public class HazelcastMap[K,V] {V haszero} extends ResilientMap[K,V] implements
 CustomSerialization {
 
-    protected var entrySet: java.util.Set;  // for creating Java Set view of
-                                             // all elements in map
-    protected var iterator: java.util.Iterator;  // for iterating over all
-                                               // entries in key-value map
     protected val keyValueMap: com.hazelcast.core.IMap; // Java data structure
                                                    // storing key-value map.
-    protected var mapEntry: java.util.Map.Entry; // Stores map entries when
-                                        // iterating over elements in map
     protected val mapName: String;  // name of key-value map
 
 
@@ -58,9 +54,6 @@ CustomSerialization {
         if (keyValueMap == null) 
 	    throw new Exception("HazelcastMap.this("+mapName+"): HazelcastMap is not supported in this configuration");
         this.mapName = mapName;
-	this.entrySet = null;
-	this.iterator = null;
-	this.mapEntry = null;
     }
 
     /**
@@ -101,6 +94,15 @@ CustomSerialization {
         return keyValueMap.executeOnEntries(entryProcessor, predicate);
     };
 */
+	/**
+     * Remove any value associated with key k from the resilient map.
+	 * Unlike {@link #remove(K)}, this methods does not return the old value,
+     * and so may be more efficient.
+	 * @see #remove(K)
+     */
+	public def deleteVoid(k:K) {
+		keyValueMap.delete(k);
+	}
 
     /**
      * Release the lock for the specified key regardless of the lock owner.
@@ -164,32 +166,17 @@ CustomSerialization {
      * a future that when forced will return the previous value (if any) 
      * that was stored for key k.  
      */
-    public def asyncPutFuture(k:K, v:V):()=>V {
+    public def asyncPut(k:K, v:V):()=>V {
         val future = keyValueMap.putAsync(k, v);
-        return ()=>{
-            var result:V = Zero.get[V]();
-            try {
-                val evaluatedFuture = future.get();
-                if (evaluatedFuture != null)
-		    result = evaluatedFuture as V;
-            } catch (e:java.lang.InterruptedException) {
-                throw new WrappedThrowable(e);
-            } catch (e:java.util.concurrent.ExecutionException) {
-                throw new WrappedThrowable(e);
-            }
-            return result;
-        };
+		return createFuture[V](future);
     }
 
-    /**
-     * Asynchronously put value v with key k in the resilient map.
-     * The activity created to do the put will be registered with the
-     * dynamically enclosing finish.
+	/**
+     * If key k does not have a value, associate value v with key k
+	 * in the resilient map.
      */
-    public def asyncPut(k:K, v:V):void {
-        async { put(k,v); };
-    }
-
+    public def putIfAbsent(k:K, v:V):V
+		= keyValueMap.putIfAbsent(k,v) as V;
 
     /**
      * Remove any value associated with key k from the resilient map.
@@ -204,32 +191,42 @@ CustomSerialization {
      * a future that when forced will return the previous value (if any) 
      * that was stored for key k.  
      */
-    public def asyncRemoveFuture(k:K):()=>V {
+    public def asyncRemove(k:K):()=>V {
         val future = keyValueMap.removeAsync(k);
-        return ()=>{
-            var result: V = Zero.get[V]();
-            try {
-                val evaluatedFuture = future.get();
-                if (evaluatedFuture != null) {
-		    result = evaluatedFuture as  V;
-                }
-            } catch (e:java.lang.InterruptedException) {
-                throw new WrappedThrowable(e);
-            } catch (e:java.util.concurrent.ExecutionException) {
-                throw new WrappedThrowable(e);
-            }
-            return result;
-        };
+        return createFuture[V](future);
     }
 
-    /**
-     * Asynchronously remove the given key.
-     * The activity created to do the remove will be registered with the
-     * dynamically enclosing finish.
+		/**
+     * Remove any value associated with key k from the resilient map if the
+	 * associate value is equal to value v.
      */
-    public def asyncRemove(k:K):void {
-        async { remove(k); }
-    }
+    public def remove(k:K, v:V):boolean
+		= keyValueMap.remove(k,v);
+
+	/**
+     * If key k is associate with a value, update the resilient map,
+	 * associating key k with value v.
+     */
+    public def replace(k:K, v:V):V
+		= keyValueMap.replace(k,v) as V;
+
+	/**
+     * If key k is associate with value oldValue, update the resilient map,
+	 * associating key k with value newValue.
+     */
+    public def replace(k:K, oldValue:V, newValue:V):boolean
+		= keyValueMap.replace(k, oldValue, newValue);
+
+
+	/**
+     * Associate value v with key k in the resilient map.
+     * Similar to {@link #put(K,V)}, but does not return 
+	 * the old value (and so is more efficient).
+     * @see #put(K,V)
+     */
+    public def set(k: K, v: V):void {
+		keyValueMap.set(k, v);
+    };
 
     /**
      * Return number of key-value pairs in the resilient map.
@@ -238,25 +235,39 @@ CustomSerialization {
         return keyValueMap.size();
     };
 
-    /**
+	 /**
      * Applies the user defined EntryProcessor to the entry mapped by the key
-     * with specified ExecutionCallback to listen event status and returns 
-     * immediately. 
      */
-    public def submitToKey(k:K, entryProcessor:(Entry[K,V])=>Any, callback:(Any)=>void):void {
-        val p = new com.hazelcast.map.EntryProcessor() {
+    public def submitToKey(k:K, entryProcessor:(Entry[K,V])=>Any):Any {
+		val p = new com.hazelcast.map.EntryProcessor() {
             public def process(entry:java.util.Map.Entry):Any {
-                return entryProcessor(entry as Entry[K,V]);
+                return entryProcessor(convert[K,V](entry));
             }
             public def getBackupProcessor():com.hazelcast.map.EntryBackupProcessor = null;
         };
-        val c = new com.hazelcast.core.ExecutionCallback() {
-            public def onFailure(CheckedThrowable):void { Runtime.println("submitToKey failed"); } // TODO
-            public def onResponse(result:Any):void { callback(result); } // TODO: submit callback to thread pool
-        };
-        keyValueMap.submitToKey(k, p, c);
-    }
+		val future = keyValueMap.submitToKey(k, p);
+		return force(future);
+	}
 
+	/**
+     * Applies the user defined EntryProcessor to the entry mapped by the key
+     * with specified ExecutionCallback to listen event status and returns
+     * immediately with a future. When forced, it will wait until the operation is done
+	 * and return the result of the entryProcessor.
+     * The activity created to do the remove will be registered with the
+     * dynamically enclosing finish.
+     */
+    public def asyncSubmitToKey(k:K, entryProcessor:(Entry[K,V])=>Any):()=>Any {
+		val p = new com.hazelcast.map.EntryProcessor() {
+            public def process(entry:java.util.Map.Entry):Any {
+                return entryProcessor(convert[K,V](entry));
+            }
+            public def getBackupProcessor():com.hazelcast.map.EntryBackupProcessor = null;
+        };
+		val future = keyValueMap.submitToKey(k, p);
+		return createFuture[Any](future);
+	}
+	
     /**
      * Releases the lock for the specified key.
      */
@@ -264,54 +275,194 @@ CustomSerialization {
         keyValueMap.unlock(k);
     };
 
-    /** The following methods are for iterating over/examining all entries in the map */
-
-    /**
-     * Get key from map entry.
+	/**
+     * Return a set of all keys in the map.
      */
-    public def getKey(): K {
-        if (mapEntry == null)
-	    throw new Exception("HazelcastMap.getKey(): Error: mapEntry is null.  mapEntry must be instantiated (e.g. by iterator.next) before it can be used.");
-	return mapEntry.getKey() as K;
-    };
+    public def keySet():Set[K] {
+		val keySet = keyValueMap.keySet();
+		return convert[K](keySet);
+	}
 
-    /**
-     * Get value from map entry.
-     */
-    public def getValue(): V {
-        if (mapEntry == null)
-	    throw new Exception("HazelcastMap.getValue(): Error: mapEntry is null.  mapEntry must be instantiated (e.g. by iterator.next) before it can be used.");
-        return mapEntry.getValue() as V;
-    };
+    public def entrySet():Set[Entry[K,V]] {
+		val entrySet = keyValueMap.entrySet();
+		return convert[Entry[K,V]](entrySet,
+								   (en:Any)=>convert[K,V](en as java.util.Map.Entry),
+								   (en:Entry[K,V])=>convert[K,V](en));
+	}
+	
+	public def values():Collection[V] {
+		val values = keyValueMap.values();
+		return convert[V](values);
+	}
 
-    /**
-     * Initialize iterator for iterating over elements of map.
-     */
-    public def initializeIterator(): void {
-        entrySet = keyValueMap.entrySet();
-	iterator = entrySet.iterator();
-    };
+	public def keySet(predicate:(Entry[K,V])=>boolean):Set[K] {
+		val keySet = keyValueMap.keySet(convert(predicate));
+		return convert[K](keySet);
+	}
 
-    /**
-     * Determine if iteration has finished yet.
-     */
-    public def iteratorHasNext(): Boolean {
-        if (iterator == null)
-	    return false;
-        return iterator.hasNext();
-    };
+    public def entrySet(predicate:(Entry[K,V])=>boolean):Set[Entry[K,V]] {
+		val entrySet = keyValueMap.entrySet(convert(predicate));
+		return convert[Entry[K,V]](entrySet,
+								   (en:Any)=>convert[K,V](en as java.util.Map.Entry),
+								   (en:Entry[K,V])=>convert[K,V](en));
+	}
 
-    /**
-     * Get next element of iterator.
-     */
-    public def iteratorNext(): void {
-        if (iterator == null)
-	    throw new Exception("HazelcastMap.iterator.next(): Error: Null iterator.  Iterator must be initialized (e.g. by initializeIterator) before it can be used.");
-	mapEntry = iterator.next() as java.util.Map.Entry;
-    };
+	public def values(predicate:(Entry[K,V])=>boolean):Collection[V] {
+		val values = keyValueMap.values(convert(predicate));
+		return convert[V](values);
+	}
 
+	// create an X10 closure wrapping a java Future and register it with the enclosing Finish
+	private static def createFuture[T](future:java.util.concurrent.Future) {T haszero} {
+		val cl = wrapFuture[T](future);
+		registerFuture(cl);
+		return cl;
+	}
+		
+	// register a future closure on the enclosing finish
+	private static def registerFuture[T](future:()=>T) {
+		async {
+			x10.xrx.Runtime.increaseParallelism();
+			try {
+				// force the future inside of an async
+				future();
+			} finally {
+				x10.xrx.Runtime.decreaseParallelism(1n);
+			}
+		}
+	}
 
+	// create a future
+	private static def wrapFuture[T](future:java.util.concurrent.Future) {T haszero} {
+		return ()=>{
+            var result:T = Zero.get[T]();
+			val evaluatedFuture = force(future);
+			if (evaluatedFuture != null) {
+				result = evaluatedFuture as T;
+			}
+            return result;
+        };
+	}
 
+	private static def force(future:java.util.concurrent.Future):Any {
+		try {
+			return future.get();
+		} catch (e:java.lang.InterruptedException) {
+			throw new WrappedThrowable(e);
+		} catch (e:java.util.concurrent.ExecutionException) {
+			throw new WrappedThrowable(e);
+		}
+	}
+
+	private static def convert[T](iter:java.util.Iterator):Iterator[T] {
+		return new Iterator[T]() {
+			public def hasNext():Boolean = iter.hasNext();
+			public def next():T = iter.next() as T;
+		};
+	}
+
+	private static def convert[T](iter:java.util.Iterator, from:(Any)=>T):Iterator[T] {
+		return new Iterator[T]() {
+			public def hasNext():Boolean = iter.hasNext();
+			public def next():T = from(iter.next());
+		};
+	}
+
+	private static def convert[K,V](entry:java.util.Map.Entry):Entry[K,V] {
+		return new Entry[K,V]() {
+			public def getKey():K = entry.getKey() as K;
+			public def getValue():V = entry.getValue() as V;
+			public def setValue(v:V) {
+				entry.setValue(v);
+			}
+		};
+	}
+	
+	private static def convert[K,V](entry:Entry[K,V]):java.util.Map.Entry {
+		return new java.util.Map.Entry() {
+			public def getKey():Any = entry.getKey();
+			public def getValue():Any = entry.getValue();
+			public def setValue(v:Any) {
+				val old = getValue();
+				entry.setValue(v as V);
+				return old;
+			}
+		};
+	}
+
+	private static def convert[T](coll:java.util.Collection):Set[T] {
+		class SetWrapper extends AbstractCollection[T] implements Set[T] {
+			// From Iterable
+			public def iterator(): Iterator[T] = convert[T](coll.iterator());
+			// from Container
+			public def size(): Long = coll.size();
+			public def isEmpty(): Boolean = coll.isEmpty();
+			public def contains(y:T): Boolean = coll.contains(y);
+
+			// public def containsAll(c:Container[T]): Boolean;
+			
+			 // from Collection
+			public def add(v:T): Boolean = coll.add(v);
+			public def remove(v:T): Boolean = coll.remove(v);
+			// public def addAll(c:Container[T]): Boolean;
+			// public def retainAll(c:Container[T]): Boolean;
+			// public def removeAll(c:Container[T]): Boolean;
+			// public def addAllWhere(c:Container[T], p:(T) => Boolean): Boolean;
+			// public def removeAllWhere(p:(T) => Boolean): Boolean;
+			public def clear(): void {
+				coll.clear();
+			}
+				
+			public def clone(): Set[T] {
+				val s = new HashSet[T](size() as Int);
+				s.addAll(this);
+				return s;
+			}
+		};
+
+		return new SetWrapper();
+	}
+
+	private static def convert[T](coll:java.util.Collection, from:(Any)=>T, to:(T)=>Any):Set[T] {
+		class SetWrapper extends AbstractCollection[T] implements Set[T] {
+			// From Iterable
+			public def iterator(): Iterator[T] = convert[T](coll.iterator(), from);
+			// from Container
+			public def size(): Long = coll.size();
+			public def isEmpty(): Boolean = coll.isEmpty();
+			public def contains(y:T): Boolean = coll.contains(to(y));
+
+			// public def containsAll(c:Container[T]): Boolean;
+			
+			 // from Collection
+			public def add(v:T): Boolean = coll.add(to(v));
+			public def remove(v:T): Boolean = coll.remove(to(v));
+			// public def addAll(c:Container[T]): Boolean;
+			// public def retainAll(c:Container[T]): Boolean;
+			// public def removeAll(c:Container[T]): Boolean;
+			// public def addAllWhere(c:Container[T], p:(T) => Boolean): Boolean;
+			// public def removeAllWhere(p:(T) => Boolean): Boolean;
+			public def clear(): void {
+				coll.clear();
+			}
+				
+			public def clone(): Set[T] {
+				val s = new HashSet[T](size() as Int);
+				s.addAll(this);
+				return s;
+			}
+		};
+
+		return new SetWrapper();
+	}
+
+	private static def convert[K,V](predicate:(Entry[K,V])=>boolean):com.hazelcast.query.Predicate {
+		return new com.hazelcast.query.Predicate() {
+			public def apply(mapEntry:java.util.Map.Entry):boolean {
+				return predicate(convert[K,V](mapEntry));
+			}
+		};
+	}
 
     /** The following methods handle serialization and deserialization */
 

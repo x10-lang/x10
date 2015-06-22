@@ -6,7 +6,7 @@
 #  You may obtain a copy of the License at
 #      http://www.opensource.org/licenses/eclipse-1.0.php
 #
-#  (C) Copyright IBM Corporation 2006-2014.
+#  (C) Copyright IBM Corporation 2006-2015.
 #
 
 include ../Make.rules
@@ -57,12 +57,7 @@ ifdef ENABLE_X10RT_CUDA
 endif
 
 # avoid a lot of repetition in the */*.mk scripts
-ifeq ($(X10RT_PLATFORM),aix_xlc)
-        LINKER_PROG=$(SHLINK)
-else
-        LINKER_PROG=$(CXX)
-endif
-
+LINKER_PROG=$(CXX)
 
 default: all
 
@@ -75,11 +70,13 @@ ifdef ENABLE_X10RT_PAMI
 endif
 
 ifndef CROSS_COMPILE_BLUEGENE
+ifndef CROSS_COMPILE_MODULES
   include standalone/standalone.mk
   include sockets/sockets.mk
   ifdef JNI_INCLUDES
     include jni/jni.mk
   endif
+endif
 endif
 
 install: $(LIBS) $(PROPERTIES)

@@ -9,10 +9,7 @@
  *  (C) Copyright IBM Corporation 2011-2014.
  */
 
-package pagerank;
-
 import x10.matrix.util.Debug;
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 
@@ -24,24 +21,22 @@ public class SeqPageRank {
 	val rowG:Long;
 
 	val iterations:Long;
-	val alpha:Double= 0.85;
+	val alpha = 0.85 as ElemType;
 
 	// Input and output data
 	public val G:DenseMatrix(rowG, rowG);
 	public val P:Vector(rowG);
-	public val E:Vector(rowG);
 	public val U:Vector(rowG);
 	
 	// Temp data and matrix 
 	val GP:Vector(rowG);
 	
 	public def this(g:DenseMatrix, p:Vector, 
-					e:Vector, u:Vector, 
+					u:Vector, 
 					it:Long) {
 		rowG = g.M;
 		G = g as DenseMatrix(rowG, rowG); 
 		P = p as Vector(rowG); 
-		E = e as Vector(rowG); 
 		U = u as Vector(rowG);
 
 		iterations = it;
@@ -50,12 +45,11 @@ public class SeqPageRank {
 	}
 	
 	public def run():Vector {
-		Debug.flushln("Start sequential PageRank");
 		for (1..iterations) {
-			GP.mult(G, P).scale(alpha);			
-			P.mult(E, U.dotProd(P)).scale(1-alpha).cellAdd(GP);
+			GP.mult(G, P).scale(alpha);
+            val teleport = U.dot(P) * (1-alpha);
+			P.map(GP, (x:Double)=>x+teleport);
 		}
-		Debug.flushln("Sequential PageRank completes");
 		return P;
 	}
 }

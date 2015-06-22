@@ -6,12 +6,10 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix;
-
-import x10.array.BlockingUtils;
 
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
@@ -80,12 +78,6 @@ public class VectorMult {
 		return C;
 	}
 
-
-	// X10 driver for Dense multiplies vector
-
-	public static def x10Mult(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean) =
-		comp(A, B, 0, C, 0, plus);
-	
 	/**
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
@@ -95,15 +87,12 @@ public class VectorMult {
 		assert (offsetC+A.M <= C.M) :
             "Output vector overflow, offset:"+offsetC+" A.M:"+A.M+" C.M:"+C.M;
 
-        if (!plus) C.d.clear(offsetC, A.M);
-		var idxA:Long=0;
-		for (var c:Long=0; c<A.N; c++, offsetB++) {
-			val  v2  = B.d(offsetB);
-			for (var r:Long=0; r < A.M; r++, idxA++) {
-				val v1 = A.d(idxA);
-				C.d(r+offsetC) += v1 * v2;
-			}
-		}
+        val alpha = 1 as ElemType;
+		val beta = (plus?1:0) as ElemType;
+        val dim = [A.M, A.N];
+        val offset = [0, 0, offsetB, offsetC];
+		DenseMatrixBLAS.comp(alpha, A, B, beta, C, dim, offset);
+
 		return C;
 	}
 
@@ -132,31 +121,6 @@ public class VectorMult {
 		
 		return C;
 	}
-
-    private static struct RecursiveBisection1D(start:Long, end:Long, grainSize:Long) {
-        public def this(start:Long, end:Long) {
-            val grainSize = (end-start) / (Runtime.NTHREADS*8);
-            property(start, end, grainSize);
-        }
-
-        public def this(start:Long, end:Long, grainSize:Long) {
-            property(start, end, grainSize);
-        }
-
-        public def execute(body:(min_i:Long, max_i:Long)=> void) {
-            if ((end-start) > grainSize) {
-                val secondHalf=RecursiveBisection1D((start+end)/2L, end, grainSize);
-                async secondHalf.execute(body);
-                val firstHalf=RecursiveBisection1D(start, (start+end)/2L, grainSize);
-                firstHalf.execute(body);
-            } else {
-                body(start, end-1);
-            }
-        }
-    }
-	
-	public static def x10Mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean) =
-		comp(B, 0, A, C, 0, plus);
 	
 	public static def comp(B:Vector, A:SparseCSC(B.M), C:Vector(A.N), plus:Boolean)=
 		comp(B, 0, A, C, 0, plus);
@@ -167,16 +131,12 @@ public class VectorMult {
 		assert (offsetC+A.N <= C.M) :
             "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M;
 
-        if (!plus) C.d.clear(offsetC, A.N);
-		var idxA:Long = 0;
-		for (var c:Long=0; c<A.N; c++, offsetC++) {
-			var v:Double = 0;
-			var idxB:Long = offsetB;
-			for (var r:Long=0; r<A.M; r++, idxB++, idxA++) {
-				v += B.d(idxB) * A.d(idxA);
-			}
-			C.d(offsetC) += v;
-		}
+		val alpha = 1 as ElemType;
+		val beta = (plus?1:0) as ElemType;
+        val dim = [A.M, A.N];
+        val offset = [0, 0, offsetB, offsetC];
+		DenseMatrixBLAS.compTransMult(alpha, A, B, beta, C, dim, offset);
+
 		return C;
 	}
 
@@ -189,7 +149,7 @@ public class VectorMult {
         if (!plus) C.d.clear(offsetC, A.N);
 		for (var c:Long=0; c<A.N; c++, offsetC++) {
 			val colA = A.getCol(c);
-			var v:Double = 0;
+			var v:ElemType = 0;
 			for (var idxA:Long=0; idxA<colA.size(); idxA++) {
 				val r = colA.getIndex(idxA);
 				val v2= colA.getValue(idxA);
@@ -204,8 +164,8 @@ public class VectorMult {
 	 * Using BLAS routine: C = A * B or C = A * B + C
 	 */
 	public static def comp(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
-		val alpha = 1.0;
-		val beta = plus?1.0:0.0;
+		val alpha = 1 as ElemType;
+		val beta = (plus?1:0) as ElemType;
 		DenseMatrixBLAS.comp(alpha, A, B, beta, C);
 		return C;
 	}
@@ -214,16 +174,15 @@ public class VectorMult {
 	 * Using BLAS routine: C = B * A or C = B * A + C
 	 */
 	public static def comp(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) {
-		val alpha = 1.0;
-		val beta = plus?1.0:0.0;
+		val alpha = 1 as ElemType;
+		val beta = (plus?1:0) as ElemType;
 		DenseMatrixBLAS.compTransMult(alpha, A, B, beta, C);
 		return C;
 	}
 
 	public static def comp(A:SymDense, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
-		val beta = plus?1.0:0.0;
-		BLAS.compSymMultVec(1.0, A.d, B.d, beta, C.d, 
-				[A.M, A.N]);
+		val beta = (plus?1:0) as ElemType;
+		BLAS.compSymMultVec(1 as ElemType, A.d, B.d, beta, C.d, [A.M, A.N]);
 		return C;
 	}
 	

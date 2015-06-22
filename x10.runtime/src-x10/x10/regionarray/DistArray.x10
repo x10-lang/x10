@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.regionarray;
@@ -18,6 +18,7 @@ import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.TransientInitExpr;
+import x10.compiler.Uncounted;
 
 /**
  * <p>A distributed array (DistArray) defines a mapping from {@link Point}s to data 
@@ -47,7 +48,8 @@ public final class DistArray[T] (
      */
     dist:Dist
 ) implements (Point(dist.region.rank))=>T,
-             Iterable[Point(dist.region.rank)]
+             Iterable[Point(dist.region.rank)],
+             Ghostable
 {
 
     //
@@ -64,21 +66,38 @@ public final class DistArray[T] (
      */
     public property rank():Long = dist.rank;
 
-    protected static class LocalState[T](dist:Dist, data:Rail[T]{self!=null}) {
-      public def this(d:Dist, c:Rail[T]{self!=null}) { 
-          property(d, c);
+    public def getDist() = dist;
 
-          // Calling operator this here serves to force initialization of any 
-          // cached local state in the Dist object.  The main reason for doing
-          // this is to avoid lazy creation of this state (and thus allocation) 
-          // when the debugger uses the LocalState to display the elements of a DistArray
-          val unused = d(here);
-      }
+    protected static class LocalState[T](dist:Dist, data:Rail[T]{self!=null}, localRegion:Region(dist.rank)) {
+        public val ghostManager:GhostManager;
+        public def this(d:Dist, c:Rail[T]{self!=null}, r:Region(d.rank), ghostManager:GhostManager):LocalState[T]{self.dist==d} {
+            property(d, c, r);
+            this.ghostManager = ghostManager;
+
+            // Calling operator this here serves to force initialization of any 
+            // cached local state in the Dist object.  The main reason for doing
+            // this is to avoid lazy creation of this state (and thus allocation) 
+            // when the debugger uses the LocalState to display the elements of a DistArray
+            val unused = d(here);
+        }
+
+        public def this(d:Dist, c:Rail[T]{self!=null}):LocalState[T]{self.dist==d} {
+            property(d, c, d(here));
+            this.ghostManager = null;
+            val unused = d(here);
+        }
+    }
+
+    private static def getGhostManager(d:Dist, ghostWidth:Long, periodic:Boolean) {
+        if (ghostWidth < 1) return null;
+
+        if (!periodic && d.numPlaces() == 1) return null;
+
+        return d.getLocalGhostManager(ghostWidth, periodic);
     }
 
     /** The place-local state for the DistArray */
-    protected val localHandle:PlaceLocalHandle[LocalState[T]];
-
+    protected val localHandle:PlaceLocalHandle[LocalState[T]{self.dist==this.dist}];
 
     /** 
      * The place-local backing storage for elements of the DistArray.
@@ -98,11 +117,32 @@ public final class DistArray[T] (
     public final def raw():Rail[T]{self!=null} = raw;
 
     /**
-     * @return the portion of the DistArray that is stored 
-     *    locally at the current place, as an Array
+     * The region for which backing storage is allocated at this place.
+     */
+    @TransientInitExpr(getLocalRegionFromLocalHandle())
+    protected transient val localRegion:Region(rank);
+    protected def getLocalRegionFromLocalHandle():Region(rank) {
+        val ls = localHandle();
+        var r:Region(rank);
+        if (ls != null) r = ls.localRegion;
+        else r = Region.makeEmpty(rank);
+        return r;
+    }
+
+    /*
+     * Get the locally-held region for the current place.
+     * For a ghosted array, this will include ghost elements that are not
+     * owned by this place.  For a non-ghosted DistArray, localRegion is
+     * equivalent to dist(here).
+     */
+    public final def localRegion():Region(rank) = localRegion;
+
+    /**
+     * @return the portion of the DistArray (including ghosts) that is stored 
+     *   locally at the current place, as an Array
      */
     public def getLocalPortion():Array[T](dist.rank) {
-        val regionForHere = dist.get(here);
+        val regionForHere = localRegion();
         if (!regionForHere.rect) throw new UnsupportedOperationException(this.typeName() +".getLocalPortion(): local portion is not rectangular!");
         return new Array[T](regionForHere, raw);
     }
@@ -115,17 +155,38 @@ public final class DistArray[T] (
      */
     public static def make[T](dist:Dist) {T haszero} = new DistArray[T](dist);
 
-    def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
+    /**
+     * Create a zero-initialized distributed array over the argument distribution.
+     *
+     * @param dist the given distribution
+     * @param ghostWidth the width of the ghost region in every dimension
+     * @param periodic whether to apply periodic boundary conditions
+     * @return the newly created DistArray
+     */
+    public static def make[T](dist:Dist, ghostWidth:Long, periodic:Boolean){T haszero} = new DistArray[T](dist, ghostWidth, periodic);
+
+    def this(dist:Dist) {T haszero}:DistArray[T]{self.dist==dist} {
+        this(dist, 0, false);
+    }
+
+    def this(dist:Dist, ghostWidth:Long, periodic:Boolean) {T haszero}:DistArray[T]{self.dist==dist} {
         property(dist);
 
-        val plsInit:()=>LocalState[T] = () => {
-            val size = dist.maxOffset()+1;
-            val localRaw = new Rail[T](size);
-            return new LocalState(dist, localRaw);
+        val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
+            val localRegion:Region(dist.rank);
+            val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
+            if (ghostManager != null) {
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
+            } else {
+                localRegion = dist(here);
+            }
+            val localRaw = new Rail[T](localRegion.size());
+            new LocalState[T](dist, localRaw, localRegion, ghostManager)
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]{self.dist==this.dist}](dist.places(), plsInit);
         raw = getRawFromLocalHandle();
+        localRegion = getLocalRegionFromLocalHandle();
     }
 
     /**
@@ -144,22 +205,50 @@ public final class DistArray[T] (
      * @return the newly created DistArray
      * @see #make[T](Dist)
      */
-    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T)= new DistArray[T](dist, init);
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T){T haszero}= new DistArray[T](dist, init, 0, false);
 
-    def this(dist:Dist, init:(Point(dist.rank))=>T):DistArray[T]{self.dist==dist} {
+    /**
+     * Create a distributed array over the argument distribution whose elements
+     * are initialized by executing the given initializer function for each 
+     * element of the array in the place where the argument Point is mapped. 
+     * The function will be evaluated exactly once for each point in dist in an
+     * arbitrary order to compute the initial value for each array element.</p>
+     * 
+     * Within each place, it is unspecified whether the function evaluations will
+     * be done sequentially by a single activity for each point or concurrently for disjoint sets 
+     * of points by one or more child activities. 
+     * 
+     * @param dist the given distribution
+     * @param init the initializer function
+     * @param ghostWidth the width of the ghost region in every dimension
+     * @param periodic whether to apply periodic boundary conditions
+     * @return the newly created DistArray
+     * @see #make[T](Dist)
+     */
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean){T haszero}= new DistArray[T](dist, init, ghostWidth, periodic);
+
+    def this(dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean){T haszero}:DistArray[T]{self.dist==dist} {
         property(dist);
 
-        val plsInit:()=>LocalState[T] = () => {
-            val localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-                localRaw(dist.offset(pt)) = init(pt);
+        val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
+            val localRegion:Region(dist.rank);
+            val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
+            if (ghostManager != null) {
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
+            } else {
+                localRegion = dist(here);
             }
-            return new LocalState(dist, localRaw);
+            val localRaw = new Rail[T](localRegion.size());
+            val reg = dist(here);
+            for (pt in reg) {
+                localRaw(localRegion.indexOf(pt)) = init(pt);
+            }
+            new LocalState(dist, localRaw, localRegion, ghostManager)
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.make(dist.places(), plsInit);
         raw = getRawFromLocalHandle();
+        localRegion = getLocalRegionFromLocalHandle();
     }
 
 
@@ -172,39 +261,61 @@ public final class DistArray[T] (
      * @return the newly created DistArray
      * @see #make[T](Dist)
      */
-    public static def make[T](dist:Dist, init:T)= new DistArray[T](dist, init);
+    public static def make[T](dist:Dist, init:T)= new DistArray[T](dist, init, 0, false);
 
-    def this(dist:Dist, init:T):DistArray[T]{self.dist==dist} {
+    /**
+     * Create a distributed array over the argument distribution whose elements
+     * are initialized to the given initial value.
+     *
+     * @param dist the given distribution
+     * @param init the initial value
+     * @param ghostWidth the width of the ghost region in every dimension
+     * @param periodic whether to apply periodic boundary conditions
+     * @return the newly created DistArray
+     * @see #make[T](Dist)
+     */
+    public static def make[T](dist:Dist, init:T, ghostWidth:Long, periodic:Boolean)= new DistArray[T](dist, init, ghostWidth, periodic);
+
+    def this(dist:Dist, init:T, ghostWidth:Long, periodic:Boolean):DistArray[T]{self.dist==dist} {
         property(dist);
-
-        val plsInit:()=>LocalState[T] = () => {
-            val localRaw = Unsafe.allocRailUninitialized[T](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-                localRaw(dist.offset(pt)) = init;
+ 
+        val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
+            val localRegion:Region(dist.rank);
+            val ghostManager = DistArray.getGhostManager(dist, ghostWidth, periodic);
+            if (ghostManager != null) {
+                localRegion = ghostManager.getGhostRegion(here) as Region(dist.rank);
+            } else {
+                localRegion = dist(here);
             }
-            return new LocalState(dist, localRaw);
+            val localRaw = new Rail[T](localRegion.size(), init);
+            return new LocalState(dist, localRaw, localRegion, ghostManager);
         };
 
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](dist.places(), plsInit);
+        localHandle = PlaceLocalHandle.make(dist.places(), plsInit);
         raw = getRawFromLocalHandle();
+        localRegion = getLocalRegionFromLocalHandle();
     }
 
     /**
      * Create a DistArray that views the same backing data
      * as the argument DistArray using a different distribution.</p>
      * 
-     * An unchecked invariant for this to be correct is that for every 
-     * point p in d, <code>d.offset(p) == a.dist.offset(p)</code>.  
+     * An unchecked invariant for this to be correct is that for each place in
+     * d.places, local storage must be allocated for each point p in d(place).
      * This invariant is too expensive to be checked dynamically, so it simply must
      * be respected by the DistArray code that calls this constructor.
      */
     protected def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
         property(d);
 
-        val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
-        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](d.places(), plsInit);
+        val plsInit:()=>LocalState[T]{self.dist==d} = 
+        ()=> {
+            val local = a.localHandle();
+            new LocalState[T](d, local.data, local.localRegion as Region(d.rank), null)
+        };
+        localHandle = PlaceLocalHandle.makeFlat(d.places(), plsInit);
         raw = getRawFromLocalHandle();
+        localRegion = getLocalRegionFromLocalHandle();
     }
 
     /**
@@ -212,10 +323,11 @@ public final class DistArray[T] (
      * This constructor is intended for internal use only by operations such as 
      * map to enable them to complete with only 1 collective operation instead of 2.
      */
-    protected def this(d:Dist, pls:PlaceLocalHandle[LocalState[T]]) {
+    protected def this(d:Dist, pls:PlaceLocalHandle[LocalState[T]{self.dist==this.dist}]) {
         property(d);
         localHandle = pls;
         raw = getRawFromLocalHandle();
+        localRegion = getLocalRegionFromLocalHandle();
     }
     
     
@@ -231,7 +343,8 @@ public final class DistArray[T] (
      * @see #set(T, Point)
      */
     public final operator this(pt:Point(rank)): T {
-        val offset = dist.offset(pt);
+        val offset = localRegion().indexOf(pt);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(pt);
         return raw(offset);
     }
 
@@ -248,7 +361,8 @@ public final class DistArray[T] (
      * @see #set(T, Long)
      */
     public final operator this(i0:Long){rank==1}: T {
-        val offset = dist.offset(i0);
+        val offset = localRegion().indexOf(i0);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0);
         return raw(offset);
     }
 
@@ -266,7 +380,8 @@ public final class DistArray[T] (
      * @see #set(T, Long, Long)
      */
     public final operator this(i0:Long, i1:Long){rank==2}: T {
-        val offset = dist.offset(i0, i1);
+        val offset = localRegion().indexOf(i0, i1);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0, i1);
         return raw(offset);
     }
 
@@ -285,7 +400,8 @@ public final class DistArray[T] (
      * @see #set(T, Long, Long, Long)
      */
     public final operator this(i0:Long, i1:Long, i2:Long){rank==3}: T {
-        val offset = dist.offset(i0, i1, i2);
+        val offset = localRegion().indexOf(i0, i1, i2);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0, i1, i2);
         return raw(offset);
     }
 
@@ -305,10 +421,65 @@ public final class DistArray[T] (
      * @see #set(T, Long, Long, Long, Long)
      */
     public final operator this(i0:Long, i1:Long, i2:Long, i3:Long){rank==4}: T {
-        val offset = dist.offset(i0, i1, i2, i3);
+        val offset = localRegion().indexOf(i0, i1, i2, i3);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0, i1, i2, i3);
         return raw(offset);
     }
 
+    /**
+     * Return the element of this array corresponding to the given point,
+     * wrapped for periodic boundary conditions.
+     * The rank of the given point must be the same as the rank of this array.
+     * If the distribution does not map the given Point to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param pt the given point
+     * @return the element of this array corresponding to the given point,
+     *   wrapped for periodic boundary conditions.
+     * @see #setPeriodic(T, Point)
+     */
+    public final def getPeriodic(pt:Point(rank)): T {
+        val l = localRegion();
+        val actualPt:Point(rank);
+        if (l.contains(pt)) {
+            actualPt = pt;
+        } else {
+            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, l, region());
+        }
+        val offset = l.indexOf(actualPt);
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(pt);
+        return raw()(offset);
+    }
+ 
+     /**
+     * Return the element of this three-dimensional array according to the given
+     * indices, wrapped for periodic boundary conditions.
+     * Only applies to three-dimensional arrays.
+     * Functionally equivalent to getPeriodic(Point{rank==3}).
+     * If the distribution does not map the given indices to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param i0 the index in the first dimension
+     * @param i1 the index in the second dimension
+     * @param i2 the index in the third dimension
+     * @return the element of this array corresponding to the given triple of indices.
+     * @see #setPeriodic(T, Point)
+     */
+    public final def getPeriodic(i0:Long, i1:Long, i2:Long){rank==3}: T {
+        val l = localRegion();
+        val offset:Long;
+        if (l.contains(i0,i1,i2)) {
+            offset = l.indexOf(i0,i1,i2);
+        } else {
+            val r = region();
+            val a0 = PeriodicBoundaryConditions.getPeriodicIndex(i0, l.min(0), l.max(0), r.max(0)-r.min(0)+1);
+            val a1 = PeriodicBoundaryConditions.getPeriodicIndex(i1, l.min(1), l.max(1), r.max(1)-r.min(1)+1);
+            val a2 = PeriodicBoundaryConditions.getPeriodicIndex(i2, l.min(2), l.max(2), r.max(2)-r.min(2)+1);
+            offset = l.indexOf(a0,a1,a2);
+        }
+        if (CompilerFlags.checkPlace() && offset == -1) raisePlaceError(i0, i1, i2);
+        return raw()(offset);
+    }
 
     /**
      * Set the element of this array corresponding to the given point to the given value.
@@ -324,7 +495,8 @@ public final class DistArray[T] (
      * @see #set(T, Long)
      */    
     public final operator this(pt: Point(rank))=(v: T): T {
-        val offset = dist.offset(pt);
+        if (CompilerFlags.checkPlace() && dist(pt) != here) raisePlaceError(pt);
+        val offset = localRegion().indexOf(pt);
         raw(offset) = v;
         return v;
     }
@@ -344,7 +516,8 @@ public final class DistArray[T] (
      * @see #set(T, Point)
      */    
     public final operator this(i0:Long)=(v: T){rank==1}: T {
-        val offset = dist.offset(i0);
+        if (CompilerFlags.checkPlace() && dist(i0) != here) raisePlaceError(i0);
+        val offset = localRegion().indexOf(i0);
         raw(offset) = v;
         return v;
     }
@@ -365,7 +538,8 @@ public final class DistArray[T] (
      * @see #set(T, Point)
      */
     public final operator this(i0:Long, i1:Long)=(v: T){rank==2}: T {
-        val offset = dist.offset(i0, i1);
+        if (CompilerFlags.checkPlace() && dist(i0, i1) != here) raisePlaceError(i0, i1);
+        val offset = localRegion().indexOf(i0, i1);
         raw(offset) = v;
         return v;
     }
@@ -387,7 +561,8 @@ public final class DistArray[T] (
      * @see #set(T, Point)
      */
     public final operator this(i0:Long, i1:Long, i2:Long)=(v: T){rank==3}: T {
-        val offset = dist.offset(i0,i1,i2);
+        if (CompilerFlags.checkPlace() && dist(i0, i1, i2) != here) raisePlaceError(i0, i1, i2);
+        val offset = localRegion().indexOf(i0,i1,i2);
         raw(offset) = v;
         return v;
     }
@@ -396,7 +571,8 @@ public final class DistArray[T] (
      * Set the element of this array corresponding to the given quartet of indices to the given value.
      * Return the new value of the element.
      * Only applies to four-dimensional arrays.
-     * Functionally equivalent to setting the array via a four-dimensional point.     * If the distribution does not map the specified index to the current place,
+     * Functionally equivalent to setting the array via a four-dimensional point.
+     * If the distribution does not map the specified index to the current place,
      * then a BadPlaceException will be raised.
      * 
      * 
@@ -410,25 +586,50 @@ public final class DistArray[T] (
      * @see #set(T, Point)
      */
     public final operator this(i0:Long, i1:Long, i2:Long, i3:Long)=(v: T){rank==4}: T {
-        val offset = dist.offset(i0,i1,i2,i3);
+        if (CompilerFlags.checkPlace() && dist(i0, i1, i2, i3) != here) raisePlaceError(i0, i1, i2, i3);
+        val offset = localRegion().indexOf(i0,i1,i2,i3);
         raw(offset) = v;
         return v;
     }
 
-    /*
-     * restriction view
-     */
+    /**
+     * Set the element of this array corresponding to the given point (wrapped
+     * for periodic boundary conditions) to the given value.
+     * Return the new value of the element.
+     * The rank of the given point must be the same as the rank of this array.
+     * If the dist does not map the specified index to the current place,
+     * then a BadPlaceException will be raised.
+     * 
+     * @param v the given value
+     * @param pt the given point
+     * @return the new value of the element of this array corresponding to the
+     *   given point
+     * @see #getPeriodic(Point)
+     */    
+    public final def setPeriodic(pt: Point(rank), v:T): T {
+        val l = localRegion();
+        val actualPt:Point(rank);
+        if (l.contains(pt)) {
+            actualPt = pt;
+        } else {
+            actualPt = PeriodicBoundaryConditions.wrapPeriodic(pt, l, region());
+        }
+        if (CompilerFlags.checkPlace() && dist(actualPt) != here) raisePlaceError(pt);
+        val offset = l.indexOf(actualPt);
+        raw()(offset) = v;
+        return v;
+    }
 
     /**
-     * Return a DistArray that access the same backing storage
+     * Return a DistArray that accesses the same backing storage
      * as this array, but only over the Points in the argument
-     * distribtion.</p>
+     * distribution.</p>
      * 
      * For this operation to be semantically sound, it should
      * be the case that for every point p in d, 
-     * <code>this.dist.offset(p) == d.offset</code>.
+     * <code>this.dist(here).indexOf(p) == d(here).indexOf(p)</code>.
      * This invariant is not statically or dynamically checked;
-     * but must be ensured by the caller's of this API. 
+     * but must be ensured by the callers of this API. 
      * 
      * @param d the Dist to use as the restriction
      */
@@ -524,10 +725,11 @@ public final class DistArray[T] (
     public def fill(v:T) {
         finish for (where in dist.places()) {
             at (where) async {
-                val reg = dist.get(here);
+                val reg = dist(here);
+                val localRegion = localRegion();
                 val rail = raw;
                 for (pt in reg) {
-                    rail(dist.offset(pt)) = v;
+                    rail(localRegion.indexOf(pt)) = v;
                 }
             }
         }
@@ -543,17 +745,20 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array where <code>result(p) == op(this(p))</code>
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
-        val plh = PlaceLocalHandle.make[LocalState[U]](dist.places(), ()=> {
+        val plh = PlaceLocalHandle.make[LocalState[U]{self.dist==this.dist}](
+        dist.places(),
+        ()=> {
             val srcRail = raw();
-            val newRail = Unsafe.allocRailUninitialized[U](dist.maxOffset()+1);
-            val reg = dist.get(here);
+            val localRegion = localRegion();
+            val newRail = Unsafe.allocRailUninitialized[U](localRegion.size());
+            val reg = dist(here);
             for (pt in reg) {
-                val offset = dist.offset(pt);
+                val offset = localRegion.indexOf(pt);
                 newRail(offset) = op(srcRail(offset));
             }
-            return new LocalState[U](dist, newRail);
+            new LocalState[U](dist, newRail)
         });
-        return new DistArray[U](dist, plh);                       
+        return new DistArray[U](dist, plh);
     }
 
     /**
@@ -570,11 +775,12 @@ public final class DistArray[T] (
         finish {
             for (where in dist.places()) {
                 at(where) async {
-                    val reg = dist.get(here);
+                    val reg = dist(here);
+                    val localRegion = localRegion();
                     val srcRail = raw();
                     val dstRail = dst.raw();
                     for (pt in reg) {
-                        val offset = dist.offset(pt);
+                        val offset = localRegion.indexOf(pt);
                         dstRail(offset) = op(srcRail(offset));
                     }
                 }
@@ -599,12 +805,13 @@ public final class DistArray[T] (
         finish {
             for (where in dist.places()) {
                 at(where) async {
-                    val reg = dist.get(here);
+                    val reg = dist(here);
+                    val localRegion = localRegion();
                     val freg = reg && filter;
                     val srcRail = raw();
                     val dstRail = dst.raw();
                     for (pt in freg) {
-                        val offset = dist.offset(pt);
+                        val offset = localRegion.indexOf(pt);
                         dstRail(offset) = op(srcRail(offset));
                     }
                 }
@@ -624,18 +831,21 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array containing the result of the map
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
-        val plh = PlaceLocalHandle.make[LocalState[S]](dist.places(), ()=> {
+        val plh = PlaceLocalHandle.make[LocalState[S]{self.dist==this.dist}](
+        dist.places(),
+        ()=> {
             val src1Rail = raw();
             val src2Rail = src.raw();
-            val newRail = Unsafe.allocRailUninitialized[S](dist.maxOffset()+1);
-            val reg = dist.get(here);
+            val localRegion = localRegion();
+            val newRail = Unsafe.allocRailUninitialized[S](localRegion.size());
+            val reg = dist(here);
             for (pt in reg) {
-                val offset = dist.offset(pt);
+                val offset = localRegion.indexOf(pt);
                 newRail(offset) = op(src1Rail(offset), src2Rail(offset));
             }
-            return new LocalState[S](dist, newRail);
+            new LocalState[S](dist, newRail)
         });
-        return new DistArray[S](dist, plh);                       
+        return new DistArray[S](dist, plh);
     }
     
     /**
@@ -653,12 +863,13 @@ public final class DistArray[T] (
         finish {
             for (where in dist.places()) {
                 at(where) async {
-                    val reg = dist.get(here);
+                    val reg = dist(here);
+                    val localRegion = localRegion();
                     val src1Rail = raw();
                     val src2Rail = src.raw();
                     val dstRail = dst.raw();
                     for (pt in reg) {
-                        val offset = dist.offset(pt);
+                        val offset = localRegion.indexOf(pt);
                         dstRail(offset) = op(src1Rail(offset), src2Rail(offset));
                     }
                 }
@@ -683,13 +894,14 @@ public final class DistArray[T] (
         finish {
             for (where in dist.places()) {
                 at(where) async {
-                    val reg = dist.get(here);
+                    val reg = dist(here);
+                    val localRegion = localRegion();
                     val freg = reg && filter;
                     val src1Rail = raw();
                     val src2Rail = src.raw();
                     val dstRail = dst.raw();
                     for (pt in freg) {
-                        val offset = dist.offset(pt);
+                        val offset = localRegion.indexOf(pt);
                         dstRail(offset) = op(src1Rail(offset), src2Rail(offset));
                     }
                 }
@@ -733,11 +945,12 @@ public final class DistArray[T] (
         val result = finish(reducer) {
             for (where in dist.places()) {
                 at (where) async {
-                    val reg = dist.get(here);
+                    val reg = dist(here);
+                    val localRegion = localRegion();
                     var localRes:U = unit;
                     val rail = raw();
                     for (pt in reg) {
-                       localRes = lop(localRes, rail(dist.offset(pt)));
+                       localRes = lop(localRes, rail(localRegion.indexOf(pt)));
                     }
                     offer(localRes);
                 }
@@ -745,6 +958,90 @@ public final class DistArray[T] (
         };
 
         return result;
+    }
+
+    /**
+     * Update ghost data for every place in this DistArray.
+     * This includes synchronization before and after the update.
+     */
+    public def updateGhosts() {
+        if (localHandle().ghostManager != null) {
+            finish ateach(place in Dist.makeUnique(dist.places())) {
+                val ghostManager = localHandle().ghostManager;
+                ghostManager.sendGhosts(this);
+                ghostManager.waitOnGhosts();
+            }
+        }
+    }
+
+    /*
+     * Send boundary data from this place to the ghost regions stored at
+     * neighboring places. Must be called at all places in dist.places().
+     */
+    public def sendGhostsLocal() {
+        val ghostManager = localHandle().ghostManager;
+        if (ghostManager != null) {
+            ghostManager.sendGhosts(this);
+        }
+    }
+
+    /*
+     * Wait for ghost data at this place to be received from all neighboring
+     * places. Must be called at all places in dist.places().
+     */
+    public def waitForGhostsLocal() {
+        val ghostManager = localHandle().ghostManager;
+        if (ghostManager != null) {
+            ghostManager.waitOnGhosts();
+        }
+    }
+
+    public def putOverlap(overlap:Region{rect}, neighborPlace:Place, shift:Point(overlap.rank), phase:Byte) {
+        if (rank==3) {
+            putOverlap3(overlap as Region(3){rect,self.rank==dist.region.rank}, neighborPlace, shift, phase);
+        } else {
+            if (!overlap.isEmpty()) {
+                val sourcePlace = here;
+                val localRaw = raw();
+                val g = localRegion();
+                val neighborRegion = (overlap+shift) as Region{rect,self.rank==overlap.rank};
+                val neighborPortionRaw = Unsafe.allocRailUninitialized[T](neighborRegion.size());
+                var offset:Long = 0; // assume dense layout for neighborPortion
+                for (p in overlap) {
+                    neighborPortionRaw(offset++) = localRaw(g.indexOf(p));
+                }
+                val neighborPortion = new Array[T](neighborRegion, neighborPortionRaw);
+                @Uncounted at(neighborPlace) async {
+                    val ghostManager = localHandle().ghostManager;
+                    when (ghostManager.currentPhase() == phase);
+                    val local2 = getLocalPortion();
+                    local2.copy(neighborPortion, neighborPortion.region as Region{rect,self.rank==dist.region.rank});
+                    ghostManager.setNeighborReceived(sourcePlace, -shift);
+                }
+            }
+        }
+    }
+
+    private def putOverlap3(overlap:Region(3){rect,self.rank==dist.region.rank}, neighborPlace:Place, shift:Point(3), phase:Byte) {
+        if (!overlap.isEmpty()) {
+            val sourcePlace = here;
+            val localRaw = raw();
+            val g = localRegion();
+            val neighborRegion = (overlap+shift) as Region(3){rect,self.rank==dist.region.rank};
+            val neighborPortionRaw = Unsafe.allocRailUninitialized[T](neighborRegion.size());
+            var offset:Long = 0; // assume dense layout for neighborPortion
+            for ([i,j,k] in overlap) {
+                neighborPortionRaw(offset++) = localRaw(g.indexOf(i,j,k));
+            }
+            val neighborPortion = new Array[T](neighborRegion, neighborPortionRaw);
+            @Uncounted at(neighborPlace) async {
+                val ghostManager = localHandle().ghostManager;
+                when (ghostManager.currentPhase() == phase);
+                val local2 = getLocalPortion() as Array[T](3){rect};
+                local2.copy(neighborPortion, neighborPortion.region);
+                ghostManager.setNeighborReceived(sourcePlace, -shift);
+            }
+        }
     }
 
 
@@ -759,6 +1056,22 @@ public final class DistArray[T] (
      * @see x10.lang.Iterable[T]#iterator()
      */
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long) {
+        throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
+    }
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
+    }
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
+    }
+    protected static @NoInline @NoReturn def raisePlaceError(i0:Long, i1:Long, i2:Long, i3:Long) {
+        throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
+    }
+    protected static @NoInline @NoReturn def raisePlaceError(pt:Point) {
+        throw new BadPlaceException("point " + pt + " not defined at " + here);
+    }
 }
 public type DistArray[T](r:Long) = DistArray[T]{self.rank==r};
 public type DistArray[T](r:Region) = DistArray[T]{self.region==r};

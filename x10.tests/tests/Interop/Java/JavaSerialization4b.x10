@@ -39,7 +39,7 @@ public class JavaSerialization4b extends x10Test {
         return ok;
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         return test();
     }
 

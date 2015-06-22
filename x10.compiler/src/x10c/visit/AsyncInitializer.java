@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2014.
+ */
+
 package x10c.visit;
 
 import java.util.ArrayList;
@@ -77,7 +88,7 @@ public class AsyncInitializer extends ContextVisitor {
     private boolean isAsyncBlock(X10Call n) {
         MethodInstance mi = (MethodInstance) n.methodInstance();
         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
-                fullName().toString().equals("x10.lang.Runtime")) {
+                fullName().toString().equals("x10.xrx.Runtime")) {
             if (mi.signature().startsWith("runAsync"))
                 return true;
         }
@@ -90,7 +101,7 @@ public class AsyncInitializer extends ContextVisitor {
             X10Call call = (X10Call)n;
             MethodInstance mi = (MethodInstance) call.methodInstance();
             if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
-                    fullName().toString().equals("x10.lang.Runtime")) {
+                    fullName().toString().equals("x10.xrx.Runtime")) {
                 // adjust nest level counter of finish block
                 if (mi.signature().startsWith("startFinish"))
                     nestLevel++;
@@ -537,7 +548,7 @@ public class AsyncInitializer extends ContextVisitor {
                         X10Call call = (X10Call)(e.expr());
                         MethodInstance mi = (MethodInstance) call.methodInstance();
                         if (mi.container().isClass() && ((X10ClassType) mi.container().toClass()).
-                                fullName().toString().equals("x10.lang.Runtime")) {
+                                fullName().toString().equals("x10.xrx.Runtime")) {
                             if (mi.signature().startsWith("stopFinish")) {
                                 // in case of nested finish where boxed vars may be updated
                                 List<Stmt> stmts = new ArrayList<Stmt>();

@@ -14,10 +14,12 @@ package apgas.util;
 import static apgas.Constructs.*;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import apgas.DeadPlaceException;
 import apgas.Place;
 
 /**
@@ -125,6 +127,29 @@ public class GlobalID implements Serializable {
   public Object removeHere() {
     final Object result = map.remove(this);
     return result == NULL ? null : result;
+  }
+
+  /**
+   * Removes the value associated with this {@link GlobalID} instance in a
+   * collection of places.
+   * <p>
+   * Masks {@link DeadPlaceException} instances if any.
+   *
+   * @param places
+   *          where to remove the value
+   */
+  public void remove(Collection<? extends Place> places) {
+    final GlobalID that = this;
+    finish(() -> {
+      for (final Place p : places) {
+        try {
+          asyncAt(p, () -> {
+            that.removeHere();
+          });
+        } catch (final DeadPlaceException e) {
+        }
+      }
+    });
   }
 
   @Override

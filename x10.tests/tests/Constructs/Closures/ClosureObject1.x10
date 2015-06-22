@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class ClosureObject1 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         val f = ()=>1;
         chk((f as ()=>long)() == 1, "(f as ()=>long)()");
@@ -27,7 +27,7 @@ public class ClosureObject1 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureObject1().execute();
     }
 }

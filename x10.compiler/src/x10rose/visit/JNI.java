@@ -93,14 +93,11 @@ class JNI implements Callable<Boolean> {
     public static native void cactionConstructorDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
     public static native void cactionExplicitConstructorCall(JavaToken jToken);
     public static native void cactionExplicitConstructorCallEnd(boolean is_implicit_super, boolean is_super, boolean has_qualification, String package_name, String type_name, int constructor_index, int numberOfTypeArguments, int numberOfArguments, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionMethodDeclaration(String name, int method_index, JavaToken jToken);
-    public static native void cactionMethodDeclaration(String name, int method_index, int number_of_arguments, JavaToken method_location, JavaToken args_location);
-
+    public static native void cactionMethodDeclaration(String name, int method_index, JavaToken jToken);
     public static native void cactionMethodDeclarationHeader(String name, boolean java_is_abstract, boolean java_is_native, boolean java_is_static, boolean java_is_final, boolean java_is_synchronized, boolean java_is_public, boolean java_is_protected, boolean java_is_private, boolean java_is_strictfp, int numberOfTypeParameters, int numArguments, int numThrows, JavaToken jToken);
 //MH-20140414
-//    public static native void cactionMethodDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
-    public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
+    public static native void cactionMethodDeclarationEnd(int num_annotations, int num_statements, JavaToken jToken);
+//    public static native void cactionMethodDeclarationEnd(int numberOfStatements, JavaToken jToken);
 
     public static native void cactionTypeParameterReference(String package_name, String type_name, int method_index, String type_parameter_name, JavaToken jToken);
     public static native void cactionTypeReference(String package_name, String type_name, /*RoseTranslator.ToRoseVisitor*/Object visitor, JavaToken jToken);
@@ -220,7 +217,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionSwitchStatementEnd(int numCases, boolean hasDefault, JavaToken jToken);
     public static native void cactionSynchronizedStatement(JavaToken jToken);
     public static native void cactionSynchronizedStatementEnd(JavaToken jToken);
-    public static native void cactionThisReference(JavaToken jToken);
+    public static native void cactionThisReference(String pacakgeName, String typeName, JavaToken jToken);
     public static native void cactionThrowStatement(JavaToken jToken);
     public static native void cactionThrowStatementEnd(JavaToken jToken);
     public static native void cactionTrueLiteral(JavaToken jToken);
@@ -236,7 +233,7 @@ class JNI implements Callable<Boolean> {
     public static native void cactionSetupSourceFilename(String full_file_name);
     public static native void cactionClearSourceFilename();
 //MH-20140414
-    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, JavaToken jToken);
+    public static native void cactionInsertClassStart(String className, boolean is_interface, boolean is_enum, boolean is_anonymous, boolean is_struct, JavaToken jToken);
 //   public static native void cactionInsertClassStart(String java_string, JavaToken jToken);
     public static native void cactionInsertClassEnd(String className, JavaToken jToken);
 //MH-20140414
@@ -252,21 +249,18 @@ class JNI implements Callable<Boolean> {
     public static native void cactionUpdatePopMethodParameterScope(JavaToken jToken);
 //    public static native void cactionBuildClassExtendsAndImplementsSupport(int num_type_parameters, boolean has_super_class, int num_interfaces, JavaToken jToken);
 	public static native void cactionBuildClassExtendsAndImplementsSupport(int num_type_parameters, String[] type_parameters, boolean has_super_class, String super_class_name, int num_interfaces, String[] interfaces, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionBuildClassSupportEnd(String className, int num_class_members, JavaToken jToken);
     public static native void cactionBuildClassSupportEnd(String className, int members, JavaToken jToken);
 
     public static native void cactionUpdateClassSupportEnd(String className, boolean has_super_class, int num_interfaces, int num_class_members, JavaToken jToken);
     public static native void cactionBuildInnerTypeSupport(String package_name, String type_name, JavaToken jToken);
     public static native void cactionUpdateInnerTypeSupport(String package_name, String type_name, JavaToken jToken);
-//MH-20140414
-//    public static native void cactionBuildArgumentSupport(String name, String argument_type_name, boolean is_var_args, boolean is_final, JavaToken jToken);
-   public static native void cactionBuildArgumentSupport(String name, boolean is_var_args, boolean is_final, JavaToken jToken);
+    public static native void cactionBuildArgumentSupport(String name, String typeName, int num_var_args, boolean is_final, JavaToken jToken);
 
     public static native void cactionUpdateArgumentSupport(int j, String argument_name, String argument_type_name, boolean is_var_args, boolean is_final, JavaToken jToken);
     public static native void cactionBuildMethodSupportStart(String methodName, int method_index, JavaToken method_loc);
     public static native void cactionUpdateMethodSupportStart(String method_name, int method_index, int num_formal_parameters, JavaToken jToken);
     public static native void cactionBuildMethodSupportEnd(String methodName, int method_index, boolean is_constructor, boolean is_abstract, boolean is_native, int num_type_parameters, int num_arguments, boolean is_compiler_generated, JavaToken method_loc, JavaToken args_loc);
+    public static native void cactionBuildClosureMethodSupportEnd(String methodName, int method_index, boolean is_constructor, boolean is_abstract, boolean is_native, int num_type_parameters, int num_env_arguments, int num_arguments, boolean is_compiler_generated, JavaToken method_loc, JavaToken args_loc);
     public static native void cactionUpdateMethodSupportEnd(String method_name, int method_index, boolean is_compiler_generated, int num_parameters, JavaToken args_location, JavaToken jToken);
     public static native void cactionBuildFieldSupport(String fieldName, JavaToken jToken);
     public static native void cactionUpdateFieldSupport(String name, JavaToken jToken);
@@ -292,7 +286,31 @@ class JNI implements Callable<Boolean> {
     public static native void cactionAtExpr(JavaToken jToken);
     public static native void cactionAtExprEnd(JavaToken jToken);
     public static native void cactionHere(JavaToken jToken);
-	
+    public static native void cactionAtomic(JavaToken jToken);
+    public static native void cactionAtomicEnd(JavaToken jToken);
+    
+    public static native void cactionAppendProperty(String name, boolean isRail, boolean isFinal, JavaToken jToken);
+    public static native void cactionSetProperties(int number_of_properties, JavaToken jToken);
+    
+    public static native void cactionAttachTypeParameterToType(String typeParam, JavaToken jToken);
+    public static native void cactionAttachTypeParameterToMethodDecl(String typeParam, JavaToken jToken);
+    public static native void cactionAttachTypeParameterToMethodCall(String typeParam, JavaToken jToken);
+    public static native void cactionAttachGuard(String typeParam, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToMethodDecl(int numerOfAnnotations, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToLocalDecl(int numerOfAnnotations, JavaToken jToken);
+    public static native void cactionAttachAnnotationsToNewExp(int numerOfAnnotations, JavaToken jToken);
+    
+    public static native void cactionWhen(JavaToken jToken);
+    public static native void cactionWhenEnd(JavaToken jToken);
+    
+    public static native void cactionTuple(JavaToken jToken);
+    public static native void cactionTupleEnd(int tuple_size, JavaToken jToken);
+      
+    public static native void cactionClosure(JavaToken jToken);
+    public static native void cactionClosureEnd(String callerName, JavaToken jToken);  
+    public static native void cactionClosureCall(JavaToken jToken);    
+    public static native void cactionClosureCallEnd(int numberOfArgument, JavaToken jToken);
+    
     //**********************************************************
     //*                                                        *
     //*    Start of JavaDoc Nodes.                             *

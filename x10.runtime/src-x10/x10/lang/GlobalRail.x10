@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
@@ -22,7 +22,7 @@ import x10.compiler.NativeCPPInclude;
  * The following relationship will always be true, but is not expressible
  * due to limitations of the current implementations of constrained types in X10.
  * <pre>
- * this.size == T.size, where this.rail : GlobalRef[T]
+ * this.size == this.rail().size
  * </pre>
  */
 @NativeCPPInclude("x10/lang/RemoteOps.h")

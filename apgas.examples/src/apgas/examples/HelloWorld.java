@@ -27,7 +27,7 @@ final class HelloWorld {
 
     finish(() -> {
       for (final Place place : places()) {
-        asyncat(place, () -> System.out.println("Hello from " + here()));
+        asyncAt(place, () -> System.out.println("Hello from " + here()));
       }
     });
 

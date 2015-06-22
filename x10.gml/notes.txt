@@ -1,0 +1,15 @@
+Conversion of applications to support ElemType.
+
+To convert application code to work with either single- or
+double-precision matrices/vectors, change all uses of double in
+application code to ElemType, if these double's should be float's when
+using single-precision.
+
+This can mean that some variables that used to be of type double are
+now of type ElemType. In some cases, the right hand side of assignment
+statements (whose variables are now of type ElemType) must be
+changed. If the RHS e of the assignment statement is still of type
+double, it must be changed to be of type ElemType. Usually this is
+done by just replacing e with e as ElemType. For instance if c is the
+constant 0.0d or 1.0d, change it to be 0.0d as ElemType. 
+

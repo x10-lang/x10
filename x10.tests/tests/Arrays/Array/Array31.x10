@@ -19,14 +19,14 @@ import x10.regionarray.*;
 
 public class Array31 extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r:Region(1) = Region.make(1, 10);
         var ia: Array[Int](1) = new Array[Int](r, (Point)=>0n);
         ia(1) = 42n;
         return 42n == ia(1);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new Array31().execute();
     }
 }

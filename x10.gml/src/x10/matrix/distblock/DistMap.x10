@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.matrix.distblock;
@@ -16,9 +16,7 @@ import x10.util.Pair;
 import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
-import x10.matrix.util.Debug;
 import x10.matrix.util.RandTool;
-import x10.matrix.block.Grid;
 
 /**
  * This class represents how matrix blocks in a partition grid are distributed
@@ -131,19 +129,6 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
          return blst.iterator();
      }
      
-     // public def transEquals(g:Grid, tmap:DistMap):Boolean {
-     //     var retval:Boolean = true;
-     //     val tg = g.newT();
-     //     for (var rb:Long=0; rb<g.numRowBlocks&&retval; rb++) {
-     //         for (var cb:Long=0; cb<g.numColBlocks&&retval; cb++) {
-     //             val bid = g.getBlockId(rb, cb);
-     //             val tbid = tg.getBlockId(cb,rb);
-     //             retval &= (blockmap(bid)==tmap.blockmap(tbid));
-     //         }
-     //     }
-     //     return retval;
-     // }
-     
      public def equals(that:DistMap) : Boolean {
          var retval:Boolean = true;
          
@@ -158,7 +143,7 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
      
      public def toString():String {
          var mapstr:StringBuilder=new StringBuilder();
-         mapstr.add(numBlock.toString()+" blocks"+ numPlace.toString()+"\n[");
+         mapstr.add(numBlock.toString()+" blocks at "+ numPlace.toString()+" places\n[");
          for (var i:Long=0; i<blockmap.size; i++)
              mapstr.add (" b"+i+":"+blockmap(i)+",");
          mapstr.add("]");

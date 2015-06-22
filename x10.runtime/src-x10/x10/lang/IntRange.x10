@@ -6,10 +6,12 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.lang;
+
+import x10.array.DenseIterationSpace_2;
 
 /**
  * A representation of the range of integers [min..max].
@@ -57,6 +59,14 @@ public struct IntRange(
             val hi = low + blockSize + (i < leftOver ? 0n : -1n);
             IntRange(low,hi)
         });
+    }
+
+    /**
+     * Define the product of two IntRanges to be a rank-2 IterationSpace
+     * containing all the points defined by the cartesian product of the ranges.
+     */
+    public operator this * (that:IntRange):DenseIterationSpace_2{self!=null} {
+        return new DenseIterationSpace_2(min, that.min, max, that.max);
     }
 
     public def toString():String = min+".."+max;

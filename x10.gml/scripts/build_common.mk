@@ -4,6 +4,8 @@
 # build_path  --- the directory to store the compiling object files
 # gml_path    --- GML library path
 
+base_dir_elem=$(gml_path)/native_$(GML_ELEM_TYPE)
+build_path_elem=$(gml_path)/native_$(GML_ELEM_TYPE)/include
 
 # runtime settings
 # numplaces = 1
@@ -34,17 +36,17 @@ include $(gml_scripts)/system_setting.mk
 #include $(gml_scripts)/build_native.mk
 #include $(gml_scripts)/build_native_mpi.mk
 
-#Build defautl target for all runtime backend and runtime transports
+#Build default target for all runtime backend and runtime transports
 all	:
 	$(foreach rt, $(runtime_list), $(MAKE) all_$(rt); )
 
 ###
 clean	::
-		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_pami
+		rm -rf $(build_path) $(target)_sock_$(GML_ELEM_TYPE) $(target)_pami_$(GML_ELEM_TYPE)
 
 clean_all:: 
 		rm -rf $(build_path)
-		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_pami $(f)_bgp;)
+		$(foreach f, $(target_list), rm -rf $(f)_mpi_* $(f)_sock_* $(f)_pami_* $(f)_bgp_*;)
 
 ###-----------------------------------------
 ##  build library

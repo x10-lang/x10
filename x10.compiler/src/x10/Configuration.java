@@ -39,6 +39,9 @@ public final class Configuration extends x10.config.Configuration {
     public boolean OPTIMIZE = false;
     private static final String OPTIMIZE_desc = "Generate optimized code";
 
+    public int OPT_LEVEL = -1;
+    private static final String OPT_LEVEL_desc = "Optimization level to use when invoking post compiler";
+
     public boolean CHECK_ERR_MARKERS = false;
     private static final String CHECK_ERR_MARKERS_desc = "Check for @ERR markers";
 
@@ -78,9 +81,6 @@ public final class Configuration extends x10.config.Configuration {
     public boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
     
-    public boolean CODE_CLEAN_UP = true;
-    private static final String CODE_CLEAN_UP_desc = "Code clean up - removing excess blocks and unreachable code";
-
     public String PLUGINS = "";
     private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
 
@@ -114,6 +114,11 @@ public final class Configuration extends x10.config.Configuration {
     public boolean VERBOSE = false;
     private static final String VERBOSE_desc = "Print details for various warnings that might be interested to the programmer.";
 
+    public boolean ANTLR_PARSER = true;
+    private static final String ANTLR_PARSER_desc = "Use the ANTLR parser instead of the LPG parser.";
+
+    public boolean DISPLAY_PARSE_TREE = false;
+    private static final String DISPLAY_PARSE_TREE_desc = "Open a dialog box that displays the parse tree.";
 
     public boolean FINISH_ASYNCS = false;
     private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
@@ -121,18 +126,12 @@ public final class Configuration extends x10.config.Configuration {
     public boolean STATICS_PER_PLACE_ANALYSIS = false;
     private static final String STATICS_PER_PLACE_ANALYSIS_desc = "Enable deep analysis for converting place-0 static initializers to per-place initializers";
     
-    public boolean COPY_PROPAGATION = false;
-    private static final String COPY_PROPAGATION_desc = "Enable copy propagation pass after optimizer. Use together with -O -EXPERIMENTAL -ELIMINATE_DEAD_VARIABLES";
-
     public boolean DEBUG_CODEGEN = false;
     private static final String DEBUG_CODEGEN_desc = "Enable HTML version of the generated source code for codegen debugging";
 
     public boolean OPTIMIZE_COMMUNICATIONS = false;
     private static final String OPTIMIZE_COMMUNICATIONS_desc = "Communication optimizations, i.e. scalar replacement";
     
-    public boolean APGAS_LIB_MODE = false;
-    private static final String APGAS_LIB_MODE_desc = "Allow compilation with incomplete X10 libraries for building APGAS Library";
-
     public boolean EXECUTOR_MODE = false;
     private static final String EXECUTOR_MODE_desc = "Allow main method to submit and cancel jobs";
 

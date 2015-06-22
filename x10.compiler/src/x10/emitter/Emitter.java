@@ -3992,7 +3992,7 @@ public class Emitter {
     private ClassType Thread_;
     private ClassType Thread() {
         if (Thread_ == null)
-            Thread_ = tr.typeSystem().load("x10.lang.Thread");
+            Thread_ = tr.typeSystem().load("x10.xrx.Thread");
         return Thread_;
     }
 

@@ -17,6 +17,8 @@ import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.ElemType;
+
 import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
@@ -240,7 +242,7 @@ public class MatrixRingCast {
 		val root   = here.id();
 		val srcden = dmlist(root);	
 
-		val rmtbuf = new GlobalRail[Double](srcden.d as Rail[Double]{self!=null});
+		val rmtbuf = new GlobalRail[ElemType](srcden.d as Rail[ElemType]{self!=null});
 		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 
 		val nxtpid = plist(0);
@@ -251,7 +253,7 @@ public class MatrixRingCast {
 	}
 
 	private static def copyToHere(
-			srcbuf:GlobalRail[Double],
+			srcbuf:GlobalRail[ElemType],
 			dmlist:DistArray[DenseMatrix](1),
 			datCnt:Long,
 			plist:Rail[Long],
@@ -261,13 +263,13 @@ public class MatrixRingCast {
 		val rcvden = dmlist(mypid);
 		//Copy data from source place
 		if (mypid != root && datCnt > 0) {
-			finish Rail.asyncCopy[Double](srcbuf, 0L, rcvden.d, 0L, datCnt);
+			finish Rail.asyncCopy[ElemType](srcbuf, 0L, rcvden.d, 0L, datCnt);
 		}
 		
 		//Goto next place in the list
 		if (plist.size >= 1) {
 			val nxtpid = plist(0); // Get next place id in the list
-			val rmtbuf = new GlobalRail[Double](rcvden.d as Rail[Double]{self!=null});
+			val rmtbuf = new GlobalRail[ElemType](rcvden.d as Rail[ElemType]{self!=null});
 			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 			at(dmlist.dist(nxtpid)) {
 				//Need: rmtbuf, dmlist, colOff, offset, datasz, nplist, root
@@ -294,7 +296,7 @@ public class MatrixRingCast {
 		val root   = here.id();
 		val srcspa = smlist(root);	
 		val rmtidx = new GlobalRail[Long  ](srcspa.getIndex() as Rail[Long]{self!=null});
-		val rmtval = new GlobalRail[Double](srcspa.getValue() as Rail[Double]{self!=null});
+		val rmtval = new GlobalRail[ElemType](srcspa.getValue() as Rail[ElemType]{self!=null});
 		val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 
 		val nxtpid = plist(0);
@@ -308,7 +310,7 @@ public class MatrixRingCast {
 
 	private static def copyToHere(
 			rmtIndex:GlobalRail[Long], 
-			rmtValue:GlobalRail[Double],
+			rmtValue:GlobalRail[ElemType],
 			smlist:DistArray[SparseCSC](1),
 			datCnt:Long,
 			plist:Rail[Long],
@@ -321,7 +323,7 @@ public class MatrixRingCast {
 			rcvspa.initRemoteCopyAtDest(datCnt);
 			if (datCnt > 0) {
 				finish Rail.asyncCopy[Long  ](rmtIndex, 0L, rcvspa.getIndex(), 0L, datCnt);
-				finish Rail.asyncCopy[Double](rmtValue, 0L, rcvspa.getValue(), 0L, datCnt);
+				finish Rail.asyncCopy[ElemType](rmtValue, 0L, rcvspa.getValue(), 0L, datCnt);
 			}	
 		}
 		
@@ -329,7 +331,7 @@ public class MatrixRingCast {
 		if (plist.size >= 1) {
 			val nxtpid = plist(0); // Get next place id in the list
 			val rmtidx = new GlobalRail[Long  ](rcvspa.getIndex() as Rail[Long]{self!=null});
-			val rmtval = new GlobalRail[Double](rcvspa.getValue() as Rail[Double]{self!=null});
+			val rmtval = new GlobalRail[ElemType](rcvspa.getValue() as Rail[ElemType]{self!=null});
 			val nplist = new Rail[Long](plist.size-1, (i:Long)=>plist(i+1));
 			at(smlist.dist(nxtpid)) {
 				//Need: rmtidx, rmtval, dmlist, datCnt, nplist, root

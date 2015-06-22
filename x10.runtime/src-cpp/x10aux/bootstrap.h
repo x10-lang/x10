@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef X10AUX_BOOTSTRAP_H
@@ -54,7 +54,7 @@ namespace x10aux {
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT< ::x10::lang::VoidFun_0_0>();}
 
         ::x10::lang::String* toString() {
-            return ::x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
+            return ::x10::lang::String::Lit("x10aux::BootStrapClosure (" __FILELINE__ ")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {
@@ -69,6 +69,7 @@ namespace x10aux {
 
     void initialize_xrx();
     int real_x10_main(int, char**, ApplicationMainFunction);
+    void apgas_main(int, char**);
     
     template<class T> int template_main(int ac, char **av) {
         return x10aux::real_x10_main(ac, av, &T::main);

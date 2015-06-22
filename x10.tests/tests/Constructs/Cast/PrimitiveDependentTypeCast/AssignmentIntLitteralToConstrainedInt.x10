@@ -17,7 +17,7 @@ import harness.x10Test;
  **/
 public class AssignmentIntLitteralToConstrainedInt extends x10Test {
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		
 		try { 
 			var i: int{self == 0n} = 0n;

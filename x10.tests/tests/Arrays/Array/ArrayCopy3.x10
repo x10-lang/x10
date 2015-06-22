@@ -25,7 +25,7 @@ public class ArrayCopy3 extends x10Test {
      * Returns true iff point x is not in the domain of
      * dist D
      */
-    static def outOfRange(val D: Dist, val x: Point{x.rank==D.rank}): boolean = {
+    static def outOfRange(val D: Dist, val x: Point{x.rank==D.rank}): boolean {
         var gotException: boolean = false;
         try {
             async at(D(x)) {}; // dummy op just to use D[x]
@@ -130,7 +130,7 @@ public class ArrayCopy3 extends x10Test {
      * For all combinations of dists of arrays B and A,
      * do an array copy from B to A, and verify.
      */
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val R: Region{rank==4} = Region.make(0..(N-1), 0..(N-1), 0..(N-1), 0..(N-1));
         val TestDists: Region(2) = Region.make(0..(dist2.N_DIST_TYPES-1), 0..(dist2.N_DIST_TYPES-1));
@@ -148,7 +148,7 @@ public class ArrayCopy3 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayCopy3().execute();
     }
 
@@ -166,7 +166,7 @@ public class ArrayCopy3 extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Long, r: Region): Dist(r) = {
+        public static def getDist(distType: Long, r: Region): Dist(r) {
             switch(distType as Int) {
                 case BLOCK: return Dist.makeBlock(r);
                 case BLOCKBLOCK: return Dist.makeBlockBlock(r, 0,1);

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #ifndef APGAS_TASK_H
@@ -16,7 +16,7 @@
 #include <x10/lang/Closure.h>
 
 namespace apgas {
-    class Pool;
+    class Runtime;
     
     class Task : public x10::lang::Closure {
         /*
@@ -25,9 +25,9 @@ namespace apgas {
 
     public:
         /**
-         * Return the Pool instance which is executing this Task
+         * Return the Runtime instance which is executing this Task
          */
-        Pool *getPool() { return myPool; }
+        Runtime *getRuntime() { return myRuntime; }
 
         /**
          * The body of the Task.
@@ -40,10 +40,10 @@ namespace apgas {
          * Implementation level API (not intended for direct use by clients of the library)
          */
     protected:
-        Pool* myPool;
+        Runtime* myRuntime;
 
     public:
-        void setPool(Pool* p) { myPool = p; }
+        void setRuntime(Runtime* p) { myRuntime = p; }
         
         static x10::lang::VoidFun_0_0::itable<Task> _itable;
         static x10aux::itable_entry _itables[2];

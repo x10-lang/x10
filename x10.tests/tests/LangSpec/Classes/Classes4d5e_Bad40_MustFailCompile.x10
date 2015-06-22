@@ -26,7 +26,7 @@ public class Classes4d5e_Bad40_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 1028
+// file Classes line 1026
  static class Two[T,U]{
   def m(x:T)=1;
   def m(x:Long)=2;
@@ -41,6 +41,7 @@ public class Classes4d5e_Bad40_MustFailCompile extends x10Test {
  t14.m(true); // ERR
   }
 }
+ // SKIP_NATIVE_X10: XTENLANG-1191 Native X10 does not support non-final generic instance methods
 
  static class Hook {
    def run():Boolean = true;

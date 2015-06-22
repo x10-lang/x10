@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 #include <x10aux/config.h>
@@ -22,16 +22,6 @@
 #if defined(__GLIBC__) || defined(__APPLE__)
 #   include <execinfo.h> // for backtrace()
 #   include <cxxabi.h> // for demangling of symbol
-#elif defined(_AIX)
-#   include <unistd.h>
-#   include <stdlib.h>
-#   include <stdio.h>
-#   include <string.h>
-#   ifndef __GNUC__
-#      include <demangle.h> // for demangling of symbol
-#   else
-#     include <cxxabi.h> // for demangling of symbol
-#   endif
 #endif
 
 #include <stdio.h>
@@ -103,84 +93,8 @@ String* CheckedThrowable::toString() {
     }
 }
 
-
-#if !defined(__GLIBC__) && defined(_AIX)
-#define BACKTRACE_SYM "backtrace__FPPvUl"
-extern "C" int mt__trce(int, int, void*, int);
-int backtrace(void** trace, size_t max_size) {
-    int pid = ::getpid();
-    int p[2];
-    pipe(p);
-    mt__trce(p[1], 0, NULL, 0);
-    close(p[1]);
-    FILE* pf = fdopen(p[0], "r");
-    char m_buf[1001];
-    size_t len = sizeof(m_buf) - 1;
-    bool in_thread = false;
-    bool in_trace = false;
-    bool first_frame = false;
-    char* s;
-    size_t sz = 0;
-    while ((s = fgets(m_buf, len, pf)) != NULL) {
-        if (!in_thread) {
-            if (!strncmp(s, "+++ID ", 6)) { // thread start
-                char* p = strstr(s, " Process ");
-                char* t = strstr(s, " Thread ");
-                if (p == NULL || t == NULL)
-                    continue;
-                *strchr(t, '\n') = '\0';
-                *t = '\0';
-                int i = strtol(p+9, NULL, 10);
-                if (i != pid) {
-                    *t = ' ';
-                    continue;
-                }
-                in_thread = true;
-            }
-            continue;
-        }
-        if (!strncmp(s, "---ID ", 6)) { // thread end
-            in_thread = false;
-            continue;
-        }
-        if (!in_trace) {
-            if (!strcmp(s, "+++STACK\n")) { // stack trace start
-               in_trace = true;
-               first_frame = true;
-            }
-            continue;
-        }
-        if (!strcmp(s, "---STACK\n")) { // stack trace end
-            in_trace = false;
-            break; // assume we have the right thread -- we're done
-        }
-        if (first_frame) {
-            // The first symbol has to be this function.  Skip it.
-            // FIXME: theoretically, it's possible that another thread is here too
-            if (strncmp(s, BACKTRACE_SYM, strlen(BACKTRACE_SYM))) {
-                in_trace = false;
-            }
-            first_frame = false;
-            continue;
-        }
-        if (sz >= max_size)
-            break;
-        trace[sz++] = ::strdup(s);
-    }
-    fclose(pf);
-    close(p[0]);
-    return (int)sz;
-}
-#endif
-
 #if defined(__GLIBC__) || defined(__APPLE__)
 #define MAX_TRACE_SIZE 1024
-#elif defined(_AIX)
-
-#define INITIAL_TRACE_SIZE 32
-#define TRACE_SIZE_INCREMENT 64
-#define MAX_TRACE_SIZE 512
-
 #endif
 
 CheckedThrowable* CheckedThrowable::fillInStackTrace() {
@@ -193,33 +107,8 @@ CheckedThrowable* CheckedThrowable::fillInStackTrace() {
     FMGL(trace) = x10aux::alloc<void*>(numFrames*sizeof(void*), false); // does not contain pointers to GC heap
     memcpy(FMGL(trace), &buffer[1], numFrames*sizeof(void*));
     FMGL(trace_size) = numFrames;
-#elif defined(_AIX)
-    int numFrames = 0;
-	FMGL(trace) = x10aux::alloc<void*>(INITIAL_TRACE_SIZE*sizeof(void*), false); // does not contain pointers to GC heap
-	int bufferSize = INITIAL_TRACE_SIZE;
-	
-    // walk the stack, saving the offsets for each stack frame into "buffer".
-    unsigned long stackAddr;
-	#if defined(_LP64)
-		__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackAddr));
-	#else
-		__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackAddr));
-	#endif
-	// Need to leave 1 frame of slop for recapture of backtrace (See AIX code below in getStackTrace)
-	while (numFrames < MAX_TRACE_SIZE-1) {
-		if (numFrames == bufferSize-1) {
-			FMGL(trace) = x10aux::realloc<void*>(FMGL(trace), (bufferSize+TRACE_SIZE_INCREMENT)*sizeof(void*));
-		}
-		FMGL(trace)[numFrames] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
-		stackAddr = *((long *)stackAddr);
-        numFrames++;
-		if (stackAddr == 0) {
-            // the end of the stack (main)
-			break;
-        }
-	}
-    FMGL(trace_size) = numFrames;
 #endif
+    
     return this;
 }
 
@@ -305,23 +194,6 @@ void extract_frame_ct (const char *start, char * &filename, char * &symbol, size
 #endif
 
 
-#if !defined(__GLIBC__) && defined(_AIX)
-static char* demangle_symbol(char* name) {
-#if defined(__GNUC__)
-    char* res = abi::__cxa_demangle(name, NULL, NULL, NULL);
-    if (res == NULL)
-        return name;
-    return res;
-#else
-    char* rest;
-    Name* n = Demangle(name, rest);
-    if (n == NULL)
-        return name;
-    return n->Text();
-#endif
-}
-#endif
-
 Rail<String*>* CheckedThrowable::getStackTrace() {
     if (NULL == FMGL(cachedStackTrace)) {
         #if defined(__GLIBC__) || defined(__APPLE__)
@@ -343,91 +215,11 @@ Rail<String*>* CheckedThrowable::getStackTrace() {
             ::free(messages); // malloced by backtrace_symbols
             FMGL(cachedStackTrace) = rail;
         }
-        #elif defined(_AIX)
-        if (FMGL(trace_size) <= 0) {
-            const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = Rail<String*>::_make(1);
-            FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
-        } else {
-			// build up a fake stack from our saved addresses
-			// the fake stack doesn't need anything more than back-pointers and enough offset to hold the frame references
-			unsigned long* fakeStack = (unsigned long *)malloc((FMGL(trace_size)+1) * 3 * sizeof(unsigned long)); // pointer, junk, link register, junk, junk, junk
-			long i;
-			for (i=0; i<FMGL(trace_size); i++)
-			{
-				fakeStack[i*3] = (unsigned long)&(fakeStack[(i+1)*3]);
-				fakeStack[i*3+1] = 0xdeadbeef;
-				fakeStack[i*3+2] = (unsigned long)FMGL(trace)[i];
-			}
-			fakeStack[i*3] = 0;
-
-			// manipulate the existing stack to point to our fake stack
-			unsigned long stackPointer;
-			#if defined(_LP64)
-				__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackPointer));
-			#else
-				__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackPointer));
-			#endif
-
-			unsigned long originalStackPointer = stackPointer;
-			*((unsigned long*)stackPointer) = (unsigned long)fakeStack; // this line overwrites the back chain pointer in the stack to the fake one.
-
-			// call the original slow backtrace method to convert the offsets into text
-			// this overwrites the contents of "trace" and value of "trace_size", which are no longer needed.
-			// We add one to the limit becasue we left 1 extra frame in the code above, are
-			// our fake stack has one extra frame in it (relative to the original).
-			FMGL(trace_size) = ::backtrace(FMGL(trace), (FMGL(trace_size)+1)*sizeof(void*));
-			
-			// replace the stack frame pointer to point to the real stack again
-			*((unsigned long*)stackPointer) = originalStackPointer;
-
-			// delete the fake stack, which is no longer needed
-			free(fakeStack);
-
-			// from here on down, proceed as before
-            Rail<String*>* rail = Rail<String*>::_make(FMGL(trace_size));
-			char *msg;
-			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
-				char* s = (char*)FMGL(trace)[i];
-				char* c = strstr(s, " : ");
-				if (c == NULL) {
-					rail->__set(i, String::Lit("???????"));
-					continue;
-				}
-				c[0] = '\0';
-				c += 3;
-				char* n = strchr(c, '\n');
-				if (n != NULL)
-					*n = '\0';
-				s = demangle_symbol(s);
-				char* f = strstr(c, " # ");
-				if (f != NULL) {
-					unsigned long l = strtoul(c, NULL, 10);
-					char* p = strchr(f, '<');
-					if (p != NULL) {
-						f = p + 1;
-						char* z = strchr(f, '>');
-						if (z != NULL)
-							*z = '\0';
-					} else {
-						f += 3;
-					}
-					msg = alloc_printf("%s (%s:%d)", s, f, l);
-				} else {
-					msg = alloc_printf("%s (offset %s)", s, c);
-					f = c;
-				}
-				rail->__set(i, String::Lit(msg));
-				::free(msg);
-
-			}
-			FMGL(cachedStackTrace) = rail;
-        }
-    #else
+        #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
         FMGL(cachedStackTrace) = Rail<String*>::_make(1);
         FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
-    #endif
+        #endif
     }
 
     return FMGL(cachedStackTrace);

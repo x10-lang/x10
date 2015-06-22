@@ -21,7 +21,7 @@ public class PrimitiveToNullablePrimitiveConstrained2_MustFailCompile extends x1
 	public def run() =
 	    !(3n instanceof Box[Int(4n)]); // ERR
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new PrimitiveToNullablePrimitiveConstrained2_MustFailCompile().execute();
 	}
 }

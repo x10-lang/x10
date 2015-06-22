@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.runtime.impl.java;
@@ -21,7 +21,7 @@ public class X10SimpleFormatter extends SimpleFormatter {
         String message = super.format(record);
         long timestamp = java.lang.System.nanoTime() / 1000000L;
         try {
-	        x10.lang.Runtime.Worker worker = (x10.lang.Runtime.Worker) x10.core.Thread.currentThread();
+	        x10.xrx.Worker worker = (x10.xrx.Worker) x10.core.Thread.currentThread();
 	        long placeId = x10.x10rt.X10RT.hereId();
 	        int workerId = worker.workerId;
 	        message = String.format("[P%d,W%d,T%d] %s", placeId, workerId, timestamp, message);

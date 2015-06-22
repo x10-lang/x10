@@ -26,7 +26,7 @@ import harness.x10Test;
 
 public class ArrayBounds2D extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         val COUNT: int = 100n;
         val L: int = 10n;
@@ -49,7 +49,7 @@ public class ArrayBounds2D extends x10Test {
      * create a[lb1..ub1,lb2..ub2] then access a[i,j], return true iff
      * no array bounds exception occurred
      */
-    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean = {
+    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
         val a = new Array[int](Region.make(lb1..ub1, lb2..ub2), (Point)=>0n);
@@ -71,18 +71,18 @@ public class ArrayBounds2D extends x10Test {
     /**
      * print a string
      */
-    private static def pr(var s: String): void = {
+    private static def pr(var s: String): void {
         x10.io.Console.OUT.println(s);
     }
 
     /**
      * true iff (x if and only if y)
      */
-    private static def iff(var x: boolean, var y: boolean): boolean = {
+    private static def iff(var x: boolean, var y: boolean): boolean {
         return x == y;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ArrayBounds2D().execute();
     }
 }

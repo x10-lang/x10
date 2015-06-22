@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  * 
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  */
 
 package x10.array;
@@ -30,7 +30,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
     protected transient val localIndices:DenseIterationSpace_1{self!=null};
     @NonEscaping protected final def reloadLocalIndices():DenseIterationSpace_1{self!=null} {
         val ls = localHandle() as LocalState_B1[T];
-        return ls != null ? ls.localIndices : new DenseIterationSpace_1(0,-1);
+        return ls != null ? ls.dist.localIndices : new DenseIterationSpace_1(0,-1);
     }
     
     @TransientInitExpr(reloadMinLocalIndex())
@@ -183,8 +183,7 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
                 if (CompilerFlags.checkPlace()) raisePlaceError(i);
             }
         }
-        Unsafe.uncheckedRailSet(raw, i - minLocalIndex, v);
-        return v;
+        return Unsafe.uncheckedRailSet(raw, i - minLocalIndex, v);
     }
 
 
@@ -232,26 +231,24 @@ public class DistArray_Block_1[T] extends DistArray[T]{this.rank()==1} implement
 // TODO:  Would prefer this to be a protected static nested class, but 
 //        when written that way we non-deterministically fail compilation.
 class LocalState_B1[S] extends LocalState[S] {
-    val globalIndices:DenseIterationSpace_1{self!=null};
-    val localIndices:DenseIterationSpace_1{self!=null};
+    val dist:Dist_Block_1{self!=null};
 
     def this(pg:PlaceGroup{self!=null}, data:Rail[S]{self!=null}, size:Long, 
-             gs:DenseIterationSpace_1{self!=null}, ls:DenseIterationSpace_1{self!=null}) {
+             d:Dist_Block_1{self!=null}) {
         super(pg, data, size);
-        globalIndices = gs;
-        localIndices = ls;
+        dist = d;
     }
 
     static def make[S](pg:PlaceGroup{self!=null}, n:Long, init:(Long)=>S):LocalState_B1[S] {
         val globalSpace = new DenseIterationSpace_1(0, n-1);
-        val localSpace = BlockingUtils.partitionBlock(globalSpace, pg.numPlaces(), pg.indexOf(here));
+        val dist = new Dist_Block_1(pg, globalSpace);
 
 	val data:Rail[S]{self!=null};
-	if (localSpace.isEmpty()) { 
+	if (dist.localIndices.isEmpty()) { 
             data = new Rail[S]();
         } else {            
-            val low = localSpace.min(0);
-            val hi = localSpace.max(0);
+            val low = dist.localIndices.min(0);
+            val hi = dist.localIndices.max(0);
             val dataSize = hi - low + 1;
             data = Unsafe.allocRailUninitialized[S](dataSize);
             for (i in low..hi) {
@@ -259,7 +256,7 @@ class LocalState_B1[S] extends LocalState[S] {
                 data(offset) = init(i);
             }
         }
-        return new LocalState_B1[S](pg, data, n, globalSpace, localSpace);
+        return new LocalState_B1[S](pg, data, n, dist);
     }
 }
 

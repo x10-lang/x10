@@ -30,7 +30,7 @@ public class GenericOverloading14 extends GenericTest {
 
     val  b = new  B[long]();
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         genericCheck(" b.m()",  b.m(), 0);
         genericCheck(" b.m(0)",  b.m(0), 1);
@@ -40,7 +40,7 @@ public class GenericOverloading14 extends GenericTest {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new GenericOverloading14().execute();
     }
 }

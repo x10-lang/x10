@@ -15,6 +15,7 @@ import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.util.RandTool;
+import x10.matrix.util.ElemTypeTool;
 
 public type TriDense(m:Long, n:Long)=TriDense{m==n, self.M==m, m==n};
 public type TriDense(m:Long)=TriDense{self.M==m,self.N==m};
@@ -38,17 +39,17 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 */
 	public var upper:Boolean = false; 
 	
-    public def this(n:Long, x:Rail[Double]):TriDense(n){
+    public def this(n:Long, x:Rail[ElemType]{self!=null}):TriDense(n){
 		super(n, n, x);
 	}
 	
-	public def this(up:Boolean, n:Long, x:Rail[Double]) : TriDense(n){
+	public def this(up:Boolean, n:Long, x:Rail[ElemType]{self!=null}) : TriDense(n){
 		super(n, n, x);
 		upper = up;
 	}	
 
 	public static def make(up:Boolean, n:Long):TriDense(n) {
-		val x = new Rail[Double](n*n);
+		val x = new Rail[ElemType](n*n);
 		return new TriDense(up, n, x);
 	}
 	
@@ -56,12 +57,12 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
  
 	public static def make(src:TriDense):TriDense(src.M) {
 		val n = src.N;
-		val newd = new Rail[Double](src.d);
+		val newd = new Rail[ElemType](src.d);
 		return new TriDense(src.upper, n, newd);
 	}
 	
 	public static def make(up:Boolean, src:DenseMatrix) : TriDense(src.M){
-		val newd = new Rail[Double](src.d);
+		val newd = new Rail[ElemType](src.d);
 		val nt = new TriDense(up, src.M, newd);
 
 		if (up)
@@ -72,14 +73,14 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	}
 
 	public def clone():TriDense(M,N){
-		val nd = new Rail[Double](this.d);
+		val nd = new Rail[ElemType](this.d);
 		val nm = new TriDense(upper, M, nd);
 		return nm as TriDense(M,N);
 	}
 	
 	public  def alloc(m:Long, n:Long):TriDense(m,n) {
 		assert m==n;
-		val x = new Rail[Double](m*n);
+		val x = new Rail[ElemType](m*n);
 		val nm = new TriDense(m, x);
 		return nm as TriDense(m,n);
 	}
@@ -119,7 +120,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		var colstt:Long = 0;
 		for (var c:Long=0; c < N; c++, colstt+=M) 
 			for (var i:Long=colstt; i<colstt+c; i++)
-				this.d(i) = 0.0;
+				this.d(i) = ElemTypeTool.zero;
 	}
 
     /**
@@ -129,7 +130,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		var colstt:Long = 0;
 		for (var c:Long=0; c < N; c++, colstt+=M+1) 
 			for (var i:Long=colstt+1; i<colstt+M-c; i++)
-				this.d(i) = 0.0;
+				this.d(i) = ElemTypeTool.zero;
 	}
 
 	// Data initialization
@@ -137,11 +138,11 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * Initialize all elements of the triangular matrix with a constant value.
 	 * @param  iv 	the constant value
 	 */	
-	public def init(iv:Double): TriDense(this) {
+	public def init(iv:ElemType): TriDense(this) {
 		if (upper)
-			super.init((r:Long,c:Long)=>(r>c)?0.0:iv);
+			super.init((r:Long,c:Long)=>(r>c)?ElemTypeTool.zero:iv);
 		else
-			super.init((r:Long,c:Long)=>(r<c)?0.0:iv);
+			super.init((r:Long,c:Long)=>(r<c)?ElemTypeTool.zero:iv);
 		return this;
 	}
 
@@ -152,11 +153,11 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * @param f    The function to use to initialize the matrix
 	 * @return this object
 	 */
-	public def init(f:(Long)=>Double): TriDense(this) {
+	public def init(f:(Long)=>ElemType): TriDense(this) {
 		if (upper)
-			super.init((r:Long,c:Long)=>(r>c)?0.0:f(c*M+r));
+			super.init((r:Long,c:Long)=>(r>c)?ElemTypeTool.zero:f(c*M+r));
 		else
-			super.init((r:Long,c:Long)=>(r<c)?0.0:f(c*M+r));
+			super.init((r:Long,c:Long)=>(r<c)?ElemTypeTool.zero:f(c*M+r));
 		return this;
 	}
 	
@@ -166,25 +167,25 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * @param f    The function to use to initialize the matrix
 	 * @return this object
 	 */
-	public def init(f:(Long,Long)=>Double): TriDense(this) {
+	public def init(f:(Long,Long)=>ElemType): TriDense(this) {
 		if (upper)
-			super.init((r:Long,c:Long)=>(r>c)?0.0:f(r,c));
+			super.init((r:Long,c:Long)=>(r>c)?ElemTypeTool.zero:f(r,c));
 		else
-			super.init((r:Long,c:Long)=>(r<c)?0.0:f(r,c));
+			super.init((r:Long,c:Long)=>(r<c)?ElemTypeTool.zero:f(r,c));
 		return this;		
 	}
 	
 	/**
 	 * Initialize all elements of the dense matrix with random 
-	 * values between 0.0 and 1.0.
+	 * values between ElemTypeTool.zero and 1.0.
 	 */	
 	public def initRandom(): TriDense(this) {
 		val rgen = RandTool.getRandGen();
 
 		if (upper)
-			super.init((r:Long,c:Long)=>(r>c)?0.0:rgen.nextDouble());
+			super.init((r:Long,c:Long)=>(r>c)?ElemTypeTool.zero:RandTool.nextElemType[ElemType](rgen));
 		else
-			super.init((r:Long,c:Long)=>(r<c)?0.0:rgen.nextDouble());
+			super.init((r:Long,c:Long)=>(r<c)?ElemTypeTool.zero:RandTool.nextElemType[ElemType](rgen));
 		
 		return this;
 	}
@@ -201,9 +202,9 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		val l = Math.abs(ub-lb)+1;
 
 		if (upper)
-			super.init((r:Long,c:Long)=>(r>c)?0.0:(rgen.nextLong(l)+lb as Double));
+			super.init((r:Long,c:Long)=>(r>c)?ElemTypeTool.zero:(rgen.nextLong(l)+lb as ElemType));
 		else
-			super.init((r:Long,c:Long)=>(r<c)?0.0:(rgen.nextLong(l)+lb as Double));
+			super.init((r:Long,c:Long)=>(r<c)?ElemTypeTool.zero:(rgen.nextLong(l)+lb as ElemType));
 		
 		return this;
 		
@@ -213,7 +214,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def selfT():TriDense(this) {
 		var src_idx:Long =0;
 		var dst_idx:Long =0;
-		var swaptmp:Double = 0;
+		var swaptmp:ElemType = 0;
 		for (var c:Long=0; c < this.M; c++) {
 			dst_idx = (c+1)*this.M+c;
 			src_idx = c * this.M + c + 1;
@@ -228,7 +229,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 
 	// Cellwise operations. Only lower triangular part is modified.
 
-	public  def scale(a:Double):TriDense(this)  {
+	public  def scale(a:ElemType):TriDense(this)  {
 		var colstt:Long=0;
 		if (upper==false) {
 		    for (var c:Long=0; c < N; c++, colstt+=M+1)
@@ -242,8 +243,8 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		return this;
 	}
 	
-	public def sum():Double {
-		var tt:Double = 0.0;
+	public def sum():ElemType {
+		var tt:ElemType = ElemTypeTool.zero;
 		var colstt:Long=0;
 		if (upper==false) {
 		    for (var c:Long=0; c < N; c++, colstt+=M+1)
@@ -276,24 +277,6 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		return x;
 	}
 
-	// Cell-wise matrix multiplication
-
-	public def cellSubFrom(v:Double):TriDense(this) {
-		var colstt:Long=0;
-		if (upper==false) {
-		    for (var c:Long=0; c < N; c++, colstt+=M+1)
-			    for (var i:Long=colstt; i<colstt+M-c; i++)
-					this.d(i) = v-this.d(i);
-		} else {
-		    for (var c:Long=0; c < N; c++, colstt+=M)
-			    for (var i:Long=colstt; i<colstt+c+1; i++)
-					this.d(i) = v-this.d(i);
-		}
-		return this;
-	}
-	
-	//public def cellSub(x:TriDense(M)): DenseMatrix(this) = cellSub(x as DenseMatrix(M,N));
-	
 	/**
 	 * x = x - this;
 	 */
@@ -350,14 +333,14 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		if (upper==false) {
 			for (var c:Long=0; c<N; c++, colstt+=M){
 				var i:Long = colstt;
-				for (; i<colstt+c; i++)	x.d(i) = 0.0;
+				for (; i<colstt+c; i++)	x.d(i) = ElemTypeTool.zero;
 				for (; i<colstt+M; i++) x.d(i) *= this.d(i);
 			} 
 		} else {
 			for (var c:Long=0; c<N; c++, colstt+=M){
 				var i:Long = colstt;
 				for (; i<colstt+c+1; i++) x.d(i) *= this.d(i);
-				for (; i<colstt+M;   i++) x.d(i) = 0.0;					
+				for (; i<colstt+M;   i++) x.d(i) = ElemTypeTool.zero;					
 			}
 		}
 		return x;
@@ -366,7 +349,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 
 	// Cellwise division
 
-	public def cellDiv(v:Double):TriDense(this) {
+	public def cellDiv(v:ElemType):TriDense(this) {
 		var colstt:Long=0;
 		if (upper==false) {
 		    for (var c:Long=0; c < N; c++, colstt+=M+1)
@@ -380,7 +363,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		return this;
 	}
 	
-	//public def cellDivBy(v:Double):TriDense(this) {
+	//public def cellDivBy(v:ElemType):TriDense(this) {
 	//	throw new UnsupportedOperationException("Divide by 0 error");
 	//	return this;
 	//}	
@@ -425,18 +408,17 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 
 	// Operator
 
-	public operator - this            = this.clone().scale(-1.0) as TriDense(M,N);
-	public operator this + (v:Double) = this.clone().cellAdd(v)  as TriDense(M,N);
-	public operator (v:Double) + this = this + v;
+	public operator - this            = this.clone().scale(-ElemTypeTool.unit) as TriDense(M,N);
+	public operator this + (v:ElemType) = this.clone().cellAdd(v)  as TriDense(M,N);
+	public operator (v:ElemType) + this = this + v;
 
-	public operator this - (v:Double) = this.clone().cellSub(v)     as TriDense(M,N);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v) as TriDense(M,N);
+	public operator this - (v:ElemType) = this.clone().cellSub(v)     as TriDense(M,N);
 	
-	public operator this / (v:Double) = this.clone().cellDiv(v)   as TriDense(M,N);
-	public operator (v:Double) / this = this.clone().cellDivBy(v) as TriDense(M,N);
+	public operator this / (v:ElemType) = this.clone().cellDiv(v)   as TriDense(M,N);
+	public operator (v:ElemType) / this = this.clone().cellDivBy(v) as TriDense(M,N);
 	
-	public operator this * (alpha:Double) = this.clone().scale(alpha) as TriDense(M,N);
-	public operator (alpha:Double) * this = this * alpha;
+	public operator this * (alpha:ElemType) = this.clone().scale(alpha) as TriDense(M,N);
+	public operator (alpha:ElemType ) * this = this * alpha;
 	
 	
 	public operator this + (that:TriDense(M)) = this.toDense().cellAdd(that)  as DenseMatrix(M,N);

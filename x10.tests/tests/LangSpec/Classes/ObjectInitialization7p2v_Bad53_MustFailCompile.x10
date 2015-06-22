@@ -26,7 +26,7 @@ public class ObjectInitialization7p2v_Bad53_MustFailCompile extends x10Test {
     }
 
 
-// file Classes line 2864
+// file Classes line 2862
  static class UseNoThisAccess {
   static  class IDed {
     protected static val counts = [0 as Long,0];

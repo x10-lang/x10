@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
  *  (C) Copyright Australian National University 2011-2013.
  */
 
@@ -33,8 +33,10 @@ namespace x10 {
         template<class T> class GlobalRef;
         template<class T> class GlobalRail;
         class String;
-        class Runtime__MemoryAllocator;
     }
+    namespace xrx {
+        class Runtime__MemoryAllocator;
+    }        
 }
 
 namespace x10 {
@@ -48,21 +50,20 @@ namespace x10 {
         extern const ::x10aux::serialization_id_t Rail_copy_from_serialization_id;
 
         extern const ::x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
-        extern const ::x10aux::serialization_id_t Rail_unconuted_copy_from_serialization_id;
-        
-        extern void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
-        extern void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
-	    extern void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
-        extern void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
+        extern const ::x10aux::serialization_id_t Rail_uncounted_copy_from_serialization_id;
+        void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
+        void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
+        void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
 
-        extern void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+        void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
                                    ::x10::lang::Place dstPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
-        extern void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
+        void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
                                      ::x10::lang::Place srcPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
-        extern void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
+        void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
-        extern void failAllocNoPointers(const char* msg);
+        void failAllocNoPointers(const char* msg);
 
         void throwArrayIndexOutOfBoundsException(x10_long index, x10_long size) X10_PRAGMA_NORETURN;
         void throwNegativeArraySizeException() X10_PRAGMA_NORETURN;
@@ -78,7 +79,7 @@ namespace x10 {
             #endif
         }
 
-        extern void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
+        void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap);
 
         template<class T> class Rail : public ::x10::lang::X10Class   {
           public:
@@ -114,8 +115,8 @@ namespace x10 {
             static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
             void _constructor(x10_long size, ::x10::lang::Fun_0_1<x10_long, T>* init);
 
-            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc);
-            void _constructor(x10_long size,  ::x10::lang::Runtime__MemoryAllocator* alloc);
+            static ::x10::lang::Rail<T>* _make(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc);
+            void _constructor(x10_long size,  ::x10::xrx::Runtime__MemoryAllocator* alloc);
             
             ::x10::lang::LongRange range();
 
@@ -241,7 +242,7 @@ namespace x10 {
 #include <x10/lang/Place.h>
 #include <x10/lang/String.h>
 #include <x10/lang/IllegalArgumentException.h>
-#include <x10/lang/Runtime__MemoryAllocator.h>
+#include <x10/xrx/Runtime__MemoryAllocator.h>
 #ifndef X10_LANG_RAIL_H_GENERICS
 #define X10_LANG_RAIL_H_GENERICS
 #endif // X10_LANG_RAIL_H_GENERICS
@@ -356,7 +357,7 @@ template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::la
 }
 
 
-template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc) {
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
@@ -379,7 +380,7 @@ template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_make(x10_long size,
     
     return this_;
 }
-template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::lang::Runtime__MemoryAllocator* alloc) {
+template<class T> void x10::lang::Rail<T>::_constructor(x10_long size, ::x10::xrx::Runtime__MemoryAllocator* alloc) {
     // NOT ZEROING HUGE PAGE ALLOCATION; OS WILL ZERO ON ALLOCATE
     if (!alloc->FMGL(hugePages)) memset(&(this->raw), 0, size*sizeof(T));
 }
@@ -425,6 +426,7 @@ template<class T> void x10::lang::Rail<T>::clear() {
 
 
 template<class T> void x10::lang::Rail<T>::clear(x10_long start, x10_long numElems) {
+    if (numElems <= 0) return;
     checkBounds(start, FMGL(size));
     checkBounds(start+numElems-1, FMGL(size));
     memset(&raw[start], 0, sizeof(T)*numElems);

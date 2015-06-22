@@ -18,7 +18,7 @@ import x10.regionarray.*;
  */
 public class LocalPortion extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val uniqueDistArray = DistArray.make[Int](Dist.makeUnique());
         finish for(place in uniqueDistArray.dist.places()) at(place) {
             val placeId = here.id;
@@ -63,7 +63,7 @@ public class LocalPortion extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new LocalPortion().execute();
     }
 }

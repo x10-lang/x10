@@ -19,12 +19,12 @@ import harness.x10Test;
 public class Subclassing4 extends x10Test {
         class Get[T] {
                 val x: T;
-                def this(y: T) = { x = y; }
+                def this(y: T) { x = y; }
                 def get(): T = x; }
         class Getint extends Get[long] {
-                def this(y:long) = { super(y); } }
+                def this(y:long) { super(y); } }
 
-	public def run(): boolean = {
+	public def run(): boolean {
                 new Get[long](0);
                 new Get[long](1);
                 new Getint(2);
@@ -32,7 +32,7 @@ public class Subclassing4 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new Subclassing4().execute();
 	}
 }

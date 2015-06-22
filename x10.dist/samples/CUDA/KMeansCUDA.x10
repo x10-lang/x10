@@ -60,7 +60,7 @@ class KernelWorker {
         kernelOffset = gpuIndex * kernelNumPoints + host_offset;
 
         if (!quiet) {
-            Console.OUT.println("GPU known as "+gpu+" gets offset "+kernelOffset+" len "+kernelNumPoints);
+            Console.OUT.println("Worker at "+gpu+" gets points "+kernelOffset+".."+(kernelOffset + kernelNumPoints - 1));
         }
         
         val MEM_ALIGN = 32n; // FOR CUDA

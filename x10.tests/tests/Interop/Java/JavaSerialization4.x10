@@ -24,7 +24,7 @@ public class JavaSerialization4 extends x10Test {
         }
     }
 
-    public def run(): Boolean = {
+    public def run(): Boolean {
         test();
         return true;
     }
