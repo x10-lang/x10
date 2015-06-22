@@ -80,37 +80,59 @@ public class InliningRewriter extends ContextVisitor {
     private final LocalDef ths;
     private final LocalDef ret;
     private final Name label;
+    private final boolean rewriteReturn;
     private AltSynthesizer syn;
     private boolean[] failed = new boolean[1];
 
     public InliningRewriter(Closure closure, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-        this(closure.closureDef(), null, closure.body().statements(), j, ts, nf, ctx);
+        this(closure.closureDef(), null, closure.body(), j, ts, nf, ctx);
     }
 
     public InliningRewriter(ProcedureDecl decl, LocalDef ths, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
-        this(decl.procedureInstance(), ths, decl.body().statements(), j, ts, nf, ctx);
+        this(decl.procedureInstance(), ths, decl.body(), j, ts, nf, ctx);
     }
 
-    private InliningRewriter(ProcedureDef def, LocalDef ths, List<Stmt> body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
+    private InliningRewriter(ProcedureDef def, LocalDef ths, Block body, Job j, TypeSystem ts, NodeFactory nf, Context ctx) {
         super(j, ts, nf);
         this.context = ctx;
         this.def = ctx.currentCode();
         this.ths = ths;
         this.syn = new AltSynthesizer(ts, nf);
+        
+        ReturnCounter rc = new ReturnCounter();
+        body.visit(rc);
+        this.rewriteReturn = !rc.inCannonicalForm(body);
         if (def instanceof ConstructorDef) {
             this.ret = null;
-            this.label = Name.makeFresh("__ret");
-        } else if (body.size() == 1 && body.get(0) instanceof Return) {
-            // Closure already has the right properties; make return rewriting a no-op
-            this.ret = null;
-            this.label = null;
         } else {
-            Name rn = Name.makeFresh("ret");
             Type rt = def.returnType().get();
-            this.ret = rt.isVoid() ? null : ts.localDef(def.position(), ts.NoFlags(), Types.ref(rt), rn);
-            this.label = Name.makeFresh("__ret");
+            this.ret = rt.isVoid() || !this.rewriteReturn ? null : ts.localDef(def.position(), ts.NoFlags(), Types.ref(rt), Name.makeFresh("ret"));
         }
+        
+        this.label = Name.makeFresh("__ret");
         failed[0] = false;
+    }
+    
+    private static class ReturnCounter extends NodeVisitor {
+        private int[] count = new int[1];
+        private boolean[] hasThrow = new boolean[1];
+        
+        ReturnCounter() {
+            super();
+        }
+        
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if (n instanceof Return) {
+                count[0]++;
+            } else if (n instanceof Throw) {
+                hasThrow[0] = true;
+            }
+            return n;
+        }
+        
+        public boolean inCannonicalForm(Block body) {
+            return !hasThrow[0] && count[0] == 1 && (body.statements().get(body.statements().size()-1) instanceof Return);
+        }
     }
 
     @Override
@@ -157,7 +179,7 @@ public class InliningRewriter extends ContextVisitor {
         if (failed[0]) {
             return null;
         }
-        if (label == null) {
+        if (label == null || !rewriteReturn) {
             return body;
         }
         List<Stmt> newBody = new ArrayList<Stmt>();
@@ -253,6 +275,7 @@ public class InliningRewriter extends ContextVisitor {
         // First check that we are within the right code body
         if (!context.currentCode().equals(def)) return n;
         if (label == null) return n;
+        if (!rewriteReturn) return n;
         assert ((ret == null) == (n.expr() == null));
         Position pos = n.position();
         List<Stmt> retSeq = new ArrayList<Stmt>();
