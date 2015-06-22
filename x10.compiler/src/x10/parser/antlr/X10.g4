@@ -351,9 +351,9 @@ lastExpression returns [Return ast]:
       expression
     ;
 closureBody returns [Block ast]:
-      expression                                               #closureBody0
-    | annotationsopt block                                     #closureBody2
+      annotationsopt block                                     #closureBody2
     | annotationsopt '{' blockInteriorStatement* lastExpression '}'   #closureBody1
+    | expression                                               #closureBody0
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody
@@ -558,6 +558,7 @@ primary returns [Expr ast]:
     | 'this'                              #primary4
     | className '.' 'this'                #primary5
     | '(' expression ')'                  #primary6
+    | '{' blockStatementsopt '}'          #primaryClosure
     // classInstanceCreationExpression
     | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt                             #primary7
     | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt               #primary8
@@ -567,7 +568,7 @@ primary returns [Expr ast]:
     | s='super' '.' identifier                  #primary11
     | className '.' s='super' '.' identifier    #primary12
     // methodInvocation
-    | methodName typeArgumentsopt '(' argumentListopt ')'                                     #primary13
+    | methodName typeArgumentsopt '(' argumentListopt ')'                                     # primary13
     | primary typeArgumentsopt '(' argumentListopt ')'                                        #primary17
     | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'     #primary18
     | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'          #primary19

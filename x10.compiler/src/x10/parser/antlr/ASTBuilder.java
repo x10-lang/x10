@@ -516,6 +516,7 @@ import x10.parser.antlr.generated.X10Parser.Primary6Context;
 import x10.parser.antlr.generated.X10Parser.Primary7Context;
 import x10.parser.antlr.generated.X10Parser.Primary8Context;
 import x10.parser.antlr.generated.X10Parser.Primary9Context;
+import x10.parser.antlr.generated.X10Parser.PrimaryClosureContext;
 import x10.parser.antlr.generated.X10Parser.PrimaryContext;
 import x10.parser.antlr.generated.X10Parser.PrimaryError0Context;
 import x10.parser.antlr.generated.X10Parser.PrimaryError1Context;
@@ -5868,6 +5869,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitPrimary6(Primary6Context ctx) {
         Expr Expression = ast(ctx.expression());
         ctx.ast = nf.ParExpr(pos(ctx), Expression);
+    }
+    
+    /** Production: primary ::= '{' expression '}' (#primaryClosure) */
+    @Override
+    public void exitPrimaryClosure(PrimaryClosureContext ctx) {
+    	err.syntaxError("XXXXXXXXXXXXXXXXXXXXXX Block as expression!", pos(ctx));
+    	ctx.ast = errorExpr(pos(ctx));
     }
 
     /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary7) */
