@@ -34,6 +34,6 @@ public class ClosureBlockExpression1i extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void {
-        new ClosureBlockExpression1g().execute();
+        new ClosureBlockExpression1i().execute();
     }
 }

@@ -15,26 +15,17 @@ import harness.x10Test;
 /**
  * Block used inside an expression is considered as a closure without argument.
  *
- * @author lmandel 11/2014
+ * @author lmandel 06/2015
  */
 
-public class ClosureBlockExpression1j extends x10Test {
-
-    static def apply[T](f: ()=>T){
-	return f();
-    }
-    static def apply(f: ()=>void){
-	f();
-    }
+public class ClosureBlockExpression2a extends x10Test {
 
     public def run(): boolean {
-
-        // expression
-	// return (() => true) ();
-	return { true } ();
+	if (true) { assert false; return "Closure";  }; else {}
+	return true;
     }
 
     public static def main(var args: Rail[String]): void {
-        new ClosureBlockExpression1j().execute();
+        new ClosureBlockExpression2a().execute();
     }
 }
