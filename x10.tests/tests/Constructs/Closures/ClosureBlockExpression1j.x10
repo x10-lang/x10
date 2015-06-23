@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author lmandel 11/2014
  */
 
-public class ClosureBlockExpression1a extends x10Test {
+public class ClosureBlockExpression1j extends x10Test {
 
     static def apply[T](f: ()=>T){
 	return f();
@@ -30,12 +30,11 @@ public class ClosureBlockExpression1a extends x10Test {
     public def run(): boolean {
 
         // expression
-	apply(() => {});
-	apply( { } );
-        return true;
+	// return (() => true) ();
+	return { true } ();
     }
 
     public static def main(var args: Rail[String]): void {
-        new ClosureBlockExpression1a().execute();
+        new ClosureBlockExpression1g().execute();
     }
 }

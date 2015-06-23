@@ -27,14 +27,14 @@ public class ClosureBlockExpression1e extends x10Test {
 	f();
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         // expression
 	val f = { chk(true, "true"); true };
         return apply( f );
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureBlockExpression1e().execute();
     }
 }

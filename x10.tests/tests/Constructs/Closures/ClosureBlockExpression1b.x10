@@ -27,13 +27,13 @@ public class ClosureBlockExpression1b extends x10Test {
 	f();
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
 
         // expression
         return apply( { return true; } );
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureBlockExpression1b().execute();
     }
 }
