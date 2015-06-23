@@ -1772,18 +1772,6 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitLastExpression(X10Parser.LastExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code closureBody2}
-	 * labeled alternative in {@link X10Parser#closureBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterClosureBody2(X10Parser.ClosureBody2Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code closureBody2}
-	 * labeled alternative in {@link X10Parser#closureBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitClosureBody2(X10Parser.ClosureBody2Context ctx);
-	/**
 	 * Enter a parse tree produced by the {@code closureBody1}
 	 * labeled alternative in {@link X10Parser#closureBody}.
 	 * @param ctx the parse tree
@@ -1807,6 +1795,30 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClosureBody0(X10Parser.ClosureBody0Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code closureBodyBlock2}
+	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code closureBodyBlock2}
+	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code closureBodyBlock1}
+	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code closureBodyBlock1}
+	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link X10Parser#atExpression}.
 	 * @param ctx the parse tree

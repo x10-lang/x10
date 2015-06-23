@@ -250,7 +250,9 @@ import x10.parser.antlr.generated.X10Parser.ClassTypeContext;
 import x10.parser.antlr.generated.X10Parser.ClockedClauseoptContext;
 import x10.parser.antlr.generated.X10Parser.ClosureBody0Context;
 import x10.parser.antlr.generated.X10Parser.ClosureBody1Context;
-import x10.parser.antlr.generated.X10Parser.ClosureBody2Context;
+import x10.parser.antlr.generated.X10Parser.ClosureBodyBlock1Context;
+import x10.parser.antlr.generated.X10Parser.ClosureBodyBlock2Context;
+import x10.parser.antlr.generated.X10Parser.ClosureBodyBlockContext;
 import x10.parser.antlr.generated.X10Parser.ClosureBodyContext;
 import x10.parser.antlr.generated.X10Parser.ClosureExpressionContext;
 import x10.parser.antlr.generated.X10Parser.CompilationUnitContext;
@@ -1829,6 +1831,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
      */
     private final Block ast(ClosureBodyContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorBlock(p);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Block} is returned.
+     */
+    private final Block ast(ClosureBodyBlockContext ctx) {
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             return errorBlock(p);
@@ -4923,9 +4936,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.Block(pos(ctx), nf.X10Return(pos(ctx), ConditionalExpression, true));
     }
 
-    /** Production: closureBody ::= annotationsopt '{' blockInteriorStatement* lastExpression '}' (#closureBody1) */
+    /** Production: closureBody ::= ClosureBodyBlock (#closureBody1) */
     @Override
     public void exitClosureBody1(ClosureBody1Context ctx) {
+    	ctx.ast = ast(ctx.closureBodyBlock());
+    }
+    
+    /** Production: closureBodyBlock ::= annotationsopt '{' blockInteriorStatement* lastExpression '}' (#closureBodyBlock1) */
+    @Override
+    public void exitClosureBodyBlock1(ClosureBodyBlock1Context ctx) {
         List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
         Stmt LastExpression = ast(ctx.lastExpression());
         List<Stmt> l = new ArrayList<Stmt>();
@@ -4938,9 +4957,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = b;
     }
 
-    /** Production: closureBody ::= annotationsopt block (#closureBody2) */
+    /** Production: closureBodyBlock ::= annotationsopt block (#closureBodyBlock2) */
     @Override
-    public void exitClosureBody2(ClosureBody2Context ctx) {
+    public void exitClosureBodyBlock2(ClosureBodyBlock2Context ctx) {
         List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
         Block Block = ast(ctx.block());
         Block b = Block;
@@ -5871,11 +5890,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.ParExpr(pos(ctx), Expression);
     }
     
-    /** Production: primary ::= '{' expression '}' (#primaryClosure) */
+    /** Production: primary ::= closureBodyBlock (#primaryClosure) */
     @Override
     public void exitPrimaryClosure(PrimaryClosureContext ctx) {
-    	err.syntaxError("XXXXXXXXXXXXXXXXXXXXXX Block as expression!", pos(ctx));
-    	ctx.ast = errorExpr(pos(ctx));
+//    	err.syntaxError("XXXXXXXXXXXXXXXXXXXXXX Block as expression!", pos(ctx));
+//    	ctx.ast = errorExpr(pos(ctx));
+        List<Formal> FormalParameters = new ArrayList<Formal>();
+        DepParameterExpr WhereClauseopt = null;
+        TypeNode HasResultType = nf.UnknownTypeNode(Position.COMPILER_GENERATED);
+        TypeNode OBSOLETE_Offersopt = null;
+        Block ClosureBody = ast(ctx.closureBodyBlock());
+        ctx.ast = nf.Closure(pos(ctx), FormalParameters, WhereClauseopt, HasResultType, ClosureBody);
+
     }
 
     /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary7) */

@@ -1896,18 +1896,6 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterClosureBody2(X10Parser.ClosureBody2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosureBody2(X10Parser.ClosureBody2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterClosureBody1(X10Parser.ClosureBody1Context ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1927,6 +1915,30 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClosureBody0(X10Parser.ClosureBody0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
