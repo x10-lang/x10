@@ -571,7 +571,7 @@ primary returns [Expr ast]:
     | s='super' '.' identifier                  #primary11
     | className '.' s='super' '.' identifier    #primary12
     // methodInvocation
-    | methodName typeArgumentsopt '(' argumentListopt ')'                                     # primary13
+    | methodName typeArgumentsopt '(' argumentListopt ')'                                     #primary13
     | primary typeArgumentsopt '(' argumentListopt ')'                                        #primary17
     | className '.' 'operator' 'as' '[' type ']' typeArgumentsopt '(' argumentListopt ')'     #primary18
     | className '.' 'operator' '[' type ']' typeArgumentsopt '(' argumentListopt ')'          #primary19
