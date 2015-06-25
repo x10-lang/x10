@@ -874,15 +874,14 @@ public class SocketTransport {
     		}
     		else {
     			// it's possible the place is about to connect to us.  Give it a moment.
-    			int delay = connectionTimeout;
+    			long cutoffTime = System.currentTimeMillis() + connectionTimeout;
     			do {
 	    		    try { Thread.sleep(100); }
 	    			catch (InterruptedException e1) {
-	    				delay = 0;
+	    				cutoffTime = 0;
 	    			}
-    				delay-=100;
     				if (channels.containsKey(remotePlace)) return;
-    	    	} while (!shuttingDown && delay > 0);
+    	    	} while (!shuttingDown && System.currentTimeMillis() <= cutoffTime);
 				markPlaceDead(remotePlace); // mark it as dead
     			throw new IOException("Unknown location for place "+remotePlace);	    		
     		}
@@ -933,7 +932,7 @@ public class SocketTransport {
     	InetSocketAddress addr = new InetSocketAddress(hostname, port);
     	SocketChannel sc = null;
     	// wait for the remote place to become available.  It may be starting up still.
-    	int delay = connectionTimeout;
+    	long cutoffTime = System.currentTimeMillis() + connectionTimeout;
     	do {
 	    	try {
 	    		if (DEBUG) System.err.println("Trying to connect to "+addr.toString());
@@ -942,16 +941,12 @@ public class SocketTransport {
 	    		try {
 	    			if (channels.containsKey(remotePlace)) return; // connection was established in the background
 					Thread.sleep(100);
-					delay-=100;
-					if (delay <= 0 || shuttingDown) {
+					if (shuttingDown || System.currentTimeMillis() > cutoffTime) {
 						if (remotePlace >= 0) markPlaceDead(remotePlace); // mark it as dead
 						if (DEBUG) e.printStackTrace();
 						throw new IOException("Place "+myPlaceId+" unable to connect to place "+remotePlace);
 					}
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				} catch (InterruptedException e1) {} // sleep interrupted.  Ignore.
 	    	}
     	} while (sc == null);
 		
