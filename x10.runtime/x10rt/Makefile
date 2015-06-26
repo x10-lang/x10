@@ -16,7 +16,7 @@ WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
 
-override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES} -g
+override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 ifdef USE_GCC
     override CXXFLAGS += ${CXX_WARNING_FLAGS} -Werror=return-type
 endif
