@@ -29,16 +29,16 @@
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="tar.exe" value="tar"/>
-    <property name="optimize" value="false" />
+    <property name="optimize" value="true" />
     <property name="debug" value="false" />
     <property name="COPY_PROPAGATION" value="false" />
     <property name="ELIMINATE_DEAD_VARIABLES" value="false" />
     <property name="EXPERIMENTAL" value="false" />
     <property name="DISABLE_GC" value="false" />
-    <property name="NO_CHECKS" value="false" />
+    <property name="NO_CHECKS" value="true" />
     <property name="FLATTEN_EXPRESSIONS" value="false" />
     <property name="HOMOGENEOUS" value="true" />
-    <property name="GCC_SYMBOLS" value="false" />
+    <property name="GCC_SYMBOLS" value="true" />
     <property name="INCLUDE_JAVA_SOURCE" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>

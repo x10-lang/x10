@@ -60,12 +60,7 @@ public final class Worker extends Thread implements Unserializable {
         this.promoted = promoted;
         this.workerId = workerId;
         random = new Random(workerId + (workerId << 8n) + (workerId << 16n) + (workerId << 24n));
-        // [DC] Using 'here' as the srcPlace for the new activity causes a cycle:  The managed X10
-        // implementation of 'here' uses thread-local storage, and this can create a cycle in the case
-        // where access of thread-local storage occurs from a native java thread and triggers the creation
-        // of a new Worker.
-        // Using Place(0) is OK because the Uncounted finish passed into the activity does not use srcPlace.
-        activity = new Activity(Runtime.epoch(), ()=>{}, Place(0), FinishState.UNCOUNTED_FINISH);
+        activity = new Activity(Runtime.epoch(), ()=>{}, FinishState.UNCOUNTED_FINISH);
     }
 
     // return size of the deque
