@@ -37,4 +37,13 @@ public abstract class ArrayUtils {
         return makeRailFromJavaArray(type, value, true);
     }
 
+    public static <T> x10.core.Rail<T> makeRailFromValues(x10.rtt.Type type, T... values) {
+        int length = values.length;
+        x10.core.Rail<T> rail = new x10.core.Rail<T>(type, length);
+        for (int i = 0; i < length; ++i) {
+            rail.$set__1x10$lang$Rail$$T$G(i, values[i]);
+        }
+        return rail;
+    }
+
 }
