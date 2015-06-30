@@ -294,6 +294,30 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitMethodDeclarationConversionOp(X10Parser.MethodDeclarationConversionOpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code methodDeclarationKeywordOp}
+	 * labeled alternative in {@link X10Parser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodDeclarationKeywordOp(X10Parser.MethodDeclarationKeywordOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code methodDeclarationKeywordOp}
+	 * labeled alternative in {@link X10Parser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodDeclarationKeywordOp(X10Parser.MethodDeclarationKeywordOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code keywordOperatorDeclatation0}
+	 * labeled alternative in {@link X10Parser#keywordOperatorDeclatation}.
+	 * @param ctx the parse tree
+	 */
+	void enterKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code keywordOperatorDeclatation0}
+	 * labeled alternative in {@link X10Parser#keywordOperatorDeclatation}.
+	 * @param ctx the parse tree
+	 */
+	void exitKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryOperatorDecl}
 	 * labeled alternative in {@link X10Parser#binaryOperatorDeclaration}.
 	 * @param ctx the parse tree
@@ -1090,6 +1114,30 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitNonExpressionStatemen22(X10Parser.NonExpressionStatemen22Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code nonExpressionStatemen23}
+	 * labeled alternative in {@link X10Parser#nonExpressionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNonExpressionStatemen23(X10Parser.NonExpressionStatemen23Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code nonExpressionStatemen23}
+	 * labeled alternative in {@link X10Parser#nonExpressionStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNonExpressionStatemen23(X10Parser.NonExpressionStatemen23Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userStatement0}
+	 * labeled alternative in {@link X10Parser#userStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserStatement0(X10Parser.UserStatement0Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userStatement0}
+	 * labeled alternative in {@link X10Parser#userStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserStatement0(X10Parser.UserStatement0Context ctx);
+	/**
 	 * Enter a parse tree produced by {@link X10Parser#oBSOLETE_OfferStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1575,6 +1623,102 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAtEachStatement1(X10Parser.AtEachStatement1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement0}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement0(X10Parser.UserEnhancedForStatement0Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement0}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement0(X10Parser.UserEnhancedForStatement0Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement1}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement1(X10Parser.UserEnhancedForStatement1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement1}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement1(X10Parser.UserEnhancedForStatement1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement2}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement2(X10Parser.UserEnhancedForStatement2Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement2}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement2(X10Parser.UserEnhancedForStatement2Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement3}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement3(X10Parser.UserEnhancedForStatement3Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement3}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement3(X10Parser.UserEnhancedForStatement3Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement4}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement4(X10Parser.UserEnhancedForStatement4Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement4}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement4(X10Parser.UserEnhancedForStatement4Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement5}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement5(X10Parser.UserEnhancedForStatement5Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement5}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement5(X10Parser.UserEnhancedForStatement5Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement6}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement6(X10Parser.UserEnhancedForStatement6Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement6}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement6(X10Parser.UserEnhancedForStatement6Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userEnhancedForStatement7}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserEnhancedForStatement7(X10Parser.UserEnhancedForStatement7Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userEnhancedForStatement7}
+	 * labeled alternative in {@link X10Parser#userEnhancedForStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserEnhancedForStatement7(X10Parser.UserEnhancedForStatement7Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code enhancedForStatement0}
 	 * labeled alternative in {@link X10Parser#enhancedForStatement}.

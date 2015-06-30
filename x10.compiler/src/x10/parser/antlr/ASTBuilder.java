@@ -373,6 +373,8 @@ import x10.parser.antlr.generated.X10Parser.InterfaceMemberDeclaration3Context;
 import x10.parser.antlr.generated.X10Parser.InterfaceMemberDeclarationContext;
 import x10.parser.antlr.generated.X10Parser.InterfaceMemberDeclarationsoptContext;
 import x10.parser.antlr.generated.X10Parser.InterfacesoptContext;
+import x10.parser.antlr.generated.X10Parser.KeywordOperatorDeclatation0Context;
+import x10.parser.antlr.generated.X10Parser.KeywordOperatorDeclatationContext;
 import x10.parser.antlr.generated.X10Parser.LabeledStatementContext;
 import x10.parser.antlr.generated.X10Parser.LastExpressionContext;
 import x10.parser.antlr.generated.X10Parser.LeftHandSide0Context;
@@ -406,6 +408,7 @@ import x10.parser.antlr.generated.X10Parser.MethodDeclarationApplyOpContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationBinaryOpContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationConversionOpContext;
+import x10.parser.antlr.generated.X10Parser.MethodDeclarationKeywordOpContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationMethodContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationPrefixOpContext;
 import x10.parser.antlr.generated.X10Parser.MethodDeclarationSetOpContext;
@@ -448,6 +451,7 @@ import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen1Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen20Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen21Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen22Context;
+import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen23Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen2Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen3Context;
 import x10.parser.antlr.generated.X10Parser.NonExpressionStatemen4Context;
@@ -587,6 +591,17 @@ import x10.parser.antlr.generated.X10Parser.UnsignedByteLiteralContext;
 import x10.parser.antlr.generated.X10Parser.UnsignedIntLiteralContext;
 import x10.parser.antlr.generated.X10Parser.UnsignedLongLiteralContext;
 import x10.parser.antlr.generated.X10Parser.UnsignedShortLiteralContext;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement1Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement2Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement3Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement4Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement5Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement6Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatement7Context;
+import x10.parser.antlr.generated.X10Parser.UserEnhancedForStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserStatementContext;
 import x10.parser.antlr.generated.X10Parser.VarKeyword0Context;
 import x10.parser.antlr.generated.X10Parser.VarKeyword1Context;
 import x10.parser.antlr.generated.X10Parser.VarKeywordContext;
@@ -734,10 +749,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return new Position(p1, p2);
     }
 
+    /** Returns the position going from {@code t1} to {@code t2}. */
+    protected Position pos(Token t1, Token t2) {
+        Position p1 = pos(t1);
+        Position p2 = pos(t2);
+        return new Position(p1, p2);
+    }
+
     /** Returns the position going from {@code n} to {@code ctx} */
     protected Position pos(ParsedName n, ParserRuleContext ctx) {
         Position p1 = n.pos;
         Position p2 = pos(ctx);
+        return new Position(p1, p2);
+    }
+
+    /** Returns the position going from {@code ctx1} to {@code ctx1} */
+    protected Position pos(ParserRuleContext ctx1, ParserRuleContext ctx2) {
+        Position p1 = pos(ctx1);
+        Position p2 = pos(ctx2);
         return new Position(p1, p2);
     }
 
@@ -945,6 +974,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return ctx.ast;
     }
 
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
+     */
+    private final MethodDecl ast(KeywordOperatorDeclatationContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            return errorMethodDecl(p);
+        }
+        return ctx.ast;
+    }
+    
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code MethodDecl} is returned.
      */
@@ -1315,6 +1355,19 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return ctx.ast;
     }
 
+    /**
+     *  Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Offer} is returned.
      */
@@ -1724,6 +1777,20 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return ctx.ast;
     }
 
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserEnhancedForStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+
+    
     /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code X10Loop} is returned.
      */
@@ -3533,7 +3600,35 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.conversionOperatorDeclaration());
     }
 
-    /**
+    /** Production: methodDeclaration ::=  keywordOperatorDeclatation (#methodDeclarationKeywordOp) */
+    @Override
+	public void exitMethodDeclarationKeywordOp(MethodDeclarationKeywordOpContext ctx) {
+    	ctx.ast = ast(ctx.keywordOperatorDeclatation());
+	}
+
+    
+    
+	@Override
+	public void exitKeywordOperatorDeclatation0(KeywordOperatorDeclatation0Context ctx) {
+	    List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+	    Id Identifier = nf.Id(pos(ctx.id), "for");
+	    List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
+	    List<Formal> FormalParameters = ast(ctx.formalParameters());
+	    DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
+	    TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
+	    TypeNode OBSOLETE_Offersopt = ast(ctx.oBSOLETE_Offersopt());
+	    List<TypeNode> Throwsopt = ast(ctx.throwsopt());
+	    Block MethodBody = ast(ctx.methodBody());
+	    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+	    Position bodyStart = MethodBody == null ? pos(ctx).endOf() : MethodBody.position().startOf();
+	    MethodDecl pd = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers), HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
+	            Identifier, TypeParametersopt, FormalParameters, WhereClauseopt, OBSOLETE_Offersopt, Throwsopt, MethodBody);
+	    pd = (MethodDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(modifiers));
+	    pd = (MethodDecl) setComment(pd, ctx);
+	    ctx.ast = pd;
+	}
+
+	/**
      * Production: binaryOperatorDeclaration ::= methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt
      * oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody (#binaryOperatorDecl)
      */
@@ -4405,6 +4500,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitNonExpressionStatemen22(NonExpressionStatemen22Context ctx) {
         ctx.ast = ast(ctx.oBSOLETE_OfferStatement());
     }
+    
+    /** Production: nonExpressionStatement ::= userStatement (#nonExpressionStatemen23) */
+    @Override
+    public void exitNonExpressionStatemen23(NonExpressionStatemen23Context ctx) {
+        ctx.ast = ast(ctx.userStatement());
+    }
+
+    /** Production: userStatement ::= userEnhancedForStatement (#userStatement0) */
+    @Override
+    public void exitUserStatement0(UserStatement0Context ctx) {
+        ctx.ast = ast(ctx.userEnhancedForStatement());
+    }
 
     /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';' (#oBSOLETE_OfferStatement) */
     @Override
@@ -4777,6 +4884,180 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         X10Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
         TypedList<Expr> ClockedClauseopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
+    }
+
+    
+    /** Create a closure that represents the body of the loop. */
+    private Closure makeUserForBody(Position pos, X10Formal loopIndex, Block body) {
+        List<Formal> FormalParameters = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
+        if (loopIndex != null) { FormalParameters.add(loopIndex); }
+        DepParameterExpr WhereClauseopt = null;
+        TypeNode HasResultType = nf.UnknownTypeNode(Position.COMPILER_GENERATED);
+        TypeNode OBSOLETE_Offersopt = null;
+        Block ClosureBody = body;
+        return nf.Closure(pos, FormalParameters, WhereClauseopt, HasResultType, ClosureBody);
+    }
+    
+    /** Production: userEnhancedForStatement ::= fullyQualifiedName '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement0) */
+    @Override
+    public void exitUserEnhancedForStatement0(UserEnhancedForStatement0Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName()); 
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "for"));
+        
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= primary '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement1) */
+    @Override
+    public void exitUserEnhancedForStatement1(UserEnhancedForStatement1Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= s='super' '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement2) */
+    @Override
+    public void exitUserEnhancedForStatement2(UserEnhancedForStatement2Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= className '.' s='super' '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement3) */
+    @Override
+    public void exitUserEnhancedForStatement3(UserEnhancedForStatement3Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= fullyQualifiedName '.' 'for' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userEnhancedForStatement4) */
+    @Override
+    public void exitUserEnhancedForStatement4(UserEnhancedForStatement4Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName()); 
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "for"));
+        
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.closureBodyBlock()), null, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= primary '.' 'for' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userEnhancedForStatement5) */
+    @Override
+    public void exitUserEnhancedForStatement5(UserEnhancedForStatement5Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.closureBodyBlock()), null, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= s='super' '.' 'for' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userEnhancedForStatement6) */
+    @Override
+    public void exitUserEnhancedForStatement6(UserEnhancedForStatement6Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.closureBodyBlock()), null, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: userEnhancedForStatement ::= className '.' s='super' '.' 'for' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userEnhancedForStatement7) */
+    @Override
+    public void exitUserEnhancedForStatement7(UserEnhancedForStatement7Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "for"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure forBody = makeUserForBody(pos(ctx.closureBodyBlock()), null, closureBodyBlock);
+
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(forBody);
+
+        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(ctx), call);
     }
 
     /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement (#enhancedForStatement0) */

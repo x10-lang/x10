@@ -60,6 +60,10 @@ methodDeclaration returns [ProcedureDecl ast]:
     | applyOperatorDeclaration         #methodDeclarationApplyOp
     | setOperatorDeclaration           #methodDeclarationSetOp
     | conversionOperatorDeclaration    #methodDeclarationConversionOp
+    | keywordOperatorDeclatation       #methodDeclarationKeywordOp
+    ;
+keywordOperatorDeclatation returns [MethodDecl ast]:
+      methodModifiersopt 'operator' id='for' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody #keywordOperatorDeclatation0
     ;
 binaryOperatorDeclaration returns [MethodDecl ast]:
       methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #binaryOperatorDecl
@@ -199,6 +203,10 @@ nonExpressionStatement returns [Stmt ast]:
     | finishStatement              #nonExpressionStatemen20
     | assignPropertyCall           #nonExpressionStatemen21
     | oBSOLETE_OfferStatement      #nonExpressionStatemen22
+    | userStatement                #nonExpressionStatemen23
+    ;
+userStatement returns [Stmt ast]:
+      userEnhancedForStatement #userStatement0
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -314,6 +322,16 @@ whenStatement returns [When ast]:
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
+    ;
+userEnhancedForStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
+    | primary '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                  #userEnhancedForStatement1
+    | s='super' '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                #userEnhancedForStatement2
+    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock  #userEnhancedForStatement3
+    | fullyQualifiedName '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                      #userEnhancedForStatement4
+    | primary '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                 #userEnhancedForStatement5
+    | s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                               #userEnhancedForStatement6
+    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                 #userEnhancedForStatement7
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0

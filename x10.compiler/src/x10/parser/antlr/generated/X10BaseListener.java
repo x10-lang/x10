@@ -312,6 +312,30 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMethodDeclarationKeywordOp(X10Parser.MethodDeclarationKeywordOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMethodDeclarationKeywordOp(X10Parser.MethodDeclarationKeywordOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBinaryOperatorDecl(X10Parser.BinaryOperatorDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1152,6 +1176,30 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNonExpressionStatemen23(X10Parser.NonExpressionStatemen23Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNonExpressionStatemen23(X10Parser.NonExpressionStatemen23Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserStatement0(X10Parser.UserStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserStatement0(X10Parser.UserStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOBSOLETE_OfferStatement(X10Parser.OBSOLETE_OfferStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1687,6 +1735,102 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAtEachStatement1(X10Parser.AtEachStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement0(X10Parser.UserEnhancedForStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement0(X10Parser.UserEnhancedForStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement1(X10Parser.UserEnhancedForStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement1(X10Parser.UserEnhancedForStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement2(X10Parser.UserEnhancedForStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement2(X10Parser.UserEnhancedForStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement3(X10Parser.UserEnhancedForStatement3Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement3(X10Parser.UserEnhancedForStatement3Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement4(X10Parser.UserEnhancedForStatement4Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement4(X10Parser.UserEnhancedForStatement4Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement5(X10Parser.UserEnhancedForStatement5Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement5(X10Parser.UserEnhancedForStatement5Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement6(X10Parser.UserEnhancedForStatement6Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement6(X10Parser.UserEnhancedForStatement6Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserEnhancedForStatement7(X10Parser.UserEnhancedForStatement7Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserEnhancedForStatement7(X10Parser.UserEnhancedForStatement7Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
