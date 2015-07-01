@@ -117,10 +117,6 @@ typedef void x10rt_cuda_pre(const x10rt_msg_params *, size_t *blocks, size_t *th
 typedef void x10rt_cuda_post(const x10rt_msg_params *, size_t blocks, size_t threads, size_t shm,
                              size_t argc, char *argv, size_t cmemc, char *cmemv);
 
-/** A callback for finding a buffer at a remote place, that will be the subject of a copy operation.
- */
-typedef void *x10rt_finder(const x10rt_msg_params *, x10rt_copy_sz);
-
 /** A callback for finishing off a copy operation.  This can be arbitrary code
  * e.g. to inform the requester of the copy that the copy is complete.
  */

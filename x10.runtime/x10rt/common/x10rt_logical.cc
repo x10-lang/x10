@@ -509,18 +509,16 @@ void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
     x10rt_net_register_msg_receiver(msg_type, cb);
 }
 
-void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type,
-                                      x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb)
 {
     ESCAPE_IF_ERR;
-    x10rt_net_register_get_receiver(msg_type, cb1, cb2);
+    x10rt_net_register_get_receiver(msg_type, cb);
 }
 
-void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type,
-                                      x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb)
 {
     ESCAPE_IF_ERR;
-    x10rt_net_register_put_receiver(msg_type, cb1, cb2);
+    x10rt_net_register_put_receiver(msg_type, cb);
 }
 
 void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
@@ -540,15 +538,14 @@ void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
     }
 }
 
-void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
-                                           x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type, x10rt_notifier *cb)
 {
     ESCAPE_IF_ERR;
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
-                x10rt_cuda_register_get_receiver(cctx, msg_type, cb1, cb2);
+                x10rt_cuda_register_get_receiver(cctx, msg_type, cb);
             } break;
             default:
             fatal("Invalid node category.\n");
@@ -556,15 +553,14 @@ void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
     }
 }
 
-void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
-                                           x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type, x10rt_notifier *cb)
 {
     ESCAPE_IF_ERR;
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
-                x10rt_cuda_register_put_receiver(cctx, msg_type, cb1, cb2);
+                x10rt_cuda_register_put_receiver(cctx, msg_type, cb);
             } break;
             default:
             fatal("Invalid node category.\n");
@@ -619,7 +615,7 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
     }
 }
 
-void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_lgl_send_get (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 {
     ESCAPE_IF_ERR;
     x10rt_place d = p->dest_place;
@@ -627,13 +623,13 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        x10rt_net_send_get(p, buf, len);
+        x10rt_net_send_get(p, srcAddr, dstAddr, len);
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
-                x10rt_cuda_send_get(cctx, p, buf, len);
+                x10rt_cuda_send_get(cctx, p, srcAddr, dstAddr, len);
                 x10rt_net_unblock_probe();
             } break;
             default: {
@@ -646,7 +642,7 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     }
 }
 
-void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_lgl_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 {
     ESCAPE_IF_ERR;
     x10rt_place d = p->dest_place;
@@ -654,13 +650,13 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     assert(d < x10rt_lgl_nplaces());
 
     if (d < x10rt_lgl_nhosts()) {
-        x10rt_net_send_put(p, buf, len);
+        x10rt_net_send_put(p, srcAddr, dstAddr, len);
     } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
         // local accelerator
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
-                x10rt_cuda_send_put(cctx, p, buf, len);
+                x10rt_cuda_send_put(cctx, p, srcAddr, dstAddr, len);
                	x10rt_net_unblock_probe();
             } break;
             default: {

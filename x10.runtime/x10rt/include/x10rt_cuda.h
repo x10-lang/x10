@@ -59,11 +59,10 @@ X10RT_C void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_ty
  *
  * \param ctx The CUDA device in question.
  * \param msg_type The message type that these callbacks will process.
- * \param cb1 As seen in x10rt_register_get_receiver
- * \param cb2 As seen in x10rt_register_get_receiver
+ * \param cb As seen in x10rt_register_get_receiver
  */
 X10RT_C void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                               x10rt_finder *cb1, x10rt_notifier *cb2);
+                                               x10rt_notifier *cb1);
 
 /** Register callbacks to handle a message when received by a particular CUDA device.
  *
@@ -71,11 +70,10 @@ X10RT_C void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_ty
  *
  * \param ctx The CUDA device in question.
  * \param msg_type The message type that these callbacks will process.
- * \param cb1 As seen in x10rt_register_put_receiver
- * \param cb2 As seen in x10rt_register_put_receiver
+ * \param cb As seen in x10rt_register_put_receiver
  */
 X10RT_C void x10rt_cuda_register_put_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                               x10rt_finder *cb1, x10rt_notifier *cb2);
+                                               x10rt_notifier *cb);
 
 
 /** Signal that all messages have been set up.  If messages arrive at this CUDA
@@ -103,11 +101,12 @@ X10RT_C void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params *p);
  *
  * \param ctx The CUDA device in question.
  * \param p As seen in x10rt_send_get
- * \param buf As seen in x10rt_send_get
+ * \param srcAddr As seen in x10rt_send_get
+ * \param dstAddr As seen in x10rt_send_get
  * \param len As seen in x10rt_send_get
  */
 X10RT_C void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p,
-                                  void *buf, x10rt_copy_sz len);
+                                  void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 /** Copy memory to a local CUDA device (DMA put).
  *
@@ -115,11 +114,12 @@ X10RT_C void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p,
  *
  * \param ctx The CUDA device in question.
  * \param p As seen in x10rt_send_put
- * \param buf As seen in x10rt_send_put
+ * \param srcAddr As seen in x10rt_send_get
+ * \param dstAddr As seen in x10rt_send_get
  * \param len As seen in x10rt_send_put
  */
 X10RT_C void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p,
-                                  void *buf, x10rt_copy_sz len);
+                                  void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 /** Autoconfigure a kernel.
  *

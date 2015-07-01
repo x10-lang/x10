@@ -66,11 +66,9 @@ X10RT_C void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_han
  *
  * \param msg_type As in x10rt_lgl_register_get_receiver
  *
- * \param cb1 As in x10rt_lgl_register_get_receiver
- * \param cb2 As in x10rt_lgl_register_get_receiver
+ * \param cb As in x10rt_lgl_register_get_receiver
  */
-X10RT_C void x10rt_net_register_get_receiver (x10rt_msg_type msg_type,
-                                              x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 
 /** Register handlers for a put message.
@@ -79,11 +77,9 @@ X10RT_C void x10rt_net_register_get_receiver (x10rt_msg_type msg_type,
  *
  * \param msg_type As in x10rt_lgl_register_put_receiver
  *
- * \param cb1 As in x10rt_lgl_register_put_receiver
- * \param cb2 As in x10rt_lgl_register_put_receiver
+ * \param cb As in x10rt_lgl_register_put_receiver
  */
-X10RT_C void x10rt_net_register_put_receiver (x10rt_msg_type msg_type,
-                                              x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 
 /** A single-threaded SPMD host barrier. \deprecated
@@ -112,17 +108,19 @@ X10RT_C void x10rt_net_send_msg (x10rt_msg_params *p);
 
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.
- * \param buf As in x10rt_lgl_send_msg.
+ * \param srcAddr As in x10rt_lgl_send_msg.
+ * \param dstAddr As in x10rt_lgl_send_msg.
  * \param len As in x10rt_lgl_send_msg.
  */
-X10RT_C void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
+X10RT_C void x10rt_net_send_get (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 /** \see #x10rt_lgl_send_msg
  * \param p As in x10rt_lgl_send_msg.
- * \param buf As in x10rt_lgl_send_msg.
+ * \param srcAddr As in x10rt_lgl_send_msg.
+ * \param dstAddr As in x10rt_lgl_send_msg.
  * \param len As in x10rt_lgl_send_msg.
  */
-X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
+X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 /** Handle any oustanding message from the network by calling the registered callbacks.  \see #x10rt_lgl_probe
  */

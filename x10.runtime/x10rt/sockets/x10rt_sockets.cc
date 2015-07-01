@@ -44,7 +44,6 @@
 
 // mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
-typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
@@ -56,7 +55,6 @@ enum STATUS {UNKNOWN, PREINITIALIZED, RUNNING_LIBRARY, RUNNING, SHUTDOWN};
 struct x10SocketCallback
 {
 	handlerCallback handler;
-	finderCallback finder;
 	notifierCallback notifier;
 };
 
@@ -818,7 +816,6 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	}
 
 	context.callBackTable[msg_type].handler = callback;
-	context.callBackTable[msg_type].finder = NULL;
 	context.callBackTable[msg_type].notifier = NULL;
 
 	#ifdef DEBUG_MESSAGING
@@ -826,7 +823,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	#endif
 }
 
-void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
+void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_notifier *notifierCallback)
 {
     ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
@@ -843,7 +840,6 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	}
 
 	context.callBackTable[msg_type].handler = NULL;
-	context.callBackTable[msg_type].finder = finderCallback;
 	context.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG_MESSAGING
@@ -851,7 +847,7 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	#endif
 }
 
-void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
+void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *notifierCallback)
 {
     ESCAPE_IF_ERR;
 	// register a pointer to methods that will handle specific message types.
@@ -868,7 +864,6 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	}
 
 	context.callBackTable[msg_type].handler = NULL;
-	context.callBackTable[msg_type].finder = finderCallback;
 	context.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG_MESSAGING
@@ -965,7 +960,7 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	pthread_mutex_unlock(&context.writeLocks[dp]);
 }
 
-void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
+void x10rt_net_send_get (x10rt_msg_params *parameters, void *srcAddr, void *dstAddr, x10rt_copy_sz bufferLen)
 {
     ESCAPE_IF_ERR;
     if (x10rt_net_is_place_dead(parameters->dest_place)) // check for dead place
@@ -981,7 +976,7 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
-	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
+	// Format: type, p.type, p.len, p.msg, bufferlen, srcAddr, dstAddr
 	enum MSGTYPE m = GET;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
 		return (void)fatal_error("sending GET MSGTYPE");
@@ -994,13 +989,16 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 			return (void)fatal_error("sending GET x10rt_msg_params.msg");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		return (void)fatal_error("sending GET bufferLen");
-	if (bufferLen > 0)
-		if (nonBlockingWrite(parameters->dest_place, &buffer, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
-			return (void)fatal_error("sending GET buffer pointer");
+	if (bufferLen > 0) {
+        if (nonBlockingWrite(parameters->dest_place, &srcAddr, sizeof(void*)) < (int)sizeof(void*))
+			return (void)fatal_error("sending GET srcAddr");
+		if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
+			return (void)fatal_error("sending GET dstAddr");
+    }
 	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
 
-void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
+void x10rt_net_send_put (x10rt_msg_params *parameters, void *srcAddr, void *dstAddr, x10rt_copy_sz bufferLen)
 {
     ESCAPE_IF_ERR;
     if (x10rt_net_is_place_dead(parameters->dest_place)) // check for dead place
@@ -1017,7 +1015,7 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
-	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
+	// Format: type, p.type, p.len, p.msg, bufferlen, dstAddr, buffer contents
 	enum MSGTYPE m = PUT;
 	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
 		return (void)fatal_error("sending PUT MSGTYPE");
@@ -1030,9 +1028,12 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 			return (void)fatal_error("sending PUT x10rt_msg_params.len");
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		return (void)fatal_error("sending PUT bufferLen");
-	if (bufferLen > 0)
-		if (nonBlockingWrite(parameters->dest_place, buffer, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
+    if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
+        return (void)fatal_error("sending PUT dstAddr");
+	if (bufferLen > 0) {
+		if (nonBlockingWrite(parameters->dest_place, srcAddr, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
 			return (void)fatal_error("sending PUT buffer");
+    }
 	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
 
@@ -1232,13 +1233,15 @@ bool probe (bool onlyProcessAccept, bool block)
 						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							return fatal_error("reading PUT datalen"), false;
 
-						finderCallback fcb = context.callBackTable[mp.type].finder;
+                        void *destAddr;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &destAddr, sizeof(void*)) < (int)sizeof(void*))
+							return fatal_error("reading PUT dstAddr"), false;
+                        
                         x10rt_lgl_stats.put.messages_received++;
                         x10rt_lgl_stats.put.bytes_received += mp.len;
-						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
-						if (dest == NULL)
+						if (destAddr == NULL)
 							return fatal_error("invalid buffer provided for a PUT"), false;
-						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dest, dataLen) < (int)dataLen)
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, destAddr, dataLen) < (int)dataLen)
 							return fatal_error("reading PUT data"), false;
 						pthread_mutex_lock(&context.readLock);
 						context.noBlockWindow--;
@@ -1253,29 +1256,31 @@ bool probe (bool onlyProcessAccept, bool block)
 					case GET:
 					{
 						// this is the request for data.
-						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
+						// Format: type, p.type, p.len, p.msg, bufferlen, srcAddr, dstAddr
 						x10rt_copy_sz dataLen;
-						void* remotePtr; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
+						void* srcAddr = NULL; // THIS IS A POINTER ON THIS MACHINE
+						void* dstAddr = NULL; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
 						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							return fatal_error("reading GET dataLen"), false;
-						if (dataLen > 0)
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("reading GET pointer"), false;
-
+						if (dataLen > 0) {
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &srcAddr, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("reading GET srcAddr"), false;
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("reading GET dstAddr"), false;
+                        }
+                            
 						pthread_mutex_lock(&context.readLock);
 						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&context.readLock);
 
-						finderCallback fcb = context.callBackTable[mp.type].finder;
                         x10rt_lgl_stats.get.messages_received++;
                         x10rt_lgl_stats.get.bytes_received += mp.len;
-						void* src = fcb(&mp, dataLen);
                         x10rt_lgl_stats.get_copied_bytes_received += dataLen;
 
 						// send the data to the other side (the link is good, because we just read from it)
 						pthread_mutex_lock(&context.writeLocks[whichPlaceToHandle]);
-						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
+						// Format: type, p.type, p.len, p.msg, bufferlen, dstAddr, buffer
 						enum MSGTYPE m = GET_COMPLETED;
 						if (nonBlockingWrite(whichPlaceToHandle, &m, sizeof(m)) < (int)sizeof(m))
 							return fatal_error("sending GET_COMPLETED MSGTYPE"), false;
@@ -1290,9 +1295,9 @@ bool probe (bool onlyProcessAccept, bool block)
 							return fatal_error("sending GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
-							if (nonBlockingWrite(whichPlaceToHandle, &remotePtr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("sending GET_COMPLETED remotePtr"), false;
-							if (nonBlockingWrite(whichPlaceToHandle, src, dataLen) < (int)dataLen)
+							if (nonBlockingWrite(whichPlaceToHandle, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("sending GET_COMPLETED dstAddr"), false;
+							if (nonBlockingWrite(whichPlaceToHandle, srcAddr, dataLen) < (int)dataLen)
 								return fatal_error("sending GET_COMPLETED data"), false;
 						}
 						pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
@@ -1301,15 +1306,15 @@ bool probe (bool onlyProcessAccept, bool block)
 					case GET_COMPLETED:
 					{
 						x10rt_copy_sz dataLen;
-						void* buffer;
+						void* dstAddr;
 
 						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 							return fatal_error("reading GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &buffer, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("reading GET_COMPLETED pointer"), false;
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, buffer, dataLen) < (int)dataLen)
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
+								return fatal_error("reading GET_COMPLETED dstAddr"), false;
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dstAddr, dataLen) < (int)dataLen)
 								return fatal_error("reading GET_COMPLETED data"), false;
 						}
 						pthread_mutex_lock(&context.readLock);

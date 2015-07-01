@@ -52,15 +52,11 @@ namespace x10aux {
             ClosureKind closure_kind;
         };
         struct PutData {
-            BufferFinder put_bfinder;
             Notifier put_notifier;
-            BufferFinder cuda_put_bfinder;
             Notifier cuda_put_notifier;
         };
         struct GetData {
-            BufferFinder get_bfinder;
             Notifier get_notifier;
-            BufferFinder cuda_get_bfinder;
             Notifier cuda_get_notifier;
         };
 
@@ -147,25 +143,13 @@ namespace x10aux {
          * Valid for Put
          */
         
-        static serialization_id_t addPutFunctions(BufferFinder bfinder, Notifier notifier,
-                                                  BufferFinder cuda_bfinder, Notifier cuda_notifier);
-        serialization_id_t addPutFunctions_(BufferFinder bfinder, Notifier notifier,
-                                            BufferFinder cuda_bfinder, Notifier cuda_notifier);
-
-        static inline BufferFinder getPutBufferFinder(serialization_id_t id) {
-            return it->getPutBufferFinder_(id);
-        }
-        BufferFinder getPutBufferFinder_(serialization_id_t id);
+        static serialization_id_t addPutFunctions(Notifier notifier, Notifier cuda_notifier);
+        serialization_id_t addPutFunctions_(Notifier notifier, Notifier cuda_notifier);
 
         static inline Notifier getPutNotifier(serialization_id_t id) {
             return it->getPutNotifier_(id);
         }
         Notifier getPutNotifier_(serialization_id_t id);
-
-        static inline BufferFinder getCUDAPutBufferFinder(serialization_id_t id) {
-            return it->getCUDAPutBufferFinder_(id);
-        }
-        BufferFinder getCUDAPutBufferFinder_(serialization_id_t id);
 
         static inline Notifier getCUDAPutNotifier(serialization_id_t id) {
             return it->getCUDAPutNotifier_(id);
@@ -177,25 +161,13 @@ namespace x10aux {
          * Valid for Get
          */
 
-        static serialization_id_t addGetFunctions(BufferFinder bfinder, Notifier notifier,
-                                                  BufferFinder cuda_bfinder, Notifier cuda_notifier);
-        serialization_id_t addGetFunctions_(BufferFinder bfinder, Notifier notifier,
-                                            BufferFinder cuda_bfinder, Notifier cuda_notifier);
-
-        static inline BufferFinder getGetBufferFinder(serialization_id_t id) {
-            return it->getGetBufferFinder_(id);
-        }
-        BufferFinder getGetBufferFinder_(serialization_id_t id);
+        static serialization_id_t addGetFunctions(Notifier notifier, Notifier cuda_notifier);
+        serialization_id_t addGetFunctions_(Notifier notifier,Notifier cuda_notifier);
 
         static inline Notifier getGetNotifier(serialization_id_t id) {
             return it->getGetNotifier_(id);
         }
         Notifier getGetNotifier_(serialization_id_t id);
-
-        static inline BufferFinder getCUDAGetBufferFinder(serialization_id_t id) {
-            return it->getCUDAGetBufferFinder_(id);
-        }
-        BufferFinder getCUDAGetBufferFinder_(serialization_id_t id);
 
         static inline Notifier getCUDAGetNotifier(serialization_id_t id) {
             return it->getCUDAGetNotifier_(id);

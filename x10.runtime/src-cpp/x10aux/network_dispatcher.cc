@@ -71,35 +71,24 @@ x10aux::ClosureKind NetworkDispatcher::getClosureKind_ (serialization_id_t id) {
     return data[id].async.closure_kind;
 }
 
-serialization_id_t NetworkDispatcher::addPutFunctions (BufferFinder bfinder,
-                                                       Notifier notifier,
-                                                       BufferFinder cuda_bfinder,
+serialization_id_t NetworkDispatcher::addPutFunctions (Notifier notifier,
                                                        Notifier cuda_notifier) {
     if (NULL == it) {
         it = new (alloc<NetworkDispatcher>()) NetworkDispatcher();
     }
-    return it->addPutFunctions_(bfinder, notifier, cuda_bfinder, cuda_notifier);
+    return it->addPutFunctions_(notifier, cuda_notifier);
 }
 
-serialization_id_t NetworkDispatcher::addPutFunctions_ (BufferFinder bfinder,
-                                                        Notifier notifier,
-                                                        BufferFinder cuda_bfinder,
+serialization_id_t NetworkDispatcher::addPutFunctions_ (Notifier notifier,
                                                         Notifier cuda_notifier) {
     data.ensure_capacity(next_id);
     serialization_id_t r = next_id++;
     _S_("NetworkDispatcher registered the following put handler for id: "
-        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
-    data[r].put.put_bfinder = bfinder;
+        <<r<<": "<<std::hex<<(size_t)notifier<<std::dec);
     data[r].put.put_notifier = notifier;
-    data[r].put.cuda_put_bfinder = cuda_bfinder;
     data[r].put.cuda_put_notifier = cuda_notifier;
     data[r].tag = PUT;
     return r;
-}
-
-BufferFinder NetworkDispatcher::getPutBufferFinder_ (serialization_id_t id) {
-    assert(data[id].tag == PUT);
-    return data[id].put.put_bfinder;
 }
 
 Notifier NetworkDispatcher::getPutNotifier_ (serialization_id_t id) {
@@ -107,55 +96,34 @@ Notifier NetworkDispatcher::getPutNotifier_ (serialization_id_t id) {
     return data[id].put.put_notifier;
 }
 
-BufferFinder NetworkDispatcher::getCUDAPutBufferFinder_ (serialization_id_t id) {
-    assert(data[id].tag == PUT);
-    return data[id].put.cuda_put_bfinder;
-}
-
 Notifier NetworkDispatcher::getCUDAPutNotifier_ (serialization_id_t id) {
     assert(data[id].tag == PUT);
     return data[id].put.cuda_put_notifier;
 }
 
-serialization_id_t NetworkDispatcher::addGetFunctions (BufferFinder bfinder,
-                                                       Notifier notifier,
-                                                       BufferFinder cuda_bfinder,
+serialization_id_t NetworkDispatcher::addGetFunctions (Notifier notifier,
                                                        Notifier cuda_notifier) {
     if (NULL == it) {
         it = new (alloc<NetworkDispatcher>()) NetworkDispatcher();
     }
-    return it->addGetFunctions_(bfinder, notifier, cuda_bfinder, cuda_notifier);
+    return it->addGetFunctions_(notifier, cuda_notifier);
 }
 
-serialization_id_t NetworkDispatcher::addGetFunctions_ (BufferFinder bfinder,
-                                                        Notifier notifier,
-                                                        BufferFinder cuda_bfinder,
+serialization_id_t NetworkDispatcher::addGetFunctions_ (Notifier notifier,
                                                         Notifier cuda_notifier) {
     data.ensure_capacity(next_id);
     serialization_id_t r = next_id++;
     _S_("NetworkDispatcher registered the following get handler for id: "
-        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
-    data[r].get.get_bfinder = bfinder;
+        <<r<<": "<<std::hex<<(size_t)notifier<<std::dec);
     data[r].get.get_notifier = notifier;
-    data[r].get.cuda_get_bfinder = cuda_bfinder;
     data[r].get.cuda_get_notifier = cuda_notifier;
     data[r].tag = GET;
     return r;
 }
 
-BufferFinder NetworkDispatcher::getGetBufferFinder_ (serialization_id_t id) {
-    assert(data[id].tag == GET);
-    return data[id].get.get_bfinder;
-}
-
 Notifier NetworkDispatcher::getGetNotifier_ (serialization_id_t id) {
     assert(data[id].tag == GET);
     return data[id].get.get_notifier;
-}
-
-BufferFinder NetworkDispatcher::getCUDAGetBufferFinder_ (serialization_id_t id) {
-    assert(data[id].tag == GET);
-    return data[id].get.cuda_get_bfinder;
 }
 
 Notifier NetworkDispatcher::getCUDAGetNotifier_ (serialization_id_t id) {
