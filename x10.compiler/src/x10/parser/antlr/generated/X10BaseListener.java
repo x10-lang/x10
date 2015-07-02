@@ -324,13 +324,13 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx) { }
+	@Override public void enterKeywordOperatorDeclatation(X10Parser.KeywordOperatorDeclatationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitKeywordOperatorDeclatation0(X10Parser.KeywordOperatorDeclatation0Context ctx) { }
+	@Override public void exitKeywordOperatorDeclatation(X10Parser.KeywordOperatorDeclatationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1200,6 +1200,18 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterUserStatement1(X10Parser.UserStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserStatement1(X10Parser.UserStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOBSOLETE_OfferStatement(X10Parser.OBSOLETE_OfferStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1219,6 +1231,54 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIfThenStatement(X10Parser.IfThenStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserIfThenStatement0(X10Parser.UserIfThenStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserIfThenStatement0(X10Parser.UserIfThenStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserIfThenStatement1(X10Parser.UserIfThenStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserIfThenStatement1(X10Parser.UserIfThenStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserIfThenStatement2(X10Parser.UserIfThenStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserIfThenStatement2(X10Parser.UserIfThenStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserIfThenStatement3(X10Parser.UserIfThenStatement3Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserIfThenStatement3(X10Parser.UserIfThenStatement3Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -5023,6 +5083,30 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitParenthesisOp(X10Parser.ParenthesisOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterKeywordOp0(X10Parser.KeywordOp0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeywordOp0(X10Parser.KeywordOp0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterKeywordOp1(X10Parser.KeywordOp1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeywordOp1(X10Parser.KeywordOp1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

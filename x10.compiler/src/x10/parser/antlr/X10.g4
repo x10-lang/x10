@@ -63,7 +63,7 @@ methodDeclaration returns [ProcedureDecl ast]:
     | keywordOperatorDeclatation       #methodDeclarationKeywordOp
     ;
 keywordOperatorDeclatation returns [MethodDecl ast]:
-      methodModifiersopt 'operator' id='for' typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody #keywordOperatorDeclatation0
+      methodModifiersopt 'operator' keywordOp typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 binaryOperatorDeclaration returns [MethodDecl ast]:
       methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #binaryOperatorDecl
@@ -207,12 +207,19 @@ nonExpressionStatement returns [Stmt ast]:
     ;
 userStatement returns [Stmt ast]:
       userEnhancedForStatement #userStatement0
+    | userIfThenStatement      #userStatement1
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
     ;
 ifThenStatement returns [If ast]:
       'if' '(' expression ')' s1=statement ('else' s2=statement)?
+    ;
+userIfThenStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
+    | primary '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?                   #userIfThenStatement1
+    | s='super' '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?                 #userIfThenStatement2
+    | className '.'  s='super' '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?  #userIfThenStatement3
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -769,7 +776,10 @@ binOp returns [Binary.Operator ast]:
 parenthesisOp:
        '(' ')'
     ;
-
+keywordOp returns [Id ast]:
+      'for' #keywordOp0
+    | 'if'  #keywordOp1
+    ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?
     ;
