@@ -511,7 +511,7 @@ void x10rt_cuda_register_put_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
 {
 #ifdef ENABLE_CUDA
     x10rt_functions fs;
-    fs.copy_cbs.ch = cb1;
+    fs.copy_cbs.ch = cb;
     ctx->cbs.reg(msg_type,fs);
 #else
     (void) ctx; (void) msg_type; (void) cb;
@@ -577,10 +577,6 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *srcAdd
         fprintf(stderr,"X10RT: Get %llu is invalid.\n", (unsigned long long)p->type);
         abort();
     }
-    if (ctx->cbs[p->type].copy_cbs.hh == NULL) {
-        fprintf(stderr,"X10RT: Get %llu has no 'hh' registered.\n", (unsigned long long)p->type);
-        abort();
-    }
     if (ctx->cbs[p->type].copy_cbs.ch == NULL) {
         fprintf(stderr,"X10RT: Get %llu has no 'ch' registered.\n", (unsigned long long)p->type);
         abort();
@@ -614,10 +610,6 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *srcAdd
 
     if (ctx->cbs.arrc <= p->type) {
         fprintf(stderr,"X10RT: Put %llu is invalid.\n", (unsigned long long)p->type);
-        abort();
-    }
-    if (ctx->cbs[p->type].copy_cbs.hh == NULL) {
-        fprintf(stderr,"X10RT: Put %llu has no 'hh' registered.\n", (unsigned long long)p->type);
         abort();
     }
     if (ctx->cbs[p->type].copy_cbs.ch == NULL) {
