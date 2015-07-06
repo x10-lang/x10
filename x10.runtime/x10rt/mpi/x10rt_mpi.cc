@@ -706,7 +706,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
 
 void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
     x10rt_lgl_stats.get.messages_sent++ ;
-    x10rt_lgl_stats.get.bytes_sent += p->len;
+    x10rt_lgl_stats.get.bytes_sent += 0;
 
     int                 get_msg_len, get_msg_alloc_len;
     x10rt_start_get_req *get_msg;
@@ -916,7 +916,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
                            get_req->msg_len
                          };
     q->remove(req);
-    x10rt_lgl_stats.get_copied_bytes_sent += get_req->len;
+    x10rt_lgl_stats.get_copied_bytes_received += get_req->len;
 
     release_lock(&global_state.lock);
     cb(&p, get_req->len);
@@ -947,6 +947,8 @@ static void get_incoming_req_completion(int dest_place,
 
     q->remove(req);
     x10rt_lgl_stats.get.messages_received++;
+    x10rt_lgl_stats.get.bytes_received += 0;
+    x10rt_lgl_stats.get_copied_bytes_sent += len;
 
     free(req->getBuf());
 
