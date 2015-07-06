@@ -171,6 +171,13 @@ typedef struct _x10rt_nw_req {
     unsigned char             tag;
 } x10rt_nw_req;
 
+typedef struct _x10rt_start_get_req {
+    int                       type;
+    void                    * srcAddr;
+    int                       len;
+    unsigned char             tag;
+} x10rt_start_get_req;
+
 typedef struct _x10rt_get_req {
     int                       type;
     int                       dest_place;
@@ -181,6 +188,7 @@ typedef struct _x10rt_get_req {
 
 typedef struct _x10rt_put_req {
     int                       type;
+    void                    * dstAddr;
     void                    * msg;
     int                       msg_len;
     int                       len;
@@ -361,10 +369,8 @@ class x10rt_req_queue {
 };
 
 typedef x10rt_handler *amSendCb;
-typedef x10rt_finder *putCb1;
-typedef x10rt_notifier *putCb2;
-typedef x10rt_finder *getCb1;
-typedef x10rt_notifier *getCb2;
+typedef x10rt_notifier *putCb;
+typedef x10rt_notifier *getCb;
 
 class x10rt_internal_state {
     public:
@@ -378,11 +384,9 @@ class x10rt_internal_state {
         MPI_Comm            mpi_comm;
         amSendCb          * amCbTbl;
         unsigned            amCbTblSize;
-        putCb1            * putCb1Tbl;
-        putCb2            * putCb2Tbl;
+        putCb             * putCbTbl;
         unsigned            putCbTblSize;
-        getCb1            * getCb1Tbl;
-        getCb2            * getCb2Tbl;
+        getCb             * getCbTbl;
         unsigned            getCbTblSize;
         int                 _reserved_tag_get_data;
         int                 _reserved_tag_get_req;
@@ -403,15 +407,11 @@ class x10rt_internal_state {
             amCbTbl       =
                 ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
             amCbTblSize   = X10RT_CB_TBL_SIZE;
-            putCb1Tbl     =
-                ChkAlloc<putCb1>(sizeof(putCb1) * X10RT_CB_TBL_SIZE);
-            putCb2Tbl     =
-                ChkAlloc<putCb2>(sizeof(putCb2) * X10RT_CB_TBL_SIZE);
+            putCbTbl      =
+                ChkAlloc<putCb>(sizeof(putCb) * X10RT_CB_TBL_SIZE);
             putCbTblSize  = X10RT_CB_TBL_SIZE;
-            getCb1Tbl     =
-                ChkAlloc<getCb1>(sizeof(getCb1) * X10RT_CB_TBL_SIZE);
-            getCb2Tbl     =
-                ChkAlloc<getCb2>(sizeof(getCb2) * X10RT_CB_TBL_SIZE);
+            getCbTbl      =
+                ChkAlloc<getCb>(sizeof(getCb) * X10RT_CB_TBL_SIZE);
             getCbTblSize  = X10RT_CB_TBL_SIZE;
 
             free_list.addRequests(X10RT_REQ_FREELIST_INIT_LEN);
@@ -422,10 +422,8 @@ class x10rt_internal_state {
         }
         ~x10rt_internal_state() {
             free(amCbTbl);
-            free(putCb1Tbl);
-            free(putCb2Tbl);
-            free(getCb1Tbl);
-            free(getCb2Tbl);
+            free(putCbTbl);
+            free(getCbTbl);
             if (pthread_mutex_destroy(&lock)) {
                 perror("pthread_mutex_destroy");
                 abort();
@@ -603,40 +601,30 @@ void x10rt_net_register_msg_receiver(x10rt_msg_type msg_type, x10rt_handler *cb)
     global_state.amCbTbl[msg_type] = cb;
 }
 
-void x10rt_net_register_put_receiver(x10rt_msg_type msg_type,
-                                     x10rt_finder *cb1, x10rt_notifier *cb2) {
+void x10rt_net_register_put_receiver(x10rt_msg_type msg_type, x10rt_notifier *cb) {
     assert(global_state.init);
     assert(!global_state.finalized);
     if (msg_type >= global_state.putCbTblSize) {
-        global_state.putCb1Tbl     =
-            ChkRealloc<putCb1>(global_state.putCb1Tbl,
-                    sizeof(putCb1)*(msg_type+1));
-        global_state.putCb2Tbl     =
-            ChkRealloc<putCb2>(global_state.putCb2Tbl,
-                    sizeof(putCb2)*(msg_type+1));
+        global_state.putCbTbl     =
+            ChkRealloc<putCb>(global_state.putCbTbl,
+                    sizeof(putCb)*(msg_type+1));
         global_state.putCbTblSize  = msg_type+1;
     }
 
-    global_state.putCb1Tbl[msg_type] = cb1;
-    global_state.putCb2Tbl[msg_type] = cb2;
+    global_state.putCbTbl[msg_type] = cb;
 }
 
-void x10rt_net_register_get_receiver(x10rt_msg_type msg_type,
-                                     x10rt_finder *cb1, x10rt_notifier *cb2) {
+void x10rt_net_register_get_receiver(x10rt_msg_type msg_type, x10rt_notifier *cb) {
     assert(global_state.init);
     assert(!global_state.finalized);
     if (msg_type >= global_state.getCbTblSize) {
-        global_state.getCb1Tbl     =
-            ChkRealloc<getCb1>(global_state.getCb1Tbl,
-                    sizeof(getCb1)*(msg_type+1));
-        global_state.getCb2Tbl     =
-            ChkRealloc<getCb2>(global_state.getCb2Tbl,
-                    sizeof(getCb2)*(msg_type+1));
+        global_state.getCbTbl     =
+            ChkRealloc<getCb>(global_state.getCbTbl,
+                    sizeof(getCb)*(msg_type+1));
         global_state.getCbTblSize  = msg_type+1;
     }
 
-    global_state.getCb1Tbl[msg_type] = cb1;
-    global_state.getCb2Tbl[msg_type] = cb2;
+    global_state.getCbTbl[msg_type] = cb;
 }
 
 x10rt_place x10rt_net_nhosts(void) {
@@ -716,12 +704,12 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     }
 }
 
-void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
+void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += p->len;
 
-    int                 get_msg_len;
-    x10rt_nw_req      * get_msg;
+    int                 get_msg_len, get_msg_alloc_len;
+    x10rt_start_get_req *get_msg;
     x10rt_get_req       get_req;
     assert(global_state.init);
     assert(!global_state.finalized);
@@ -732,26 +720,32 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     get_req.dest_place = p->dest_place;
     get_req.len        = len;
     
-
     /*      GET Message
-     * +-------------------------------------------+
-     * | type | msg_len | len | tag | <- msg ... ->|
-     * +-------------------------------------------+
-     *  <--- x10rt_nw_req --------->
+     * +----------------------------+
+     * | type | srcAddr | len | tag | 
+     * +----------------------------+
+     *  <--- x10rt_start_get_req --->
      */
-    get_msg_len         = sizeof(*get_msg) + p->len;
-    get_msg             = ChkAlloc<x10rt_nw_req>(get_msg_len);
+    // Note that we allocate a single piece of memory here, but
+    // use it for two different purposes:
+    //  (a) we send the fixed-size header as the get_data message.
+    //  (b) we use the variable sized tail to copy p->msg.  This is not
+    //      sent to dst_place along with (a) because we do not need the
+    //      contents of p->msg to initiate the send of data from the get.
+    get_msg_len         = sizeof(*get_msg);
+    get_msg_alloc_len   = get_msg_len + p->len;
+    get_msg             = ChkAlloc<x10rt_start_get_req>(get_msg_alloc_len);
     get_msg->type       = p->type;
-    get_msg->msg_len    = p->len;
+    get_msg->srcAddr    = srcAddr;
     get_msg->len        = len;
     get_msg->tag        = tag;
 
-    get_req.msg        = &get_msg[1];
+    get_req.msg        = &get_msg[1]; // filled in below by memcpy.
     get_req.msg_len    = p->len;
 
     /* pre-post a recv that matches the GET request */
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_Irecv(buf, len,
+    if (MPI_Irecv(dstAddr, len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_get_data << 8) | tag,
@@ -797,11 +791,10 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
         x10rt_net_probe_ex(true);
     } while (!complete);
     global_state.free_list.enqueue(req);
-
 }
 
 
-void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
+void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
     x10rt_lgl_stats.put.messages_sent++ ;
     x10rt_lgl_stats.put.bytes_sent += p->len;
     x10rt_lgl_stats.put_copied_bytes_sent += len;
@@ -815,14 +808,15 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     unsigned char tag = req->getTag();
 
     /*      PUT Message
-     * +-------------------------------------------------+
-     * | type | msg | msg_len | len | tag | <- msg ... ->|
-     * +-------------------------------------------------+
+     * +-----------------------------------------------------------+
+     * | type | dstAddr | msg | msg_len | len | tag | <- msg ... ->|
+     * +-----------------------------------------------------------+
      *  <------ x10rt_put_req ----------->
      */
     put_msg_len         = sizeof(*put_msg) + p->len;
     put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
     put_msg->type       = p->type;
+    put_msg->dstAddr    = dstAddr;
     put_msg->msg        = p->msg;
     put_msg->msg_len    = p->len;
     put_msg->len        = len;
@@ -863,7 +857,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
 
     req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(buf,
+    if (MPI_SUCCESS != MPI_Isend(srcAddr,
                 len,
                 MPI_BYTE,
                 p->dest_place,
@@ -875,7 +869,6 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     global_state.free_list.enqueue(req);
-
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -916,7 +909,7 @@ static void recv_completion(int ix, int bytes,
 static void get_incoming_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     x10rt_get_req * get_req = req->getUserGetReq();
-    getCb2 cb = global_state.getCb2Tbl[get_req->type];
+    getCb cb = global_state.getCbTbl[get_req->type];
     x10rt_msg_params p = { get_req->dest_place,
                            get_req->type,
                            get_req->msg,
@@ -942,27 +935,18 @@ static void get_outgoing_req_completion(x10rt_req_queue * q, x10rt_req * req) {
 static void get_incoming_req_completion(int dest_place,
         x10rt_req_queue * q, x10rt_req * req) {
     /*      GET Message
-     * +-------------------------------------------+
-     * | type | msg_len | len | tag | <- msg ... ->|
-     * +-------------------------------------------+
-     *  <--- x10rt_nw_req --------->
+     * +----------------------------+
+     * | type | srcAddr | len | tag | 
+     * +----------------------------+
+     *  <--- x10rt_start_get_req --->
      */
-    x10rt_nw_req * get_nw_req = static_cast <x10rt_nw_req *> (req->getBuf());
-    int len = get_nw_req->len;
-    unsigned char tag = get_nw_req->tag;
-    getCb1 cb = global_state.getCb1Tbl[get_nw_req->type];
-    x10rt_msg_params p = { x10rt_net_here(),
-                           get_nw_req->type,
-                           static_cast <void *> (&get_nw_req[1]),
-                           get_nw_req->msg_len
-                         };
+    x10rt_start_get_req * start_get_req = static_cast <x10rt_start_get_req *> (req->getBuf());
+    void *local = start_get_req->srcAddr;
+    int len = start_get_req->len;
+    unsigned char tag = start_get_req->tag;
+
     q->remove(req);
     x10rt_lgl_stats.get.messages_received++;
-    x10rt_lgl_stats.get.bytes_received += p.len;
-    release_lock(&global_state.lock);
-    void * local = cb(&p, len);
-    get_lock(&global_state.lock);
-    x10rt_lgl_stats.get_copied_bytes_received += len;
 
     free(req->getBuf());
 
@@ -1008,15 +992,15 @@ static void put_incoming_req_completion(int src_place,
         x10rt_req_queue * q,
         x10rt_req * req) {
     /*      PUT Message
-     * +-------------------------------------------------+
-     * | type | msg | msg_len | len | tag | <- msg ... ->|
-     * +-------------------------------------------------+
+     * +-----------------------------------------------------------+
+     * | type | dstAddr | msg | msg_len | len | tag | <- msg ... ->|
+     * +-----------------------------------------------------------+
      *  <------ x10rt_put_req ----------->
      */
     x10rt_put_req * put_req = static_cast <x10rt_put_req *> (req->getBuf());
     int len = put_req->len;
     int tag = put_req->tag;
-    putCb1 cb = global_state.putCb1Tbl[put_req->type];
+    void *local = put_req->dstAddr;
     x10rt_msg_params p = { x10rt_net_here(),
                            put_req->type,
                            static_cast <void *> (&put_req[1]),
@@ -1025,10 +1009,6 @@ static void put_incoming_req_completion(int src_place,
     q->remove(req);
     x10rt_lgl_stats.put.messages_received++;
     x10rt_lgl_stats.put.bytes_received += p.len;
-
-    release_lock(&global_state.lock);
-    void * local = cb(&p, len);
-    get_lock(&global_state.lock);
 
     /* reuse request for posting recv */
     if (MPI_SUCCESS != MPI_Irecv(local,
@@ -1047,7 +1027,7 @@ static void put_incoming_req_completion(int src_place,
 
 static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
     x10rt_put_req   * put_req = static_cast <x10rt_put_req *> (req->getBuf());
-    putCb2 cb = global_state.putCb2Tbl[put_req->type];
+    putCb cb = global_state.putCbTbl[put_req->type];
     x10rt_msg_params p = { x10rt_net_here(),
                            put_req->type,
                            static_cast <void *> (&put_req[1]),
