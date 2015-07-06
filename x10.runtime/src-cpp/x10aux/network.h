@@ -197,7 +197,7 @@ namespace x10aux {
     void send_put (place p, serialization_id_t id,
                    serialization_buffer &buf, void *srcAddr, void *dstAddr, ::x10aux::copy_sz len);
 
-    void cuda_put (place gpu, x10_ulong addr, void *srcAddr, void *dstAddr, size_t sz);
+    void cuda_put (place gpu, void *srcAddr, void *dstAddr, size_t sz);
 
     // teams
     void *coll_enter();

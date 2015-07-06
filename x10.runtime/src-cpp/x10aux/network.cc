@@ -437,12 +437,11 @@ x10aux::msg_type x10aux::register_get_handler (void) {
     return x10rt_register_get_receiver(finished_get, cuda_finished_get);
 }
 
-void x10aux::cuda_put (place gpu, x10_ulong addr, void *srcAddr, void *dstAddr, size_t sz)
+void x10aux::cuda_put (place gpu, void *srcAddr, void *dstAddr, size_t sz)
 {
     bool finished = false;
     x10aux::serialization_buffer buf;
     buf.write((x10_ulong)(size_t)&finished);
-    buf.write(addr);
     size_t len = buf.length();
     x10rt_msg_params p = {x10rt_place(gpu), kernel_put, buf.borrow(), len};
     x10rt_send_put(&p, srcAddr, dstAddr, sz);
