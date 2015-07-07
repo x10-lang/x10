@@ -518,6 +518,11 @@ import x10.parser.antlr.generated.X10Parser.Primary37Context;
 import x10.parser.antlr.generated.X10Parser.Primary38Context;
 import x10.parser.antlr.generated.X10Parser.Primary39Context;
 import x10.parser.antlr.generated.X10Parser.Primary3Context;
+import x10.parser.antlr.generated.X10Parser.Primary40Context;
+import x10.parser.antlr.generated.X10Parser.Primary41Context;
+import x10.parser.antlr.generated.X10Parser.Primary42Context;
+import x10.parser.antlr.generated.X10Parser.Primary43Context;
+import x10.parser.antlr.generated.X10Parser.Primary44Context;
 import x10.parser.antlr.generated.X10Parser.Primary4Context;
 import x10.parser.antlr.generated.X10Parser.Primary5Context;
 import x10.parser.antlr.generated.X10Parser.Primary6Context;
@@ -6441,6 +6446,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         }
     }
 
+    private X10Call keywordOperatorInvocation(Position pos, Expr OperatorPrefix, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt) {
+        if (OperatorPrefix instanceof Field) {
+            Field f = (Field) OperatorPrefix;
+            return nf.X10Call(pos, f.target(), f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else if (OperatorPrefix instanceof AmbExpr) {
+            AmbExpr f = (AmbExpr) OperatorPrefix;
+            return nf.X10Call(pos, null, f.name(), TypeArgumentsopt, ArgumentListopt);
+        } else {
+            throw new InternalCompilerError("Invalid operator keyword", OperatorPrefix.position());
+        }
+    }
+
     /** Production: primary ::= 'operator' binOp typeArgumentsopt '(' argumentListopt ')' (#primary20) */
     @Override
     public void exitPrimary20(Primary20Context ctx) {
@@ -6701,6 +6718,59 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
         List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
         ctx.ast = prefixOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
+    }
+
+    /** Production: primary ::= 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'    (#primary40) */
+    @Override
+    public void exitPrimary40(Primary40Context ctx) {
+        Id opName = ast(ctx.keywordOp());
+        Expr OperatorKeyword = nf.Field(pos(ctx.keywordOp()), null, opName);
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ctx.ast = keywordOperatorInvocation(pos(ctx), OperatorKeyword, TypeArgumentsopt, ArgumentListopt);
+    }
+    
+    /** Production: primary ::= fullyQualifiedName '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'    (#primary41) */
+    @Override
+    public void exitPrimary41(Primary41Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName()); 
+        Id opName = ast(ctx.keywordOp());
+        Expr OperatorKeyword = nf.Field(pos(ctx), fullyQualifiedName.toReceiver(), opName);
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ctx.ast = keywordOperatorInvocation(pos(ctx), OperatorKeyword, TypeArgumentsopt, ArgumentListopt);
+    }
+
+    /** Production: primary ::= primary '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'    (#primary42) */
+    @Override
+    public void exitPrimary42(Primary42Context ctx) {
+        Expr Primary = ast(ctx.primary());
+        Id opName = ast(ctx.keywordOp());
+        Expr OperatorKeyword = nf.Field(pos(ctx), Primary, opName);
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ctx.ast = keywordOperatorInvocation(pos(ctx), OperatorKeyword, TypeArgumentsopt, ArgumentListopt);
+    }
+    
+    /** Production: primary ::= s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'    (#primary43) */
+    @Override
+    public void exitPrimary43(Primary43Context ctx) {
+        Id opName = ast(ctx.keywordOp());
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.s)), opName);
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ctx.ast = keywordOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
+    }
+
+    /** Production: primary ::= className '.' s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'    (#primary44) */
+    @Override
+    public void exitPrimary44(Primary44Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Id opName = ast(ctx.keywordOp());
+        Expr OperatorPrefix = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), opName);
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> ArgumentListopt = ast(ctx.argumentListopt());
+        ctx.ast = keywordOperatorInvocation(pos(ctx), OperatorPrefix, TypeArgumentsopt, ArgumentListopt);
     }
 
     /** Production: primary ::= 'super' dot='.' (#primaryError0) */

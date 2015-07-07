@@ -3482,6 +3482,42 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitPrimary39(X10Parser.Primary39Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code primary43}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimary43(X10Parser.Primary43Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primary43}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimary43(X10Parser.Primary43Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primary42}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimary42(X10Parser.Primary42Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primary42}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimary42(X10Parser.Primary42Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primary44}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimary44(X10Parser.Primary44Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primary44}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimary44(X10Parser.Primary44Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code primaryClosure}
 	 * labeled alternative in {@link X10Parser#primary}.
 	 * @param ctx the parse tree
@@ -3493,6 +3529,30 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrimaryClosure(X10Parser.PrimaryClosureContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primary41}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimary41(X10Parser.Primary41Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primary41}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimary41(X10Parser.Primary41Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primary40}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimary40(X10Parser.Primary40Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primary40}
+	 * labeled alternative in {@link X10Parser#primary}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimary40(X10Parser.Primary40Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code IntLiteral}
 	 * labeled alternative in {@link X10Parser#literal}.

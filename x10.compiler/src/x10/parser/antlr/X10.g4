@@ -621,6 +621,12 @@ primary returns [Expr ast]:
     | primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
     | s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                   #primary38
     | className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'     #primary39
+    // operatorKeyword
+    | 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                                       #primary40
+    | fullyQualifiedName '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                #primary41
+    | primary '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                           #primary42
+    | s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                         #primary43
+    | className '.' s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'           #primary44
     // errors
     | s='super' dot='.'                    #primaryError0
     | className '.' s='super' dot='.'      #primaryError1
