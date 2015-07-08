@@ -68,8 +68,10 @@ static void recv_msg_pong (const x10rt_msg_params *p)
 // {{{ put handlers
 static void recv_put_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
-        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
+    if (validate && (len > 0) && memcmp(buf, ping_buf, len)) {
+        std::cerr << "\nReceived scrambled ping message (len: "<<len<<")." <<
+            "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
+     		"Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
         abort();
     }
     if(validate) memset(ping_buf, 0, len);
@@ -77,10 +79,12 @@ static void recv_put_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
     x10rt_send_put(&p2, buf, remote_pong_buf, len);
 }
 
-static void recv_put_pong (const x10rt_msg_params *p, x10rt_copy_sz)
+static void recv_put_pong (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (p->len > 0) && memcmp(buf, pong_buf, p->len)) {
-        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
+    if (validate && (len > 0) && memcmp(buf, pong_buf, len)) {
+        std::cerr << "\nReceived scrambled pong message (len: "<<len<<")." <<
+           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
+	       "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
         abort();
     }
     if(validate) memset(pong_buf, 0, len);
@@ -91,8 +95,10 @@ static void recv_put_pong (const x10rt_msg_params *p, x10rt_copy_sz)
 // {{{ get handlers
 static void recv_get_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
-        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
+    if (validate && (len > 0) && memcmp(buf, ping_buf, len)) {
+        std::cerr << "\nReceived scrambled ping message (len: "<<len<<")." <<
+           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
+		   "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
         abort();
     }
     if(validate) memset(ping_buf, 0, len);
@@ -103,8 +109,10 @@ static void recv_get_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
 
 static void recv_get_pong (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (p->len > 0) && memcmp(buf, pong_buf, len)) {
-        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
+    if (validate && (len > 0) && memcmp(buf, pong_buf, len)) {
+        std::cerr << "\nReceived scrambled pong message (len: "<<len<<")." <<
+           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
+  		   "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
         abort();
     }
     pongs_outstanding--;
