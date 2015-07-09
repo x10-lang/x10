@@ -101,7 +101,9 @@ namespace x10 {
             static ::x10::lang::Rail<T>* _make();
             void _constructor();
     
-            static ::x10::lang::Rail<T>* _makeUnsafe(x10_long size, x10_boolean allocatedZeroed);
+            static ::x10::lang::Rail<T>* _makeUnsafe(x10_long size,
+                                                     x10_boolean allocatedZeroed,
+                                                     x10_boolean nonGCAlloc = false);
     
             static ::x10::lang::Rail<T>* _make(::x10::lang::Rail<T>* src);
             void _constructor(::x10::lang::Rail<T>* src);
@@ -261,13 +263,16 @@ template<class T> void ::x10::lang::Rail<T>::_constructor() {
 }
 
 
-template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size, x10_boolean allocateZeroed) {
+template<class T> ::x10::lang::Rail<T>* x10::lang::Rail<T>::_makeUnsafe(x10_long size,
+                                                                        x10_boolean allocateZeroed,
+                                                                        x10_boolean nonGCAlloc) {
     if (size < 0) throwNegativeArraySizeException();
     bool containsPtrs = ::x10aux::getRTT<T>()->containsPtrs;
     x10_long numElems = size;
     x10_long allocElems = numElems > 0 ? numElems - 1 : numElems;   // account for raw[1]
-    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T)); 
-    ::x10::lang::Rail<T>* this_ = new (::x10aux::alloc_internal(numBytes, containsPtrs)) ::x10::lang::Rail<T>(numElems);
+    size_t numBytes = sizeof(::x10::lang::Rail<T>) + (allocElems * sizeof(T));
+    void *storage = nonGCAlloc ? ::x10aux::system_alloc< ::x10::lang::Rail<T> >(numBytes) : ::x10aux::alloc_internal(numBytes, containsPtrs);
+    ::x10::lang::Rail<T>* this_ = new (storage) ::x10::lang::Rail<T>(numElems);
 
     if (allocateZeroed) {
         memset(&(this_->raw), 0, numElems*sizeof(T));
