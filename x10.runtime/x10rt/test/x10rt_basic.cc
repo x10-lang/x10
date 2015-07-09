@@ -26,12 +26,13 @@ static void x10rt_aborting_probe (void)
 }
 
 
-x10rt_msg_type INIT_ID, PING_ID, PONG_ID, PING_PUT_ID, PONG_PUT_ID, PING_GET_ID, PONG_GET_ID, QUIT_ID;
+x10rt_msg_type INIT_ID, SEND_MSG_ID, ACK_SEND_MSG_ID, PUT_ID, ACK_PUT_ID, VALIDATE_PUT_ID, GET_ID, QUIT_ID;
 
-char *buf, *ping_buf, *pong_buf; 
-char *remote_buf, *remote_ping_buf, *remote_pong_buf;
+char *src_buf, *dst_buf;
+char *remote_src_buf, *remote_dst_buf;
 size_t len = 1024;
 bool validate = false;
+unsigned long window = 100;
 unsigned long pongs_outstanding = 0;
 bool finished = false;
 
@@ -39,85 +40,85 @@ bool finished = false;
 // {{{ msg handlers
 static void recv_init (const x10rt_msg_params *p)
 {
-    remote_buf = ((char**)(p->msg))[0];
-    remote_ping_buf = ((char**)(p->msg))[1];
-    remote_pong_buf = ((char**)(p->msg))[2];
+    remote_src_buf = ((char**)(p->msg))[0];
+    remote_dst_buf = ((char**)(p->msg))[1];
 }
 
 
-static void recv_msg_ping (const x10rt_msg_params *p)
+static void recv_send_msg (const x10rt_msg_params *p)
 {
-    if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
-        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
-        abort();
+    if (validate && (p->len > 4)) {
+        int offset = (int)(*((char*)p->msg));
+        if (memcmp(&src_buf[offset], p->msg, p->len)) {
+            std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
+            abort();
+        }
     }
-    x10rt_msg_params p2 = {0, PONG_ID, p->msg, p->len};
+    x10rt_msg_params p2 = {0, ACK_SEND_MSG_ID, p->msg, p->len};
     x10rt_send_msg(&p2);
 }
 
-static void recv_msg_pong (const x10rt_msg_params *p)
+static void recv_ack_send_msg (const x10rt_msg_params *p)
 {
-    if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
-        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
-        abort();
+    if (validate && (p->len > 4)) {
+        int offset = (int)(*((char*)p->msg));
+        if (memcmp(&src_buf[offset], p->msg, p->len)) {
+            std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
+            abort();
+        }
     }
     pongs_outstanding--;
 } // }}}
 
 
 // {{{ put handlers
-static void recv_put_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
+static void recv_put (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (len > 0) && memcmp(buf, ping_buf, len)) {
-        std::cerr << "\nReceived scrambled ping message (len: "<<len<<")." <<
-            "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
-     		"Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
-        abort();
-    }
-    if(validate) memset(ping_buf, 0, len);
-    x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
-    x10rt_send_put(&p2, buf, remote_pong_buf, len);
+    x10rt_msg_params p2 = {0, ACK_PUT_ID, NULL, 0};
+    x10rt_send_msg(&p2);
 }
 
-static void recv_put_pong (const x10rt_msg_params *p, x10rt_copy_sz len)
+static void recv_ack_put (const x10rt_msg_params *p)
 {
-    if (validate && (len > 0) && memcmp(buf, pong_buf, len)) {
-        std::cerr << "\nReceived scrambled pong message (len: "<<len<<")." <<
-           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
-	       "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
-        abort();
-    }
-    if(validate) memset(pong_buf, 0, len);
     pongs_outstanding--;
+}
+
+static void recv_validate_put (const x10rt_msg_params *p)
+{
+    if (validate) {
+        for (unsigned long j=0 ; j<window ; j++) {
+            if (memcmp(src_buf+j, dst_buf+(j*len), len)) {
+                std::cerr << "\nPut validation failed on window "<<j<<" (len "<<len<<")." << std::endl;
+            }
+        }
+        memset(dst_buf, 0, window*len);
+    }
+    
+    x10rt_msg_params p2 = {0, ACK_PUT_ID, NULL, 0};
+    x10rt_send_msg(&p2);
 } // }}}
+
 
 
 // {{{ get handlers
-static void recv_get_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
+static void recv_get (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
-    if (validate && (len > 0) && memcmp(buf, ping_buf, len)) {
-        std::cerr << "\nReceived scrambled ping message (len: "<<len<<")." <<
-           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
-		   "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
-        abort();
-    }
-    if(validate) memset(ping_buf, 0, len);
-    // send to dest place again
-    x10rt_msg_params p2 = {p->dest_place, PONG_GET_ID, NULL, 0};
-    x10rt_send_get(&p2, remote_buf, pong_buf, len);
+    pongs_outstanding--;
 }
 
-static void recv_get_pong (const x10rt_msg_params *p, x10rt_copy_sz len)
-{
-    if (validate && (len > 0) && memcmp(buf, pong_buf, len)) {
-        std::cerr << "\nReceived scrambled pong message (len: "<<len<<")." <<
-           "Received:  "<<(int)ping_buf[0]<<(int)ping_buf[1]<<(int)ping_buf[2]<<(int)ping_buf[3]<<(int)ping_buf[4]<<"...."<<
-  		   "Should be: "<<(int)buf[0]<<(int)buf[1]<<(int)buf[2]<<(int)buf[3]<<(int)buf[4]<<"...."<< std::endl;
-        abort();
-    }
-    pongs_outstanding--;
-} // }}}
+static void validate_get(unsigned long len) {
+    if (!validate) return;
 
+    for (unsigned long j=0 ; j<window ; j++) {
+        if (memcmp(src_buf+j, dst_buf+(j*len), len)) {
+            std::cerr << "\nGet validation failed on window "<<j<<" (len "<<len<<")." << std::endl;
+        }
+    }
+    memset(dst_buf, 0, window*len);
+}
+
+
+// }}}
 
 void recv_quit(const x10rt_msg_params *) { finished = true; }
 
@@ -146,9 +147,8 @@ void show_help(std::ostream &out, char* name)
 } // }}}
 
 
-// {{{ run_test(iters,window,len,put,get) -- sends iters*window*(nhosts-1) msgs
+// {{{ run_test(iters,len,put,get) -- sends iters*window*(nhosts-1) msgs
 long long run_test(unsigned long iters,
-                   unsigned long window,
                    unsigned long len,
                    bool put = false,
                    bool get = false)
@@ -158,20 +158,28 @@ long long run_test(unsigned long iters,
         for (unsigned long j=0 ; j<window ; ++j) {
             for (unsigned long k=1 ; k<x10rt_nhosts() ; ++k) {
                 if (put) {
-                    x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0};
-                    x10rt_send_put(&p, buf, remote_ping_buf, len);
+                    x10rt_msg_params p = {k, PUT_ID, NULL, 0};
+                    x10rt_send_put(&p, src_buf+j, remote_dst_buf+(j*len), len);
                 } else if (get) {
-                    x10rt_msg_params p = {k, PING_GET_ID, NULL, 0};
-                    if(validate) memset(ping_buf, 0, len);
-                    x10rt_send_get(&p, remote_buf, ping_buf, len);
+                    x10rt_msg_params p = {k, GET_ID, NULL, 0};
+                    x10rt_send_get(&p, remote_src_buf+j, dst_buf+(j*len), len);
                 } else {
-                    x10rt_msg_params p = {k, PING_ID, buf, len};
+                    x10rt_msg_params p = {k, SEND_MSG_ID, src_buf+j, len};
                     x10rt_send_msg(&p);
                 }
                 pongs_outstanding++;
             }
         }
         while (pongs_outstanding) x10rt_aborting_probe();
+
+        if (validate && put) {
+            x10rt_msg_params p2 = {1, VALIDATE_PUT_ID, NULL, 0};
+            x10rt_send_msg(&p2);
+            pongs_outstanding++;
+            while (pongs_outstanding) x10rt_aborting_probe();
+        } else if (validate && get) {
+            validate_get(len);
+        }
     }
     nanos += nano_time();
     return nanos;
@@ -189,12 +197,12 @@ int main(int argc, char **argv)
     }
 
     INIT_ID = x10rt_register_msg_receiver(&recv_init, NULL, NULL, NULL, NULL);
-    PING_ID = x10rt_register_msg_receiver(&recv_msg_ping, NULL, NULL, NULL, NULL);
-    PONG_ID = x10rt_register_msg_receiver(&recv_msg_pong, NULL, NULL, NULL, NULL);
-    PING_PUT_ID = x10rt_register_put_receiver(&recv_put_ping, NULL);
-    PONG_PUT_ID = x10rt_register_put_receiver(&recv_put_pong, NULL);
-    PING_GET_ID = x10rt_register_get_receiver(&recv_get_ping, NULL);
-    PONG_GET_ID = x10rt_register_get_receiver(&recv_get_pong, NULL);
+    SEND_MSG_ID = x10rt_register_msg_receiver(&recv_send_msg, NULL, NULL, NULL, NULL);
+    ACK_SEND_MSG_ID = x10rt_register_msg_receiver(&recv_ack_send_msg, NULL, NULL, NULL, NULL);
+    GET_ID = x10rt_register_get_receiver(&recv_get, NULL);
+    PUT_ID = x10rt_register_put_receiver(&recv_put, NULL);
+    ACK_PUT_ID = x10rt_register_msg_receiver(&recv_ack_put, NULL, NULL, NULL, NULL);
+    VALIDATE_PUT_ID = x10rt_register_msg_receiver(&recv_validate_put, NULL, NULL, NULL, NULL);
     QUIT_ID = x10rt_register_msg_receiver(&recv_quit, NULL, NULL, NULL, NULL);
 
     x10rt_registration_complete();
@@ -205,7 +213,6 @@ int main(int argc, char **argv)
     }
 
     size_t iterations=320;
-    unsigned long window = 100;
     bool put = false;
     bool get = false;
     bool automatic = false;
@@ -272,7 +279,7 @@ int main(int argc, char **argv)
 
     if ((put || get) && x10rt_nhosts()!=2) {
         if (x10rt_here()==0) {
-            std::cerr << "Must have excatly two places for put/get test." << std::endl;
+            std::cerr << "Must have exactly two places for put/get test." << std::endl;
             show_help(std::cerr,argv[0]);
         }
         exit(EXIT_FAILURE);
@@ -280,37 +287,40 @@ int main(int argc, char **argv)
         
 
     {
-        size_t sz = len < 1024*1024 ? 1024*1024 : len;
-        buf = (char*)malloc(sz);
-        ping_buf = (char*)malloc(sz);
-        pong_buf = (char*)malloc(sz);
-        for (size_t i=0 ; i<sz ; ++i) {
-            buf[i] = i;
+        size_t src_sz = (automatic ? 1024 * 1024 : len) + window;
+        size_t dst_sz = (src_sz - window) * window;
+        src_buf = (char*)malloc(src_sz);
+        dst_buf = (char*)malloc(dst_sz);
+        for (size_t i=0; i<src_sz ; i++) {
+            src_buf[i] = i;
         }
     }
 
 
-    void** tmp = (void**)malloc(3*sizeof(void*));
-    tmp[0] = buf;
-    tmp[1] = ping_buf;
-    tmp[2] = pong_buf;
-    x10rt_msg_params p = {x10rt_here()==0 ? 1 : 0, INIT_ID, tmp, 3*sizeof(void*)};
+    void** tmp = (void**)malloc(2*sizeof(void*));
+    tmp[0] = src_buf;
+    tmp[1] = dst_buf;
+    x10rt_msg_params p = {x10rt_here()==0 ? 1 : 0, INIT_ID, tmp, 2*sizeof(void*)};
     x10rt_send_msg(&p);
 
-    while (!remote_buf) x10rt_aborting_probe();
+    while (!remote_dst_buf) x10rt_aborting_probe();
 
     if (x10rt_here()==0) {
         // warm up
         for (int i=0 ; i<16 ; ++i) {
-            run_test(1, 1, 1024, false, false);
-            run_test(1, 1, 1024, true, false);
-            run_test(1, 1, 1024, false, true);
+            run_test(1, 1024, false, false);
+            run_test(1, 1024, true, false);
+            run_test(1, 1024, false, true);
         }
     }
 
     if (x10rt_here()==0) {
 
         if (automatic) {
+            if (validate && put) {
+                std::cout << "Validation not implemented for put in auto mode.  Disabling validation" << std::endl;
+                validate = false;
+            }
             std::cout << "        ";
             for (int j=1 ; j<=16 ; ++j) {
 				std::cout << std::setw(7) << j << " ";
@@ -319,15 +329,16 @@ int main(int argc, char **argv)
             for (int l=0 ; l<512*1024 ; l=(l*2)>0?(l*2):1) {
                 std::cout << std::setw(8) << l;
                 float micros = 0;
-                for (int j=1 ; j<=16 ; ++j) {
-                    micros = run_test(iterations/j, j, l, put, get)
+                for (int j=1 ; j<=16 ; j++) {
+                    window = j;
+                    micros = run_test(iterations/j, l, put, get)
                              / 1E3 / (iterations/j*j) / 2 / (x10rt_nhosts() - 1);
                     std::cout << std::setw(7) << std::setprecision(3) << micros << " ";
                 }
                 std::cout << std::setprecision(3) << l/micros << std::endl;
             }
         } else {
-            float micros = run_test(iterations, window, len, put, get)
+            float micros = run_test(iterations, len, put, get)
                            / 1E3 / (iterations*window) / 2 / (x10rt_nhosts() - 1);
             std::cout << "Half roundtrip time: "<<micros<<" us  Bandwidth: "<<len/micros<<" MB/s" << std::endl;
         }
