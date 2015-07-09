@@ -54,7 +54,9 @@ static void recv_send_msg (const x10rt_msg_params *p)
             abort();
         }
     }
-    x10rt_msg_params p2 = {0, ACK_SEND_MSG_ID, p->msg, p->len};
+    // only send back empty ack message to be comparable to get/put tests
+//  x10rt_msg_params p2 = {0, ACK_SEND_MSG_ID, p->msg, p->len};
+    x10rt_msg_params p2 = {0, ACK_SEND_MSG_ID, NULL, 0};
     x10rt_send_msg(&p2);
 }
 
@@ -332,15 +334,15 @@ int main(int argc, char **argv)
                 for (int j=1 ; j<=16 ; j++) {
                     window = j;
                     micros = run_test(iterations/j, l, put, get)
-                             / 1E3 / (iterations/j*j) / 2 / (x10rt_nhosts() - 1);
+                             / 1E3 / (iterations/j*j) / (x10rt_nhosts() - 1);
                     std::cout << std::setw(7) << std::setprecision(3) << micros << " ";
                 }
                 std::cout << std::setprecision(3) << l/micros << std::endl;
             }
         } else {
             float micros = run_test(iterations, len, put, get)
-                           / 1E3 / (iterations*window) / 2 / (x10rt_nhosts() - 1);
-            std::cout << "Half roundtrip time: "<<micros<<" us  Bandwidth: "<<len/micros<<" MB/s" << std::endl;
+                           / 1E3 / (iterations*window) / (x10rt_nhosts() - 1);
+            std::cout << "Time for operation + ack: "<<micros<<" us  Bandwidth: "<<len/micros<<" MB/s" << std::endl;
         }
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
