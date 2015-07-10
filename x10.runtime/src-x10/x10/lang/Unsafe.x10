@@ -22,17 +22,9 @@ public final class Unsafe {
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
     public native static def allocRailUninitialized[T](size:Long):Rail[T]{self.size==size, self!=null};
 
-    @Native("c++", "::x10::lang::Rail< #T >::_makeUnsafe(#size, false, true)")
-    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, false)")
-    public native static def allocNonGCRailUninitialized[T](size:Long):Rail[T]{self.size==size, self!=null};
-
     @Native("c++", "::x10::lang::Rail< #T >::_makeUnsafe(#size, true)")
     @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
     public native static def allocRailZeroed[T](size:Long):Rail[T]{self.size==size,self!=null}; 
-
-    @Native("c++", "::x10::lang::Rail< #T >::_makeUnsafe(#size, true, true)")
-    @Native("java", "x10.core.Rail.<#T$box>makeUnsafe(#T$rtt, #size, true)")
-    public native static def allocNonGCRailZeroed[T](size:Long):Rail[T]{self.size==size,self!=null}; 
 
     @Native("c++", "(#x)->clear()")
     @Native("java", "(#x).clear()")
@@ -53,9 +45,6 @@ public final class Unsafe {
 
     @Native("c++", "::x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}
-
-    @Native("c++", "::x10aux::system_dealloc(#o)")
-    public static def deallocNonGC[T](o:T){ T isref } :void {}
 
     @Native("c++", "::x10::lang::UnsafeNatives::getCongruentSibling(#r, #dst)")
     private static def getCongruentSibling[T](r:Rail[T]{self!=null}, dst:Long):Rail[T]{self.size==r.size,self!=null} {
