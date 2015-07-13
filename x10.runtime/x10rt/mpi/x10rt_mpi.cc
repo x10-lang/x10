@@ -39,8 +39,11 @@
 #include <x10rt_cpp.h>
 #include <x10rt_ser.h>
 
+
+
 #if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
 #define X10RT_NONBLOCKING_SUPPORTED true
+//#define X10RT_MPI3_DMA true    // TODO: uncomment this line once MPI3-RMA is tested
 #else
 #define X10RT_NONBLOCKING_SUPPORTED false
 #endif
@@ -161,16 +164,10 @@ typedef enum {
     X10RT_REQ_TYPE_UNDEFINED            = -1
 } X10RT_REQ_TYPES;
 
+#ifndef X10RT_MPI3_DMA
 /* differentiate from x10rt_{get|put}_req
  * to save precious bytes from packet size
  * for each PUT/GET */
-typedef struct _x10rt_nw_req {
-    int                       type;
-    int                       msg_len;
-    int                       len;
-    unsigned char             tag;
-} x10rt_nw_req;
-
 typedef struct _x10rt_start_get_req {
     int                       type;
     void                    * srcAddr;
@@ -194,6 +191,7 @@ typedef struct _x10rt_put_req {
     int                       len;
     unsigned char             tag;
 } x10rt_put_req;
+#endif
 
 class x10rt_req {
         int                   type;
@@ -202,7 +200,9 @@ class x10rt_req {
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
+#ifndef X10RT_MPI3_DMA
         x10rt_get_req         get_req;
+#endif
     public:
         x10rt_req(unsigned char uniqueid)  {
             next = prev = NULL;
@@ -221,6 +221,7 @@ class x10rt_req {
         MPI_Request * getMPIRequest() { return &this->mpi_req; }
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return this->buf; }
+#ifndef X10RT_MPI3_DMA
         void setUserGetReq(x10rt_get_req * r) {
             this->get_req.type       = r->type;
             this->get_req.dest_place = r->dest_place;
@@ -232,6 +233,7 @@ class x10rt_req {
             assert(X10RT_REQ_TYPE_GET_INCOMING_DATA == type);
             return &this->get_req;
         }
+#endif
         friend class x10rt_req_queue;
 };
 
@@ -704,6 +706,48 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     }
 }
 
+static void send_completion(x10rt_req_queue * q,
+        x10rt_req * req) {
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
+
+static void recv_completion(int ix, int bytes,
+        x10rt_req_queue * q, x10rt_req * req) {
+    assert(ix>0);
+    amSendCb cb = global_state.amCbTbl[ix];
+    assert(cb != NULL);
+    x10rt_msg_params p = { x10rt_net_here(),
+                           ix,
+                           req->getBuf(),
+                           bytes
+                         };
+
+    q->remove(req);
+
+    assert(ix > 0);
+
+    x10rt_lgl_stats.msg.messages_received++;
+    x10rt_lgl_stats.msg.bytes_received += p.len;
+
+    release_lock(&global_state.lock);
+    {
+        cb(&p);
+    }
+    get_lock(&global_state.lock);
+
+    free(req->getBuf());
+    global_state.free_list.enqueue(req);
+}
+
+#ifdef X10RT_MPI3_DMA
+void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {}
+
+void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {}
+
+
+#else
 void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += 0;
@@ -871,41 +915,6 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     global_state.free_list.enqueue(req);
 }
 
-static void send_completion(x10rt_req_queue * q,
-        x10rt_req * req) {
-    free(req->getBuf());
-    q->remove(req);
-    global_state.free_list.enqueue(req);
-}
-
-static void recv_completion(int ix, int bytes,
-        x10rt_req_queue * q, x10rt_req * req) {
-    assert(ix>0);
-    amSendCb cb = global_state.amCbTbl[ix];
-    assert(cb != NULL);
-    x10rt_msg_params p = { x10rt_net_here(),
-                           ix,
-                           req->getBuf(),
-                           bytes
-                         };
-
-    q->remove(req);
-
-    assert(ix > 0);
-
-    x10rt_lgl_stats.msg.messages_received++;
-    x10rt_lgl_stats.msg.bytes_received += p.len;
-
-    release_lock(&global_state.lock);
-    {
-        cb(&p);
-    }
-    get_lock(&global_state.lock);
-
-    free(req->getBuf());
-    global_state.free_list.enqueue(req);
-}
-
 static void get_incoming_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
     x10rt_get_req * get_req = req->getUserGetReq();
@@ -1043,6 +1052,7 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
     free(req->getBuf());
     global_state.free_list.enqueue(req);
 }
+#endif
 
 /**
  * Checks pending sends to see if any completed.
@@ -1073,6 +1083,7 @@ static void check_pending_sends() {
                 case X10RT_REQ_TYPE_SEND:
                     send_completion(q, req_copy);
                     break;
+#ifndef X10RT_MPI3_DMA
                 case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
                     get_outgoing_req_completion(q, req_copy);
                     break;
@@ -1085,6 +1096,7 @@ static void check_pending_sends() {
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
                     put_outgoing_data_completion(q, req_copy);
                     break;
+#endif
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
                             __FILE__, __LINE__, req_copy->getType());
@@ -1125,6 +1137,7 @@ static void check_pending_receives() {
                 case X10RT_REQ_TYPE_RECV:
                     recv_completion(msg_status.MPI_TAG, get_recvd_bytes(&msg_status), q, req_copy);
                     break;
+#ifndef X10RT_MPI3_DMA
                 case X10RT_REQ_TYPE_GET_INCOMING_DATA:
                     get_incoming_data_completion(q, req_copy);
                     break;
@@ -1137,6 +1150,7 @@ static void check_pending_receives() {
                 case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
                     put_incoming_data_completion(q, req_copy);
                     break;
+#endif
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
                             __FILE__, __LINE__, req_copy->getType());
