@@ -43,7 +43,7 @@
 
 #if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
 #define X10RT_NONBLOCKING_SUPPORTED true
-//#define X10RT_MPI3_DMA true    // TODO: uncomment this line once MPI3-RMA is tested
+//#define X10RT_MPI3_RMA true // TODO: uncomment this line once MPI3-RMA is fully tested
 #else
 #define X10RT_NONBLOCKING_SUPPORTED false
 #endif
@@ -164,16 +164,17 @@ typedef enum {
     X10RT_REQ_TYPE_UNDEFINED            = -1
 } X10RT_REQ_TYPES;
 
-#ifndef X10RT_MPI3_DMA
 /* differentiate from x10rt_{get|put}_req
  * to save precious bytes from packet size
  * for each PUT/GET */
+#ifndef X10RT_MPI3_RMA
 typedef struct _x10rt_start_get_req {
     int                       type;
     void                    * srcAddr;
     int                       len;
     unsigned char             tag;
 } x10rt_start_get_req;
+#endif
 
 typedef struct _x10rt_get_req {
     int                       type;
@@ -185,13 +186,15 @@ typedef struct _x10rt_get_req {
 
 typedef struct _x10rt_put_req {
     int                       type;
+#ifdef X10RT_MPI3_RMA
+    void					* srcAddr;
+#endif
     void                    * dstAddr;
     void                    * msg;
     int                       msg_len;
     int                       len;
     unsigned char             tag;
 } x10rt_put_req;
-#endif
 
 class x10rt_req {
         int                   type;
@@ -200,9 +203,7 @@ class x10rt_req {
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
-#ifndef X10RT_MPI3_DMA
         x10rt_get_req         get_req;
-#endif
     public:
         x10rt_req(unsigned char uniqueid)  {
             next = prev = NULL;
@@ -221,7 +222,6 @@ class x10rt_req {
         MPI_Request * getMPIRequest() { return &this->mpi_req; }
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return this->buf; }
-#ifndef X10RT_MPI3_DMA
         void setUserGetReq(x10rt_get_req * r) {
             this->get_req.type       = r->type;
             this->get_req.dest_place = r->dest_place;
@@ -233,7 +233,6 @@ class x10rt_req {
             assert(X10RT_REQ_TYPE_GET_INCOMING_DATA == type);
             return &this->get_req;
         }
-#endif
         friend class x10rt_req_queue;
 };
 
@@ -384,6 +383,7 @@ class x10rt_internal_state {
         int                 rank;
         int                 nprocs;
         MPI_Comm            mpi_comm;
+        MPI_Win				mpi_win;
         amSendCb          * amCbTbl;
         unsigned            amCbTblSize;
         putCb             * putCbTbl;
@@ -403,6 +403,7 @@ class x10rt_internal_state {
             finalized           = false;
             threading_mode      = MPI_THREAD_SINGLE;
             report_nonblocking_coll	= X10RT_NONBLOCKING_SUPPORTED;
+            mpi_win 				= MPI_WIN_NULL;
         }
         void Init() {
             init          = true;
@@ -578,7 +579,31 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
                 __FILE__, __LINE__);
         abort();
     }
+#ifdef X10RT_MPI3_RMA
+    if (MPI_SUCCESS != MPI_Win_create_dynamic(MPI_INFO_NULL, global_state.mpi_comm, &global_state.mpi_win)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_create_dynamic\n", __FILE__, __LINE__);
+    	abort();
+    }
 
+    /*    MPI_Info info;
+    if (MPI_SUCCESS != MPI_Info_create(&info)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Info_create\n", __FILE__, __LINE__);
+    	abort();
+    }
+    if (MPI_SUCCESS != MPI_Info_set(info, "no_locks", "true")) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Info_set\n", __FILE__, __LINE__);
+    	abort();
+    }
+    if (MPI_SUCCESS != MPI_Win_create_dynamic(info, global_state.mpi_comm, &global_state.mpi_win)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_create_dynamic\n", __FILE__, __LINE__);
+    	abort();
+    }
+    if (MPI_SUCCESS != MPI_Info_free(&info)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Info_free\n", __FILE__, __LINE__);
+    	abort();
+    }
+*/
+#endif
     if (MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n",
                 __FILE__, __LINE__);
@@ -741,13 +766,212 @@ static void recv_completion(int ix, int bytes,
     global_state.free_list.enqueue(req);
 }
 
-#ifdef X10RT_MPI3_DMA
-void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {}
+#ifdef X10RT_MPI3_RMA
+/*
+ * MPI-3 form of PUT/GET uses MPI_WIN_CREATE_DYNAMIC and MPI_WIN_ATTACH to expose buffers.
+ *
+ * MPI_WIN_CREATE_DYNAMIC, MPI_WIN_START = done at startup time
+ * MPI_WIN_ATTACH = done when GlobalRail is created
+ * MPI_WIN_LOCK = get a (shared) lock on the remote buffer when the user calls get/put
+ * MPI_RGET = initiate the transfer
+ * MPI_WIN_UNLOCK = unlock the remote buffer, after the get/put
+ * MPI_WIN_DETACH = done when the GlobalReference is destroyed (TODO)
+ * MPI_WIN_COMPLETE, MPI_WIN_FREE = done at shutdown time
+ */
+void x10rt_net_register_mem (void *ptr, size_t size) {
+	if (MPI_SUCCESS != MPI_Win_attach(global_state.mpi_win, ptr, size)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_attach\n", __FILE__, __LINE__);
+    	abort();
+    }
+	fprintf(stderr, "place %u registered %u bytes of memory @ %p\n", global_state.rank, size, ptr);
+}
 
-void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {}
+void x10rt_net_deregister_mem (void *ptr) {
+	if (MPI_SUCCESS != MPI_Win_detach(global_state.mpi_win, ptr)) {
+		fprintf(stderr, "[%s:%d] Error in MPI_Win_detach\n", __FILE__, __LINE__);
+		abort();
+	}
+	fprintf(stderr, "place %u deregistered some memory @ %p\n", global_state.rank, ptr);
+}
 
+// Get is implemented via MPI_RGET.  The callback is issued locally after data has arrived
+void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
+	x10rt_lgl_stats.get.messages_sent++ ;
+    x10rt_lgl_stats.get.bytes_sent += 0;
+
+    assert(global_state.init);
+    assert(!global_state.finalized);
+    x10rt_get_req       get_req;
+    x10rt_req* req = global_state.free_list.popNoFail();
+
+    get_req.type       = p->type;
+    get_req.dest_place = p->dest_place;
+    get_req.msg		   = malloc(p->len); // copy the message, so the upper layer may free it
+    memcpy(get_req.msg, p->msg, p->len);
+    get_req.msg_len    = p->len;
+    get_req.len        = len;
+
+    req->setBuf(dstAddr);
+    req->setUserGetReq(&get_req);
+    req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
+
+    fprintf(stderr, "issuing GET from place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
+        		global_state.rank, p->dest_place, p->type, p->msg, p->len, len);
+//    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    // TODO: verify the use of MPI_LOCK_SHARED and lack of the MPI_MODE_NOCHECK assert
+    if (MPI_SUCCESS != MPI_Win_lock(MPI_LOCK_SHARED, p->dest_place, 0, global_state.mpi_win)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_lock\n", __FILE__, __LINE__);
+    	abort();
+    }
+    if (MPI_SUCCESS != MPI_Rget(dstAddr, len, MPI_BYTE, p->dest_place, (MPI_Aint)srcAddr, len, MPI_BYTE,
+    		global_state.mpi_win, req->getMPIRequest())) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Rget\n", __FILE__, __LINE__);
+    	abort();
+    }
+    // unlock the remote window
+    if (MPI_SUCCESS != MPI_Win_unlock(p->dest_place, global_state.mpi_win)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Win_unlock\n", __FILE__, __LINE__);
+       	abort();
+    }
+
+//    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    fprintf(stderr, "pulled in %u bytes via GET from place %u, %p to place %u, %p\n", len, p->dest_place, srcAddr, global_state.rank, dstAddr);
+
+	global_state.pending_send_list.enqueue(req);
+}
+
+// executed at the initiating side after data movement via GET has completed
+// executes the callback handler
+static void get_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
+    x10rt_get_req * get_req = req->getUserGetReq();
+    getCb cb = global_state.getCbTbl[get_req->type];
+    x10rt_msg_params p = { get_req->dest_place,
+                           get_req->type,
+                           get_req->msg,
+                           get_req->msg_len
+                         };
+    q->remove(req);
+    x10rt_lgl_stats.get_copied_bytes_received += get_req->len;
+
+    release_lock(&global_state.lock);
+    fprintf(stderr, "running GET completion callback in place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
+    		global_state.rank, p.dest_place, p.type, p.msg, p.len, get_req->len);
+    cb(&p, get_req->len);
+    free(get_req->msg); // this was allocated in x10rt_net_send_get
+    get_lock(&global_state.lock);
+
+    global_state.free_list.enqueue(req);
+}
+
+
+// Put is implemented via an active message to the destination, and a MPI_RGET from there.
+// This approach allows us to easily test that the data transfer has completed at the destination,
+// which is where the callback then executes.
+void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
+    x10rt_lgl_stats.put.messages_sent++ ;
+    x10rt_lgl_stats.put.bytes_sent += p->len;
+    x10rt_lgl_stats.put_copied_bytes_sent += len;
+
+    int put_msg_len;
+    x10rt_put_req * put_msg;
+    assert(global_state.init);
+    assert(!global_state.finalized);
+
+    x10rt_req * req = global_state.free_list.popNoFail();
+    unsigned char tag = req->getTag();
+
+    put_msg_len         = sizeof(*put_msg) + p->len;
+    put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
+    put_msg->type       = p->type;
+    put_msg->srcAddr    = srcAddr;
+    put_msg->dstAddr    = dstAddr;
+    put_msg->msg        = p->msg;
+    put_msg->msg_len    = p->len;
+    put_msg->len        = len;
+    put_msg->tag		= tag;
+    memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
+
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    if (MPI_SUCCESS != MPI_Isend(put_msg, put_msg_len, MPI_BYTE, p->dest_place,
+                (global_state._reserved_tag_put_req << 8) | tag, global_state.mpi_comm, req->getMPIRequest())) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        abort();
+    }
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+
+    req->setBuf(put_msg);
+    req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
+    global_state.pending_send_list.enqueue(req);
+}
+
+// executed at the initiating side after a PUT request has been sent to the destination
+// simply frees temporary structures held to send out the PUT request
+static void put_outgoing_req_completion(x10rt_req_queue * q, x10rt_req * req) {
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
+
+// executed at the receiving side when a PUT request comes in.
+// Initiates a MPI_RGET to transfer data from the src place
+static void put_incoming_req_completion(int src_place, x10rt_req_queue * q, x10rt_req * req) {
+    x10rt_put_req * put_req = static_cast <x10rt_put_req *> (req->getBuf());
+    q->remove(req);
+    x10rt_lgl_stats.put.messages_received++;
+    x10rt_lgl_stats.put.bytes_received += put_req->len;
+
+    /* reuse request for issuing the GET */
+    // TODO: verify the use of MPI_LOCK_SHARED and lack of the MPI_MODE_NOCHECK assert
+    if (MPI_SUCCESS != MPI_Win_lock(MPI_LOCK_SHARED, src_place, 0, global_state.mpi_win)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_lock\n", __FILE__, __LINE__);
+    	abort();
+    }
+    if (MPI_SUCCESS != MPI_Rget(put_req->dstAddr, put_req->len, MPI_BYTE, src_place, (MPI_Aint)put_req->srcAddr, put_req->len, MPI_BYTE,
+        		global_state.mpi_win, req->getMPIRequest())) {
+        	fprintf(stderr, "[%s:%d] Error in MPI_Rget\n", __FILE__, __LINE__);
+        	abort();
+    }
+    if (MPI_SUCCESS != MPI_Win_unlock(src_place, global_state.mpi_win)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Win_unlock\n", __FILE__, __LINE__);
+       	abort();
+    }
+
+    //fprintf(stderr, "moved %u bytes via PUT from %u to %u\n", len, global_state.rank, src_place);
+
+    req->setType(X10RT_REQ_TYPE_PUT_INCOMING_DATA);
+    global_state.pending_send_list.enqueue(req);
+}
+
+// executed at the receiving side of a PUT after data movement has completed (via a local GET)
+// frees temporary structures associated with the PUT and issues the callback handler
+static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
+    x10rt_put_req   * put_req = static_cast <x10rt_put_req *> (req->getBuf());
+
+    putCb cb = global_state.putCbTbl[put_req->type];
+    x10rt_msg_params p = { x10rt_net_here(),
+                           put_req->type,
+                           static_cast <void *> (&put_req[1]),
+                           put_req->msg_len
+                         };
+
+    q->remove(req);
+    x10rt_lgl_stats.put_copied_bytes_received += put_req->len;
+    release_lock(&global_state.lock);
+    cb(&p, put_req->len);
+    get_lock(&global_state.lock);
+    free(req->getBuf());
+    global_state.free_list.enqueue(req);
+}
 
 #else
+/*
+ * The MPI-2 form of PUT/GET use active messages to move data.
+ */
+
+void x10rt_net_register_mem (void *ptr, size_t size) {} // nothing to do here
+
+void x10rt_net_deregister_mem (void *ptr) {} // nothing to do here
+
 void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += 0;
@@ -1083,20 +1307,27 @@ static void check_pending_sends() {
                 case X10RT_REQ_TYPE_SEND:
                     send_completion(q, req_copy);
                     break;
-#ifndef X10RT_MPI3_DMA
+#ifdef X10RT_MPI3_RMA
+                case X10RT_REQ_TYPE_GET_INCOMING_DATA:
+                    get_incoming_data_completion(q, req_copy);
+                    break;
+                case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
+                    put_incoming_data_completion(q, req_copy);
+                    break;
+#else
                 case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
                     get_outgoing_req_completion(q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_DATA:
                     get_outgoing_data_completion(q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
-                    put_outgoing_req_completion(q, req_copy);
-                    break;
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
                     put_outgoing_data_completion(q, req_copy);
                     break;
 #endif
+                case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
+                    put_outgoing_req_completion(q, req_copy);
+                    break;
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
                             __FILE__, __LINE__, req_copy->getType());
@@ -1137,20 +1368,20 @@ static void check_pending_receives() {
                 case X10RT_REQ_TYPE_RECV:
                     recv_completion(msg_status.MPI_TAG, get_recvd_bytes(&msg_status), q, req_copy);
                     break;
-#ifndef X10RT_MPI3_DMA
+#ifndef X10RT_MPI3_RMA
                 case X10RT_REQ_TYPE_GET_INCOMING_DATA:
                     get_incoming_data_completion(q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_GET_INCOMING_REQ:
                     get_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
-                    put_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
-                    break;
                 case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
                     put_incoming_data_completion(q, req_copy);
                     break;
 #endif
+                case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
+                    put_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
+                    break;
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
                             __FILE__, __LINE__, req_copy->getType());
@@ -1160,11 +1391,6 @@ static void check_pending_receives() {
             req = q->start();
         }
     }
-}
-
-void x10rt_net_register_mem (void *ptr, size_t)
-{
-    // nothing to do
 }
 
 void x10rt_register_thread (void) { }
@@ -1510,6 +1736,13 @@ void x10rt_net_finalize(void) {
     }
     coll_state.finalize();
     mpi_tdb.releaseAllTeams();
+
+#ifdef X10RT_MPI3_RMA
+    if (MPI_SUCCESS != MPI_Win_free(&global_state.mpi_win)) {
+    	fprintf(stderr, "[%s:%d] Error in MPI_Win_free\n", __FILE__, __LINE__);
+    	abort();
+    }
+#endif
 
     if (MPI_SUCCESS != MPI_Comm_free(&global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error freeing global comm\n", __FILE__, __LINE__);
