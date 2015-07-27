@@ -296,8 +296,11 @@ int main(int argc, char **argv)
         for (size_t i=0; i<src_sz ; i++) {
             src_buf[i] = i;
         }
+        if (put || get) {
+            x10rt_register_mem(src_buf, src_sz);
+            x10rt_register_mem(dst_buf, dst_sz);
+        }
     }
-
 
     void** tmp = (void**)malloc(2*sizeof(void*));
     tmp[0] = src_buf;
