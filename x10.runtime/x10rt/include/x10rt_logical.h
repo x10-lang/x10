@@ -285,6 +285,12 @@ X10RT_C void x10rt_lgl_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
 X10RT_C void x10rt_lgl_register_mem (void *ptr, size_t len);
 
 
+/** \see #x10rt_deregister_mem
+ * \param ptr As in #x10rt_deregister_mem
+ */
+X10RT_C void x10rt_lgl_deregister_mem (void *ptr);
+
+
 /** \see #x10rt_blocks_threads
  * \param d as in x10rt_blocks_threads;
  * \param type as in x10rt_blocks_threads;

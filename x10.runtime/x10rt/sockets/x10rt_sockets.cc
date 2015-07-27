@@ -1454,6 +1454,8 @@ void x10rt_net_register_mem (void *ptr, size_t len)
     // no special work to do here
 }
 
+void x10rt_net_deregister_mem (void *ptr) {} // not used here
+
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {

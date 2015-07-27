@@ -144,6 +144,9 @@ void x10rt_remote_ops (x10rt_remote_op_params *opv, size_t opc)
 void x10rt_register_mem (void *ptr, size_t len)
 { x10rt_lgl_register_mem(ptr, len); }
 
+void x10rt_deregister_mem (void *ptr)
+{ x10rt_lgl_deregister_mem(ptr); }
+
 void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                            int *blocks, int *threads, const int *cfg)
 { x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }

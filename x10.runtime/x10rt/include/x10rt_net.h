@@ -163,6 +163,11 @@ X10RT_C void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
  */
 X10RT_C void x10rt_net_register_mem (void *ptr, size_t len);
 
+/** \see #x10rt_lgl_deregister_mem
+ * \param ptr As in #x10rt_lgl_deregister_mem
+ */
+X10RT_C void x10rt_net_deregister_mem (void *ptr);
+
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 X10RT_C void x10rt_net_finalize (void); 

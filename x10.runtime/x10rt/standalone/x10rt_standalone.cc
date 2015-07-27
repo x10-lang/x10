@@ -692,6 +692,8 @@ void x10rt_net_register_mem (void *ptr, size_t)
     // no special work to do here
 }
 
+void x10rt_net_deregister_mem (void *ptr) {} // not used here
+
 void x10rt_net_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 { 
     x10rt_lgl_stats.put.messages_sent++ ;

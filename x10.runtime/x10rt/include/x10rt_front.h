@@ -494,6 +494,13 @@ X10RT_C void x10rt_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
  */
 X10RT_C void x10rt_register_mem (void *ptr, size_t len);
 
+
+/** Disconnect memory from future RMA operations
+ * \param ptr Some previously-registered memory at the local place.
+ */
+X10RT_C void x10rt_deregister_mem (void *ptr);
+
+
 /** Automatically configure a CUDA kernel.  By studying the characteristics of the hardware upon
  * which the kernel will be executed, and the kernel itself, we can traverse a list of supported
  * configurations to find the first one that 'fits'.  If the configurations are listed in order of
