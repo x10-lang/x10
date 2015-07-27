@@ -255,6 +255,7 @@ public final class Runtime {
     public static NTHREADS = Configuration.nthreads();
     public static MAX_THREADS = Configuration.max_threads();
     public static STATIC_THREADS = Configuration.static_threads();
+    public static STABLE_POOL_SIZE = Configuration.stable_pool_size();
     public static NUM_IMMEDIATE_THREADS = Configuration.num_immediate_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
@@ -1472,14 +1473,14 @@ public final class Runtime {
 
     // notify the pool a worker is about to execute a blocking operation
     public static def increaseParallelism():void {
-        if (!STATIC_THREADS) {
+        if (!STATIC_THREADS && !STABLE_POOL_SIZE) {
             pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
     public static def decreaseParallelism(n:Int) {
-        if (!STATIC_THREADS) {
+        if (!STATIC_THREADS && !STABLE_POOL_SIZE)  {
             pool.decrease(n);
         }
     }

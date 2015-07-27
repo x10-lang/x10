@@ -46,6 +46,8 @@ final class Configuration {
 
     static def strict_finish():Boolean = envOrElse("X10_STRICT_FINISH", false);
 
+    static def stable_pool_size():Boolean = envOrElse("X10_STABLE_POOL_SIZE", false);
+
     static def static_threads():Boolean = envOrElse("X10_STATIC_THREADS", false);
 
     static def warn_on_thread_creation():Boolean = envOrElse("X10_WARN_ON_THREAD_CREATION", false);
