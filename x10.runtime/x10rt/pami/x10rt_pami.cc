@@ -1429,14 +1429,16 @@ pami_result_t post_register_mem (pami_context_t context, void* cookie) {
 	pami_memregion_t registration;
 	size_t registeredSize;
 
+	// if there is no RDMA hardware, this call may fail.  Since it's optional in PAMI anyway, we ignore any errors.
 	pami_result_t status = PAMI_Memregion_create(context, ((x10rt_post_general *)cookie)->ptr, ((x10rt_post_general *)cookie)->val, &registeredSize, &registration);
-	if (status != PAMI_SUCCESS)
-		error("Unable to register memory for remote access");
-	if (registeredSize < ((x10rt_post_general *)cookie)->val)
-		error("Only able to allocate %u out of %lu requested bytes for remote access", registeredSize, ((x10rt_post_general *)cookie)->val);
-	#ifdef DEBUG
+    #ifdef DEBUG
+		if (status != PAMI_SUCCESS)
+			fprintf(stderr, "Warning: Unable to register memory for remote access.  Status=%i", status);
+		if (registeredSize < ((x10rt_post_general *)cookie)->val)
+			fprintf(stderr, "Warning: Only able to allocate %u out of %lu requested bytes for remote access", registeredSize, ((x10rt_post_general *)cookie)->val);
 		fprintf(stderr, "Place %u registered %lu bytes at %p for remote operations\n", state.myPlaceId, ((x10rt_post_general *)cookie)->val, ((x10rt_post_general *)cookie)->ptr);
 	#endif
+	// TODO: save the registration for later use by PAMI_Memregion_destroy
 	free(cookie);
 	return PAMI_SUCCESS;
 }
@@ -1455,6 +1457,10 @@ void x10rt_net_register_mem (void *ptr, size_t len)
 	PAMI_Context_unlock(state.context);
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post a memory registration");
+}
+
+void x10rt_net_deregister_mem (void *ptr) {
+	// TODO
 }
 
 pami_result_t post_geometry_create (pami_context_t context, void* cookie) {
