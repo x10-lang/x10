@@ -43,7 +43,7 @@
 
 #if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
 #define X10RT_NONBLOCKING_SUPPORTED true
-//#define X10RT_MPI3_RMA true // TODO: uncomment this line once MPI3-RMA is fully tested
+#define X10RT_MPI3_RMA true
 #else
 #define X10RT_NONBLOCKING_SUPPORTED false
 #endif
@@ -783,7 +783,7 @@ void x10rt_net_register_mem (void *ptr, size_t size) {
     	fprintf(stderr, "[%s:%d] Error in MPI_Win_attach\n", __FILE__, __LINE__);
     	abort();
     }
-	fprintf(stderr, "place %u registered %u bytes of memory @ %p\n", global_state.rank, size, ptr);
+	//fprintf(stderr, "place %u registered %u bytes of memory @ %p\n", global_state.rank, size, ptr);
 }
 
 void x10rt_net_deregister_mem (void *ptr) {
@@ -791,7 +791,7 @@ void x10rt_net_deregister_mem (void *ptr) {
 		fprintf(stderr, "[%s:%d] Error in MPI_Win_detach\n", __FILE__, __LINE__);
 		abort();
 	}
-	fprintf(stderr, "place %u deregistered some memory @ %p\n", global_state.rank, ptr);
+	//fprintf(stderr, "place %u deregistered some memory @ %p\n", global_state.rank, ptr);
 }
 
 // Get is implemented via MPI_RGET.  The callback is issued locally after data has arrived
@@ -815,11 +815,11 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     req->setUserGetReq(&get_req);
     req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
 
-    fprintf(stderr, "issuing GET from place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
-        		global_state.rank, p->dest_place, p->type, p->msg, p->len, len);
+    //fprintf(stderr, "issuing GET from place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
+    //    		global_state.rank, p->dest_place, p->type, p->msg, p->len, len);
 //    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    // TODO: verify the use of MPI_LOCK_SHARED and lack of the MPI_MODE_NOCHECK assert
-    if (MPI_SUCCESS != MPI_Win_lock(MPI_LOCK_SHARED, p->dest_place, 0, global_state.mpi_win)) {
+    // TODO: verify the use of MPI_LOCK_SHARED and MPI_MODE_NOCHECK assert
+    if (MPI_SUCCESS != MPI_Win_lock(MPI_LOCK_SHARED, p->dest_place, MPI_MODE_NOCHECK, global_state.mpi_win)) {
     	fprintf(stderr, "[%s:%d] Error in MPI_Win_lock\n", __FILE__, __LINE__);
     	abort();
     }
@@ -854,8 +854,8 @@ static void get_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
     x10rt_lgl_stats.get_copied_bytes_received += get_req->len;
 
     release_lock(&global_state.lock);
-    fprintf(stderr, "running GET completion callback in place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
-    		global_state.rank, p.dest_place, p.type, p.msg, p.len, get_req->len);
+    //fprintf(stderr, "running GET completion callback in place %u: dest=%u, type=%i, msgAddr=%p, msgLen=%u, datalen=%u\n",
+    //		global_state.rank, p.dest_place, p.type, p.msg, p.len, get_req->len);
     cb(&p, get_req->len);
     free(get_req->msg); // this was allocated in x10rt_net_send_get
     get_lock(&global_state.lock);
