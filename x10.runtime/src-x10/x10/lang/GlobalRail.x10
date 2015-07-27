@@ -48,6 +48,7 @@ public final struct GlobalRail[T] (
      */
     public def this(a:Rail[T]{self!=null}) {
         property(a.size, GlobalRef[Rail[T]{self!=null}](a));
+        { @Native("c++", "x10rt_register_mem(a->raw, a->FMGL(size) * sizeof(TPMGL(T)));") {} }
     }
     
     /**
@@ -59,6 +60,7 @@ public final struct GlobalRail[T] (
      */
     def this(size:Long, raw:GlobalRef[Rail[T]{self!=null}]) {
         property(size, raw);
+        { @Native("c++", "x10rt_register_mem(raw->value->raw, size * sizeof(TPMGL(T)));") {} }
     }
 
     /**
