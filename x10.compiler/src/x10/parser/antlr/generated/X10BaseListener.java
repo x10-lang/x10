@@ -2604,18 +2604,6 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterClosureBody1(X10Parser.ClosureBody1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosureBody1(X10Parser.ClosureBody1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterClosureBody0(X10Parser.ClosureBody0Context ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2623,6 +2611,18 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClosureBody0(X10Parser.ClosureBody0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClosureBody1(X10Parser.ClosureBody1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClosureBody1(X10Parser.ClosureBody1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -4080,18 +4080,6 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPrimary31(X10Parser.Primary31Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrimary31(X10Parser.Primary31Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPrimary13(X10Parser.Primary13Context ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -4099,6 +4087,18 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrimary13(X10Parser.Primary13Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrimary31(X10Parser.Primary31Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrimary31(X10Parser.Primary31Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -4219,18 +4219,6 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrimary44(X10Parser.Primary44Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPrimaryClosure(X10Parser.PrimaryClosureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrimaryClosure(X10Parser.PrimaryClosureContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

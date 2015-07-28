@@ -537,7 +537,7 @@ import x10.parser.antlr.generated.X10Parser.Primary6Context;
 import x10.parser.antlr.generated.X10Parser.Primary7Context;
 import x10.parser.antlr.generated.X10Parser.Primary8Context;
 import x10.parser.antlr.generated.X10Parser.Primary9Context;
-import x10.parser.antlr.generated.X10Parser.PrimaryClosureContext;
+//import x10.parser.antlr.generated.X10Parser.PrimaryClosureContext;
 import x10.parser.antlr.generated.X10Parser.PrimaryContext;
 import x10.parser.antlr.generated.X10Parser.PrimaryError0Context;
 import x10.parser.antlr.generated.X10Parser.PrimaryError1Context;
@@ -7044,12 +7044,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.ParExpr(pos(ctx), Expression);
     }
 
-    /** Production: primary ::= closureBodyBlock (#primaryClosure) */
-    @Override
-    public void exitPrimaryClosure(PrimaryClosureContext ctx) {
-        Block ClosureBody = ast(ctx.closureBodyBlock());
-        ctx.ast = makeClosure(pos(ctx), ClosureBody);
-    }
+//    /** Production: primary ::= closureBodyBlock (#primaryClosure) */
+//    @Override
+//    public void exitPrimaryClosure(PrimaryClosureContext ctx) {
+//        Block ClosureBody = ast(ctx.closureBodyBlock());
+//        ctx.ast = makeClosure(pos(ctx), ClosureBody);
+//    }
 
     /** Production: primary ::= 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt (#primary7) */
     @Override

@@ -440,8 +440,8 @@ lastExpression returns [Return ast]:
       expression
     ;
 closureBody returns [Block ast]:
-      closureBodyBlock                                         #closureBody1
-    | expression                                               #closureBody0
+      expression                                               #closureBody0
+    | closureBodyBlock                                         #closureBody1
     ;
 closureBodyBlock returns [Block ast]:
       annotationsopt block                                     #closureBodyBlock2
@@ -650,7 +650,7 @@ primary returns [Expr ast]:
     | 'this'                              #primary4
     | className '.' 'this'                #primary5
     | '(' expression ')'                  #primary6
-    | closureBodyBlock                    #primaryClosure
+    // | closureBodyBlock                    #primaryClosure
     // classInstanceCreationExpression
     | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt                             #primary7
     | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt               #primary8
