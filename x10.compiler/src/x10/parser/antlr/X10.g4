@@ -208,6 +208,13 @@ nonExpressionStatement returns [Stmt ast]:
 userStatement returns [Stmt ast]:
       userEnhancedForStatement #userStatement0
     | userIfThenStatement      #userStatement1
+    | userTryStatement         #userStatement2
+    | userThrowStatement       #userStatement3
+    | userAsyncStatement       #userStatement4
+    | userAtomicStatement      #userStatement5
+    | userWhenStatement        #userStatement6
+    | userFinishStatement      #userStatement7
+    | userAtStatement          #userStatement8
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -297,6 +304,12 @@ returnStatement returns [Return ast]:
 throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
+userThrowStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='throw' typeArgumentsopt expression ';'         #userThrowStatement0
+    | primary '.' kw='throw' typeArgumentsopt expression ';'                    #userThrowStatement1
+    | s='super' '.' kw='throw' typeArgumentsopt expression ';'                  #userThrowStatement2
+    | className '.'  s='super' '.' kw='throw' typeArgumentsopt expression ';'   #userThrowStatement3
+    ;
 tryStatement returns [Try ast]:
       'try' block catches                    #tryStatement0
     | 'try' block catchesopt finallyBlock    #tryStatement1
@@ -310,6 +323,25 @@ catchClause returns [Catch ast]:
 finallyBlock returns [Block ast]:
       'finally' block
     ;
+userTryStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                              #userTryStatement0
+    | primary '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                                         #userTryStatement1
+    | s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                                       #userTryStatement2
+    | className '.'  s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                        #userTryStatement3
+    | fullyQualifiedName '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
+    | primary '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock                     #userTryStatement5
+    | s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock                   #userTryStatement6
+    | className '.'  s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock    #userTryStatement7
+    ;
+userCatches returns [List<Closure> ast]:
+      userCatchClause+
+    ;
+userCatchClause returns [Closure ast]:
+      'catch' '(' formalParameterListopt ')' closureBodyBlock
+    ;
+userFinallyBlock returns [Closure ast]:
+      'finally' closureBodyBlock
+    ;
 clockedClauseopt returns [List<Expr> ast]:
       ('clocked' arguments)?
     ;
@@ -317,18 +349,47 @@ asyncStatement returns [Async ast]:
       'async' clockedClauseopt statement    #asyncStatement0
     | 'clocked' 'async' statement           #asyncStatement1
     ;
+userAsyncStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
+    | primary '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock                   #userAsyncStatement1
+    | s='super' '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock                 #userAsyncStatement2
+    | className '.'  s='super' '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock  #userAsyncStatement3
+    // | 'clocked' 'async' closureBodyBlock           #userAsyncStatement
+    ;
 atStatement returns [AtStmt ast]:
       'at' '(' expression ')' statement
+    ;
+userAtStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
+    | primary '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userAtStatement1
+    | s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userAtStatement2
+    | className '.'  s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userAtStatement3
     ;
 atomicStatement returns [Atomic ast]:
       'atomic' statement
     ;
+userAtomicStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='atomic' typeArgumentsopt closureBodyBlock         #userAtomicStatement0
+    | primary '.' kw='atomic' typeArgumentsopt closureBodyBlock                    #userAtomicStatement1
+    | s='super' '.' kw='atomic' typeArgumentsopt closureBodyBlock                  #userAtomicStatement2
+    | className '.'  s='super' '.' kw='atomic' typeArgumentsopt closureBodyBlock   #userAtomicStatement3
+    ;
 whenStatement returns [When ast]:
       'when' '(' expression ')' statement
+    ;
+userWhenStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
+    | primary '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userWhenStatement1
+    | s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userWhenStatement2
+    | className '.'  s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userWhenStatement3
     ;
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
+    ;
+enhancedForStatement returns [X10Loop ast]:
+      'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
+    | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 userEnhancedForStatement returns [Stmt ast]:
       fullyQualifiedName '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
@@ -340,13 +401,16 @@ userEnhancedForStatement returns [Stmt ast]:
     | s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                               #userEnhancedForStatement6
     | className '.' s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                 #userEnhancedForStatement7
     ;
-enhancedForStatement returns [X10Loop ast]:
-      'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
-    | 'for' '(' expression ')' statement                    #enhancedForStatement1
-    ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0
     | 'clocked' 'finish' statement      #finishStatement1
+    ;
+userFinishStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement0
+    | primary '.' kw='finish' typeArgumentsopt closureBodyBlock                    #userFinishStatement1
+    | s='super' '.' kw='finish' typeArgumentsopt closureBodyBlock                  #userFinishStatement2
+    | className '.'  s='super' '.' kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement3
+    // | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
       primary                          #castExpression0
@@ -783,8 +847,15 @@ parenthesisOp:
        '(' ')'
     ;
 keywordOp returns [Id ast]:
-      'for' #keywordOp0
-    | 'if'  #keywordOp1
+      'for'     #keywordOp0
+    | 'if'      #keywordOp1
+    | 'try'     #keywordOp2
+    | 'throw'   #keywordOp3
+    | 'async'   #keywordOp4
+    | 'atomic'  #keywordOp5
+    | 'when'    #keywordOp6
+    | 'finish'  #keywordOp7
+    | 'at'      #keywordOp8
     ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?
@@ -812,6 +883,9 @@ expressionopt returns [Expr ast]:
     ;
 catchesopt returns [List<Catch> ast]:
       catches?
+    ;
+userCatchesopt returns [List<Closure> ast]:
+      userCatches?
     ;
 blockStatementsopt returns [List<Stmt> ast]:
       blockStatements?
