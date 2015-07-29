@@ -1296,6 +1296,18 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterUserStatement9(X10Parser.UserStatement9Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserStatement9(X10Parser.UserStatement9Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOBSOLETE_OfferStatement(X10Parser.OBSOLETE_OfferStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1699,6 +1711,54 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitContinueStatement(X10Parser.ContinueStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserContinueStatement0(X10Parser.UserContinueStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserContinueStatement0(X10Parser.UserContinueStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserContinueStatement1(X10Parser.UserContinueStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserContinueStatement1(X10Parser.UserContinueStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserContinueStatement2(X10Parser.UserContinueStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserContinueStatement2(X10Parser.UserContinueStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserContinueStatement3(X10Parser.UserContinueStatement3Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserContinueStatement3(X10Parser.UserContinueStatement3Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -5743,6 +5803,18 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitKeywordOp8(X10Parser.KeywordOp8Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterKeywordOp9(X10Parser.KeywordOp9Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeywordOp9(X10Parser.KeywordOp9Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

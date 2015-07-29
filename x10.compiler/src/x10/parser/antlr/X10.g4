@@ -215,6 +215,7 @@ userStatement returns [Stmt ast]:
     | userWhenStatement        #userStatement6
     | userFinishStatement      #userStatement7
     | userAtStatement          #userStatement8
+    | userContinueStatement    #userStatement9
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -298,6 +299,12 @@ breakStatement returns [Branch ast]:
 continueStatement returns [Branch ast]:
       'continue' identifieropt ';'
     ;
+userContinueStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
+    | primary '.' kw='continue' typeArgumentsopt expressionopt ';'                    #userContinueStatement1
+    | s='super' '.' kw='continue' typeArgumentsopt expressionopt ';'                  #userContinueStatement2
+    | className '.'  s='super' '.' kw='continue' typeArgumentsopt expressionopt ';'   #userContinueStatement3
+    ;
 returnStatement returns [Return ast]:
       'return' expressionopt ';'
     ;
@@ -305,10 +312,10 @@ throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
 userThrowStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='throw' typeArgumentsopt expression ';'         #userThrowStatement0
-    | primary '.' kw='throw' typeArgumentsopt expression ';'                    #userThrowStatement1
-    | s='super' '.' kw='throw' typeArgumentsopt expression ';'                  #userThrowStatement2
-    | className '.'  s='super' '.' kw='throw' typeArgumentsopt expression ';'   #userThrowStatement3
+      fullyQualifiedName '.' kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
+    | primary '.' kw='throw' typeArgumentsopt expressionopt ';'                    #userThrowStatement1
+    | s='super' '.' kw='throw' typeArgumentsopt expressionopt ';'                  #userThrowStatement2
+    | className '.'  s='super' '.' kw='throw' typeArgumentsopt expressionopt ';'   #userThrowStatement3
     ;
 tryStatement returns [Try ast]:
       'try' block catches                    #tryStatement0
@@ -847,15 +854,16 @@ parenthesisOp:
        '(' ')'
     ;
 keywordOp returns [Id ast]:
-      'for'     #keywordOp0
-    | 'if'      #keywordOp1
-    | 'try'     #keywordOp2
-    | 'throw'   #keywordOp3
-    | 'async'   #keywordOp4
-    | 'atomic'  #keywordOp5
-    | 'when'    #keywordOp6
-    | 'finish'  #keywordOp7
-    | 'at'      #keywordOp8
+      'for'        #keywordOp0
+    | 'if'         #keywordOp1
+    | 'try'        #keywordOp2
+    | 'throw'      #keywordOp3
+    | 'async'      #keywordOp4
+    | 'atomic'     #keywordOp5
+    | 'when'       #keywordOp6
+    | 'finish'     #keywordOp7
+    | 'at'         #keywordOp8
+    | 'continue'   #keywordOp9
     ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?
