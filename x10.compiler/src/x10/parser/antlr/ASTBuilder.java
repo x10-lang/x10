@@ -385,6 +385,7 @@ import x10.parser.antlr.generated.X10Parser.KeywordOp7Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp8Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp9Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp10Context;
+import x10.parser.antlr.generated.X10Parser.KeywordOp11Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOpContext;
 import x10.parser.antlr.generated.X10Parser.KeywordOperatorDeclatationContext;
 import x10.parser.antlr.generated.X10Parser.LabeledStatementContext;
@@ -657,6 +658,7 @@ import x10.parser.antlr.generated.X10Parser.UserStatement7Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement8Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement9Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement10Context;
+import x10.parser.antlr.generated.X10Parser.UserStatement11Context;
 import x10.parser.antlr.generated.X10Parser.UserStatementContext;
 import x10.parser.antlr.generated.X10Parser.UserThrowStatement0Context;
 import x10.parser.antlr.generated.X10Parser.UserThrowStatement1Context;
@@ -673,6 +675,11 @@ import x10.parser.antlr.generated.X10Parser.UserBreakStatement1Context;
 import x10.parser.antlr.generated.X10Parser.UserBreakStatement2Context;
 import x10.parser.antlr.generated.X10Parser.UserBreakStatement3Context;
 import x10.parser.antlr.generated.X10Parser.UserBreakStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserReturnStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserReturnStatement1Context;
+import x10.parser.antlr.generated.X10Parser.UserReturnStatement2Context;
+import x10.parser.antlr.generated.X10Parser.UserReturnStatement3Context;
+import x10.parser.antlr.generated.X10Parser.UserReturnStatementContext;
 import x10.parser.antlr.generated.X10Parser.UserTryStatement0Context;
 import x10.parser.antlr.generated.X10Parser.UserTryStatement1Context;
 import x10.parser.antlr.generated.X10Parser.UserTryStatement2Context;
@@ -1756,6 +1763,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Return n = nf.Return(p);
             return (Return) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserReturnStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
         }
         return ctx.ast;
     }
@@ -4838,6 +4857,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.userBreakStatement());
     }
 
+    /** Production: userStatement ::= userReturnStatement    (#userStatement11) */
+    @Override
+    public void exitUserStatement11(UserStatement11Context ctx) {
+        ctx.ast = ast(ctx.userReturnStatement());
+    }
+
     /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';' (#oBSOLETE_OfferStatement) */
     @Override
     public void exitOBSOLETE_OfferStatement(OBSOLETE_OfferStatementContext ctx) {
@@ -5288,6 +5313,62 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     public void exitReturnStatement(ReturnStatementContext ctx) {
         Expr Expressionopt = ast(ctx.expressionopt());
         ctx.ast = nf.Return(pos(ctx), Expressionopt);
+    }
+
+    /** Create a user return statement. */
+    private Eval makeUserReturn(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Expr expr) {
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        if (expr != null) { ArgumentListopt.add(expr); }
+        X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
+        return nf.Eval(pos, call);
+    }
+
+    /** Production: userReturnStatement ::= fullyQualifiedName '.' kw='return' typeArgumentsopt expressionopt ';'    (#userReturnStatement0) */
+    @Override
+    public void exitUserReturnStatement0(UserReturnStatement0Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "return"));
+        Receiver target = MethodName.prefix == null ? null : MethodName.prefix.toReceiver();
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        Expr e = ast(ctx.expressionopt());
+
+        ctx.ast = makeUserReturn(pos(ctx), target, MethodName.name, TypeArgumentsopt, e);
+    }
+
+    /** Production: userReturnStatement ::= primary '.' kw='return' typeArgumentsopt expressionopt ';'    (#userReturnStatement1) */
+    @Override
+    public void exitUserReturnStatement1(UserReturnStatement1Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "return"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        Expr e = ast(ctx.expressionopt());
+
+        ctx.ast = makeUserReturn(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
+    }
+
+    /** Production: userReturnStatement ::= s='super' '.' kw='return' typeArgumentsopt expressionopt ';'    (#userReturnStatement2) */
+    @Override
+    public void exitUserReturnStatement2(UserReturnStatement2Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "return"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        Expr e = ast(ctx.expressionopt());
+
+        ctx.ast = makeUserReturn(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
+    }
+
+    /** Production: userReturnStatement ::= className '.'  s='super' '.' kw='return' typeArgumentsopt expressionopt ';'    (#userReturnStatement3) */
+    @Override
+    public void exitUserReturnStatement3(UserReturnStatement3Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "return"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        Expr e = ast(ctx.expressionopt());
+
+        ctx.ast = makeUserReturn(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
     }
 
     /** Production: throwStatement ::= 'throw' expression ';' (#throwStatement) */
@@ -8786,6 +8867,12 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitKeywordOp10(KeywordOp10Context ctx) {
         ctx.ast = nf.Id(pos(ctx), "break");
+    }
+
+    /** Production: keywordOp ::= 'return'    (#keywordOp11) */
+    @Override
+    public void exitKeywordOp11(KeywordOp11Context ctx) {
+        ctx.ast = nf.Id(pos(ctx), "return");
     }
 
     /** Production: hasResultTypeopt ::= hasResultType? (#hasResultTypeopt) */
