@@ -216,6 +216,7 @@ userStatement returns [Stmt ast]:
     | userFinishStatement      #userStatement7
     | userAtStatement          #userStatement8
     | userContinueStatement    #userStatement9
+    | userBreakStatement       #userStatement10
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -295,6 +296,12 @@ statementExpressionList returns [List<? extends Eval> ast]:
     ;
 breakStatement returns [Branch ast]:
       'break' identifieropt ';'
+    ;
+userBreakStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
+    | primary '.' kw='break' typeArgumentsopt expressionopt ';'                    #userBreakStatement1
+    | s='super' '.' kw='break' typeArgumentsopt expressionopt ';'                  #userBreakStatement2
+    | className '.'  s='super' '.' kw='break' typeArgumentsopt expressionopt ';'   #userBreakStatement3
     ;
 continueStatement returns [Branch ast]:
       'continue' identifieropt ';'
@@ -864,6 +871,7 @@ keywordOp returns [Id ast]:
     | 'finish'     #keywordOp7
     | 'at'         #keywordOp8
     | 'continue'   #keywordOp9
+    | 'break'      #keywordOp10
     ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?

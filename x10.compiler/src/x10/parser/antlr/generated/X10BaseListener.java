@@ -1308,6 +1308,18 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterUserStatement10(X10Parser.UserStatement10Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserStatement10(X10Parser.UserStatement10Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOBSOLETE_OfferStatement(X10Parser.OBSOLETE_OfferStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1699,6 +1711,54 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBreakStatement(X10Parser.BreakStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserBreakStatement0(X10Parser.UserBreakStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserBreakStatement0(X10Parser.UserBreakStatement0Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserBreakStatement1(X10Parser.UserBreakStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserBreakStatement1(X10Parser.UserBreakStatement1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserBreakStatement2(X10Parser.UserBreakStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserBreakStatement2(X10Parser.UserBreakStatement2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUserBreakStatement3(X10Parser.UserBreakStatement3Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUserBreakStatement3(X10Parser.UserBreakStatement3Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -5815,6 +5875,18 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitKeywordOp9(X10Parser.KeywordOp9Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterKeywordOp10(X10Parser.KeywordOp10Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitKeywordOp10(X10Parser.KeywordOp10Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

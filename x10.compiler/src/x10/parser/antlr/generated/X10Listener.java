@@ -1244,6 +1244,18 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitUserStatement9(X10Parser.UserStatement9Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code userStatement10}
+	 * labeled alternative in {@link X10Parser#userStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserStatement10(X10Parser.UserStatement10Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userStatement10}
+	 * labeled alternative in {@link X10Parser#userStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserStatement10(X10Parser.UserStatement10Context ctx);
+	/**
 	 * Enter a parse tree produced by {@link X10Parser#oBSOLETE_OfferStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -1605,6 +1617,54 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBreakStatement(X10Parser.BreakStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userBreakStatement0}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserBreakStatement0(X10Parser.UserBreakStatement0Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userBreakStatement0}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserBreakStatement0(X10Parser.UserBreakStatement0Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userBreakStatement1}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserBreakStatement1(X10Parser.UserBreakStatement1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userBreakStatement1}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserBreakStatement1(X10Parser.UserBreakStatement1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userBreakStatement2}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserBreakStatement2(X10Parser.UserBreakStatement2Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userBreakStatement2}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserBreakStatement2(X10Parser.UserBreakStatement2Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code userBreakStatement3}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterUserBreakStatement3(X10Parser.UserBreakStatement3Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code userBreakStatement3}
+	 * labeled alternative in {@link X10Parser#userBreakStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitUserBreakStatement3(X10Parser.UserBreakStatement3Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link X10Parser#continueStatement}.
 	 * @param ctx the parse tree
@@ -5601,6 +5661,18 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitKeywordOp9(X10Parser.KeywordOp9Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code keywordOp10}
+	 * labeled alternative in {@link X10Parser#keywordOp}.
+	 * @param ctx the parse tree
+	 */
+	void enterKeywordOp10(X10Parser.KeywordOp10Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code keywordOp10}
+	 * labeled alternative in {@link X10Parser#keywordOp}.
+	 * @param ctx the parse tree
+	 */
+	void exitKeywordOp10(X10Parser.KeywordOp10Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link X10Parser#hasResultTypeopt}.
 	 * @param ctx the parse tree
