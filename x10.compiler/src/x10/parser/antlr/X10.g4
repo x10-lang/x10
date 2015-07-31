@@ -218,6 +218,9 @@ userStatement returns [Stmt ast]:
     | userContinueStatement    #userStatement9
     | userBreakStatement       #userStatement10
     | userReturnStatement      #userStatement11
+    | userAtEachStatement      #userStatement12
+    | userWhileStatement       #userStatement13
+    | userDoStatement          #userStatement14
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
@@ -275,8 +278,20 @@ switchLabel returns [Case ast]:
 whileStatement returns [While ast]:
       'while' '(' expression ')' statement
     ;
+userWhileStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
+    | primary '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userWhileStatement1
+    | s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userWhileStatement2
+    | className '.'  s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userWhileStatement3
+    ;
 doStatement returns [Do ast]:
       'do' statement 'while' '(' expression ')' ';'
+    ;
+userDoStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
+    | primary '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'                   #userDoStatement1
+    | s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'                 #userDoStatement2
+    | className '.'  s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'  #userDoStatement3
     ;
 forStatement returns [Loop ast]:
       basicForStatement        #forStatement0
@@ -407,6 +422,16 @@ userWhenStatement returns [Stmt ast]:
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
+    ;
+userAtEachStatement returns [Stmt ast]:
+      fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock       #userAtEachStatement0
+    | primary '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                  #userAtEachStatement1
+    | s='super' '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                #userAtEachStatement2
+    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock  #userAtEachStatement3
+    | fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                      #userAtEachStatement4
+    | primary '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                 #userAtEachStatement5
+    | s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                               #userAtEachStatement6
+    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                 #userAtEachStatement7
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
@@ -879,7 +904,10 @@ keywordOp returns [Id ast]:
     | 'at'         #keywordOp8
     | 'continue'   #keywordOp9
     | 'break'      #keywordOp10
-    | 'return'      #keywordOp11
+    | 'return'     #keywordOp11
+    | 'ateach'     #keywordOp12
+    | 'while'      #keywordOp13
+    | 'do'         #keywordOp14
     ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?

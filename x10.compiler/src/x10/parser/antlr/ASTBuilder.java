@@ -181,6 +181,14 @@ import x10.parser.antlr.generated.X10Parser.AsyncStatementContext;
 import x10.parser.antlr.generated.X10Parser.AtEachStatement0Context;
 import x10.parser.antlr.generated.X10Parser.AtEachStatement1Context;
 import x10.parser.antlr.generated.X10Parser.AtEachStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement1Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement2Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement3Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement4Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement5Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement6Context;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatement7Context;
 import x10.parser.antlr.generated.X10Parser.AtExpressionContext;
 import x10.parser.antlr.generated.X10Parser.AtStatementContext;
 import x10.parser.antlr.generated.X10Parser.AtomicStatementContext;
@@ -295,6 +303,11 @@ import x10.parser.antlr.generated.X10Parser.ConversionOperatorDeclarationExplici
 import x10.parser.antlr.generated.X10Parser.ConversionOperatorDeclarationImplicitContext;
 import x10.parser.antlr.generated.X10Parser.DepParametersContext;
 import x10.parser.antlr.generated.X10Parser.DoStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserDoStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserDoStatement1Context;
+import x10.parser.antlr.generated.X10Parser.UserDoStatement2Context;
+import x10.parser.antlr.generated.X10Parser.UserDoStatement3Context;
+import x10.parser.antlr.generated.X10Parser.UserDoStatementContext;
 import x10.parser.antlr.generated.X10Parser.DoubleLiteralContext;
 import x10.parser.antlr.generated.X10Parser.EmptyStatementContext;
 import x10.parser.antlr.generated.X10Parser.EnhancedForStatement0Context;
@@ -386,6 +399,9 @@ import x10.parser.antlr.generated.X10Parser.KeywordOp8Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp9Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp10Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOp11Context;
+import x10.parser.antlr.generated.X10Parser.KeywordOp12Context;
+import x10.parser.antlr.generated.X10Parser.KeywordOp13Context;
+import x10.parser.antlr.generated.X10Parser.KeywordOp14Context;
 import x10.parser.antlr.generated.X10Parser.KeywordOpContext;
 import x10.parser.antlr.generated.X10Parser.KeywordOperatorDeclatationContext;
 import x10.parser.antlr.generated.X10Parser.LabeledStatementContext;
@@ -614,6 +630,7 @@ import x10.parser.antlr.generated.X10Parser.UserAsyncStatement1Context;
 import x10.parser.antlr.generated.X10Parser.UserAsyncStatement2Context;
 import x10.parser.antlr.generated.X10Parser.UserAsyncStatement3Context;
 import x10.parser.antlr.generated.X10Parser.UserAsyncStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserAtEachStatementContext;
 import x10.parser.antlr.generated.X10Parser.UserAtStatement0Context;
 import x10.parser.antlr.generated.X10Parser.UserAtStatement1Context;
 import x10.parser.antlr.generated.X10Parser.UserAtStatement2Context;
@@ -659,6 +676,9 @@ import x10.parser.antlr.generated.X10Parser.UserStatement8Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement9Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement10Context;
 import x10.parser.antlr.generated.X10Parser.UserStatement11Context;
+import x10.parser.antlr.generated.X10Parser.UserStatement12Context;
+import x10.parser.antlr.generated.X10Parser.UserStatement13Context;
+import x10.parser.antlr.generated.X10Parser.UserStatement14Context;
 import x10.parser.antlr.generated.X10Parser.UserStatementContext;
 import x10.parser.antlr.generated.X10Parser.UserThrowStatement0Context;
 import x10.parser.antlr.generated.X10Parser.UserThrowStatement1Context;
@@ -711,6 +731,11 @@ import x10.parser.antlr.generated.X10Parser.VariableInitializerContext;
 import x10.parser.antlr.generated.X10Parser.WhenStatementContext;
 import x10.parser.antlr.generated.X10Parser.WhereClauseoptContext;
 import x10.parser.antlr.generated.X10Parser.WhileStatementContext;
+import x10.parser.antlr.generated.X10Parser.UserWhileStatement0Context;
+import x10.parser.antlr.generated.X10Parser.UserWhileStatement1Context;
+import x10.parser.antlr.generated.X10Parser.UserWhileStatement2Context;
+import x10.parser.antlr.generated.X10Parser.UserWhileStatement3Context;
+import x10.parser.antlr.generated.X10Parser.UserWhileStatementContext;
 import x10.types.ParameterType;
 import x10.types.checker.Converter;
 
@@ -1639,6 +1664,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserWhileStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Do} is returned.
      */
     private final Do ast(DoStatementContext ctx) {
@@ -1646,6 +1683,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Do n = nf.Do(p, errorStmt(p), errorExpr(p));
             return (Do) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserDoStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
         }
         return ctx.ast;
     }
@@ -2001,7 +2050,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         if (ctx == null || ctx.ast == null) {
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             Stmt n = errorStmt(p);
-            return (When) n.error(true);
+            return (Stmt) n.error(true);
         }
         return ctx.ast;
     }
@@ -2014,6 +2063,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
             X10Loop n = nf.AtEach(p, errorFormal(p), errorExpr(p), errorStmt(p));
             return (X10Loop) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
+     * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(UserAtEachStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
         }
         return ctx.ast;
     }
@@ -4863,6 +4924,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.userReturnStatement());
     }
 
+    /** Production: userStatement ::= userAtEachStatement (#userStatement12) */
+    @Override
+    public void exitUserStatement12(UserStatement12Context ctx) {
+        ctx.ast = ast(ctx.userAtEachStatement());
+    }
+
+    /** Production: userStatement ::= userWhileStatement (#userStatement13) */
+    @Override
+    public void exitUserStatement13(UserStatement13Context ctx) {
+        ctx.ast = ast(ctx.userWhileStatement());
+    }
+
+    /** Production: userStatement ::= userDoStatement (#userStatement14) */
+    @Override
+    public void exitUserStatement14(UserStatement14Context ctx) {
+        ctx.ast = ast(ctx.userDoStatement());
+    }
+
     /** Production: oBSOLETE_OfferStatement ::= 'offer' expression ';' (#oBSOLETE_OfferStatement) */
     @Override
     public void exitOBSOLETE_OfferStatement(OBSOLETE_OfferStatementContext ctx) {
@@ -5117,12 +5196,142 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = nf.While(pos(ctx), Expression, Statement);
     }
 
+    /** Create a user while statement. */
+    private Eval makeUserWhile(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> args, Closure body) {
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        if (args != null) { ArgumentListopt.addAll(args); }
+        ArgumentListopt.add(body);
+        X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
+        return nf.Eval(pos, call);
+    }
+
+    /** Production: userWhileStatement ::= fullyQualifiedName '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhileStatement0) */
+    @Override
+    public void exitUserWhileStatement0(UserWhileStatement0Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "while"));
+        Receiver target = MethodName.prefix == null ? null : MethodName.prefix.toReceiver();
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserWhile(pos(ctx), target, MethodName.name, TypeArgumentsopt, args, body);
+    }
+
+    /** Production: userWhileStatement ::= primary '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhileStatement1) */
+    @Override
+    public void exitUserWhileStatement1(UserWhileStatement1Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "while"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserWhile(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+    }
+
+    /** Production: userWhileStatement ::= s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhileStatement2) */
+    @Override
+    public void exitUserWhileStatement2(UserWhileStatement2Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "while"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserWhile(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+    }
+
+    /** Production: userWhileStatement ::= className '.'  s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhileStatement3) */
+    @Override
+    public void exitUserWhileStatement3(UserWhileStatement3Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "while"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserWhile(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+    }
+
     /** Production: doStatement ::= 'do' statement 'while' '(' expression ')' ';' (#doStatement) */
     @Override
     public void exitDoStatement(DoStatementContext ctx) {
         Stmt Statement = ast(ctx.statement());
         Expr Expression = ast(ctx.expression());
         ctx.ast = nf.Do(pos(ctx), Statement, Expression);
+    }
+
+    /** Create a user do statement. */
+    private Eval makeUserDo(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Closure body, List<Expr> args) {
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(body);
+        if (args != null) { ArgumentListopt.addAll(args); }
+        X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
+        return nf.Eval(pos, call);
+    }
+
+    /** Production: userDoStatement ::= fullyQualifiedName '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'    (#userDoStatement0) */
+    @Override
+    public void exitUserDoStatement0(UserDoStatement0Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "do"));
+        Receiver target = MethodName.prefix == null ? null : MethodName.prefix.toReceiver();
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserDo(pos(ctx), target, MethodName.name, TypeArgumentsopt, body, args);
+    }
+
+    /** Production: userDoStatement ::= primary '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'    (#userDoStatement1) */
+    @Override
+    public void exitUserDoStatement1(UserDoStatement1Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "do"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserDo(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, args);
+    }
+
+    /** Production: userDoStatement ::= s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'    (#userDoStatement2) */
+    @Override
+    public void exitUserDoStatement2(UserDoStatement2Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "do"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserDo(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, args);
+    }
+
+    /** Production: userDoStatement ::= className '.'  s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'    (#userDoStatement3) */
+    @Override
+    public void exitUserDoStatement3(UserDoStatement3Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "do"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> args = ast(ctx.argumentListopt());
+        Block block = ast(ctx.closureBodyBlock());
+        Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
+
+        ctx.ast = makeUserDo(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, args);
     }
 
     /** Production: forStatement ::= basicForStatement (#forStatement0) */
@@ -5741,7 +5950,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), target, MethodName.name, TypeArgumentsopt, args, body);
+        ctx.ast = makeUserAt(pos(ctx), target, MethodName.name, TypeArgumentsopt, args, body);
     }
 
     /** Production: userAtStatement ::= primary '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtStatement1) */
@@ -5755,7 +5964,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserAt(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: userAtStatement ::= s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtStatement2) */
@@ -5768,7 +5977,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserAt(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: userAtStatement ::= className '.'  s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtStatement3) */
@@ -5782,7 +5991,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserAt(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
 
@@ -5883,7 +6092,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), target, MethodName.name, TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhen(pos(ctx), target, MethodName.name, TypeArgumentsopt, args, body);
     }
 
     /** Production: userWhenStatement ::= primary '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhenStatement1) */
@@ -5897,7 +6106,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhen(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: userWhenStatement ::= s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhenStatement2) */
@@ -5910,7 +6119,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhen(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: userWhenStatement ::= className '.'  s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhenStatement3) */
@@ -5924,7 +6133,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(pos(ctx.closureBodyBlock()), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhen(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: atEachStatement ::= 'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement (#atEachStatement0) */
@@ -5953,6 +6162,165 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         X10Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
         TypedList<Expr> ClockedClauseopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
         ctx.ast = nf.AtEach(pos(ctx), LoopIndex, Expression, ClockedClauseopt, Statement);
+    }
+
+    private Eval makeUserAtEach(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Expr iterationSpace, Closure ateachBody) {
+        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+        ArgumentListopt.add(iterationSpace);
+        ArgumentListopt.add(ateachBody);
+
+        X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
+        return nf.Eval(pos, call);
+    }
+
+    /** Production: userAtEachStatement ::= fullyQualifiedName '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement0) */
+    @Override
+    public void exitUserAtEachStatement0(UserAtEachStatement0Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "ateach"));
+        Receiver target = MethodName.prefix == null ? null : MethodName.prefix.toReceiver();
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), target, MethodName.name, TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+
+    /** Production: userAtEachStatement ::= primary '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement1) */
+    @Override
+    public void exitUserAtEachStatement1(UserAtEachStatement1Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= s='super' '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement2) */
+    @Override
+    public void exitUserAtEachStatement2(UserAtEachStatement2Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= className '.' s='super' '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement3) */
+    @Override
+    public void exitUserAtEachStatement3(UserAtEachStatement3Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        X10Formal loopIndex = ast(ctx.loopIndex());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= fullyQualifiedName '.' 'ateach' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userAtEachStatement4) */
+    @Override
+    public void exitUserAtEachStatement4(UserAtEachStatement4Context ctx) {
+        ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
+        ParsedName MethodName = new ParsedName(nf, ts, pos(ctx.kw), fullyQualifiedName, nf.Id(pos(ctx.kw), "ateach"));
+        Receiver target = MethodName.prefix == null ? null : MethodName.prefix.toReceiver();
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.closureBodyBlock()), closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), target, MethodName.name, TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= primary '.' 'ateach' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userAtEachStatement5) */
+    @Override
+    public void exitUserAtEachStatement5(UserAtEachStatement5Context ctx) {
+        Expr prefix = ast(ctx.primary());
+        Field field = nf.Field(pos(ctx.primary(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.closureBodyBlock()), closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= s='super' '.' 'ateach' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userAtEachStatement6) */
+    @Override
+    public void exitUserAtEachStatement6(UserAtEachStatement6Context ctx) {
+        Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.closureBodyBlock()), closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: userAtEachStatement ::= className '.' s='super' '.' 'ateach' typeArgumentsopt '(' expression ')' closureBodyBlock    (#userAtEachStatement7) */
+    @Override
+    public void exitUserAtEachStatement7(UserAtEachStatement7Context ctx) {
+        ParsedName ClassName = ast(ctx.className());
+        Field field = nf.Field(pos(ctx), nf.Super(pos(ctx.className(), ctx.s), ClassName.toType()), nf.Id(pos(ctx.kw), "ateach"));
+
+        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+
+        Expr iterationSpace = ast(ctx.expression());
+        Block closureBodyBlock = ast(ctx.closureBodyBlock());
+        Closure ateachBody = makeClosure(pos(ctx.closureBodyBlock()), closureBodyBlock);
+
+        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
+    }
+
+    /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement (#enhancedForStatement0) */
+    @Override
+    public void exitEnhancedForStatement0(EnhancedForStatement0Context ctx) {
+        Formal LoopIndex = ast(ctx.loopIndex());
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
+        FlagsNode fn = LoopIndex.flags();
+        if (!fn.flags().isFinal()) {
+            err.syntaxError("Enhanced for loop may not have var loop index. " + LoopIndex, LoopIndex.position());
+            fn = fn.flags(fn.flags().Final());
+            LoopIndex = LoopIndex.flags(fn);
+        }
+        ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
+    }
+
+    /** Production: enhancedForStatement ::= 'for' '(' expression ')' statement (#enhancedForStatement1) */
+    @Override
+    public void exitEnhancedForStatement1(EnhancedForStatement1Context ctx) {
+        Expr Expression = ast(ctx.expression());
+        Stmt Statement = ast(ctx.statement());
+        Id name = nf.Id(pos(ctx), Name.makeFresh());
+        TypeNode type = nf.UnknownTypeNode(pos(ctx).markCompilerGenerated());
+        Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
+        ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
     /** Create a closure. */
@@ -6114,32 +6482,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Closure forBody = makeClosure(pos(ctx.closureBodyBlock()), closureBodyBlock);
 
         ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, forBody);
-    }
-
-    /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement (#enhancedForStatement0) */
-    @Override
-    public void exitEnhancedForStatement0(EnhancedForStatement0Context ctx) {
-        Formal LoopIndex = ast(ctx.loopIndex());
-        Expr Expression = ast(ctx.expression());
-        Stmt Statement = ast(ctx.statement());
-        FlagsNode fn = LoopIndex.flags();
-        if (!fn.flags().isFinal()) {
-            err.syntaxError("Enhanced for loop may not have var loop index. " + LoopIndex, LoopIndex.position());
-            fn = fn.flags(fn.flags().Final());
-            LoopIndex = LoopIndex.flags(fn);
-        }
-        ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
-    }
-
-    /** Production: enhancedForStatement ::= 'for' '(' expression ')' statement (#enhancedForStatement1) */
-    @Override
-    public void exitEnhancedForStatement1(EnhancedForStatement1Context ctx) {
-        Expr Expression = ast(ctx.expression());
-        Stmt Statement = ast(ctx.statement());
-        Id name = nf.Id(pos(ctx), Name.makeFresh());
-        TypeNode type = nf.UnknownTypeNode(pos(ctx).markCompilerGenerated());
-        Formal LoopIndex = nf.X10Formal(pos(ctx), nf.FlagsNode(pos(ctx), Flags.FINAL), type, name, null, true);
-        ctx.ast = nf.ForLoop(pos(ctx), LoopIndex, Expression, Statement);
     }
 
     /** Production: finishStatement ::= 'finish' statement (#finishStatement0) */
@@ -8873,6 +9215,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitKeywordOp11(KeywordOp11Context ctx) {
         ctx.ast = nf.Id(pos(ctx), "return");
+    }
+
+    /** Production: keywordOp ::= 'ateach'    (#keywordOp12) */
+    @Override
+    public void exitKeywordOp12(KeywordOp12Context ctx) {
+        ctx.ast = nf.Id(pos(ctx), "ateach");
+    }
+
+    /** Production: keywordOp ::= 'while'    (#keywordOp13) */
+    @Override
+    public void exitKeywordOp13(KeywordOp13Context ctx) {
+        ctx.ast = nf.Id(pos(ctx), "while");
+    }
+
+    /** Production: keywordOp ::= 'do'    (#keywordOp14) */
+    @Override
+    public void exitKeywordOp14(KeywordOp14Context ctx) {
+        ctx.ast = nf.Id(pos(ctx), "do");
     }
 
     /** Production: hasResultTypeopt ::= hasResultType? (#hasResultTypeopt) */
