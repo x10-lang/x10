@@ -18,31 +18,29 @@ import x10.util.*;
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class While1 extends x10Test {
+
+    static class Parallel {
+	public static operator while (cond:()=>Boolean, body: ()=>void) {
+	    finish {
+		while (cond()) {
+		    async { body(); }
+		}
+	    }
+	}
     }
-}
 
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
-
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    var cpt : Long = 0;
+    public def run() : boolean {
+	val iterator = (0 .. 10).iterator();
+	Parallel.while( ()=> { iterator.next(); iterator.hasNext() } ) {
+	    atomic { cpt = cpt + 1; }
+	}
+	chk(cpt == 10);
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new While1().execute();
     }
 }

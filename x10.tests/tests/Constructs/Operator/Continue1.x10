@@ -18,31 +18,37 @@ import x10.util.*;
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class Continue1 extends x10Test {
+
+    static class Parallel {
+
+	private static class Continue extends Exception {}
+
+	public static operator for[T](c: Iterable[T], body:(T)=>void) {
+	    for(x in c) {
+		try {
+		    body(x);
+		} catch (Continue) {}
+	    }
+	}
+
+
+	public static operator continue () {
+	    throw new Continue();
+	}
     }
-}
 
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
-
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    public def run() : boolean {
+	val cpt = new Cell[Long](0);
+	Parallel.for(i:Long in 1..10) {
+	    if (i%2 == 0) { Parallel.continue; }
+	    atomic { cpt() = cpt() + 1; }
+	}
+	chk(cpt() == 5);
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new Continue1().execute();
     }
 }

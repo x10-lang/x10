@@ -12,37 +12,36 @@
 
 import harness.x10Test;
 import x10.util.*;
+import x10.regionarray.*;
 
 /**
  * Test operator redefinition.
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class AtEach1 extends x10Test {
+
+
+    static class Sequential {
+	public static operator ateach (d: Dist, body:(Point)=>void) {
+	    for (place in d.places()) {
+		at(place) {
+		    for (p in d|here) {
+			body(p);
+		    }
+		}
+	    }
+	}
     }
-}
 
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
-
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    public def run() : boolean {
+	val d: Dist = Dist.makeUnique();
+	Sequential.ateach(p:Point in d) {
+	}
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new AtEach1().execute();
     }
 }

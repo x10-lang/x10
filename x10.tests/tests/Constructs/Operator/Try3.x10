@@ -14,35 +14,46 @@ import harness.x10Test;
 import x10.util.*;
 
 /**
- * Test operator redefinition.
+ * Test operator redefinition. Works only with the C++ backend.
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class Try3 extends x10Test {
+
+    public static class Id[E]{E <: Exception} {
+
+	val dummy: E;
+
+	public def this(e: E) {
+	    dummy = e;
+	}
+
+	public operator try(body: ()=>void, hdl:(E)=>void) {
+	    try {
+		body();
+		if (false) { throw dummy; }
+	    } catch (e:E) {
+		hdl(e);
+	    }
+	}
     }
-}
-
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
 
 
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    var cpt : Long = 0;
+    public def run() : boolean {
+	val myExn = new Id(new Exception());
+
+	myExn.try {
+	    throw new Exception("Exception 1");
+	} catch (Exception) {
+	    cpt = cpt + 1;
+	}
+
+	chk(cpt == 1);
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new Try3().execute();
     }
 }

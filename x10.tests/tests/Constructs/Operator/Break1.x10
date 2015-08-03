@@ -18,31 +18,35 @@ import x10.util.*;
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class Break1 extends x10Test {
+
+    static class Seq {
+	private static class Break extends Exception {}
+
+	public static operator for[T](c: Iterable[T], body:(T)=>void) {
+	    try {
+		for(i in c) {
+		    body(i);
+		}
+	    } catch (Break) {}
+	}
+
+	public static operator break () throws Break {
+	    throw new Break();
+	}
     }
-}
 
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
-
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    var cpt : Long = 0;
+    public def run() : boolean {
+	Seq.for (i:Long in 1..100) {
+	    if (i > 10) { Seq.break; }
+	    cpt = i + cpt;
+	}
+	chk(cpt == 55);
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new Break1().execute();
     }
 }

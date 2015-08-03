@@ -18,31 +18,18 @@ import x10.util.*;
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class Return1 extends x10Test {
+
+    static class Ignore {
+	public static operator return[T](v: T) {
+	}
     }
-}
-
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
-
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+    public def run() : boolean {
+	Ignore.return false;
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new Return1().execute();
     }
 }

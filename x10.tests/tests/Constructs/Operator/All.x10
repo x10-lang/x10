@@ -190,9 +190,15 @@ class All extends x10Test {
     /** throw */
     static class Throw {
 	public static operator throw[T] (x: T) {}
+	public static operator throw[T] () {}
     }
     class SubThrow extends Throw {
 	public def test() {
+	    Throw.throw[Long];
+	    (new Throw()).throw[Long];
+	    super.throw[Long];
+	    SubThrow.super.throw[Long];
+
 	    Throw.throw[Long] 1 + 1;
 	    (new Throw()).throw[Long] 1 + 1;
 	    super.throw[Long] 1 + 1;
@@ -264,6 +270,179 @@ class All extends x10Test {
     }
 
 
+    /** continue */
+    static class Continue {
+	public static operator continue[T] (x: T) {}
+	public static operator continue[T] () {}
+    }
+    class SubContinue extends Continue {
+	public def test() {
+	    Continue.continue[Long];
+	    (new Continue()).continue[Long];
+	    super.continue[Long];
+	    SubContinue.super.continue[Long];
+
+	    Continue.continue[Long] 1 + 1;
+	    (new Continue()).continue[Long] 1 + 1;
+	    super.continue[Long] 1 + 1;
+	    SubContinue.super.continue[Long] 1 + 1;
+
+	    Continue.continue 1 + 1;
+	    (new Continue()).continue 1 + 1;
+	    super.continue 1 + 1;
+	    SubContinue.super.continue 1 + 1;
+
+	    operator continue[Long] (1 + 1);
+	    Continue.operator continue[Long] (1 + 1);
+	    (new Continue()).operator continue[Long] (1 + 1);
+	    super.operator continue[Long] (1 + 1);
+	    SubContinue.super.operator continue[Long] (1 + 1);
+	}
+    }
+
+    /** break */
+    static class Break {
+	public static operator break[T] (x: T) {}
+	public static operator break[T] () {}
+    }
+    class SubBreak extends Break {
+	public def test() {
+	    Break.break[Long];
+	    (new Break()).break[Long];
+	    super.break[Long];
+	    SubBreak.super.break[Long];
+
+	    Break.break[Long] 1 + 1;
+	    (new Break()).break[Long] 1 + 1;
+	    super.break[Long] 1 + 1;
+	    SubBreak.super.break[Long] 1 + 1;
+
+	    Break.break 1 + 1;
+	    (new Break()).break 1 + 1;
+	    super.break 1 + 1;
+	    SubBreak.super.break 1 + 1;
+
+	    operator break[Long] (1 + 1);
+	    Break.operator break[Long] (1 + 1);
+	    (new Break()).operator break[Long] (1 + 1);
+	    super.operator break[Long] (1 + 1);
+	    SubBreak.super.operator break[Long] (1 + 1);
+	}
+    }
+
+    /** return */
+    static class Return {
+	public static operator return[T] (x: T) {}
+	public static operator return[T] () {}
+    }
+    class SubReturn extends Return {
+	public def test() {
+	    Return.return[Long];
+	    (new Return()).return[Long];
+	    super.return[Long];
+	    SubReturn.super.return[Long];
+
+	    Return.return[Long] 1 + 1;
+	    (new Return()).return[Long] 1 + 1;
+	    super.return[Long] 1 + 1;
+	    SubReturn.super.return[Long] 1 + 1;
+
+	    Return.return 1 + 1;
+	    (new Return()).return 1 + 1;
+	    super.return 1 + 1;
+	    SubReturn.super.return 1 + 1;
+
+	    operator return[Long] (1 + 1);
+	    Return.operator return[Long] (1 + 1);
+	    (new Return()).operator return[Long] (1 + 1);
+	    super.operator return[Long] (1 + 1);
+	    SubReturn.super.operator return[Long] (1 + 1);
+	}
+    }
+
+    /** while */
+    static class While {
+	public static operator while[T] (body: ()=>void) {}
+	public static operator while[T] (x:T, body: ()=>void) {}
+	public static operator while[T1,T2] (x:T1, y:T2, body: ()=>void) {}
+    }
+    class SubWhile extends While {
+	public def test() {
+	    While.while[Long]() {}
+	    (new While()).while[Long]() {}
+	    super.while[Long]() {}
+	    SubWhile.super.while[Long]() {}
+
+	    While.while[Long](1) {}
+	    (new While()).while[Long](1) {}
+	    super.while[Long](1) {}
+	    SubWhile.super.while[Long](1) {}
+
+	    While.while(1) {}
+	    (new While()).while(1) {}
+	    super.while(1) {}
+	    SubWhile.super.while(1) {}
+
+	    While.while[Long, Boolean](1, true) {}
+	    (new While()).while[Long, Boolean](1, true) {}
+	    super.while[Long, Boolean](1, true) {}
+	    SubWhile.super.while[Long, Boolean](1, true) {}
+
+	    While.while(1, true) {}
+	    (new While()).while(1, true) {}
+	    super.while(1, true) {}
+	    SubWhile.super.while(1, true) {}
+
+	    operator while[Long, Boolean] (1, true, ()=>{});
+	    While.operator while[Long, Boolean] (1, true, ()=>{});
+	    (new While()).operator while[Long, Boolean] (1, true, ()=>{});
+	    super.operator while[Long, Boolean] (1, true, ()=>{});
+	    SubWhile.super.operator while[Long, Boolean] (1, true, ()=>{});
+	}
+    }
+
+    /** do */
+    static class Do {
+	public static operator do[T] (body: ()=>void) {}
+	public static operator do[T] (body: ()=>void, x:T) {}
+	public static operator do[T1,T2] (body: ()=>void, x:T1, y:T2) {}
+    }
+    class SubDo extends Do {
+	public def test() {
+	    Do.do[Long]{} while ();
+	    (new Do()).do[Long]{} while ();
+	    super.do[Long]{} while ();
+	    SubDo.super.do[Long]{} while ();
+
+	    Do.do[Long]{} while (1);
+	    (new Do()).do[Long]{} while (1);
+	    super.do[Long]{} while (1);
+	    SubDo.super.do[Long]{} while (1);
+
+	    Do.do{} while (1);
+	    (new Do()).do{} while (1);
+	    super.do{} while (1);
+	    SubDo.super.do{} while (1);
+
+	    Do.do[Long, Boolean]{} while (1, true);
+	    (new Do()).do[Long, Boolean]{} while (1, true);
+	    super.do[Long, Boolean]{} while (1, true);
+	    SubDo.super.do[Long, Boolean]{} while (1, true);
+
+	    Do.do{} while (1, true);
+	    (new Do()).do{} while (1, true);
+	    super.do{} while (1, true);
+	    SubDo.super.do{} while (1, true);
+
+	    operator do[Long, Boolean] (()=>{}, 1, true);
+	    Do.operator do[Long, Boolean] (()=>{}, 1, true);
+	    (new Do()).operator do[Long, Boolean] (()=>{}, 1, true);
+	    super.operator do[Long, Boolean] (()=>{}, 1, true);
+	    SubDo.super.operator do[Long, Boolean] (()=>{}, 1, true);
+	}
+    }
+
+
     /** Launch tests */
     public def run() : boolean {
 	(new SubAsync()).test();
@@ -273,6 +452,11 @@ class All extends x10Test {
 	(new SubFinish()).test();
 	(new SubThrow()).test();
 	(new SubTry()).test();
+	(new SubContinue()).test();
+	(new SubBreak()).test();
+	(new SubReturn()).test();
+	(new SubWhile()).test();
+	(new SubDo()).test();
 	return true;
     }
 

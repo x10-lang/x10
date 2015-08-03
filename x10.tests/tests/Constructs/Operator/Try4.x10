@@ -18,31 +18,35 @@ import x10.util.*;
  * @author mandel
  */
 
-class TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
+class Try4 extends x10Test {
+
+    public static class Id {
+	public static operator try [E](body: ()=>void, hdl: (E)=>void){E <: Exception} {
+	    try {
+		body();
+	    } catch (e: Exception) {
+		if (e instanceof E) {
+		    hdl(e as E);
+		} else {
+		    throw e;
+		}
+	    }
+	}
     }
-}
 
-class FF extends TT {
-    public static operator for(interval: Iterable[Long], body: (Long)=>void) {
-        assert false;
-    }
+    var cpt : Long = 0;
+    public def run() : boolean {
+	Id.try {
+	    throw new Exception("Exception 1");
+	} catch (Exception) {
+	    cpt = cpt + 1;
+	}
 
-
-    public def test () {
-	FF.super.for (i : Long  in 1..10) {};
+	chk(cpt == 1);
 	return true;
     }
 
-}
-
-class For6 extends x10Test {
-
-    public def run() : boolean {
-	return (new FF()).test();
-    }
-
     public static def main(Rail[String]) {
-        new For6().execute();
+        new Try4().execute();
     }
 }
