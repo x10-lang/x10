@@ -25,10 +25,12 @@ class Continue1 extends x10Test {
 	private static class Continue extends Exception {}
 
 	public static operator for[T](c: Iterable[T], body:(T)=>void) {
-	    for(x in c) {
-		try {
-		    body(x);
-		} catch (Continue) {}
+	    finish {
+		for(x in c) async {
+		    try {
+			body(x);
+		    } catch (Continue) {}
+		}
 	    }
 	}
 
