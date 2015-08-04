@@ -3043,22 +3043,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(X10_RUNTIME_IMPL_JAVA_ARRAYUTILS + ".<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         w.write("> ");
-        w.write("makeRailFromJavaArray(");
-        new RuntimeTypeExpander(er, t).expand();
-        w.write(", ");
         if (t.isParameterType()) {
+            w.write("makeRailFromValues(");
             new RuntimeTypeExpander(er, t).expand();
-            w.write(".makeArray(");
+            w.write(", ");
             new Join(er, ", ", c.arguments()).expand();
             w.write(")");
         } else {
+            w.write("makeRailFromJavaArray(");
+            new RuntimeTypeExpander(er, t).expand();
+            w.write(", ");
             w.write("new ");
             er.printType(t, 0);
             w.write("[] {");
             new Join(er, ", ", c.arguments()).expand();
             w.write("}");
+            w.write(")");
         }
-        w.write(")");
     }
 
     @Override

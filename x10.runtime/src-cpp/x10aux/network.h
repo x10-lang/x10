@@ -43,8 +43,6 @@ namespace x10aux {
     typedef void (*CUDAPost)(deserialization_buffer &buf, place p,
                              size_t blocks, size_t threads, size_t shm, size_t argc, char *argv, size_t cmemc, char *cmemv);
 
-    typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
-
     typedef void (*Notifier)(deserialization_buffer &buf, x10_int len);
     
     // a message type used for putting serialised kernel data on a gpu 
@@ -194,12 +192,12 @@ namespace x10aux {
     class serialization_buffer;
 
     void send_get (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len);
+                   serialization_buffer &buf, void *srcAddr, void *dstAddr, ::x10aux::copy_sz len);
    
     void send_put (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, ::x10aux::copy_sz len);
+                   serialization_buffer &buf, void *srcAddr, void *dstAddr, ::x10aux::copy_sz len);
 
-    void cuda_put (place gpu, x10_ulong addr, void *var, size_t sz);
+    void cuda_put (place gpu, void *srcAddr, void *dstAddr, size_t sz);
 
     // teams
     void *coll_enter();

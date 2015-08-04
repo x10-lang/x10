@@ -49,21 +49,19 @@ x10rt_msg_type x10rt_register_msg_receiver (x10rt_handler *cb,
     return counter++;
 }
 
-x10rt_msg_type x10rt_register_get_receiver (x10rt_finder *cb1, x10rt_notifier *cb2,
-                                            x10rt_finder *cuda_cb1, x10rt_notifier *cuda_cb2)
+x10rt_msg_type x10rt_register_get_receiver (x10rt_notifier *cb, x10rt_notifier *cuda_cb)
 {
-    x10rt_lgl_register_get_receiver(counter, cb1, cb2);
-    if (cuda_cb1!=NULL)
-        x10rt_lgl_register_get_receiver_cuda(counter, cuda_cb1, cuda_cb2);
+    x10rt_lgl_register_get_receiver(counter, cb);
+    if (cuda_cb!=NULL)
+        x10rt_lgl_register_get_receiver_cuda(counter, cuda_cb);
     return counter++;
 }
 
-x10rt_msg_type x10rt_register_put_receiver (x10rt_finder *cb1, x10rt_notifier *cb2,
-                                            x10rt_finder *cuda_cb1, x10rt_notifier *cuda_cb2)
+x10rt_msg_type x10rt_register_put_receiver (x10rt_notifier *cb, x10rt_notifier *cuda_cb)
 {
-    x10rt_lgl_register_put_receiver(counter, cb1, cb2);
-    if (cuda_cb1!=NULL)
-        x10rt_lgl_register_put_receiver_cuda(counter, cuda_cb1, cuda_cb2);
+    x10rt_lgl_register_put_receiver(counter, cb);
+    if (cuda_cb!=NULL)
+        x10rt_lgl_register_put_receiver_cuda(counter, cuda_cb);
     return counter++;
 }
 
@@ -123,11 +121,11 @@ void x10rt_send_msg (x10rt_msg_params *p)
 }
 
 
-void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
-{ return x10rt_lgl_send_get(p, buf, len); }
+void x10rt_send_get (x10rt_msg_params *p, void *srcAddr, void*dstAddr, x10rt_copy_sz len)
+{ return x10rt_lgl_send_get(p, srcAddr, dstAddr, len); }
 
-void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
-{ return x10rt_lgl_send_put(p, buf, len); }
+void x10rt_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
+{ return x10rt_lgl_send_put(p, srcAddr, dstAddr, len); }
 
 void x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
                          x10rt_completion_handler3 *ch, void *arg)
@@ -145,6 +143,9 @@ void x10rt_remote_ops (x10rt_remote_op_params *opv, size_t opc)
 
 void x10rt_register_mem (void *ptr, size_t len)
 { x10rt_lgl_register_mem(ptr, len); }
+
+void x10rt_deregister_mem (void *ptr)
+{ x10rt_lgl_deregister_mem(ptr); }
 
 void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                            int *blocks, int *threads, const int *cfg)

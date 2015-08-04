@@ -36,7 +36,6 @@
 
 // mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
-typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
@@ -334,7 +333,9 @@ struct x10StandaloneMessageQueueEntry
 	x10rt_msg_type type; // corresponds to the type field of x10rt_msg_params
 	unsigned long msgLen; // corresponds to the len field of x10rt_msg_params
 	unsigned long payloadLen; // the length of the data associated with the get/put. On a get, the payload also includes the original pointer at the front.
-	// msg buffer next
+    void* srcAddr; // for put/gets contains the srcAddr argument to x10rt_send_put/get
+    void* dstAddr; // for put/gets contains the dstAddr argument to x10rt_send_put/get
+    // msg buffer next
 	// payload buffer last
 };
 
@@ -355,7 +356,6 @@ struct x10StandalonePlaceState
 struct x10StandaloneCallback
 {
 	handlerCallback handler;
-	finderCallback finder;
 	notifierCallback notifier;
 };
 
@@ -384,27 +384,17 @@ void error(const char* message)
 x10rt_copy_sz getTotalLength(x10StandaloneMessageQueueEntry* entry)
 {
 	x10rt_copy_sz entrySize = sizeof(struct x10StandaloneMessageQueueEntry) + entry->msgLen;
-	if (entry->standaloneMessageType == GET)
-		entrySize+=sizeof(void*);
-	else
-		entrySize+=entry->payloadLen;
-	if (entry->standaloneMessageType == GET_COMPLETED)
-		entrySize+=sizeof(void*);
+    entrySize+=entry->payloadLen;
 	return entrySize;
 }
 
 // adds a new entry into the buffer of the receiving end.
-void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy_sz dataLen, void* remoteDataPtr)
+void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz dataLen)
 {
 	x10StandalonePlaceState *dest = state.perPlaceState[p->dest_place]; // pointer to make this more readable
 	x10StandaloneMessageQueueEntry *entry = NULL;
 	x10rt_copy_sz entrySize = sizeof(struct x10StandaloneMessageQueueEntry) + p->len;
-	if (mt == GET)
-		entrySize+=sizeof(void*);
-	else
-		entrySize+=dataLen;
-	if (mt == GET_COMPLETED)
-		entrySize+=sizeof(void*);
+	entrySize+=dataLen;
 
 	// check to see if this is simply too big.
 	if (entrySize > X10RT_DATABUFFERSIZE-sizeof(MSGSTATUS))
@@ -475,17 +465,12 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 	entry->type = p->type;
 	entry->msgLen = p->len;
 	entry->payloadLen = dataLen;
-	if (p->len > 0)
+    entry->srcAddr = srcAddr;
+    entry->dstAddr = dstAddr;
+    if (p->len > 0)
 		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry), p->msg, p->len);
-	if (mt == GET)
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, &dataPtr, sizeof(void *));
-	else if (mt == GET_COMPLETED)
-	{
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, &remoteDataPtr, sizeof(void *));
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len+sizeof(void *), dataPtr, dataLen);
-	}
-	else if (dataLen > 0)
-		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, dataPtr, dataLen);
+	if (mt == GET_COMPLETED || mt == PUT)
+		memcpy(dest->dataBuffer+dest->messageQueueTail+sizeof(struct x10StandaloneMessageQueueEntry)+p->len, srcAddr, dataLen);
 
 	// update our queue positions
 	dest->messageQueueTail += entrySize;
@@ -600,7 +585,6 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
 	}
 
 	state.callBackTable[msg_type].handler = cb;
-	state.callBackTable[msg_type].finder = NULL;
 	state.callBackTable[msg_type].notifier = NULL;
 
 	#ifdef DEBUG
@@ -608,7 +592,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
 	#endif
 }
 
-void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb)
 {
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
@@ -621,15 +605,14 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = cb1;
-	state.callBackTable[msg_type].notifier = cb2;
+	state.callBackTable[msg_type].notifier = cb;
 
 	#ifdef DEBUG
 		printf("X10rt.Standalone: place %lu registered put message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
-void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb)
 { 
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
@@ -642,8 +625,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = cb1;
-	state.callBackTable[msg_type].notifier = cb2;
+	state.callBackTable[msg_type].notifier = cb;
 
 	#ifdef DEBUG
 		printf("X10rt.Standalone: place %lu registered get message %u\n", state.myPlaceId, msg_type);
@@ -680,15 +662,15 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
     x10rt_lgl_stats.msg.bytes_sent += p->len;
 	// originating place calls this method, to send something? to a remote place.  It returns once the data transfer is complete.
 	// There is not really anything to do here except put the pointer to the message into the receivers buffer
-	insertNewMessage(STANDARD, p, NULL, 0, NULL);
+	insertNewMessage(STANDARD, p, NULL, NULL, 0);
 }
 
-void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_net_send_get (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 {
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += p->len;
 	// The local place uses this method to bring in data from a remote place
-	insertNewMessage(GET, p, buf, len, NULL);
+	insertNewMessage(GET, p, srcAddr, dstAddr, len);
 }
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
@@ -710,13 +692,15 @@ void x10rt_net_register_mem (void *ptr, size_t)
     // no special work to do here
 }
 
-void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_net_deregister_mem (void *ptr) {} // not used here
+
+void x10rt_net_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 { 
     x10rt_lgl_stats.put.messages_sent++ ;
     x10rt_lgl_stats.put.bytes_sent += p->len;
     x10rt_lgl_stats.put_copied_bytes_sent += len;
 	// originating place calls this method, to transfer data to a remote place.  It returns once the data transfer is complete.
-	insertNewMessage(PUT, p, buf, len, NULL);
+	insertNewMessage(PUT, p, srcAddr, dstAddr, len);
 }
 
 x10rt_error x10rt_net_probe (void)
@@ -810,38 +794,30 @@ x10rt_error x10rt_net_probe (void)
 			break;
 			case PUT:
 			{
-				finderCallback fcb = state.callBackTable[mp.type].finder;
                 x10rt_lgl_stats.put.messages_received++;
                 x10rt_lgl_stats.put.bytes_received += mp.len;
-				void* dest = fcb(&mp, entry->payloadLen); // get the pointer to the destination location
-				memcpy(dest, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, entry->payloadLen); // copy the data to the destination
+				memcpy(entry->dstAddr, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, entry->payloadLen); // copy the data to the destination
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);
                 x10rt_lgl_stats.put_copied_bytes_received += entry->payloadLen;
 			}
 			break;
 			case GET:
-			{
-				// this is the request for data.
-				finderCallback fcb = state.callBackTable[mp.type].finder;
+			{	
+                // this is the request for data.
                 x10rt_lgl_stats.get.messages_received++;
                 x10rt_lgl_stats.get.bytes_received += mp.len;
-				void* src = fcb(&mp, entry->payloadLen);
                 x10rt_lgl_stats.get_copied_bytes_received += entry->payloadLen;
 
 				// send the data to the other side
 				mp.dest_place = entry->from;
-				void* dest;
-				memcpy(&dest, ((char*)entry)+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, sizeof(void*));
-				insertNewMessage(GET_COMPLETED, &mp, src, entry->payloadLen, dest);
+				insertNewMessage(GET_COMPLETED, &mp, entry->srcAddr, entry->dstAddr, entry->payloadLen);
 			}
 			break;
 			case GET_COMPLETED:
 			{
 				// copy over the contents of the shared memory
-				void * dest;
-				memcpy(&dest, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, sizeof(void*));
-				memcpy(dest, (void*)((char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen+sizeof(void *)), entry->payloadLen);
+				memcpy(entry->dstAddr, (void*)((char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen+sizeof(void *)), entry->payloadLen);
 
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);

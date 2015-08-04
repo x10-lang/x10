@@ -666,7 +666,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 					inc.write("__env." + name + ".FMGL(size) = " + len + ";");
 					inc.newline();
 					// Do the copy into this new storage
-					inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, &" + name + "->raw[0]" + ", " + sz + ");");
+					inc.write("x10aux::cuda_put(__gpu, &" + name + "->raw[0]" + ", __env." + name + ".raw, " + sz + ");");
 				} else {
 					inc.write("__env." + name + " = " + name + ";");
 				}
@@ -687,7 +687,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				} else {
 					inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));");
 					inc.newline();
-					inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));");
+					inc.write("x10aux::cuda_put(__gpu, &__env, (void*)__remote_env, sizeof(__env));");
 					inc.newline();
 					inc.write("::memcpy(__argv, &__remote_env, sizeof (void*));");
 					inc.newline();

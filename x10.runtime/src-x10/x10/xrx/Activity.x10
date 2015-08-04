@@ -38,34 +38,28 @@ public class Activity {
      */
     var clockPhases:Clock.ClockPhases;
 
-    /** Set to true unless this activity represents the body of an 'at' statement.
-     */
-    val shouldNotifyTermination:Boolean;
-
-    /**
-     * Src place from which the activity was spawned
-     */
-    val srcPlace:Place;
+    public var epoch:Long;
 
     /**
      * Depth of enclosing atomic blocks
      */
     private var atomicDepth:Int = 0n;
-    
-    public var epoch:Long;
+
+    /** Set to true unless this activity represents the body of an 'at' statement.
+     */
+    val shouldNotifyTermination:Boolean;
 
     /**
      * Create activity.
      */
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState) {
-        this(epoch, body, srcPlace, finishState, true);
+    def this(epoch:Long, body:()=>void, finishState:FinishState) {
+        this(epoch, body, finishState, true);
     }
     // TODO: This constructor is only used by ResilientFinish.runAt.
     //       Once that code is restructured to use @Immediate, it is likely we can
     //       get rid of the shouldNotifyTermination flag.
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, nt:Boolean) {
+    def this(epoch:Long, body:()=>void, finishState:FinishState, nt:Boolean) {
         this.epoch = epoch;
-        this.srcPlace = srcPlace;
         this.finishState = finishState;
         this.shouldNotifyTermination = nt;
         this.body = body;
@@ -74,8 +68,8 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(epoch:Long, body:()=>void, srcPlace:Place, finishState:FinishState, clockPhases:Clock.ClockPhases) {
-        this(epoch, body, srcPlace, finishState);
+    def this(epoch:Long, body:()=>void, finishState:FinishState, clockPhases:Clock.ClockPhases) {
+        this(epoch, body, finishState);
         this.clockPhases = clockPhases;
     }
 

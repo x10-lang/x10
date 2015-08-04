@@ -33,7 +33,7 @@ int main(int ac, char* av[]) {
     int vmNOptions = clsIndex - 1;
     char* clsName = av[clsIndex];
     char* clsNameFQ = strdup(clsName);
-    for (int i = 0; i < strlen(clsNameFQ); ++i) {
+    for (size_t i = 0; i < strlen(clsNameFQ); ++i) {
         if (clsNameFQ[i] == '.') clsNameFQ[i] = '/';
     }
     char** clsOptions = av + clsIndex + 1;

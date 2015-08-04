@@ -24,11 +24,8 @@ import x10.io.Unserializable;
 import x10.io.Reader;
 import x10.io.Writer;
 
-import x10.util.Box;
-
 import x10.util.concurrent.Condition;
 import x10.util.concurrent.Latch;
-import x10.util.concurrent.Lock;
 import x10.util.concurrent.Monitor;
 import x10.util.concurrent.SimpleLatch;
 
@@ -258,6 +255,7 @@ public final class Runtime {
     public static NTHREADS = Configuration.nthreads();
     public static MAX_THREADS = Configuration.max_threads();
     public static STATIC_THREADS = Configuration.static_threads();
+    public static STABLE_POOL_SIZE = Configuration.stable_pool_size();
     public static NUM_IMMEDIATE_THREADS = Configuration.num_immediate_threads();
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
@@ -427,8 +425,8 @@ public final class Runtime {
      * @param job Job being submitted
      */
     public static def submitUncounted(job:()=>void):void {
-        val activity = new Activity(epoch(), job, here, FinishState.UNCOUNTED_FINISH);
-        if (FinishState.UNCOUNTED_FINISH.notifyActivityCreation(activity.srcPlace, activity)) {
+        val activity = new Activity(epoch(), job, FinishState.UNCOUNTED_FINISH);
+        if (FinishState.UNCOUNTED_FINISH.notifyActivityCreation(here, activity)) {
             pool.workers.submit(activity);
         }
     }
@@ -620,11 +618,11 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            submitLocalActivity(new Activity(epoch, asyncBody, here, state, clockPhases));
+            submitLocalActivity(new Activity(epoch, asyncBody, state, clockPhases));
         } else {
             val src = here;
             val closure = ()=> @x10.compiler.RemoteInvocation("runAsync") { 
-                val activity = new Activity(epoch, body, src, state, clockPhases);
+                val activity = new Activity(epoch, body, state, clockPhases);
                 submitRemoteActivity(epoch, activity, src, state);
             };
             val preSendAction = ()=> { state.notifySubActivitySpawn(place); };
@@ -659,7 +657,7 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            submitLocalActivity(new Activity(epoch, asyncBody, here, state));
+            submitLocalActivity(new Activity(epoch, asyncBody, state));
         } else {
             val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
             x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
@@ -679,7 +677,7 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        submitLocalActivity(new Activity(epoch, body, here, state, clockPhases));
+        submitLocalActivity(new Activity(epoch, body, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
@@ -690,7 +688,7 @@ public final class Runtime {
         val epoch = a.epoch;
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        submitLocalActivity(new Activity(epoch, body, here, state));
+        submitLocalActivity(new Activity(epoch, body, state));
     }
 
     public static def runFinish(body:()=>void):void {
@@ -728,11 +726,11 @@ public final class Runtime {
                 val bodyCopy = deser.readAny() as ()=>void;
                 bodyCopy();
             };
-            submitLocalActivity(new Activity(epoch, asyncBody, here, FinishState.UNCOUNTED_FINISH));
+            submitLocalActivity(new Activity(epoch, asyncBody, FinishState.UNCOUNTED_FINISH));
         } else {
             val src = here;
             val closure = ()=> @x10.compiler.RemoteInvocation("runUncountedAsync") { 
-                val activity = new Activity(epoch, body, src, FinishState.UNCOUNTED_FINISH);
+                val activity = new Activity(epoch, body, FinishState.UNCOUNTED_FINISH);
                 submitRemoteActivity(epoch, activity, src, FinishState.UNCOUNTED_FINISH);
             };
             x10rtSendMessage(place.id, closure, prof);
@@ -786,7 +784,7 @@ public final class Runtime {
         // from an unrelated finish.
 	activity().finishState().notifyRemoteContinuationCreated();
 
-        submitLocalActivity(new Activity(epoch, body, here, new FinishState.UncountedFinish()));
+        submitLocalActivity(new Activity(epoch, body, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -1433,11 +1431,8 @@ public final class Runtime {
     }
 
     static def submitLocalActivity(activity:Activity):void {
-        if (activity.srcPlace != here) {
-            throw new InternalError("submitLocalActivity at "+here+" called with activity from "+activity.srcPlace);
-        }
         if (activity.epoch < epoch()) throw new DeadPlaceException("Cancelled");
-        if (activity.finishState().notifyActivityCreation(activity.srcPlace, activity)) {
+        if (activity.finishState().notifyActivityCreation(here, activity)) {
             if (!pool.deal(activity)) { 
                 worker().push(activity);
             }
@@ -1450,7 +1445,7 @@ public final class Runtime {
     }
 
     public static def submitRemoteActivity(epoch:Long, body:()=>void, src:Place, finishState:FinishState):void {
-        submitRemoteActivity(epoch, new Activity(epoch, body, src, finishState), src, finishState);
+        submitRemoteActivity(epoch, new Activity(epoch, body, finishState), src, finishState);
     }
 
     /**
@@ -1466,7 +1461,7 @@ public final class Runtime {
             pool.flush(epoch);
         }
         if (epoch == epoch()) {
-            if (finishState.notifyActivityCreation(activity.srcPlace, activity)) {
+            if (finishState.notifyActivityCreation(src, activity)) {
                 worker().push(activity);
             }
         }
@@ -1478,14 +1473,14 @@ public final class Runtime {
 
     // notify the pool a worker is about to execute a blocking operation
     public static def increaseParallelism():void {
-        if (!STATIC_THREADS) {
+        if (!STATIC_THREADS && !STABLE_POOL_SIZE) {
             pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
     public static def decreaseParallelism(n:Int) {
-        if (!STATIC_THREADS) {
+        if (!STATIC_THREADS && !STABLE_POOL_SIZE)  {
             pool.decrease(n);
         }
     }

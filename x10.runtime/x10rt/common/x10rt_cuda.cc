@@ -314,7 +314,6 @@ namespace {
                 x10rt_cuda_post *post;
             } kernel_cbs;
             struct {
-                x10rt_finder *hh;
                 x10rt_notifier *ch;
             } copy_cbs;
         };
@@ -495,29 +494,27 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
 }
 
 void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       x10rt_finder *cb1, x10rt_notifier *cb2)
+                                       x10rt_notifier *cb)
 {
 #ifdef ENABLE_CUDA
     x10rt_functions fs;
-    fs.copy_cbs.hh = cb1;
-    fs.copy_cbs.ch = cb2;
+    fs.copy_cbs.ch = cb;
     ctx->cbs.reg(msg_type,fs);
 #else
-    (void) ctx; (void) msg_type; (void) cb1; (void) cb2;
+    (void) ctx; (void) msg_type; (void) cb;
 #endif
 }
 
 void x10rt_cuda_register_put_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       x10rt_finder *cb1, x10rt_notifier *cb2)
+                                       x10rt_notifier *cb)
 
 {
 #ifdef ENABLE_CUDA
     x10rt_functions fs;
-    fs.copy_cbs.hh = cb1;
-    fs.copy_cbs.ch = cb2;
+    fs.copy_cbs.ch = cb;
     ctx->cbs.reg(msg_type,fs);
 #else
-    (void) ctx; (void) msg_type; (void) cb1; (void) cb2;
+    (void) ctx; (void) msg_type; (void) cb;
 #endif
 }
 
@@ -571,35 +568,13 @@ void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx,
 }
 
 
-#ifdef ENABLE_CUDA
-void *do_buffer_finder (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
-{
-    x10rt_msg_type type = p->type;
-    x10rt_finder *hh = ctx->cbs[type].copy_cbs.hh;
-    DEBUG(2,"probe: finder callback begins\n");
-    void *remote = hh(p, len); /****CALLBACK****/
-    DEBUG(2,"probe: finder callback ends\n");
-    if (remote==NULL) {
-        x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
-        DEBUG(2,"probe: finder callback returned NULL, running notifier\n");
-        ch(p, len); /****CALLBACK****/
-        DEBUG(2,"probe: notifier callback ends\n");
-    }
-    return remote;
-}
-#endif
-
-void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 {
 #ifdef ENABLE_CUDA
     big_lock_of_doom.acquire();
 
     if (ctx->cbs.arrc <= p->type) {
         fprintf(stderr,"X10RT: Get %llu is invalid.\n", (unsigned long long)p->type);
-        abort();
-    }
-    if (ctx->cbs[p->type].copy_cbs.hh == NULL) {
-        fprintf(stderr,"X10RT: Get %llu has no 'hh' registered.\n", (unsigned long long)p->type);
         abort();
     }
     if (ctx->cbs[p->type].copy_cbs.ch == NULL) {
@@ -611,11 +586,9 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
     p_.msg = safe_malloc<unsigned char>(p->len);
     memcpy(p_.msg, p->msg, p->len);
 
-    void *remote = do_buffer_finder(ctx, p, buf, len);
-
-    if (remote) {
-        BaseOpGet *op = new (safe_malloc<BaseOpGet>()) BaseOpGet(p_,buf,len);
-        op->src = remote;
+    if (srcAddr) {
+        BaseOpGet *op = new (safe_malloc<BaseOpGet>()) BaseOpGet(p_,dstAddr,len);
+        op->src = srcAddr;
         ctx->dma_q.push_back(op);
         big_lock_of_doom.release();
 
@@ -625,22 +598,18 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
     }
 
 #else
-    (void) ctx; (void) p; (void) buf; (void) len;
+    (void) ctx; (void) p; (void) srcAddr; (void) dstAddr; (void) len;
     abort();
 #endif
 }
 
-void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
+void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len)
 {
 #ifdef ENABLE_CUDA
     big_lock_of_doom.acquire();
 
     if (ctx->cbs.arrc <= p->type) {
         fprintf(stderr,"X10RT: Put %llu is invalid.\n", (unsigned long long)p->type);
-        abort();
-    }
-    if (ctx->cbs[p->type].copy_cbs.hh == NULL) {
-        fprintf(stderr,"X10RT: Put %llu has no 'hh' registered.\n", (unsigned long long)p->type);
         abort();
     }
     if (ctx->cbs[p->type].copy_cbs.ch == NULL) {
@@ -652,11 +621,9 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
     p_.msg = safe_malloc<unsigned char>(p->len);
     memcpy(p_.msg, p->msg, p->len);
 
-    void *remote = do_buffer_finder(ctx, p, buf, len);
-
-    if (remote) {
-        BaseOpPut *op = new (safe_malloc<BaseOpPut>()) BaseOpPut(p_,buf,len);
-        op->dst = remote;
+    if (dstAddr) {
+        BaseOpPut *op = new (safe_malloc<BaseOpPut>()) BaseOpPut(p_,srcAddr,len);
+        op->dst = dstAddr;
         ctx->dma_q.push_back(op);
         big_lock_of_doom.release();
 
@@ -666,7 +633,7 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
     }
 
 #else
-    (void) ctx; (void) p; (void) buf; (void) len;
+    (void) ctx; (void) p; (void) srcAddr; (void) dstAddr; (void) len;
     abort();
 #endif
 }

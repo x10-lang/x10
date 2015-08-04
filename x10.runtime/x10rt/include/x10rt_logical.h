@@ -117,12 +117,9 @@ X10RT_C void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type, x10rt_han
  *
  * \param msg_type The type of the message to register callbacks for.
  *
- * \param cb1 As in x10rt_register_get_receiver
- *
- * \param cb2 As in x10rt_register_get_receiver
+ * \param cb As in x10rt_register_get_receiver
  */
-X10RT_C void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type,
-                                              x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 /** Register handlers for a put message.
  *
@@ -130,13 +127,10 @@ X10RT_C void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type,
  *
  * \param msg_type The type of the message to register callbacks for.
  *
- * \param cb1 As in x10rt_register_put_receiver
- *
- * \param cb2 As in x10rt_register_put_receiver
+ * \param cb As in x10rt_register_put_receiver
  */
 
-X10RT_C void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type,
-                                              x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 /** Register handlers for a CUDA plain message (kernel invocation).
  *
@@ -159,13 +153,10 @@ X10RT_C void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
  *
  * \param msg_type The type of the message to register callbacks for.
  *
- * \param cb1 As in x10rt_register_put_receiver
- *
- * \param cb2 As in x10rt_register_put_receiver
+ * \param cb As in x10rt_register_put_receiver
  */
 
-X10RT_C void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
-                                                   x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 /** Register handlers for a CUDA put message.
  *
@@ -173,13 +164,10 @@ X10RT_C void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
  *
  * \param msg_type The type of the message to register callbacks for.
  *
- * \param cb1 As in x10rt_register_put_receiver
- *
- * \param cb2 As in x10rt_register_put_receiver
+ * \param cb As in x10rt_register_put_receiver
  */
 
-X10RT_C void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
-                                                   x10rt_finder *cb1, x10rt_notifier *cb2);
+X10RT_C void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type, x10rt_notifier *cb);
 
 /** An SPMD barrier that can only be used when each place has exactly one thread (the main thread).
  * Only the hosts are synchronized by this call (i.e. not accelerators).  This is used internally by
@@ -243,18 +231,20 @@ X10RT_C void x10rt_lgl_send_msg (x10rt_msg_params *p);
 
 /** \see #x10rt_send_get
  * \param p As in x10rt_send_get
- * \param buf As in x10rt_send_get
+ * \param srcAddr As in x10rt_send_get
+ * \param dstAddr As in x10rt_send_get
  * \param len As in x10rt_send_get
  */
-X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
+X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 
 /** \see #x10rt_send_put
  * \param p As in x10rt_send_put
- * \param buf As in x10rt_send_put
+ * \param srcAddr As in x10rt_send_get
+ * \param dstAddr As in x10rt_send_get
  * \param len As in x10rt_send_put
  */
-X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
+X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len);
 
 
 /** \see #x10rt_remote_alloc
@@ -293,6 +283,12 @@ X10RT_C void x10rt_lgl_remote_ops (x10rt_remote_op_params *ops, size_t num_ops);
  * \param len As in #x10rt_register_mem
  */
 X10RT_C void x10rt_lgl_register_mem (void *ptr, size_t len);
+
+
+/** \see #x10rt_deregister_mem
+ * \param ptr As in #x10rt_deregister_mem
+ */
+X10RT_C void x10rt_lgl_deregister_mem (void *ptr);
 
 
 /** \see #x10rt_blocks_threads
