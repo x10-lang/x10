@@ -62,7 +62,7 @@ public class SpMV(N:Long) {
         Console.OUT.printf("matrix size: %d X10_NTHREADS: %d time per iteration: %g ms\n", N, x10.xrx.Runtime.NTHREADS, ((stop-start) as Double) / 1e6 / ITERS);
 	}
 
-	public static def main(args:Rail[String]): void = {
+	public static def main(args:Rail[String]): void {
         var size:Long = 200000;
         if (args.size > 0) {
             size = Long.parse(args(0));
