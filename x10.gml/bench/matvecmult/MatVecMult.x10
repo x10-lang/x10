@@ -1,7 +1,12 @@
 /*
- *  This file is part of the X10 Applications project.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- *  (C) Copyright IBM Corporation 2011.
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2011-2015.
  */
 
 import x10.util.Timer;
@@ -18,7 +23,7 @@ import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistMultDupToDist;
 
 /**
-   This class implements matrix * vector multiplication: 
+ * This class tests matrix-vector multiplication:
  * for (1..iteration) {
  *    A * V = P;
  *    V = P;
@@ -38,7 +43,7 @@ import x10.matrix.dist.DistMultDupToDist;
 public class MatVecMult{
     public static def main(args:Rail[String]) {
     	val M   = args.size > 0 ? Long.parse(args(0)):100;
-    	val nnz = args.size > 1 ? Double.parse(args(1)):0.5;
+    	val nnz = args.size > 1 ? Float.parse(args(1)):0.5f;
     	val it  = args.size > 2 ? Long.parse(args(2)):3;
     	val vrf = args.size > 3 ? Long.parse(args(3)):0;
    	
@@ -52,8 +57,6 @@ class DVMultRowwise {
 	val vrf:Long;
 
 	val M:Long;
-	val partA:Grid;
-	val partP:Grid;
 	
 	val dstA:DistSparseMatrix(M,M);
 	val dupV:DupDenseMatrix(M,1);
@@ -61,19 +64,14 @@ class DVMultRowwise {
 	val dstP:DistDenseMatrix(M,1);
 	val P:DenseMatrix(M,1);
 
-	public var st:Double;
-	public var ed:Double;
-	public var cmpt:Double = 0.0;
-	public var comt:Double = 0.0;
-
-    public def this(m:Long, nnz:Double, i:Long, v:Long) {
+    public def this(m:Long, nnz:Float, i:Long, v:Long) {
     	M=m;
     	it = i; vrf=v;
     	
     	val numP = Place.numPlaces();//Place.numPlaces();
     	Console.OUT.printf("\nTest Dist sparse mult Dup dense in %d places\n", numP);
  
-    	partA = new Grid(M, M, numP, 1);
+    	val partA = new Grid(M, M, numP, 1);
     	dstA  = DistSparseMatrix.make(partA, nnz) as DistSparseMatrix(M,M);
     	//dstA.initRandom(nnz);
     	//dstA.printRandomInfo();
@@ -83,7 +81,7 @@ class DVMultRowwise {
     	dupV = DupDenseMatrix.makeRand(M, 1);
     	dupV.initRandom();
 
-    	partP = new Grid(M, 1, numP, 1);
+    	val partP = new Grid(M, 1, numP, 1);
     	dstP  = DistDenseMatrix.make(partP) as DistDenseMatrix(M,1);
     	P	  = DenseMatrix.make(dstP.M, dstP.N);
 	}
@@ -102,7 +100,9 @@ class DVMultRowwise {
 
 	public def runMultParallel():void {
 		var ct:Long=0;
-		st = Timer.milliTime();		
+        var cmpt:Double = 0.0;
+        var comt:Double = 0.0;
+		val st = Timer.milliTime();		
 		for (1..it) {
 			/* Timer */ ct = Timer.milliTime();
 			DistMultDupToDist.comp(dstA, dupV, dstP, false);
@@ -112,10 +112,10 @@ class DVMultRowwise {
 			dstP.copyTo(dupV);
 			/* Timer */ comt += Timer.milliTime() -ct;
 		}
-		ed = Timer.milliTime();
+		val ed = Timer.milliTime();
 		Console.OUT.printf("\nDone Dist*Dup->Dist MatVecMult for %d iteration\n", it);
 
-		val tt = (ed-st) / it;
+		val tt = (ed-st) as Float / it;
 		comt = comt/it;
 		cmpt = comt/it;
 		Console.OUT.printf("MatVecMult Time:%9.3f ms, communication:%8.3f computation:%8.3f\n", 

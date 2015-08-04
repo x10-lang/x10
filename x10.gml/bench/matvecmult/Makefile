@@ -1,16 +1,15 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list 	= MatVecMult MatVecMultCol
+target_list 	= MatVecMult MatVecMultCol SpMV
 
 target		= MatVecMult
-
 
 # build path
 build_path	= build
 
 # GML path
-gml_path    = ../../
+gml_path    = ../..
 
 # compile options
 X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
