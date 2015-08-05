@@ -217,7 +217,7 @@ userStatement returns [Stmt ast]:
     | userAtStatement          #userStatement8
     | userContinueStatement    #userStatement9
     | userBreakStatement       #userStatement10
-    | userReturnStatement      #userStatement11
+    // | userReturnStatement      #userStatement11
     | userAtEachStatement      #userStatement12
     | userWhileStatement       #userStatement13
     | userDoStatement          #userStatement14
@@ -331,12 +331,12 @@ userContinueStatement returns [Stmt ast]:
 returnStatement returns [Return ast]:
       'return' expressionopt ';'
     ;
-userReturnStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='return' typeArgumentsopt expressionopt ';'         #userReturnStatement0
-    | primary '.' kw='return' typeArgumentsopt expressionopt ';'                    #userReturnStatement1
-    | s='super' '.' kw='return' typeArgumentsopt expressionopt ';'                  #userReturnStatement2
-    | className '.'  s='super' '.' kw='return' typeArgumentsopt expressionopt ';'   #userReturnStatement3
-    ;
+// userReturnStatement returns [Stmt ast]:
+//       fullyQualifiedName '.' kw='return' typeArgumentsopt expressionopt ';'         #userReturnStatement0
+//     | primary '.' kw='return' typeArgumentsopt expressionopt ';'                    #userReturnStatement1
+//     | s='super' '.' kw='return' typeArgumentsopt expressionopt ';'                  #userReturnStatement2
+//     | className '.'  s='super' '.' kw='return' typeArgumentsopt expressionopt ';'   #userReturnStatement3
+//     ;
 throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
@@ -904,7 +904,7 @@ keywordOp returns [Id ast]:
     | 'at'         #keywordOp8
     | 'continue'   #keywordOp9
     | 'break'      #keywordOp10
-    | 'return'     #keywordOp11
+    // | 'return'     #keywordOp11
     | 'ateach'     #keywordOp12
     | 'while'      #keywordOp13
     | 'do'         #keywordOp14

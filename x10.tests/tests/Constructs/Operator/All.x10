@@ -330,36 +330,6 @@ class All extends x10Test {
 	}
     }
 
-    /** return */
-    static class Return {
-	public static operator return[T] (x: T) {}
-	public static operator return[T] () {}
-    }
-    class SubReturn extends Return {
-	public def test() {
-	    Return.return[Long];
-	    (new Return()).return[Long];
-	    super.return[Long];
-	    SubReturn.super.return[Long];
-
-	    Return.return[Long] 1 + 1;
-	    (new Return()).return[Long] 1 + 1;
-	    super.return[Long] 1 + 1;
-	    SubReturn.super.return[Long] 1 + 1;
-
-	    Return.return 1 + 1;
-	    (new Return()).return 1 + 1;
-	    super.return 1 + 1;
-	    SubReturn.super.return 1 + 1;
-
-	    operator return[Long] (1 + 1);
-	    Return.operator return[Long] (1 + 1);
-	    (new Return()).operator return[Long] (1 + 1);
-	    super.operator return[Long] (1 + 1);
-	    SubReturn.super.operator return[Long] (1 + 1);
-	}
-    }
-
     /** while */
     static class While {
 	public static operator while[T] (body: ()=>void) {}
@@ -454,7 +424,6 @@ class All extends x10Test {
 	(new SubTry()).test();
 	(new SubContinue()).test();
 	(new SubBreak()).test();
-	(new SubReturn()).test();
 	(new SubWhile()).test();
 	(new SubDo()).test();
 	return true;

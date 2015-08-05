@@ -1320,18 +1320,6 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUserStatement11(X10Parser.UserStatement11Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserStatement11(X10Parser.UserStatement11Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUserStatement12(X10Parser.UserStatement12Context ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1975,54 +1963,6 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturnStatement(X10Parser.ReturnStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserReturnStatement0(X10Parser.UserReturnStatement0Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserReturnStatement0(X10Parser.UserReturnStatement0Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserReturnStatement1(X10Parser.UserReturnStatement1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserReturnStatement1(X10Parser.UserReturnStatement1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserReturnStatement2(X10Parser.UserReturnStatement2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserReturnStatement2(X10Parser.UserReturnStatement2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserReturnStatement3(X10Parser.UserReturnStatement3Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserReturnStatement3(X10Parser.UserReturnStatement3Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -6175,18 +6115,6 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitKeywordOp10(X10Parser.KeywordOp10Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterKeywordOp11(X10Parser.KeywordOp11Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitKeywordOp11(X10Parser.KeywordOp11Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
