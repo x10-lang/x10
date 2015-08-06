@@ -129,7 +129,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
     final int threads = Integer.getInteger(Configuration.APGAS_THREADS, Runtime
         .getRuntime().availableProcessors());
-    final int maxThreads = Integer.getInteger(Configuration.APGAS_THREADS, 256);
+    final int maxThreads = Integer.getInteger(Configuration.APGAS_MAX_THREADS,
+        256);
     final String master = System.getProperty(Configuration.APGAS_MASTER);
     final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
     serializationException = Boolean
