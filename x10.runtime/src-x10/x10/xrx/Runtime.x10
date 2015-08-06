@@ -91,7 +91,7 @@ public final class Runtime {
         var body:()=>void = msgBody;
         if (CANCELLABLE) {
             val epoch = epoch();
-            if (activity() != null && activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+            if (activity() != null && activity().epoch < epoch) throw new CancellationException();
             body = ()=> {
                 if (epoch > epoch()) pool.flush(epoch);
                 if (epoch == epoch()) msgBody();
@@ -123,7 +123,7 @@ public final class Runtime {
                                             prof:Profile, preSendAction:()=>void):void {
         val epoch = epoch();
         if (CANCELLABLE) {
-            if (activity() != null && activity().epoch < epoch) throw new DeadPlaceException("Cancelled");
+            if (activity() != null && activity().epoch < epoch) throw new CancellationException();
         }
         x10rtSendAsyncInternal(epoch, id, body, finishState, prof, preSendAction);
     }
@@ -1340,7 +1340,7 @@ public final class Runtime {
     static def notifyPlaceDeath() : void {
         if (CANCELLABLE) {
             if (pool.cancelWatcher != null) {
-                pool.cancelWatcher.raise(new DeadPlaceException());
+                pool.cancelWatcher.raise(new CancellationException());
                 pool.cancelWatcher.release();
             }
         }
@@ -1431,7 +1431,7 @@ public final class Runtime {
     }
 
     static def submitLocalActivity(activity:Activity):void {
-        if (activity.epoch < epoch()) throw new DeadPlaceException("Cancelled");
+        if (activity.epoch < epoch()) throw new CancellationException("Cancelled");
         if (activity.finishState().notifyActivityCreation(here, activity)) {
             if (!pool.deal(activity)) { 
                 worker().push(activity);
