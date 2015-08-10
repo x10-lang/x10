@@ -71,6 +71,9 @@ public final class UTS implements Serializable {
 
   public void seed(MessageDigest md, int s, int d) {
     try {
+      for (int i = 0; i < 16; ++i) {
+        hash[i] = 0;
+      }
       hash[16] = (byte) (s >> 24);
       hash[17] = (byte) (s >> 16);
       hash[18] = (byte) (s >> 8);

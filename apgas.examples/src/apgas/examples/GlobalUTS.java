@@ -20,16 +20,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import apgas.Configuration;
-import apgas.DeadPlaceException;
-import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.PlaceLocalObject;
 
-@SuppressWarnings("serial")
 final class GlobalUTS extends PlaceLocalObject {
   final Place home = here();
   final int places = places().size();
-  final Random random = new Random();
+  final Random random = new Random(home.id);
   final MessageDigest md = UTS.encoder();
   final UTS bag = new UTS(64);
   final ConcurrentLinkedQueue<Place> thieves = new ConcurrentLinkedQueue<Place>();
@@ -66,42 +63,26 @@ final class GlobalUTS extends PlaceLocalObject {
     if (places == 1) {
       return;
     }
-    try {
-      asyncAt(place((home.id + places - 1) % places), () -> {
-        lifeline.set(true);
-      });
-    } catch (final DeadPlaceException e) {
-      // TODO should go to next lifeline, but correct as is
-    }
+    asyncAt(place((home.id + places - 1) % places), () -> {
+      lifeline.set(true);
+    });
   }
 
   void steal() {
     if (places == 1) {
       return;
     }
-    final Place from = home;
+    final Place h = home;
     int p = random.nextInt(places - 1);
-    if (p >= from.id) {
+    if (p >= h.id) {
       p++;
-    }
-    if (!places().contains(place(p))) {
-      // TODO should try other place, but ok as is
-      return;
     }
     synchronized (this) {
       state = p;
     }
-    try {
-      uncountedAsyncAt(place(p), () -> {
-        request(from);
-      });
-    } catch (final DeadPlaceException e) {
-      // pretend stealing failed
-      // TODO should try other place, but ok as is
-      synchronized (this) {
-        state = -1;
-      }
-    }
+    uncountedAsyncAt(place(p), () -> {
+      request(h);
+    });
     synchronized (this) {
       while (state >= 0) {
         try {
@@ -119,14 +100,10 @@ final class GlobalUTS extends PlaceLocalObject {
         return;
       }
     }
-    try {
-      final Place h = home;
-      uncountedAsyncAt(p, () -> {
-        deal(h, null);
-      });
-    } catch (final DeadPlaceException e) {
-      // place is dead, nothing to do
-    }
+    final Place h = home;
+    uncountedAsyncAt(p, () -> {
+      deal(h, null);
+    });
   }
 
   void lifelinedeal(UTS b) throws DigestException {
@@ -135,10 +112,7 @@ final class GlobalUTS extends PlaceLocalObject {
   }
 
   synchronized void deal(Place p, UTS b) {
-    if (state != p.id) {
-      // thief is no longer waiting for this message, discard
-      return;
-    }
+    assert state == p.id;
     if (b != null) {
       bag.merge(b);
     }
@@ -147,32 +121,32 @@ final class GlobalUTS extends PlaceLocalObject {
   }
 
   void distribute() {
+    if (places == 1) {
+      return;
+    }
     Place p;
-    if (lifeline.get()) {
+    while ((p = thieves.poll()) != null) {
+      final UTS b = bag.split();
+      final Place h = home;
+      uncountedAsyncAt(p, () -> {
+        deal(h, b);
+      });
+    }
+    if (bag.size > 0 && lifeline.get()) {
       final UTS b = bag.split();
       if (b != null) {
         p = place((home.id + 1) % places);
         lifeline.set(false);
-        try {
-          asyncAt(p, () -> {
-            lifelinedeal(b);
-          });
-        } catch (final DeadPlaceException e) {
-          // thief died, nothing to do
-        }
-      }
-    }
-    while ((p = thieves.poll()) != null) {
-      final UTS b = bag.split();
-      try {
-        final Place h = home;
-        uncountedAsyncAt(p, () -> {
-          deal(h, b);
+        asyncAt(p, () -> {
+          lifelinedeal(b);
         });
-      } catch (final DeadPlaceException e) {
-        // thief died, nothing to do
       }
     }
+  }
+
+  public void reset() {
+    bag.count = 0;
+    lifeline.set(home.id != places - 1);
   }
 
   public static void main(String[] args) {
@@ -185,36 +159,25 @@ final class GlobalUTS extends PlaceLocalObject {
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
-    System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
-    System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
-    // initialize uts and place failure handler in each place
-    final GlobalUTS uts0 = PlaceLocalObject.make(places(), () -> new GlobalUTS());
+    final GlobalUTS uts = PlaceLocalObject
+        .make(places(), () -> new GlobalUTS());
 
     System.out.println("Warmup...");
-    try {
-      uts0.seed(19, depth - 2); // seed: 19
-      finish(uts0::run);
-    } catch (final MultipleException e) {
-      if (!e.isDeadPlaceException()) {
-        throw e;
-      }
-    }
+    uts.seed(19, depth - 2);
+    finish(uts::run);
 
-    // initialize uts and place failure handler in each place
-    final GlobalUTS uts = PlaceLocalObject.make(places(), () -> new GlobalUTS());
+    finish(() -> {
+      for (final Place p : places()) {
+        asyncAt(p, uts::reset);
+      }
+    });
 
     System.out.println("Starting...");
     long time = System.nanoTime();
 
-    try {
-      uts.seed(19, depth); // seed: 19
-      finish(uts::run);
-    } catch (final MultipleException e) {
-      if (!e.isDeadPlaceException()) {
-        throw e;
-      }
-    }
+    uts.seed(19, depth);
+    finish(uts::run);
 
     long count = 0;
     // collect all counts
