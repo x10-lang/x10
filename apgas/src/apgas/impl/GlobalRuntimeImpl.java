@@ -386,6 +386,11 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   @Override
+  public void immediateAsyncAt(Place p, SerializableRunnable f) {
+    transport.send(p.id, f);
+  }
+
+  @Override
   public void at(Place p, SerializableJob f) {
     Constructs.finish(() -> Constructs.asyncAt(p, f));
   }

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import apgas.impl.SerializableRunnable;
+
 /**
  * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
  * down the APGAS global runtime for the application.
@@ -139,6 +141,8 @@ public abstract class GlobalRuntime {
    *          the function to run
    */
   protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
+
+  protected abstract void immediateAsyncAt(Place p, SerializableRunnable f);
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
