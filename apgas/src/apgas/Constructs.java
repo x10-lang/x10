@@ -14,6 +14,8 @@ package apgas;
 import java.io.Serializable;
 import java.util.List;
 
+import apgas.impl.SerializableRunnable;
+
 /**
  * The {@link Constructs} class defines the APGAS constructs by means of static
  * methods.
@@ -79,6 +81,10 @@ public final class Constructs {
    */
   public static void uncountedAsyncAt(Place p, SerializableJob f) {
     GlobalRuntime.getRuntime().uncountedAsyncAt(p, f);
+  }
+
+  public static void immediateAsyncAt(Place p, SerializableRunnable f) {
+    GlobalRuntime.getRuntime().immediateAsyncAt(p, f);
   }
 
   /**
