@@ -6166,7 +6166,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return nf.Eval(pos, call);
     }
 
-    /** Production: userAtEachStatement ::= fullyQualifiedName '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement0) */
+    /** Production: userAtEachStatement ::= fullyQualifiedName '.' 'ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userAtEachStatement0) */
     @Override
     public void exitUserAtEachStatement0(UserAtEachStatement0Context ctx) {
         ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
@@ -6176,15 +6176,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure ateachBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserAtEach(pos(ctx), target, MethodName.name, TypeArgumentsopt, iterationSpace, ateachBody);
     }
 
 
-    /** Production: userAtEachStatement ::= primary '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement1) */
+    /** Production: userAtEachStatement ::= primary '.' 'ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userAtEachStatement1) */
     @Override
     public void exitUserAtEachStatement1(UserAtEachStatement1Context ctx) {
         Expr prefix = ast(ctx.primary());
@@ -6193,14 +6193,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure ateachBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
     }
 
-    /** Production: userAtEachStatement ::= s='super' '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement2) */
+    /** Production: userAtEachStatement ::= s='super' '.' 'ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userAtEachStatement2) */
     @Override
     public void exitUserAtEachStatement2(UserAtEachStatement2Context ctx) {
         Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "ateach"));
@@ -6208,14 +6208,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure ateachBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
     }
 
-    /** Production: userAtEachStatement ::= className '.' s='super' '.' 'ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userAtEachStatement3) */
+    /** Production: userAtEachStatement ::= className '.' s='super' '.' 'ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userAtEachStatement3) */
     @Override
     public void exitUserAtEachStatement3(UserAtEachStatement3Context ctx) {
         ParsedName ClassName = ast(ctx.className());
@@ -6224,9 +6224,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure ateachBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure ateachBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, ateachBody);
     }
@@ -6323,18 +6323,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /** Create a closure. */
-    private Closure makeClosure(Position pos, Formal parameter, Block body) {
-        List<Formal> parameters;
-        if (parameter != null) {
-            parameters = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false);
-            parameters.add(parameter);
-        } else {
-            parameters = null;
-        }
-        return makeClosure(pos, parameters, body);
-    }
-
-    /** Create a closure. */
     private Closure makeClosure(Position pos, List<Formal> parameters, Block body) {
         if (parameters == null) { parameters = new TypedList<Formal>(new LinkedList<Formal>(), Formal.class, false); }
         DepParameterExpr WhereClauseopt = null;
@@ -6353,7 +6341,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return nf.Eval(pos, call);
     }
 
-    /** Production: userEnhancedForStatement ::= fullyQualifiedName '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement0) */
+    /** Production: userEnhancedForStatement ::= fullyQualifiedName '.' 'for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement0) */
     @Override
     public void exitUserEnhancedForStatement0(UserEnhancedForStatement0Context ctx) {
         ParsedName fullyQualifiedName = ast(ctx.fullyQualifiedName());
@@ -6363,15 +6351,15 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure forBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure forBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserEnhancedFor(pos(ctx), target, MethodName.name, TypeArgumentsopt, iterationSpace, forBody);
     }
 
 
-    /** Production: userEnhancedForStatement ::= primary '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement1) */
+    /** Production: userEnhancedForStatement ::= primary '.' 'for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement1) */
     @Override
     public void exitUserEnhancedForStatement1(UserEnhancedForStatement1Context ctx) {
         Expr prefix = ast(ctx.primary());
@@ -6380,14 +6368,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure forBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure forBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, forBody);
     }
 
-    /** Production: userEnhancedForStatement ::= s='super' '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement2) */
+    /** Production: userEnhancedForStatement ::= s='super' '.' 'for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement2) */
     @Override
     public void exitUserEnhancedForStatement2(UserEnhancedForStatement2Context ctx) {
         Field field = nf.Field(pos(ctx.s, ctx.kw), nf.Super(pos(ctx.s)), nf.Id(pos(ctx.kw), "for"));
@@ -6395,14 +6383,14 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure forBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure forBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, forBody);
     }
 
-    /** Production: userEnhancedForStatement ::= className '.' s='super' '.' 'for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement3) */
+    /** Production: userEnhancedForStatement ::= className '.' s='super' '.' 'for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock    (#userEnhancedForStatement3) */
     @Override
     public void exitUserEnhancedForStatement3(UserEnhancedForStatement3Context ctx) {
         ParsedName ClassName = ast(ctx.className());
@@ -6411,9 +6399,9 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
 
         Expr iterationSpace = ast(ctx.expression());
-        X10Formal loopIndex = ast(ctx.loopIndex());
+        List<Formal> formalParameterList = ast(ctx.formalParameterList());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure forBody = makeClosure(pos(ctx.loopIndex(), ctx.closureBodyBlock()), loopIndex, closureBodyBlock);
+        Closure forBody = makeClosure(pos(ctx.formalParameterList(), ctx.closureBodyBlock()), formalParameterList, closureBodyBlock);
 
         ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, iterationSpace, forBody);
     }

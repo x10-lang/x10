@@ -424,28 +424,28 @@ atEachStatement returns [X10Loop ast]:
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
 userAtEachStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock       #userAtEachStatement0
-    | primary '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                  #userAtEachStatement1
-    | s='super' '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                #userAtEachStatement2
-    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock  #userAtEachStatement3
-    | fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                      #userAtEachStatement4
-    | primary '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                 #userAtEachStatement5
-    | s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                               #userAtEachStatement6
-    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                 #userAtEachStatement7
+      fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userAtEachStatement0
+    | primary '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                  #userAtEachStatement1
+    | s='super' '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                #userAtEachStatement2
+    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock  #userAtEachStatement3
+    | fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userAtEachStatement4
+    | primary '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                           #userAtEachStatement5
+    | s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                         #userAtEachStatement6
+    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                           #userAtEachStatement7
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
     | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 userEnhancedForStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
-    | primary '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                  #userEnhancedForStatement1
-    | s='super' '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock                #userEnhancedForStatement2
-    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' loopIndex 'in' expression ')' closureBodyBlock  #userEnhancedForStatement3
-    | fullyQualifiedName '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                      #userEnhancedForStatement4
-    | primary '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                 #userEnhancedForStatement5
-    | s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                               #userEnhancedForStatement6
-    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                 #userEnhancedForStatement7
+      fullyQualifiedName '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
+    | primary '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                  #userEnhancedForStatement1
+    | s='super' '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                #userEnhancedForStatement2
+    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock  #userEnhancedForStatement3
+    | fullyQualifiedName '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userEnhancedForStatement4
+    | primary '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                           #userEnhancedForStatement5
+    | s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                         #userEnhancedForStatement6
+    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                           #userEnhancedForStatement7
     ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0
