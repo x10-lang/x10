@@ -468,12 +468,11 @@ struct CollState {
         }
         is_enabled_debug_print = checkBoolEnvVar(getenv(X10RT_MPI_DEBUG_PRINT));
     }
-    
+
+    //NOTE: This must be called with global_state.lock held
     void finalize() {
     	for (int i = 1; i < X10RT_DATATYPE_TBL_SIZE; i++) {
-            LOCK_IF_MPI_IS_NOT_MULTITHREADED;
             MPI_Type_free(&datatypeTbl[i]);
-            UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         }
 	}    
 
@@ -1591,6 +1590,7 @@ struct TeamDB {
         return t;
     }
 
+    //NOTE: This must be called with global_state.lock held
     void releaseAllTeams()
     {
     	assert(global_state.init);
@@ -1600,9 +1600,7 @@ struct TeamDB {
         for (x10rt_team t=0; t<teamc; t++) {
         	if (this->teamv[t] != MPI_COMM_NULL) {
         		X10RT_NET_DEBUG("freeing t = %d", t);
-            	LOCK_IF_MPI_IS_NOT_MULTITHREADED;
             	rc = MPI_Comm_free(&(this->teamv[t]));
-            	UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         		if (MPI_SUCCESS != rc) {
         		    fprintf(stderr, "[%s:%d] Error freeing team %d comm \n", __FILE__, __LINE__, t);
         		}
