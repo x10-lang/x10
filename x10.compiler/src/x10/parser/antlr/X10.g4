@@ -222,6 +222,12 @@ userStatement returns [Stmt ast]:
     | userWhileStatement       #userStatement13
     | userDoStatement          #userStatement14
     ;
+userStatementPrefix returns [Receiver ast]:
+      fullyQualifiedName '.'          #userStatementPrefix0
+    | primary '.'                     #userStatementPrefix1
+    | s='super' '.'                   #userStatementPrefix2
+    | className '.'  s='super' '.'    #userStatementPrefix3
+    ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
     ;
@@ -229,10 +235,7 @@ ifThenStatement returns [If ast]:
       'if' '(' expression ')' s1=statement ('else' s2=statement)?
     ;
 userIfThenStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
-    | primary '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?                   #userIfThenStatement1
-    | s='super' '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?                 #userIfThenStatement2
-    | className '.'  s='super' '.' kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?  #userIfThenStatement3
+      userStatementPrefix kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -279,19 +282,13 @@ whileStatement returns [While ast]:
       'while' '(' expression ')' statement
     ;
 userWhileStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
-    | primary '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userWhileStatement1
-    | s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userWhileStatement2
-    | className '.'  s='super' '.' kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userWhileStatement3
+      userStatementPrefix kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
     ;
 doStatement returns [Do ast]:
       'do' statement 'while' '(' expression ')' ';'
     ;
 userDoStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
-    | primary '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'                   #userDoStatement1
-    | s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'                 #userDoStatement2
-    | className '.'  s='super' '.' kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'  #userDoStatement3
+      userStatementPrefix kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
     ;
 forStatement returns [Loop ast]:
       basicForStatement        #forStatement0
@@ -314,19 +311,13 @@ breakStatement returns [Branch ast]:
       'break' identifieropt ';'
     ;
 userBreakStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
-    | primary '.' kw='break' typeArgumentsopt expressionopt ';'                    #userBreakStatement1
-    | s='super' '.' kw='break' typeArgumentsopt expressionopt ';'                  #userBreakStatement2
-    | className '.'  s='super' '.' kw='break' typeArgumentsopt expressionopt ';'   #userBreakStatement3
+      userStatementPrefix kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
     ;
 continueStatement returns [Branch ast]:
       'continue' identifieropt ';'
     ;
 userContinueStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
-    | primary '.' kw='continue' typeArgumentsopt expressionopt ';'                    #userContinueStatement1
-    | s='super' '.' kw='continue' typeArgumentsopt expressionopt ';'                  #userContinueStatement2
-    | className '.'  s='super' '.' kw='continue' typeArgumentsopt expressionopt ';'   #userContinueStatement3
+      userStatementPrefix kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
     ;
 returnStatement returns [Return ast]:
       'return' expressionopt ';'
@@ -341,10 +332,7 @@ throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
 userThrowStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
-    | primary '.' kw='throw' typeArgumentsopt expressionopt ';'                    #userThrowStatement1
-    | s='super' '.' kw='throw' typeArgumentsopt expressionopt ';'                  #userThrowStatement2
-    | className '.'  s='super' '.' kw='throw' typeArgumentsopt expressionopt ';'   #userThrowStatement3
+      userStatementPrefix kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
     ;
 tryStatement returns [Try ast]:
       'try' block catches                    #tryStatement0
@@ -360,14 +348,8 @@ finallyBlock returns [Block ast]:
       'finally' block
     ;
 userTryStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                              #userTryStatement0
-    | primary '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                                         #userTryStatement1
-    | s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                                       #userTryStatement2
-    | className '.'  s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatches                        #userTryStatement3
-    | fullyQualifiedName '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
-    | primary '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock                     #userTryStatement5
-    | s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock                   #userTryStatement6
-    | className '.'  s='super' '.' kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock    #userTryStatement7
+      userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatches                              #userTryStatement0
+    | userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
     ;
 userCatches returns [List<Closure> ast]:
       userCatchClause+
@@ -386,76 +368,49 @@ asyncStatement returns [Async ast]:
     | 'clocked' 'async' statement           #asyncStatement1
     ;
 userAsyncStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
-    | primary '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock                   #userAsyncStatement1
-    | s='super' '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock                 #userAsyncStatement2
-    | className '.'  s='super' '.' kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock  #userAsyncStatement3
+      userStatementPrefix kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
     // | 'clocked' 'async' closureBodyBlock           #userAsyncStatement
     ;
 atStatement returns [AtStmt ast]:
       'at' '(' expression ')' statement
     ;
 userAtStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
-    | primary '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userAtStatement1
-    | s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userAtStatement2
-    | className '.'  s='super' '.' kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userAtStatement3
+      userStatementPrefix kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
     ;
 atomicStatement returns [Atomic ast]:
       'atomic' statement
     ;
 userAtomicStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='atomic' typeArgumentsopt closureBodyBlock         #userAtomicStatement0
-    | primary '.' kw='atomic' typeArgumentsopt closureBodyBlock                    #userAtomicStatement1
-    | s='super' '.' kw='atomic' typeArgumentsopt closureBodyBlock                  #userAtomicStatement2
-    | className '.'  s='super' '.' kw='atomic' typeArgumentsopt closureBodyBlock   #userAtomicStatement3
+      userStatementPrefix kw='atomic' typeArgumentsopt closureBodyBlock         #userAtomicStatement0
     ;
 whenStatement returns [When ast]:
       'when' '(' expression ')' statement
     ;
 userWhenStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
-    | primary '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                   #userWhenStatement1
-    | s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                 #userWhenStatement2
-    | className '.'  s='super' '.' kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock  #userWhenStatement3
+      userStatementPrefix kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
     ;
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
 userAtEachStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userAtEachStatement0
-    | primary '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                  #userAtEachStatement1
-    | s='super' '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                #userAtEachStatement2
-    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock  #userAtEachStatement3
-    | fullyQualifiedName '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userAtEachStatement4
-    | primary '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                           #userAtEachStatement5
-    | s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                         #userAtEachStatement6
-    | className '.' s='super' '.' kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                           #userAtEachStatement7
+      userStatementPrefix kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userAtEachStatement0
+    | userStatementPrefix kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userAtEachStatement4
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
     | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 userEnhancedForStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
-    | primary '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                  #userEnhancedForStatement1
-    | s='super' '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock                #userEnhancedForStatement2
-    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock  #userEnhancedForStatement3
-    | fullyQualifiedName '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userEnhancedForStatement4
-    | primary '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                           #userEnhancedForStatement5
-    | s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                         #userEnhancedForStatement6
-    | className '.' s='super' '.' kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                           #userEnhancedForStatement7
+      userStatementPrefix kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
+    | userStatementPrefix kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userEnhancedForStatement4
     ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0
     | 'clocked' 'finish' statement      #finishStatement1
     ;
 userFinishStatement returns [Stmt ast]:
-      fullyQualifiedName '.' kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement0
-    | primary '.' kw='finish' typeArgumentsopt closureBodyBlock                    #userFinishStatement1
-    | s='super' '.' kw='finish' typeArgumentsopt closureBodyBlock                  #userFinishStatement2
-    | className '.'  s='super' '.' kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement3
+      userStatementPrefix kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement0
     // | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
