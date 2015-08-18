@@ -35,17 +35,42 @@ public class TestForeachReduce(N:Long) extends x10Test {
 
         val sum = (a:Double,b:Double) => a+b;
 
-        val sequential = Foreach.sequentialReduce(0, N-1, body, sum, 0.0);
+        val sequential = Foreach.Sequential.reduce(0..(N-1), body, sum, 0.0);
         chk(sequential == singleThreadedResult);
 
-        val block = Foreach.blockReduce(0, N-1, body, sum, 0.0);
+        val sequentialReduce = new Foreach.Sequential.Reducer(sum, 0.0);
+	sequentialReduce.for (i: Long in 0..(N-1)) {
+	    body(i)
+	}
+        chk(sequentialReduce.value() == singleThreadedResult);
+
+        val block = Foreach.Block.reduce(0..(N-1), body, sum, 0.0);
         chk(block == singleThreadedResult);
 
-        val cyclic = Foreach.cyclicReduce(0, N-1, body, sum, 0.0);
+	val blockReduce = new Foreach.Block.Reducer(sum, 0.0);
+	blockReduce.for (i: Long in 0..(N-1)) {
+	    body(i)
+	}
+        chk(blockReduce.value() == singleThreadedResult);
+
+        val cyclic = Foreach.Cyclic.reduce(0..(N-1), body, sum, 0.0);
         chk(cyclic == singleThreadedResult);
 
-        val bisect = Foreach.bisectReduce(0, N-1, body, sum, 0.0);
+	val cyclicReduce = new Foreach.Cyclic.Reducer(sum, 0.0);
+	cyclicReduce.for (i: Long in 0..(N-1)) {
+	    body(i)
+	}
+        chk(cyclicReduce.value() == singleThreadedResult);
+
+
+        val bisect = Foreach.Bisect.reduce(0..(N-1), body, sum, 0.0);
         chk(bisect == singleThreadedResult);
+
+	val bisectReduce = new Foreach.Bisect.Reducer(sum, 0.0);
+	bisectReduce.for (i: Long in 0..(N-1)) {
+	    body(i)
+	}
+        chk(bisectReduce.value() == singleThreadedResult);
 
         return true;
 	}
