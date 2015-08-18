@@ -92,8 +92,8 @@ implicitConversionOperatorDeclaration returns [MethodDecl ast]:
       methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 propertyMethodDeclaration returns [MethodDecl ast]:
-      methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
-    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1 // This case cannot occur. It corresponds to a field declaration.
+      modifiersopt 'property' identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
+    | modifiersopt 'property' identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1
     ;
 explicitConstructorInvocation returns [ConstructorCall ast]:
       'this' typeArgumentsopt '(' argumentListopt ')' ';'                  #explicitConstructorInvocationThis

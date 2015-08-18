@@ -4261,17 +4261,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = md;
     }
 
-    /** Production: propertyMethodDeclaration ::= methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody (#propertyMethodDecl0) */
+    /** Production: propertyMethodDeclaration ::= modifiersopt 'property' identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody (#propertyMethodDecl0) */
     @Override
     public void exitPropertyMethodDecl0(PropertyMethodDecl0Context ctx) {
-        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Modifiersopt.add(new FlagModifier(pos(ctx), FlagModifier.PROPERTY));
         Id Identifier = ast(ctx.identifier());
         List<TypeParamNode> TypeParametersopt = ast(ctx.typeParametersopt());
         List<Formal> FormalParameters = ast(ctx.formalParameters());
         DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
         TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         Block MethodBody = ast(ctx.methodBody());
-        List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        List<Node> modifiers = checkMethodModifiers(Modifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers, Flags.PROPERTY), HasResultTypeopt == null ? nf.UnknownTypeNode(pos(ctx).markCompilerGenerated())
                 : HasResultTypeopt, Identifier, TypeParametersopt, FormalParameters, WhereClauseopt, null, // offersOpt
                 Collections.<TypeNode> emptyList(), MethodBody);
@@ -4284,12 +4285,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     @Override
     public void exitPropertyMethodDecl1(PropertyMethodDecl1Context ctx) {
         err.syntaxError("This syntax is no longer supported. You must supply the property method formals, and if there are none, you can use an empty parenthesis '()'.", pos(ctx));
-        List<Modifier> MethodModifiersopt = ast(ctx.methodModifiersopt());
+        List<Modifier> Modifiersopt = ast(ctx.modifiersopt());
+        Modifiersopt.add(new FlagModifier(pos(ctx), FlagModifier.PROPERTY));
         Id Identifier = ast(ctx.identifier());
         DepParameterExpr WhereClauseopt = ast(ctx.whereClauseopt());
         TypeNode HasResultTypeopt = ast(ctx.hasResultTypeopt());
         Block MethodBody = ast(ctx.methodBody());
-        List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+        List<Node> modifiers = checkMethodModifiers(Modifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(ctx), extractFlags(modifiers, Flags.PROPERTY), HasResultTypeopt == null ? nf.UnknownTypeNode(pos(ctx).markCompilerGenerated())
                 : HasResultTypeopt, Identifier, Collections.<TypeParamNode> emptyList(), Collections.<Formal> emptyList(), WhereClauseopt, null, // offersOpt
                 Collections.<TypeNode> emptyList(), MethodBody);
