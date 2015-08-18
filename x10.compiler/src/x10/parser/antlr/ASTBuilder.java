@@ -840,6 +840,16 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return new Position(p1, p2);
     }
     
+    private String removeNestedComment(String comment) {
+        StringBuffer s = new StringBuffer(comment);
+        for (int i = 2; i < comment.length() - 1; i++) {
+            if (s.charAt(i) == '/' && s.charAt(i+1) == '*') {
+                s.setCharAt(i, ' ');
+            }
+        }
+        return new String(s);
+    }
+
     private String comment(ParserRuleContext ctx) {
         String s = null;
         int i = ctx.getStart().getTokenIndex();
@@ -847,7 +857,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         if (cmtChannel != null) {
             Token cmt = cmtChannel.get(cmtChannel.size() - 1);
             if (cmt != null) {
-                s = cmt.getText();
+                s = removeNestedComment(cmt.getText());
             }
         }
         return s;
