@@ -43,7 +43,7 @@
 
 #if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
 #define X10RT_NONBLOCKING_SUPPORTED true
-#define X10RT_MPI3_RMA true
+//#define X10RT_MPI3_RMA true   // performance hasn't been shown to be better than active messages, so disabled by default.  Uncomment this line to use RDMA for PUT & GET
 #else
 #define X10RT_NONBLOCKING_SUPPORTED false
 #endif
