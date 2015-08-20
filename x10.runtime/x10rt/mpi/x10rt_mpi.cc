@@ -395,7 +395,9 @@ class x10rt_internal_state {
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
+        pthread_mutex_t     blocking_probe_lock;
         int					threading_mode;
+        int					unblock_probe;
         bool				report_nonblocking_coll;
         int                 rank;
         int                 nprocs;
@@ -445,6 +447,11 @@ class x10rt_internal_state {
                 perror("pthread_mutex_init");
                 abort();
             }
+            if (pthread_mutex_init(&blocking_probe_lock, NULL)) {
+				perror("pthread_mutex_init");
+				abort();
+			}
+            unblock_probe = 0;
         }
         ~x10rt_internal_state() {
             free(amCbTbl);
@@ -741,7 +748,7 @@ x10rt_place x10rt_net_here(void) {
     return global_state.rank;
 }
 
-static void x10rt_net_probe_ex (bool network_only);
+static bool x10rt_net_probe_ex (bool network_only);
 
 void x10rt_net_send_msg(x10rt_msg_params * p) {
     assert(global_state.init);
@@ -1374,15 +1381,16 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
 
 /**
  * Checks pending sends to see if any completed.
+ * returns true if the queue may be non-empty
  *
  * NOTE: This must be called with global_state.lock held
  */
-static void check_pending_sends() {
+static bool check_pending_sends() {
     int num_checked = 0;
     MPI_Status msg_status;
     x10rt_req_queue * q = &global_state.pending_send_list;
 
-    if (NULL == q->start()) return;
+    if (NULL == q->start()) return false;
 
     x10rt_req * req = q->start();
     while ((NULL != req) &&
@@ -1437,18 +1445,20 @@ static void check_pending_sends() {
             num_checked++;
         }
     }
+    return true;
 }
 
 /**
  * Checks pending receives to see if any completed.
+* returns true if the queue may be non-empty
  *
  * NOTE: This must be called with global_state.lock held
  */
-static void check_pending_receives() {
+static bool check_pending_receives() {
     MPI_Status msg_status;
     x10rt_req_queue * q = &global_state.pending_recv_list;
 
-    if (NULL == q->start()) return;
+    if (NULL == q->start()) return false;
 
     x10rt_req * req = q->start();
     while (NULL != req) {
@@ -1504,10 +1514,11 @@ static void check_pending_receives() {
             req = q->start();
         }
     }
+    return true;
 }
 
 void x10rt_register_thread (void) { }
-void x10rt_net_team_probe (void) ;
+bool x10rt_net_team_probe (void) ;
 
 x10rt_error x10rt_net_probe (void) {
     x10rt_net_probe_ex(false);
@@ -1516,23 +1527,52 @@ x10rt_error x10rt_net_probe (void) {
 
 bool x10rt_net_blocking_probe_support(void)
 {
-	return false;
+	return true;
 }
 
 x10rt_error x10rt_net_blocking_probe (void) {
-    // TODO: make this blocking.  For now, just call probe.
-    x10rt_net_probe_ex(false);
+	// we don't have true blocking support, because MPI generally doesn't
+	// support blocking internally on the network.  Instead we yield until something arrives
+	// when oversubscribing CPUs, this should give us performance close to true blocking support,
+	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
+	// a low-power state when idle won't work.
+	if (!x10rt_net_probe_ex(false)) {
+		// nothing is pending to send or receive locally.  Just spin until something comes in from the network.
+		get_lock(&global_state.blocking_probe_lock); // lock out any other threads, so they block too
+		//fprintf(stderr, "place %u entered blocking probe\n", global_state.rank);
+		int arrived = 0;
+		while (!global_state.unblock_probe && !arrived) {
+	    	// yield the cpu
+		    sched_yield();
+		    // test for incoming messages
+		    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+			if (MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE,
+						MPI_ANY_TAG, global_state.mpi_comm,
+						&arrived, MPI_STATUS_IGNORE)) {
+				fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
+				abort();
+			}
+			UNLOCK_IF_MPI_IS_NOT_MULTITHREADED
+	    }
+	    global_state.unblock_probe = 0; // reset the unblock probe marker
+	    release_lock(&global_state.blocking_probe_lock);
+	    //fprintf(stderr, "place %u left blocking probe\n", global_state.rank);
+	    // process whatever came in
+	    x10rt_net_probe_ex(false);
+	}
     return X10RT_ERR_OK;
 }
 
 x10rt_error x10rt_net_unblock_probe (void)
 {
-	// TODO: once blocking_probe is implemented, this needs to do something.  Fine for now.
+	global_state.unblock_probe = 1;
 	return X10RT_ERR_OK;
 }
 
-static void x10rt_net_probe_ex (bool network_only) {
+// returns true if there may be messages in flight
+static bool x10rt_net_probe_ex (bool network_only) {
     int arrived;
+    bool pendingMsgs = false;
     MPI_Status msg_status;
 
     assert(global_state.init);
@@ -1573,8 +1613,8 @@ static void x10rt_net_probe_ex (bool network_only) {
                  * discovered the PUT request, and the thread that has
                  * processed it, will post the corresponding receive.
                  */
-                check_pending_sends();
-                if (!network_only) check_pending_receives();
+            	pendingMsgs |= check_pending_sends();
+                if (!network_only) pendingMsgs |= check_pending_receives();
                 break;
             } else {
                 /* Don't need to post recv for incoming puts, they
@@ -1601,17 +1641,19 @@ static void x10rt_net_probe_ex (bool network_only) {
                     req->setType(X10RT_REQ_TYPE_RECV);
                 }
                 global_state.pending_recv_list.enqueue(req);
-                if (!network_only) check_pending_receives();
+                if (!network_only) pendingMsgs |= check_pending_receives();
             }
         } else {
-            check_pending_sends();
-            if (!network_only) check_pending_receives();
+        	pendingMsgs &= check_pending_sends();
+            if (!network_only) pendingMsgs |= check_pending_receives();
         }
     } while (arrived);
 
     release_lock(&global_state.lock);
 
-    x10rt_net_team_probe();
+    pendingMsgs |= x10rt_net_team_probe();
+
+    return pendingMsgs;
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
@@ -1859,6 +1901,7 @@ private:
 void x10rt_net_finalize(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
+    x10rt_net_unblock_probe();
     while (global_state.pending_send_list.length() > 0 ||
             global_state.pending_recv_list.length() > 0) {
         x10rt_net_probe();
@@ -2128,17 +2171,22 @@ public:
         finishPolling();
     }
 
-    void poll(void) {
+    // returns true if anything is pending
+    bool poll(void) {
         if (canStartPolling()) {
             coll_list.remove_if(test_and_call_handler);
             msg_list.remove_if(test_and_send_msg);
             finishPolling();
+            return !coll_list.empty() || !msg_list.empty();
         }
+        else
+        	return true;
     }
 } coll_pdb;
 
-void x10rt_net_team_probe() {
-    coll_pdb.poll();
+// returns true if anything may be in-progress
+bool x10rt_net_team_probe() {
+    return coll_pdb.poll();
 }
 
 inline MPI_Datatype get_mpi_datatype(size_t len) {
