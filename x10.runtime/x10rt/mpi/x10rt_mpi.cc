@@ -41,6 +41,16 @@
 
 
 
+#define MPI_ASYNC_SEND(...) MPI_Isend(__VA_ARGS__)
+
+// ULFM flags and extra header file
+#ifdef MPI_ERR_PROC_FAILED
+#define OPEN_MPI_ULFM true
+// ULFM: use Issend instead of Isend to get an error code in MPI_Test
+#define MPI_ASYNC_SEND(...) MPI_Issend(__VA_ARGS__)
+#include <mpi-ext.h>
+#endif
+
 #if MPI_VERSION >= 3 || (defined(OPEN_MPI) && ( OMPI_MAJOR_VERSION >= 2 || (OMPI_MAJOR_VERSION == 1 && OMPI_MINOR_VERSION >= 8))) || (defined(MVAPICH2_NUMVERSION) && MVAPICH2_NUMVERSION == 10900002)
 #define X10RT_NONBLOCKING_SUPPORTED true
 //#define X10RT_MPI3_RMA true   // performance hasn't been shown to be better than active messages, so disabled by default.  Uncomment this line to use RDMA for PUT & GET
@@ -144,6 +154,13 @@ static inline void release_lock(pthread_mutex_t * lock) {
         release_lock(&global_state.lock);       \
 }
 
+#ifdef OPEN_MPI_ULFM
+void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...);
+static inline int is_process_failure_error(int mpi_error){
+	return mpi_error == MPI_ERR_PROC_FAILED ||
+		mpi_error == MPI_ERR_REVOKED;
+}
+#endif
 /**
  * Each X10RT API call is broken down into
  * a X10RT request. Each request of either 
@@ -397,7 +414,10 @@ class x10rt_internal_state {
         x10rt_req_queue     free_list;
         x10rt_req_queue     pending_send_list;
         x10rt_req_queue     pending_recv_list;
-
+#ifdef OPEN_MPI_ULFM
+        int               * deadPlaces; // not sorted
+        unsigned            deadPlacesSize;
+#endif
         x10rt_internal_state() {
             init                = false;
             finalized           = false;
@@ -416,7 +436,10 @@ class x10rt_internal_state {
             getCbTbl      =
                 ChkAlloc<getCb>(sizeof(getCb) * X10RT_CB_TBL_SIZE);
             getCbTblSize  = X10RT_CB_TBL_SIZE;
-
+#ifdef OPEN_MPI_ULFM
+            deadPlaces    = NULL;
+            deadPlacesSize = 0;
+#endif
             free_list.addRequests(X10RT_REQ_FREELIST_INIT_LEN);
             if (pthread_mutex_init(&lock, NULL)) {
                 perror("pthread_mutex_init");
@@ -427,6 +450,9 @@ class x10rt_internal_state {
             free(amCbTbl);
             free(putCbTbl);
             free(getCbTbl);
+#ifdef OPEN_MPI_ULFM
+            free(deadPlaces);
+#endif
             if (pthread_mutex_destroy(&lock)) {
                 perror("pthread_mutex_destroy");
                 abort();
@@ -514,6 +540,9 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
         }
     } else {
         char *thread_serialized = getenv(X10RT_MPI_THREAD_SERIALIZED);
+#ifdef OPEN_MPI_ULFM
+        thread_serialized = "1"; //ULFM does not support MPI_THREAD_MULTIPLE
+#endif
         int level_required;
         int level_provided;
 
@@ -528,6 +557,11 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
             fprintf(stderr, "[%s:%d] Error in MPI_Init_Thread\n", __FILE__, __LINE__);
             abort();
         }
+#ifdef OPEN_MPI_ULFM
+        MPI_Errhandler customErrorHandler;
+        MPI_Comm_create_errhandler(mpiErrorHandler, &customErrorHandler);
+        MPI_Comm_set_errhandler(MPI_COMM_WORLD, customErrorHandler);
+#endif
 
         MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
         if (level_required != level_provided) {
@@ -660,15 +694,45 @@ x10rt_place x10rt_net_nhosts(void) {
 }
 
 x10rt_place x10rt_net_ndead (void) {
+#ifdef OPEN_MPI_ULFM
+	return global_state.deadPlacesSize;
+#else
 	return 0; // place failure is not handled by this implementation.
+#endif
 }
 
 bool x10rt_net_is_place_dead (x10rt_place p) {
+#ifdef OPEN_MPI_ULFM
+	if (p >= global_state.nprocs) return true;
+    bool found = false;
+    get_lock(&global_state.lock);
+    //deadPlaces is not sorted, can't use binary search
+	for (int i=0; i<global_state.deadPlacesSize; i++){
+		if (global_state.deadPlaces[i] == p){
+			found = true;
+			break;
+		}
+	}
+	release_lock(&global_state.lock);
+	return found;
+#else
 	return false; // place failure is not handled by this implementation.
+#endif
 }
 
 x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
+#ifdef OPEN_MPI_ULFM
+	if (len > global_state.deadPlacesSize)
+		return X10RT_ERR_OTHER;
+
+	get_lock(&global_state.lock);
+	memcpy(dead_places, global_state.deadPlaces, len * sizeof(int));
+	release_lock(&global_state.lock);
+
+	return X10RT_ERR_OK;
+#else
 	return X10RT_ERR_UNSUPPORTED; // place failure is not handled by this implementation.
+#endif
 }
 
 x10rt_place x10rt_net_here(void) {
@@ -684,6 +748,11 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     assert(!global_state.finalized);
     assert(p->type > 0);
 
+#ifdef OPEN_MPI_ULFM
+    if (x10rt_net_is_place_dead(p->dest_place)) // check for dead place
+        return;
+#endif
+
     x10rt_lgl_stats.msg.messages_sent++ ;
     x10rt_lgl_stats.msg.bytes_sent += p->len;
 
@@ -692,13 +761,13 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     static bool in_recursion = false;
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(p->msg,
+    if (MPI_SUCCESS != MPI_ASYNC_SEND(p->msg,
                 p->len, MPI_BYTE,
                 p->dest_place,
                 p->type,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -714,6 +783,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
         MPI_Status msg_status;
         do {
             LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+            //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed  (1)
             if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
                         &complete,
                         &msg_status)) {
@@ -764,6 +834,14 @@ static void recv_completion(int ix, int bytes,
     free(req->getBuf());
     global_state.free_list.enqueue(req);
 }
+
+#ifdef OPEN_MPI_ULFM
+static void recv_failed(x10rt_req_queue * q, x10rt_req * req) {
+    q->remove(req);
+    free(req->getBuf());
+    global_state.free_list.enqueue(req);
+}
+#endif
 
 #ifdef X10RT_MPI3_RMA
 /*
@@ -972,6 +1050,10 @@ void x10rt_net_register_mem (void *ptr, size_t size) {} // nothing to do here
 void x10rt_net_deregister_mem (void *ptr) {} // nothing to do here
 
 void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
+#ifdef OPEN_MPI_ULFM
+	if (x10rt_net_is_place_dead(p->dest_place)) // check for dead place
+	    return;
+#endif
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += 0;
 
@@ -1030,14 +1112,14 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&get_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(get_msg,
+    if (MPI_SUCCESS != MPI_ASYNC_SEND(get_msg,
                 get_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_get_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1050,6 +1132,7 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     MPI_Status msg_status;
     do {
         LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+        //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
                     &complete,
                     &msg_status)) {
@@ -1062,6 +1145,10 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
 
 
 void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt_copy_sz len) {
+#ifdef OPEN_MPI_ULFM
+	if (x10rt_net_is_place_dead(p->dest_place)) // check for dead place
+	    return;
+#endif
     x10rt_lgl_stats.put.messages_sent++ ;
     x10rt_lgl_stats.put.bytes_sent += p->len;
     x10rt_lgl_stats.put_copied_bytes_sent += len;
@@ -1091,14 +1178,14 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(put_msg,
+    if (MPI_SUCCESS != MPI_ASYNC_SEND(put_msg,
                 put_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_put_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1111,20 +1198,28 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
      * OK as per X10RT semantics to block a send,
      * as long as we don't block x10rt_net_probe() */
     int complete = 0;
+    int mpi_error;
     MPI_Status msg_status;
     do {
         LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+        //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
+        mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status)) {
-        }
+                    &msg_status);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         x10rt_net_probe_ex(true);
     } while (!complete);
 
+#ifdef OPEN_MPI_ULFM
+    if (is_process_failure_error(mpi_error)){
+        send_completion(&global_state.pending_send_list, req);
+        return;
+    }
+#endif
+
     req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Isend(srcAddr,
+    if (MPI_SUCCESS != MPI_ASYNC_SEND(srcAddr,
                 len,
                 MPI_BYTE,
                 p->dest_place,
@@ -1185,14 +1280,14 @@ static void get_incoming_req_completion(int dest_place,
     free(req->getBuf());
 
     /* reuse request for sending reply */
-    if (MPI_SUCCESS != MPI_Isend(local,
+    if (MPI_SUCCESS != MPI_ASYNC_SEND(local,
                 len,
                 MPI_BYTE,
                 dest_place,
                 (global_state._reserved_tag_get_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
         abort();
     }
     req->setBuf(NULL);
@@ -1294,13 +1389,17 @@ static void check_pending_sends() {
             num_checked < X10RT_MAX_PEEK_DEPTH) {
         int complete = 0;
         x10rt_req * req_copy = req;
-        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+        //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
+        int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status)) {
+                    &msg_status);
+#ifndef OPEN_MPI_ULFM
+		if (MPI_SUCCESS != mpi_error) {
             fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
             abort();
         }
-        req = q->next(req);
+#endif
+		req = q->next(req);
         if (complete) {
             switch (req_copy->getType()) {
                 case X10RT_REQ_TYPE_SEND:
@@ -1355,13 +1454,28 @@ static void check_pending_receives() {
     while (NULL != req) {
         int complete = 0;
         x10rt_req * req_copy = req;
-        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+        int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status)) {
+                    &msg_status);
+#ifdef OPEN_MPI_ULFM
+		if (MPI_SUCCESS != mpi_error && !is_process_failure_error(mpi_error)) {
+            fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
+            abort();
+    	}
+#else
+		if (MPI_SUCCESS != mpi_error) {
             fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
             abort();
         }
+#endif
         req = q->next(req);
+#ifdef OPEN_MPI_ULFM
+        if (is_process_failure_error(mpi_error)){
+        	recv_failed(q, req_copy);
+        	req = q->start();
+        	continue;
+        }
+#endif
         if (complete) {
             switch (req_copy->getType()) {
                 case X10RT_REQ_TYPE_RECV:
@@ -1428,12 +1542,28 @@ static void x10rt_net_probe_ex (bool network_only) {
 
     do {
         arrived = 0;
-        if (MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE,
-                    MPI_ANY_TAG, global_state.mpi_comm,
-                    &arrived, &msg_status)) {
+        int mpi_error = MPI_Iprobe(MPI_ANY_SOURCE,
+        		MPI_ANY_TAG, global_state.mpi_comm,
+        		&arrived, &msg_status);
+
+#ifdef OPEN_MPI_ULFM
+		if (MPI_SUCCESS != mpi_error) {
+        	if (is_process_failure_error(mpi_error)){
+        		release_lock(&global_state.lock);
+        		return;
+        	}
+        	else{
+        		fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
+        		printf("Proping error is [%d] ...\n", mpi_error );
+        		abort();
+        	}
+        }
+#else
+		if (MPI_SUCCESS != mpi_error) {
             fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
             abort();
         }
+#endif
 
         /* Post recv for incoming message */
         if (arrived) {
@@ -1485,10 +1615,17 @@ static void x10rt_net_probe_ex (bool network_only) {
 }
 
 x10rt_coll_type x10rt_net_coll_support () {
+#ifndef OPEN_MPI_ULFM
     if (global_state.report_nonblocking_coll)
 	    return X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES;
 	else
         return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
+#else
+    return X10RT_COLL_NOCOLLECTIVES;
+    /*TODO: change it to X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
+     * then modify MPI_COLLECTIVE to not abort
+     * */
+#endif
 }
 
 bool x10rt_net_remoteop_support () {
@@ -1722,17 +1859,25 @@ private:
 void x10rt_net_finalize(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
-
     while (global_state.pending_send_list.length() > 0 ||
             global_state.pending_recv_list.length() > 0) {
         x10rt_net_probe();
     }
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
+    /*ULFM Note: A barrier is required before calling MPI_Finalize,
+     * because MPI_Finalize hangs when a new failure is detected during MPI_Finalize.
+     **/
+    int mpi_error = MPI_Barrier(global_state.mpi_comm);
+    
+#ifndef OPEN_MPI_ULFM
+    if (MPI_SUCCESS != mpi_error) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         abort();
     }
+#endif
+    
     coll_state.finalize();
+
     mpi_tdb.releaseAllTeams();
 
 #ifdef X10RT_MPI3_RMA
@@ -1742,10 +1887,14 @@ void x10rt_net_finalize(void) {
     }
 #endif
 
-    if (MPI_SUCCESS != MPI_Comm_free(&global_state.mpi_comm)) {
+    mpi_error = MPI_Comm_free(&global_state.mpi_comm);
+#ifndef OPEN_MPI_ULFM
+    if (MPI_SUCCESS != mpi_error) {
         fprintf(stderr, "[%s:%d] Error freeing global comm\n", __FILE__, __LINE__);
         abort();
     }
+#endif
+    //ULFM Note: MPI_Finalize will not return an error code due to process failure
     if (MPI_SUCCESS != MPI_Finalize()) {
         fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
         abort();
@@ -3521,3 +3670,43 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
 /** \} */
 
 const char *x10rt_net_error_msg (void) { return NULL; }
+
+#ifdef OPEN_MPI_ULFM
+void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
+
+    MPI_Group failedGroup;
+
+    OMPI_Comm_failure_ack(*comm);
+    OMPI_Comm_failure_get_acked(*comm, &failedGroup);
+    int f_size;
+    MPI_Group comm_group;
+    int x = 0;
+    int factor =1;
+    int *failed_ranks = NULL;
+    int *comm_ranks   = NULL;
+
+    MPI_Group_size(failedGroup, &f_size);
+
+    if( f_size > 0 ) {    	
+        MPI_Comm_group(MPI_COMM_WORLD, &comm_group);
+
+        failed_ranks = (int *)malloc(f_size * sizeof(int));
+        comm_ranks   = (int *)malloc(f_size * sizeof(int));
+        for(int i = 0; i < f_size; ++i) {
+            failed_ranks[i] = i;
+        }
+        MPI_Group_translate_ranks(failedGroup, f_size, failed_ranks, comm_group, comm_ranks);
+
+        free(global_state.deadPlaces);
+        global_state.deadPlaces = comm_ranks;
+        global_state.deadPlacesSize = f_size;
+
+        free(failed_ranks);
+        MPI_Group_free(&comm_group);
+    }
+
+    MPI_Group_free(&failedGroup);
+    return;
+}
+#endif
+
