@@ -587,6 +587,10 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
         }
     }
 
+    // tell the runtime to use 1 immediate thread if not explicitly set,
+    // even though we report that blocking probe is not supported
+    setenv(X10_NUM_IMMEDIATE_THREADS, "1", 0);
+
     if (checkBoolEnvVar(getenv(X10RT_MPI_FORCE_COLLECTIVES))) {
     	global_state.report_nonblocking_coll = true;
     }
@@ -1527,7 +1531,7 @@ x10rt_error x10rt_net_probe (void) {
 
 bool x10rt_net_blocking_probe_support(void)
 {
-	return true;
+	return false;
 }
 
 x10rt_error x10rt_net_blocking_probe (void) {
