@@ -1,0 +1,234 @@
+####################
+# Globally ignore any files with these suffixes
+####################
+*.o
+*.class
+
+####################
+## Specific files/paths to ignore
+####################
+
+# /apgas/
+/apgas/apgas.zip
+/apgas/bin
+/apgas/doc
+/apgas/lib
+/apgas/samples
+/apgas/target
+
+# /apgas.cpp/
+/apgas.cpp/src-xrx
+/apgas.cpp/src-crx
+/apgas.cpp/gen
+/apgas.cpp/lib
+
+# /apgas.cpp.examples/
+/apgas.cpp.examples/hello
+/apgas.cpp.examples/helloAll
+/apgas.cpp.examples/fib
+
+# /apgas.examples/
+/apgas.examples/bin
+
+# /apgas.impl/
+/apgas.impl/bin
+/apgas.impl/doc
+
+# /apgas.pool/
+/apgas.pool/bin
+
+# /apgas.sockets/
+/apgas.sockets/bin
+
+# /apgas.tests/
+/apgas.tests/bin
+
+# /apgas.yarn/
+/apgas.yarn/bin
+/apgas.yarn/lib
+
+# /x10.common/
+/x10.common/classes
+
+# /x10.compiler/
+/x10.compiler/classes
+
+# /x10.constraints/
+/x10.constraints/classes
+
+# /x10.constraints.compiler.tests/
+/x10.constraints.compiler.tests/bin
+
+# /x10.constraints.tests/
+/x10.constraints.tests/bin
+
+# /x10.dist/
+/x10.dist/stdlib
+/x10.dist/etc
+/x10.dist/gen
+/x10.dist/include
+/x10.dist/build
+
+# /x10.dist/bin/
+/x10.dist/bin/apgas
+/x10.dist/bin/precommit
+/x10.dist/bin/x10
+/x10.dist/bin/x10c
+/x10.dist/bin/x10j
+/x10.dist/bin/setupX10
+/x10.dist/bin/daemon
+/x10.dist/bin/daemon.exe
+/x10.dist/bin/launcher
+/x10.dist/bin/launcher.exe
+/x10.dist/bin/manager
+/x10.dist/bin/manager.exe
+/x10.dist/bin/java_x10rt
+/x10.dist/bin/X10Launcher
+/x10.dist/bin/X10Launcher.exe
+/x10.dist/bin/X10MPIJava
+/x10.dist/bin/X10MPIJava.exe
+/x10.dist/bin/cyglaunch
+/x10.dist/bin/cyglaunch.exe
+/x10.dist/bin/defs
+/x10.dist/bin/runjava
+/x10.dist/bin/x10cj
+
+# /x10.dist/doc/
+
+# /x10.dist/lib/
+/x10.dist/lib/*
+
+# /x10.doc/
+/x10.doc/out
+/x10.doc/classes
+
+# /x10.gl/
+/x10.gl/x10_gl.jar
+/x10.gl/x10_gl.properties
+
+# /x10.gl/include/
+/x10.gl/include/*
+
+# /x10.gml/
+/x10.gml/bin
+/x10.gml/bin-java
+/x10.gml/x10-gen-src
+
+# /x10.network/
+/x10.network/classes
+/x10.network/lib
+
+# /x10.runtime/
+/x10.runtime/classes
+/x10.runtime/makefile
+
+# /x10.runtime/src-cpp/
+/x10.runtime/src-cpp/bdwgc-7.4.2
+/x10.runtime/src-cpp/gen
+/x10.runtime/src-cpp/gen-dbg
+/x10.runtime/src-cpp/depend.mk
+/x10.runtime/src-cpp/libx10.a
+/x10.runtime/src-cpp/libx10.so
+/x10.runtime/src-cpp/libx10.mft
+/x10.runtime/src-cpp/libx10.properties
+/x10.runtime/src-cpp/sharedlib.properties
+/x10.runtime/src-cpp/x10.dll
+
+# /x10.runtime/src-java/
+/x10.runtime/src-java/gen
+
+# /x10.runtime/src-java/gen/
+/x10.runtime/src-java/gen/x10
+/x10.runtime/src-java/gen/x10.jar
+/x10.runtime/src-java/gen/gen-java.zip
+
+# /x10.runtime/src-x10/
+
+# /x10.runtime/x10rt/bin/
+/x10.runtime/x10rt/bin/daemon
+/x10.runtime/x10rt/bin/daemon.exe
+/x10.runtime/x10rt/bin/launcher
+/x10.runtime/x10rt/bin/launcher.exe
+/x10.runtime/x10rt/bin/manager
+/x10.runtime/x10rt/bin/manager.exe
+/x10.runtime/x10rt/bin/cyglaunch
+/x10.runtime/x10rt/bin/cyglaunch.exe
+
+# /x10.runtime/x10rt/etc/
+/x10.runtime/x10rt/etc/x10rt_mpi.properties
+/x10.runtime/x10rt/etc/x10rt_pami.properties
+/x10.runtime/x10rt/etc/x10rt_standalone.properties
+/x10.runtime/x10rt/etc/x10rt_sockets.properties
+
+# /x10.runtime/x10rt/include/
+/x10.runtime/x10rt/include/x10_x10rt_*.h
+
+# /x10.runtime/x10rt/lib/
+/x10.runtime/x10rt/lib/libx10rt_mpi.a
+/x10.runtime/x10rt/lib/libx10rt_pami.a
+/x10.runtime/x10rt/lib/libx10rt_standalone.a
+/x10.runtime/x10rt/lib/libx10rt_sockets.a
+/x10.runtime/x10rt/lib/libx10rt_mpi.so
+/x10.runtime/x10rt/lib/libx10rt_pami.so
+/x10.runtime/x10rt/lib/libx10rt_standalone.so
+/x10.runtime/x10rt/lib/libx10rt_sockets.so
+/x10.runtime/x10rt/lib/x10rt_mpi.dll
+/x10.runtime/x10rt/lib/x10rt_pami.dll
+/x10.runtime/x10rt/lib/x10rt_standalone.dll
+/x10.runtime/x10rt/lib/x10rt_sockets.dll
+/x10.runtime/x10rt/lib/libx10rt_mpi.jnilib
+/x10.runtime/x10rt/lib/libx10rt_pami.jnilib
+/x10.runtime/x10rt/lib/libx10rt_standalone.jnilib
+/x10.runtime/x10rt/lib/libx10rt_sockets.jnilib
+
+# /x10.runtime/x10rt/mpi/
+/x10.runtime/x10rt/mpi/X10MPIJava
+/x10.runtime/x10rt/mpi/X10MPIJava.exe
+
+# /x10.runtime/x10rt/pami/
+/x10.runtime/x10rt/pami/list_collectives
+/x10.runtime/x10rt/pami/bench_collectives
+
+# /x10.runtime/x10rt/sockets/
+/x10.runtime/x10rt/sockets/X10Launcher
+/x10.runtime/x10rt/sockets/X10Launcher.exe
+/x10.runtime/x10rt/sockets/*.dSYM
+
+# /x10.runtime/x10rt/test/
+/x10.runtime/x10rt/test/x10rt_basic.standalone
+/x10.runtime/x10rt/test/x10rt_basic.sockets
+/x10.runtime/x10rt/test/x10rt_basic.mpi
+/x10.runtime/x10rt/test/x10rt_basic.pami
+/x10.runtime/x10rt/test/x10rt_gups.standalone
+/x10.runtime/x10rt/test/x10rt_gups.sockets
+/x10.runtime/x10rt/test/x10rt_gups.mpi
+/x10.runtime/x10rt/test/x10rt_gups.pami
+/x10.runtime/x10rt/test/x10rt_topology.standalone
+/x10.runtime/x10rt/test/x10rt_topology.sockets
+/x10.runtime/x10rt/test/x10rt_topology.mpi
+/x10.runtime/x10rt/test/x10rt_topology.pami
+/x10.runtime/x10rt/test/x10rt_coll.standalone
+/x10.runtime/x10rt/test/x10rt_coll.sockets
+/x10.runtime/x10rt/test/x10rt_coll.mpi
+/x10.runtime/x10rt/test/x10rt_coll.pami
+/x10.runtime/x10rt/test/x10rt_crash.standalone
+/x10.runtime/x10rt/test/x10rt_crash.sockets
+/x10.runtime/x10rt/test/x10rt_crash.mpi
+/x10.runtime/x10rt/test/x10rt_crash.pami
+/x10.runtime/x10rt/test/x10rt_crash.pgas_sockets
+/x10.runtime/x10rt/test/x10rt_crash.pgas_lapi
+/x10.runtime/x10rt/test/x10rt_remote_op.standalone
+/x10.runtime/x10rt/test/x10rt_remote_op.sockets
+/x10.runtime/x10rt/test/x10rt_remote_op.mpi
+/x10.runtime/x10rt/test/x10rt_remote_op.pami
+/x10.runtime/x10rt/test/x10rt_resilient_monte_pi.standalone
+/x10.runtime/x10rt/test/x10rt_resilient_monte_pi.sockets
+/x10.runtime/x10rt/test/x10rt_resilient_monte_pi.mpi
+/x10.runtime/x10rt/test/x10rt_resilient_monte_pi.pami
+
+# /x10.tests/
+/x10.tests/classes
+
+# /x10.wala/
+/x10.wala/bin
+/x10.wala/lib
