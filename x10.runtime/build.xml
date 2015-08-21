@@ -249,6 +249,16 @@
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
+        <delete failonerror="false">
+	  <fileset dir="${basedir}/x10rt/include" >
+	    <include name="x10_x10rt_MessageHandlers.h" />
+	    <include name="x10_x10rt_MessageHandlers_PlaceChangeWrapper.h" />
+	    <include name="x10_x10rt_TeamSupport.h" />
+	    <include name="x10_x10rt_X10RT.h" />
+	    <include name="x10_x10rt_X10RT_State.h" />
+          </fileset>
+	</delete>
+        <delete failonerror="false" file="${basedir}/x10rt/mpi/X10MPIJava" />
     </target>
 
     <target name="dist-x10rt" depends="build-x10rt">
