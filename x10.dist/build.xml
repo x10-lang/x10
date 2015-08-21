@@ -152,8 +152,11 @@
                 <include name="x10c"/>
                 <include name="x10cj"/>
                 <include name="runjava"/>
+                <include name="X10Launcher"/>
+                <include name="X10MPIJava"/>
             </fileset>
         </delete>
+        <delete dir="${build}" failonerror="false" />
     </target>
 
     <target name="clean-java" depends="clean">
