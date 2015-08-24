@@ -395,9 +395,7 @@ class x10rt_internal_state {
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
-        pthread_mutex_t     blocking_probe_lock;
         int					threading_mode;
-        int					unblock_probe;
         bool				report_nonblocking_coll;
         int                 rank;
         int                 nprocs;
@@ -447,11 +445,6 @@ class x10rt_internal_state {
                 perror("pthread_mutex_init");
                 abort();
             }
-            if (pthread_mutex_init(&blocking_probe_lock, NULL)) {
-				perror("pthread_mutex_init");
-				abort();
-			}
-            unblock_probe = 0;
         }
         ~x10rt_internal_state() {
             free(amCbTbl);
@@ -586,10 +579,6 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
 	    abort();
         }
     }
-
-    // tell the runtime to use 1 immediate thread if not explicitly set,
-    // even though we report that blocking probe is not supported
-    setenv(X10_NUM_IMMEDIATE_THREADS, "1", 0);
 
     if (checkBoolEnvVar(getenv(X10RT_MPI_FORCE_COLLECTIVES))) {
     	global_state.report_nonblocking_coll = true;
@@ -1531,7 +1520,7 @@ x10rt_error x10rt_net_probe (void) {
 
 bool x10rt_net_blocking_probe_support(void)
 {
-	return false;
+	return true;
 }
 
 x10rt_error x10rt_net_blocking_probe (void) {
@@ -1540,36 +1529,13 @@ x10rt_error x10rt_net_blocking_probe (void) {
 	// when oversubscribing CPUs, this should give us performance close to true blocking support,
 	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
 	// a low-power state when idle won't work.
-	if (!x10rt_net_probe_ex(false)) {
-		// nothing is pending to send or receive locally.  Just spin until something comes in from the network.
-		get_lock(&global_state.blocking_probe_lock); // lock out any other threads, so they block too
-		//fprintf(stderr, "place %u entered blocking probe\n", global_state.rank);
-		int arrived = 0;
-		while (!global_state.unblock_probe && !arrived) {
-	    	// yield the cpu
-		    sched_yield();
-		    // test for incoming messages
-		    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-			if (MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE,
-						MPI_ANY_TAG, global_state.mpi_comm,
-						&arrived, MPI_STATUS_IGNORE)) {
-				fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
-				abort();
-			}
-			UNLOCK_IF_MPI_IS_NOT_MULTITHREADED
-	    }
-	    global_state.unblock_probe = 0; // reset the unblock probe marker
-	    release_lock(&global_state.blocking_probe_lock);
-	    //fprintf(stderr, "place %u left blocking probe\n", global_state.rank);
-	    // process whatever came in
-	    x10rt_net_probe_ex(false);
-	}
+	while (!x10rt_net_probe_ex(false)) sched_yield();
+
     return X10RT_ERR_OK;
 }
 
 x10rt_error x10rt_net_unblock_probe (void)
 {
-	global_state.unblock_probe = 1;
 	return X10RT_ERR_OK;
 }
 
@@ -1594,7 +1560,7 @@ static bool x10rt_net_probe_ex (bool network_only) {
 		if (MPI_SUCCESS != mpi_error) {
         	if (is_process_failure_error(mpi_error)){
         		release_lock(&global_state.lock);
-        		return;
+        		return true;
         	}
         	else{
         		fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
@@ -1611,14 +1577,15 @@ static bool x10rt_net_probe_ex (bool network_only) {
 
         /* Post recv for incoming message */
         if (arrived) {
+            pendingMsgs = true;
             int tagtype = (msg_status.MPI_TAG >> 8);
             if (tagtype == global_state._reserved_tag_put_data) {
                 /* Break out of loop, give up lock. At some point we have
                  * discovered the PUT request, and the thread that has
                  * processed it, will post the corresponding receive.
                  */
-            	pendingMsgs |= check_pending_sends();
-                if (!network_only) pendingMsgs |= check_pending_receives();
+            	check_pending_sends();
+                if (!network_only) check_pending_receives();
                 break;
             } else {
                 /* Don't need to post recv for incoming puts, they
@@ -1645,10 +1612,10 @@ static bool x10rt_net_probe_ex (bool network_only) {
                     req->setType(X10RT_REQ_TYPE_RECV);
                 }
                 global_state.pending_recv_list.enqueue(req);
-                if (!network_only) pendingMsgs |= check_pending_receives();
+                if (!network_only) check_pending_receives();
             }
         } else {
-        	pendingMsgs &= check_pending_sends();
+        	pendingMsgs |= check_pending_sends();
             if (!network_only) pendingMsgs |= check_pending_receives();
         }
     } while (arrived);
@@ -1905,7 +1872,6 @@ private:
 void x10rt_net_finalize(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
-    x10rt_net_unblock_probe();
     while (global_state.pending_send_list.length() > 0 ||
             global_state.pending_recv_list.length() > 0) {
         x10rt_net_probe();
@@ -2177,14 +2143,14 @@ public:
 
     // returns true if anything is pending
     bool poll(void) {
+        bool pending = true;
         if (canStartPolling()) {
             coll_list.remove_if(test_and_call_handler);
             msg_list.remove_if(test_and_send_msg);
+           	pending = !coll_list.empty() || !msg_list.empty();
             finishPolling();
-            return !coll_list.empty() || !msg_list.empty();
         }
-        else
-        	return true;
+        return pending;
     }
 } coll_pdb;
 
