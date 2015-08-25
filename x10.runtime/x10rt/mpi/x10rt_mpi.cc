@@ -1529,8 +1529,8 @@ x10rt_error x10rt_net_blocking_probe (void) {
 	// when oversubscribing CPUs, this should give us performance close to true blocking support,
 	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
 	// a low-power state when idle won't work.
-	while (!x10rt_net_probe_ex(false)) sched_yield();
-
+	int counter = 1000;
+	while (!x10rt_net_probe_ex(false) && counter--) sched_yield();
     return X10RT_ERR_OK;
 }
 
