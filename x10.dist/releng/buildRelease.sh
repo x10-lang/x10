@@ -5,7 +5,6 @@ set -e
 
 # Dave Grove
 
-svn_command=export
 workdir=/tmp/x10-distribution
 
 while [ $# != 0 ]; do
@@ -19,10 +18,6 @@ while [ $# != 0 ]; do
     -tag)
 	export X10_TAG=$2
 	shift
-    ;;
-
-    -branch)
-        svn_command=co
     ;;
 
     -dir)
@@ -56,7 +51,7 @@ if [[ -z "$X10_VERSION" ]]; then
 fi
 
 if [[ -z "$X10_TAG" ]]; then
-    echo "usage: $0 must give X10 tag as -tag <svn tag>"
+    echo "usage: $0 must give X10 tag as -tag <git tag>"
     exit 1
 fi
 
@@ -99,39 +94,22 @@ esac
 date
 
 distdir=$workdir/x10-$X10_VERSION
+repodir=$workdir/x10-git
 
 echo
 echo cleaning $workdir
 rm -rf $workdir
 mkdir -p $workdir
-mkdir -p $workdir/x10-$X10_VERSION
-
-(
-cd $workdir/x10-$X10_VERSION
+mkdir -p $distdir
 
 echo
-echo getting distrib
-for i in \
-        apgas \
-        apgas.examples \
-        apgas.impl \
-        apgas.tests \
-        apgas.cpp \
-        apgas.cpp.examples \
-	x10.common \
-	x10.compiler \
-	x10.constraints \
-	x10.dist \
-	x10.doc \
-	x10.gml \
-	x10.network \
-	x10.runtime \
-	x10.tests \
-	x10.wala
-do
-    svn $svn_command -q svn://svn.code.sourceforge.net/p/x10/code/tags/$X10_TAG/$i
-done
-)
+echo cloning X10 git repo
+git clone --depth 1 https://github.com/x10-lang/x10.git $repodir
+
+echo
+echo extracting archive subdirs from repo
+cd $repodir
+git archive --format=tar $X10_TAG apgas apgas.examples apgas.impl apgas.tests apgas.cpp apgas.cpp.examples x10.common x10.compiler x10.constraints x10.dist x10.doc x10.gml x10.network x10.runtime x10.tests x10.wala | (cd $distdir && tar xf - )
 
 echo "The distribution is now exported to the directory $workdir"
 
