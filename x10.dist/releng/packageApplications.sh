@@ -1,6 +1,9 @@
 #!/bin/bash
 
-workdir=/tmp/x10-bench-dist
+# exit if anything goes wrong
+set -e
+
+workdir=/tmp/x10-apps-dist
 
 while [ $# != 0 ]; do
 
