@@ -63,24 +63,23 @@ public class HeatTransfer_v1 {
                                                      li.max(0) == N+1 ? N : li.max(0),
                                                      li.max(1) == N+1 ? N : li.max(1));
             var delta:Double;
+            val collect = new Foreach.Block.Reducer((a:Double, b:Double)=>Math.max(a,b), 0.0);
             do {
                 // Compute new values, storing in tmp
-                val myDelta = Foreach.blockReduce(interior,
-                    (i:Long, j:Long)=>{
-                        Tmp(i,j) = stencil(i,j);
-                        // Reduce max element-wise delta (A now holds previous values)
-                        return Math.abs(Tmp(i,j) - A(i,j));
-                    },
-                    (a:Double, b:Double)=>Math.max(a,b), 0.0
-                );
+                collect.for (i:Long, j:Long in interior) {
+                    Tmp(i,j) = stencil(i,j);
+                    // Reduce max element-wise delta (A now holds previous values)
+                    return Math.abs(Tmp(i,j) - A(i,j));
+                }
+                val myDelta = collect.value();
 
                 myTeam.barrier();
 
                 // Unlike Array, DistArray doesn't provide an optimized swap.
                 // So, until it does, we have to copy the data elements.
-                Foreach.block(interior, (i:Long, j:Long)=>{
+                Foreach.Block.for(i:Long, j:Long in interior) {
                     A(i,j) = Tmp(i,j);
-                });
+                };
 
                 delta = myTeam.allreduce(myDelta, Team.MAX);
             } while (delta > EPSILON);

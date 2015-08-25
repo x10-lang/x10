@@ -394,16 +394,16 @@ atEachStatement returns [X10Loop ast]:
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
 userAtEachStatement returns [Stmt ast]:
-      userStatementPrefix kw='ateach' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userAtEachStatement0
-    | userStatementPrefix kw='ateach' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userAtEachStatement4
+      userStatementPrefix kw='ateach' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userAtEachStatement0
+    | userStatementPrefix kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userAtEachStatement4
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
     | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 userEnhancedForStatement returns [Stmt ast]:
-      userStatementPrefix kw='for' typeArgumentsopt '(' formalParameterList 'in' expression ')' closureBodyBlock       #userEnhancedForStatement0
-    | userStatementPrefix kw='for' typeArgumentsopt '(' expression ')' closureBodyBlock                                #userEnhancedForStatement4
+      userStatementPrefix kw='for' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userEnhancedForStatement0
+    | userStatementPrefix kw='for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userEnhancedForStatement4
     ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0

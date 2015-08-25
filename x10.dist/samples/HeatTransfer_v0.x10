@@ -44,16 +44,15 @@ public class HeatTransfer_v0 {
     def run() {
         val is = new DenseIterationSpace_2(1,1,N,N);
         var delta:Double;
+        val collect = new Foreach.Block.Reducer((a:Double, b:Double)=>Math.max(a,b), 0.0);
         do {
             // Compute new values, storing in tmp
-            delta = Foreach.blockReduce(is,
-                (i:Long, j:Long)=>{
-                    Tmp(i,j) = stencil(i,j);
-                    // Reduce max element-wise delta (A now holds previous values)
-                    return Math.abs(Tmp(i,j) - A(i,j));
-                },
-                (a:Double, b:Double)=>Math.max(a,b), 0.0
-            );
+            collect.for (i:Long, j:Long in is) {
+                Tmp(i,j) = stencil(i,j);
+                // Reduce max element-wise delta (A now holds previous values)
+                return Math.abs(Tmp(i,j) - A(i,j));
+            }
+            delta = collect.value();
 
             // swap backing data of A and Tmp
             Array.swap(A, Tmp);

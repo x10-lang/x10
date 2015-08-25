@@ -11,7 +11,6 @@
 
 import x10.array.Array;
 import x10.array.Array_2;
-import x10.compiler.Foreach;
 import x10.util.Random;
 
 /**
