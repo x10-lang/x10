@@ -1520,7 +1520,7 @@ x10rt_error x10rt_net_probe (void) {
 
 bool x10rt_net_blocking_probe_support(void)
 {
-	return true;
+	return false; // this causes us to run with no immediate thread, and workers busy waiting
 }
 
 x10rt_error x10rt_net_blocking_probe (void) {
