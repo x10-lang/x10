@@ -86,6 +86,7 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 #define X10_STATIC_THREADS "X10_STATIC_THREADS"
 #define X10_NTHREADS "X10_NTHREADS"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
+#define X10_RESILIENT_MODE "X10_RESILIENT_MODE"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -527,6 +528,11 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     assert(!global_state.init);
 
     global_state.Init();
+
+    // default to 1 immediate thread if we're in resilient mode
+    char* resilientmode = getenv(X10_RESILIENT_MODE);
+    if (resilientmode && atoi(resilientmode) > 0)
+    	setenv(X10_NUM_IMMEDIATE_THREADS, "1", 0);
 
     // special case: if using static threads, and the thread count is exactly 1 we don't need multi-thread MPI
     char* sthreads = getenv(X10_STATIC_THREADS);
