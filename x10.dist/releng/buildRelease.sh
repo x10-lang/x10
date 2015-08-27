@@ -107,7 +107,7 @@ mkdir -p $workdir
 mkdir -p $distdir
 
 if [[ -z "$repodir" ]]; then
-    repodir=$workdir/x10-$X10_VERSION
+    repodir=$workdir/x10-git
     echo
     echo cloning X10 git repo to $repodir
     git clone --depth 1 https://github.com/x10-lang/x10.git $repodir
