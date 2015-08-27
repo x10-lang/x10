@@ -25,6 +25,11 @@ while [ $# != 0 ]; do
 	shift
     ;;
 
+    -repo)
+        repodir=$2
+	shift
+    ;;
+
     -nobuild)
         export SKIP_X10_BUILD=1
     ;;
@@ -94,7 +99,6 @@ esac
 date
 
 distdir=$workdir/x10-$X10_VERSION
-repodir=$workdir/x10-git
 
 echo
 echo cleaning $workdir
@@ -102,12 +106,18 @@ rm -rf $workdir
 mkdir -p $workdir
 mkdir -p $distdir
 
-echo
-echo cloning X10 git repo
-git clone --depth 1 https://github.com/x10-lang/x10.git $repodir
+if [[ -z "$repodir" ]]; then
+    repodir=$workdir/x10-$X10_VERSION
+    echo
+    echo cloning X10 git repo to $repodir
+    git clone --depth 1 https://github.com/x10-lang/x10.git $repodir
+else
+    echo
+    echo using existing X10 git repo in $repodir
+fi
 
 echo
-echo extracting archive subdirs from repo
+echo Extracting X10 source code for $X10_TAG
 cd $repodir
 git archive --format=tar $X10_TAG apgas apgas.examples apgas.impl apgas.tests apgas.cpp apgas.cpp.examples x10.common x10.compiler x10.constraints x10.dist x10.doc x10.gml x10.network x10.runtime x10.tests x10.wala | (cd $distdir && tar xf - )
 
