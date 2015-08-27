@@ -29,7 +29,7 @@ class For12 extends x10Test {
     public def run() : boolean {
 	val cpt = new Cell[Long](0);
 	this.for (i:Long in 1, 10) {
-	    cpt() = cpt() + 1;
+	    cpt() = cpt() + i;
 	}
 	return (cpt() == 55);
     }

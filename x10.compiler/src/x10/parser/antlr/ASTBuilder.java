@@ -5390,8 +5390,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /** Create a user try statement. */
-    private Eval makeUserTry(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Closure body, List<Closure> catches, Closure finally_) {
-        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    private Eval makeUserTry(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt, Closure body, List<Closure> catches, Closure finally_) {
         ArgumentListopt.add(body);
         ArgumentListopt.addAll(catches);
         if (finally_ != null) { ArgumentListopt.add(finally_); }
@@ -5400,31 +5399,33 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return nf.Eval(pos, call);
     }
 
-    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatches    (#userTryStatement0) */
+    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatches    (#userTryStatement0) */
     @Override
     public void exitUserTryStatement0(UserTryStatement0Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "try"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> argumentsopt = ast(ctx.argumentsopt());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(closureBodyBlock.position(), closureBodyBlock);
         List<Closure> catches = ast(ctx.userCatches());
-        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, catches, null);
+        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, null);
     }
 
-    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock    (#userTryStatement4) */
+    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock    (#userTryStatement4) */
     @Override
     public void exitUserTryStatement4(UserTryStatement4Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "try"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> argumentsopt = ast(ctx.argumentsopt());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(closureBodyBlock.position(), closureBodyBlock);
         List<Closure> catches = ast(ctx.userCatchesopt());
         Closure finally_ = ast(ctx.userFinallyBlock());
-        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, catches, finally_);
+        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, finally_);
     }
 
     /** Production: userCatches ::= userCatchClause+    (#userCatches) */
@@ -5480,26 +5481,26 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /** Create a user async statement. */
-    private Eval makeUserAsync(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> clockedClause, Closure body) {
-        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    private Eval makeUserAsync(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt, List<Expr> clockedClause, Closure body) {
         if (clockedClause != null) { ArgumentListopt.addAll(clockedClause); }
         ArgumentListopt.add(body);
         X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
         return nf.Eval(pos, call);
     }
 
-    /** Production: userAsyncStatement ::= userStatementPrefix kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock    (#userAsyncStatement0) */
+    /** Production: userAsyncStatement ::= userStatementPrefix kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock    (#userAsyncStatement0) */
     @Override
     public void exitUserAsyncStatement0(UserAsyncStatement0Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "async"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> argumentsopt = ast(ctx.argumentsopt());
         List<Expr> clockedClause = ast(ctx.clockedClauseopt());
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, clockedClause, body);
+        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, clockedClause, body);
     }
 
     /** Production: atStatement ::= 'at' '(' expression ')' statement (#atStatement) */
@@ -5542,24 +5543,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /** Create a user atomic statement. */
-    private Eval makeUserAtomic(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Closure body) {
-        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    private Eval makeUserAtomic(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt, Closure body) {
         ArgumentListopt.add(body);
         X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
         return nf.Eval(pos, call);
     }
 
-    /** Production: userAtomicStatement ::= userStatementPrefix kw='atomic' typeArgumentsopt closureBodyBlock    (#userAtomicStatement0) */
+    /** Production: userAtomicStatement ::= userStatementPrefix kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock    (#userAtomicStatement0) */
     @Override
     public void exitUserAtomicStatement0(UserAtomicStatement0Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "atomic"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> argumentsopt = ast(ctx.argumentsopt());
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserAtomic(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body);
+        ctx.ast = makeUserAtomic(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
     }
 
     /** Production: whenStatement ::= 'when' '(' expression ')' statement (#whenStatement) */
@@ -5752,24 +5753,24 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /** Create a user finish statement. */
-    private Eval makeUserFinish(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, Closure body) {
-        List<Expr> ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    private Eval makeUserFinish(Position pos, Receiver target, Id name, List<TypeNode> TypeArgumentsopt, List<Expr> ArgumentListopt, Closure body) {
         ArgumentListopt.add(body);
         X10Call call = nf.X10Call(pos, target, name, TypeArgumentsopt, ArgumentListopt);
         return nf.Eval(pos, call);
     }
 
-    /** Production: userFinishStatement ::= userStatementPrefix kw='finish' typeArgumentsopt closureBodyBlock    (#userFinishStatement0) */
+    /** Production: userFinishStatement ::= userStatementPrefix kw='finish' typeArgumentsopt argumentsopt closureBodyBlock    (#userFinishStatement0) */
     @Override
     public void exitUserFinishStatement0(UserFinishStatement0Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "finish"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+        List<Expr> argumentsopt = ast(ctx.argumentsopt());
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserFinish(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body);
+        ctx.ast = makeUserFinish(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
     }
 
     /** Production: castExpression ::= primary (#castExpression0) */

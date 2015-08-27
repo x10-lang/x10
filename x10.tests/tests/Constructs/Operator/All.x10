@@ -63,6 +63,11 @@ class All extends x10Test {
 	    (new Async()).operator async[Long, Boolean] (1, true, ()=>{});
 	    super.operator async[Long, Boolean] (1, true, ()=>{});
 	    SubAsync.super.operator async[Long, Boolean] (1, true, ()=>{});
+
+	    Async.async[Long, Boolean] (1, true) {}
+	    (new Async()).async[Long, Boolean] (1, true) {}
+	    super.async[Long, Boolean] (1, true) {}
+	    SubAsync.super.async[Long, Boolean] (1, true) {}
 	}
     }
 
@@ -110,6 +115,7 @@ class All extends x10Test {
     /** atomic */
     static class Atomic {
 	public static operator atomic[T] (body: ()=>void) {}
+	public static operator atomic[T] (x:T, body: ()=>void) {}
     }
     class SubAtomic extends Atomic {
 	public def test() {
@@ -123,6 +129,16 @@ class All extends x10Test {
 	    (new Atomic()).operator atomic[Long] (()=>{});
 	    super.operator atomic[Long] (()=>{});
 	    SubAtomic.super.operator atomic[Long] (()=>{});
+
+	    Atomic.atomic[Long](1) {}
+	    (new Atomic()).atomic[Long](1) {}
+	    super.atomic[Long](1) {}
+	    SubAtomic.super.atomic[Long](1) {}
+
+	    Atomic.atomic(1) {}
+	    (new Atomic()).atomic(1) {}
+	    super.atomic(1) {}
+	    SubAtomic.super.atomic(1) {}
 	}
     }
 
@@ -170,6 +186,7 @@ class All extends x10Test {
     /** finish */
     static class Finish {
 	public static operator finish[T] (body: ()=>void) {}
+	public static operator finish[T] (x:T, body: ()=>void) {}
     }
     class SubFinish extends Finish {
 	public def test() {
@@ -183,6 +200,16 @@ class All extends x10Test {
 	    (new Finish()).operator finish[Long] (()=>{});
 	    super.operator finish[Long] (()=>{});
 	    SubFinish.super.operator finish[Long] (()=>{});
+
+	    Finish.finish[Long](1) {}
+	    (new Finish()).finish[Long](1) {}
+	    super.finish[Long](1) {}
+	    SubFinish.super.finish[Long](1) {}
+
+	    Finish.finish(1) {}
+	    (new Finish()).finish(1) {}
+	    super.finish(1) {}
+	    SubFinish.super.finish(1) {}
 	}
     }
 
@@ -223,6 +250,7 @@ class All extends x10Test {
 	public static operator try[T] (body: ()=>void, hdl: ()=>void) {}
 	public static operator try[T] (body: ()=>void, hdl: (T)=>void) {}
 	public static operator try[T1,T2] (body: ()=>void, hdl1: (T1)=>void, hdl2: (T2)=>void, ()=>void) {}
+	public static operator try[T] (x:T, body: ()=>void, hdl: ()=>void) {}
     }
     class SubTry extends Try {
 	public def test() {
@@ -266,6 +294,17 @@ class All extends x10Test {
 	    (new Try()).operator try[Long, Boolean] (()=>{}, (x: Long)=>{}, (x: Boolean)=>{}, ()=>{});
 	    super.operator try[Long, Boolean] (()=>{}, (x: Long)=>{}, (x: Boolean)=>{}, ()=>{});
 	    SubTry.super.operator try[Long, Boolean] (()=>{}, (x: Long)=>{}, (x: Boolean)=>{}, ()=>{});
+
+	    Try.try[Long](1) {} catch () {}
+	    (new Try()).try[Long](1) {} catch () {}
+	    super.try[Long](1) {} catch () {}
+	    SubTry.super.try[Long](1) {} catch () {}
+
+	    Try.try(1) {} catch () {}
+	    (new Try()).try(1) {} catch () {}
+	    super.try(1) {} catch () {}
+	    SubTry.super.try(1) {} catch () {}
+
 	}
     }
 

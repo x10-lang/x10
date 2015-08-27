@@ -348,8 +348,8 @@ finallyBlock returns [Block ast]:
       'finally' block
     ;
 userTryStatement returns [Stmt ast]:
-      userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatches                              #userTryStatement0
-    | userStatementPrefix kw='try' typeArgumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
+      userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatches                              #userTryStatement0
+    | userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
     ;
 userCatches returns [List<Closure> ast]:
       userCatchClause+
@@ -368,7 +368,7 @@ asyncStatement returns [Async ast]:
     | 'clocked' 'async' statement           #asyncStatement1
     ;
 userAsyncStatement returns [Stmt ast]:
-      userStatementPrefix kw='async' typeArgumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
+      userStatementPrefix kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
     // | 'clocked' 'async' closureBodyBlock           #userAsyncStatement
     ;
 atStatement returns [AtStmt ast]:
@@ -381,7 +381,7 @@ atomicStatement returns [Atomic ast]:
       'atomic' statement
     ;
 userAtomicStatement returns [Stmt ast]:
-      userStatementPrefix kw='atomic' typeArgumentsopt closureBodyBlock         #userAtomicStatement0
+      userStatementPrefix kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock         #userAtomicStatement0
     ;
 whenStatement returns [When ast]:
       'when' '(' expression ')' statement
@@ -410,7 +410,7 @@ finishStatement returns [Finish ast]:
     | 'clocked' 'finish' statement      #finishStatement1
     ;
 userFinishStatement returns [Stmt ast]:
-      userStatementPrefix kw='finish' typeArgumentsopt closureBodyBlock   #userFinishStatement0
+      userStatementPrefix kw='finish' typeArgumentsopt argumentsopt closureBodyBlock   #userFinishStatement0
     // | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
