@@ -218,7 +218,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      */
     public static operator try[E] (deep: Boolean,
 				   body: () => void,
-				   handler: (Rail[E]) => void){E <: CheckedThrowable} {
+				   handler: (Rail[E]) => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
 	    val exns = new GrowableRail[E]();
@@ -245,7 +245,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     public static operator try[E] (deep: Boolean,
 				   body: () => void,
 				   handler: (Rail[E]) => void,
-				   finallyHdl: () => void){E <: CheckedThrowable} {
+				   finallyHdl: () => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
 	    val exns = new GrowableRail[E]();
@@ -269,7 +269,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E] (body: () => void,
-				   handler: (Rail[E]) => void){E <: CheckedThrowable} {
+				   handler: (Rail[E]) => void) {
 	MultipleExceptions.operator try[E](true, body, handler);
     }
 
@@ -287,7 +287,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      */
     public static operator try[E] (body: () => void,
 				   handler: (Rail[E]) => void,
-				   finallyHdl: () => void){E <: CheckedThrowable} {
+				   finallyHdl: () => void) {
 	MultipleExceptions.operator try[E](true, body, handler, finallyHdl);
     }
 
@@ -309,7 +309,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     public static operator try[E1,E2] (deep: Boolean,
 				       body: () => void,
 				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void){E1 <: CheckedThrowable, E2 <: CheckedThrowable} {
+				       handler2: (Rail[E2]) => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
 	    val exns1 = new GrowableRail[E1]();
@@ -343,7 +343,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
 				       body: () => void,
 				       handler1: (Rail[E1]) => void,
 				       handler2: (Rail[E2]) => void,
-				       finallyHdl: () => void){E1 <: CheckedThrowable, E2 <: CheckedThrowable} {
+				       finallyHdl: () => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
 	    val exns1 = new GrowableRail[E1]();
@@ -373,7 +373,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      */
     public static operator try[E1,E2] (body: () => void,
 				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void){E1 <: CheckedThrowable, E2 <: CheckedThrowable} {
+				       handler2: (Rail[E2]) => void) {
 	MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
     }
 
@@ -393,7 +393,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     public static operator try[E1,E2] (body: () => void,
 				       handler1: (Rail[E1]) => void,
 				       handler2: (Rail[E2]) => void,
-				       finallyHdl: () => void){E1 <: CheckedThrowable, E2 <: CheckedThrowable} {
+				       finallyHdl: () => void) {
 	MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2, finallyHdl);
     }
 
