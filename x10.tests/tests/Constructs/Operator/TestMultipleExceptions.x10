@@ -24,81 +24,141 @@ class TestMultipleExceptions extends x10Test {
 
     public def run() : boolean {
 
-
-	/* Catch MultipleExceptions */
-
+        /* Not raising exceptions */
         MultipleExceptions.try {
-            finish {
-                async { throw new Exception("Exn 1"); }
-                async finish {
-                    async { throw new Exception("Exn 2"); }
-                    async { throw new Exception("Exn 3"); }
-                }
-            }
-        } catch (me: MultipleExceptions) {
-            chk(me.exceptions.size == 3);
-	    cpt++;
+        } catch (MultipleExceptions) {
+            chk(false);
         }
-	chk(cpt == 1);
+
+        MultipleExceptions.try {
+        } catch (MultipleExceptions) {
+            chk(false);
+        } finally {}
+
+        MultipleExceptions.try(false) {
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        }
+
+        MultipleExceptions.try(false) {
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        } finally {}
+
+        MultipleExceptions.try {
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        }
+
+        MultipleExceptions.try {
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        } finally {}
 
 
-	/* Catch Rail of exception */
+        MultipleExceptions.try(false) {
+        } catch (Rail[IllegalOperationException]) {
+            chk(false);
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        }
 
-	try {
-	    MultipleExceptions.try(false) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    }
-	} catch (MultipleExceptions) {
-	    cpt++;
-	}
-	chk(cpt == 3);
+        MultipleExceptions.try(false) {
+        } catch (Rail[IllegalOperationException]) {
+            chk(false);
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        } finally {}
 
-	MultipleExceptions.try (true) {
-	    MultipleExceptions.try(true) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 2);
-		cpt++;
-	    }
-	} catch (Rail[IllegalOperationException]) {
-	    cpt++;
-	}
-	chk(cpt == 5);
+        MultipleExceptions.try {
+        } catch (Rail[IllegalOperationException]) {
+            chk(false);
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        }
 
-	MultipleExceptions.try {
-	    MultipleExceptions.try {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 2);
-		cpt++;
-	    }
-	} catch (Rail[IllegalOperationException]) {
-	    cpt++;
-	}
-	chk(cpt == 7);
+        MultipleExceptions.try {
+        } catch (Rail[IllegalOperationException]) {
+            chk(false);
+        } catch (Rail[UnsupportedOperationException]) {
+            chk(false);
+        } finally {}
 
-	/* with finally block */
+
+        /* Catch MultipleExceptions */
+
+        MultipleExceptions.try {
+            finish {
+                async { throw new Exception("Exn 1"); }
+                async finish {
+                    async { throw new Exception("Exn 2"); }
+                    async { throw new Exception("Exn 3"); }
+                }
+            }
+        } catch (me: MultipleExceptions) {
+            chk(me.exceptions.size == 3);
+            cpt++;
+        }
+        chk(cpt == 1);
+
+
+        /* Catch Rail of exception */
+
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 3);
+
+        MultipleExceptions.try (true) {
+            MultipleExceptions.try(true) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 2);
+                cpt++;
+            }
+        } catch (Rail[IllegalOperationException]) {
+            cpt++;
+        }
+        chk(cpt == 5);
+
+        MultipleExceptions.try {
+            MultipleExceptions.try {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 2);
+                cpt++;
+            }
+        } catch (Rail[IllegalOperationException]) {
+            cpt++;
+        }
+        chk(cpt == 7);
+
+        /* with finally block */
 
 
         MultipleExceptions.try {
@@ -111,302 +171,449 @@ class TestMultipleExceptions extends x10Test {
             }
         } catch (me: MultipleExceptions) {
             chk(me.exceptions.size == 3);
-	    cpt++;
+            cpt++;
         } finally { cpt++; }
-	chk(cpt == 9);
+        chk(cpt == 9);
 
-	try {
-	    MultipleExceptions.try(false) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    }
-	} catch (MultipleExceptions) {
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 12);
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 12);
 
-	MultipleExceptions.try (true) {
-	    MultipleExceptions.try(true) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 2);
-		cpt++;
-	    }
-	} catch (Rail[IllegalOperationException]) {
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 15);
+        MultipleExceptions.try (true) {
+            MultipleExceptions.try(true) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 2);
+                cpt++;
+            }
+        } catch (Rail[IllegalOperationException]) {
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 15);
 
-	MultipleExceptions.try {
-	    MultipleExceptions.try {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-			async { throw new IllegalOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 2);
-		cpt++;
-	    }
-	} catch (Rail[IllegalOperationException]) {
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 18);
+        MultipleExceptions.try {
+            MultipleExceptions.try {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 2);
+                cpt++;
+            }
+        } catch (Rail[IllegalOperationException]) {
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 18);
 
-	/* with 2 catch blocks */
+        /* with 2 catch blocks */
 
-	try {
-	    MultipleExceptions.try(false) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    } catch (t: Rail[IllegalOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    }
-	} catch (MultipleExceptions) {
-	    cpt++;
-	}
-	chk(cpt == 21);
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            } catch (t: Rail[IllegalOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 21);
 
-	MultipleExceptions.try(true) {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	}
-	chk(cpt == 23);
-
-
-	MultipleExceptions.try {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	}
-	chk(cpt == 25);
+        MultipleExceptions.try(true) {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        }
+        chk(cpt == 23);
 
 
-	MultipleExceptions.try {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(false);
-	}
-	chk(cpt == 26);
-
-	MultipleExceptions.try {
-	    finish {
-		finish {
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	}
-	chk(cpt == 27);
-
-	/* with 2 catch blocks and finally block */
-
-	try {
-	    MultipleExceptions.try(false) {
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		    finish {
-			async { throw new UnsupportedOperationException(); }
-		    }
-		}
-	    } catch (t: Rail[UnsupportedOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    } catch (t: Rail[IllegalOperationException]) {
-		chk(t.size == 1);
-		cpt++;
-	    } finally { cpt++; }
-	} catch (MultipleExceptions) {
-	    cpt++;
-	}
-	chk(cpt == 31);
-
-	MultipleExceptions.try(true) {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 34);
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        }
+        chk(cpt == 25);
 
 
-	MultipleExceptions.try {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 37);
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(false);
+        }
+        chk(cpt == 26);
+
+        MultipleExceptions.try {
+            finish {
+                finish {
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(false);
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        }
+        chk(cpt == 27);
+
+        /* with 2 catch blocks and finally block */
+
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                    }
+                }
+            } catch (t: Rail[UnsupportedOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            } catch (t: Rail[IllegalOperationException]) {
+                chk(t.size == 1);
+                cpt++;
+            } finally { cpt++; }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 31);
+
+        MultipleExceptions.try(true) {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 34);
 
 
-	MultipleExceptions.try {
-	    finish {
-		async { throw new UnsupportedOperationException(); }
-		finish {
-		    async { throw new UnsupportedOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(t.size == 2);
-	    cpt++;
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(false);
-	} finally { cpt++; }
-	chk(cpt == 39);
-
-	MultipleExceptions.try {
-	    finish {
-		finish {
-		    async { throw new IllegalOperationException(); }
-		}
-	    }
-	} catch (t: Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} catch (t: Rail[IllegalOperationException]) {
-	    chk(t.size == 1);
-	    cpt++;
-	} finally { cpt++; }
-	chk(cpt == 41);
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 37);
 
 
-	/* Not raising exceptions */
-	MultipleExceptions.try {
-	} catch (MultipleExceptions) {
-	    chk(false);
-	}
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(t.size == 2);
+            cpt++;
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(false);
+        } finally { cpt++; }
+        chk(cpt == 39);
 
-	MultipleExceptions.try {
-	} catch (MultipleExceptions) {
-	    chk(false);
-	} finally {}
+        MultipleExceptions.try {
+            finish {
+                finish {
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (t: Rail[UnsupportedOperationException]) {
+            chk(false);
+        } catch (t: Rail[IllegalOperationException]) {
+            chk(t.size == 1);
+            cpt++;
+        } finally { cpt++; }
+        chk(cpt == 41);
 
-	MultipleExceptions.try(false) {
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	}
+        /* catch a specific exception */
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 43);
 
-	MultipleExceptions.try(false) {
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} finally {}
+        try {
+            MultipleExceptions.try(true) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 46);
 
-	MultipleExceptions.try {
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	}
+        try {
+            MultipleExceptions.try {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 49);
 
-	MultipleExceptions.try {
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} finally {}
+
+        /* catch a specific exception with finally block */
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            } finally { cpt ++; }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 52);
+
+        try {
+            MultipleExceptions.try(true) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            } finally { cpt ++; }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 56);
+
+        try {
+            MultipleExceptions.try {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            } finally { cpt ++; }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 60);
+
+        /* catch 2 specific exceptions */
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            } catch (x: IllegalOperationException) {
+                chk(false);
+            }
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 62);
+
+        MultipleExceptions.try(true) {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (x: UnsupportedOperationException) {
+            cpt++;
+        } catch (IllegalOperationException) {
+            cpt++;
+        }
+        chk(cpt == 65);
+
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (x: UnsupportedOperationException) {
+            cpt++;
+        } catch (IllegalOperationException) {
+            cpt++;
+        }
+        chk(cpt == 68);
 
 
-	MultipleExceptions.try(false) {
-	} catch (Rail[IllegalOperationException]) {
-	    chk(false);
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	}
+        /* catch 2 specific exceptions with finally block */
 
-	MultipleExceptions.try(false) {
-	} catch (Rail[IllegalOperationException]) {
-	    chk(false);
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} finally {}
+        try {
+            MultipleExceptions.try(false) {
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    finish {
+                        async { throw new UnsupportedOperationException(); }
+                        async { throw new IllegalOperationException(); }
+                    }
+                }
+            } catch (x: UnsupportedOperationException) {
+                cpt++;
+            } catch (x: IllegalOperationException) {
+                chk(false);
+            } finally { cpt++ ;}
+        } catch (MultipleExceptions) {
+            cpt++;
+        }
+        chk(cpt == 71);
 
-	MultipleExceptions.try {
-	} catch (Rail[IllegalOperationException]) {
-	    chk(false);
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	}
+        MultipleExceptions.try(true) {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (x: UnsupportedOperationException) {
+            cpt++;
+        } catch (IllegalOperationException) {
+            cpt++;
+        } finally { cpt++ ;}
+        chk(cpt == 75);
 
-	MultipleExceptions.try {
-	} catch (Rail[IllegalOperationException]) {
-	    chk(false);
-	} catch (Rail[UnsupportedOperationException]) {
-	    chk(false);
-	} finally {}
+        MultipleExceptions.try {
+            finish {
+                async { throw new UnsupportedOperationException(); }
+                finish {
+                    async { throw new UnsupportedOperationException(); }
+                    async { throw new IllegalOperationException(); }
+                }
+            }
+        } catch (x: UnsupportedOperationException) {
+            cpt++;
+        } catch (IllegalOperationException) {
+            cpt++;
+        } finally { cpt++ ;}
+        chk(cpt == 79);
 
-	return cpt == 41;
+
+        return cpt == 79;
     }
 
     public static def main(Rail[String]) {

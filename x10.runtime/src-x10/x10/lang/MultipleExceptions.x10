@@ -110,9 +110,9 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @return a new MultipleExceptions without neted MultipleExceptions
      */
     public final def flatten():MultipleExceptions {
-	val exns = new GrowableRail[CheckedThrowable]();
-	flattenAux(this, exns);
-	return MultipleExceptions.make(exns);
+        val exns = new GrowableRail[CheckedThrowable]();
+        flattenAux(this, exns);
+        return MultipleExceptions.make(exns);
     }
 
     private static def flattenAux(me: MultipleExceptions, acc: GrowableRail[CheckedThrowable]):void {
@@ -127,15 +127,15 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
 
 
     private final def splitExceptionsOfType[T](deep:Boolean,
-					       accT: GrowableRail[T], accNotT: GrowableRail[CheckedThrowable]) {
+                                               accT: GrowableRail[T], accNotT: GrowableRail[CheckedThrowable]) {
         for (e in exceptions) {
             if (deep && e instanceof MultipleExceptions) {
-		(e as MultipleExceptions).splitExceptionsOfType[T](deep, accT, accNotT);
+                (e as MultipleExceptions).splitExceptionsOfType[T](deep, accT, accNotT);
             } else if (e instanceof T) {
-		accT.add(e as T);
+                accT.add(e as T);
             } else {
-		accNotT.add(e);
-	    }
+                accNotT.add(e);
+            }
         }
     }
 
@@ -177,15 +177,15 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      * @param body the body of the try block
      * @param handler the body of the exception handler
-     * @param finallyHdl the body of finally block
+     * @param finallyBlock the body of finally block
      *
      */
     public static operator try (body: () => void,
                                 handler: (MultipleExceptions) => void,
-				finallyHdl: () => void) {
+                                finallyBlock: () => void) {
         try { body(); }
         catch (me: MultipleExceptions) { handler (me.flatten()); }
-	finally { finallyHdl(); }
+        finally { finallyBlock(); }
     }
 
 
@@ -217,15 +217,15 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E] (deep: Boolean,
-				   body: () => void,
-				   handler: (Rail[E]) => void) {
+                                   body: () => void,
+                                   handler: (Rail[E]) => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
-	    val exns = new GrowableRail[E]();
-	    val others = new GrowableRail[CheckedThrowable]();
-	    me.splitExceptionsOfType[E](deep, exns, others);
-	    if (exns.size() > 0) { handler(exns.toRail()); }
-	    if (others.size() > 0) { throw new MultipleExceptions(others); }
+            val exns = new GrowableRail[E]();
+            val others = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E](deep, exns, others);
+            if (exns.size() > 0) { handler(exns.toRail()); }
+            if (others.size() > 0) { throw new MultipleExceptions(others); }
         }
     }
 
@@ -239,22 +239,22 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param deep perform a deep traversal of the tree of MultipleExceptions
      * @param body the body of the try block
      * @param handler the body of the exception handler
-     * @param finallyHdl the body of finally block
+     * @param finallyBlock the body of finally block
      *
      */
     public static operator try[E] (deep: Boolean,
-				   body: () => void,
-				   handler: (Rail[E]) => void,
-				   finallyHdl: () => void) {
+                                   body: () => void,
+                                   handler: (Rail[E]) => void,
+                                   finallyBlock: () => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
-	    val exns = new GrowableRail[E]();
-	    val others = new GrowableRail[CheckedThrowable]();
-	    me.splitExceptionsOfType[E](deep, exns, others);
-	    if (exns.size() > 0) { handler(exns.toRail()); }
-	    if (others.size() > 0) { throw new MultipleExceptions(others); }
+            val exns = new GrowableRail[E]();
+            val others = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E](deep, exns, others);
+            if (exns.size() > 0) { handler(exns.toRail()); }
+            if (others.size() > 0) { throw new MultipleExceptions(others); }
         }
-	finally { finallyHdl(); }
+        finally { finallyBlock(); }
     }
 
     /**
@@ -269,8 +269,8 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E] (body: () => void,
-				   handler: (Rail[E]) => void) {
-	MultipleExceptions.operator try[E](true, body, handler);
+                                   handler: (Rail[E]) => void) {
+        MultipleExceptions.operator try[E](true, body, handler);
     }
 
     /**
@@ -282,13 +282,13 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      * @param body the body of the try block
      * @param handler the body of the exception handler
-     * @param finallyHdl the body of finally block
+     * @param finallyBlock the body of finally block
      *
      */
     public static operator try[E] (body: () => void,
-				   handler: (Rail[E]) => void,
-				   finallyHdl: () => void) {
-	MultipleExceptions.operator try[E](true, body, handler, finallyHdl);
+                                   handler: (Rail[E]) => void,
+                                   finallyBlock: () => void) {
+        MultipleExceptions.operator try[E](true, body, handler, finallyBlock);
     }
 
 
@@ -307,20 +307,20 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E1,E2] (deep: Boolean,
-				       body: () => void,
-				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void) {
+                                       body: () => void,
+                                       handler1: (Rail[E1]) => void,
+                                       handler2: (Rail[E2]) => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
-	    val exns1 = new GrowableRail[E1]();
-	    val others1 = new GrowableRail[CheckedThrowable]();
-	    me.splitExceptionsOfType[E1](deep, exns1, others1);
-	    if (exns1.size() > 0) { handler1(exns1.toRail()); }
-	    val exns2 = new GrowableRail[E2]();
-	    val others2 = new GrowableRail[CheckedThrowable]();
-	    (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
-	    if (exns2.size() > 0) { handler2(exns2.toRail()); }
-	    if (others2.size() > 0) { throw new MultipleExceptions(others2); }
+            val exns1 = new GrowableRail[E1]();
+            val others1 = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E1](deep, exns1, others1);
+            if (exns1.size() > 0) { handler1(exns1.toRail()); }
+            val exns2 = new GrowableRail[E2]();
+            val others2 = new GrowableRail[CheckedThrowable]();
+            (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
+            if (exns2.size() > 0) { handler2(exns2.toRail()); }
+            if (others2.size() > 0) { throw new MultipleExceptions(others2); }
         }
     }
 
@@ -340,22 +340,22 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E1,E2] (deep: Boolean,
-				       body: () => void,
-				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void,
-				       finallyHdl: () => void) {
+                                       body: () => void,
+                                       handler1: (Rail[E1]) => void,
+                                       handler2: (Rail[E2]) => void,
+                                       finallyBlock: () => void) {
         try { body(); }
         catch (me: MultipleExceptions) {
-	    val exns1 = new GrowableRail[E1]();
-	    val others1 = new GrowableRail[CheckedThrowable]();
-	    me.splitExceptionsOfType[E1](deep, exns1, others1);
-	    if (exns1.size() > 0) { handler1(exns1.toRail()); }
-	    val exns2 = new GrowableRail[E2]();
-	    val others2 = new GrowableRail[CheckedThrowable]();
-	    (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
-	    if (exns2.size() > 0) { handler2(exns2.toRail()); }
-	    if (others2.size() > 0) { throw new MultipleExceptions(others2); }
-        } finally { finallyHdl(); }
+            val exns1 = new GrowableRail[E1]();
+            val others1 = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E1](deep, exns1, others1);
+            if (exns1.size() > 0) { handler1(exns1.toRail()); }
+            val exns2 = new GrowableRail[E2]();
+            val others2 = new GrowableRail[CheckedThrowable]();
+            (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
+            if (exns2.size() > 0) { handler2(exns2.toRail()); }
+            if (others2.size() > 0) { throw new MultipleExceptions(others2); }
+        } finally { finallyBlock(); }
     }
 
     /**
@@ -372,9 +372,9 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E1,E2] (body: () => void,
-				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void) {
-	MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
+                                       handler1: (Rail[E1]) => void,
+                                       handler2: (Rail[E2]) => void) {
+        MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
     }
 
     /**
@@ -391,10 +391,226 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      *
      */
     public static operator try[E1,E2] (body: () => void,
-				       handler1: (Rail[E1]) => void,
-				       handler2: (Rail[E2]) => void,
-				       finallyHdl: () => void) {
-	MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2, finallyHdl);
+                                       handler1: (Rail[E1]) => void,
+                                       handler2: (Rail[E2]) => void,
+                                       finallyBlock: () => void) {
+        MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2, finallyBlock);
+    }
+
+
+    /**
+     * try control structure that catches MultipleExceptions and
+     * executes the handler on each exception of type E that was in
+     * the MultipleExceptions. The remaining exceptions are re-thrown
+     * in a MultipleExceptions. For example, the following code prints
+     * twice the message "UnsupportedOperationException catched" and
+     * the exception of type IllegalOperationException is re-thrown in
+     * a MultipleExceptions.
+     *
+     *    MultipleExceptions.try(true) {
+     *      finish {
+     *        async { throw new UnsupportedOperationException(); }
+     *        finish {
+     *          async { throw new UnsupportedOperationException(); }
+     *          async { throw new IllegalOperationException(); }
+     *        }
+     *      }
+     *    } catch (UnsupportedOperationException) {
+     *        Console.OUT.println("UnsupportedOperationException catched");
+     *    }
+     *
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     * @param body the body of the try block
+     * @param handler the body of the exception handler
+     *
+     */
+    public static operator try[E] (deep: Boolean,
+                                   body: () => void,
+                                   handler: (E) => void) {
+        try { body(); }
+        catch (me: MultipleExceptions) {
+            val exns = new GrowableRail[E]();
+            val others = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E](deep, exns, others);
+            for (e:E in exns.toRail()) {
+                handler(e);
+            }
+            if (others.size() > 0) { throw new MultipleExceptions(others); }
+        }
+    }
+
+    /**
+     * try control structure with a finally block that catches
+     * MultipleExceptions and executes the handler on each exception
+     * of type E that was in the MultipleExceptions. The remaining
+     * exceptions are re-thrown in a MultipleExceptions.
+     *
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     * @param body the body of the try block
+     * @param handler the body of the exception handler
+     * @param finallyBlock the body of finally block
+     *
+     */
+    public static operator try[E] (deep: Boolean,
+                                   body: () => void,
+                                   handler: (E) => void,
+                                   finallyBlock: () => void) {
+        try { body(); }
+        catch (me: MultipleExceptions) {
+            val exns = new GrowableRail[E]();
+            val others = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E](deep, exns, others);
+            for (e:E in exns.toRail()) {
+                handler(e);
+            }
+            if (others.size() > 0) { throw new MultipleExceptions(others); }
+        }
+        finally { finallyBlock(); }
+    }
+
+
+    /**
+     * try control structure that catches MultipleExceptions and
+     * executes the handler on each exception of type E that was in
+     * the MultipleExceptions and the nested nested ones. The
+     * remaining exceptions are re-thrown in a MultipleExceptions.
+     *
+     * @param body the body of the try block
+     * @param handler the body of the exception handler
+     *
+     */
+    public static operator try[E] (body: () => void,
+                                   handler: (E) => void) {
+        MultipleExceptions.operator try[E](true, body, handler);
+    }
+
+    /**
+     * try control structure with a finally block that catches
+     * MultipleExceptions and executes the handler on each exception
+     * of type E that was in the MultipleExceptions and the nested
+     * nested ones. The remaining exceptions are re-thrown in a
+     * MultipleExceptions.
+     *
+     * @param body the body of the try block
+     * @param handler the body of the exception handler
+     * @param finallyBlock the body of finally block
+     *
+     */
+    public static operator try[E] (body: () => void,
+                                   handler: (E) => void,
+                                   finallyBlock: () => void) {
+        MultipleExceptions.operator try[E](true, body, handler, finallyBlock);
+    }
+
+
+    /**
+     * try control structure that catches MultipleExceptions and
+     * executes the first handler on each exception of type E1 and the
+     * second handler on on each exception of type E2 that was in the
+     * MultipleExceptions. The remaining exceptions are re-thrown in a
+     * MultipleExceptions.
+     *
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     * @param body the body of the try block
+     * @param handler1 the body of the exception handler
+     * @param handler2 the body of the exception handler
+     *
+     */
+    public static operator try[E1,E2] (deep: Boolean,
+                                       body: () => void,
+                                       handler1: (E1) => void,
+                                       handler2: (E2) => void) {
+        try { body(); }
+        catch (me: MultipleExceptions) {
+            val exns1 = new GrowableRail[E1]();
+            val others1 = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E1](deep, exns1, others1);
+            for (e in exns1.toRail()) {
+                handler1(e);
+            }
+            val exns2 = new GrowableRail[E2]();
+            val others2 = new GrowableRail[CheckedThrowable]();
+            (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
+            for (e in exns2.toRail()) {
+                handler2(e);
+            }
+            if (others2.size() > 0) { throw new MultipleExceptions(others2); }
+        }
+    }
+
+
+    /**
+     * try control structure with a finally block that catches
+     * MultipleExceptions and executes the first handler on each
+     * exception of type E1 and the second handler on each exception
+     * of type E2 that was in the MultipleExceptions. The remaining
+     * exceptions are re-thrown in a MultipleExceptions.
+     *
+     * @param deep perform a deep traversal of the tree of MultipleExceptions
+     * @param body the body of the try block
+     * @param handler1 the body of the exception handler
+     * @param handler2 the body of the exception handler
+     *
+     */
+    public static operator try[E1,E2] (deep: Boolean,
+                                       body: () => void,
+                                       handler1: (E1) => void,
+                                       handler2: (E2) => void,
+                                       finallyBlock: () => void) {
+        try { body(); }
+        catch (me: MultipleExceptions) {
+            val exns1 = new GrowableRail[E1]();
+            val others1 = new GrowableRail[CheckedThrowable]();
+            me.splitExceptionsOfType[E1](deep, exns1, others1);
+            for (e in exns1.toRail()) {
+                handler1(e);
+            }
+            val exns2 = new GrowableRail[E2]();
+            val others2 = new GrowableRail[CheckedThrowable]();
+            (new MultipleExceptions(others1)).splitExceptionsOfType[E2](deep, exns2, others2);
+            for (e in exns2.toRail()) {
+                handler2(e);
+            }
+            if (others2.size() > 0) { throw new MultipleExceptions(others2); }
+        } finally { finallyBlock(); }
+    }
+
+    /**
+     * try control structure that catches MultipleExceptions and
+     * executes the first handler on each exception of type E1 and the
+     * second handler on each exception of type E2 that was in the
+     * MultipleExceptions and the nested nested ones. The remaining
+     * exceptions are re-thrown in a MultipleExceptions.
+     *
+     * @param body the body of the try block
+     * @param handler1 the body of the exception handler
+     * @param handler2 the body of the exception handler
+     *
+     */
+    public static operator try[E1,E2] (body: () => void,
+                                       handler1: (E1) => void,
+                                       handler2: (E2) => void) {
+        MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
+    }
+
+    /**
+     * try control structure with a finally block that catches
+     * MultipleExceptions and executes the first handler on each
+     * exception of type E1 and the second handler on each exception
+     * of type E2 that was in the MultipleExceptions and the nested
+     * nested ones. The remaining exceptions are re-thrown in a
+     * MultipleExceptions.
+     *
+     * @param body the body of the try block
+     * @param handler1 the body of the exception handler
+     * @param handler2 the body of the exception handler
+     *
+     */
+    public static operator try[E1,E2] (body: () => void,
+                                       handler1: (E1) => void,
+                                       handler2: (E2) => void,
+                                       finallyBlock: () => void) {
+        MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2, finallyBlock);
     }
 
 
