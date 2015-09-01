@@ -139,54 +139,54 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
         }
     }
 
-    /**
-     * try control structure that catches MultipleExceptions and
-     * executes the handler on the flattened version of the catched
-     * MultipleExceptions. For example, in the following program, the
-     * MultipleExceptions me contains the exceptions E1, E2 and E3
-     * (not E1 and a MultipleExceptions):
-     *
-     *   MultipleExceptions.try {
-     *       finish {
-     *           async { throw new Exception("Exn 1"); }
-     *           async finish {
-     *               async { throw new Exception("Exn 2"); }
-     *               async { throw new Exception("Exn 3"); }
-     *           }
-     *       }
-     *   } catch (me: MultipleExceptions) {
-     *       Console.OUT.println(me.exceptions);
-     *   }
-     *
-     * @param body the body of the try block
-     * @param handler the body of the exception handler
-     *
-     */
-    public static operator try (body: () => void,
-                                handler: (MultipleExceptions) => void) {
-        try { body(); }
-        catch (me: MultipleExceptions) {
-            handler (me.flatten());
-        }
-    }
+    // /**
+    //  * try control structure that catches MultipleExceptions and
+    //  * executes the handler on the flattened version of the catched
+    //  * MultipleExceptions. For example, in the following program, the
+    //  * MultipleExceptions me contains the exceptions E1, E2 and E3
+    //  * (not E1 and a MultipleExceptions):
+    //  *
+    //  *   MultipleExceptions.try {
+    //  *       finish {
+    //  *           async { throw new Exception("Exn 1"); }
+    //  *           async finish {
+    //  *               async { throw new Exception("Exn 2"); }
+    //  *               async { throw new Exception("Exn 3"); }
+    //  *           }
+    //  *       }
+    //  *   } catch (me: MultipleExceptions) {
+    //  *       Console.OUT.println(me.exceptions);
+    //  *   }
+    //  *
+    //  * @param body the body of the try block
+    //  * @param handler the body of the exception handler
+    //  *
+    //  */
+    // public static operator try (body: () => void,
+    //                             handler: (MultipleExceptions) => void) {
+    //     try { body(); }
+    //     catch (me: MultipleExceptions) {
+    //         handler (me.flatten());
+    //     }
+    // }
 
-    /**
-     * try control structure with a finally handler that catches
-     * MultipleExceptions and executes the handler on the flattened
-     * version of the catched MultipleExceptions.
-     *
-     * @param body the body of the try block
-     * @param handler the body of the exception handler
-     * @param finallyBlock the body of finally block
-     *
-     */
-    public static operator try (body: () => void,
-                                handler: (MultipleExceptions) => void,
-                                finallyBlock: () => void) {
-        try { body(); }
-        catch (me: MultipleExceptions) { handler (me.flatten()); }
-        finally { finallyBlock(); }
-    }
+    // /**
+    //  * try control structure with a finally handler that catches
+    //  * MultipleExceptions and executes the handler on the flattened
+    //  * version of the catched MultipleExceptions.
+    //  *
+    //  * @param body the body of the try block
+    //  * @param handler the body of the exception handler
+    //  * @param finallyBlock the body of finally block
+    //  *
+    //  */
+    // public static operator try (body: () => void,
+    //                             handler: (MultipleExceptions) => void,
+    //                             finallyBlock: () => void) {
+    //     try { body(); }
+    //     catch (me: MultipleExceptions) { handler (me.flatten()); }
+    //     finally { finallyBlock(); }
+    // }
 
 
     /**
