@@ -11,6 +11,7 @@
 
 package x10.lang;
 
+import x10.compiler.Inline;
 import x10.util.GrowableRail;
 
 /**
@@ -162,7 +163,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     //  * @param handler the body of the exception handler
     //  *
     //  */
-    // public static operator try (body: () => void,
+    // public static @Inline operator try (body: () => void,
     //                             handler: (MultipleExceptions) => void) {
     //     try { body(); }
     //     catch (me: MultipleExceptions) {
@@ -180,7 +181,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     //  * @param finallyBlock the body of finally block
     //  *
     //  */
-    // public static operator try (body: () => void,
+    // public static @Inline operator try (body: () => void,
     //                             handler: (MultipleExceptions) => void,
     //                             finallyBlock: () => void) {
     //     try { body(); }
@@ -216,7 +217,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler the body of the exception handler
      *
      */
-    public static operator try[E] (deep: Boolean,
+    public static @Inline operator try[E] (deep: Boolean,
                                    body: () => void,
                                    handler: (Rail[E]) => void) {
         try { body(); }
@@ -242,7 +243,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param finallyBlock the body of finally block
      *
      */
-    public static operator try[E] (deep: Boolean,
+    public static @Inline operator try[E] (deep: Boolean,
                                    body: () => void,
                                    handler: (Rail[E]) => void,
                                    finallyBlock: () => void) {
@@ -268,7 +269,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler the body of the exception handler
      *
      */
-    public static operator try[E] (body: () => void,
+    public static @Inline operator try[E] (body: () => void,
                                    handler: (Rail[E]) => void) {
         MultipleExceptions.operator try[E](true, body, handler);
     }
@@ -285,7 +286,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param finallyBlock the body of finally block
      *
      */
-    public static operator try[E] (body: () => void,
+    public static @Inline operator try[E] (body: () => void,
                                    handler: (Rail[E]) => void,
                                    finallyBlock: () => void) {
         MultipleExceptions.operator try[E](true, body, handler, finallyBlock);
@@ -306,7 +307,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (deep: Boolean,
+    public static @Inline operator try[E1,E2] (deep: Boolean,
                                        body: () => void,
                                        handler1: (Rail[E1]) => void,
                                        handler2: (Rail[E2]) => void) {
@@ -339,7 +340,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (deep: Boolean,
+    public static @Inline operator try[E1,E2] (deep: Boolean,
                                        body: () => void,
                                        handler1: (Rail[E1]) => void,
                                        handler2: (Rail[E2]) => void,
@@ -371,7 +372,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (body: () => void,
+    public static @Inline operator try[E1,E2] (body: () => void,
                                        handler1: (Rail[E1]) => void,
                                        handler2: (Rail[E2]) => void) {
         MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
@@ -390,7 +391,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (body: () => void,
+    public static @Inline operator try[E1,E2] (body: () => void,
                                        handler1: (Rail[E1]) => void,
                                        handler2: (Rail[E2]) => void,
                                        finallyBlock: () => void) {
@@ -424,7 +425,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler the body of the exception handler
      *
      */
-    public static operator try[E] (deep: Boolean,
+    public static @Inline operator try[E] (deep: Boolean,
                                    body: () => void,
                                    handler: (E) => void) {
         try { body(); }
@@ -451,7 +452,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param finallyBlock the body of finally block
      *
      */
-    public static operator try[E] (deep: Boolean,
+    public static @Inline operator try[E] (deep: Boolean,
                                    body: () => void,
                                    handler: (E) => void,
                                    finallyBlock: () => void) {
@@ -479,7 +480,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler the body of the exception handler
      *
      */
-    public static operator try[E] (body: () => void,
+    public static @Inline operator try[E] (body: () => void,
                                    handler: (E) => void) {
         MultipleExceptions.operator try[E](true, body, handler);
     }
@@ -496,7 +497,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param finallyBlock the body of finally block
      *
      */
-    public static operator try[E] (body: () => void,
+    public static @Inline operator try[E] (body: () => void,
                                    handler: (E) => void,
                                    finallyBlock: () => void) {
         MultipleExceptions.operator try[E](true, body, handler, finallyBlock);
@@ -516,7 +517,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (deep: Boolean,
+    public static @Inline operator try[E1,E2] (deep: Boolean,
                                        body: () => void,
                                        handler1: (E1) => void,
                                        handler2: (E2) => void) {
@@ -552,7 +553,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (deep: Boolean,
+    public static @Inline operator try[E1,E2] (deep: Boolean,
                                        body: () => void,
                                        handler1: (E1) => void,
                                        handler2: (E2) => void,
@@ -587,7 +588,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (body: () => void,
+    public static @Inline operator try[E1,E2] (body: () => void,
                                        handler1: (E1) => void,
                                        handler2: (E2) => void) {
         MultipleExceptions.operator try[E1,E2](true, body, handler1, handler2);
@@ -606,7 +607,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
      * @param handler2 the body of the exception handler
      *
      */
-    public static operator try[E1,E2] (body: () => void,
+    public static @Inline operator try[E1,E2] (body: () => void,
                                        handler1: (E1) => void,
                                        handler2: (E2) => void,
                                        finallyBlock: () => void) {
