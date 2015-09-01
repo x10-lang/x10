@@ -85,6 +85,56 @@ class TestMultipleExceptions extends x10Test {
         } finally {}
 
 
+        MultipleExceptions.try(false) {
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        }
+
+        MultipleExceptions.try(false) {
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        } finally {}
+
+        MultipleExceptions.try {
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        }
+
+        MultipleExceptions.try {
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        } finally {}
+
+
+        MultipleExceptions.try(false) {
+        } catch (IllegalOperationException) {
+            chk(false);
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        }
+
+        MultipleExceptions.try(false) {
+        } catch (IllegalOperationException) {
+            chk(false);
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        } finally {}
+
+        MultipleExceptions.try {
+        } catch (IllegalOperationException) {
+            chk(false);
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        }
+
+        MultipleExceptions.try {
+        } catch (IllegalOperationException) {
+            chk(false);
+        } catch (UnsupportedOperationException) {
+            chk(false);
+        } finally {}
+
+
         /* Catch MultipleExceptions */
 
         // MultipleExceptions.try {
