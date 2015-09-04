@@ -11,8 +11,11 @@
 
 package x10.util;
 
+import x10.compiler.CompilerFlags;
+import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.compiler.Pragma;
 import x10.compiler.Uncounted;
 import x10.util.concurrent.AtomicInteger;
@@ -147,6 +150,20 @@ public struct Team {
         @Native("c++", "return x10rt_coll_support();") { return -1n; }
     }
 
+   private static @Inline def checkBounds(index:long, size:long) {
+        if (CompilerFlags.checkBounds() && (index < 0 || index >= size)) {
+            raiseBoundsError(index, size);
+        }
+    }
+
+    private static @NoInline @NoReturn def raiseBoundsError(index:long, size:long) {
+        Console.OUT.println("Indexing error in collective operation at "+here+"; expect program to hang!");
+        val e = new ArrayIndexOutOfBoundsException("(" + index + ") not contained in Rail of size "+size);
+        e.fillInStackTrace();
+        e.printStackTrace();
+        throw e;
+    }
+
     /** Returns the number of places in the team. */
     public def size () : Long {
         if (collectiveSupportLevel >= X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
@@ -203,6 +220,8 @@ public struct Team {
      * @param count The number of elements being transferred
      */
     public def scatter[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
+        if (CompilerFlags.checkBounds() && here == root) checkBounds(src_off + (size() * count) -1, src.size);
+        checkBounds(dst_off+count-1, dst.size); 
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
             finish nativeScatter(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
@@ -233,6 +252,8 @@ public struct Team {
      * @param count The number of elements being transferred
      */
      public def bcast[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
+        if (here == root) checkBounds(src_off+count-1, src.size);
+        checkBounds(dst_off+count-1, dst.size); 
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
             finish nativeBcast(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
@@ -266,6 +287,11 @@ public struct Team {
      * @param count The number of elements being transferred
      */
     public def alltoall[T] (src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
+        if (CompilerFlags.checkBounds()) {
+            val numElems = count * size();
+            checkBounds(src_off+numElems-1, src.size);
+            checkBounds(dst_off+numElems-1, dst.size);
+        }
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " entering native alltoall of team "+id);
             finish nativeAlltoall(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int);
@@ -327,6 +353,8 @@ public struct Team {
      * @param op The operation to perform
      */
     public def reduce[T](root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        checkBounds(src_off+count-1, src.size);
+        if (here == root) checkBounds(dst_off+count-1, dst.size); 
         state(id).collective_impl[T](LocalTeamState.COLL_REDUCE, root, src, src_off, dst, dst_off, count, op);
     }
 
@@ -372,6 +400,8 @@ public struct Team {
      * Implementation of reduce for builtin struct types (Int, Double etc.)
      */
     private def reduce_builtin[T](root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        checkBounds(src_off+count-1, src.size);
+        if (here == root) checkBounds(dst_off+count-1, dst.size); 
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             finish nativeReduce(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int, op);
         } else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
@@ -496,6 +526,8 @@ public struct Team {
      * @param op The operation to perform
      */
     public def allreduce[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        checkBounds(src_off+count-1, src.size);
+        checkBounds(dst_off+count-1, dst.size); 
         state(id).collective_impl[T](LocalTeamState.COLL_ALLREDUCE, state(id).places(0), src, src_off, dst, dst_off, count, op);
     }
 
@@ -541,6 +573,8 @@ public struct Team {
      * Implementation of allreduce for builtin struct types (Int, Double etc.)
      */
     private def allreduce_builtin[T](src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, op:Int):void {
+        checkBounds(src_off+count-1, src.size);
+        checkBounds(dst_off+count-1, dst.size); 
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
             if (DEBUG) Runtime.println(here + " entering native allreduce on team "+id);
             finish nativeAllreduce(id, id==0n?here.id() as Int:Team.roles(id), src, src_off as Int, dst, dst_off as Int, count as Int, op);
