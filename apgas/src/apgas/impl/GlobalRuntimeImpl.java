@@ -257,8 +257,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         final String compression = System
             .getProperty(Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION);
         if (compression != null) {
-          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT + "="
-              + compression);
+          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION
+              + "=" + compression);
         }
         command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
         command.add("-D" + Configuration.APGAS_DAEMON + "=true");
