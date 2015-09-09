@@ -37,7 +37,7 @@ public final class Configuration {
    * {@code apgas.impl.Transport}".
    *
    */
-  public static final String APGAS_NETWORKTRANSPORT = "apgas.networktransport";
+  public static final String APGAS_TRANSPORT = "apgas.transport";
 
   /**
    * Enables or disables compression on the network links when using transport "
@@ -45,7 +45,7 @@ public final class Configuration {
    * <p>
    * Set to "none" or "snappy", which is the default.
    */
-  public static final String APGAS_NETWORKTRANSPORT_COMPRESSION = "apgas.networktransport.compression";
+  public static final String APGAS_TRANSPORT_COMPRESSION = "apgas.transport.compression";
 
   /**
    * Number of places to spawn (Integer property).

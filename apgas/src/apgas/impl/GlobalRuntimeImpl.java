@@ -167,7 +167,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     // initialize transport
     Transport transport = null;
     String transportClassName = System
-        .getProperty(Configuration.APGAS_NETWORKTRANSPORT);
+        .getProperty(Configuration.APGAS_TRANSPORT);
     if (transportClassName != null) {
       try {
         transport = (Transport) Class
@@ -251,14 +251,14 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
           command.add("-D" + Configuration.APGAS_FINISH + "=" + finishConfig);
         }
         if (transportClassName != null) {
-          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT + "="
+          command.add("-D" + Configuration.APGAS_TRANSPORT + "="
               + transportClassName);
         }
         final String compression = System
-            .getProperty(Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION);
+            .getProperty(Configuration.APGAS_TRANSPORT_COMPRESSION);
         if (compression != null) {
-          command.add("-D" + Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION
-              + "=" + compression);
+          command.add("-D" + Configuration.APGAS_TRANSPORT_COMPRESSION + "="
+              + compression);
         }
         command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
         command.add("-D" + Configuration.APGAS_DAEMON + "=true");
