@@ -24,11 +24,11 @@ import apgas.Place;
 import apgas.util.GlobalID;
 
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
-import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.AbstractEntryProcessor;
+import com.hazelcast.map.listener.EntryRemovedListener;
+import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.query.Predicate;
 
 /**
@@ -385,6 +385,31 @@ final class ResilientFinishState implements Serializable {
         });
   }
 
+  static private class EntryUpdatedOrRemovedListener implements
+      EntryUpdatedListener<GlobalID, ResilientFinishState>,
+      EntryRemovedListener<GlobalID, ResilientFinishState> {
+
+    private final ResilientFinish finish;
+
+    private EntryUpdatedOrRemovedListener(ResilientFinish finish) {
+      this.finish = finish;
+    }
+
+    @Override
+    public void entryRemoved(EntryEvent<GlobalID, ResilientFinishState> event) {
+      synchronized (finish) {
+        finish.notifyAll();
+      }
+    }
+
+    @Override
+    public void entryUpdated(EntryEvent<GlobalID, ResilientFinishState> event) {
+      synchronized (finish) {
+        finish.notifyAll();
+      }
+    }
+  }
+
   /**
    * Registers a resilient store listener.
    * <p>
@@ -397,42 +422,7 @@ final class ResilientFinishState implements Serializable {
    */
   static String addListener(ResilientFinish finish) {
     return GlobalRuntimeImpl.getRuntime().resilientFinishMap.addEntryListener(
-        new EntryListener<GlobalID, ResilientFinishState>() {
-
-          @Override
-          public void entryAdded(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-          }
-
-          @Override
-          public void entryRemoved(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-            synchronized (finish) {
-              finish.notifyAll();
-            }
-          }
-
-          @Override
-          public void entryUpdated(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-            synchronized (finish) {
-              finish.notifyAll();
-            }
-          }
-
-          @Override
-          public void entryEvicted(
-              EntryEvent<GlobalID, ResilientFinishState> event) {
-          }
-
-          @Override
-          public void mapEvicted(MapEvent event) {
-          }
-
-          @Override
-          public void mapCleared(MapEvent event) {
-          }
-        }, finish.id, false);
+        new EntryUpdatedOrRemovedListener(finish), finish.id, false);
   }
 
   /**
