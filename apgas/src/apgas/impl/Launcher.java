@@ -30,13 +30,6 @@ public interface Launcher {
   void launch(int n, List<String> command) throws Exception;
 
   /**
-   * Checks that all processes launched are healthy.
-   *
-   * @return true if all processes are healthy
-   */
-  boolean healthy();
-
-  /**
    * Shuts down the {@link Launcher} instance.
    */
   void shutdown();

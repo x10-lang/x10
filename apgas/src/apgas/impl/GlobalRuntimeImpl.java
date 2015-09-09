@@ -11,11 +11,9 @@
 
 package apgas.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -131,22 +129,31 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         .getRuntime().availableProcessors());
     final int maxThreads = Integer.getInteger(Configuration.APGAS_MAX_THREADS,
         256);
-    final String master = System.getProperty(Configuration.APGAS_MASTER);
-    final boolean daemon = Boolean.getBoolean(Configuration.APGAS_DAEMON);
+    final String master = System.getProperty(Configuration.APGAS_MY_MASTER);
+    final String ip = System.getProperty(Configuration.APGAS_MY_IP);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
+    final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
+    final String finishName = System.getProperty(Configuration.APGAS_FINISH);
+    final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
+    final String transportName = System
+        .getProperty(Configuration.APGAS_TRANSPORT);
+    final String launcherName = System
+        .getProperty(Configuration.APGAS_LAUNCHER);
+
+    // initialize finish
     Finish.Factory factory = null;
-    final String finishConfig = System.getProperty(Configuration.APGAS_FINISH);
-    if (finishConfig != null) {
-      final String className = finishConfig + "$Factory";
+    if (finishName != null) {
+      final String finishFactoryName = finishName + "$Factory";
       try {
-        factory = (Finish.Factory) Class.forName(className).newInstance();
+        factory = (Finish.Factory) Class.forName(finishFactoryName)
+            .newInstance();
       } catch (InstantiationException | IllegalAccessException
           | ExceptionInInitializerError | ClassNotFoundException
           | NoClassDefFoundError | ClassCastException e) {
         System.err.println("[APGAS] Unable to instantiate finish factory: "
-            + className + ". Using default factory.");
+            + finishFactoryName + ". Using default factory.");
       }
     }
     if (factory == null) {
@@ -155,8 +162,6 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     } else {
       this.factory = factory;
     }
-    final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
-    final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
 
     // initialize scheduler
     pool = new ForkJoinPool(maxThreads, new WorkerFactory(), null, false);
@@ -166,30 +171,45 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
 
     // initialize transport
     Transport transport = null;
-    String transportClassName = System
-        .getProperty(Configuration.APGAS_TRANSPORT);
-    if (transportClassName != null) {
+    if (transportName != null) {
       try {
         transport = (Transport) Class
-            .forName(transportClassName)
+            .forName(transportName)
             .getDeclaredConstructor(GlobalRuntimeImpl.class, String.class,
                 String.class, boolean.class)
-            .newInstance(this, master,
-                InetAddress.getLocalHost().getHostAddress(), compact);
+            .newInstance(this, master, ip, compact);
       } catch (InstantiationException | IllegalAccessException
           | ExceptionInInitializerError | ClassNotFoundException
           | NoClassDefFoundError | ClassCastException e) {
         System.err.println("[APGAS] Unable to instantiate transport: "
-            + transportClassName + ". Using default transport.");
+            + transportName + ". Using default transport.");
         e.printStackTrace();
       }
     }
     if (transport == null) {
-      transportClassName = null;
-      transport = new Transport(this, master, InetAddress.getLocalHost()
-          .getHostAddress(), compact);
+      transport = new Transport(this, master, ip, compact);
     }
     this.transport = transport;
+
+    // initialize launcher
+    Launcher launcher = null;
+    if (master == null && p > 1) {
+      if (launcherName != null) {
+        try {
+          launcher = (Launcher) Class.forName(launcherName).newInstance();
+        } catch (InstantiationException | IllegalAccessException
+            | ExceptionInInitializerError | ClassNotFoundException
+            | NoClassDefFoundError | ClassCastException e) {
+          System.err.println("[APGAS] Unable to instantiate launcher: "
+              + launcherName + ". Using default launcher.");
+          e.printStackTrace();
+        }
+      }
+      if (launcher == null) {
+        launcher = new LocalLauncher();
+      }
+    }
+    this.launcher = launcher;
 
     // initialize here
     here = transport.here();
@@ -199,7 +219,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         .<GlobalID, ResilientFinishState> getResilientFinishMap() : null;
 
     // install hook on thread 1
-    if (!daemon) {
+    if (master == null) {
       final Thread thread[] = new Thread[Thread.activeCount()];
       Thread.enumerate(thread);
       for (final Thread t : thread) {
@@ -221,13 +241,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     // start monitoring cluster
     transport.start();
 
-    if (p == 0) {
-      launcher = null;
-    } else {
-      final String name = System.getProperty(Configuration.APGAS_LAUNCHER);
-      launcher = (name == null) ? new LocalLauncher() : (Launcher) Class
-          .forName(name).newInstance();
-      // launch additional places
+    // launch additional places
+    if (master == null && p > 1) {
       try {
         final ArrayList<String> command = new ArrayList<String>();
         command.add(java);
@@ -235,53 +250,30 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
             + ManagementFactory.getRuntimeMXBean().getBootClassPath());
         command.add("-cp");
         command.add(System.getProperty("java.class.path"));
-        if (resilient) {
-          command.add("-D" + Configuration.APGAS_RESILIENT + "=true");
+        for (final String property : System.getProperties()
+            .stringPropertyNames()) {
+          if (property.startsWith("apgas.")
+              && !property.startsWith("apgas.my.")) {
+            command.add("-D" + property + "=" + System.getProperty(property));
+          }
         }
-        if (serializationException) {
-          command.add("-D" + Configuration.APGAS_SERIALIZATION_EXCEPTION
-              + "=true");
-        }
-        if (compact) {
-          command.add("-D" + Configuration.APGAS_COMPACT + "=true");
-          // command.add("-XX:CICompilerCount=3");
-          // command.add("-XX:ParallelGCThreads=2");
-        }
-        if (factory != null) {
-          command.add("-D" + Configuration.APGAS_FINISH + "=" + finishConfig);
-        }
-        if (transportClassName != null) {
-          command.add("-D" + Configuration.APGAS_TRANSPORT + "="
-              + transportClassName);
-        }
-        final String compression = System
-            .getProperty(Configuration.APGAS_TRANSPORT_COMPRESSION);
-        if (compression != null) {
-          command.add("-D" + Configuration.APGAS_TRANSPORT_COMPRESSION + "="
-              + compression);
-        }
-        command.add("-D" + Configuration.APGAS_THREADS + "=" + threads);
-        command.add("-D" + Configuration.APGAS_DAEMON + "=true");
-        command.add("-D" + Configuration.APGAS_MASTER + "="
+        command.add("-D" + Configuration.APGAS_MY_MASTER + "="
             + (master == null ? transport.getAddress() : master));
         command.add(getClass().getSuperclass().getCanonicalName());
 
         launcher.launch(p - 1, command);
-
-        // wait for spawned places to join the global runtime
-        while (maxPlace() < p) {
-          try {
-            Thread.sleep(100);
-          } catch (final InterruptedException e) {
-          }
-          if (!launcher.healthy()) {
-            throw new IOException("A process exited prematurely");
-          }
-        }
       } catch (final Throwable t) {
         // initiate shutdown
         shutdown();
         throw t;
+      }
+    }
+
+    // wait for enough places to join the global runtime
+    while (maxPlace() < p) {
+      try {
+        Thread.sleep(100);
+      } catch (final InterruptedException e) {
       }
     }
   }

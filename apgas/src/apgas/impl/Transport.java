@@ -112,7 +112,7 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
    * @param master
    *          member to connect to or null
    * @param localhost
-   *          the preferred ip address of this host
+   *          the preferred ip address of this host or null
    * @param compact
    *          reduces thread creation if set
    */
@@ -143,7 +143,9 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
     final JoinConfig join = config.getNetworkConfig().getJoin();
     join.getMulticastConfig().setEnabled(false);
     join.getTcpIpConfig().setEnabled(true);
-    System.setProperty("hazelcast.local.localAddress", localhost);
+    if (localhost != null) {
+      System.setProperty("hazelcast.local.localAddress", localhost);
+    }
     if (master != null) {
       join.getTcpIpConfig().addMember(master);
       // also replace localhost will real ip as master is likely to expect this

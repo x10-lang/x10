@@ -57,22 +57,7 @@ final class LocalLauncher implements Launcher {
       }
     }
   }
-
-  @Override
-  public boolean healthy() {
-    synchronized (this) {
-      if (dying > 0) {
-        return false;
-      }
-    }
-    for (final Process process : processes) {
-      if (!process.isAlive()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
+  
   @Override
   public synchronized void shutdown() {
     if (dying == 0) {

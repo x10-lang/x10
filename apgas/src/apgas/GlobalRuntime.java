@@ -142,6 +142,17 @@ public abstract class GlobalRuntime {
    */
   protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
 
+  /**
+   * Submits an immediate task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f}. The termination of this task is not tracked
+   * by the enclosing finish. The call may block or not until the task
+   * completes. Exceptions may be masked or not.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   protected abstract void immediateAsyncAt(Place p, SerializableRunnable f);
 
   /**

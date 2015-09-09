@@ -78,11 +78,6 @@ public class Launcher implements apgas.impl.Launcher {
   }
 
   @Override
-  public boolean healthy() {
-    return true;
-  }
-
-  @Override
   public void shutdown() {
     try {
       rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED,
