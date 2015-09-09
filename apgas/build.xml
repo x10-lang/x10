@@ -6,7 +6,8 @@
     <property name="samples" location="${basedir}/samples"/>
     <property name="doc" location="${basedir}/doc"/>
     <property name="jar" value="apgas.jar"/>
-    <property name="hazelcast.jar" value="hazelcast-3.4.jar"/>
+    <property name="hazelcast.version" value="3.5.2"/>
+    <property name="hazelcast.jar" value="hazelcast-${hazelcast.version}.jar"/>
     <property name="apgas.zip" value="apgas.zip"/>
     <target name="check-dependencies">
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
@@ -17,7 +18,7 @@
         <mkdir dir="${samples}"/>
     </target>
     <target name="hazelcast" depends="init,check-dependencies" unless="hazelcast.present">
-        <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/3.4/hazelcast-3.4.jar" dest="${lib}"/>
+        <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${lib}"/>
     </target>
     <target name="clean">
         <delete dir="${bin}" failonerror="false"/>
