@@ -125,4 +125,19 @@ abstract public class x10Test {
     }
 
     protected static def println(s:String) { x10.io.Console.OUT.println(s); }
+
+    // We expect that either:
+    //   (a) X10RT_ACCELS is not set
+    //   (b) X10RT_ACCELS is set and there is actually at least 1 GPU available.
+    // Check that one of these conditions holds and return true/false accordingly
+    protected static def verifyCUDASettings():boolean {
+        if (System.getenv("X10RT_ACCELS") != null) {
+            val topo = PlaceTopology.getTopology();
+            if (topo.numChildrenPlaces() == 0) {
+                Console.OUT.println("Detected system mis-configuration. X10RT_ACCELS set, but no GPUs present");
+                return false;
+            }
+        }
+        return true;
+    }
 }

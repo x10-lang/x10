@@ -17,6 +17,7 @@ import harness.x10Test;
 
 public class CUDABlackScholesTest extends x10Test {
     public def run():boolean {
+         if (!verifyCUDASettings()) return false;
          val args = new Rail[String](0);
          CUDABlackScholes.main(args);
          return true;
