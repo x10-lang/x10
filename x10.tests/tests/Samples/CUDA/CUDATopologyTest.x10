@@ -17,6 +17,7 @@ import harness.x10Test;
 
 public class CUDATopologyTest extends x10Test {
     public def run():boolean {
+         if (!verifyCUDASettings()) return false;
          val args = new Rail[String](0);
          CUDATopology.main(args);
          return true;
