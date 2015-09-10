@@ -20,6 +20,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <unistd.h>
 
 #include <pthread.h>
 #include <errno.h>
@@ -40,14 +41,9 @@
 #include <x10rt_ser.h>
 
 
-
-#define MPI_ASYNC_SEND(...) MPI_Isend(__VA_ARGS__)
-
 // ULFM flags and extra header file
 #ifdef MPI_ERR_PROC_FAILED
 #define OPEN_MPI_ULFM true
-// ULFM: use Issend instead of Isend to get an error code in MPI_Test
-#define MPI_ASYNC_SEND(...) MPI_Issend(__VA_ARGS__)
 #include <mpi-ext.h>
 #endif
 
@@ -87,6 +83,7 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 #define X10_NTHREADS "X10_NTHREADS"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
 #define X10_RESILIENT_MODE "X10_RESILIENT_MODE"
+#define X10RT_MPI_PROBE_SLEEP_MILLISECONDS "X10RT_MPI_PROBE_SLEEP_MILLISECONDS"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -767,13 +764,13 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     static bool in_recursion = false;
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(p->msg,
+    if (MPI_SUCCESS != MPI_Isend(p->msg,
                 p->len, MPI_BYTE,
                 p->dest_place,
                 p->type,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1118,14 +1115,14 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&get_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(get_msg,
+    if (MPI_SUCCESS != MPI_Isend(get_msg,
                 get_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_get_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1184,14 +1181,14 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(put_msg,
+    if (MPI_SUCCESS != MPI_Isend(put_msg,
                 put_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_put_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1225,7 +1222,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
 
     req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(srcAddr,
+    if (MPI_SUCCESS != MPI_Isend(srcAddr,
                 len,
                 MPI_BYTE,
                 p->dest_place,
@@ -1286,14 +1283,14 @@ static void get_incoming_req_completion(int dest_place,
     free(req->getBuf());
 
     /* reuse request for sending reply */
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(local,
+    if (MPI_SUCCESS != MPI_Isend(local,
                 len,
                 MPI_BYTE,
                 dest_place,
                 (global_state._reserved_tag_get_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     req->setBuf(NULL);
@@ -1535,8 +1532,19 @@ x10rt_error x10rt_net_blocking_probe (void) {
 	// when oversubscribing CPUs, this should give us performance close to true blocking support,
 	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
 	// a low-power state when idle won't work.
+
+	int sleepMillis = -1;
+	char* sleepMillisEnv = getenv(X10RT_MPI_PROBE_SLEEP_MILLISECONDS);
+	if (sleepMillisEnv && atoi(sleepMillisEnv) > 0) {
+		sleepMillis = atoi(sleepMillisEnv);
+	}
 	int counter = 1000;
-	while (!x10rt_net_probe_ex(false) && counter--) sched_yield();
+	while (!x10rt_net_probe_ex(false) && counter--) {
+		if (sleepMillis > 0)
+			usleep(sleepMillis*1000);
+		else
+			sched_yield();
+	}
     return X10RT_ERR_OK;
 }
 
