@@ -5,10 +5,10 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="samples" location="${basedir}/samples"/>
     <property name="doc" location="${basedir}/doc"/>
-    <property name="jar" value="apgas.jar"/>
+    <property name="jar" value="{$lib}/apgas.jar"/>
     <property name="hazelcast.version" value="3.5.2"/>
-    <property name="hazelcast.jar" value="hazelcast-${hazelcast.version}.jar"/>
-    <property name="apgas.zip" value="apgas.zip"/>
+    <property name="hazelcast.jar" value="${lib}/hazelcast.jar"/>
+    <property name="apgas.zip" value="${basedir}/apgas.zip"/>
     <target name="check-dependencies">
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
     </target>
@@ -18,7 +18,7 @@
         <mkdir dir="${samples}"/>
     </target>
     <target name="hazelcast" depends="init,check-dependencies" unless="hazelcast.present">
-        <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${lib}"/>
+        <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${hazelcast.jar}"/>
     </target>
     <target name="clean">
         <delete dir="${bin}" failonerror="false"/>
@@ -27,14 +27,14 @@
         <delete dir="${samples}" failonerror="false"/>
     </target>
     <target name="jar" depends="compile">
-        <jar jarfile="${lib}/${jar}" basedir="${bin}"/>
+        <jar jarfile="${jar}" basedir="${bin}"/>
     </target>
     <target name="compile" depends="hazelcast">
         <javac destdir="${bin}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
             <src path="${src}"/>
             <include name="**"/>
             <classpath>
-                <pathelement location="${lib}/${hazelcast.jar}"/>
+                <pathelement location="${hazelcast.jar}"/>
             </classpath>
         </javac>
     </target>
@@ -45,7 +45,7 @@
         <replace dir="${samples}" token="package apgas.examples;"/>
     </target>
     <target name="zip" depends="clean,jar,samples,javadoc">
-        <zip destfile="${basedir}/${apgas.zip}" basedir="${basedir}" includes="README.txt,epl-v10.html,lib/**,samples/**"/>
+        <zip destfile="${apgas.zip}" basedir="${basedir}" includes="README.txt,epl-v10.html,lib/**,samples/**"/>
     </target>
     <target name="javadoc">
         <javadoc access="protected" author="false" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
