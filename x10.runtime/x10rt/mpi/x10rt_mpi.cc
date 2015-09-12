@@ -759,9 +759,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     x10rt_lgl_stats.msg.messages_sent++ ;
     x10rt_lgl_stats.msg.bytes_sent += p->len;
 
-    x10rt_req * req;
-    req = global_state.free_list.popNoFail();
-    static bool in_recursion = false;
+    x10rt_req* req = global_state.free_list.popNoFail();
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(p->msg,
@@ -773,34 +771,23 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
-    if (true || ((global_state.pending_send_list.length() > 
-            X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion)) {
-        /* Block this send until all pending sends
-         * and receives have been completed. It is
-         * OK as per X10RT semantics to block a send,
-         * as long as we don't block x10rt_net_probe() */
-        in_recursion = true;
-        int complete = 0;
-        MPI_Status msg_status;
-        do {
-            LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-            //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed  (1)
-            if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
-                        &complete,
-                        &msg_status)) {
-            }
-            UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-            x10rt_net_probe_ex(true);
-        } while (!complete);
-        global_state.free_list.enqueue(req);
-        in_recursion = false;
-    } else {
-        req->setBuf(p->msg);
-        req->setType(X10RT_REQ_TYPE_SEND);
-        global_state.pending_send_list.enqueue(req);
+    /* Block this send until all pending sends
+     * and receives have been completed. It is
+     * OK as per X10RT semantics to block a send,
+     * as long as we don't block x10rt_net_probe() */
+    int complete = 0;
+    while (true) {
+        //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed  (1)
+        MPI_Test(req->getMPIRequest(), &complete, MPI_STATUS_IGNORE);
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+
+        if (complete) break;
+
+        x10rt_net_probe_ex(true);
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     }
+    global_state.free_list.enqueue(req);
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -1125,24 +1112,22 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
     /* Block this send until all pending sends
      * and receives have been completed. It is
      * OK as per X10RT semantics to block a send,
      * as long as we don't block x10rt_net_probe() */
     int complete = 0;
-    MPI_Status msg_status;
-    do {
-        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    while (true) {
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
-        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
-                    &complete,
-                    &msg_status)) {
-        }
+        MPI_Test(req->getMPIRequest(), &complete, MPI_STATUS_IGNORE);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+
+        if (complete) break;
+
         x10rt_net_probe_ex(true);
-    } while (!complete);
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    }
     global_state.free_list.enqueue(req);
 }
 
@@ -1202,13 +1187,12 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
      * as long as we don't block x10rt_net_probe() */
     int complete = 0;
     int mpi_error;
-    MPI_Status msg_status;
     do {
         LOCK_IF_MPI_IS_NOT_MULTITHREADED;
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status);
+                    MPI_STATUS_IGNORE);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         x10rt_net_probe_ex(true);
     } while (!complete);
@@ -1383,7 +1367,6 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
  */
 static bool check_pending_sends() {
     int num_checked = 0;
-    MPI_Status msg_status;
     x10rt_req_queue * q = &global_state.pending_send_list;
 
     if (NULL == q->start()) return false;
@@ -1396,7 +1379,7 @@ static bool check_pending_sends() {
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status);
+                    MPI_STATUS_IGNORE);
 #ifndef OPEN_MPI_ULFM
 		if (MPI_SUCCESS != mpi_error) {
             fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
@@ -2063,12 +2046,11 @@ static bool test_and_call_handler(struct CollectivePostprocess & cp) {
     assert(!global_state.finalized);
 
     int complete = 0;
-    MPI_Status msg_status;
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Test(&cp.req,
                 &complete,
-                &msg_status)) {
+                MPI_STATUS_IGNORE)) {
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
@@ -2093,9 +2075,6 @@ static void send_blocking_msg (int msg_id, x10rt_place home,
 static bool test_and_send_msg(struct BlockingMessage & bm) {
     assert(global_state.init);
     assert(!global_state.finalized);
-
-    int complete = 0;
-    MPI_Status msg_status;
 
     if (coll_state.startBlockingMessagte(bm.placec, bm.placev)) {
         X10RT_NET_DEBUG("%s", "send blocking message");
