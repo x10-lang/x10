@@ -1227,9 +1227,10 @@ if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + (m
 	                    val notNullTmp = local_temp_buff as Rail[T]{self!=null};
 	                    val grTmp = new GlobalRail[T](notNullTmp);
 	                    // root scatters direct from src
-	                    val sourceOffset = (myLinks.parentIndex == -1) ? 0: Team.state(teamidcopy).myIndex*count;
+	                    val parentOffset = (myLinks.parentIndex == -1) ? 0: Team.state(teamidcopy).myIndex*count;
+	                    val rootSourceOffset = (myLinks.parentIndex == -1) ? local_src_off: 0;
 	                    val copyToChild = () => @NoInline {
-	                        val myOffset = (Team.state(teamidcopy).myIndex*count)-sourceOffset;
+	                        val myOffset = (Team.state(teamidcopy).myIndex*count)-parentOffset+rootSourceOffset;
 	                        val count = Team.state(teamidcopy).local_count;
 	                        val totalData = (Team.state(teamidcopy).local_grandchildren+1)*count;
 	                        finish {
