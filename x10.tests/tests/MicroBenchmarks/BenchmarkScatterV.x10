@@ -28,13 +28,13 @@ public class BenchmarkScatterV extends x10Test {
         finish for (place in Place.places()) at (place) async {
         	val warmupIn = new Rail[Double](NPLACES);
             var warmupOut:Rail[Double] = new Rail[Double](1);
-            val warmupCounts = new Rail[Long](NPLACES, 1);
+            val warmupCounts = new Rail[Int](NPLACES, 1n);
             Team.WORLD.scatterv(root,warmupIn, 0, warmupOut, 0, warmupCounts); // warm up comms layer
             
             for (var s:Long= 1; s <= MAX_S; s++) {
                 var src:Rail[Double] = null;                
                 val svalue = s;
-                val scounts = new Rail[Long](NPLACES, (i:Long) => (Math.pow(2,svalue) * (i + 1)) as Long);                
+                val scounts = new Rail[Int](NPLACES, (i:Long) => (Math.pow(2,svalue) * (i + 1)) as Int);                
                 //the segment size at place i is 2^S*(i+1) --> i=0..NPLACES-1
                 //the summation of the series SEGMA(j=1..N){j} = (N * N+1 / 2))
                 val srcSize = (Math.pow(2,s) * (NPLACES * (NPLACES+1)/2) + SRC_OFFSET) as Long; 
