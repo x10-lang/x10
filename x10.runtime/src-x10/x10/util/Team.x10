@@ -256,7 +256,7 @@ public struct Team {
      * 
      * @param scounts The number of elements being transferred to each place
      */
-    public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Long]) : void {                      
+    public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Int]) : void {                      
         val my_role = id==0n?here.id() as Int:Team.roles(id);
         val dst_count = scounts(my_role);
         if (CompilerFlags.checkBounds() && here == root) {
@@ -273,8 +273,8 @@ public struct Team {
     		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off, scounts, dst);
     	}
     	else{
-    		val soffsets = new Rail[Long](scounts.size);
-            soffsets(0) = 0;
+    		val soffsets = new Rail[Int](scounts.size);
+            soffsets(0) = 0n;
     		for (y in 1..(scounts.size-1))
                 soffsets(y) = soffsets(y-1) + scounts(y-1);
     		state(id).collective_impl[T](LocalTeamState.COLL_SCATTERV, root, src, src_off, dst, dst_off, 0n, 0n, soffsets, scounts);
@@ -282,11 +282,11 @@ public struct Team {
     }
     
     //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeScatterV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Long, scounts:Rail[Long], dst:Rail[T]) : void {
-        val soffsets = new Rail[Long](scounts.size);
-        soffsets(0) = 0;
+    private static def nativeScatterV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Long, scounts:Rail[Int], dst:Rail[T]) : void {
+        val soffsets = new Rail[Int](scounts.size);
+        soffsets(0) = 0n;
         for (y in 1..(scounts.size-1)){
-        	soffsets(y) = soffsets(y-1) + scounts(y-1) + src_off; // include the src_off in the soffsets array for MPI/PAMI  
+        	soffsets(y) = soffsets(y-1) + scounts(y-1) + src_off as Int; // include the src_off in the soffsets array for MPI/PAMI  
         }    
     	//@Native("java", "x10.x10rt.TeamSupport.nativeScatterv(id, role, root, src, soffsets, scounts, dst, scounts[role]);")
     	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, dst->raw, scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
@@ -907,7 +907,7 @@ public struct Team {
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
     private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:Long) {
-        private static struct TreeStructure(parentIndex:Long, child1Index:Long, child2Index:Long, totalChildren:Long, scountsSum:Long){}
+        private static struct TreeStructure(parentIndex:Long, child1Index:Long, child2Index:Long, totalChildren:Long, scountsSum:Int){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_INIT:Int = 1n;    // collective active, preparing local structures to accept data
@@ -936,7 +936,7 @@ public struct Team {
         private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
         private var local_temp_buff2:Any = null;
         private var local_count:Long = 0;
-        private var local_scounts:Rail[Long] = null; // value required by all members (not only root)
+        private var local_scounts:Rail[Int] = null; // value required by all members (not only root)
         private var local_scounts_sum:Long; //size of storage needed for the data of the current member and its children
         private var local_offset:Long;
         private var local_parentIndex:Long = -1;
@@ -961,14 +961,14 @@ public struct Team {
         }
         
         // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
-        private def getLinks(parent:Long, startIndex:Long, endIndex:Long, scounts:Rail[Long]):TreeStructure {
+        private def getLinks(parent:Long, startIndex:Long, endIndex:Long, scounts:Rail[Int]):TreeStructure {
             if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
             
             if (myIndex == startIndex) { // we're at our own position in the tree
                 val children:Long = endIndex-startIndex; // overall gap of children
-                var scountsSum:Long = -1; // calculate the space required for the data of this member and all its children
+                var scountsSum:Int = -1n; // calculate the space required for the data of this member and all its children
                 if (scounts != null){
-                	scountsSum = 0;
+                	scountsSum = 0n;
                 	for (var i:Long = startIndex; i <= endIndex; i++){
                 		scountsSum+= scounts(i);
                 	}
@@ -1014,7 +1014,7 @@ public struct Team {
          * This method contains the implementation for all collectives.  Some arguments are only valid
          * for specific collectives.
          */
-        private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int, soffsets:Rail[Long], scounts:Rail[Long]):void {
+        private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int, soffsets:Rail[Int], scounts:Rail[Int]):void {
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" phase="+phase.get()+", root="+root);
             
             val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
@@ -1064,9 +1064,9 @@ public struct Team {
             else if (myIndex < rootIndex)
                 myLinks = getLinks(rootIndex, 0, rootIndex-1, scounts);
             else { // non-zero root
-                var scountsSum:Long = -1; // calculate the space required for the data of this member and all its children
+                var scountsSum:Int = -1n; // calculate the space required for the data of this member and all its children
             	if (scounts != null){
-            		scountsSum = 0; // the root has the sum of all segments
+            		scountsSum = 0n; // the root has the sum of all segments
             		for (var i:Long = 0; i < places.numPlaces(); i++){
             			scountsSum += scounts(i);
             		}            		
