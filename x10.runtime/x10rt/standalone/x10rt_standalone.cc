@@ -987,6 +987,31 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role,
     abort();
 }
 
+void x10rt_net_scatterv (x10rt_team team, x10rt_place role,
+                         x10rt_place root, const void *sbuf,
+                         const void *soffsets, const void *scounts,
+                         void *dbuf, size_t dcount, size_t el,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_gather (x10rt_team team, x10rt_place role,
+		               x10rt_place root, const void *sbuf,
+		               void *dbuf, size_t el, size_t count,
+		               x10rt_completion_handler *ch, void *arg)
+{
+	abort();
+}
+
+void x10rt_net_gatherv (x10rt_team team, x10rt_place role,
+		                x10rt_place root, const void *sbuf, size_t scount,
+		                void *dbuf, const void *doffsets, const void *dcounts,
+		                size_t el, x10rt_completion_handler *ch, void *arg)
+{
+	abort();
+}
+
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
                          const void *sbuf, void *dbuf,
                          size_t el, size_t count,

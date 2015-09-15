@@ -411,6 +411,61 @@ X10RT_C void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
                                 size_t el, size_t count,
                                 x10rt_completion_handler *ch, void *arg);
 
+/** \see #x10rt_scatterv
+ * \param team As in #x10rt_scatterv
+ * \param role As in #x10rt_scatterv
+ * \param root As in #x10rt_scatterv
+ * \param sbuf As in #x10rt_scatterv
+ * \param soffsets As in #x10rt_scatterv
+ * \param scounts As in #x10rt_scatterv
+ * \param dbuf As in #x10rt_scatterv
+ * \param dcount As in #x10rt_scatterv
+ * \param el As in #x10rt_scatterv
+ * \param ch As in #x10rt_scatterv
+ * \param arg As in #x10rt_scatterv
+ */
+X10RT_C void x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
+                                 x10rt_place root, const void *sbuf,
+                                 const void *soffsets, const void *scounts,
+                                 void *dbuf, size_t dcount,
+                                 size_t el,
+                                 x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_gather
+ * \param team As in #x10rt_gather
+ * \param role As in #x10rt_gather
+ * \param root As in #x10rt_gather
+ * \param sbuf As in #x10rt_gather
+ * \param dbuf As in #x10rt_gather
+ * \param el As in #x10rt_gather
+ * \param count As in #x10rt_gather
+ * \param ch As in #x10rt_gather
+ * \param arg As in #x10rt_gather
+ */
+X10RT_C void x10rt_lgl_gather (x10rt_team team, x10rt_place role,
+					   x10rt_place root, const void *sbuf,
+					   void *dbuf, size_t el, size_t count,
+					   x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_gatherv
+ * \param team As in #x10rt_gatherv
+ * \param role As in #x10rt_gatherv
+ * \param root As in #x10rt_gatherv
+ * \param sbuf As in #x10rt_gatherv
+ * \param scount As in #x10rt_gatherv
+ * \param dbuf As in #x10rt_gatherv
+ * \param doffsets As in #x10rt_gatherv
+ * \param dcounts As in #x10rt_gatherv
+ * \param el As in #x10rt_gatherv
+ * \param ch As in #x10rt_gatherv
+ * \param arg As in #x10rt_gatherv
+ */
+X10RT_C void x10rt_lgl_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+		                const void *sbuf, size_t scount, void *dbuf,
+		                const void *doffsets, const void *dcounts,
+		                size_t el,
+		                x10rt_completion_handler *ch, void *arg);
+
 /** \see #x10rt_alltoall
  * \param team As in #x10rt_alltoall
  * \param role As in #x10rt_alltoall
