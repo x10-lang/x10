@@ -273,17 +273,17 @@ public struct Team {
      * 
      * @param dst_off The offset into dst at which to start writing
      * 
-     * @param scounts The number of elements being transferred to each place
+     * @param scounts The number of elements being transferred to each member
      */
     public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Int]) : void {                      
-        val my_role = id==0n?here.id() as Int:Team.roles(id);
-        val dst_count = scounts(my_role);
         if (CompilerFlags.checkBounds() && here == root) {
             var scounts_sum:Long = 0;
             for (i in 0..(scounts.size-1))
                 scounts_sum += scounts(i);
             checkBounds(src_off + scounts_sum -1, src.size);
         }
+        val my_role = id==0n?here.id() as Int:Team.roles(id);
+        val dst_count = scounts(my_role);
         checkBounds(dst_off+dst_count-1, dst.size);
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
     		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
@@ -307,8 +307,59 @@ public struct Team {
         for (y in 1..(scounts.size-1)){
         	soffsets(y) = soffsets(y-1) + scounts(y-1); 
         }
-    	//@Native("java", "x10.x10rt.TeamSupport.nativeScatterv(id, role, root, src, soffsets, scounts, dst, scounts[role]);")
+    	//@Native("java", "x10.x10rt.TeamSupport.nativeScatterv(id, role, root, ...);")
     	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, &dst->raw[dst_off], scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+    }
+    
+    
+    /** Blocks until all members send part of their data to the root's array.
+     * 
+     * @param root The member who is supplying the data
+     * 
+     * @param src The data that will be sent
+     * 
+     * @param src_off The offset into src at which to start reading
+     * 
+     * @param dst The rail into which the data will be received at the root
+     * 
+     * @param dst_off The offset into dst at which to start writing
+     * 
+     * @param dcounts The number of elements being transferred from each member
+     */
+    public def gatherv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, dcounts:Rail[Int]) : void {
+        if (CompilerFlags.checkBounds() && here == root) {
+            var dcounts_sum:Long = 0;
+            for (i in 0..(dcounts.size-1))
+                dcounts_sum += dcounts(i);
+            checkBounds(dst_off + dcounts_sum -1, dst.size);
+        }
+        val my_role = id==0n?here.id() as Int:Team.roles(id);
+        val src_count = dcounts(my_role);
+        checkBounds(src_off+src_count-1, src.size);
+        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
+            finish nativeGatherV(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            barrier();
+            finish nativeGatherV(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+        }
+        else{
+            val doffsets = new Rail[Int](dcounts.size);
+            doffsets(0) = 0n;
+            for (y in 1..(dcounts.size-1))
+                doffsets(y) = doffsets(y-1) + dcounts(y-1);
+            state(id).collective_impl[T](LocalTeamState.COLL_SCATTERV, root, src, src_off, dst, dst_off, 0n, 0n, doffsets, dcounts);
+        }
+    }
+    
+    //TODO: implement the native calls for scatterv in Java and PAMI
+    private static def nativeGatherV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, dcounts:Rail[Int]) : void {
+        val doffsets = new Rail[Int](dcounts.size);
+        doffsets(0) = dst_off;
+        for (y in 1..(dcounts.size-1)){
+            doffsets(y) = doffsets(y-1) + dcounts(y-1); 
+        }
+       //@Native("java", "x10.x10rt.TeamSupport.nativeGatherv(id, role, root, ...);")
+       @Native("c++", "x10rt_gatherv(id, role, root, &src->raw[src_off], dcounts->raw[role], dst->raw, doffsets->raw, dcounts->raw, sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
     /** Blocks until all members have received root's array.
