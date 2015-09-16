@@ -13,7 +13,7 @@ import harness.x10Test;
 import x10.util.Team;
 
 /**
- * Benchmarks performance of Team.scatterV
+ * Benchmarks performance of Team.scatterv
  */
 public class BenchmarkScatterV extends x10Test {
     private static ITERS = 10;
