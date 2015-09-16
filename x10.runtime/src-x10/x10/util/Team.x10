@@ -267,10 +267,10 @@ public struct Team {
         }
         checkBounds(dst_off+dst_count-1, dst.size);
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off, scounts, dst);
+    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
     	else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
     		barrier();
-    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off, scounts, dst);
+    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
     	}
     	else{
     		val soffsets = new Rail[Int](scounts.size);
@@ -282,14 +282,14 @@ public struct Team {
     }
     
     //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeScatterV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Long, scounts:Rail[Int], dst:Rail[T]) : void {
+    private static def nativeScatterV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, scounts:Rail[Int], dst:Rail[T], dst_off:Int) : void {
         val soffsets = new Rail[Int](scounts.size);
-        soffsets(0) = src_off as Int;
+        soffsets(0) = src_off;
         for (y in 1..(scounts.size-1)){
-        	soffsets(y) = soffsets(y-1) + scounts(y-1); // include the src_off in the soffsets array for MPI/PAMI  
+        	soffsets(y) = soffsets(y-1) + scounts(y-1); 
         }
     	//@Native("java", "x10.x10rt.TeamSupport.nativeScatterv(id, role, root, src, soffsets, scounts, dst, scounts[role]);")
-    	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, dst->raw, scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+    	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, &dst->raw[dst_off], scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
     /** Blocks until all members have received root's array.
