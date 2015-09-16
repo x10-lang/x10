@@ -237,25 +237,6 @@ public struct Team {
         @Native("c++", "x10rt_scatter(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
-    public def gather[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
-        if (CompilerFlags.checkBounds() && here == root) checkBounds(dst_off + (size() * count) -1, dst.size);
-        checkBounds(src_off+count-1, src.size); 
-        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
-        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
-            barrier();
-            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
-        }
-        else
-            state(id).collective_impl[T](LocalTeamState.COLL_GATHER, root, src, src_off, dst, dst_off, count, 0n, null, null);
-    }    
-    
-    //TODO: implement the native calls for gather in Java and PAMI
-    private static def nativeGather[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
-        //@Native("java", "x10.x10rt.TeamSupport.nativeGather(id, role, root, src, src_off, dst, dst_off, count);")
-        @Native("c++", "x10rt_gather(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
-    }
-    
     /** Blocks until all members have received their part of root's array.
      * Each member receives a contiguous and distinct portion of the src array.
      * src should be structured so that the portions are sorted in ascending
@@ -286,10 +267,10 @@ public struct Team {
         val dst_count = scounts(my_role);
         checkBounds(dst_off+dst_count-1, dst.size);
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
+    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
     	else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
     		barrier();
-    		finish nativeScatterV(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
+    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
     	}
     	else{
     		val soffsets = new Rail[Int](scounts.size);
@@ -301,7 +282,7 @@ public struct Team {
     }
     
     //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeScatterV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, scounts:Rail[Int], dst:Rail[T], dst_off:Int) : void {
+    private static def nativeScatterv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, scounts:Rail[Int], dst:Rail[T], dst_off:Int) : void {
         val soffsets = new Rail[Int](scounts.size);
         soffsets(0) = src_off;
         for (y in 1..(scounts.size-1)){
@@ -311,6 +292,25 @@ public struct Team {
     	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, &dst->raw[dst_off], scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
+    
+    public def gather[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
+        if (CompilerFlags.checkBounds() && here == root) checkBounds(dst_off + (size() * count) -1, dst.size);
+        checkBounds(src_off+count-1, src.size); 
+        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
+            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            barrier();
+            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        }
+        else
+            state(id).collective_impl[T](LocalTeamState.COLL_GATHER, root, src, src_off, dst, dst_off, count, 0n, null, null);
+    }
+    
+    //TODO: implement the native calls for gather in Java and PAMI
+    private static def nativeGather[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        //@Native("java", "x10.x10rt.TeamSupport.nativeGather(id, role, root, src, src_off, dst, dst_off, count);")
+        @Native("c++", "x10rt_gather(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+    }
     
     /** Blocks until all members send part of their data to the root's array.
      * 
@@ -337,22 +337,22 @@ public struct Team {
         val src_count = dcounts(my_role);
         checkBounds(src_off+src_count-1, src.size);
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-            finish nativeGatherV(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             barrier();
-            finish nativeGatherV(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
         }
         else{
             val doffsets = new Rail[Int](dcounts.size);
             doffsets(0) = 0n;
             for (y in 1..(dcounts.size-1))
                 doffsets(y) = doffsets(y-1) + dcounts(y-1);
-            state(id).collective_impl[T](LocalTeamState.COLL_SCATTERV, root, src, src_off, dst, dst_off, 0n, 0n, doffsets, dcounts);
+            state(id).collective_impl[T](LocalTeamState.COLL_GATHERV, root, src, src_off, dst, dst_off, 0n, 0n, doffsets, dcounts);
         }
     }
     
     //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeGatherV[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, dcounts:Rail[Int]) : void {
+    private static def nativeGatherv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, dcounts:Rail[Int]) : void {
         val doffsets = new Rail[Int](dcounts.size);
         doffsets(0) = dst_off;
         for (y in 1..(dcounts.size-1)){
@@ -977,7 +977,7 @@ public struct Team {
      * array indexes, that all places call the same collective at the same time, that root matches, etc.
      */
     private static class LocalTeamState(places:PlaceGroup, teamid:Int, myIndex:Long) {
-        private static struct TreeStructure(parentIndex:Long, child1Index:Long, child2Index:Long, totalChildren:Long, scountsSum:Int){}
+        private static struct TreeStructure(parentIndex:Long, child1Index:Long, child2Index:Long, totalChildren:Long, countsSum:Int){}
         
         private static PHASE_READY:Int = 0n;   // normal state, nothing in progress
         private static PHASE_INIT:Int = 1n;    // collective active, preparing local structures to accept data
@@ -1008,8 +1008,8 @@ public struct Team {
         private var local_temp_buff:Any = null; // Used to hold intermediate data moving up or down the tree structure, becomes type Rail[T]{self!=null}
         private var local_temp_buff2:Any = null;
         private var local_count:Long = 0;
-        private var local_scounts:Rail[Int] = null; // value required by all members (not only root)
-        private var local_scounts_sum:Long; //size of storage needed for the data of the current member and its children
+        private var local_counts:Rail[Int] = null; // value required by all members (not only root)
+        private var local_counts_sum:Long; //size of storage needed for the data of the current member and its children
         private var local_offset:Long;
         private var local_parentIndex:Long = -1;
         private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us        
@@ -1035,25 +1035,25 @@ public struct Team {
         }
         
         // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
-        private def getLinks(parent:Long, startIndex:Long, endIndex:Long, scounts:Rail[Int]):TreeStructure {
+        private def getLinks(parent:Long, startIndex:Long, endIndex:Long, counts:Rail[Int]):TreeStructure {
             if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
             
             if (myIndex == startIndex) { // we're at our own position in the tree
                 val children:Long = endIndex-startIndex; // overall gap of children
-                var scountsSum:Int = -1n; // calculate the space required for the data of this member and all its children
-                if (scounts != null){
-                	scountsSum = 0n;
+                var countsSum:Int = -1n; // calculate the space required for the data of this member and all its children
+                if (counts != null){
+                	countsSum = 0n;
                 	for (var i:Long = startIndex; i <= endIndex; i++){
-                		scountsSum+= scounts(i);
+                		countsSum+= counts(i);
                 	}
                 }
-                return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)), children, scountsSum);
+                return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)), children, countsSum);
             }
             else {
                 if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
-                    return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex, scounts);
+                    return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex, counts);
                 else // go down the left branch (first child)
-                    return getLinks(startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2), scounts);
+                    return getLinks(startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2), counts);
             }
         }
         
@@ -1088,7 +1088,7 @@ public struct Team {
          * This method contains the implementation for all collectives.  Some arguments are only valid
          * for specific collectives.
          */
-        private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int, soffsets:Rail[Int], scounts:Rail[Int]):void {
+        private def collective_impl[T](collType:Int, root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long, operation:Int, offsets:Rail[Int], counts:Rail[Int]):void {
             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamid+" entered "+getCollName(collType)+" phase="+phase.get()+", root="+root);
             
             val teamidcopy = this.teamid; // needed to prevent serializing "this" in at() statements
@@ -1134,25 +1134,25 @@ public struct Team {
             val myLinks:TreeStructure;
             val rootIndex:Long = places.indexOf(root);
             if (myIndex > rootIndex || rootIndex == 0)
-                myLinks = getLinks(-1, rootIndex, places.numPlaces()-1, scounts);
+                myLinks = getLinks(-1, rootIndex, places.numPlaces()-1, counts);
             else if (myIndex < rootIndex)
-                myLinks = getLinks(rootIndex, 0, rootIndex-1, scounts);
+                myLinks = getLinks(rootIndex, 0, rootIndex-1, counts);
             else { // non-zero root
-                var scountsSum:Int = -1n; // calculate the space required for the data of this member and all its children
-            	if (scounts != null){
-            		scountsSum = 0n; // the root has the sum of all segments
+                var countsSum:Int = -1n; // calculate the space required for the data of this member and all its children
+            	if (counts != null){
+            		countsSum = 0n; // the root has the sum of all segments
             		for (var i:Long = 0; i < places.numPlaces(); i++){
-            			scountsSum += scounts(i);
+            			countsSum += counts(i);
             		}            		
             	}
-                myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1, scountsSum);
+                myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1, countsSum);
             }
 
             if (DEBUGINTERNALS) { 
                 Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
                 Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
-                if (scounts != null){
-                	Runtime.println(here + ":team"+teamidcopy+", local_scounts_sum= " + myLinks.scountsSum);
+                if (counts != null){
+                	Runtime.println(here + ":team"+teamidcopy+", local_counts_sum= " + myLinks.countsSum);
                 }
             }
             
@@ -1166,14 +1166,14 @@ public struct Team {
             local_grandchildren = myLinks.totalChildren;
             local_child1Index = myLinks.child1Index;
             local_child2Index = myLinks.child2Index;
-            local_scounts = scounts;
-            if (scounts != null){ //members send/receive different number of elements
-                local_scounts_sum = myLinks.scountsSum;
-                local_offset = soffsets(myIndex);
-                local_count = scounts(myIndex);
+            local_counts = counts;
+            if (counts != null){ //members send/receive different number of elements
+                local_counts_sum = myLinks.countsSum;
+                local_offset = offsets(myIndex);
+                local_count = counts(myIndex);
             }
             else{//members send/receive same number of elements = count
-                local_scounts_sum = (local_grandchildren+1)*count;
+                local_counts_sum = (local_grandchildren+1)*count;
                 local_offset = myIndex*count;
             }
             if ((collType == COLL_REDUCE || collType == COLL_ALLREDUCE)) {
@@ -1186,9 +1186,20 @@ public struct Team {
                 }
             } else if (myLinks.parentIndex != -1 && (collType == COLL_SCATTER || collType == COLL_SCATTERV)) {
                 // data size may differ between places
-            	if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + local_scounts_sum);
-            	if (myLinks.parentIndex != -1) // the root uses the input src array, no need to allocate new memory
-                	local_temp_buff = Unsafe.allocRailUninitialized[T](local_scounts_sum);
+            	if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + local_counts_sum);
+                local_temp_buff = Unsafe.allocRailUninitialized[T](local_counts_sum);
+            } else if (collType == COLL_GATHER  || collType == COLL_GATHERV) {
+                //initialize and copy my data to the local buffer, the root uses the dst buffer as its local buffer
+                var offset:Long = 0;
+                if (myLinks.parentIndex == -1){
+                    local_temp_buff = local_dst;
+                    offset = dst_off+local_offset;
+                }
+                else {
+                    if (DEBUGINTERNALS) Runtime.println(here+" allocated local_temp_buff size " + local_counts_sum);
+                    local_temp_buff = Unsafe.allocRailUninitialized[T](local_counts_sum);
+                }
+                Rail.copy(src, src_off, local_temp_buff as Rail[T], offset, local_count);    
             } else if ((collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) && local_child1Index != -1) {
                 // pairs of values move around
                 local_temp_buff = Unsafe.allocRailUninitialized[T]((local_child2Index==-1)?1:2);
@@ -1261,9 +1272,10 @@ public struct Team {
 	                // Scatter and broadcast only move data from parent to children, so they have no code here
 	                if (collType >= COLL_ALLTOALL) {
 	                    if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
-	                    val notnulldst = dst as Rail[T]{self!=null};
-	                    val gr = new GlobalRail[T](notnulldst);
+	                    //moved gr and notnulldst to inside the if conditions, they are not needed by gather and cause it to hang with dst is null in non root members
 	                    if (collType == COLL_ALLTOALL) {
+	                        val notnulldst = dst as Rail[T]{self!=null};
+	                        val gr = new GlobalRail[T](notnulldst);
 	                        val sourceIndex = myIndex;
 	                        val totalData = count*(myLinks.totalChildren+1);
 	                        at (places(myLinks.parentIndex)) @Uncounted async {
@@ -1273,6 +1285,8 @@ public struct Team {
 	                            Rail.uncountedCopy(gr, dst_off+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), totalData, incrementParentPhase);
 	                        }
 	                    } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
+	                        val notnulldst = dst as Rail[T]{self!=null};
+	                        val gr = new GlobalRail[T](notnulldst);
 	                        // copy reduced data to parent
 	                        val sourceIndex = places.indexOf(here);
 	                        at (places(myLinks.parentIndex)) @Uncounted async {
@@ -1319,6 +1333,18 @@ public struct Team {
 	                            Team.state(teamidcopy).dstLock.unlock();
 	                            incrementParentPhase();
 	                         }
+	                    } else if (collType == COLL_GATHER || collType == COLL_GATHERV) {	                        	                        
+	                        val notNullTmp = local_temp_buff as Rail[T]{self!=null};
+	                        val grTmp = new GlobalRail[T](notNullTmp);
+	                        val childOffset = local_offset;
+	                        val childTotalData = local_counts_sum;	                        
+	                        at (places(myLinks.parentIndex)) @Uncounted async {
+	                            waitForParentToReceive();
+	                            val rootDstOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? Team.state(teamidcopy).local_dst_off: 0;
+	                            val parentOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? 0:Team.state(teamidcopy).local_offset;
+	                            val myOffset = childOffset - parentOffset + rootDstOffset;
+	                            Rail.uncountedCopy(grTmp, 0, Team.state(teamidcopy).local_temp_buff as Rail[T], myOffset, childTotalData, incrementParentPhase);
+	                        }
 	                    }
 	                } else {
 	                    at (places(myLinks.parentIndex)) @Uncounted async { 
@@ -1394,7 +1420,7 @@ public struct Team {
                         val rootSourceOffset = (myLinks.parentIndex == -1) ? local_src_off: 0;
 	                    val copyToChild = () => @NoInline {
 	                        val myOffset = Team.state(teamidcopy).local_offset-parentOffset+rootSourceOffset;
-	                        val totalData = Team.state(teamidcopy).local_scounts_sum;
+	                        val totalData = Team.state(teamidcopy).local_counts_sum;
 	                        finish {
 	                            if (DEBUGINTERNALS) Runtime.println(here+ " scattering " + totalData + " from parent offset " + myOffset);
 	                            Rail.asyncCopy(grTmp, myOffset, Team.state(teamidcopy).local_temp_buff as Rail[T], 0, totalData);
