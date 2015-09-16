@@ -237,6 +237,25 @@ public struct Team {
         @Native("c++", "x10rt_scatter(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
+    public def gather[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
+        if (CompilerFlags.checkBounds() && here == root) checkBounds(dst_off + (size() * count) -1, dst.size);
+        checkBounds(src_off+count-1, src.size); 
+        if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
+            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
+            barrier();
+            finish nativeGather(id, id==0n?here.id() as Int:Team.roles(id), root.id() as Int, src, src_off as Int, dst, dst_off as Int, count as Int);
+        }
+        else
+            state(id).collective_impl[T](LocalTeamState.COLL_GATHER, root, src, src_off, dst, dst_off, count, 0n, null, null);
+    }    
+    
+    //TODO: implement the native calls for gather in Java and PAMI
+    private static def nativeGather[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
+        //@Native("java", "x10.x10rt.TeamSupport.nativeGather(id, role, root, src, src_off, dst, dst_off, count);")
+        @Native("c++", "x10rt_gather(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
+    }
+    
     /** Blocks until all members have received their part of root's array.
      * Each member receives a contiguous and distinct portion of the src array.
      * src should be structured so that the portions are sorted in ascending
@@ -927,6 +946,8 @@ public struct Team {
         private static COLL_ALLREDUCE:Int = 6n; // data in and out
         private static COLL_INDEXOFMIN:Int = 7n; // data in and out
         private static COLL_INDEXOFMAX:Int = 8n; // data in and out
+        private static COLL_GATHER:Int = 9n; // data in only
+        private static COLL_GATHERV:Int = 10n; // data in only, different counts
 
         // local data movement fields associated with the local arguments passed in collective_impl
         private var local_src:Any = null; // becomes type Rail[T]{self!=null}
@@ -956,6 +977,8 @@ public struct Team {
                 case COLL_ALLREDUCE: return "AllReduce";
                 case COLL_INDEXOFMIN: return "IndexOfMin";
                 case COLL_INDEXOFMAX: return "IndexOfMax";
+                case COLL_GATHER: return "Gather";
+                case COLL_GATHERV: return "GatherV";
                 default: return "Unknown";
             }
         }
@@ -1270,8 +1293,8 @@ public struct Team {
 	                throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
 
 	            // move data from parent to children
-	            // reduce and barrier do not move data in this direction, so they are not included here
-	            if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE) {
+	            // reduce, gather and barrier do not move data in this direction, so they are not included here
+	            if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE && collType != COLL_GATHER  && collType != COLL_GATHERV) {
 	                val notnulldst = dst as Rail[T]{self!=null};
 	                val gr = new GlobalRail[T](notnulldst);
 	
@@ -1282,10 +1305,10 @@ public struct Team {
 	                        val teamSize = Team.state(teamidcopy).places.size();
 	                        val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
 	                        finish {
-	if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering first chunk from dst_off "+dst_off+" to local_dst_off "+Team.state(teamidcopy).local_dst_off+" size " + count*Team.state(teamidcopy).myIndex);
+	                            if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering first chunk from dst_off "+dst_off+" to local_dst_off "+Team.state(teamidcopy).local_dst_off+" size " + count*Team.state(teamidcopy).myIndex);
 	                            // position 0 up to the child id
 	                            Rail.asyncCopy(gr, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, count*Team.state(teamidcopy).myIndex);
-	if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk from offset "+(dst_off+(count*lastChild))+" to local_dst offset "+(Team.state(teamidcopy).local_dst_off+(count*lastChild))+" size " + count*(teamSize-lastChild));
+	                            if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk from offset "+(dst_off+(count*lastChild))+" to local_dst offset "+(Team.state(teamidcopy).local_dst_off+(count*lastChild))+" size " + count*(teamSize-lastChild));
 	                            // position of last child range, to the end
 	                            Rail.asyncCopy(gr, dst_off+(count*lastChild), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*lastChild), count*(teamSize-lastChild));
 	                        }
