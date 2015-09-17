@@ -256,14 +256,14 @@ public struct Team {
      * 
      * @param scounts The number of elements being transferred to each member
      */
-    public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Int]) : void {                      
+    public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Int]) : void {
         if (CompilerFlags.checkBounds() && here == root) {
             var scounts_sum:Long = 0;
             for (i in 0..(scounts.size-1))
                 scounts_sum += scounts(i);
             checkBounds(src_off + scounts_sum -1, src.size);
         }
-        val my_role = id==0n?here.id() as Int:Team.roles(id);
+        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex;
         val dst_count = scounts(my_role);
         checkBounds(dst_off+dst_count-1, dst.size);
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
@@ -333,7 +333,7 @@ public struct Team {
                 dcounts_sum += dcounts(i);
             checkBounds(dst_off + dcounts_sum -1, dst.size);
         }
-        val my_role = id==0n?here.id() as Int:Team.roles(id);
+        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex;
         val src_count = dcounts(my_role);
         checkBounds(src_off+src_count-1, src.size);
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
