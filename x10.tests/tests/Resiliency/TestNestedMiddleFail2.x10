@@ -16,11 +16,13 @@ import x10.xrx.Runtime;
 // RESILIENT_X10_ONLY
 
 /**
- * Test nested finish middle fail sync (at second place in three places) handled correctly
+ * Test nested at middle fail sync (at second place in three places) 
+ * handled correctly using finish at (p) async idiom 
+ * (vs. using at as TestNestedMiddleFailSync2.x10).
  * 
  * @author Murata 10/2014
  */
-public class TestNestedFinishMiddleFailSync extends x10Test  {
+public class TestNestedMiddleFail2 extends x10Test  {
 
     static val bad_counter = new Cell[Long](0);
     static val good_counter = new Cell[Long](6);
@@ -53,43 +55,55 @@ public class TestNestedFinishMiddleFailSync extends x10Test  {
         val p2 = Place.places().next(p1);
 
         try {
-	    
-            finish {
-                at (p1) {
+            finish at (p1) async {
+                good_dec();
+                finish at (p2) async {
                     good_dec();
-                    finish {
-                        at (p2) {
-                            good_dec();
-                            System.sleep(1000);
-                            good_dec();
+                    try {
+                        finish at (p1) async System.killHere();
+                    } catch (e:MultipleExceptions) {
+                        val dpes = e.getExceptionsOfType[DeadPlaceException]();
+                        assert dpes.size >= 1;
+                        for (dpe in dpes) {
+                            assert dpe.place == p1 : dpe.place;
                         }
                         good_dec();
-                        System.killHere();
-                    }
-                }
+                    }           
+                    // Even though place 1 is dead, Place 0 should still be 
+                    // synchronously waiting for the activity in Place 2 to
+                    // terminate before it sees the DPE for Place 1.
+                    // So, we stall for a few seconds to make sure.
+                    Runtime.println(p2+" about to stall...");
+                    System.sleep(3000);
+                    good_dec();
+                    Runtime.println("good bye from "+p2);
+               }
+               Runtime.println("Executing in Place 1 after it is dead");
+               bad_inc();
             }
 	        
+            Runtime.println("Executing non exceptional control flow in Place 0");
             bad_inc();
-            Runtime.println("End of finish loop (should not happen due to exception)");
 	        
         } catch (e:MultipleExceptions) {
-	    
             val dpes = e.getExceptionsOfType[DeadPlaceException]();
             assert dpes.size >= 1;
             for (dpe in dpes) {
                 assert dpe.place == p1 : dpe.place;
             }
-
             good_dec();
         }
 	    
+        Runtime.println(p0+" is continuing; this should be _after_ the 'good bye' from "+p2);
+
         good_dec();
+
 	    
         if (bad_counter() == 0 && good_counter() == 0) return true;
         else return false;
     }
 
     public static def main(Rail[String]) {
-	    new TestNestedFinishMiddleFailSync().execute();
+	    new TestNestedMiddleFail2().execute();
     }
 }

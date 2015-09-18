@@ -178,8 +178,8 @@ class FinishResilientPlace0 extends FinishResilient {
     def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
         return notifyActivityCreationBlocking(srcPlace, activity, ASYNC);
     }
-    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreationBlocking(srcPlace, activity, AT);
+    def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+        return notifyActivityCreationBlocking(srcPlace, null, AT);
     }
     def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity, kind:long):Boolean {
         val srcId = srcPlace.id; 

@@ -103,9 +103,9 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     f.notifySubActivitySpawn(dstPlace, 0);
   }
 
-  public def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+  public def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
     init();
-    return f.notifyActivityCreation(srcPlace, activity, 0);
+    return f.notifyActivityCreation(srcPlace, null, 0);
   }
 
   public def notifyShiftedActivityCompletion():void {

@@ -16,11 +16,12 @@ import x10.xrx.Runtime;
 // RESILIENT_X10_ONLY
 
 /**
- * Test nested finish middle fail sync (at second place in three places) handled correctly
+ * Test nested at middle fail sync (at second place in three places) 
+ * handled correctly.
  * 
  * @author Murata 10/2014
  */
-public class TestNestedFinishMiddleFailSync extends x10Test  {
+public class TestNestedMiddleFailSync extends x10Test  {
 
     static val bad_counter = new Cell[Long](0);
     static val good_counter = new Cell[Long](6);
@@ -54,32 +55,26 @@ public class TestNestedFinishMiddleFailSync extends x10Test  {
 
         try {
 	    
-            finish {
-                at (p1) {
+            at (p1) {
+                good_dec();
+                at (p2) {
                     good_dec();
-                    finish {
-                        at (p2) {
-                            good_dec();
-                            System.sleep(1000);
-                            good_dec();
-                        }
+                    System.sleep(1000);
+                    good_dec();
+                    at (p1) {
                         good_dec();
                         System.killHere();
+                        bad_inc();
                     }
+                    bad_inc();
                 }
+                bad_inc();
             }
 	        
             bad_inc();
-            Runtime.println("End of finish loop (should not happen due to exception)");
+            Runtime.println("Should not reach here due to dead place exception)");
 	        
-        } catch (e:MultipleExceptions) {
-	    
-            val dpes = e.getExceptionsOfType[DeadPlaceException]();
-            assert dpes.size >= 1;
-            for (dpe in dpes) {
-                assert dpe.place == p1 : dpe.place;
-            }
-
+        } catch (e:DeadPlaceException) {
             good_dec();
         }
 	    
@@ -90,6 +85,6 @@ public class TestNestedFinishMiddleFailSync extends x10Test  {
     }
 
     public static def main(Rail[String]) {
-	    new TestNestedFinishMiddleFailSync().execute();
+	    new TestNestedMiddleFailSync().execute();
     }
 }

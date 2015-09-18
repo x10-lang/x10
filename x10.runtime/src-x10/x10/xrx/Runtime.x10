@@ -849,62 +849,67 @@ public final class Runtime {
             }
         }
 
-        // Carefully manipulate the finishState, etc. so that 
-        // any asyncs spawned by body are governed by the current finishState
-        // not the finishState of the finish we create intenally here to
-        // enable blocking on the completion of remote execution of body
-        val srcPlace = here;
-        val realActivity = activity();
-        val finishState = realActivity.finishState();
-        val clockPhases = realActivity.clockPhases;
         val ser = new x10.io.Serializer();
         ser.writeAny(body);
         val bytes = ser.toRail();
 
-        finishState.notifyShiftedActivitySpawn(place);
+        val srcPlace = here;
+        val realActivity = activity();
+        val atFSParent = realActivity.atFinishState();
+        val clockPhases = realActivity.clockPhases;
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
-        try {
-	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    try {
-                        // Actually deserialize and evaluate user body
-                        val deser = new x10.io.Deserializer(bytes);
-                        val bodyPrime = deser.readAny() as ()=>void;
-                        bodyPrime();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
 
-                    // Wind up internal activity created for synchronization
-                    try {
-                        activity().swapFinish(syncFinishState);
+        val atFS = makeDefaultFinish(atFSParent);
+        val asyncFS = realActivity.swapFinish(atFS);
 
-                        // Transmit potentially modified clockPhases back to srcPlace.
-                        val finalClockPhases = activity().clockPhases;
-                        activity().clockPhases = null;
-                        if (finalClockPhases != null) {
-                            @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
+        asyncFS.notifyShiftedActivitySpawn(place); // See APGAS/Async/AsyncNext.x10
+        @x10.compiler.Profile(prof) at(place) async {
+            if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
+                activity().clockPhases = clockPhases;
+                val localFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(atFS);   // Chaining for an "at" within bodyPrime.
+                var exc:CheckedThrowable = null;
+                try {
+                    // Deserialize and execute user body
+                    val deser = new x10.io.Deserializer(bytes);
+                    val bodyPrime = deser.readAny() as ()=>void;
+                    bodyPrime();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
+
+                activity().swapFinish(localFS);
+                 
+                // If we have clocks, disassociate this activity from them
+                // and update the clock state of the remote activity.
+                try {
+                    val finalClockPhases = activity().clockPhases;
+                    activity().clockPhases = null;
+                    if (finalClockPhases != null) {
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (e:CheckedThrowable) {
-                        // Suppress exceptions during windup of internal activity.
-                        // Should not be user-visible.
-                    } finally {
-                        finishState.notifyShiftedActivityCompletion();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (e:CheckedThrowable) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
+                } finally {
+                    if (exc != null) atFS.pushException(exc);
+                    asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+        }
+
+        // wait for the place-shifted activity created by the async above to terminate
+        try {
+            realActivity.swapFinish(asyncFS);
+            atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
-            // Peel off the layer of ME wrapping caused by the internal finish above.
+            // Peel off the layer of ME wrapping injected by waitForFinish
             if (e.exceptions != null) {
                 if (e.exceptions.size == 1) {
                     throwCheckedWithoutThrows(e.exceptions(0));
@@ -1085,76 +1090,78 @@ public final class Runtime {
             }
         }
 
-        // Carefully manipulate the finishState, etc. so that 
-        // any asyncs spawned by eval are governed by the current finishState
-        // not the finishState of the finish we create intenally here to
-        // enable blocking on the completion of remote execution of eval
-        val srcPlace = here;
-        val realActivity = activity();
-        val finishState = realActivity.finishState();
-        val clockPhases = realActivity.clockPhases;
         val ser = new x10.io.Serializer();
         ser.writeAny(eval);
         val bytes = ser.toRail();
-        val resultCell = new Cell[Any](null);
 
-        finishState.notifyShiftedActivitySpawn(place);
+        val srcPlace = here;
+        val realActivity = activity();
+        val atFSParent = realActivity.atFinishState();
+        val clockPhases = realActivity.clockPhases;
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
-        val resultCellGR = GlobalRef[Cell[Any]](resultCell);
-        try {
-	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    var resBytes:Rail[Byte] = null;
-                    try {
-                        // Actually deserialize and evaluate user eval closure
-                        val deser = new x10.io.Deserializer(bytes);
-                        val evalPrime = deser.readAny() as ()=>Any;
-                        val res = evalPrime();
-                        val ser2 = new x10.io.Serializer();
-                        ser2.writeAny(res);
-                        resBytes = ser2.toRail();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
+        val resultCell = new Cell[Rail[Byte]](null);
+        val resultCellGR = GlobalRef[Cell[Rail[Byte]]](resultCell);
 
-                    // Wind up internal activity created for synchronization
-                    activity().swapFinish(syncFinishState);
+        val atFS = makeDefaultFinish(atFSParent);
+        val asyncFS = realActivity.swapFinish(atFS);
 
-                    // Transmit result and potentially modified clockPhases back to srcPlace.
+        asyncFS.notifyShiftedActivitySpawn(place);
+        @x10.compiler.Profile(prof) at(place) async {
+            if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
+                activity().clockPhases = clockPhases;
+                val localFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(atFS);   // Chaining for an "at" within bodyPrime.
+                var resBytes:Rail[Byte] = null;
+                var exc:CheckedThrowable = null;
+                try {
+                    // Deserialize and execute user body
+                    val deser = new x10.io.Deserializer(bytes);
+                    val evalPrime = deser.readAny() as ()=>Any;
+                    val res = evalPrime();
+                    val ser2 = new x10.io.Serializer();
+                    ser2.writeAny(res);
+                    resBytes = ser2.toRail();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
+
+                activity().swapFinish(localFS);
+
+                // If we have clocks, disassociate this activity from them
+                // and update the clock state of the remote activity.
+                // Transmit the result (if we have one) back to the originating place.
+                try {
                     val finalClockPhases = activity().clockPhases;
                     activity().clockPhases = null;
                     val resBytes2 = resBytes;
-                    try {
-                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                            if (finalClockPhases != null) {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
-                            if (resBytes2 != null) {
-                                val deser2 = new x10.io.Deserializer(resBytes2);
-                                resultCellGR().set(deser2.readAny());
-                            }
+                    @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                        if (finalClockPhases != null) {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (me:MultipleExceptions) {
-                        if (me.exceptions != null && me.exceptions.size == 1) {
-                            syncFinishState.pushException(me.exceptions(0));
-                        } else {
-                            syncFinishState.pushException(me);
+                        if (resBytes2 != null) {
+                            resultCellGR().set(resBytes2);
                         }
-                    } finally {
-                        finishState.notifyShiftedActivityCompletion();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (me:MultipleExceptions) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
+                } finally {
+                    if (exc != null) atFS.pushException(exc);
+                    asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+        }
+
+        // wait for the place-shifted activity created by the async above to terminate
+        try {
+            realActivity.swapFinish(asyncFS);
+            atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
-            // Peel off the layer of ME wrapping caused by the internal finish above.
+            // Peel off the layer of ME wrapping injected by waitForFinish
             if (e.exceptions != null) {
                 if (e.exceptions.size == 1) {
                     throwCheckedWithoutThrows(e.exceptions(0));
@@ -1177,10 +1184,11 @@ public final class Runtime {
            realActivityGR.forget();
            resultCellGR.forget();
         }
-    
+
         // If we get here, the remote evaluation finished normally and we can
-        // return the result of the evaluation from resultCell.
-        return resultCell();
+        // return the result of the evaluation by deserialzing resultCell's Rail[Byte]
+        val deser = new x10.io.Deserializer(resultCell());
+        return deser.readAny();
     }
 
 
@@ -1334,6 +1342,14 @@ public final class Runtime {
             return new FinishState.Finish();
         } else {
             return FinishResilient.make(null/*parent*/, null/*latch*/);
+        }
+    }
+
+    static def makeDefaultFinish(parent:FinishState):FinishState {
+        if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
+            return new FinishState.Finish();
+        } else {
+            return FinishResilient.make(parent, null/*latch*/);
         }
     }
 

@@ -23,7 +23,16 @@ public class Activity {
     private static def canDealloc():Boolean = true;  // sigh. Block constant propagation.
 
     /**
-     * the finish state governing the execution of this activity (may be remote)
+     * The finish state that should be used as the parent
+     * of the internal finish created when this activity
+     * synchronously place shifts to another place via an 'at'.
+     *
+     * @see Runtime.runAt
+     */
+    private var atFinishState:FinishState;
+
+    /**
+     * the finish state primarily governing the execution of this activity (may be remote)
      */
     private var finishState:FinishState;
 
@@ -38,6 +47,9 @@ public class Activity {
      */
     var clockPhases:Clock.ClockPhases;
 
+    /**
+     * The epoch to which this activity belongs (Cancellation support)
+     */
     public var epoch:Long;
 
     /**
@@ -45,24 +57,14 @@ public class Activity {
      */
     private var atomicDepth:Int = 0n;
 
-    /** Set to true unless this activity represents the body of an 'at' statement.
-     */
-    val shouldNotifyTermination:Boolean;
-
     /**
      * Create activity.
      */
     def this(epoch:Long, body:()=>void, finishState:FinishState) {
-        this(epoch, body, finishState, true);
-    }
-    // TODO: This constructor is only used by ResilientFinish.runAt.
-    //       Once that code is restructured to use @Immediate, it is likely we can
-    //       get rid of the shouldNotifyTermination flag.
-    def this(epoch:Long, body:()=>void, finishState:FinishState, nt:Boolean) {
         this.epoch = epoch;
-        this.finishState = finishState;
-        this.shouldNotifyTermination = nt;
         this.body = body;
+        this.atFinishState = finishState;
+        this.finishState = finishState;
     }
 
     /**
@@ -84,12 +86,27 @@ public class Activity {
     }
 
     /**
-     * Return the innermost finish state
+     * Return the innermost finish state that governs my spawned asyncs
      */
     public def finishState():FinishState = finishState;
 
     /**
-     * Enter finish block
+     * Return the finish state that should be used internally for at 
+     */
+    def atFinishState():FinishState = atFinishState;
+
+    /**
+     * set the finish state that governs place shifting
+     * @see Runtime.runAt
+     */
+    def setAtFinish(f:FinishState):void {
+        atFinishState = f;
+    }
+
+    /**
+     * Swap the finish state that governs my spawned asyncs
+     * and my dynamic execution.
+     * Typical usage: entering/exiting a finish block.
      */
     def swapFinish(f:FinishState) {
         val old = finishState;
@@ -124,11 +141,9 @@ public class Activity {
             finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();
-        if (shouldNotifyTermination) {
-            try {
-                finishState.notifyActivityTermination();
-            } catch (DeadPlaceException) {}
-        }
+        try {
+            finishState.notifyActivityTermination();
+        } catch (DeadPlaceException) {}
         if (DEALLOC_BODY) Unsafe.dealloc(body);
     }
 }

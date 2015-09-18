@@ -338,8 +338,8 @@ class FinishResilientHC extends FinishResilientBridge {
     }
 
     public
-    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity, AT);
+    def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+        return notifyActivityCreation(srcPlace, null, AT);
     }
 
     public 

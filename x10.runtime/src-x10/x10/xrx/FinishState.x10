@@ -107,16 +107,11 @@ abstract class FinishState {
      * the XRX Pool for execution. If this method returns false, the activity
      * should not be submitted. 
      * 
-     * Machinations: activity may actually be null when the XRX runtime
-     *               is calling this method to simulate the stages in the
-     *               Activity life-cycles from lowlevel code (eg implementation
-     *               of at or asyncCopy).
-     *
      * Scheduling note: This variant may not be called on @Immediate worker.
      *                  Therefore this variant is allowed to block/pause.
      */
-    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreationBlocking(srcPlace, activity);
+    def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+        return notifyActivityCreationBlocking(srcPlace, null);
     }
 
 
