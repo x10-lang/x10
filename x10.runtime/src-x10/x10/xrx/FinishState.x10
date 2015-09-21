@@ -612,11 +612,11 @@ abstract class FinishState {
             latch.unlock();
             latch.release();
         }
-        public def process(t:CheckedThrowable):void {
+        protected def process(t:CheckedThrowable):void {
             if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
         }
-        public def process(excs:Rail[CheckedThrowable]):void {
+        protected def process(excs:Rail[CheckedThrowable]):void {
             for (e in excs) {
                 process(e);
             }
