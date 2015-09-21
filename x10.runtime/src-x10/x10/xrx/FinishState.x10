@@ -43,7 +43,6 @@ abstract class FinishState {
      */
     abstract def notifySubActivitySpawn(dstPlace:Place):void;
 
-
     /**
      * Called by an activity running at the current Place when it
      * is "shifting" execution to the dstPlace bacause of an 'at'.
@@ -51,9 +50,7 @@ abstract class FinishState {
      * Scheduling note: Will only be called on a full-fledged worker thread;
      *                  this method is allowed to block/pause.
      */
-    def notifyShiftedActivitySpawn(dstPlace:Place):void {
-        notifySubActivitySpawn(dstPlace);
-    }
+    abstract def notifyShiftedActivitySpawn(dstPlace:Place):void;
 
     /**
      * Called by an activity running at the current Place when it
@@ -83,37 +80,16 @@ abstract class FinishState {
      */
     abstract def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
 
-
     /**
-     * Called at the Place at which the argument activity will execute.
-     * If this method returns true, the activity should be submitted to
-     * the XRX Pool for execution. If this method returns false, the activity
-     * should not be submitted. 
-     * 
-     * Machinations: activity may actually be null when the XRX runtime
-     *               is calling this method to simulate the stages in the
-     *               Activity life-cycles from lowlevel code (eg implementation
-     *               of at or asyncCopy).
-     *
-     * Scheduling note: This variant may not be called on @Immediate worker.
-     *                  Therefore this variant is allowed to block/pause.
-     */
-    abstract def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
-
-
-    /**
-     * Called at the Place at which the argument activity will execute.
-     * If this method returns true, the activity should be submitted to
-     * the XRX Pool for execution. If this method returns false, the activity
-     * should not be submitted. 
+     * Called at the Place at which the shifted activity will continue 
+     * its execution. If this method returns true, the shifted activity 
+     * should begin executing the user-level work. If this method returns 
+     * false, the user-level work should not be performed.
      * 
      * Scheduling note: This variant may not be called on @Immediate worker.
      *                  Therefore this variant is allowed to block/pause.
      */
-    def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
-        return notifyActivityCreationBlocking(srcPlace, null);
-    }
-
+    abstract def notifyShiftedActivityCreation(srcPlace:Place):Boolean;
 
     /**
      * Called at the Place where activity creation failed to indicate
@@ -136,7 +112,6 @@ abstract class FinishState {
      */
     abstract def notifyActivityCreatedAndTerminated(srcPlace:Place):void; 
 
-
     /**
      * Called to indicate that the currently executing activity 
      * has terminated successfully.
@@ -154,10 +129,7 @@ abstract class FinishState {
      * Scheduling note: Will only be called on a full-fledged worker thread;
      *                  this method is allowed to block/pause.
      */
-    def notifyShiftedActivityCompletion():void {
-        notifyActivityTermination();
-    }
-
+    abstract def notifyShiftedActivityCompletion():void;
 
     /**
      * Called to record the CheckedThrowable which caused the currently executing 
@@ -188,11 +160,16 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
+        public def notifyShiftedActivitySpawn(dstPlace:Place):void {
+            throw new IllegalOperationException("Cannot create shifted activity under a LocalFinish");
+        }
         public def notifyRemoteContinuationCreated():void { 
             throw new IllegalOperationException("Cannot create remote continution under a LocalFinish");
         }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyShiftedActivityCreation(srcPlace:Place):boolean {
+            throw new IllegalOperationException("Cannot create shifted activity under a LocalFinish");
+        }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
             notifyActivityTermination();
@@ -202,6 +179,9 @@ abstract class FinishState {
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
+        }
+        public def notifyShiftedActivityCompletion():void {
+            throw new IllegalOperationException("Cannot create shifted activity under a LocalFinish");
         }
         public def pushException(t:CheckedThrowable) {
             latch.lock();
@@ -243,6 +223,9 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
+        public def notifyShiftedActivitySpawn(place:Place) {
+            throw new IllegalOperationException("Cannot create shifted activity under a SPMD Finish");
+        }
         public def notifyRemoteContinuationCreated():void { } // no-op for this finish
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
@@ -253,6 +236,9 @@ abstract class FinishState {
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0n) latch.release();
+        }
+        public def notifyShiftedActivityCompletion() {
+            throw new IllegalOperationException("Cannot create shifted activity under a SPMD Finish");
         }
         public def pushException(t:CheckedThrowable) {
             latch.lock();
@@ -280,9 +266,14 @@ abstract class FinishState {
             assert place.id == Runtime.hereLong();
             count.getAndIncrement();
         }
+        public def notifyShiftedActivitySpawn(place:Place) {
+            throw new IllegalOperationException("Cannot create shifted activity under a SPMD Finish");
+        }
         public def notifyRemoteContinuationCreated():void { } // no-op for this finish
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyShiftedActivityCreation(place:Place):boolean {
+            throw new IllegalOperationException("Cannot create shifted activity under a SPMD Finish");
+        }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
             notifyActivityTermination();
@@ -308,6 +299,9 @@ abstract class FinishState {
                     };
                 }
             }
+        }
+        public def notifyShiftedActivityCompletion() {
+            throw new IllegalOperationException("Cannot create shifted activity under a SPMD Finish");
         }
         public def pushException(t:CheckedThrowable) {
             lock.lock();
@@ -339,6 +333,9 @@ abstract class FinishState {
         @Embed protected val latch = @Embed new SimpleLatch();
         protected var exception:CheckedThrowable = null;
         public def notifySubActivitySpawn(place:Place):void {}
+        public def notifyShiftedActivitySpawn(place:Place):void {
+            throw new IllegalOperationException("Cannot create shifted activity under a FinishAsync");
+        }
         public def notifyRemoteContinuationCreated():void { } // no-op for this finish
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             pushException(t);
@@ -349,6 +346,9 @@ abstract class FinishState {
         }
         public def notifyActivityTermination():void {
             latch.release();
+        }
+        public def notifyShiftedActivityCompletion():void {
+            throw new IllegalOperationException("Cannot create shifted activity under a FinishAsync");
         }
         public def pushException(t:CheckedThrowable):void {
             exception = t;
@@ -366,7 +366,9 @@ abstract class FinishState {
             super(ref);
         }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyShiftedActivityCreation(place:Place):boolean {
+            throw new IllegalOperationException("Cannot create shifted activity under a FinishAsync");
+        }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             exception = t;
             notifyActivityTermination();
@@ -375,6 +377,9 @@ abstract class FinishState {
             notifyActivityTermination();
         }
         public def notifySubActivitySpawn(place:Place):void {}
+        public def notifyShiftedActivitySpawn(place:Place):void {
+            throw new IllegalOperationException("Cannot create shifted activity under a FinishAsync");
+        }
         public def notifyRemoteContinuationCreated():void { } // no-op for this finish
         public def pushException(t:CheckedThrowable):void {
             exception = t;
@@ -392,6 +397,9 @@ abstract class FinishState {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
+        }
+        public def notifyShiftedActivityCompletion():void {
+            throw new IllegalOperationException("Cannot create shifted activity under a FinishAsync");
         }
     }
 
@@ -416,9 +424,10 @@ abstract class FinishState {
     // a pseudo finish used to implement @Uncounted async
     static class UncountedFinish extends FinishState {
         public def notifySubActivitySpawn(place:Place) {}
+        public def notifyShiftedActivitySpawn(place:Place) {}
         public def notifyRemoteContinuationCreated():void { } // no-op for this finish
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true; 
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyShiftedActivityCreation(srcPlace:Place) = true; 
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             if (!Configuration.silenceInternalWarnings()) {
                 Runtime.println("Uncaught exception in uncounted activity");
@@ -427,6 +436,7 @@ abstract class FinishState {
         }
         public def notifyActivityCreatedAndTerminated(srcPlace:Place) {}
         public def notifyActivityTermination() {}
+        public def notifyShiftedActivityCompletion() {}
         public def pushException(t:CheckedThrowable) {
             if (!Configuration.silenceInternalWarnings()) {
                 Runtime.println("Uncaught exception in uncounted activity");
@@ -481,7 +491,7 @@ abstract class FinishState {
         private val xxxx = GlobalRef[FinishState](this);
         def ref() = xxxx;
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) = true;
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) = true;
+        public def notifyShiftedActivityCreation(srcPlace:Place) = true;
         public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
             notifyActivityTermination();
         }
@@ -513,12 +523,13 @@ abstract class FinishState {
             s.writeAny(ref);
         }
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
+        public def notifyShiftedActivitySpawn(place:Place) { me.notifyShiftedActivitySpawn(place); }
         public def notifyRemoteContinuationCreated():void { me.notifyRemoteContinuationCreated(); }
         public def notifyActivityCreation(srcPlace:Place, activity:Activity) { 
             return me.notifyActivityCreation(srcPlace, activity); 
         }
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity) { 
-            return me.notifyActivityCreationBlocking(srcPlace, activity); 
+        public def notifyShiftedActivityCreation(srcPlace:Place) { 
+            return me.notifyShiftedActivityCreation(srcPlace); 
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             me.notifyActivityCreationFailed(srcPlace, t); 
@@ -527,6 +538,7 @@ abstract class FinishState {
             me.notifyActivityCreatedAndTerminated(srcPlace);
         }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
+        public def notifyShiftedActivityCompletion() { me.notifyShiftedActivityCompletion(); }
         public def pushException(t:CheckedThrowable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
     }
@@ -586,6 +598,9 @@ abstract class FinishState {
             remoteActivities.put(p.id, remoteActivities.getOrElse(p.id, 0n)+1n);
             latch.unlock();
         }
+        public def notifyShiftedActivitySpawn(place:Place):void {
+            notifySubActivitySpawn(place);
+        }
         public def notifyRemoteContinuationCreated():void {
             latch.lock();
             ensureRemoteActivities();
@@ -612,6 +627,10 @@ abstract class FinishState {
             latch.unlock();
             latch.release();
         }
+        public def notifyShiftedActivityCompletion() {
+            notifyActivityTermination();
+        }
+
         protected def process(t:CheckedThrowable):void {
             if (null == exceptions) exceptions = new GrowableRail[CheckedThrowable]();
             exceptions.add(t);
@@ -736,8 +755,8 @@ abstract class FinishState {
             local.getAndIncrement();
             return true;
         }
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-            return notifyActivityCreation(srcPlace, activity);
+        public def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+            return notifyActivityCreation(srcPlace, null);
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             notifyActivityCreation(srcPlace, null);
@@ -760,6 +779,9 @@ abstract class FinishState {
             val old = remoteActivities.getOrElse(place.id, 0n);
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
+        }
+        public def notifyShiftedActivitySpawn(place:Place):void {
+            notifySubActivitySpawn(place);
         }
         public def pushException(t:CheckedThrowable):void {
             lock.lock();
@@ -801,6 +823,9 @@ abstract class FinishState {
                     at(ref.home) @Immediate("notifyActivityTermination_4") async deref[RootFinish](ref).notify(message);
                 }
             }
+        }
+        public def notifyShiftedActivityCompletion() {
+            notifyActivityTermination();
         }
     }
 
@@ -846,8 +871,8 @@ abstract class FinishState {
             local.getAndIncrement();
             return true;
         }
-        public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-            return notifyActivityCreation(srcPlace, activity);
+        public def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+            return notifyActivityCreation(srcPlace, null);
         }
         public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
             notifyActivityCreation(srcPlace, null);
@@ -870,6 +895,9 @@ abstract class FinishState {
             val old = remoteActivities.getOrElse(place.id, 0n);
             remoteActivities.put(place.id, old+1n);
             lock.unlock();
+        }
+        public def notifyShiftedActivitySpawn(place:Place):void {
+            notifySubActivitySpawn(place);
         }
         public def pushException(t:CheckedThrowable):void {
             lock.lock();
@@ -921,6 +949,9 @@ abstract class FinishState {
                 }
             }
             Unsafe.dealloc(closure);
+        }
+        public def notifyShiftedActivityCompletion() {
+            notifyActivityTermination();
         }
     }
 

@@ -48,11 +48,13 @@ abstract class FinishResilient extends FinishState {
      * Other methods to be implemented in subclasses (declared in FinishState class)
      */
     // def notifySubActivitySpawn(place:Place):void;
+    // def notifyShiftedActivitySpawn(place:Place):void;
     // def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
-    // def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
+    // def notifyShiftedActivityCreation(srcPlace:Place):Boolean;
     // def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void;
     // def notifyActivityCreatedAndTerminated(srcPlace:Place):void;
     // def notifyActivityTermination():void;
+    // def notifyShiftedActivityTermination():void;
     // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
 
@@ -102,14 +104,6 @@ abstract class FinishResilient extends FinishState {
             fs = FinishResilientPlace0opt.make(p, l);
             break;
         }
-        case Configuration.RESILIENT_MODE_SAMPLE:
-        case Configuration.RESILIENT_MODE_SAMPLE_HC:
-        {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientSample.make(p, l);
-            break;
-        }
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
@@ -142,10 +136,6 @@ abstract class FinishResilient extends FinishState {
             break;
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
             FinishResilientPlace0opt.notifyPlaceDeath();
-            break;
-        case Configuration.RESILIENT_MODE_SAMPLE:
-        case Configuration.RESILIENT_MODE_SAMPLE_HC:
-            FinishResilientSample.notifyPlaceDeath();
             break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);

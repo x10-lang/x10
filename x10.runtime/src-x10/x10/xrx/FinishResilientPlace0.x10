@@ -175,18 +175,13 @@ class FinishResilientPlace0 extends FinishResilient {
         return false;                
     }
 
-    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreationBlocking(srcPlace, activity, ASYNC);
-    }
     def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
-        return notifyActivityCreationBlocking(srcPlace, null, AT);
-    }
-    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity, kind:long):Boolean {
+        val kind = AT;
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
+        if (verbose>=1) debug(">>>> notifyShiftedActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         if (srcPlace.isDead()) {
-            if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
+            if (verbose>=1) debug("<<<< notifyShiftedActivityCreation(id="+id+") returning false");
             return false;
         }
 

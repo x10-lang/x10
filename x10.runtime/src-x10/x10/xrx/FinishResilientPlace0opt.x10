@@ -229,9 +229,6 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
         return notifyActivityCreation(srcPlace, activity, false/*non-blocking*/, ASYNC);
     }
-    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity, true/*blocking*/, ASYNC);
-    }
     def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
         return notifyActivityCreation(srcPlace, null, true/*blocking*/, AT);
     }

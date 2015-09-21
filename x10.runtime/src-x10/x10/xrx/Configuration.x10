@@ -112,8 +112,6 @@ final class Configuration {
     // The modes below are under development and not yet complete.
     static val RESILIENT_MODE_PLACE0_OPTIMIZED = 21n; // FinishResilientPlace0opt
     static val RESILIENT_MODE_HC_OPTIMIZED     = 22n; // FinishResilientHCopt
-    static val RESILIENT_MODE_SAMPLE      = 91n; // FinishResilientSample + ResilientStorePlace0
-    static val RESILIENT_MODE_SAMPLE_HC   = 92n; // FinishResilientSample + ResilientStoreHC
 
     static def resilient_mode():Int { // called from Runtime.x10
         var v:Int = RESILIENT_MODE_NONE;

@@ -333,11 +333,6 @@ class FinishResilientHC extends FinishResilientBridge {
     }
     
     public
-    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity, ASYNC);
-    }
-
-    public
     def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
         return notifyActivityCreation(srcPlace, null, AT);
     }

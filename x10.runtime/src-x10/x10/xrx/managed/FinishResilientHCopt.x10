@@ -84,10 +84,6 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     return srcPlace.equals(here) || f.notifyActivityCreation(srcPlace, activity);
   }
 
-  public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-    return notifyActivityCreation(srcPlace, activity);
-  }
-
   public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
     init();
     f.notifyActivityCreationFailed(srcPlace, t);
@@ -100,17 +96,17 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
 
   public def notifyShiftedActivitySpawn(dstPlace:Place):void {
     init();
-    f.notifySubActivitySpawn(dstPlace, 0);
+    f.notifyShiftedActivitySpawn(dstPlace);
   }
 
   public def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
     init();
-    return f.notifyActivityCreation(srcPlace, null, 0);
+    return f.notifyShiftedActivityCreation(srcPlace);
   }
 
   public def notifyShiftedActivityCompletion():void {
     init();
-    f.notifyActivityTermination(0);
+    f.notifyShiftedActivityCompletion();
   }
 
   public def notifyActivityTermination():void {
