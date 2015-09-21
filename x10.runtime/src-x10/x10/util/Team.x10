@@ -31,7 +31,8 @@ import x10.xrx.Runtime;
 public struct Team {
     private static struct DoubleIdx(value:Double, idx:Int) {}
     private static val DEBUG:Boolean = false;
-    private static val DEBUGINTERNALS:Boolean = false;
+    private static val DEBUGINTERNALS:Boolean = (System.getenv("X10_TEAM_DEBUG_INTERNALS") != null 
+    		&& System.getenv("X10_TEAM_DEBUG_INTERNALS").equals("1"));
 
     /** A team that has one member at each place. */
     public static val WORLD = Team(0n, Place.places(), here.id());
@@ -241,7 +242,8 @@ public struct Team {
      * Each member receives a contiguous and distinct portion of the src array.
      * src should be structured so that the portions are sorted in ascending
      * order, e.g., the first member gets the portion at offset src_off of sbuf, and the
-     * last member gets the last portion.
+     * last member gets the last portion. 
+     * TODO: not supported for Java or PAMI
      * 
      * @param root The member who is supplying the data
      * 
@@ -258,41 +260,35 @@ public struct Team {
      */
     public def scatterv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, scounts:Rail[Int]) : void {
         if (CompilerFlags.checkBounds() && here == root) {
-            var scounts_sum:Long = 0;
-            for (i in 0..(scounts.size-1))
-                scounts_sum += scounts(i);
+            val scounts_sum = RailUtils.reduce(scounts, (a:Int, b:Int)=>a+b, 0n);
             checkBounds(src_off + scounts_sum -1, src.size);
         }
-        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex;
+        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex as Int;
         val dst_count = scounts(my_role);
         checkBounds(dst_off+dst_count-1, dst.size);
+        
+        val soffsets = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)?
+        		RailUtils.scanLeft(scounts, (x:Int, y:Int) => x+y, src_off as Int):
+        		RailUtils.scanLeft(scounts, (x:Int, y:Int) => x+y, 0n);
+        		
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
+    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, soffsets, dst, dst_off as Int);
     	else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
     		barrier();
-    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, dst, dst_off as Int);
+    		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, soffsets, dst, dst_off as Int);
     	}
     	else{
-    		val soffsets = new Rail[Int](scounts.size);
-            soffsets(0) = 0n;
-    		for (y in 1..(scounts.size-1))
-                soffsets(y) = soffsets(y-1) + scounts(y-1);
     		state(id).collective_impl[T](LocalTeamState.COLL_SCATTERV, root, src, src_off, dst, dst_off, 0n, 0n, soffsets, scounts);
     	}
     }
     
-    //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeScatterv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, scounts:Rail[Int], dst:Rail[T], dst_off:Int) : void {
-        val soffsets = new Rail[Int](scounts.size);
-        soffsets(0) = src_off;
-        for (y in 1..(scounts.size-1)){
-        	soffsets(y) = soffsets(y-1) + scounts(y-1); 
-        }
+    //TODO: not supported for Java or PAMI
+    private static def nativeScatterv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, scounts:Rail[Int], soffsets:Rail[Int], dst:Rail[T], dst_off:Int) : void {        
     	//@Native("java", "x10.x10rt.TeamSupport.nativeScatterv(id, role, root, ...);")
     	@Native("c++", "x10rt_scatterv(id, role, root, src->raw, soffsets->raw, scounts->raw, &dst->raw[dst_off], scounts->raw[role], sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
-    
+    //TODO: not supported for Java or PAMI
     public def gather[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, count:Long) : void {
         if (CompilerFlags.checkBounds() && here == root) checkBounds(dst_off + (size() * count) -1, dst.size);
         checkBounds(src_off+count-1, src.size); 
@@ -306,13 +302,14 @@ public struct Team {
             state(id).collective_impl[T](LocalTeamState.COLL_GATHER, root, src, src_off, dst, dst_off, count, 0n, null, null);
     }
     
-    //TODO: implement the native calls for gather in Java and PAMI
+    //TODO: not supported for Java or PAMI
     private static def nativeGather[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int) : void {
         //@Native("java", "x10.x10rt.TeamSupport.nativeGather(id, role, root, src, src_off, dst, dst_off, count);")
         @Native("c++", "x10rt_gather(id, role, root, &src->raw[src_off], &dst->raw[dst_off], sizeof(TPMGL(T)), count, ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
     
     /** Blocks until all members send part of their data to the root's array.
+     * //TODO: not supported for Java or PAMI
      * 
      * @param root The member who is supplying the data
      * 
@@ -328,36 +325,30 @@ public struct Team {
      */
     public def gatherv[T] (root:Place, src:Rail[T], src_off:Long, dst:Rail[T], dst_off:Long, dcounts:Rail[Int]) : void {
         if (CompilerFlags.checkBounds() && here == root) {
-            var dcounts_sum:Long = 0;
-            for (i in 0..(dcounts.size-1))
-                dcounts_sum += dcounts(i);
+            val dcounts_sum = RailUtils.reduce(dcounts, (a:Int, b:Int)=>a+b, 0n);
             checkBounds(dst_off + dcounts_sum -1, dst.size);
         }
-        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex;
+        val my_role = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)? (id==0n?here.id() as Int:Team.roles(id)) : state(id).myIndex as Int;
         val src_count = dcounts(my_role);
         checkBounds(src_off+src_count-1, src.size);
+
+        val doffsets = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)?
+        		            RailUtils.scanLeft(dcounts, (x:Int, y:Int) => x+y, dst_off as Int):
+        			        RailUtils.scanLeft(dcounts, (x:Int, y:Int) => x+y, 0n);
+
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
-            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts, doffsets);
         else if (collectiveSupportLevel == X10RT_COLL_ALLBLOCKINGCOLLECTIVES || collectiveSupportLevel == X10RT_COLL_NONBLOCKINGBARRIER) {
             barrier();
-            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts);
+            finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts, doffsets);
         }
         else{
-            val doffsets = new Rail[Int](dcounts.size);
-            doffsets(0) = 0n;
-            for (y in 1..(dcounts.size-1))
-                doffsets(y) = doffsets(y-1) + dcounts(y-1);
             state(id).collective_impl[T](LocalTeamState.COLL_GATHERV, root, src, src_off, dst, dst_off, 0n, 0n, doffsets, dcounts);
         }
     }
     
-    //TODO: implement the native calls for scatterv in Java and PAMI
-    private static def nativeGatherv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, dcounts:Rail[Int]) : void {
-        val doffsets = new Rail[Int](dcounts.size);
-        doffsets(0) = dst_off;
-        for (y in 1..(dcounts.size-1)){
-            doffsets(y) = doffsets(y-1) + dcounts(y-1); 
-        }
+    //TODO: not supported for Java or PAMI
+    private static def nativeGatherv[T] (id:Int, role:Int, root:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, dcounts:Rail[Int], doffsets:Rail[Int]) : void {
        //@Native("java", "x10.x10rt.TeamSupport.nativeGatherv(id, role, root, ...);")
        @Native("c++", "x10rt_gatherv(id, role, root, &src->raw[src_off], dcounts->raw[role], dst->raw, doffsets->raw, dcounts->raw, sizeof(TPMGL(T)), ::x10aux::coll_handler, ::x10aux::coll_enter());") {}
     }
@@ -1439,13 +1430,15 @@ public struct Team {
 	        
 	            if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
 	                // root scatters own data direct from src to dst
-	                val coll_name = (collType == COLL_SCATTER)? "scatter":"scatterv";
 	                val temp_off_my_data = (myLinks.parentIndex == -1) ? (src_off + local_offset) : 0;
 	                val temp_count = local_count;
-	                if (DEBUGINTERNALS) Runtime.println(here+ " " + coll_name + " " +count + " from local_temp_buff " + temp_off_my_data + " to dst");
+	                if (DEBUGINTERNALS){
+	                	val coll_name = (collType == COLL_SCATTER)? "scatter":"scatterv";
+	                	Runtime.println(here+ " " + coll_name + " " +count + " from local_temp_buff " + temp_off_my_data + " to dst");
+	                }
 	                Rail.copy(local_temp_buff as Rail[T]{self!=null}, temp_off_my_data, dst, dst_off, temp_count);
 	            }
-	
+
 	            // our parent has updated us - update any children, and leave the collective
 	            if (local_child1Index != -1) { // free the first child, if it exists
 	                // NOTE: the use of runUncountedAsync allows the parent to continue past this section
