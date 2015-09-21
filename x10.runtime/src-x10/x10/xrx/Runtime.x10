@@ -866,8 +866,7 @@ public final class Runtime {
         @x10.compiler.Profile(prof) at(place) async {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
-                val localFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
-                activity().setAtFinish(atFS);   // Chaining for an "at" within bodyPrime.
+                val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
                 var exc:CheckedThrowable = null;
                 try {
                     // Deserialize and execute user body
@@ -882,7 +881,7 @@ public final class Runtime {
                     exc = e;
                 }
 
-                activity().swapFinish(localFS);
+                activity().swapFinish(localAtFS);
                  
                 // If we have clocks, disassociate this activity from them
                 // and update the clock state of the remote activity.
@@ -898,7 +897,7 @@ public final class Runtime {
                     // Suppress exceptions during windup of internal activity.
                     // Should not be user-visible.
                 } finally {
-                    if (exc != null) atFS.pushException(exc);
+                    if (exc != null) localAtFS.pushException(exc);
                     asyncFS.notifyShiftedActivityCompletion();
                 }
             }
@@ -918,8 +917,7 @@ public final class Runtime {
                     // to maintain the X10 semantics view that an at is a place shift
                     // by the same single activity.
                     for (e2 in e.exceptions) {
-                        if (e2 instanceof DeadPlaceException &&
-                            (e2 as DeadPlaceException).place == place) {
+                        if (e2 instanceof DeadPlaceException && (e2 as DeadPlaceException).place == place) {
                             throwCheckedWithoutThrows(e2);
                         }
                     }
@@ -929,7 +927,7 @@ public final class Runtime {
             // Unexpected.  Rethrow e to enable debugging.
             throw e;
         } finally {
-           realActivityGR.forget();
+            realActivityGR.forget();
         }
     }
 
@@ -1109,8 +1107,7 @@ public final class Runtime {
         @x10.compiler.Profile(prof) at(place) async {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
-                val localFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
-                activity().setAtFinish(atFS);   // Chaining for an "at" within bodyPrime.
+                val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
                 var resBytes:Rail[Byte] = null;
                 var exc:CheckedThrowable = null;
                 try {
@@ -1129,7 +1126,7 @@ public final class Runtime {
                     exc = e;
                 }
 
-                activity().swapFinish(localFS);
+                activity().swapFinish(localAtFS);
 
                 // If we have clocks, disassociate this activity from them
                 // and update the clock state of the remote activity.
@@ -1150,7 +1147,7 @@ public final class Runtime {
                     // Suppress exceptions during windup of internal activity.
                     // Should not be user-visible.
                 } finally {
-                    if (exc != null) atFS.pushException(exc);
+                    if (exc != null) localAtFS.pushException(exc);
                     asyncFS.notifyShiftedActivityCompletion();
                 }
             }
