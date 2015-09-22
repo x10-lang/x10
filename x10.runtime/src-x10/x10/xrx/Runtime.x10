@@ -855,15 +855,19 @@ public final class Runtime {
 
         val srcPlace = here;
         val realActivity = activity();
-        val atFSParent = realActivity.atFinishState();
         val clockPhases = realActivity.clockPhases;
-        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
-
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);
+        val asyncFS = realActivity.finishState();
+        val atFSParent = realActivity.atFinishState();
         val atFS = makeDefaultFinish(atFSParent);
-        val asyncFS = realActivity.swapFinish(atFS);
-
-        asyncFS.notifyShiftedActivitySpawn(place); // See APGAS/Async/AsyncNext.x10
-        @x10.compiler.Profile(prof) at(place) async {
+        val preSendAction = ()=> {
+             // Quiescent optimization to batch finish updates used by default remote finish 
+             // means we need to "double count" shifted activities. 
+             // See APGAS/Async/AsyncNext.x10 for a test case.
+             asyncFS.notifyShiftedActivitySpawn(place);
+             atFS.notifySubActivitySpawn(place);
+        };
+        val remoteBody = ()=> @x10.compiler.AsyncClosure {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
                 val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
@@ -901,11 +905,19 @@ public final class Runtime {
                     asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+         };
+
+        // Send the remote async with atFS as the governing finish
+        try {
+            x10rtSendAsync(place.id, remoteBody, atFS, prof, preSendAction);
+        } catch (e:CheckedThrowable) {
+            // If an exception is raised locally by x10rtSendAsync, defer it to be
+            // thrown (wrapped in a ME) from atFS.waitForFinish()
+            atFS.pushException(e);
         }
 
-        // wait for the place-shifted activity created by the async above to terminate
+        // wait for the place-shifted activity initiated above to complete remotely
         try {
-            realActivity.swapFinish(asyncFS);
             atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
             // Peel off the layer of ME wrapping injected by waitForFinish
@@ -1094,17 +1106,21 @@ public final class Runtime {
 
         val srcPlace = here;
         val realActivity = activity();
-        val atFSParent = realActivity.atFinishState();
         val clockPhases = realActivity.clockPhases;
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
         val resultCell = new Cell[Rail[Byte]](null);
         val resultCellGR = GlobalRef[Cell[Rail[Byte]]](resultCell);
-
+        val asyncFS = realActivity.finishState();
+        val atFSParent = realActivity.atFinishState();
         val atFS = makeDefaultFinish(atFSParent);
-        val asyncFS = realActivity.swapFinish(atFS);
-
-        asyncFS.notifyShiftedActivitySpawn(place);
-        @x10.compiler.Profile(prof) at(place) async {
+        val preSendAction = ()=> {
+             // Quiescent optimization to batch finish updates used by default remote finish 
+             // means we need to "double count" shifted activities. 
+             // See APGAS/Async/AsyncNext.x10 for a test case.
+             asyncFS.notifyShiftedActivitySpawn(place);
+             atFS.notifySubActivitySpawn(place);
+        };
+        val remoteBody = ()=> @x10.compiler.AsyncClosure {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
                 val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
@@ -1151,11 +1167,19 @@ public final class Runtime {
                     asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+        };
+
+        // Send the remote async with atFS as the governing finish
+        try {
+            x10rtSendAsync(place.id, remoteBody, atFS, prof, preSendAction);
+        } catch (e:CheckedThrowable) {
+            // If an exception is raised locally by x10rtSendAsync, defer it to be
+            // thrown (wrapped in a ME) from atFS.waitForFinish()
+            atFS.pushException(e);
         }
 
-        // wait for the place-shifted activity created by the async above to terminate
+        // wait for the place-shifted activity initiated above to complete remotely
         try {
-            realActivity.swapFinish(asyncFS);
             atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
             // Peel off the layer of ME wrapping injected by waitForFinish
