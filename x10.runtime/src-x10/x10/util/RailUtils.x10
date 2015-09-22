@@ -182,8 +182,8 @@ public class RailUtils {
     }
 
     /**
-     * Return the scan of the given operation over elements of the src Rail
-     * storing the results in the dst Rail.
+     * Return the inclusive scan of the given operation over elements of the
+     * src Rail storing the results in the dst Rail.
      * On return, the Nth element of dst is the result of applying the
      * the reduction operation to src elements [0..N].
      * 
@@ -206,8 +206,8 @@ public class RailUtils {
     }
 
     /**
-     * Return a new Rail containing the scan of the given operation over
-     * elements of the src Rail.
+     * Return a new Rail containing the inclusive scan of the given operation
+     * over elements of the src Rail.
      * 
      * @param src the source rail for the input to the scan operation
      * @param op the reduction function to use in the scan
@@ -220,8 +220,8 @@ public class RailUtils {
         return scan(src, dst, op, unit);
     }
     /**
-     * Return the scan of the given operation over elements of the src Rail
-     * storing the results in the dst Rail.
+     * Compute the exclusive scan of the given operation over elements of the
+     * src Rail storing the results in the dst Rail.
      * On return, the first element equals the unit value, and 
      * the Nth element of dst is the result of applying the
      * the reduction operation to src elements [0..N-1]. 
@@ -233,7 +233,7 @@ public class RailUtils {
      * @param unit the given initial value for the reduction, dst(0) = unit
      * @return dst after updating its contents to contain the result of the scan
      */    
-    public static @Inline def scanLeft[T](src:Rail[T], dst:Rail[T],
+    public static @Inline def scanExclusive[T](src:Rail[T], dst:Rail[T],
                                   op:(T,T)=>T, unit:T):Rail[T]{self==dst} {
         assert src.size <= dst.size;
         var accum:T = unit;
@@ -246,17 +246,17 @@ public class RailUtils {
     }
 
     /**
-     * Return a new Rail containing the scan of the given operation over
-     * elements of the src Rail.
+     * Return a new Rail containing the exclusive scan of the given operation 
+     * over elements of the src Rail.
      *
      * @param src the source rail for the input to the scan operation
      * @param op the reduction function to use in the scan
      * @param unit the given initial value for the reduction, dst(0) = unit
      * @return a new Rail containing the result of the scan
      */
-    public static @Inline def scanLeft[T](src:Rail[T],
+    public static @Inline def scanExclusive[T](src:Rail[T],
                                   op:(T,T)=>T, unit:T):Rail[T] {
         val dst = Unsafe.allocRailUninitialized[T](src.size);
-        return scanLeft(src, dst, op, unit);
+        return scanExclusive(src, dst, op, unit);
     }
 }

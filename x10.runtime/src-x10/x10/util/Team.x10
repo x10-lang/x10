@@ -268,8 +268,8 @@ public struct Team {
         checkBounds(dst_off+dst_count-1, dst.size);
         
         val soffsets = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)?
-        		RailUtils.scanLeft(scounts, (x:Int, y:Int) => x+y, src_off as Int):
-        		RailUtils.scanLeft(scounts, (x:Int, y:Int) => x+y, 0n);
+    		RailUtils.scanExclusive(scounts, (x:Int, y:Int) => x+y, src_off as Int):
+    		RailUtils.scanExclusive(scounts, (x:Int, y:Int) => x+y, 0n);
         		
     	if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
     		finish nativeScatterv(id, my_role, root.id() as Int, src, src_off as Int, scounts, soffsets, dst, dst_off as Int);
@@ -333,8 +333,8 @@ public struct Team {
         checkBounds(src_off+src_count-1, src.size);
 
         val doffsets = (collectiveSupportLevel > X10RT_COLL_NOCOLLECTIVES)?
-        		            RailUtils.scanLeft(dcounts, (x:Int, y:Int) => x+y, dst_off as Int):
-        			        RailUtils.scanLeft(dcounts, (x:Int, y:Int) => x+y, 0n);
+            RailUtils.scanExclusive(dcounts, (x:Int, y:Int) => x+y, dst_off as Int):
+	        RailUtils.scanExclusive(dcounts, (x:Int, y:Int) => x+y, 0n);
 
         if (collectiveSupportLevel == X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES)
             finish nativeGatherv(id, my_role, root.id() as Int, src, src_off as Int, dst, dst_off as Int, dcounts, doffsets);
