@@ -127,6 +127,14 @@ public final class Rail[T](
     public native operator this(index:Long)=(v:T):T{self==v};
 
     /**
+     * Return the string representation of this Rail.
+     *
+     * @param limit maximum number of elements to print
+     * @return the string representation of this Rail.
+     */
+    public native toString(limit:Long):String;
+
+    /**
      * Copy all of the values from the source Rail to the destination Rail.
      * The two arrays must be of equal size.
      *

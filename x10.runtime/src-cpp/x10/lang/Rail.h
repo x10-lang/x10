@@ -122,8 +122,12 @@ namespace x10 {
 
             ::x10::lang::Iterator<T>* iterator();
 
-            virtual ::x10::lang::String* toString();
+            virtual ::x10::lang::String* toString() {
+                return toString(10);
+            }
 
+            virtual ::x10::lang::String* toString(x10_long limit);
+            
             T __apply(x10_long index) {
                 checkBounds(index, FMGL(size));
                 return raw[index];
@@ -398,9 +402,9 @@ template<class T> ::x10::lang::Iterator<T>* x10::lang::Rail<T>::iterator() {
     return reinterpret_cast< ::x10::lang::Iterator<T>*>(it);
 }
 
-template<class T> ::x10::lang::String* x10::lang::Rail<T>::toString() {
+template<class T> ::x10::lang::String* x10::lang::Rail<T>::toString(x10_long limit) {
     char* tmp = ::x10aux::alloc_printf("[");
-    x10_long sz = FMGL(size) > 10 ? 10 : FMGL(size);
+    x10_long sz = FMGL(size) > limit ? limit : FMGL(size);
     for (x10_long i = 0; i < sz; i++) {
         if (i > 0) {
             tmp = ::x10aux::realloc_printf(tmp, ",");
