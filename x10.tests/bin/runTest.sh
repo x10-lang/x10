@@ -271,6 +271,14 @@ function resolveParams {
         tcresilient_x10_only=0
     fi
 
+    ${EGREP} -q 'SKIP_HAZELCAST' $1
+    if [[ $? == 0 ]]; then
+        tcresilient_skip_hazelcast=1
+    else 
+        tcresilient_skip_hazelcast=0
+    fi
+
+
     # update expected counters
     case "${tcvcode}" in
 	"SUCCEED")
@@ -367,6 +375,7 @@ tc_all_resilient_modes="0 1 12 22 99"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
+typeset -i tcresilient_skip_hazelcast=0
 
 # enable/disable timeout option
 # default: enable
@@ -777,6 +786,11 @@ function main {
 
             if [[ "$tcbackend" == "native" && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
 		printf "\nSkipping hazelcast-based mode for Native X10\n";
+		continue;
+	    fi
+
+            if [[ $tcresilient_skip_hazelcast == 1 && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
+		printf "\nSkipping hazelcast-based mode; test case not applicable for hazelcast\n";
 		continue;
 	    fi
 
