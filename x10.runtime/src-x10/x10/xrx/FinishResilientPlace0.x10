@@ -370,7 +370,7 @@ class FinishResilientPlace0 extends FinishResilient {
         val srcId = here.id;
         val dstId = place.id;
         if (bytes.size >= ASYNC_SIZE_THRESHOLD) {
-            if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") selecting indirect (size="+
+            if (verbose >= 1) debug("==== spawnRemoteActivity(id="+id+") selecting indirect (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
             val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
             val wrappedBody = ()=> @x10.compiler.AsyncClosure {
@@ -380,9 +380,9 @@ class FinishResilientPlace0 extends FinishResilient {
             };
             x10.xrx.Runtime.x10rtSendAsync(place.id, wrappedBody, this, prof, preSendAction);
         } else {
-            if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") selecting direct (size="+
+            if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+id+") selecting direct (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
-            at (place0) @Immediate("spawnRemoteActivity_place0") async {
+            Runtime.runImmediateAt(place0, ()=>{
                 atomic {
                     val state = states(id);
                     if (!state.isAdopted()) {
@@ -395,7 +395,7 @@ class FinishResilientPlace0 extends FinishResilient {
                     if (verbose>=3) state.dump("DUMP id="+id);
                 }
                 at (Place(dstId)) @Immediate("spawnRemoteActivity_dstPlace") async {
-                    if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") submitting activity from "+srcId+" at "+dstId);
+                    if (verbose >= 1) debug("==== spawnRemoteActivity(id="+id+") submitting activity from "+srcId+" at "+dstId);
                     val wrappedBody = ()=> {
                         // defer deserialization to reduce work on immediate thread
                         val deser = new x10.io.Deserializer(bytes);
@@ -404,7 +404,8 @@ class FinishResilientPlace0 extends FinishResilient {
                     };
                     Runtime.worker().push(new Activity(42, wrappedBody, this));
                }
-           }
+            });
+            if (verbose>=1) debug("<<<< spawnRemoteActivity(id="+id+") returning");
         }
     }
     
