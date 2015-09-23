@@ -149,6 +149,15 @@ abstract class FinishState {
      */
     abstract def waitForFinish():void;
 
+    /**
+     * Spawn a remote activity.
+     */
+    def spawnRemoteActivity(place:Place, body:()=>void, prof:x10.xrx.Runtime.Profile):void {
+        val fs = this;
+        val preSendAction = ()=>{ fs.notifySubActivitySpawn(place); };
+        x10.xrx.Runtime.x10rtSendAsync(place.id, body, fs, prof, preSendAction);
+    }
+
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
     // a finish with local asyncs only

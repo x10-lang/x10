@@ -26,6 +26,8 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val AT = 0;
     private static val ASYNC = 1;
     private static val AT_AND_ASYNC = AT..ASYNC;
+
+    private static val SIZE_THRESHOLD = Long.parse(Runtime.env.getOrElse("X10_RESILIENT_FINISH_SMALL_ASYNC_SIZE", "0"));
     
     private static class State { // data stored at Place0
         val NUM_PLACES = Place.numPlaces();
@@ -333,6 +335,43 @@ class FinishResilientPlace0 extends FinishResilient {
         }});
         if (verbose>=1) debug("<<<< waitForFinish(id="+id+") returning, exc="+e);
         if (e != null) throw e;
+    }
+
+    /*
+     * We have two options for spawning a remote async.
+     *
+     * The first (indirect) is most appropriate for "fat" asyncs whose
+     * serialized form is a very large message.
+     *   - notifySubActivitySpawn: src ===> Place0 (increment transit(src,dst)
+     *   - x10rtSendAsync:         src ===> dst (send "fat" async body to dst)
+     *   - notifyActivityCreation: dst ===> Place0 (decrement transit, increment live)
+     *
+     * The second (direct) is best for "small" asyncs, since it
+     * reduces latency and only interacts with Place0 once, but
+     * requires the async body to be bundled with the finish state
+     * control messages, and thus sent on the network twice instead of once.
+     *
+     * We dynamically select the protocol on a per-async basis by comparing
+     * the serialized size of body to a size threshold.
+     */
+    def spawnRemoteActivity(place:Place, body:()=>void, prof:x10.xrx.Runtime.Profile):void {
+        val ser = new x10.io.Serializer();
+        ser.writeAny(body);
+        val bytes = ser.toRail();
+
+        if (bytes.size >= SIZE_THRESHOLD) {
+            if (verbose >= 1) debug("<<<< spawnRemoteActivity selecting indirect protocol");
+            val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
+            val wrappedBody = ()=> @x10.compiler.AsyncClosure {
+                val deser = new x10.io.Deserializer(bytes);
+                val bodyPrime = deser.readAny() as ()=>void;
+                bodyPrime();
+            };
+            x10.xrx.Runtime.x10rtSendAsync(place.id, wrappedBody, this, prof, preSendAction);
+        } else {
+            if (verbose >= 1) debug("<<<< spawnRemoteActivity selecting direct protocol");
+            Console.OUT.println("ERROR: Direct protocol not implemented!!!");
+        }
     }
     
     /*
