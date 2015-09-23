@@ -11,9 +11,12 @@
 package x10.xrx;
 
 import x10.compiler.*;
-import x10.util.concurrent.SimpleLatch;
+
 import x10.array.Array_2;
 import x10.array.Array_3;
+import x10.io.Serializer;
+import x10.io.Deserializer;
+import x10.util.concurrent.SimpleLatch;
 
 /**
  * Place0-based Resilient Finish
@@ -27,8 +30,6 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val ASYNC = 1;
     private static val AT_AND_ASYNC = AT..ASYNC;
 
-    private static val SIZE_THRESHOLD = Long.parse(Runtime.env.getOrElse("X10_RESILIENT_FINISH_SMALL_ASYNC_SIZE", "0"));
-    
     private static class State { // data stored at Place0
         val NUM_PLACES = Place.numPlaces();
         val transit = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
@@ -355,12 +356,22 @@ class FinishResilientPlace0 extends FinishResilient {
      * the serialized size of body to a size threshold.
      */
     def spawnRemoteActivity(place:Place, body:()=>void, prof:x10.xrx.Runtime.Profile):void {
-        val ser = new x10.io.Serializer();
+        val start = prof != null ? System.nanoTime() : 0;
+        val ser = new Serializer();
         ser.writeAny(body);
+        if (prof != null) {
+            val end = System.nanoTime();
+            prof.serializationNanos += (end-start);
+            prof.bytes += ser.dataBytesWritten();
+        }
         val bytes = ser.toRail();
 
-        if (bytes.size >= SIZE_THRESHOLD) {
-            if (verbose >= 1) debug("<<<< spawnRemoteActivity selecting indirect protocol");
+        hasRemote = true;
+        val srcId = here.id;
+        val dstId = place.id;
+        if (bytes.size >= ASYNC_SIZE_THRESHOLD) {
+            if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") selecting indirect (size="+
+                                    bytes.size+") srcId="+srcId + " dstId="+dstId);
             val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
             val wrappedBody = ()=> @x10.compiler.AsyncClosure {
                 val deser = new x10.io.Deserializer(bytes);
@@ -369,8 +380,31 @@ class FinishResilientPlace0 extends FinishResilient {
             };
             x10.xrx.Runtime.x10rtSendAsync(place.id, wrappedBody, this, prof, preSendAction);
         } else {
-            if (verbose >= 1) debug("<<<< spawnRemoteActivity selecting direct protocol");
-            Console.OUT.println("ERROR: Direct protocol not implemented!!!");
+            if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") selecting direct (size="+
+                                    bytes.size+") srcId="+srcId + " dstId="+dstId);
+            at (place0) @Immediate("spawnRemoteActivity_place0") async {
+                atomic {
+                    val state = states(id);
+                    if (!state.isAdopted()) {
+                        state.live(ASYNC, dstId)++;
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.liveAdopted(ASYNC, dstId)++;
+                    }                                        
+                    if (verbose>=3) state.dump("DUMP id="+id);
+                }
+                at (Place(dstId)) @Immediate("spawnRemoteActivity_dstPlace") async {
+                    if (verbose >= 1) debug("<<<< spawnRemoteActivity(id="+id+") submitting activity from "+srcId+" at "+dstId);
+                    val wrappedBody = ()=> {
+                        // defer deserialization to reduce work on immediate thread
+                        val deser = new x10.io.Deserializer(bytes);
+                        val bodyPrime = deser.readAny() as ()=>void;
+                        bodyPrime();
+                    };
+                    Runtime.worker().push(new Activity(42, wrappedBody, this));
+               }
+           }
         }
     }
     

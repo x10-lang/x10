@@ -38,6 +38,12 @@ abstract class FinishResilient extends FinishState {
         try { throw new Exception(msg); } catch (e:Exception) { e.printStackTrace(); }
     }
     
+    // TODO: We should empirically tune this size for performance.
+    //       Initially I am picking a size that will make it very likely
+    //       that we will use a mix of both direct and indirect protocols
+    //       for a large number of test cases to shake out mixed-mode problems.
+    protected static val ASYNC_SIZE_THRESHOLD = Long.parse(Runtime.env.getOrElse("X10_RESILIENT_FINISH_SMALL_ASYNC_SIZE", "100"));
+    
     /*
      * Static methods to be implemented in subclasses
      */
