@@ -63,7 +63,7 @@ public class Activity {
     def this(epoch:Long, body:()=>void, finishState:FinishState) {
         this.epoch = epoch;
         this.body = body;
-        this.atFinishState = finishState;
+        this.atFinishState = FinishState.UNCOUNTED_FINISH;
         this.finishState = finishState;
     }
 

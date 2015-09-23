@@ -871,6 +871,7 @@ public final class Runtime {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
                 val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(localAtFS);
                 var exc:CheckedThrowable = null;
                 try {
                     // Deserialize and execute user body
@@ -1124,6 +1125,7 @@ public final class Runtime {
             if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
                 activity().clockPhases = clockPhases;
                 val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(localAtFS);
                 var resBytes:Rail[Byte] = null;
                 var exc:CheckedThrowable = null;
                 try {
