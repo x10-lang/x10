@@ -23,7 +23,7 @@ import x10.xrx.Runtime;
 public class TestNestedFinishAsync extends x10Test  {
 
     static val bad_counter = new Cell[Long](0);
-    static val good_counter = new Cell[Long](5);
+    static val good_counter = new Cell[Long](7);
 
     static def bad_inc() {
         at (Place.FIRST_PLACE) {
@@ -63,10 +63,10 @@ public class TestNestedFinishAsync extends x10Test  {
                             bad_inc();
                             Runtime.println("Should be dead by now");
                         }
-                        Runtime.println("End of inner finish block (should not happen doe to exception)");
-                        bad_inc();
+                        good_dec();
                     }
                 }
+                good_dec();
             }
 	        
             Runtime.println("End of finish block (should not happen due to exception)");
@@ -90,6 +90,6 @@ public class TestNestedFinishAsync extends x10Test  {
     }
 
     public static def main(Rail[String]) {
-	    new TestNestedFinish().execute();
+	    new TestNestedFinishAsync().execute();
     }
 }
