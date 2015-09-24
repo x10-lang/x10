@@ -371,7 +371,7 @@ thrunstate="UNKNOWN_STATE"
 tcbackend="native"
 
 # resiliency modes
-tc_all_resilient_modes="0 1 12 22 99"
+tc_all_resilient_modes="0 1 12 22"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
