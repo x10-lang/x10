@@ -62,7 +62,10 @@ class FinishResilientPlace0 extends FinishResilient {
     }
     
     // TODO: freelist to reuse ids (maybe also states)
+    //       or perhaps switch to HashMap[Long,State] instead of GrowableRail
     private static val states = (here.id==0) ? new x10.util.GrowableRail[State]() : null;
+
+    private static val lock = (here.id==0) ? new x10.util.concurrent.Lock() : null;
     
     private val id:Long;
     private var hasRemote:Boolean = false;
@@ -74,14 +77,19 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug(">>>> make called, parent="+parent + " latch="+latch);
         val parentId = (parent instanceof FinishResilientPlace0) ? (parent as FinishResilientPlace0).id : -1; // ok to ignore other cases?
         val gLatch = GlobalRef[SimpleLatch](latch);
-        val id = Runtime.evalImmediateAt[Long](place0, ()=>{ atomic {
-            val id = states.size();
-            val state = new State(parentId, gLatch);
-            states.add(state);
-            state.live(ASYNC,gLatch.home.id) = 1n; // for myself, will be decremented in waitForFinish
-            if (parentId != -1) states(parentId).children.add(id);
-            return id;
-        }});
+        val id = Runtime.evalImmediateAt[Long](place0, ()=>{ 
+            try {
+                lock.lock();
+                val id = states.size();
+                val state = new State(parentId, gLatch);
+                states.add(state);
+                state.live(ASYNC,gLatch.home.id) = 1n; // for myself, will be decremented in waitForFinish
+                if (parentId != -1) states(parentId).children.add(id);
+                return id;
+            } finally {
+                lock.unlock();
+            }
+        });
         val fs = new FinishResilientPlace0(id);
         if (verbose>=1) debug("<<<< make returning fs="+fs);
         return fs;
@@ -93,9 +101,13 @@ class FinishResilientPlace0 extends FinishResilient {
             if (verbose>=2) debug("not place0, returning");
             return;
         }
-        atomic {
-            for (id in 0..(states.size()-1))
+        try {
+            lock.lock();
+            for (id in 0..(states.size()-1)) {
                 if (quiescent(id)) releaseLatch(id);
+            }
+        } finally {
+            lock.unlock();
         }
         if (verbose>=1) debug("<<<< notifyPlaceDeath returning");
     }
@@ -110,17 +122,22 @@ class FinishResilientPlace0 extends FinishResilient {
         val srcId = here.id, dstId = place.id;
         if (dstId != srcId) hasRemote = true;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
-        Runtime.runImmediateAt(place0, ()=>{ atomic {
-            val state = states(id);
-            if (!state.isAdopted()) {
-                state.transit(kind, srcId, dstId)++;
-            } else {
-                val adopterId = getCurrentAdopterId(id);
-                val adopterState = states(adopterId);
-                adopterState.transitAdopted(kind, srcId, dstId)++;
+        Runtime.runImmediateAt(place0, ()=>{
+            try {
+                lock.lock();
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    state.transit(kind, srcId, dstId)++;
+                } else {
+                    val adopterId = getCurrentAdopterId(id);
+                    val adopterState = states(adopterId);
+                    adopterState.transitAdopted(kind, srcId, dstId)++;
+                }
+                if (verbose>=3) state.dump("DUMP id="+id);
+            } finally {
+                lock.unlock();
             }
-            if (verbose>=3) state.dump("DUMP id="+id);
-        }});
+        });
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
     }
 
@@ -151,7 +168,8 @@ class FinishResilientPlace0 extends FinishResilient {
 
         val pendingActivity = GlobalRef(activity); 
         at (place0) @Immediate("notifyActivityCreation_to_zero") async {
-            atomic {
+            try {
+                lock.lock();
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.live(kind, dstId)++;
@@ -163,7 +181,9 @@ class FinishResilientPlace0 extends FinishResilient {
                     adopterState.transitAdopted(kind, srcId, dstId)--;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
-            };
+            } finally {
+                lock.unlock();
+            }
             at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
                 val pa = pendingActivity();
                 if (pa != null && pa.epoch == Runtime.epoch()) {
@@ -189,7 +209,8 @@ class FinishResilientPlace0 extends FinishResilient {
         }
 
         Runtime.runImmediateAt(place0, ()=> {
-            atomic {
+            try {
+                lock.lock();
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.live(kind, dstId)++;
@@ -201,6 +222,8 @@ class FinishResilientPlace0 extends FinishResilient {
                     adopterState.transitAdopted(kind, srcId, dstId)--;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
+            } finally {
+                lock.unlock();
             }
         });
 
@@ -216,7 +239,8 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         at (place0) @Immediate("notifyActivityCreationFailed_to_zero") async {
-            atomic {
+            try {
+                lock.lock();
                 if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
@@ -230,10 +254,12 @@ class FinishResilientPlace0 extends FinishResilient {
                     adopterState.excs.add(t);
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
-            };
+            } finally {
+                lock.unlock();
+            }
        };
 
-       if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
+       if (verbose>=1) debug("<<<< notifyActivityCreationFailed(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
     }
 
     def notifyActivityCreatedAndTerminated(srcPlace:Place) {
@@ -245,7 +271,8 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         at (place0) @Immediate("notifyActivityCreatedAndTerminated_to_zero") async {
-            atomic {
+            try {
+                lock.lock();
                 if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
@@ -257,7 +284,9 @@ class FinishResilientPlace0 extends FinishResilient {
                     adopterState.transitAdopted(kind, srcId, dstId)--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
-            };
+            } finally {
+                lock.unlock();
+            }
        };
 
        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
@@ -273,7 +302,8 @@ class FinishResilientPlace0 extends FinishResilient {
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId+" kind="+kind);
         at (place0) @Immediate("notifyActivityTermination_to_zero") async {
-            atomic {
+            try {
+                lock.lock();
                 if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
                 val state = states(id);
                 if (!state.isAdopted()) {
@@ -285,16 +315,23 @@ class FinishResilientPlace0 extends FinishResilient {
                     adopterState.liveAdopted(kind, dstId)--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
+            } finally {
+                lock.unlock();
             }
-        };
+        }
     }
 
     def pushException(t:CheckedThrowable):void {
         if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
-        Runtime.runImmediateAt(place0, ()=>{ atomic {
-            val state = states(id);
-            state.excs.add(t); // need not consider the adopter
-        }});
+        Runtime.runImmediateAt(place0, ()=>{ 
+            try {
+                lock.lock();
+                val state = states(id);
+                state.excs.add(t); // need not consider the adopter
+            } finally {
+                lock.unlock();
+            }
+        });
         if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
     }
 
@@ -304,10 +341,15 @@ class FinishResilientPlace0 extends FinishResilient {
         notifyActivityTermination(ASYNC); // TOOD: merge this to the following evalImmediateAt
 
         // get the latch to wait
-        val gLatch = Runtime.evalImmediateAt[GlobalRef[SimpleLatch]](place0, ()=>{ atomic {
-            val state = states(id);
-            return state.gLatch;
-        }});
+        val gLatch = Runtime.evalImmediateAt[GlobalRef[SimpleLatch]](place0, ()=>{ 
+            try {
+                lock.lock();
+                val state = states(id);
+                return state.gLatch;
+            } finally {
+                lock.unlock();
+            }
+        });
         assert gLatch.home==here;
         val lLatch = gLatch.getLocalOrCopy();
 
@@ -324,16 +366,21 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=2) debug("returned from latch.await for id="+id);
         
         // get exceptions
-        val e = Runtime.evalImmediateAt[MultipleExceptions](place0, ()=> { atomic {
-            val state = states(id);
-            if (!state.isAdopted()) {
-                states(id) = null;
-                return MultipleExceptions.make(state.excs); // may return null
-            } else {
-                //TODO: need to remove the state in future
-                return null as MultipleExceptions;
+        val e = Runtime.evalImmediateAt[MultipleExceptions](place0, ()=> {
+            try {
+                lock.lock();
+                val state = states(id);
+                if (!state.isAdopted()) {
+                    states(id) = null;
+                    return MultipleExceptions.make(state.excs); // may return null
+                } else {
+                    //TODO: need to remove the state in future
+                    return null as MultipleExceptions;
+                }
+            } finally {
+                lock.unlock();
             }
-        }});
+        });
         if (verbose>=1) debug("<<<< waitForFinish(id="+id+") returning, exc="+e);
         if (e != null) throw e;
     }
@@ -383,7 +430,8 @@ class FinishResilientPlace0 extends FinishResilient {
             if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+id+") selecting direct (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
             Runtime.runImmediateAt(place0, ()=>{
-                atomic {
+                try {
+                    lock.lock();
                     val state = states(id);
                     if (!state.isAdopted()) {
                         state.live(ASYNC, dstId)++;
@@ -393,6 +441,8 @@ class FinishResilientPlace0 extends FinishResilient {
                         adopterState.liveAdopted(ASYNC, dstId)++;
                     }                                        
                     if (verbose>=3) state.dump("DUMP id="+id);
+                } finally {
+                    lock.unlock();
                 }
                 at (Place(dstId)) @Immediate("spawnRemoteActivity_dstPlace") async {
                     if (verbose >= 1) debug("==== spawnRemoteActivity(id="+id+") submitting activity from "+srcId+" at "+dstId);
@@ -425,7 +475,7 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     private static def releaseLatch(id:Long) { // release the latch for this state
-        assert here==place0; // should be called inside atomic
+        assert here==place0; // must be called while lock is held and at place0
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
         val state = states(id);
         val gLatch = state.gLatch;
@@ -437,7 +487,7 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     private static def quiescent(id:Long):Boolean {
-        assert here==place0; // should be called inside atomic
+        assert here==place0; // must be called while lock is held and at place0
         if (verbose>=2) debug("quiescent(id="+id+") called");
         val state = states(id);
         if (state==null) {
