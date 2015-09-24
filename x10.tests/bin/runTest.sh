@@ -738,6 +738,11 @@ function main {
 	if [[ -n "$numplaces_annotation" ]]; then
 	    my_nplaces=$numplaces_annotation
 	fi
+	timeout_annotation="$(sed -ne 's|^[[:space:]]*//[[:space:]]*TIMEOUT*\:[[:space:]]*\(.*\)|\1|p' $tc)"
+	my_timeout=$tctoutval
+	if [[ -n "$timeout_annotation" ]]; then
+	    my_timeout=$timeout_annotation
+	fi
 
 	# DAVE: 1/20/14 -- disabling this code block as it isn't clear to me why 
 	#       it is needed and I'm wondering if it is causing spurious timeout 
@@ -814,11 +819,11 @@ function main {
 	    fi
 	    printf "\n${run_cmd}\n" >> $tcoutdat
 
-	    __jen_test_x10_timeout="$tctoutval"
+	    __jen_test_x10_timeout="$my_timeout"
 	    if [[ $tctimeout == 0 ]]; then
 		__jen_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
 	    else
-		__jen_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
+		__jen_test_x10_command="$(echo execTimeOut $my_timeout $tcoutdat \"${run_cmd}\")"
 	    fi
 
 	    printf "\n ++ E [EXECUTION]"
@@ -828,7 +833,7 @@ function main {
 		printf "\n===> $run_cmd >> $tcoutdat\n\n" 1>&2; \
 		$run_cmd >> $tcoutdat; \
 		else \
-		execTimeOut $tctoutval $tcoutdat "${run_cmd}"; \
+		execTimeOut $my_timeout $tcoutdat "${run_cmd}"; \
 		fi;
 	    )
 	    rc=$?

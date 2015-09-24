@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// TIMEOUT: 30
+
 /**
  * Test resulted in unreachable statement message
  * in the compiler, as of 7/29/2005.
