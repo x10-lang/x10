@@ -22,7 +22,7 @@ import x10.util.concurrent.SimpleLatch;
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
-class FinishResilientPlace0 extends FinishResilient {
+final class FinishResilientPlace0 extends FinishResilient {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
@@ -30,7 +30,10 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val ASYNC = 1;
     private static val AT_AND_ASYNC = AT..ASYNC;
 
-    private static class State implements x10.io.Unserializable { // data stored at Place0
+    /**
+     * State of a single finish; always stored in Place0
+     */
+    private static final class State implements x10.io.Unserializable {
         val NUM_PLACES = Place.numPlaces();
         val transit = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
         val transitAdopted = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
@@ -40,7 +43,6 @@ class FinishResilientPlace0 extends FinishResilient {
         val children = new x10.util.GrowableRail[Long](); // children
         var adopterId:Long = -1; // adopter (if adopted)
         def isAdopted() = (adopterId != -1);
-        var numDead:Long = 0;
         var numActive:Long = 0;
         
         val parentId:Long; // parent (or -1)
@@ -51,7 +53,7 @@ class FinishResilientPlace0 extends FinishResilient {
             this.gLatch = gLatch;
         }
         
-        def dump(msg:Any) {
+        def dump(msg:String) {
             val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
             s.add("      numActive:"); s.add(numActive); s.add('\n');
             s.add("           live:"); s.add(live.toString(1024)); s.add('\n');
@@ -109,6 +111,9 @@ class FinishResilientPlace0 extends FinishResilient {
         try {
             lock.lock();
             for (id in 0..(states.size()-1)) {
+                processPlaceDeath(id);
+            }
+            for (id in 0..(states.size()-1)) {
                 if (quiescent(id)) releaseLatch(id);
             }
         } finally {
@@ -137,8 +142,12 @@ class FinishResilientPlace0 extends FinishResilient {
                     return;
                 }
                 if (Place(dstId).isDead()) {
-                    if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE");
-                    addDeadPlaceException(state, dstId);
+                    if (kind == ASYNC) {
+                        if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE for async");
+                        addDeadPlaceException(state, dstId);
+                    } else {
+                        if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; dropped at");
+                    }
                     return;
                 }
                 if (!state.isAdopted()) {
@@ -164,7 +173,7 @@ class FinishResilientPlace0 extends FinishResilient {
 
     /*
      * This method can't block because it may run on an @Immediate worker.  
-     * Therefore it can't use Runtime.runImmediateAsync.
+     * Therefore it can't use Runtime.runImmediateAt.
      * Instead sequence @Immediate messages to do the nac to place0 and
      * then come back and submit the pending activity.
      * Because place0 can't fail, we know that if the first message gets
@@ -231,12 +240,8 @@ class FinishResilientPlace0 extends FinishResilient {
         val srcId = srcPlace.id; 
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyShiftedActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
-        if (srcPlace.isDead()) {
-            if (verbose>=1) debug("<<<< notifyShiftedActivityCreation(id="+id+") returning false");
-            return false;
-        }
 
-        Runtime.runImmediateAt(place0, ()=> {
+        return Runtime.evalImmediateAt[Boolean](place0, ()=> {
             try {
                 lock.lock();
                 if (Place(srcId).isDead() || Place(dstId).isDead()) {
@@ -244,7 +249,7 @@ class FinishResilientPlace0 extends FinishResilient {
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
                     if (verbose>=1) debug("==== notifyShiftedActivityCreation(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
-                    return;
+                    return false;
                 }
                 val state = states(id);
                 if (!state.isAdopted()) {
@@ -260,16 +265,15 @@ class FinishResilientPlace0 extends FinishResilient {
             } finally {
                 lock.unlock();
             }
+            return true;
         });
-
-        return true;
     }
 
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
         notifyActivityCreationFailed(srcPlace, t, ASYNC);
     }
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable, kind:long):void { 
-        val srcId = srcPlace.id; 
+        val srcId = srcPlace.id;
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
@@ -341,8 +345,6 @@ class FinishResilientPlace0 extends FinishResilient {
                 lock.unlock();
             }
        };
-
-       if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
     }
 
     def notifyActivityTermination():void {
@@ -389,7 +391,7 @@ class FinishResilientPlace0 extends FinishResilient {
             try {
                 lock.lock();
                 val state = states(id);
-                state.excs.add(t); // need not consider the adopter  TODO: Dave -- Why?????
+                state.excs.add(t); // NB: if adopted, semantics say to suppress exception.  So don't both checking for adopterId.
             } finally {
                 lock.unlock();
             }
@@ -399,14 +401,32 @@ class FinishResilientPlace0 extends FinishResilient {
 
     def waitForFinish():void {
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
-        // terminate myself
-        notifyActivityTermination(ASYNC); // TOOD: merge this to the following evalImmediateAt
 
-        // get the latch to wait
+        // terminate myself and get the latch to wait
+        val dstId = here.id;
         val gLatch = Runtime.evalImmediateAt[GlobalRef[SimpleLatch]](place0, ()=>{ 
             try {
                 lock.lock();
                 val state = states(id);
+                if (Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== waitForFinish(id="+id+") suppressed: "+dstId+" is dead");
+                } else {
+                    if (verbose>=1) debug("<<<< waitForFinish(id="+id+") message running at place0");
+                    if (!state.isAdopted()) {
+                        state.live(ASYNC, dstId)--;
+                        state.numActive--;
+                        if (quiescent(id)) releaseLatch(id);
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.liveAdopted(ASYNC, dstId)--;
+                        adopterState.numActive--;
+                        if (quiescent(adopterId)) releaseLatch(adopterId);
+                    }
+                }
                 return state.gLatch;
             } finally {
                 lock.unlock();
@@ -428,6 +448,8 @@ class FinishResilientPlace0 extends FinishResilient {
         if (verbose>=2) debug("returned from latch.await for id="+id);
         
         // get exceptions
+        // TODO: We should piggyback this on the message that released the latch!
+	//       Going back to place0 to get the exceptions adds latency!!!
         val e = Runtime.evalImmediateAt[MultipleExceptions](place0, ()=> {
             try {
                 lock.lock();
@@ -560,7 +582,6 @@ class FinishResilientPlace0 extends FinishResilient {
     }
 
     private static def quiescent(id:Long):Boolean {
-        assert here==place0; // must be called while lock is held and at place0
         if (verbose>=2) debug("quiescent(id="+id+") called");
         val state = states(id);
         if (state==null) {
@@ -572,73 +593,75 @@ class FinishResilientPlace0 extends FinishResilient {
             return false;
         }
         
-        // 1 pull up dead children
-        val nd = Place.numDead();
-        if (nd != state.numDead) {
-            state.numDead = nd;
-            val children = state.children;
-            for (var chIndex:Long = 0; chIndex < children.size(); ++chIndex) {
-                val childId = children(chIndex);
-                val childState = states(childId);
-                if (childState==null) continue;
-                if (!childState.gLatch.home.isDead()) continue;
-                val lastChildId = children.removeLast();
-                if (chIndex < children.size()) children(chIndex) = lastChildId;
-                chIndex--; // don't advance this iteration
-                // adopt the child
-                if (verbose>=3) debug("adopting childId="+childId);
-                assert !childState.isAdopted();
-                childState.adopterId = id;
-                state.children.addAll(childState.children); // will be checked in later iteration since addAll appends
-		for (k in AT_AND_ASYNC) {
-                    for (i in 0..(state.NUM_PLACES-1)) {
-                        state.liveAdopted(k,i) += (childState.live(k,i) + childState.liveAdopted(k,i));
-                        for (j in 0..(state.NUM_PLACES-1)) {
-                            state.transitAdopted(k, i, j) += (childState.transit(k, i, j) + childState.transitAdopted(k, i, j));
-                        }
-                    }
-                }
-                state.numActive += childState.numActive;
-            } // for (chIndex)
-
-            // 2 clear dead entries and create DPEs
-            for (i in 0..(state.NUM_PLACES-1)) {
-                if (Place.isDead(i)) {
-                    for (1..state.live(ASYNC, i)) {
-                        if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
-                        addDeadPlaceException(state, i);
-                    }
-		    state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
-                    state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
-                    state.live(ASYNC, i) = 0n; state.liveAdopted(ASYNC, i) = 0n;
-                    for (j in 0..(state.NUM_PLACES-1)) {
-                        state.numActive -= (state.transit(AT,i,j) + state.transitAdopted(AT,i,j) + state.transit(ASYNC,i,j) + state.transitAdopted(ASYNC,i,j));
-                        state.transit(AT,i,j) = 0n; state.transitAdopted(AT,i,j) = 0n;
-                        state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
-                        for (1..state.transit(ASYNC, j,i)) {
-                            if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
-                            addDeadPlaceException(state, i);
-                        }
-                        state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
-                        state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
-                        state.transit(ASYNC,j,i) = 0n; state.transitAdopted(ASYNC,j,i) = 0n;
-                    }
-                }
-            }
-        }
-
 	if (state.numActive < 0) {
             debug("COUNTING ERROR: quiescent(id="+id+") negative numActive!!!");
             state.dump("DUMP id="+id);
             return true; // TODO: This really should be converted to a fatal error....
         }
         
-        // 3 quiescent check
-        if (verbose>=3) state.dump("DUMP id="+id);
         val quiet = state.numActive == 0;
+        if (verbose>=3) state.dump("DUMP id="+id);
         if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;
     }
+
+    private static def processPlaceDeath(id:Long) {
+        val state = states(id);
+
+        if (state==null || state.isAdopted()) return; // nothing to do.
+
+        // 1 pull up dead children
+        val children = state.children;
+        for (var chIndex:Long = 0; chIndex < children.size(); ++chIndex) {
+            val childId = children(chIndex);
+            val childState = states(childId);
+            if (childState==null) continue;
+            if (!childState.gLatch.home.isDead()) continue;
+            val lastChildId = children.removeLast();
+            if (chIndex < children.size()) children(chIndex) = lastChildId;
+            chIndex--; // don't advance this iteration
+            // adopt the child
+            if (verbose>=3) debug("adopting childId="+childId);
+            assert !childState.isAdopted();
+            childState.adopterId = id;
+            state.children.addAll(childState.children); // will be checked in later iteration since addAll appends
+            for (k in AT_AND_ASYNC) {
+                for (i in 0..(state.NUM_PLACES-1)) {
+                    state.liveAdopted(k,i) += (childState.live(k,i) + childState.liveAdopted(k,i));
+                    for (j in 0..(state.NUM_PLACES-1)) {
+                        state.transitAdopted(k, i, j) += (childState.transit(k, i, j) + childState.transitAdopted(k, i, j));
+                    }
+                }
+            }
+            state.numActive += childState.numActive;
+        } // for (chIndex)
+
+        // 2 clear dead entries and create DPEs
+        for (i in 0..(state.NUM_PLACES-1)) {
+            if (Place.isDead(i)) {
+                for (1..state.live(ASYNC, i)) {
+                    if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
+                    addDeadPlaceException(state, i);
+                }
+                state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
+                state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
+                state.live(ASYNC, i) = 0n; state.liveAdopted(ASYNC, i) = 0n;
+                for (j in 0..(state.NUM_PLACES-1)) {
+                    state.numActive -= (state.transit(AT,i,j) + state.transitAdopted(AT,i,j) + state.transit(ASYNC,i,j) + state.transitAdopted(ASYNC,i,j));
+                    state.transit(AT,i,j) = 0n; state.transitAdopted(AT,i,j) = 0n;
+                    state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
+                    for (1..state.transit(ASYNC, j,i)) {
+                        if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
+                        addDeadPlaceException(state, i);
+                    }
+                    state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
+                    state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
+                    state.transit(ASYNC,j,i) = 0n; state.transitAdopted(ASYNC,j,i) = 0n;
+                }
+            }
+        }
+    }
+
     private static def addDeadPlaceException(state:State, placeId:Long) {
         val e = new DeadPlaceException(Place(placeId));
         e.fillInStackTrace(); // meaningless?
