@@ -124,13 +124,23 @@ class FinishResilientPlace0 extends FinishResilient {
         notifySubActivitySpawn(place, AT);
     }
     def notifySubActivitySpawn(place:Place, kind:long):void {
-        val srcId = here.id, dstId = place.id;
+        val srcId = here.id;
+        val dstId = place.id;
         if (dstId != srcId) hasRemote = true;
         if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         Runtime.runImmediateAt(place0, ()=>{
             try {
                 lock.lock();
                 val state = states(id);
+                if (Place(srcId).isDead()) {
+                    if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") src "+srcId + "is dead; dropping async");
+                    return;
+                }
+                if (Place(dstId).isDead()) {
+                    if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE");
+                    addDeadPlaceException(state, dstId);
+                    return;
+                }
                 if (!state.isAdopted()) {
                     state.transit(kind, srcId, dstId)++;
                     state.numActive++;
@@ -168,36 +178,47 @@ class FinishResilientPlace0 extends FinishResilient {
         val srcId = srcPlace.id; 
         val dstId = here.id;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
-        if (srcPlace.isDead()) {
-            if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") returning false");
-            return false;
-        }
 
         val pendingActivity = GlobalRef(activity); 
         at (place0) @Immediate("notifyActivityCreation_to_zero") async {
+            var shouldSubmit:Boolean = true;
             try {
                 lock.lock();
-                val state = states(id);
-                if (!state.isAdopted()) {
-                    state.live(kind, dstId)++;
-                    state.transit(kind, srcId, dstId)--;
+                if (Place(srcId).isDead() || Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== notifyActivityCreation(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    shouldSubmit = false;
                 } else {
-                    val adopterId = getCurrentAdopterId(id);
-                    val adopterState = states(adopterId);
-                    adopterState.liveAdopted(kind, dstId)++;
-                    adopterState.transitAdopted(kind, srcId, dstId)--;
+                    val state = states(id);
+                    if (!state.isAdopted()) {
+                        state.live(kind, dstId)++;
+                        state.transit(kind, srcId, dstId)--;
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.liveAdopted(kind, dstId)++;
+                        adopterState.transitAdopted(kind, srcId, dstId)--;
+                    }
+                    if (verbose>=3) state.dump("DUMP id="+id);
                 }
-                if (verbose>=3) state.dump("DUMP id="+id);
             } finally {
                 lock.unlock();
             }
-            at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
-                val pa = pendingActivity();
-                if (pa != null && pa.epoch == Runtime.epoch()) {
-                    if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
-                    Runtime.worker().push(pa);
+            if (shouldSubmit) {
+                at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
+                    val pa = pendingActivity();
+                    if (pa != null && pa.epoch == Runtime.epoch()) {
+                        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
+                        Runtime.worker().push(pa);
+                    }
+                    pendingActivity.forget();
                 }
-                pendingActivity.forget();
+            } else {
+                at (pendingActivity) @Immediate("notifyActivityCreation_forget_activity") async {
+                    pendingActivity.forget();
+                }
             }
         };
 
@@ -218,6 +239,13 @@ class FinishResilientPlace0 extends FinishResilient {
         Runtime.runImmediateAt(place0, ()=> {
             try {
                 lock.lock();
+                if (Place(srcId).isDead() || Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== notifyShiftedActivityCreation(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    return;
+                }
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.live(kind, dstId)++;
@@ -248,20 +276,27 @@ class FinishResilientPlace0 extends FinishResilient {
         at (place0) @Immediate("notifyActivityCreationFailed_to_zero") async {
             try {
                 lock.lock();
-                if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") message running at place0");
-                val state = states(id);
-                if (!state.isAdopted()) {
-                    state.transit(kind, srcId, dstId)--;
-                    state.numActive--;
-                    state.excs.add(t);
-                    if (quiescent(id)) releaseLatch(id);
+                if (Place(srcId).isDead() || Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== notifyActivityCreationFailed(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
-                    val adopterId = getCurrentAdopterId(id);
-                    val adopterState = states(adopterId);
-                    adopterState.transitAdopted(kind, srcId, dstId)--;
-                    adopterState.numActive--;
-                    adopterState.excs.add(t);
-                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                    if (verbose>=1) debug(">>>> notifyActivityCreatedFailed(id="+id+") message running at place0");
+                    val state = states(id);
+                    if (!state.isAdopted()) {
+                        state.transit(kind, srcId, dstId)--;
+                        state.numActive--;
+                        state.excs.add(t);
+                        if (quiescent(id)) releaseLatch(id);
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.transitAdopted(kind, srcId, dstId)--;
+                        adopterState.numActive--;
+                        adopterState.excs.add(t);
+                        if (quiescent(adopterId)) releaseLatch(adopterId);
+                    }
                 }
             } finally {
                 lock.unlock();
@@ -282,18 +317,25 @@ class FinishResilientPlace0 extends FinishResilient {
         at (place0) @Immediate("notifyActivityCreatedAndTerminated_to_zero") async {
             try {
                 lock.lock();
-                if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
-                val state = states(id);
-                if (!state.isAdopted()) {
-                    state.transit(kind, srcId, dstId)--;
-                    state.numActive--;
-                    if (quiescent(id)) releaseLatch(id);
+                if (Place(srcId).isDead() || Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
-                    val adopterId = getCurrentAdopterId(id);
-                    val adopterState = states(adopterId);
-                    adopterState.transitAdopted(kind, srcId, dstId)--;
-                    adopterState.numActive--;
-                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                    if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
+                    val state = states(id);
+                    if (!state.isAdopted()) {
+                        state.transit(kind, srcId, dstId)--;
+                        state.numActive--;
+                        if (quiescent(id)) releaseLatch(id);
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.transitAdopted(kind, srcId, dstId)--;
+                        adopterState.numActive--;
+                        if (quiescent(adopterId)) releaseLatch(adopterId);
+                    }
                 }
             } finally {
                 lock.unlock();
@@ -315,18 +357,25 @@ class FinishResilientPlace0 extends FinishResilient {
         at (place0) @Immediate("notifyActivityTermination_to_zero") async {
             try {
                 lock.lock();
-                if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
-                val state = states(id);
-                if (!state.isAdopted()) {
-                    state.live(kind, dstId)--;
-                    state.numActive--;
-                    if (quiescent(id)) releaseLatch(id);
+                if (Place(dstId).isDead()) {
+                    // NOTE: no state updates or DPE processing here.
+		    //       Must happen exactly once and is done
+                    //       when Place0 is notified of a dead place.
+                    if (verbose>=1) debug("==== notifyActivityTermination(id="+id+") suppressed: "+dstId+" kind="+kind);
                 } else {
-                    val adopterId = getCurrentAdopterId(id);
-                    val adopterState = states(adopterId);
-                    adopterState.liveAdopted(kind, dstId)--;
-                    adopterState.numActive--;
-                    if (quiescent(adopterId)) releaseLatch(adopterId);
+                    if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
+                    val state = states(id);
+                    if (!state.isAdopted()) {
+                        state.live(kind, dstId)--;
+                        state.numActive--;
+                        if (quiescent(id)) releaseLatch(id);
+                    } else {
+                        val adopterId = getCurrentAdopterId(id);
+                        val adopterState = states(adopterId);
+                        adopterState.liveAdopted(kind, dstId)--;
+                        adopterState.numActive--;
+                        if (quiescent(adopterId)) releaseLatch(adopterId);
+                    }
                 }
             } finally {
                 lock.unlock();
@@ -340,7 +389,7 @@ class FinishResilientPlace0 extends FinishResilient {
             try {
                 lock.lock();
                 val state = states(id);
-                state.excs.add(t); // need not consider the adopter
+                state.excs.add(t); // need not consider the adopter  TODO: Dave -- Why?????
             } finally {
                 lock.unlock();
             }
@@ -446,6 +495,15 @@ class FinishResilientPlace0 extends FinishResilient {
                 try {
                     lock.lock();
                     val state = states(id);
+                    if (Place(srcId).isDead()) {
+                        if (verbose>=1) debug("==== spwanRemoteActivity(id="+id+") src "+srcId + "is dead; dropping async");
+                        return;
+                    }
+                    if (Place(dstId).isDead()) {
+                        if (verbose>=1) debug("==== spawnRemoteActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE");
+                        addDeadPlaceException(state, dstId);
+                        return;
+                    }
                     if (!state.isAdopted()) {
                         state.live(ASYNC, dstId)++;
                         state.numActive++;
@@ -542,40 +600,42 @@ class FinishResilientPlace0 extends FinishResilient {
                 }
                 state.numActive += childState.numActive;
             } // for (chIndex)
-        }
 
-        // 2 clear dead entries and create DPEs
-        // TODO: change notify*Spawn and notify*Created to ensure 
-        //       that increments for dead places are converted to DPEs eagerly 
-        //       and then only do this operation when nd != state.numDead
-        for (i in 0..(state.NUM_PLACES-1)) {
-            if (Place.isDead(i)) {
-                for (1..state.live(ASYNC, i)) {
-                    if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
-                    addDeadPlaceException(state, i);
-                }
-		state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
-                state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
-                state.live(ASYNC, i) = 0n; state.liveAdopted(ASYNC, i) = 0n;
-                for (j in 0..(state.NUM_PLACES-1)) {
-                    state.numActive -= (state.transit(AT,i,j) + state.transitAdopted(AT,i,j) + state.transit(ASYNC,i,j) + state.transitAdopted(ASYNC,i,j));
-                    state.transit(AT,i,j) = 0n; state.transitAdopted(AT,i,j) = 0n;
-                    state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
-                    for (1..state.transit(ASYNC, j,i)) {
-                        if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
+            // 2 clear dead entries and create DPEs
+            for (i in 0..(state.NUM_PLACES-1)) {
+                if (Place.isDead(i)) {
+                    for (1..state.live(ASYNC, i)) {
+                        if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
                         addDeadPlaceException(state, i);
                     }
-                    state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
-                    state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
-                    state.transit(ASYNC,j,i) = 0n; state.transitAdopted(ASYNC,j,i) = 0n;
+		    state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
+                    state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
+                    state.live(ASYNC, i) = 0n; state.liveAdopted(ASYNC, i) = 0n;
+                    for (j in 0..(state.NUM_PLACES-1)) {
+                        state.numActive -= (state.transit(AT,i,j) + state.transitAdopted(AT,i,j) + state.transit(ASYNC,i,j) + state.transitAdopted(ASYNC,i,j));
+                        state.transit(AT,i,j) = 0n; state.transitAdopted(AT,i,j) = 0n;
+                        state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
+                        for (1..state.transit(ASYNC, j,i)) {
+                            if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
+                            addDeadPlaceException(state, i);
+                        }
+                        state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
+                        state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
+                        state.transit(ASYNC,j,i) = 0n; state.transitAdopted(ASYNC,j,i) = 0n;
+                    }
                 }
             }
+        }
+
+	if (state.numActive < 0) {
+            debug("COUNTING ERROR: quiescent(id="+id+") negative numActive!!!");
+            state.dump("DUMP id="+id);
+            return true; // TODO: This really should be converted to a fatal error....
         }
         
         // 3 quiescent check
         if (verbose>=3) state.dump("DUMP id="+id);
-        val quiet:Boolean = state.numActive <= 0;
-	if (state.numActive < 0) debug("quiescent(id="+id+") negative numActive = "+state.numActive);
+        val quiet = state.numActive == 0;
         if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;
     }
