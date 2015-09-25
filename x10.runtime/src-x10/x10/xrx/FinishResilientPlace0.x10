@@ -30,7 +30,7 @@ class FinishResilientPlace0 extends FinishResilient {
     private static val ASYNC = 1;
     private static val AT_AND_ASYNC = AT..ASYNC;
 
-    private static class State { // data stored at Place0
+    private static class State implements x10.io.Unserializable { // data stored at Place0
         val NUM_PLACES = Place.numPlaces();
         val transit = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
         val transitAdopted = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
@@ -41,15 +41,19 @@ class FinishResilientPlace0 extends FinishResilient {
         var adopterId:Long = -1; // adopter (if adopted)
         def isAdopted() = (adopterId != -1);
         var numDead:Long = 0;
+        var numActive:Long = 0;
         
         val parentId:Long; // parent (or -1)
         val gLatch:GlobalRef[SimpleLatch]; // latch to be released
+
         private def this(parentId:Long, gLatch:GlobalRef[SimpleLatch]) {
-            this.parentId = parentId; this.gLatch = gLatch;
+            this.parentId = parentId; 
+            this.gLatch = gLatch;
         }
         
         def dump(msg:Any) {
             val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
+            s.add("      numActive:"); s.add(numActive); s.add('\n');
             s.add("           live:"); s.add(live.toString(1024)); s.add('\n');
             s.add("    liveAdopted:"); s.add(liveAdopted.toString(1024)); s.add('\n');
             s.add("        transit:"); s.add(transit.toString(1024)); s.add('\n');
@@ -84,6 +88,7 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = new State(parentId, gLatch);
                 states.add(state);
                 state.live(ASYNC,gLatch.home.id) = 1n; // for myself, will be decremented in waitForFinish
+                state.numActive = 1;
                 if (parentId != -1) states(parentId).children.add(id);
                 return id;
             } finally {
@@ -128,10 +133,12 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.transit(kind, srcId, dstId)++;
+                    state.numActive++;
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
                     adopterState.transitAdopted(kind, srcId, dstId)++;
+                    adopterState.numActive++;
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
             } finally {
@@ -245,12 +252,14 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.transit(kind, srcId, dstId)--;
+                    state.numActive--;
                     state.excs.add(t);
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
                     adopterState.transitAdopted(kind, srcId, dstId)--;
+                    adopterState.numActive--;
                     adopterState.excs.add(t);
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
@@ -277,11 +286,13 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.transit(kind, srcId, dstId)--;
+                    state.numActive--;
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
                     adopterState.transitAdopted(kind, srcId, dstId)--;
+                    adopterState.numActive--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
             } finally {
@@ -308,11 +319,13 @@ class FinishResilientPlace0 extends FinishResilient {
                 val state = states(id);
                 if (!state.isAdopted()) {
                     state.live(kind, dstId)--;
+                    state.numActive--;
                     if (quiescent(id)) releaseLatch(id);
                 } else {
                     val adopterId = getCurrentAdopterId(id);
                     val adopterState = states(adopterId);
                     adopterState.liveAdopted(kind, dstId)--;
+                    adopterState.numActive--;
                     if (quiescent(adopterId)) releaseLatch(adopterId);
                 }
             } finally {
@@ -435,10 +448,12 @@ class FinishResilientPlace0 extends FinishResilient {
                     val state = states(id);
                     if (!state.isAdopted()) {
                         state.live(ASYNC, dstId)++;
+                        state.numActive++;
                     } else {
                         val adopterId = getCurrentAdopterId(id);
                         val adopterState = states(adopterId);
                         adopterState.liveAdopted(ASYNC, dstId)++;
+                        adopterState.numActive++;
                     }                                        
                     if (verbose>=3) state.dump("DUMP id="+id);
                 } finally {
@@ -516,7 +531,7 @@ class FinishResilientPlace0 extends FinishResilient {
                 if (verbose>=3) debug("adopting childId="+childId);
                 assert !childState.isAdopted();
                 childState.adopterId = id;
-                state.children.addAll(childState.children); // will be checked in the following iteration
+                state.children.addAll(childState.children); // will be checked in later iteration since addAll appends
 		for (k in AT_AND_ASYNC) {
                     for (i in 0..(state.NUM_PLACES-1)) {
                         state.liveAdopted(k,i) += (childState.live(k,i) + childState.liveAdopted(k,i));
@@ -525,26 +540,33 @@ class FinishResilientPlace0 extends FinishResilient {
                         }
                     }
                 }
+                state.numActive += childState.numActive;
             } // for (chIndex)
         }
 
-        // 2 delete dead entries
+        // 2 clear dead entries and create DPEs
+        // TODO: change notify*Spawn and notify*Created to ensure 
+        //       that increments for dead places are converted to DPEs eagerly 
+        //       and then only do this operation when nd != state.numDead
         for (i in 0..(state.NUM_PLACES-1)) {
             if (Place.isDead(i)) {
                 for (1..state.live(ASYNC, i)) {
                     if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
                     addDeadPlaceException(state, i);
                 }
+		state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
                 state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
                 state.live(ASYNC, i) = 0n; state.liveAdopted(ASYNC, i) = 0n;
                 for (j in 0..(state.NUM_PLACES-1)) {
-                    state.transit(AT, i,j) = 0n; state.transitAdopted(AT, i, j) = 0n;
-                    state.transit(ASYNC, i,j) = 0n; state.transitAdopted(ASYNC, i, j) = 0n;
+                    state.numActive -= (state.transit(AT,i,j) + state.transitAdopted(AT,i,j) + state.transit(ASYNC,i,j) + state.transitAdopted(ASYNC,i,j));
+                    state.transit(AT,i,j) = 0n; state.transitAdopted(AT,i,j) = 0n;
+                    state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
                     for (1..state.transit(ASYNC, j,i)) {
                         if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
                         addDeadPlaceException(state, i);
                     }
-                    state.transit(AT, j,i) = 0n; state.transitAdopted(AT, j,i) = 0n;
+                    state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
+                    state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
                     state.transit(ASYNC,j,i) = 0n; state.transitAdopted(ASYNC,j,i) = 0n;
                 }
             }
@@ -552,17 +574,8 @@ class FinishResilientPlace0 extends FinishResilient {
         
         // 3 quiescent check
         if (verbose>=3) state.dump("DUMP id="+id);
-        var quiet:Boolean = true;
-        outer: for (i in 0..(state.NUM_PLACES-1)) {
-            for (k in AT_AND_ASYNC) {
-                if (state.live(k, i) > 0) { quiet = false; break outer; }
-                if (state.liveAdopted(k,i) > 0) { quiet = false; break outer; }
-                for (j in 0..(state.NUM_PLACES-1)) {
-                    if (state.transit(k,i,j) > 0) { quiet = false; break outer; }
-                    if (state.transitAdopted(k,i,j) > 0) { quiet = false; break outer; }
-                }
-            }
-        }
+        val quiet:Boolean = state.numActive <= 0;
+	if (state.numActive < 0) debug("quiescent(id="+id+") negative numActive = "+state.numActive);
         if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
         return quiet;
     }
@@ -571,5 +584,4 @@ class FinishResilientPlace0 extends FinishResilient {
         e.fillInStackTrace(); // meaningless?
         state.excs.add(e);
     }
-
 }
