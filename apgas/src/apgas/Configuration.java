@@ -137,7 +137,7 @@ public final class Configuration {
 
   /**
    * Specifies the hostfile when using a compatible launcher such as "
-   * {@apgas.impl.SshLauncher}" (String property).
+   * {@code apgas.impl.SshLauncher}" (String property).
    * <p>
    * Defaults tp "{@code hostfile}".
    */

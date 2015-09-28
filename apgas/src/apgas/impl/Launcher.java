@@ -24,6 +24,8 @@ public interface Launcher {
    *          number of processes to launch
    * @param command
    *          command line
+   * @param verbose
+   *          dumps the executed commands to stderr
    * @throws Exception
    *           if launching fails
    */
