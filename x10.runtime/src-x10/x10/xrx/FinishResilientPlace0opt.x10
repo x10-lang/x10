@@ -106,8 +106,9 @@ class FinishResilientPlace0opt extends FinishResilient implements CustomSerializ
     public def toString():String = System.identityToString(this) + "(id="+id+")";
     
     // create a FinishState
-    static def make(parent:FinishState, latch:SimpleLatch):FinishResilientPlace0opt {
-        if (verbose>=1) debug(">>>> FinishResilientPlace0opt.make called, parent="+parent + " latch="+latch);
+    static def make(parent:FinishState):FinishResilientPlace0opt {
+        if (verbose>=1) debug(">>>> FinishResilientPlace0opt.make called, parent="+parent);
+        val latch = new SimpleLatch();
         val fs = new FinishResilientPlace0opt(parent, latch);
         fs.localState.localLive.set(1n); // for myself, will be decremented in waitForFinish
         if (verbose>=1) debug("<<<< FinishResilientPlace0opt.make returning fs="+fs);

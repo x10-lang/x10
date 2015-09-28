@@ -34,8 +34,8 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   private transient val parent:Any; // parent finish
 //  private transient var exceptions:GrowableRail[CheckedThrowable](); // TODO
 
-  static def make(parent:Any, latch:SimpleLatch):FinishResilientHCopt {
-    return new FinishResilientHCopt(parent, latch);
+  static def make(parent:Any):FinishResilientHCopt {
+    return new FinishResilientHCopt(parent, new SimpleLatch());
   }
 
   private def this(parent:Any, latch:SimpleLatch) {
@@ -60,7 +60,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
       if (parent instanceof FinishResilientHCopt) {
         (parent as FinishResilientHCopt).init();
       }
-      f = FinishResilientHC.make(parent, new SimpleLatch());
+      f = FinishResilientHC.make(parent);
     }
     latch.unlock();
   }

@@ -22,7 +22,7 @@ import x10.util.concurrent.SimpleLatch;
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
-final class FinishResilientPlace0 extends FinishResilient {
+final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mortal {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
@@ -35,6 +35,7 @@ final class FinishResilientPlace0 extends FinishResilient {
      */
     private static final class State implements x10.io.Unserializable {
         val NUM_PLACES = Place.numPlaces();
+        var numActive:Long = 0;
         val transit = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
         val transitAdopted = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);
         val live = new Array_2[Int](2, NUM_PLACES);
@@ -42,17 +43,17 @@ final class FinishResilientPlace0 extends FinishResilient {
         val excs = new x10.util.GrowableRail[CheckedThrowable](); // exceptions to report
         val children = new x10.util.GrowableRail[Long](); // children
         var adopterId:Long = -1; // adopter (if adopted)
-        def isAdopted() = (adopterId != -1);
-        var numActive:Long = 0;
         
         val parentId:Long; // parent (or -1)
-        val gLatch:GlobalRef[SimpleLatch]; // latch to be released
+        val gfs:GlobalRef[FinishResilientPlace0]; // root finish state
 
-        private def this(parentId:Long, gLatch:GlobalRef[SimpleLatch]) {
+        private def this(parentId:Long, gfs:GlobalRef[FinishResilientPlace0]) {
             this.parentId = parentId; 
-            this.gLatch = gLatch;
+            this.gfs = gfs;
         }
         
+        def isAdopted() = (adopterId != -1);
+
         def dump(msg:String) {
             val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
             s.add("      numActive:"); s.add(numActive); s.add('\n');
@@ -73,23 +74,28 @@ final class FinishResilientPlace0 extends FinishResilient {
 
     private static val lock = (here.id==0) ? new x10.util.concurrent.Lock() : null;
     
-    private val id:Long;
-    private var hasRemote:Boolean = false;
+    private var id:Long = -2;
+    private transient val latch:SimpleLatch;         // only non-null on root FS
+    private transient var excs:MultipleExceptions;   // set by place0 when latch is released
+    private transient var hasRemote:Boolean = false; // only used by initiating activity in waitForFinish
 
     public def toString():String = "FinishResilientPlace0(id="+id+")";
-    private def this(id:Long) { this.id = id; }
+    private def this() { 
+        latch = new SimpleLatch();
+    }
     
-    static def make(parent:FinishState, latch:SimpleLatch):FinishResilient {
-        if (verbose>=1) debug(">>>> make called, parent="+parent + " latch="+latch);
+    static def make(parent:FinishState):FinishResilient {
+        if (verbose>=1) debug(">>>> make called, parent="+parent);
         val parentId = (parent instanceof FinishResilientPlace0) ? (parent as FinishResilientPlace0).id : -1; // ok to ignore other cases?
-        val gLatch = GlobalRef[SimpleLatch](latch);
-        val id = Runtime.evalImmediateAt[Long](place0, ()=>{ 
+        val fs = new FinishResilientPlace0();
+        val gfs = GlobalRef[FinishResilientPlace0](fs);
+        fs.id = Runtime.evalImmediateAt[Long](place0, ()=>{ 
             try {
                 lock.lock();
                 val id = states.size();
-                val state = new State(parentId, gLatch);
+                val state = new State(parentId, gfs);
                 states.add(state);
-                state.live(ASYNC,gLatch.home.id) = 1n; // for myself, will be decremented in waitForFinish
+                state.live(ASYNC,gfs.home.id) = 1n; // for myself, will be decremented in waitForFinish
                 state.numActive = 1;
                 if (parentId != -1) states(parentId).children.add(id);
                 return id;
@@ -97,7 +103,6 @@ final class FinishResilientPlace0 extends FinishResilient {
                 lock.unlock();
             }
         });
-        val fs = new FinishResilientPlace0(id);
         if (verbose>=1) debug("<<<< make returning fs="+fs);
         return fs;
     }
@@ -402,71 +407,23 @@ final class FinishResilientPlace0 extends FinishResilient {
     def waitForFinish():void {
         if (verbose>=1) debug(">>>> waitForFinish(id="+id+") called");
 
-        // terminate myself and get the latch to wait
-        val dstId = here.id;
-        val gLatch = Runtime.evalImmediateAt[GlobalRef[SimpleLatch]](place0, ()=>{ 
-            try {
-                lock.lock();
-                val state = states(id);
-                if (Place(dstId).isDead()) {
-                    // NOTE: no state updates or DPE processing here.
-		    //       Must happen exactly once and is done
-                    //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== waitForFinish(id="+id+") suppressed: "+dstId+" is dead");
-                } else {
-                    if (verbose>=1) debug("<<<< waitForFinish(id="+id+") message running at place0");
-                    if (!state.isAdopted()) {
-                        state.live(ASYNC, dstId)--;
-                        state.numActive--;
-                        if (quiescent(id)) releaseLatch(id);
-                    } else {
-                        val adopterId = getCurrentAdopterId(id);
-                        val adopterState = states(adopterId);
-                        adopterState.liveAdopted(ASYNC, dstId)--;
-                        adopterState.numActive--;
-                        if (quiescent(adopterId)) releaseLatch(adopterId);
-                    }
-                }
-                return state.gLatch;
-            } finally {
-                lock.unlock();
-            }
-        });
-        assert gLatch.home==here;
-        val lLatch = gLatch.getLocalOrCopy();
+        // terminate myself
+        notifyActivityTermination();
 
         // If we haven't gone remote with this finish yet, see if this worker
         // can execute other asyncs that are governed by the finish before waiting on the latch.
         if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || !hasRemote)) {
             if (verbose>=2) debug("calling worker.join for id="+id);
-            Runtime.worker().join(lLatch);
+            Runtime.worker().join(this.latch);
         }
 
         // wait for the latch release
         if (verbose>=2) debug("calling latch.await for id="+id);
-        lLatch.await(); // wait for the termination (latch may already be released)
+        latch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
         
-        // get exceptions
-        // TODO: We should piggyback this on the message that released the latch!
-	//       Going back to place0 to get the exceptions adds latency!!!
-        val e = Runtime.evalImmediateAt[MultipleExceptions](place0, ()=> {
-            try {
-                lock.lock();
-                val state = states(id);
-                if (!state.isAdopted()) {
-                    states(id) = null;
-                    return MultipleExceptions.make(state.excs); // may return null
-                } else {
-                    //TODO: need to remove the state in future
-                    return null as MultipleExceptions;
-                }
-            } finally {
-                lock.unlock();
-            }
-        });
-        if (verbose>=1) debug("<<<< waitForFinish(id="+id+") returning, exc="+e);
-        if (e != null) throw e;
+        // get exceptions and propagate if there are any
+        if (excs != null) throw excs;
     }
 
     /*
@@ -570,14 +527,15 @@ final class FinishResilientPlace0 extends FinishResilient {
     }
 
     private static def releaseLatch(id:Long) { // release the latch for this state
-        assert here==place0; // must be called while lock is held and at place0
         if (verbose>=2) debug("releaseLatch(id="+id+") called");
         val state = states(id);
-        val gLatch = state.gLatch;
-        at (gLatch.home) @Immediate("releaseLatch_gLatch_home") async {
-            if (verbose>=2) debug("calling latch.release for id="+id);
-            gLatch.getLocalOrCopy().release(); // latch.wait is in waitForFinish
-        };
+        val gfs = state.gfs;
+        val excs = state.isAdopted() ? null : MultipleExceptions.make(state.excs);
+        at (gfs.home) @Immediate("releaseLatch_gfs_home") async {
+            if (verbose>=2) debug("releasing latch id="+id+(excs == null ? " no exceptions" : " with exceptions"));
+            gfs().excs = excs;
+            gfs().latch.release();
+        }
         if (verbose>=2) debug("releaseLatch(id="+id+") returning");
     }
 
@@ -616,7 +574,7 @@ final class FinishResilientPlace0 extends FinishResilient {
             val childId = children(chIndex);
             val childState = states(childId);
             if (childState==null) continue;
-            if (!childState.gLatch.home.isDead()) continue;
+            if (!childState.gfs.home.isDead()) continue;
             val lastChildId = children.removeLast();
             if (chIndex < children.size()) children(chIndex) = lastChildId;
             chIndex--; // don't advance this iteration

@@ -1363,7 +1363,7 @@ public final class Runtime {
         if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
             return new FinishState.Finish();
         } else {
-            return FinishResilient.make(null/*parent*/, null/*latch*/);
+            return FinishResilient.make(null);
         }
     }
 
@@ -1371,7 +1371,7 @@ public final class Runtime {
         if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
             return new FinishState.Finish();
         } else {
-            return FinishResilient.make(parent, null/*latch*/);
+            return FinishResilient.make(parent);
         }
     }
 
@@ -1419,7 +1419,7 @@ public final class Runtime {
                 f = new FinishState.Finish();
             }
         } else {
-            f = FinishResilient.make(null/*parent*/, null/*latch*/);
+            f = FinishResilient.make(null);
         }
 
         return activity().swapFinish(f);

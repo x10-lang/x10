@@ -47,7 +47,7 @@ abstract class FinishResilient extends FinishState {
     /*
      * Static methods to be implemented in subclasses
      */
-    // static def make(parent:FinishResilient, latch:SimpleLatch):FinishResilient;
+    // static def make(parent:FinishState):FinishResilient;
     // static def notifyPlaceDeath():void;
     
     /*
@@ -75,39 +75,35 @@ abstract class FinishResilient extends FinishState {
         val a = Runtime.activity();
         return (a!=null) ? a.finishState() : null;
     }
-    static def make(parent:FinishState, latch:SimpleLatch):FinishState { // parent/latch may be null
-        if (verbose>=1) debug("FinishResilient.make called, parent=" + parent + " latch=" + latch);
+    static def make(parent:FinishState):FinishState { // parent may be null
+        if (verbose>=1) debug("FinishResilient.make called, parent=" + parent);
         var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_DEFAULT:
         case Configuration.RESILIENT_MODE_PLACE0:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientPlace0.make(p, l);
+            fs = FinishResilientPlace0.make(p);
             break;
         }
         case Configuration.RESILIENT_MODE_HC:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
             val o = p as Any;
-            fs = makeFinishResilientHC(o, l);
+            fs = makeFinishResilientHC(o);
             break;
         }
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
         {
            val p = (parent!=null) ? parent : getCurrentFS();
-           val l = (latch!=null) ? latch : new SimpleLatch();
            val o = p as Any;
-           fs = makeFinishResilientHCopt(o, l);
+           fs = makeFinishResilientHCopt(o);
            break;
         }
         case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientPlace0opt.make(p, l);
+            fs = FinishResilientPlace0opt.make(p);
             break;
         }
         default:
@@ -117,13 +113,13 @@ abstract class FinishResilient extends FinishState {
         return fs;
     }
 
-    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o, #l)")
-    private static def makeFinishResilientHC(o:Any, l:SimpleLatch):FinishState {
+    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o)")
+    private static def makeFinishResilientHC(o:Any):FinishState {
         failJavaOnlyMode();
         return null;
     }
-    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o, #l)")
-    private static def makeFinishResilientHCopt(o:Any, l:SimpleLatch):FinishState {
+    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o)")
+    private static def makeFinishResilientHCopt(o:Any):FinishState {
         failJavaOnlyMode();
         return null;
     }
