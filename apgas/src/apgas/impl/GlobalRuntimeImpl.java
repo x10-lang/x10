@@ -141,6 +141,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         .getProperty(Configuration.APGAS_TRANSPORT);
     final String launcherName = System
         .getProperty(Configuration.APGAS_LAUNCHER);
+    final boolean launcherVerbose = Boolean
+        .getBoolean(Configuration.APGAS_LAUNCHER_VERBOSE);
 
     // initialize finish
     Finish.Factory factory = null;
@@ -261,7 +263,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
             + (master == null ? transport.getAddress() : master));
         command.add(getClass().getSuperclass().getCanonicalName());
 
-        launcher.launch(p - 1, command);
+        launcher.launch(p - 1, command, launcherVerbose);
       } catch (final Throwable t) {
         // initiate shutdown
         shutdown();

@@ -128,4 +128,18 @@ public final class Configuration {
    * Defaults to "{@code apgas.impl.LocalLauncher}".
    */
   public static final String APGAS_LAUNCHER = "apgas.launcher";
+
+  /**
+   * If set the runtime will ouput on stderr the command line used to launch
+   * places (Boolean property).
+   */
+  public static final String APGAS_LAUNCHER_VERBOSE = "apgas.launcher.verbose";
+
+  /**
+   * Specifies the hostfile when using a compatible launcher such as "
+   * {@apgas.impl.SshLauncher}" (String property).
+   * <p>
+   * Defaults tp "{@code hostfile}".
+   */
+  public static final String APGAS_HOSTFILE = "apgas.hostfile";
 }
