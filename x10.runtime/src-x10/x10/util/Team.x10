@@ -1275,6 +1275,7 @@ public struct Team {
 	                            // copy my data, plus all the data filled in by my children, to my parent
 	                            Rail.uncountedCopy(gr, dst_off+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), totalData, incrementParentPhase);
 	                        }
+	                        gr.forget();
 	                    } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
 	                        val notnulldst = dst as Rail[T]{self!=null};
 	                        val gr = new GlobalRail[T](notnulldst);
@@ -1297,6 +1298,7 @@ public struct Team {
 	                            }
 	                            Rail.uncountedCopy(gr, dst_off, target, off, count, incrementParentPhase);
 	                        }
+	                        gr.forget();
 	                    } else if (collType == COLL_INDEXOFMAX) {
 	                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
 	                        at (places(myLinks.parentIndex)) @Uncounted async {
@@ -1336,6 +1338,7 @@ public struct Team {
 	                            val myOffset = childOffset - parentOffset + rootDstOffset;
 	                            Rail.uncountedCopy(grTmp, 0, Team.state(teamidcopy).local_temp_buff as Rail[T], myOffset, childTotalData, incrementParentPhase);
 	                        }
+	                        grTmp.forget();
 	                    }
 	                } else {
 	                    at (places(myLinks.parentIndex)) @Uncounted async { 
@@ -1424,7 +1427,9 @@ public struct Team {
 	                            at (places(local_child2Index)) async copyToChild();
 	                        }
 	                    }
+	                    grTmp.forget();
 	                }
+	                gr.forget();
 	                if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
 	            }
 	        
