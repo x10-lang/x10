@@ -51,6 +51,18 @@ public final struct GlobalRail[T] (
         { @Native("c++", "x10rt_register_mem(a->raw, a->FMGL(size) * sizeof(TPMGL(T)));") {} }
     }
     
+    /** 
+     * Called when the Rail referred to by the GlobalRail is no 
+     * longer accesible from other places and therefore can
+     * be removed from the data sturctures that keep objects
+     * alive even when they are not live locally. 
+     * Can only be invoked at the place at which the value was
+     * created. 
+     */
+    public def forget(){here == rail.home}:void {
+        rail.forget();
+    }
+
     /**
      * Create a GlobalRail using a raw size and remote rail.  This is unsafe
      * since it may be used to violate the (unenforced) constraint that
