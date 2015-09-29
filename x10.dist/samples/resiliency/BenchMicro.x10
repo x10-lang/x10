@@ -189,7 +189,47 @@ public class BenchMicro {
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
         Console.OUT.println(prefix+"fan out, nested finish broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
+
+        iterCount = 0;
+        time0 = System.nanoTime();
+        do {
+            downTree(t);
+            time1 = System.nanoTime();
+            iterCount++;
+        } while (time1-time0 < MIN_NANOS);
+        Console.OUT.println(prefix+"tree fan out: "+(time1-time0)/1E9/iterCount+" seconds");
+
+        iterCount = 0;
+        val endPlace = Place.places().prev(here);
+        time0 = System.nanoTime();
+        do {
+            ring(t, endPlace);
+            time1 = System.nanoTime();
+            iterCount++;
+        } while (time1-time0 < MIN_NANOS);
+        Console.OUT.println(prefix+"ring around via at: "+(time1-time0)/1E9/iterCount+" seconds");
     }
+
+    private static def downTree(thinkTime:long):void {
+        think(thinkTime);
+        val parent = here.id;
+        val child1 = parent*2 + 1;
+        val child2 = child1 + 1;
+        if (child1 < Place.numPlaces() || child2 < Place.numPlaces()) {
+            finish {
+                if (child1 < Place.numPlaces()) at (Place(child1)) async downTree(thinkTime);
+                if (child2 < Place.numPlaces()) at (Place(child2)) async downTree(thinkTime);
+            }
+        }
+    }
+
+    private static def ring(thinkTime:long, destination:Place):void {
+        think(thinkTime);
+        if (destination == here) return;
+        val nextHop = Place.places().next(here);
+        at (nextHop) ring(thinkTime, destination);
+    }
+
 
     public static def think(think:Long) {
         if (think == 0) return;
