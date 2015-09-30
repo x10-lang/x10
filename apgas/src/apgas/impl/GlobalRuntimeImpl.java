@@ -14,6 +14,7 @@ package apgas.impl;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -249,9 +250,10 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         final ArrayList<String> command = new ArrayList<String>();
         command.add(java);
         command.add("-Xbootclasspath:"
-            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
+            + toAbsoluteClassPath(ManagementFactory.getRuntimeMXBean()
+                .getBootClassPath()));
         command.add("-cp");
-        command.add(System.getProperty("java.class.path"));
+        command.add(toAbsoluteClassPath(System.getProperty("java.class.path")));
         for (final String property : System.getProperties()
             .stringPropertyNames()) {
           if (property.startsWith("apgas.")
@@ -278,6 +280,14 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       } catch (final InterruptedException e) {
       }
     }
+  }
+
+  static private String toAbsoluteClassPath(String classPath) {
+    final String[] cp = classPath.split(":");
+    for (int i = 0; i < cp.length; ++i) {
+      cp[i] = Paths.get(cp[i]).toAbsolutePath().normalize().toString();
+    }
+    return String.join(":", cp);
   }
 
   /**
