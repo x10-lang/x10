@@ -25,7 +25,7 @@ import x10.util.HashMap;
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
-final class FinishResilientPlace0 extends FinishResilient {
+final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mortal {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
@@ -79,7 +79,6 @@ final class FinishResilientPlace0 extends FinishResilient {
             val mygfs = gfs;
             at (mygfs.home) @Immediate("releaseLatch_gfs_home") async {
                 val fs = mygfs();
-                mygfs.forget();
                 if (exceptions != null) {
                     fs.latch.lock();
                     if (fs.excs == null) fs.excs = new GrowableRail[CheckedThrowable](exceptions.size);
