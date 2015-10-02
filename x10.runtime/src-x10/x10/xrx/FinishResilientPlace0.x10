@@ -14,18 +14,20 @@ import x10.compiler.*;
 
 import x10.array.Array_2;
 import x10.array.Array_3;
+import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.GrowableRail;
 import x10.util.HashMap;
+import x10.util.HashSet;
 
 /**
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
-final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mortal {
+final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mortal, CustomSerialization {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
@@ -72,22 +74,31 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
         }
 
         def releaseLatch() {
-            if (verbose>=2) debug("releaseLatch(id="+id+") called");
-            val exceptions = isAdopted() ? null : (excs == null || excs.isEmpty() ?  null : excs.toRail());
-            if (verbose>=2) debug("releasing latch id="+id+(exceptions == null ? " no exceptions" : " with exceptions"));
+	    if (isAdopted()) {
+                if (verbose>=1) debug("releaseLatch(id="+id+") called on adopted finish; not releasing latch");
+            } else {
+                val exceptions = (excs == null || excs.isEmpty()) ?  null : excs.toRail();
+                if (verbose>=2) debug("releasing latch id="+id+(exceptions == null ? " no exceptions" : " with exceptions"));
 
-            val mygfs = gfs;
-            at (mygfs.home) @Immediate("releaseLatch_gfs_home") async {
-                val fs = mygfs();
-                if (exceptions != null) {
-                    fs.latch.lock();
-                    if (fs.excs == null) fs.excs = new GrowableRail[CheckedThrowable](exceptions.size);
-                    fs.excs.addAll(exceptions);
-                    fs.latch.unlock();
+                val mygfs = gfs;
+                val tmpId = id;
+                try {
+                    at (mygfs.home) @Immediate("releaseLatch_gfs_home") async {
+                        if (verbose>=2) debug("performing releae for "+tmpId+" at "+here);
+                        val fs = mygfs();
+                        if (exceptions != null) {
+                            fs.latch.lock();
+                            if (fs.excs == null) fs.excs = new GrowableRail[CheckedThrowable](exceptions.size);
+                            fs.excs.addAll(exceptions);
+                            fs.latch.unlock();
+                        }
+                        fs.latch.release();
+                     }
+                } catch (dpe:DeadPlaceException) {
+                    // can ignore; if the place is dead there is no need to unlatch a waiting activity there
+                    if (verbose>=2) debug("caught and suppressed DPE when attempting to release latch for "+id);
                 }
-                fs.latch.release();
             }
-            // TODO: right here is where we should remove the state (from states and from its parent's children
             if (verbose>=2) debug("releaseLatch(id="+id+") returning");
         }
 
@@ -135,9 +146,8 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     
     private val id:Id;
 
-    @TransientInitExpr(new AtomicInteger(1n))
+    // Initialized by custom deserializer
     private transient var localCount:AtomicInteger;
-    @TransientInitExpr(true)
     private transient var isGlobal:Boolean = false;
 
     // These fields are only valid / used in the root finish instance.
@@ -153,6 +163,17 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
         parent = p;
         isGlobal = false;
         id = Id(here.id as Int, nextId.getAndIncrement());
+    }
+
+    private def this(deser:Deserializer) {
+        id = deser.readAny() as Id;
+        localCount = new AtomicInteger(1n);
+        isGlobal = true;
+    }
+
+    public def serialize(ser:Serializer) {
+        if (!isGlobal) globalInit(); // Once we have more than 1 copy of the finish state, we must go global
+        ser.writeAny(id);
     }
 
     private def globalInit() {
@@ -203,9 +224,16 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
             for (e in states.entries()) {
                 processPlaceDeath(e.getValue());
             }
+            val toRemove = new HashSet[Id]();
             for (e in states.entries()) {
                 val s = e.getValue();
-                if (s.quiescent()) s.releaseLatch();
+                if (s.quiescent()) {
+                    s.releaseLatch();
+                    toRemove.add(s.id);
+                }
+            }
+            for (id in toRemove) {
+                states.remove(id);
             }
         } finally {
             lock.unlock();
@@ -392,13 +420,20 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                         state.transit(kind, srcId, dstId)--;
                         state.numActive--;
                         state.excs.add(t);
-                        if (state.quiescent()) state.releaseLatch();
+                        if (state.quiescent()) {
+                            state.releaseLatch();
+                            states.remove(id);
+                        }
                     } else {
                         val adopterState = state.getCurrentAdopter();
                         adopterState.transitAdopted(kind, srcId, dstId)--;
                         adopterState.numActive--;
                         adopterState.excs.add(t);
-                        if (adopterState.quiescent()) adopterState.releaseLatch();
+                        if (adopterState.quiescent()) {
+                            adopterState.releaseLatch();
+                            states.remove(id);
+                            states.remove(adopterState.id);
+                        }
                     }
                 }
             } finally {
@@ -420,6 +455,40 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
             val lc = localCount.decrementAndGet();
             if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called locally, localCount now "+lc);
             if (lc > 0) return;
+            if (isGlobal) {
+                // if srcId == dstId, then notifySubActivitySpawn transitions to live (not transit)
+                // so we need to decrement accordingly here and then check for quiescence.
+                at (place0) @Immediate("notifyActivityCreatedAndTerminated_quiescence_check_to_zero") async {
+                    try {
+                        lock.lock();
+                        val state = states.get(id);
+                        if (!state.isAdopted()) {
+                            state.live(kind, srcId)--;
+                            state.numActive--;
+                            if (state.quiescent()) {
+                                state.releaseLatch();
+                                states.remove(id);
+                            }
+                        } else {
+                            val adopterState = state.getCurrentAdopter();
+                            adopterState.live(kind, srcId)--;
+                            adopterState.numActive--;
+                            if (adopterState.quiescent()) {
+                                adopterState.releaseLatch();
+                                states.remove(id);
+                                states.remove(adopterState.id);
+                            }
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
+                }
+            } else {
+                if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") quiescent local finish; releasing latch");
+                latch.release();
+                return;
+            }
+            return; 
         }
 
         if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
@@ -438,12 +507,19 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     if (!state.isAdopted()) {
                         state.transit(kind, srcId, dstId)--;
                         state.numActive--;
-                        if (state.quiescent()) state.releaseLatch();
+                        if (state.quiescent()) {
+                            state.releaseLatch();
+                            states.remove(id);
+                        }
                     } else {
                         val adopterState = state.getCurrentAdopter();
                         adopterState.transitAdopted(kind, srcId, dstId)--;
                         adopterState.numActive--;
-                        if (adopterState.quiescent()) adopterState.releaseLatch();
+                        if (adopterState.quiescent()) {
+                            adopterState.releaseLatch();
+                            states.remove(id);
+                            states.remove(adopterState.id);
+                        }
                     }
                 }
             } finally {
@@ -488,12 +564,19 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     if (!state.isAdopted()) {
                         state.live(kind, dstId)--;
                         state.numActive--;
-                        if (state.quiescent()) state.releaseLatch();
+                        if (state.quiescent()) {
+                            state.releaseLatch();
+                            states.remove(id);
+                        }
                     } else {
                         val adopterState = state.getCurrentAdopter();
                         adopterState.liveAdopted(kind, dstId)--;
                         adopterState.numActive--;
-                        if (adopterState.quiescent()) adopterState.releaseLatch();
+                        if (adopterState.quiescent()) {
+                            adopterState.releaseLatch();
+                            states.remove(id);
+                            states.remove(adopterState.id);
+                        }
                     }
                 }
             } finally {
