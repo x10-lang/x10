@@ -1118,7 +1118,7 @@ public struct Team {
             // note that local indexes are not yet set up, so we won't check for dead places in this call
             sleepUntil(() => this.phase.compareAndSet(PHASE_READY, PHASE_INIT));
             
-            //// commented to allow the place to notify its children with the invalid team status before leaving the collection
+            //// commented to allow the place to notify its children with the invalid team status before leaving the collective
             //// don't do anything if this team was previously set to invalid
             //if (!Team.state(this.teamid).isValid)
             //    throw new DeadPlaceException("Team "+this.teamid+" contains at least one dead member");
