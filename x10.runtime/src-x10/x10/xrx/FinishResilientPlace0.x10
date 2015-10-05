@@ -27,7 +27,7 @@ import x10.util.HashSet;
  * Place0-based Resilient Finish
  * This version is optimized and does not use ResilientStorePlace0
  */
-final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mortal, CustomSerialization {
+final class FinishResilientPlace0 extends FinishResilient implements CustomSerialization {
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
@@ -149,6 +149,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     // Initialized by custom deserializer
     private transient var localCount:AtomicInteger;
     private transient var isGlobal:Boolean = false;
+    private transient val ref:GlobalRef[FinishResilientPlace0] = GlobalRef[FinishResilientPlace0](this);
 
     // These fields are only valid / used in the root finish instance.
     private transient var latch:SimpleLatch; 
@@ -188,8 +189,8 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
             } else {
                 parentId = UNASSIGNED;
             }
-            val gfs = GlobalRef[FinishResilientPlace0](this);
-            val myId = id;
+            val gfs = this.ref;
+            val myId = this.id;
             Runtime.runImmediateAt(place0, ()=>{ 
                 try {
                     lock.lock();
@@ -250,27 +251,28 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     def notifySubActivitySpawn(place:Place, kind:long):void {
         val srcId = here.id;
         val dstId = place.id;
+        val myId = this.id;
         if (dstId == srcId) {
             val lc = localCount.incrementAndGet();
-            if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called locally, localCount now "+lc);
+            if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+myId+") called locally, localCount now "+lc);
         } else {
             if (!isGlobal) globalInit();
-            if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
+            if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
-            localCount.incrementAndGet(); // synthetic
-            val fsgr = GlobalRef[FinishResilientPlace0](this);
+            localCount.incrementAndGet(); // synthetic activity to keep finish local live during async to Place0
+            val fsgr = this.ref;
             at (place0) @Immediate("notifySubActivitySpawn_to_zero") async {
                 try {
                     lock.lock();
-                    val state = states.get(id);
+                    val state = states.get(myId);
                     if (Place(srcId).isDead()) {
-                        if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") src "+srcId + "is dead; dropping async");
+                        if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") src "+srcId + "is dead; dropping async");
                     } else if (Place(dstId).isDead()) {
                         if (kind == ASYNC) {
-                            if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE for async");
+                            if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") destination "+dstId + "is dead; pushed DPE for async");
                             addDeadPlaceException(state, dstId);
                         } else {
-                            if (verbose>=1) debug("==== notifySubActivitySpawn(id="+id+") destination "+dstId + "is dead; dropped at");
+                            if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") destination "+dstId + "is dead; dropped at");
                         }
                     } else {
                         if (!state.isAdopted()) {
@@ -291,7 +293,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                 }
             }
         }
-        if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+id+") returning");
+        if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+myId+") returning");
     }
 
     def notifyRemoteContinuationCreated():void { 
@@ -313,12 +315,13 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:long):Boolean {
         val srcId = srcPlace.id; 
         val dstId = here.id;
+        val myId = this.id;
         if (srcId == dstId) {
-            if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called locally. no action requred");
+            if (verbose>=1) debug(">>>> notifyActivityCreation(id="+myId+") called locally. no action requred");
             return true;
         }
 
-        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
+        if (verbose>=1) debug(">>>> notifyActivityCreation(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         val pendingActivity = GlobalRef(activity); 
         at (place0) @Immediate("notifyActivityCreation_to_zero") async {
             var shouldSubmit:Boolean = true;
@@ -328,10 +331,10 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     // NOTE: no state updates or DPE processing here.
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== notifyActivityCreation(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    if (verbose>=1) debug("==== notifyActivityCreation(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                     shouldSubmit = false;
                 } else {
-                    val state = states.get(id);
+                    val state = states.get(myId);
                     if (!state.isAdopted()) {
                         state.live(kind, dstId)++;
                         state.transit(kind, srcId, dstId)--;
@@ -349,7 +352,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                 at (pendingActivity) @Immediate("notifyActivityCreation_push_activity") async {
                     val pa = pendingActivity();
                     if (pa != null && pa.epoch == Runtime.epoch()) {
-                        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+id+") finally submitting activity");
+                        if (verbose>=1) debug("<<<< notifyActivityCreation(id="+myId+") finally submitting activity");
                         Runtime.worker().push(pa);
                     }
                     pendingActivity.forget();
@@ -369,7 +372,8 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
         val kind = AT;
         val srcId = srcPlace.id; 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyShiftedActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
+        val myId = this.id;
+        if (verbose>=1) debug(">>>> notifyShiftedActivityCreation(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         return Runtime.evalImmediateAt[Boolean](place0, ()=> {
             try {
@@ -378,10 +382,10 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     // NOTE: no state updates or DPE processing here.
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== notifyShiftedActivityCreation(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    if (verbose>=1) debug("==== notifyShiftedActivityCreation(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                     return false;
                 }
-                val state = states.get(id);
+                val state = states.get(myId);
                 if (!state.isAdopted()) {
                     state.live(kind, dstId)++;
                     state.transit(kind, srcId, dstId)--;
@@ -404,8 +408,9 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable, kind:long):void { 
         val srcId = srcPlace.id;
         val dstId = here.id;
+        val myId = this.id;
 
-        if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
+        if (verbose>=1) debug(">>>> notifyActivityCreationFailed(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
         if (!isGlobal) globalInit();
 
@@ -416,17 +421,17 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     // NOTE: no state updates or DPE processing here.
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== notifyActivityCreationFailed(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    if (verbose>=1) debug("==== notifyActivityCreationFailed(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
-                    if (verbose>=1) debug(">>>> notifyActivityCreatedFailed(id="+id+") message running at place0");
-                    val state = states.get(id);
+                    if (verbose>=1) debug(">>>> notifyActivityCreatedFailed(id="+myId+") message running at place0");
+                    val state = states.get(myId);
                     if (!state.isAdopted()) {
                         state.transit(kind, srcId, dstId)--;
                         state.numActive--;
                         state.excs.add(t);
                         if (state.quiescent()) {
                             state.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                         }
                     } else {
                         val adopterState = state.getCurrentAdopter();
@@ -435,7 +440,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                         adopterState.excs.add(t);
                         if (adopterState.quiescent()) {
                             adopterState.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                             states.remove(adopterState.id);
                         }
                     }
@@ -445,7 +450,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
             }
        };
 
-       if (verbose>=1) debug("<<<< notifyActivityCreationFailed(id="+id+") returning, srcId="+srcId + " dstId="+dstId);
+       if (verbose>=1) debug("<<<< notifyActivityCreationFailed(id="+myId+") returning, srcId="+srcId + " dstId="+dstId);
     }
 
     def notifyActivityCreatedAndTerminated(srcPlace:Place) {
@@ -454,10 +459,11 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     def notifyActivityCreatedAndTerminated(srcPlace:Place, kind:long) {
         val srcId = srcPlace.id; 
         val dstId = here.id;
+        val myId = this.id;
 
         if (dstId == srcId) {
             val lc = localCount.decrementAndGet();
-            if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called locally, localCount now "+lc);
+            if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") called locally, localCount now "+lc);
             if (lc > 0) return;
             if (isGlobal) {
                 // if srcId == dstId, then notifySubActivitySpawn transitions to live (not transit)
@@ -465,13 +471,13 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                 at (place0) @Immediate("notifyActivityCreatedAndTerminated_quiescence_check_to_zero") async {
                     try {
                         lock.lock();
-                        val state = states.get(id);
+                        val state = states.get(myId);
                         if (!state.isAdopted()) {
                             state.live(kind, srcId)--;
                             state.numActive--;
                             if (state.quiescent()) {
                                 state.releaseLatch();
-                                states.remove(id);
+                                states.remove(myId);
                             }
                         } else {
                             val adopterState = state.getCurrentAdopter();
@@ -479,7 +485,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                             adopterState.numActive--;
                             if (adopterState.quiescent()) {
                                 adopterState.releaseLatch();
-                                states.remove(id);
+                                states.remove(myId);
                                 states.remove(adopterState.id);
                             }
                         }
@@ -488,15 +494,14 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     }
                 }
             } else {
-                if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") quiescent local finish; releasing latch");
+                if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") quiescent local finish; releasing latch");
                 latch.release();
                 return;
             }
             return; 
         }
 
-        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
-
+        if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         at (place0) @Immediate("notifyActivityCreatedAndTerminated_to_zero") async {
             try {
                 lock.lock();
@@ -504,16 +509,16 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     // NOTE: no state updates or DPE processing here.
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+id+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
+                    if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
-                    if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") message running at place0");
-                    val state = states.get(id);
+                    if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") message running at place0");
+                    val state = states.get(myId);
                     if (!state.isAdopted()) {
                         state.transit(kind, srcId, dstId)--;
                         state.numActive--;
                         if (state.quiescent()) {
                             state.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                         }
                     } else {
                         val adopterState = state.getCurrentAdopter();
@@ -521,7 +526,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                         adopterState.numActive--;
                         if (adopterState.quiescent()) {
                             adopterState.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                             states.remove(adopterState.id);
                         }
                     }
@@ -540,20 +545,26 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     }
     def notifyActivityTermination(kind:long):void {
         val lc = localCount.decrementAndGet();
+        val myId = this.id;
 
         if (lc > 0) {
-            if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, decremented localCount to "+lc);
+            if (verbose>=1) debug(">>>> notifyActivityTermination(id="+myId+") called, decremented localCount to "+lc);
             return;
         }
 
+        // If this is not the root finish, we are done with the finish state.
+        // If this is the root finish, it will be kept alive because waitForFinish
+        // is an instance method and it is on the stack of some activity.
+        (ref as GlobalRef[FinishResilientPlace0]{self.home == here}).forget();
+
         if (!isGlobal) {
-            if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") zero localCount on local finish; releasing latch");
+            if (verbose>=1) debug(">>>> notifyActivityTermination(id="+myId+") zero localCount on local finish; releasing latch");
             latch.release();
             return;
         } 
 
         val dstId = here.id;
-        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId+" kind="+kind);
+        if (verbose>=1) debug(">>>> notifyActivityTermination(id="+myId+") called, dstId="+dstId+" kind="+kind);
         at (place0) @Immediate("notifyActivityTermination_to_zero") async {
             try {
                 lock.lock();
@@ -561,16 +572,16 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     // NOTE: no state updates or DPE processing here.
 		    //       Must happen exactly once and is done
                     //       when Place0 is notified of a dead place.
-                    if (verbose>=1) debug("==== notifyActivityTermination(id="+id+") suppressed: "+dstId+" kind="+kind);
+                    if (verbose>=1) debug("==== notifyActivityTermination(id="+myId+") suppressed: "+dstId+" kind="+kind);
                 } else {
-                    if (verbose>=1) debug("<<<< notifyActivityTermination(id="+id+") message running at place0");
-                    val state = states(id);
+                    if (verbose>=1) debug("<<<< notifyActivityTermination(id="+myId+") message running at place0");
+                    val state = states(myId);
                     if (!state.isAdopted()) {
                         state.live(kind, dstId)--;
                         state.numActive--;
                         if (state.quiescent()) {
                             state.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                         }
                     } else {
                         val adopterState = state.getCurrentAdopter();
@@ -578,7 +589,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                         adopterState.numActive--;
                         if (adopterState.quiescent()) {
                             adopterState.releaseLatch();
-                            states.remove(id);
+                            states.remove(myId);
                             states.remove(adopterState.id);
                         }
                     }
@@ -590,24 +601,25 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
     }
 
     def pushException(t:CheckedThrowable):void {
+        val myId = this.id;
         if (!isGlobal) {
             latch.lock();
-            if (verbose>=1) debug(">>>> locally pushing exception "+t);
+            if (verbose>=1) debug(">>>> pushException(id="+myId+") locally pushing exception "+t);
             if (excs == null) excs = new GrowableRail[CheckedThrowable]();
             excs.add(t);
             latch.unlock();
         } else {
-            if (verbose>=1) debug(">>>> pushException(id="+id+") called, t="+t);
+            if (verbose>=1) debug(">>>> pushException(id="+myId+") called, t="+t);
             Runtime.runImmediateAt(place0, ()=>{ 
                 try {
                     lock.lock();
-                    val state = states(id);
+                    val state = states(myId);
                     state.excs.add(t); // NB: if adopted, semantics say to suppress exception.  So don't both checking for adopterId.
                 } finally {
                     lock.unlock();
                 }
             });
-            if (verbose>=1) debug("<<<< pushException(id="+id+") returning");
+            if (verbose>=1) debug("<<<< pushException(id="+myId+") returning");
         }
     }
 
@@ -628,6 +640,9 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
         if (verbose>=2) debug("calling latch.await for id="+id);
         latch.await(); // wait for the termination (latch may already be released)
         if (verbose>=2) debug("returned from latch.await for id="+id);
+
+        // no more messages will come back to this finish state 
+        (ref as GlobalRef[FinishResilientPlace0]{self.home == here}).forget();
         
         // get exceptions and throw wrapped in a ME if there are any
         if (excs != null) throw new MultipleExceptions(excs);
@@ -664,8 +679,9 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
         if (!isGlobal) globalInit();
         val srcId = here.id;
         val dstId = place.id;
+        val myId = this.id;
         if (bytes.size >= ASYNC_SIZE_THRESHOLD) {
-            if (verbose >= 1) debug("==== spawnRemoteActivity(id="+id+") selecting indirect (size="+
+            if (verbose >= 1) debug("==== spawnRemoteActivity(id="+myId+") selecting indirect (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
             val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
             val wrappedBody = ()=> @x10.compiler.AsyncClosure {
@@ -675,19 +691,19 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
             };
             x10.xrx.Runtime.x10rtSendAsync(place.id, wrappedBody, this, prof, preSendAction);
         } else {
-            if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+id+") selecting direct (size="+
+            if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+myId+") selecting direct (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
 
-            localCount.incrementAndGet(); // synthetic to allow async message to 0
-            val fsgr = GlobalRef[FinishResilientPlace0](this);
+            localCount.incrementAndGet();  // synthetic activity to keep finish local live during async to Place0
+            val fsgr = this.ref;
             at (place0) @Immediate("spawnRemoteActivity_to_zero") async {
                 try {
                     lock.lock();
-                    val state = states(id);
+                    val state = states(myId);
                     if (Place(srcId).isDead()) {
-                        if (verbose>=1) debug("==== spwanRemoteActivity(id="+id+") src "+srcId + "is dead; dropping async");
+                        if (verbose>=1) debug("==== spwanRemoteActivity(id="+myId+") src "+srcId + "is dead; dropping async");
                     } else if (Place(dstId).isDead()) {
-                        if (verbose>=1) debug("==== spawnRemoteActivitySpawn(id="+id+") destination "+dstId + "is dead; pushed DPE");
+                        if (verbose>=1) debug("==== spawnRemoteActivitySpawn(id="+myId+") destination "+dstId + "is dead; pushed DPE");
                         addDeadPlaceException(state, dstId);
                     } else {
                         if (!state.isAdopted()) {
@@ -707,7 +723,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     fsgr().notifyActivityTermination(); // end of synthetic local activity
                 }
                 at (Place(dstId)) @Immediate("spawnRemoteActivity_dstPlace") async {
-                    if (verbose >= 1) debug("==== spawnRemoteActivity(id="+id+") submitting activity from "+srcId+" at "+dstId);
+                    if (verbose >= 1) debug("==== spawnRemoteActivity(id="+myId+") submitting activity from "+srcId+" at "+dstId);
                     val wrappedBody = ()=> {
                         // defer deserialization to reduce work on immediate thread
                         val deser = new x10.io.Deserializer(bytes);
@@ -717,7 +733,7 @@ final class FinishResilientPlace0 extends FinishResilient implements Runtime.Mor
                     Runtime.worker().push(new Activity(42, wrappedBody, this));
                }
             }
-            if (verbose>=1) debug("<<<< spawnRemoteActivity(id="+id+") returning");
+            if (verbose>=1) debug("<<<< spawnRemoteActivity(id="+myId+") returning");
         }
     }
 
