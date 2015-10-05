@@ -96,9 +96,7 @@ public class BenchMicro {
     do {
       for (int i = 0; i < OUTER_ITERS; ++i) {
         finish(() -> {
-          for (int j = 0; j < INNER_ITERS; ++j) {
-            asyncAt(next, () -> think(t));
-          }
+          asyncAt(next, () -> think(t));
         });
       }
       time1 = System.nanoTime();
