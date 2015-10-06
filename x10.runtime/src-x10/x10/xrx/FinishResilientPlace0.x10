@@ -147,7 +147,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     private val id:Id;
 
     // Initialized by custom deserializer
-    private transient var localCount:AtomicInteger;
+    private val grlc:GlobalRef[AtomicInteger];
     private transient var isGlobal:Boolean = false;
     private transient val ref:GlobalRef[FinishResilientPlace0] = GlobalRef[FinishResilientPlace0](this);
 
@@ -156,11 +156,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     private transient var parent:FinishState;
     private transient var excs:GrowableRail[CheckedThrowable]; 
 
-    public def toString():String = "FinishResilientPlace0(id="+id+", localCount="+localCount.get()+")";
+    private def localCount():AtomicInteger = (grlc as GlobalRef[AtomicInteger]{self.home == here})();
+
+    public def toString():String = "FinishResilientPlace0(id="+id+", localCount="+localCount().get()+")";
 
     private def this(p:FinishState) { 
         latch = new SimpleLatch();
-        localCount = new AtomicInteger(1n); // for myself.  Will be decremented in waitForFinish
+        grlc = GlobalRef[AtomicInteger](new AtomicInteger(1n)); // for myself.  Will be decremented in waitForFinish
         parent = p;
         isGlobal = false;
         id = Id(here.id as Int, nextId.getAndIncrement());
@@ -168,13 +170,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
     private def this(deser:Deserializer) {
         id = deser.readAny() as Id;
-        localCount = new AtomicInteger(1n);
+        val lc = deser.readAny() as GlobalRef[AtomicInteger];
+        grlc = (lc.home == here) ? lc : GlobalRef[AtomicInteger](new AtomicInteger(1n));
         isGlobal = true;
     }
 
     public def serialize(ser:Serializer) {
         if (!isGlobal) globalInit(); // Once we have more than 1 copy of the finish state, we must go global
         ser.writeAny(id);
+        ser.writeAny(grlc);
     }
 
     private def globalInit() {
@@ -253,15 +257,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val dstId = place.id;
         val myId = this.id;
         if (dstId == srcId) {
-            val lc = localCount.incrementAndGet();
+            val lc = localCount().incrementAndGet();
             if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+myId+") called locally, localCount now "+lc);
         } else {
             if (!isGlobal) globalInit();
             if (verbose>=1) debug(">>>> notifySubActivitySpawn(id="+myId+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
 
-            localCount.incrementAndGet(); // synthetic activity to keep finish local live during async to Place0
-            val fsgr = this.ref;
-            at (place0) @Immediate("notifySubActivitySpawn_to_zero") async {
+            Runtime.runImmediateAt(place0, ()=>{ 
                 try {
                     lock.lock();
                     val state = states.get(myId);
@@ -283,15 +285,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                             adopterState.transitAdopted(kind, srcId, dstId)++;
                             adopterState.numActive++;
                         }
-                        if (verbose>=3) state.dump();
+                        if (verbose>=3) {
+                            debug("==== notifySubActivitySpwan(id="+myId+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
+                            state.dump();
+                        }
                     }
                 } finally {
                     lock.unlock();
                 }
-                at (fsgr) @Immediate("notifySubActivitySpawn_decrement") async {
-                    fsgr().notifyActivityTermination(); // synthetic
-                }
-            }
+            });
         }
         if (verbose>=1) debug("<<<< notifySubActivitySpawn(id="+myId+") returning");
     }
@@ -343,7 +345,10 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                         adopterState.liveAdopted(kind, dstId)++;
                         adopterState.transitAdopted(kind, srcId, dstId)--;
                     }
-                    if (verbose>=3) state.dump();
+                    if (verbose>=3) {
+                        debug("==== notifyActivityCreation(id="+myId+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
+                        state.dump();
+                    }
                 }
             } finally {
                 lock.unlock();
@@ -394,7 +399,6 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     adopterState.liveAdopted(kind, dstId)++;
                     adopterState.transitAdopted(kind, srcId, dstId)--;
                 }
-                if (verbose>=3) state.dump();
             } finally {
                 lock.unlock();
             }
@@ -462,7 +466,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val myId = this.id;
 
         if (dstId == srcId) {
-            val lc = localCount.decrementAndGet();
+            val lc = localCount().decrementAndGet();
             if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") called locally, localCount now "+lc);
             if (lc > 0) return;
             if (isGlobal) {
@@ -544,7 +548,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         notifyActivityTermination(AT);
     }
     def notifyActivityTermination(kind:long):void {
-        val lc = localCount.decrementAndGet();
+        val lc = localCount().decrementAndGet();
         val myId = this.id;
 
         if (lc > 0) {
@@ -694,7 +698,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+myId+") selecting direct (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
 
-            localCount.incrementAndGet();  // synthetic activity to keep finish local live during async to Place0
+            localCount().incrementAndGet();  // synthetic activity to keep finish locally live during async to Place0
             val fsgr = this.ref;
             at (place0) @Immediate("spawnRemoteActivity_to_zero") async {
                 try {
@@ -703,7 +707,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     if (Place(srcId).isDead()) {
                         if (verbose>=1) debug("==== spwanRemoteActivity(id="+myId+") src "+srcId + "is dead; dropping async");
                     } else if (Place(dstId).isDead()) {
-                        if (verbose>=1) debug("==== spawnRemoteActivitySpawn(id="+myId+") destination "+dstId + "is dead; pushed DPE");
+                        if (verbose>=1) debug("==== spawnRemoteActivity(id="+myId+") destination "+dstId + "is dead; pushed DPE");
                         addDeadPlaceException(state, dstId);
                     } else {
                         if (!state.isAdopted()) {
@@ -714,7 +718,10 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                             adopterState.liveAdopted(ASYNC, dstId)++;
                             adopterState.numActive++;
                         }
-                        if (verbose>=3) state.dump();
+                        if (verbose>=3) {
+                            debug("==== spawnRemoteActivity(id="+myId+") after update for: "+srcId + " ==> "+dstId);
+                            state.dump();
+                        }
                     }
                 } finally {
                     lock.unlock();
