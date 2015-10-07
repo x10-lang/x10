@@ -8,9 +8,21 @@
     <property name="jar" value="${lib}/apgas.jar"/>
     <property name="hazelcast.version" value="3.5.2"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast.jar"/>
+    <property name="kryo.version" value="3.0.3"/>
+    <property name="kryo.jar" value="${lib}/kryo.jar"/>
+    <property name="minlog.version" value="1.3.0"/>
+    <property name="minlog.jar" value="${lib}/minlog.jar"/>
+    <property name="reflectasm.version" value="1.10.1"/>
+    <property name="reflectasm.jar" value="${lib}/reflectasm.jar"/>
+    <property name="objenesis.version" value="2.1"/>
+    <property name="objenesis.jar" value="${lib}/objenesis.jar"/>
     <property name="apgas.zip" value="${basedir}/apgas.zip"/>
     <target name="check-dependencies">
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
+        <available file="${kryo.jar}" property="kryo.present"/>
+        <available file="${minlog.jar}" property="minlog.present"/>
+        <available file="${reflectasm.jar}" property="reflectasm.present"/>
+        <available file="${objenesis.jar}" property="objenesis.present"/>
     </target>
     <target name="init">
         <mkdir dir="${bin}"/>
@@ -19,6 +31,18 @@
     </target>
     <target name="hazelcast" depends="init,check-dependencies" unless="hazelcast.present">
         <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${hazelcast.jar}"/>
+    </target>
+    <target name="kryo" depends="init,check-dependencies" unless="kryo.present">
+        <get src="http://central.maven.org/maven2/com/esotericsoftware/kryo/${kryo.version}/kryo-${kryo.version}.jar" dest="${kryo.jar}"/>
+    </target>
+    <target name="minlog" depends="init,check-dependencies" unless="minlog.present">
+        <get src="http://central.maven.org/maven2/com/esotericsoftware/minlog/${minlog.version}/minlog-${minlog.version}.jar" dest="${minlog.jar}"/>
+    </target>
+    <target name="reflectasm" depends="init,check-dependencies" unless="reflectasm.present">
+        <get src="http://central.maven.org/maven2/com/esotericsoftware/reflectasm/${reflectasm.version}/reflectasm-${reflectasm.version}-shaded.jar" dest="${reflectasm.jar}"/>
+    </target>
+    <target name="objenesis" depends="init,check-dependencies" unless="objenesis.present">
+        <get src="http://central.maven.org/maven2/org/objenesis/objenesis/${objenesis.version}/objenesis-${objenesis.version}.jar" dest="${objenesis.jar}"/>
     </target>
     <target name="clean">
         <delete dir="${bin}" failonerror="false"/>
@@ -29,12 +53,16 @@
     <target name="jar" depends="compile">
         <jar jarfile="${jar}" basedir="${bin}"/>
     </target>
-    <target name="compile" depends="hazelcast">
+    <target name="compile" depends="hazelcast,kryo,minlog,reflectasm,objenesis">
         <javac destdir="${bin}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
             <src path="${src}"/>
             <include name="**"/>
             <classpath>
                 <pathelement location="${hazelcast.jar}"/>
+                <pathelement location="${kryo.jar}"/>
+                <pathelement location="${minlog.jar}"/>
+                <pathelement location="${reflectasm.jar}"/>
+                <pathelement location="${objenesis.jar}"/>
             </classpath>
         </javac>
     </target>

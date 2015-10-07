@@ -4,7 +4,7 @@ To build a sample program use:
 javac -cp samples:lib/apgas.jar samples/HelloWorld.java
 
 Run with:
-java -cp samples:lib/apgas.jar:lib/hazelcast.jar HelloWorld
+java -cp 'samples:lib/*' HelloWorld
 
 Please visit http://x10-lang.org for more detailed instructions.
 

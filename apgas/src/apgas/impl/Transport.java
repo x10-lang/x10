@@ -26,6 +26,7 @@ import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -134,6 +135,13 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
           ExecutionService.SYSTEM_EXECUTOR, 2));
       config.addExecutorConfig(new ExecutorConfig(
           ExecutionService.SCHEDULED_EXECUTOR, 2));
+    }
+
+    // kryo
+    if (System.getProperty("apgas.serialization", "java").equals("kryo")) {
+      config.getSerializationConfig().addSerializerConfig(
+          new SerializerConfig().setTypeClass(SerializableRunnable.class)
+              .setImplementation(new KryoSerializer()));
     }
 
     config.addMapConfig(new MapConfig(APGAS_FINISH)

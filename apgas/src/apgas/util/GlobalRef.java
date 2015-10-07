@@ -32,7 +32,7 @@ import apgas.SerializableCallable;
  * @param <T>
  *          the type of the reference
  */
-public class GlobalRef<T> implements Serializable {
+public class GlobalRef<T> implements Serializable, ByRef<GlobalRef<T>> {
   private static final long serialVersionUID = 4462229293688114477L;
 
   private static final Object UNDEFINED = new Object();
@@ -208,13 +208,26 @@ public class GlobalRef<T> implements Serializable {
     return id.hashCode();
   }
 
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+  @Override
+  public synchronized GlobalID id() {
     synchronized (this) {
       if (id == null) {
         id = new GlobalID();
         id.putHere(t);
       }
     }
+    return id;
+  }
+
+  @Override
+  public GlobalRef<T> resolve(GlobalID id) {
+    this.id = id;
+    t = id.getOrDefaultHere(UNDEFINED);
+    return this;
+  }
+
+  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    id();
     out.defaultWriteObject();
   }
 
