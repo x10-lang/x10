@@ -247,6 +247,19 @@ public final struct PlaceLocalHandle[T]{T isref, T haszero} {
         return handle;
     }
 
+    /**
+     * Augment the PlaceGroup at which the argument PlaceLocalHandle has
+     * a value with the given place by evaluating the argument initialization 
+     * closure at that Place to and storing its result in the PlaceLocalHandle.
+     *
+     * @param plh a place local handle to extend with a new Place
+     * @param place the Place at which to extend it
+     * @param init a closure to be evaluated at place to create the value to be stored
+     */
+    public static def addPlace[T](plh:PlaceLocalHandle[T], 
+                                  place:Place, init:()=>T){T isref, T haszero}:void {
+        at (place) plh.set(init());
+    }
 
     /**
      * Release the local state of the argument PlaceLocalHandle at
