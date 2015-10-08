@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
-import org.objenesis.strategy.StdInstantiatorStrategy;
+import org.objenesis.strategy.SerializingInstantiatorStrategy;
 
 import apgas.Place;
 import apgas.util.ByRef;
@@ -44,7 +44,7 @@ class KryoSerializer implements StreamSerializer<Object> {
           }
         }
       };
-      kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+      kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
       kryo.register(Task.class);
       kryo.register(UncountedTask.class);
       kryo.register(Place.class);
