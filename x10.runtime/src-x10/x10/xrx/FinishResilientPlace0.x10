@@ -148,8 +148,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
     // Initialized by custom deserializer
     private val grlc:GlobalRef[AtomicInteger];
-    private transient var isGlobal:Boolean = false;
     private transient val ref:GlobalRef[FinishResilientPlace0] = GlobalRef[FinishResilientPlace0](this);
+    private transient var isGlobal:Boolean = false;
 
     // These fields are only valid / used in the root finish instance.
     private transient var latch:SimpleLatch; 
@@ -244,6 +244,11 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             lock.unlock();
         }
         if (verbose>=1) debug("<<<< notifyPlaceDeath returning");
+    }
+
+    private def forgetGlobalRefs():void {
+        (ref as GlobalRef[FinishResilientPlace0]{self.home == here}).forget();
+        (grlc as GlobalRef[AtomicInteger]{self.home==here}).forget();
     }
 
     def notifySubActivitySpawn(place:Place):void {
@@ -559,7 +564,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         // If this is not the root finish, we are done with the finish state.
         // If this is the root finish, it will be kept alive because waitForFinish
         // is an instance method and it is on the stack of some activity.
-        (ref as GlobalRef[FinishResilientPlace0]{self.home == here}).forget();
+        forgetGlobalRefs();
 
         if (!isGlobal) {
             if (verbose>=1) debug(">>>> notifyActivityTermination(id="+myId+") zero localCount on local finish; releasing latch");
@@ -646,7 +651,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         if (verbose>=2) debug("returned from latch.await for id="+id);
 
         // no more messages will come back to this finish state 
-        (ref as GlobalRef[FinishResilientPlace0]{self.home == here}).forget();
+        forgetGlobalRefs();
         
         // get exceptions and throw wrapped in a ME if there are any
         if (excs != null) throw new MultipleExceptions(excs);
