@@ -48,19 +48,18 @@ namespace x10 {
         
         extern const ::x10aux::serialization_id_t Rail_copy_to_serialization_id;
         extern const ::x10aux::serialization_id_t Rail_copy_from_serialization_id;
-
         extern const ::x10aux::serialization_id_t Rail_uncounted_copy_to_serialization_id;
         extern const ::x10aux::serialization_id_t Rail_uncounted_copy_from_serialization_id;
-        void Rail_notifyEnclosingFinish(::x10aux::deserialization_buffer&);
-        void Rail_serialize_finish_state(::x10aux::place, ::x10aux::serialization_buffer&);
-        void *Rail_buffer_finder(::x10aux::deserialization_buffer&, x10_int);
-        void Rail_notifier(::x10aux::deserialization_buffer&, x10_int);
-        void Rail_uncounted_notifier(::x10aux::deserialization_buffer&, x10_int);
+
+        void Rail_get_notifier(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_uncounted_get_notifier(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_put_notifier(::x10aux::deserialization_buffer&, x10_int);
+        void Rail_uncounted_put_notifier(::x10aux::deserialization_buffer&, x10_int);
 
         void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                   ::x10::lang::Place dstPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
+                             ::x10::lang::Place dstPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
         void Rail_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                     ::x10::lang::Place srcPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
+                               ::x10::lang::Place srcPlace, bool overlap, ::x10::lang::VoidFun_0_0* notif);
         void Rail_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
         void failAllocNoPointers(const char* msg);
