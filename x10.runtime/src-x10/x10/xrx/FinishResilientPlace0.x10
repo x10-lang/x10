@@ -31,14 +31,21 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     private static val verbose = FinishResilient.verbose;
     private static val place0 = Place.FIRST_PLACE;
 
-    private static val AT = 0;
-    private static val ASYNC = 1;
+    private static val AT = 0n;
+    private static val ASYNC = 1n;
     private static val AT_AND_ASYNC = AT..ASYNC;
 
     private static struct Id(home:int,id:int) {
         public def toString() = "<"+home+","+id+">";
     }
     private static val UNASSIGNED = Id(-1n,-1n);
+
+    private static struct Edge(src:Int, dst:Int, kind:Int) {
+        public def toString() = "<"+(kind == AT ? "async" : "at")+" from "+src+" to "+dst+">";
+        def this(srcId:Long, dstId:Long, kind:Int) {
+            property(srcId as Int, dstId as Int, kind);
+        }
+    }
 
     /**
      * State of a single finish; always stored in Place0
@@ -48,8 +55,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val gfs:GlobalRef[FinishResilientPlace0]; // root finish state
         val id:Id;
         var numActive:Long = 0;
-        val transit = new Array_3[Int](2, NUM_PLACES, NUM_PLACES);        // TODO: sparse; HashMap?
-        val transitAdopted = new Array_3[Int](2, NUM_PLACES, NUM_PLACES); // TODO: sparse; HashMap?
+        val transit = new HashMap[Edge,Int]();
+        val transitAdopted = new HashMap[Edge,Int]();
         val live = new Array_2[Int](2, NUM_PLACES);
         val liveAdopted = new Array_2[Int](2, NUM_PLACES);
         val excs = new GrowableRail[CheckedThrowable](); // exceptions to report
@@ -65,6 +72,19 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         
         def isAdopted() = (adopterId != UNASSIGNED);
 
+        static def increment(map:HashMap[Edge,Int], e:Edge) {
+            map.put(e, map.getOrElse(e, 0n)+1n);
+        }
+
+        static def decrement(map:HashMap[Edge,Int], e:Edge) {
+            val oldCount = map(e);
+            if (oldCount == 1n) {
+                 map.remove(e);
+            } else {
+                 map(e) = oldCount-1n;
+            }
+        }
+
         def getCurrentAdopter():State {
             var s:State = this;
             while (s.isAdopted()) {
@@ -73,13 +93,14 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             return s;
         }
 
-        def inTransit(srcId:Long, dstId:Long, kind:Long, tag:String) {
+        def inTransit(srcId:Long, dstId:Long, kind:Int, tag:String) {
+            val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
-                transit(kind, srcId, dstId)++;
+                increment(transit, e);
                 numActive++;
             } else {
                 val adopterState = getCurrentAdopter();
-                adopterState.transitAdopted(kind, srcId, dstId)++;
+                increment(adopterState.transitAdopted, e);
                 adopterState.numActive++;
             }
             if (verbose>=3) {
@@ -88,14 +109,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def transitToLive(srcId:Long, dstId:Long, kind:Long, tag:String) {
+        def transitToLive(srcId:Long, dstId:Long, kind:Int, tag:String) {
+            val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
                 live(kind, dstId)++;
-                transit(kind, srcId, dstId)--;
+                decrement(transit, e);
             } else {
                 val adopterState = getCurrentAdopter();
                 adopterState.liveAdopted(kind, dstId)++;
-                adopterState.transitAdopted(kind, srcId, dstId)--;
+                decrement(adopterState.transitAdopted, e);
             }
             if (verbose>=3) {
                 debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
@@ -103,7 +125,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def addLive(srcId:Long, dstId:Long, kind:Long, tag:String) {
+        def addLive(srcId:Long, dstId:Long, kind:Int, tag:String) {
             if (!isAdopted()) {
                 live(kind, dstId)++;
                 numActive++;
@@ -118,9 +140,10 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def transitToCompleted(srcId:Long, dstId:Long, kind:Long, t:CheckedThrowable) {
+        def transitToCompleted(srcId:Long, dstId:Long, kind:Int, t:CheckedThrowable) {
+            val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
-                transit(kind, srcId, dstId)--;
+                decrement(transit, e);
                 numActive--;
                 if (t != null) excs.add(t);
                 if (quiescent()) {
@@ -129,7 +152,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 }
             } else {
                 val adopterState = getCurrentAdopter();
-                adopterState.transitAdopted(kind, srcId, dstId)--;
+                decrement(adopterState.transitAdopted, e);
                 adopterState.numActive--;
                 if (t != null) adopterState.excs.add(t);
                 if (adopterState.quiescent()) {
@@ -139,7 +162,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def liveToCompleted(placeId:Long, kind:Long, t:CheckedThrowable) {
+        def liveToCompleted(placeId:Long, kind:Int, t:CheckedThrowable) {
             if (!isAdopted()) {
                 live(kind, placeId)--;
                 numActive--;
@@ -203,7 +226,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         
             val quiet = numActive == 0;
             if (verbose>=3) dump();
-            if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
+            if (verbose>=2 || (verbose>=1 && quiet)) debug("quiescent(id="+id+") returning " + quiet);
             return quiet;
         }
 
@@ -246,15 +269,22 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
 
             adopterId = candidate;
-          
+
             for (k in AT_AND_ASYNC) {
                 for (i in 0..(NUM_PLACES-1)) {
                     adopterState.liveAdopted(k,i) += (live(k,i) + liveAdopted(k,i));
-                    for (j in 0..(NUM_PLACES-1)) {
-                        adopterState.transitAdopted(k, i, j) += (transit(k, i, j) + transitAdopted(k, i, j));
-                    }
                 }
             }
+
+            for (entry in transit.entries()) {
+                val edge = entry.getKey();
+                adopterState.transitAdopted.put(edge, adopterState.transitAdopted.getOrElse(edge,0n) + entry.getValue());
+            }
+            for (entry in transitAdopted.entries()) {
+                val edge = entry.getKey();
+                adopterState.transitAdopted.put(edge, adopterState.transitAdopted.getOrElse(edge,0n) + entry.getValue());
+            }
+
             adopterState.numActive += numActive;
 
             adopterState.adoptees.add(id);
@@ -269,32 +299,44 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         def convertDeadActivities() {
             if (isAdopted()) return;
 
-            for (i in 0..(NUM_PLACES-1)) {
-                if (Place.isDead(i)) {
-                    for (1..live(ASYNC, i)) {
-                        if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
-                        addDeadPlaceException(i);
+            for (i in 0n..((NUM_PLACES as Int) - 1n)) {
+                if (!Place.isDead(i)) continue;
+
+                for (1..live(ASYNC, i)) {
+                    if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
+                    addDeadPlaceException(i);
+                }
+                numActive -= ( live(AT, i) + liveAdopted(AT, i) + live(ASYNC, i) + liveAdopted(ASYNC, i));
+                live(AT, i) = 0n;
+                liveAdopted(AT, i) = 0n;
+                live(ASYNC, i) = 0n;
+                liveAdopted(ASYNC, i) = 0n;
+                  
+                if (transit.size() > 0) {
+                    val deadEdges = new HashSet[Edge]();
+                    for (k in transit.keySet()) {
+                        if (k.src == i || k.dst == i) deadEdges.add(k);
                     }
-                    numActive -= ( live(AT, i) + liveAdopted(AT, i) + live(ASYNC, i) + liveAdopted(ASYNC, i));
-                    live(AT, i) = 0n;
-                    liveAdopted(AT, i) = 0n;
-                    live(ASYNC, i) = 0n;
-                    liveAdopted(ASYNC, i) = 0n;
-                    for (j in 0..(NUM_PLACES-1)) {
-                        numActive -= (transit(AT,i,j) + transitAdopted(AT,i,j) + transit(ASYNC,i,j) + transitAdopted(ASYNC,i,j));
-                        transit(AT,i,j) = 0n;
-                        transitAdopted(AT,i,j) = 0n;
-                        transit(ASYNC,i,j) = 0n;
-                        transitAdopted(ASYNC,i,j) = 0n;
-                        for (1..transit(ASYNC, j,i)) {
-                            if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
-                            addDeadPlaceException(i);
+                    for (de in deadEdges) {
+                        val count = transit.remove(de);
+                        numActive -= count;
+                        if (de.kind == ASYNC && de.dst == i) {
+                            for (1..count) {
+                                if (verbose>=3) debug("adding DPE for transit asyncs("+de.src+","+i+")");
+                                addDeadPlaceException(i);
+                            }
                         }
-                        numActive -= (transit(AT,j,i) + transitAdopted(AT,j,i) + transit(ASYNC,j,i) + transitAdopted(ASYNC,j,i));
-                        transit(AT,j,i) = 0n;
-                        transitAdopted(AT,j,i) = 0n;
-                        transit(ASYNC,j,i) = 0n;
-                        transitAdopted(ASYNC,j,i) = 0n;
+                    }
+                }
+
+                if (transitAdopted.size() > 0) {
+                    val deadEdges = new HashSet[Edge]();
+                    for (k in transitAdopted.keySet()) {
+                        if (k.src == i || k.dst == i) deadEdges.add(k);
+                    }
+                    for (de in deadEdges) {
+                        val count = transitAdopted.remove(de);
+                        numActive -= count;
                     }
                 }
             }
@@ -305,12 +347,22 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             s.add("State dump:\n");
             s.add("             id:" + id); s.add('\n');
             s.add("      numActive:"); s.add(numActive); s.add('\n');
+            s.add("       parentId: " + parentId); s.add('\n');
+            s.add("      adopterId: " + adopterId); s.add('\n');
             s.add("           live:"); s.add(live.toString(1024)); s.add('\n');
             s.add("    liveAdopted:"); s.add(liveAdopted.toString(1024)); s.add('\n');
-            s.add("        transit:"); s.add(transit.toString(1024)); s.add('\n');
-            s.add(" transitAdopted:"); s.add(transitAdopted.toString(1024)); s.add('\n');
-            s.add("      adopterId: " + adopterId); s.add('\n');
-            s.add("       parentId: " + parentId);
+            if (transit.size() > 0) {
+                s.add("        transit:\n"); 
+                for (e in transit.entries()) {
+                    s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
+                }
+            }
+            if (transitAdopted.size() > 0) {
+                s.add(" transitAdopted:\n"); 
+                for (e in transitAdopted.entries()) {
+                    s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
+                }
+            }
             debug(s.toString());
         }
     }
@@ -436,7 +488,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     def notifyShiftedActivitySpawn(place:Place):void {
         notifySubActivitySpawn(place, AT);
     }
-    def notifySubActivitySpawn(place:Place, kind:long):void {
+    def notifySubActivitySpawn(place:Place, kind:Int):void {
         val srcId = here.id;
         val dstId = place.id;
         val myId = this.id;
@@ -487,7 +539,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
         return notifyActivityCreation(srcPlace, activity, ASYNC);
     }
-    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:long):Boolean {
+    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:Int):Boolean {
         val srcId = srcPlace.id; 
         val dstId = here.id;
         val myId = this.id;
@@ -569,7 +621,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { 
         notifyActivityCreationFailed(srcPlace, t, ASYNC);
     }
-    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable, kind:long):void { 
+    def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable, kind:Int):void { 
         val srcId = srcPlace.id;
         val dstId = here.id;
         val myId = this.id;
@@ -602,7 +654,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     def notifyActivityCreatedAndTerminated(srcPlace:Place) {
         notifyActivityCreatedAndTerminated(srcPlace, ASYNC);
     }
-    def notifyActivityCreatedAndTerminated(srcPlace:Place, kind:long) {
+    def notifyActivityCreatedAndTerminated(srcPlace:Place, kind:Int) {
         val srcId = srcPlace.id; 
         val dstId = here.id;
         val myId = this.id;
@@ -664,7 +716,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     def notifyShiftedActivityCompletion():void {
         notifyActivityTermination(AT);
     }
-    def notifyActivityTermination(kind:long):void {
+    def notifyActivityTermination(kind:Int):void {
         val lc = localCount().decrementAndGet();
         val myId = this.id;
 
