@@ -68,9 +68,96 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         def getCurrentAdopter():State {
             var s:State = this;
             while (s.isAdopted()) {
-                s = states.get(s.adopterId);
+                s = states(s.adopterId);
             }
             return s;
+        }
+
+        def inTransit(srcId:Long, dstId:Long, kind:Long, tag:String) {
+            if (!isAdopted()) {
+                transit(kind, srcId, dstId)++;
+                numActive++;
+            } else {
+                val adopterState = getCurrentAdopter();
+                adopterState.transitAdopted(kind, srcId, dstId)++;
+                adopterState.numActive++;
+            }
+            if (verbose>=3) {
+                debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
+                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+            }
+        }
+
+        def transitToLive(srcId:Long, dstId:Long, kind:Long, tag:String) {
+            if (!isAdopted()) {
+                live(kind, dstId)++;
+                transit(kind, srcId, dstId)--;
+            } else {
+                val adopterState = getCurrentAdopter();
+                adopterState.liveAdopted(kind, dstId)++;
+                adopterState.transitAdopted(kind, srcId, dstId)--;
+            }
+            if (verbose>=3) {
+                debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
+                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+            }
+        }
+
+        def addLive(srcId:Long, dstId:Long, kind:Long, tag:String) {
+            if (!isAdopted()) {
+                live(kind, dstId)++;
+                numActive++;
+            } else {
+                val adopterState = getCurrentAdopter();
+                adopterState.liveAdopted(kind, dstId)++;
+                adopterState.numActive++;
+            }
+            if (verbose>=3) {
+                debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
+                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+            }
+        }
+
+        def transitToCompleted(srcId:Long, dstId:Long, kind:Long, t:CheckedThrowable) {
+            if (!isAdopted()) {
+                transit(kind, srcId, dstId)--;
+                numActive--;
+                if (t != null) excs.add(t);
+                if (quiescent()) {
+                    releaseLatch();
+                    states.remove(id);
+                }
+            } else {
+                val adopterState = getCurrentAdopter();
+                adopterState.transitAdopted(kind, srcId, dstId)--;
+                adopterState.numActive--;
+                if (t != null) adopterState.excs.add(t);
+                if (adopterState.quiescent()) {
+                    adopterState.releaseLatch();
+                    states.remove(id); // FIXME: should remove all adopted states, not just this one
+                    states.remove(adopterState.id);
+                }
+            }
+        }
+
+        def liveToCompleted(placeId:Long, kind:Long, t:CheckedThrowable) {
+            if (!isAdopted()) {
+                live(kind, placeId)--;
+                numActive--;
+                if (quiescent()) {
+                    releaseLatch();
+                    states.remove(id);
+                }
+            } else {
+                val adopterState = getCurrentAdopter();
+                adopterState.live(kind, placeId)--;
+                adopterState.numActive--;
+                if (adopterState.quiescent()) {
+                    adopterState.releaseLatch();
+                    states.remove(id); // FIXME: should remove all adopted states, not just this one
+                    states.remove(adopterState.id);
+                }
+            }
         }
 
         def releaseLatch() {
@@ -120,6 +207,12 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             if (verbose>=3) dump();
             if (verbose>=2) debug("quiescent(id="+id+") returning " + quiet);
             return quiet;
+        }
+
+        def addDeadPlaceException(placeId:Long) {
+            val e = new DeadPlaceException(Place(placeId));
+            e.fillInStackTrace(); // meaningless?
+            excs.add(e);
         }
 
         def dump() {
@@ -202,7 +295,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     states.put(myId, state);
                     state.live(ASYNC, gfs.home.id) = 1n; // duplicated from my localCount
                     state.numActive = 1;
-                    if (parentId != UNASSIGNED) states.get(parentId).children.add(myId);
+                    if (parentId != UNASSIGNED) states(parentId).children.add(myId);
                 } finally {
                     lock.unlock();
                 }
@@ -271,29 +364,18 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             Runtime.runImmediateAt(place0, ()=>{ 
                 try {
                     lock.lock();
-                    val state = states.get(myId);
+                    val state = states(myId);
                     if (Place(srcId).isDead()) {
                         if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") src "+srcId + "is dead; dropping async");
                     } else if (Place(dstId).isDead()) {
                         if (kind == ASYNC) {
                             if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") destination "+dstId + "is dead; pushed DPE for async");
-                            addDeadPlaceException(state, dstId);
+                            state.addDeadPlaceException(dstId);
                         } else {
                             if (verbose>=1) debug("==== notifySubActivitySpawn(id="+myId+") destination "+dstId + "is dead; dropped at");
                         }
                     } else {
-                        if (!state.isAdopted()) {
-                            state.transit(kind, srcId, dstId)++;
-                            state.numActive++;
-                        } else {
-                            val adopterState = state.getCurrentAdopter();
-                            adopterState.transitAdopted(kind, srcId, dstId)++;
-                            adopterState.numActive++;
-                        }
-                        if (verbose>=3) {
-                            debug("==== notifySubActivitySpwan(id="+myId+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
-                            state.dump();
-                        }
+                        state.inTransit(srcId, dstId, kind, "notifySubActivitySpawn");
                     }
                 } finally {
                     lock.unlock();
@@ -341,19 +423,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     if (verbose>=1) debug("==== notifyActivityCreation(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                     shouldSubmit = false;
                 } else {
-                    val state = states.get(myId);
-                    if (!state.isAdopted()) {
-                        state.live(kind, dstId)++;
-                        state.transit(kind, srcId, dstId)--;
-                    } else {
-                        val adopterState = state.getCurrentAdopter();
-                        adopterState.liveAdopted(kind, dstId)++;
-                        adopterState.transitAdopted(kind, srcId, dstId)--;
-                    }
-                    if (verbose>=3) {
-                        debug("==== notifyActivityCreation(id="+myId+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
-                        state.dump();
-                    }
+                    val state = states(myId);
+                    state.transitToLive(srcId, dstId, kind, "notifyActivityCreation");
                 }
             } finally {
                 lock.unlock();
@@ -395,15 +466,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     if (verbose>=1) debug("==== notifyShiftedActivityCreation(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                     return false;
                 }
-                val state = states.get(myId);
-                if (!state.isAdopted()) {
-                    state.live(kind, dstId)++;
-                    state.transit(kind, srcId, dstId)--;
-                } else {
-                    val adopterState = state.getCurrentAdopter();
-                    adopterState.liveAdopted(kind, dstId)++;
-                    adopterState.transitAdopted(kind, srcId, dstId)--;
-                }
+                val state = states(myId);
+                state.transitToLive(srcId, dstId, kind, "notifyShiftedActivityCreation");
             } finally {
                 lock.unlock();
             }
@@ -433,26 +497,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     if (verbose>=1) debug("==== notifyActivityCreationFailed(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
                     if (verbose>=1) debug(">>>> notifyActivityCreatedFailed(id="+myId+") message running at place0");
-                    val state = states.get(myId);
-                    if (!state.isAdopted()) {
-                        state.transit(kind, srcId, dstId)--;
-                        state.numActive--;
-                        state.excs.add(t);
-                        if (state.quiescent()) {
-                            state.releaseLatch();
-                            states.remove(myId);
-                        }
-                    } else {
-                        val adopterState = state.getCurrentAdopter();
-                        adopterState.transitAdopted(kind, srcId, dstId)--;
-                        adopterState.numActive--;
-                        adopterState.excs.add(t);
-                        if (adopterState.quiescent()) {
-                            adopterState.releaseLatch();
-                            states.remove(myId);
-                            states.remove(adopterState.id);
-                        }
-                    }
+                    val state = states(myId);
+                    state.transitToCompleted(srcId, dstId, kind, t);
                 }
             } finally {
                 lock.unlock();
@@ -475,28 +521,19 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") called locally, localCount now "+lc);
             if (lc > 0) return;
             if (isGlobal) {
-                // if srcId == dstId, then notifySubActivitySpawn transitions to live (not transit)
+                // if srcId == dstId, then notifySubActivitySpawn goes directly to live (not transit)
                 // so we need to decrement accordingly here and then check for quiescence.
                 at (place0) @Immediate("notifyActivityCreatedAndTerminated_quiescence_check_to_zero") async {
                     try {
                         lock.lock();
-                        val state = states.get(myId);
-                        if (!state.isAdopted()) {
-                            state.live(kind, srcId)--;
-                            state.numActive--;
-                            if (state.quiescent()) {
-                                state.releaseLatch();
-                                states.remove(myId);
-                            }
+                        if (Place(srcId).isDead()) {
+                            // NOTE: no state updates or DPE processing here.
+		            //       Must happen exactly once and is done
+                            //       when Place0 is notified of a dead place.
+                            if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+myId+") suppressed: "+srcId + " ==> "+srcId+" kind="+kind);
                         } else {
-                            val adopterState = state.getCurrentAdopter();
-                            adopterState.live(kind, srcId)--;
-                            adopterState.numActive--;
-                            if (adopterState.quiescent()) {
-                                adopterState.releaseLatch();
-                                states.remove(myId);
-                                states.remove(adopterState.id);
-                            }
+                            val state = states(myId);
+                            state.liveToCompleted(srcId, kind, null);
                         }
                     } finally {
                         lock.unlock();
@@ -521,24 +558,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+myId+") suppressed: "+srcId + " ==> "+dstId+" kind="+kind);
                 } else {
                     if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+myId+") message running at place0");
-                    val state = states.get(myId);
-                    if (!state.isAdopted()) {
-                        state.transit(kind, srcId, dstId)--;
-                        state.numActive--;
-                        if (state.quiescent()) {
-                            state.releaseLatch();
-                            states.remove(myId);
-                        }
-                    } else {
-                        val adopterState = state.getCurrentAdopter();
-                        adopterState.transitAdopted(kind, srcId, dstId)--;
-                        adopterState.numActive--;
-                        if (adopterState.quiescent()) {
-                            adopterState.releaseLatch();
-                            states.remove(myId);
-                            states.remove(adopterState.id);
-                        }
-                    }
+                    val state = states(myId);
+                    state.transitToCompleted(srcId, dstId, kind, null);
                 }
             } finally {
                 lock.unlock();
@@ -585,23 +606,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 } else {
                     if (verbose>=1) debug("<<<< notifyActivityTermination(id="+myId+") message running at place0");
                     val state = states(myId);
-                    if (!state.isAdopted()) {
-                        state.live(kind, dstId)--;
-                        state.numActive--;
-                        if (state.quiescent()) {
-                            state.releaseLatch();
-                            states.remove(myId);
-                        }
-                    } else {
-                        val adopterState = state.getCurrentAdopter();
-                        adopterState.liveAdopted(kind, dstId)--;
-                        adopterState.numActive--;
-                        if (adopterState.quiescent()) {
-                            adopterState.releaseLatch();
-                            states.remove(myId);
-                            states.remove(adopterState.id);
-                        }
-                    }
+                    state.liveToCompleted(dstId, kind, null);
                 }
             } finally {
                 lock.unlock();
@@ -664,7 +669,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
      * serialized form is a very large message.
      *   - notifySubActivitySpawn: src ===> Place0 (increment transit(src,dst)
      *   - x10rtSendAsync:         src ===> dst (send "fat" async body to dst)
-     *   - notifyActivityCreation: dst ===> Place0 (decrement transit, increment live)
+     *   - notifyActivityCreation: dst ===> Place0 (decrement transit(src,dst), increment live)
      *
      * The second (direct) is best for "small" asyncs, since it
      * reduces latency and only interacts with Place0 once, but
@@ -713,20 +718,9 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                         if (verbose>=1) debug("==== spwanRemoteActivity(id="+myId+") src "+srcId + "is dead; dropping async");
                     } else if (Place(dstId).isDead()) {
                         if (verbose>=1) debug("==== spawnRemoteActivity(id="+myId+") destination "+dstId + "is dead; pushed DPE");
-                        addDeadPlaceException(state, dstId);
+                        state.addDeadPlaceException(dstId);
                     } else {
-                        if (!state.isAdopted()) {
-                            state.live(ASYNC, dstId)++;
-                            state.numActive++;
-                        } else {
-                            val adopterState = state.getCurrentAdopter();
-                            adopterState.liveAdopted(ASYNC, dstId)++;
-                            adopterState.numActive++;
-                        }
-                        if (verbose>=3) {
-                            debug("==== spawnRemoteActivity(id="+myId+") after update for: "+srcId + " ==> "+dstId);
-                            state.dump();
-                        }
+                        state.addLive(srcId, dstId, ASYNC, "spawnRemoteActivity");
                     }
                 } finally {
                     lock.unlock();
@@ -785,7 +779,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             if (Place.isDead(i)) {
                 for (1..state.live(ASYNC, i)) {
                     if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
-                    addDeadPlaceException(state, i);
+                    state.addDeadPlaceException(i);
                 }
                 state.numActive -= ( state.live(AT, i) + state.liveAdopted(AT, i) + state.live(ASYNC, i) + state.liveAdopted(ASYNC, i));
                 state.live(AT, i) = 0n; state.liveAdopted(AT, i) = 0n;
@@ -796,7 +790,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     state.transit(ASYNC,i,j) = 0n; state.transitAdopted(ASYNC,i,j) = 0n;
                     for (1..state.transit(ASYNC, j,i)) {
                         if (verbose>=3) debug("adding DPE for transit asyncs("+j+","+i+")");
-                        addDeadPlaceException(state, i);
+                        state.addDeadPlaceException(i);
                     }
                     state.numActive -= (state.transit(AT,j,i) + state.transitAdopted(AT,j,i) + state.transit(ASYNC,j,i) + state.transitAdopted(ASYNC,j,i));
                     state.transit(AT,j,i) = 0n; state.transitAdopted(AT,j,i) = 0n;
@@ -804,11 +798,5 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 }
             }
         }
-    }
-
-    private static def addDeadPlaceException(state:State, placeId:Long) {
-        val e = new DeadPlaceException(Place(placeId));
-        e.fillInStackTrace(); // meaningless?
-        state.excs.add(e);
     }
 }
