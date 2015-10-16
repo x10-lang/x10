@@ -13,7 +13,6 @@ package x10.xrx;
 import x10.compiler.*;
 
 import x10.array.Array_2;
-import x10.array.Array_3;
 import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
@@ -54,15 +53,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val NUM_PLACES = Place.numPlaces(); // FIXME: Elastic X10: totally broken if async goes to added place!!!
         val gfs:GlobalRef[FinishResilientPlace0]; // root finish state
         val id:Id;
+        val parentId:Id; // id of parent (UNASSIGNED means no parent / parent is UNCOUNTED)
         var numActive:Long = 0;
-        val transit = new HashMap[Edge,Int]();
-        val transitAdopted = new HashMap[Edge,Int]();
         val live = new Array_2[Int](2, NUM_PLACES);
+        var _transit:HashMap[Edge,Int] = null; // lazily allocated by transit()
+        var excs:GrowableRail[CheckedThrowable] = null;  // lazily allocated in addException
+        var adopterId:Id = UNASSIGNED; // current adopter (if adopted)
+        var adoptees:GrowableRail[Id] = null; // adopted descendents, lazily allocated in seekAdoption
         val liveAdopted = new Array_2[Int](2, NUM_PLACES);
-        val excs = new GrowableRail[CheckedThrowable](); // exceptions to report
-        val adoptees = new x10.util.GrowableRail[Id](); // adopted descendents 
-        var adopterId:Id = UNASSIGNED; // adopter (if adopted)
-        val parentId:Id; // parent (or UNASSIGNED)
+        var _transitAdopted:HashMap[Edge,Int] = null; // lazily allocated by transitAdopted();
 
         private def this(id:Id, parentId:Id, gfs:GlobalRef[FinishResilientPlace0]) {
             this.id = id;
@@ -71,6 +70,16 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         }
         
         def isAdopted() = (adopterId != UNASSIGNED);
+
+        def transit() {
+            if (_transit == null) _transit = new HashMap[Edge,Int]();
+            return _transit;
+        }
+
+        def transitAdopted() {
+            if (_transitAdopted == null) _transitAdopted = new HashMap[Edge,Int]();
+            return _transitAdopted;
+        }
 
         static def increment(map:HashMap[Edge,Int], e:Edge) {
             map.put(e, map.getOrElse(e, 0n)+1n);
@@ -85,27 +94,24 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def getCurrentAdopter():State {
-            var s:State = this;
-            while (s.isAdopted()) {
-                s = states(s.adopterId);
-            }
-            return s;
+        def addException(t:CheckedThrowable) {
+            if (excs == null) excs = new GrowableRail[CheckedThrowable]();
+            excs.add(t);
         }
 
         def inTransit(srcId:Long, dstId:Long, kind:Int, tag:String) {
             val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
-                increment(transit, e);
+                increment(transit(), e);
                 numActive++;
             } else {
-                val adopterState = getCurrentAdopter();
-                increment(adopterState.transitAdopted, e);
+                val adopterState = states(adopterId);
+                increment(adopterState.transitAdopted(), e);
                 adopterState.numActive++;
             }
             if (verbose>=3) {
                 debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
-                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+                if (!isAdopted()) dump(); else states(adopterId).dump();
             }
         }
 
@@ -113,15 +119,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
                 live(kind, dstId)++;
-                decrement(transit, e);
+                decrement(transit(), e);
             } else {
-                val adopterState = getCurrentAdopter();
+                val adopterState = states(adopterId);
                 adopterState.liveAdopted(kind, dstId)++;
-                decrement(adopterState.transitAdopted, e);
+                decrement(adopterState.transitAdopted(), e);
             }
             if (verbose>=3) {
                 debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
-                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+                if (!isAdopted()) dump(); else states(adopterId).dump();
             }
         }
 
@@ -130,31 +136,31 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 live(kind, dstId)++;
                 numActive++;
             } else {
-                val adopterState = getCurrentAdopter();
+                val adopterState = states(adopterId);
                 adopterState.liveAdopted(kind, dstId)++;
                 adopterState.numActive++;
             }
             if (verbose>=3) {
                 debug("==== "+tag+"(id="+id+") after update for: "+srcId + " ==> "+dstId+" kind="+kind);
-                if (!isAdopted()) dump(); else getCurrentAdopter().dump();
+                if (!isAdopted()) dump(); else states(adopterId).dump();
             }
         }
 
         def transitToCompleted(srcId:Long, dstId:Long, kind:Int, t:CheckedThrowable) {
             val e = Edge(srcId, dstId, kind);
             if (!isAdopted()) {
-                decrement(transit, e);
+                decrement(transit(), e);
                 numActive--;
-                if (t != null) excs.add(t);
+                if (t != null) addException(t);
                 if (quiescent()) {
                     releaseLatch();
                     removeFromStates();
                 }
             } else {
-                val adopterState = getCurrentAdopter();
-                decrement(adopterState.transitAdopted, e);
+                val adopterState = states(adopterId);
+                decrement(adopterState.transitAdopted(), e);
                 adopterState.numActive--;
-                if (t != null) adopterState.excs.add(t);
+                if (t != null) adopterState.addException(t);
                 if (adopterState.quiescent()) {
                     adopterState.releaseLatch();
                     adopterState.removeFromStates();
@@ -171,7 +177,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     removeFromStates();
                 }
             } else {
-                val adopterState = getCurrentAdopter();
+                val adopterState = states(adopterId);
                 adopterState.live(kind, placeId)--;
                 adopterState.numActive--;
                 if (adopterState.quiescent()) {
@@ -242,33 +248,29 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         def addDeadPlaceException(placeId:Long) {
             val e = new DeadPlaceException(Place(placeId));
             e.fillInStackTrace(); // meaningless?
-            excs.add(e);
+            addException(e);
         }
 
         def seekAdoption() {
             if (isAdopted() || !gfs.home.isDead()) return;
 
-            var candidate:Id = parentId;
-            while (candidate != UNASSIGNED) {
-                val adopterState = states(candidate);
+            var adopterState:State = states(parentId);
+            while (adopterState != null) {
                 if (!adopterState.gfs.home.isDead()) break; // found first live ancestor
-                candidate = adopterState.parentId;
+                adopterState = states(adopterState.parentId);
             }
 
-            if (candidate == UNASSIGNED) {
+            if (adopterState == null) {
                 if (verbose>=1) debug ("==== seekAdoption "+id+" is becoming an orphan; no live ancestor");
                 return;
             }
 
-            if (verbose>=1) debug ("==== seekAdoption "+id+" will be adopted by "+candidate);
-            val adopterState = states(candidate);
+            if (verbose>=1) debug ("==== seekAdoption "+id+" will be adopted by "+adopterState.id);
             if (verbose>=3) {
                 debug("==== seekAdoption: dumping states before adoption");
                 dump();
                 adopterState.dump();
             }
-
-            adopterId = candidate;
 
             for (k in AT_AND_ASYNC) {
                 for (i in 0..(NUM_PLACES-1)) {
@@ -276,19 +278,37 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 }
             }
 
-            for (entry in transit.entries()) {
-                val edge = entry.getKey();
-                adopterState.transitAdopted.put(edge, adopterState.transitAdopted.getOrElse(edge,0n) + entry.getValue());
-            }
-            for (entry in transitAdopted.entries()) {
-                val edge = entry.getKey();
-                adopterState.transitAdopted.put(edge, adopterState.transitAdopted.getOrElse(edge,0n) + entry.getValue());
+            if (_transit != null || _transitAdopted != null) {
+                val asta = adopterState.transitAdopted();
+                if (_transit != null) {
+                    for (entry in _transit.entries()) {
+                        val edge = entry.getKey();
+                        asta.put(edge, asta.getOrElse(edge,0n) + entry.getValue());
+                    }
+                    _transit = null;
+                }
+                if (_transitAdopted != null) {
+                    for (entry in _transitAdopted.entries()) {
+                        val edge = entry.getKey();
+                        asta.put(edge, asta.getOrElse(edge,0n) + entry.getValue());
+                    }
+                }
+                _transitAdopted = null;
             }
 
             adopterState.numActive += numActive;
 
+            if (adopterState.adoptees == null) adopterState.adoptees = new GrowableRail[Id]();
             adopterState.adoptees.add(id);
-            adopterState.adoptees.addAll(adoptees);
+            adopterId = adopterState.id;
+            if (adoptees != null) {
+                for (w in adoptees.toRail()) {
+                    adopterState.adoptees.add(w);
+                    states(w).adopterId = adopterState.id;
+                    if (verbose>=2) debug ("==== seekAdoption "+id+" transfered ward "+w+" to "+adopterState.id);
+                }
+                adoptees = null;
+            }
     
             if (verbose>=3) {
                 debug("==== seekAdoption: dumping adopter state after adoption");
@@ -312,13 +332,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 live(ASYNC, i) = 0n;
                 liveAdopted(ASYNC, i) = 0n;
                   
-                if (transit.size() > 0) {
+                if (_transit != null) {
                     val deadEdges = new HashSet[Edge]();
-                    for (k in transit.keySet()) {
+                    for (k in _transit.keySet()) {
                         if (k.src == i || k.dst == i) deadEdges.add(k);
                     }
                     for (de in deadEdges) {
-                        val count = transit.remove(de);
+                        val count = _transit.remove(de);
                         numActive -= count;
                         if (de.kind == ASYNC && de.dst == i) {
                             for (1..count) {
@@ -329,13 +349,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     }
                 }
 
-                if (transitAdopted.size() > 0) {
+                if (_transitAdopted != null) {
                     val deadEdges = new HashSet[Edge]();
-                    for (k in transitAdopted.keySet()) {
+                    for (k in _transitAdopted.keySet()) {
                         if (k.src == i || k.dst == i) deadEdges.add(k);
                     }
                     for (de in deadEdges) {
-                        val count = transitAdopted.remove(de);
+                        val count = _transitAdopted.remove(de);
                         numActive -= count;
                     }
                 }
@@ -351,15 +371,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             s.add("      adopterId: " + adopterId); s.add('\n');
             s.add("           live:"); s.add(live.toString(1024)); s.add('\n');
             s.add("    liveAdopted:"); s.add(liveAdopted.toString(1024)); s.add('\n');
-            if (transit.size() > 0) {
+            if (_transit != null) {
                 s.add("        transit:\n"); 
-                for (e in transit.entries()) {
+                for (e in _transit.entries()) {
                     s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
                 }
             }
-            if (transitAdopted.size() > 0) {
+            if (_transitAdopted != null) {
                 s.add(" transitAdopted:\n"); 
-                for (e in transitAdopted.entries()) {
+                for (e in _transitAdopted.entries()) {
                     s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
                 }
             }
@@ -771,7 +791,9 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 try {
                     lock.lock();
                     val state = states(myId);
-                    state.excs.add(t); // NB: if adopted, semantics say to suppress exception.  So don't both checking for adopterId.
+                    if (!state.isAdopted()) { // If adopted, the language semantics are to suppress exception.
+                        state.addException(t);
+                    }
                 } finally {
                     lock.unlock();
                 }
