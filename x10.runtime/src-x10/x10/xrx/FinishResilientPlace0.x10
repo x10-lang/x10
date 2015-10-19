@@ -938,12 +938,17 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     lock.unlock();
                 }
 
-                val mt = markedInTransit;
-                at (wbgr) @Immediate("spawnRemoteActivity_big_back_to_spawner") async {
-                    val fs = (fsgr as GlobalRef[FinishResilientPlace0]{self.home == here})();
-                    if (mt) x10.xrx.Runtime.x10rtSendAsync(dstId, wbgr(), fs, null, null);
-                    wbgr.forget();
-                    fs.notifyActivityTermination();
+                try {
+                    val mt = markedInTransit;
+                    at (wbgr) @Immediate("spawnRemoteActivity_big_back_to_spawner") async {
+                        val fs = (fsgr as GlobalRef[FinishResilientPlace0]{self.home == here})();
+                        if (mt) x10.xrx.Runtime.x10rtSendAsync(dstId, wbgr(), fs, null, null);
+                        wbgr.forget();
+                        fs.notifyActivityTermination();
+                    }
+                } catch (dpe:DeadPlaceException) {
+                    // can ignore; if the src place just died there is nothing left to do.
+                    if (verbose>=2) debug("caught and suppressed DPE when attempting spawnRemoteActivity_big_back_to_spawner for "+id);
                 }
             }
         } else {
