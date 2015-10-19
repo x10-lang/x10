@@ -110,7 +110,6 @@ final class Configuration {
     static val RESILIENT_MODE_HC          = 12n; // FinishResilientHC
     static val RESILIENT_MODE_X10RT_ONLY  = 99n; // Resilient/Elastic X10RT, no resilient finish
     // The modes below are under development and not yet complete.
-    static val RESILIENT_MODE_PLACE0_OPTIMIZED = 21n; // FinishResilientPlace0opt
     static val RESILIENT_MODE_HC_OPTIMIZED     = 22n; // FinishResilientHCopt
 
     static def resilient_mode():Int { // called from Runtime.x10

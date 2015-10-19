@@ -100,12 +100,6 @@ abstract class FinishResilient extends FinishState {
            fs = makeFinishResilientHCopt(o);
            break;
         }
-        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-        {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            fs = FinishResilientPlace0opt.make(p);
-            break;
-        }
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
@@ -135,9 +129,6 @@ abstract class FinishResilient extends FinishState {
         case Configuration.RESILIENT_MODE_HC:
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
             notifyPlaceDeath_HC();
-            break;
-        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-            FinishResilientPlace0opt.notifyPlaceDeath();
             break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
