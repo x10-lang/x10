@@ -10,9 +10,10 @@
  */
 package x10.xrx;
 
-import x10.compiler.*;
+import x10.compiler.AsyncClosure;
+import x10.compiler.Immediate;
+import x10.compiler.Inline;
 
-import x10.array.Array_2;
 import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
@@ -32,15 +33,21 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
     private static val AT = 0n;
     private static val ASYNC = 1n;
-    private static val AT_AND_ASYNC = AT..ASYNC;
 
     private static struct Id(home:int,id:int) {
         public def toString() = "<"+home+","+id+">";
     }
     private static val UNASSIGNED = Id(-1n,-1n);
 
+    private static struct Task(place:Int, kind:Int) {
+        public def toString() = "<"+(kind == AT ? "at" : "async")+" live @ "+place+">";
+        def this(place:Long, kind:Int) {
+            property(place as Int, kind);
+        }
+    }
+
     private static struct Edge(src:Int, dst:Int, kind:Int) {
-        public def toString() = "<"+(kind == AT ? "async" : "at")+" from "+src+" to "+dst+">";
+        public def toString() = "<"+(kind == AT ? "at" : "async")+" from "+src+" to "+dst+">";
         def this(srcId:Long, dstId:Long, kind:Int) {
             property(srcId as Int, dstId as Int, kind);
         }
@@ -50,18 +57,17 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
      * State of a single finish; always stored in Place0
      */
     private static final class State implements x10.io.Unserializable {
-        val NUM_PLACES = Place.numPlaces(); // FIXME: Elastic X10: totally broken if async goes to added place!!!
         val gfs:GlobalRef[FinishResilientPlace0]; // root finish state
         val id:Id;
         val parentId:Id; // id of parent (UNASSIGNED means no parent / parent is UNCOUNTED)
         var numActive:Long = 0;
-        val live = new Array_2[Int](2, NUM_PLACES);
+        val live = new HashMap[Task,Int]();
         var _transit:HashMap[Edge,Int] = null; // lazily allocated by transit()
         var excs:GrowableRail[CheckedThrowable] = null;  // lazily allocated in addException
         var adopterId:Id = UNASSIGNED; // current adopter (if adopted)
         var adoptees:GrowableRail[Id] = null; // adopted descendents, lazily allocated in seekAdoption
-        val liveAdopted = new Array_2[Int](2, NUM_PLACES);
-        var _transitAdopted:HashMap[Edge,Int] = null; // lazily allocated by transitAdopted();
+        var _liveAdopted:HashMap[Task,Int] = null; // lazily allocated by liveAdopted()
+        var _transitAdopted:HashMap[Edge,Int] = null; // lazily allocated by transitAdopted()
 
         private def this(id:Id, parentId:Id, gfs:GlobalRef[FinishResilientPlace0]) {
             this.id = id;
@@ -69,7 +75,12 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             this.gfs = gfs;
         }
         
-        def isAdopted() = (adopterId != UNASSIGNED);
+        @Inline def isAdopted() = (adopterId != UNASSIGNED);
+
+        def liveAdopted() {
+            if (_liveAdopted == null) _liveAdopted = new HashMap[Task,Int]();
+            return _liveAdopted;
+        }
 
         def transit() {
             if (_transit == null) _transit = new HashMap[Edge,Int]();
@@ -81,16 +92,16 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             return _transitAdopted;
         }
 
-        static def increment(map:HashMap[Edge,Int], e:Edge) {
-            map.put(e, map.getOrElse(e, 0n)+1n);
+        static @Inline def increment[K](map:HashMap[K,Int], k:K) {
+            map.put(k, map.getOrElse(k, 0n)+1n);
         }
 
-        static def decrement(map:HashMap[Edge,Int], e:Edge) {
-            val oldCount = map(e);
+        static @Inline def decrement[K](map:HashMap[K,Int], k:K) {
+            val oldCount = map(k);
             if (oldCount == 1n) {
-                 map.remove(e);
+                 map.remove(k);
             } else {
-                 map(e) = oldCount-1n;
+                 map(k) = oldCount-1n;
             }
         }
 
@@ -117,12 +128,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
         def transitToLive(srcId:Long, dstId:Long, kind:Int, tag:String) {
             val e = Edge(srcId, dstId, kind);
+            val t = Task(dstId, kind);
             if (!isAdopted()) {
-                live(kind, dstId)++;
+                increment(live,t);
                 decrement(transit(), e);
             } else {
                 val adopterState = states(adopterId);
-                adopterState.liveAdopted(kind, dstId)++;
+                increment(adopterState.liveAdopted(), t);
                 decrement(adopterState.transitAdopted(), e);
             }
             if (verbose>=3) {
@@ -132,12 +144,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         }
 
         def addLive(srcId:Long, dstId:Long, kind:Int, tag:String) {
+            val t = Task(dstId, kind);
             if (!isAdopted()) {
-                live(kind, dstId)++;
+                increment(live, t);
                 numActive++;
             } else {
                 val adopterState = states(adopterId);
-                adopterState.liveAdopted(kind, dstId)++;
+                increment(adopterState.liveAdopted(), t);
                 adopterState.numActive++;
             }
             if (verbose>=3) {
@@ -168,9 +181,10 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             }
         }
 
-        def liveToCompleted(placeId:Long, kind:Int, t:CheckedThrowable) {
+        def liveToCompleted(placeId:Long, kind:Int) {
+            val t = Task(placeId, kind);
             if (!isAdopted()) {
-                live(kind, placeId)--;
+                decrement(live, t);
                 numActive--;
                 if (quiescent()) {
                     releaseLatch();
@@ -178,7 +192,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 }
             } else {
                 val adopterState = states(adopterId);
-                adopterState.live(kind, placeId)--;
+                decrement(adopterState.live, t);
                 adopterState.numActive--;
                 if (adopterState.quiescent()) {
                     adopterState.releaseLatch();
@@ -272,9 +286,15 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 adopterState.dump();
             }
 
-            for (k in AT_AND_ASYNC) {
-                for (i in 0..(NUM_PLACES-1)) {
-                    adopterState.liveAdopted(k,i) += (live(k,i) + liveAdopted(k,i));
+            val asla = adopterState.liveAdopted();
+            for (entry in live.entries()) {
+                val task = entry.getKey();
+                asla.put(task, asla.getOrElse(task,0n) + entry.getValue());
+            }
+            if (_liveAdopted != null) {
+                for (entry in _liveAdopted.entries()) {
+                    val task = entry.getKey();
+                    asla.put(task, asla.getOrElse(task,0n) + entry.getValue());
                 }
             }
 
@@ -319,18 +339,35 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         def convertDeadActivities() {
             if (isAdopted()) return;
 
-            for (i in 0n..((NUM_PLACES as Int) - 1n)) {
+            // NOTE: can't say for (p in Place.places()) because we need to see the dead places
+            for (i in 0n..((Place.numPlaces() as Int) - 1n)) {
                 if (!Place.isDead(i)) continue;
 
-                for (1..live(ASYNC, i)) {
-                    if (verbose>=3) debug("adding DPE for live asyncs("+i+")");
-                    addDeadPlaceException(i);
+                val deadTasks = new HashSet[Task]();
+                for (k in live.keySet()) {
+                    if (k.place == i) deadTasks.add(k);
                 }
-                numActive -= ( live(AT, i) + liveAdopted(AT, i) + live(ASYNC, i) + liveAdopted(ASYNC, i));
-                live(AT, i) = 0n;
-                liveAdopted(AT, i) = 0n;
-                live(ASYNC, i) = 0n;
-                liveAdopted(ASYNC, i) = 0n;
+                for (dt in deadTasks) {
+                    val count = live.remove(dt);
+                    numActive -= count;
+                    if (dt.kind == ASYNC) {
+                        for (1..count) {
+                            if (verbose>=3) debug("adding DPE to "+id+" for live async at "+i);
+                            addDeadPlaceException(i);
+                        }
+                    }
+                }
+
+                if (_liveAdopted != null) {
+                    val deadWards = new HashSet[Task]();
+                    for (k in _liveAdopted.keySet()) {
+                        if (k.place == i) deadWards.add(k);
+                    }
+                    for (dw in deadWards) {
+                        val count = _liveAdopted.remove(dw);
+                        numActive -= count;
+                    }
+                }
                   
                 if (_transit != null) {
                     val deadEdges = new HashSet[Edge]();
@@ -342,7 +379,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                         numActive -= count;
                         if (de.kind == ASYNC && de.dst == i) {
                             for (1..count) {
-                                if (verbose>=3) debug("adding DPE for transit asyncs("+de.src+","+i+")");
+                                if (verbose>=3) debug("adding DPE to "+id+" for transit asyncs("+de.src+","+i+")");
                                 addDeadPlaceException(i);
                             }
                         }
@@ -369,18 +406,28 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             s.add("      numActive:"); s.add(numActive); s.add('\n');
             s.add("       parentId: " + parentId); s.add('\n');
             s.add("      adopterId: " + adopterId); s.add('\n');
-            s.add("           live:"); s.add(live.toString(1024)); s.add('\n');
-            s.add("    liveAdopted:"); s.add(liveAdopted.toString(1024)); s.add('\n');
-            if (_transit != null) {
-                s.add("        transit:\n"); 
-                for (e in _transit.entries()) {
-                    s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
+            if (live.size() > 0) {
+                s.add("           live:\n");
+                for (e in live.entries()) {
+                    s.add("\t\t"+e.getKey()+" = "+e.getValue()+"\n");
                 }
             }
-            if (_transitAdopted != null) {
+            if (_liveAdopted != null && _liveAdopted.size() > 0) {
+                s.add("    liveAdopted:\n"); 
+                for (e in _liveAdopted.entries()) {
+                    s.add("\t\t"+e.getKey()+" = "+e.getValue()+"\n");
+                }
+            }
+            if (_transit != null && _transit.size() > 0) {
+                s.add("        transit:\n"); 
+                for (e in _transit.entries()) {
+                    s.add("\t\t"+e.getKey()+" = "+e.getValue()+"\n");
+                }
+            }
+            if (_transitAdopted != null && _transitAdopted.size() > 0) {
                 s.add(" transitAdopted:\n"); 
                 for (e in _transitAdopted.entries()) {
-                    s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
+                    s.add("\t\t"+e.getKey()+" = "+e.getValue()+"\n");
                 }
             }
             debug(s.toString());
@@ -449,7 +496,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     lock.lock();
                     val state = new State(myId, parentId, gfs);
                     states.put(myId, state);
-                    state.live(ASYNC, gfs.home.id) = 1n; // duplicated from my localCount
+                    State.increment(state.live, Task(gfs.home.id, ASYNC)); // duplicated from my localCount
                     state.numActive = 1;
                 } finally {
                     lock.unlock();
@@ -696,7 +743,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                             if (verbose>=1) debug("==== notifyActivityCreatedAndTerminated(id="+myId+") suppressed: "+srcId + " ==> "+srcId+" kind="+kind);
                         } else {
                             val state = states(myId);
-                            state.liveToCompleted(srcId, kind, null);
+                            state.liveToCompleted(srcId, kind);
                         }
                     } finally {
                         lock.unlock();
@@ -769,7 +816,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                 } else {
                     if (verbose>=1) debug("<<<< notifyActivityTermination(id="+myId+") message running at place0");
                     val state = states(myId);
-                    state.liveToCompleted(dstId, kind, null);
+                    state.liveToCompleted(dstId, kind);
                 }
             } finally {
                 lock.unlock();
@@ -863,8 +910,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
             if (verbose >= 1) debug("==== spawnRemoteActivity(id="+myId+") selecting indirect (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
             val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
-            val wrappedBody = ()=> @x10.compiler.AsyncClosure {
-                val deser = new x10.io.Deserializer(bytes);
+            val wrappedBody = ()=> @AsyncClosure {
+                val deser = new Deserializer(bytes);
                 val bodyPrime = deser.readAny() as ()=>void;
                 bodyPrime();
             };
@@ -903,7 +950,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                         if (verbose >= 1) debug("==== spawnRemoteActivity(id="+myId+") submitting activity from "+srcId+" at "+dstId);
                         val wrappedBody = ()=> {
                             // defer deserialization to reduce work on immediate thread
-                            val deser = new x10.io.Deserializer(bytes);
+                            val deser = new Deserializer(bytes);
                             val bodyPrime = deser.readAny() as ()=>void;
                             bodyPrime();
                         };
