@@ -906,22 +906,50 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val srcId = here.id;
         val dstId = place.id;
         val myId = this.id;
+
+        localCount().incrementAndGet();  // synthetic activity to keep finish locally live during async to Place0
+        val fsgr = this.ref;
+
         if (bytes.size >= ASYNC_SIZE_THRESHOLD) {
             if (verbose >= 1) debug("==== spawnRemoteActivity(id="+myId+") selecting indirect (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
-            val preSendAction = ()=>{ this.notifySubActivitySpawn(place); };
             val wrappedBody = ()=> @AsyncClosure {
                 val deser = new Deserializer(bytes);
                 val bodyPrime = deser.readAny() as ()=>void;
                 bodyPrime();
             };
-            x10.xrx.Runtime.x10rtSendAsync(place.id, wrappedBody, this, prof, preSendAction);
+            val wbgr = GlobalRef(wrappedBody);          
+
+            at (place0) @Immediate("spawnRemoteActivity_big_async_to_zero") async {
+                var markedInTransit:Boolean = false;
+                try {
+                    lock.lock();
+                    val state = states(myId);
+                    if (Place(srcId).isDead()) {
+                        if (verbose>=1) debug("==== spwanRemoteActivity(id="+myId+") src "+srcId + "is dead; dropping async");
+                    } else if (Place(dstId).isDead()) {
+                        if (verbose>=1) debug("==== spawnRemoteActivity(id="+myId+") destination "+dstId + "is dead; pushed DPE");
+                        state.addDeadPlaceException(dstId);
+                    } else {
+                        state.inTransit(srcId, dstId, ASYNC, "spawnRemoteActivity(large async)");
+                        markedInTransit = true;
+                    }
+                } finally {
+                    lock.unlock();
+                }
+
+                val mt = markedInTransit;
+                at (wbgr) @Immediate("spawnRemoteActivity_big_back_to_spawner") async {
+                    val fs = (fsgr as GlobalRef[FinishResilientPlace0]{self.home == here})();
+                    if (mt) x10.xrx.Runtime.x10rtSendAsync(dstId, wbgr(), fs, null, null);
+                    wbgr.forget();
+                    fs.notifyActivityTermination();
+                }
+            }
         } else {
             if (verbose >= 1) debug(">>>>  spawnRemoteActivity(id="+myId+") selecting direct (size="+
                                     bytes.size+") srcId="+srcId + " dstId="+dstId);
 
-            localCount().incrementAndGet();  // synthetic activity to keep finish locally live during async to Place0
-            val fsgr = this.ref;
             at (place0) @Immediate("spawnRemoteActivity_to_zero") async {
                 try {
                     lock.lock();
@@ -932,7 +960,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                         if (verbose>=1) debug("==== spawnRemoteActivity(id="+myId+") destination "+dstId + "is dead; pushed DPE");
                         state.addDeadPlaceException(dstId);
                     } else {
-                        state.addLive(srcId, dstId, ASYNC, "spawnRemoteActivity");
+                        state.addLive(srcId, dstId, ASYNC, "spawnRemoteActivity(small async)");
                     }
                 } finally {
                     lock.unlock();
