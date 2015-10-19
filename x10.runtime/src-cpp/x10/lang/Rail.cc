@@ -74,7 +74,8 @@ namespace x10 {
                 if (NULL == notif) {
                     x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
                     fs->notifySubActivitySpawn(Place::_make(x10aux::here));
-                    buf.write((void*)fs); // notifier runs here; sleazy optimization to avoid true serialization...
+                    // notifier runs here; sleazy optimization to avoid true serialization...
+                    buf.write(static_cast<x10_ulong>((size_t)static_cast<void*>(fs)));
                     x10aux::send_get(src_place, Rail_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
                     buf.write(notif);
@@ -95,7 +96,8 @@ namespace x10 {
         }
         
         void Rail_get_notifier(deserialization_buffer &buf, x10_int) {
-            x10::xrx::FinishState* fs = (x10::xrx::FinishState*)buf.read<void*>();
+            size_t val = static_cast<size_t>(buf.read<x10_ulong>());
+            x10::xrx::FinishState* fs = static_cast<x10::xrx::FinishState*>((void*)val);
             // Perform the actions of both notifyActivityCreation and
             // notifyActivityTermination in a single non-blocking action.
             // This notifier is often running on an @Immediate worker thread.
