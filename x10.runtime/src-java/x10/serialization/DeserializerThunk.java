@@ -21,13 +21,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import sun.misc.Unsafe;
 import x10.io.Deserializer;
 import x10.io.SerializationException;
 import x10.rtt.NamedStructType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
+import x10.runtime.impl.java.X10Unsafe;
 
 /**
  * An instance of a DeserializerThunk knows how to deserialize a specific class.
@@ -42,8 +42,6 @@ import x10.runtime.impl.java.Runtime;
  * @see SerializerThunk
  */
 abstract class DeserializerThunk {
-
-    protected static Unsafe unsafe = getUnsafe();
 
     protected static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
 
@@ -87,7 +85,7 @@ abstract class DeserializerThunk {
         if (!"java.lang.Class".equals(clazz.getName())) {
             try {
                 assert !Modifier.isAbstract(clazz.getModifiers());                    
-                obj = (T)unsafe.allocateInstance(clazz);
+                obj = (T)X10Unsafe.allocateInstance(clazz);
             } catch (InstantiationException e) {
                 throw new SerializationException(e);
             }
@@ -114,23 +112,6 @@ abstract class DeserializerThunk {
     }
 
     protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException;
-
-    protected static Unsafe getUnsafe() {
-        Unsafe unsafe = null;
-        try {
-            Class<Unsafe> uc = Unsafe.class;
-            Field[] fields = uc.getDeclaredFields();
-            for (int i = 0; i < fields.length; i++) {
-                if (fields[i].getName().equals("theUnsafe")) {
-                    fields[i].setAccessible(true);
-                    unsafe = (Unsafe) fields[i].get(uc);
-                    break;
-                }
-            }
-        } catch (Exception ignore) {
-        }
-        return unsafe;
-    }
 
     private static DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) {
 
