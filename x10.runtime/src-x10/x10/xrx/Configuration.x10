@@ -95,10 +95,15 @@ final class Configuration {
 
     static def num_immediate_threads():Int {
         var v:Int = 1n;
-        try {
+        val asymmetric = envOrElse("X10_ASYMMETRIC_IMMEDIATE_THREAD", false);
+        if (asymmetric) {
+            v = here.id == 0 ? 1n : 0n;
+        } else {
             val defVal = Runtime.x10rtBlockingProbeSupport() ? "1" : "0";
-            v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", defVal));
-        } catch (NumberFormatException) {
+            try {
+                v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", defVal));
+            } catch (NumberFormatException) {
+            }
         }
         return v;
     }
