@@ -174,8 +174,10 @@ public class Vector(M:Long) implements (Long) => ElemType, Snapshottable {
      * this *= alpha
      * Product of a vector and a scalar: Mx1 * 1
      */
-    public def scale(alpha:ElemType)
-        = map((x:ElemType)=>{alpha * x});
+    public def scale(alpha:ElemType) {
+        BLAS.compScale(this.M, alpha, this.d);
+        return this;
+    }
 
     /**
      * this = alpha * V
@@ -186,8 +188,10 @@ public class Vector(M:Long) implements (Long) => ElemType, Snapshottable {
     /**
      * this += alpha * V
      */
-    public def scaleAdd(alpha:ElemType, V:Vector(M))
-        = map(this, V, (x:ElemType, v:ElemType)=> {x + alpha * v});
+    public def scaleAdd(alpha:ElemType, v:Vector(M)) {
+        BLAS.compAxpy(this.M, alpha, this.d, v.d);
+        return this;
+    }
 
     /**
      * Cell-wise mulitply of two vectors
@@ -239,21 +243,10 @@ public class Vector(M:Long) implements (Long) => ElemType, Snapshottable {
         = map((x:ElemType)=> {d / x});
 
     /**
-     * Product transition of a vector: Mx1 * (Mx1)^T
-     * Return this^T * x.
-     */
-    public def blasTransProduct(x:Vector):ElemType =
-        BLAS.compDotProd(this.M, this.d, x.d);
-    
-
-    /**
      * Dot (scalar) product of this vector with another vector
      */
     public def dot(v:Vector(M)):ElemType {
-        var d:ElemType = ElemTypeTool.zero;
-         for (i in 0..(M-1))
-            d += this.d(i) * v.d(i);
-        return d;
+        return BLAS.compDotProd(this.M, this.d, v.d);
     }
 
     public def dotProd(v:Vector(M)) = dot(v);

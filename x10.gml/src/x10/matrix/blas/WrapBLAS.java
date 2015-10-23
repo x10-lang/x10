@@ -99,6 +99,16 @@ public class WrapBLAS {
 	copy(n, x.getFloatArray(), y.getFloatArray());
     }
 
+    static native void axpy(long n, double alpha, double[] x, double[] y);
+    static native void axpy(long n, float alpha, float[] x, float[] y);
+    public static <T> void axpyET(long n, T alpha, Rail<T> x, Rail<T> y) {
+        if (x.$getParam(0) instanceof DoubleType) {
+            axpy(n, getDouble(alpha), x.getDoubleArray(), y.getDoubleArray());
+            return;
+        }
+        axpy(n, getFloat(alpha), x.getFloatArray(), y.getFloatArray());
+    }
+
 
     // FOr methods returning a value of type ElemType, the trick is to 
     // have the method return a value of type T. The native methods will

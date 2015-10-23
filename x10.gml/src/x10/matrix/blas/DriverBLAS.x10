@@ -81,6 +81,22 @@ protected class DriverBLAS {
             Y:Rail[T]):T;
 
     /**
+     * Implements Y = a * X + Y
+     *
+     * @param n        number of data to operate
+     * @param alpha    scaling factor for vector X
+     * @param X        vector X
+     * @param Y        vector Y
+     */
+    @Native("java", "WrapBLAS.<#T$box>axpyET(#n, #alpha, #X, #Y)")
+    @Native("c++","axpy(#n, #alpha, (#X)->raw, (#Y)->raw)")
+    public static native def axpy[T](
+            n:Long, 
+            alpha:T,
+            X:Rail[T],
+            Y:Rail[T]):void;
+
+    /**
      * Perform Euclidean norm. Incremental step is 1.
      *
      * @param  n      number of data to operate in array

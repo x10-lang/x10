@@ -46,6 +46,21 @@ extern "C" {
   }
 
   //-------------------------------------------------------------
+  // public static native void axpy(int n, float alpha, float[] x, float[] y);
+  JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_axpy
+  (JNIEnv *env, jclass cls, jint n, jfloat alpha, jfloatArray x, jfloatArray y) {
+	jboolean isCopy;
+	jfloat* xmat = env->GetFloatArrayElements(x, NULL);
+	jfloat* ymat = env->GetFloatArrayElements(y, &isCopy);
+	axpy(n, alpha, xmat, ymat);
+
+	if (isCopy == JNI_TRUE) {
+	  //printf("Copying data from c library back to original data in JVM\n");
+	  env->ReleaseFloatArrayElements(y, ymat, 0);
+	}
+  }
+
+  //-------------------------------------------------------------
 
   // public static native float dotProd(int n, float[] x, float[] y);
   JNIEXPORT float JNICALL Java_x10_matrix_blas_WrapBLAS_dotProd

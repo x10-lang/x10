@@ -25,6 +25,7 @@ typedef int64_t blas_long;
 
 void scale(blas_long n, ElemType a, ElemType* x);
 void copy(blas_long n, ElemType* x, ElemType* y);
+void axpy(blas_long n, ElemType a, ElemType* x, ElemType* y);
 ElemType dot_prod(blas_long n, ElemType* x, ElemType* y); 
 ElemType norm2(blas_long n, ElemType* x);
 ElemType abs_sum(blas_long n, ElemType* x);

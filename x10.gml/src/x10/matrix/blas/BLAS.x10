@@ -28,6 +28,10 @@ public class BLAS {
 	public static @NoInline def doCopy(n:Long, src:Rail[ElemType], dst:Rail[ElemType]):void {
 		DriverBLAS.copy(n, src, dst);
 	}
+
+	public static @NoInline def compAxpy(n:Long, a:ElemType, X:Rail[ElemType], Y:Rail[ElemType]):void {
+		DriverBLAS.axpy(n, a, X, Y);
+	}
 	
 	public static @NoInline def compDotProd(n:Long, X:Rail[ElemType], Y:Rail[ElemType]):ElemType {
 		val ret = DriverBLAS.dot_prod(n, X, Y);

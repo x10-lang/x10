@@ -233,8 +233,8 @@ public class TestVector extends x10Test {
         val a = Vector.make(M).initRandom();
         val b = Vector.make(M).initRandom();
         val dot = a.dotProd(b);
-        val blasDot = a.blasTransProduct(b);
-        val ret = MathTool.equals(dot, blasDot);
+        val dot2 = a.scale(2.0).dotProd(b);
+        val ret = MathTool.equals(dot*2, dot2);
         if (!ret)
             Console.OUT.println("--------Vector dot product test failed!--------");
         return ret;
