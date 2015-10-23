@@ -963,7 +963,7 @@ public final class Runtime {
         val verbose = FinishResilient.verbose;
         if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
-                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                debug("DANGER: runImmediateAt called on @Immediate worker!");
                 new Exception().printStackTrace();
             }
         }
@@ -999,7 +999,9 @@ public final class Runtime {
             };
         
             if (verbose>=4) debug("---- runImmediateAt waiting for cond");
+            if (NUM_IMMEDIATE_THREADS == 0n) increaseParallelism();
             cond.await();
+            if (NUM_IMMEDIATE_THREADS == 0n) decreaseParallelism(1n);
             if (verbose>=4) debug("---- runImmediateAt released from cond");
 	    // Unglobalize objects
 	    condGR.forget();
@@ -1234,7 +1236,7 @@ public final class Runtime {
         val verbose = FinishResilient.verbose;
         if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
-                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                debug("DANGER: evalImmediateAt called on @Immediate worker!");
                 new Exception().printStackTrace();
             }
         }
@@ -1274,7 +1276,9 @@ public final class Runtime {
         };
         
         if (verbose>=4) debug("---- evalImmediateAt waiting for cond");
+        if (NUM_IMMEDIATE_THREADS == 0n) increaseParallelism();
         cond.await();
+        if (NUM_IMMEDIATE_THREADS == 0n) decreaseParallelism(1n);
         if (verbose>=4) debug("---- evalImmediateAt released from cond");
         val t = exc()();
 
