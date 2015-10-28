@@ -83,7 +83,7 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 #define X10_NTHREADS "X10_NTHREADS"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
 #define X10_RESILIENT_MODE "X10_RESILIENT_MODE"
-#define X10RT_MPI_PROBE_SLEEP_MILLISECONDS "X10RT_MPI_PROBE_SLEEP_MILLISECONDS"
+#define X10RT_MPI_PROBE_SLEEP_MICROSECONDS "X10RT_MPI_PROBE_SLEEP_MICROSECONDS"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -1516,15 +1516,15 @@ x10rt_error x10rt_net_blocking_probe (void) {
 	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
 	// a low-power state when idle won't work.
 
-	int sleepMillis = -1;
-	char* sleepMillisEnv = getenv(X10RT_MPI_PROBE_SLEEP_MILLISECONDS);
-	if (sleepMillisEnv && atoi(sleepMillisEnv) > 0) {
-		sleepMillis = atoi(sleepMillisEnv);
+	int sleep_microseconds = -1;
+	char* sleepMicrosEnv = getenv(X10RT_MPI_PROBE_SLEEP_MICROSECONDS);
+	if (sleepMicrosEnv && atoi(sleepMicrosEnv) > 0) {
+		sleep_microseconds = atoi(sleepMicrosEnv);
 	}
 	int counter = 1000;
 	while (!x10rt_net_probe_ex(false) && counter--) {
-		if (sleepMillis > 0)
-			usleep(sleepMillis*1000);
+		if (sleep_microseconds > 0)
+			usleep(sleep_microseconds);
 		else
 			sched_yield();
 	}
@@ -1631,10 +1631,7 @@ x10rt_coll_type x10rt_net_coll_support () {
 	else
         return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 #else
-    return X10RT_COLL_NOCOLLECTIVES;
-    /*TODO: change it to X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
-     * then modify MPI_COLLECTIVE to not abort
-     * */
+    return  X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 #endif
 }
 
@@ -1852,10 +1849,20 @@ private:
             }
             delete[] ranks;
             MPI_Comm comm;
+#ifdef OPEN_MPI_ULFM
+            //shrink MPI_COMM_WORLD to remove dead ranks before calling MPI_Comm_create
+            MPI_Comm shrunken;
+            OMPI_Comm_shrink(MPI_COMM_WORLD, &shrunken);
+            if (MPI_SUCCESS != MPI_Comm_create(shrunken, grp, &comm)) {
+                fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
+                abort();
+            }
+#else
             if (MPI_SUCCESS != MPI_Comm_create(MPI_COMM_WORLD, grp, &comm)) {
             	fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
             	abort();
             }
+#endif
             MPI_Group_free(&MPI_GROUP_WORLD);
             MPI_Group_free(&grp);
             UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -2277,7 +2284,7 @@ void send_team_new (x10rt_team teamc, x10rt_team *teamv, x10rt_place placec, x10
 
     x10rt_place home = x10rt_net_here();
 
-    CounterWithLock *counter = new_counter(x10rt_net_nhosts());
+    CounterWithLock *counter = new_counter(x10rt_net_nhosts()-x10rt_net_ndead());
     x10rt_remote_ptr counter_ = reinterpret_cast<x10rt_remote_ptr>(counter);
 
     x10rt_team t = teamv[0];
@@ -2937,6 +2944,28 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #define SAVED(var) \
      cpe.env.MPI_COLLECTIVE_NAME.var
 #define MPI_COLLECTIVE_POSTPROCESS_END X10RT_NET_DEBUG("%s: %"PRIxPTR"_%"PRIxPTR,"end postprocess", SAVED(ch), SAVED(arg));
+#elif defined(OPEN_MPI_ULFM)
+#define MPI_COLLECTIVE(name, iname, ...) \
+    CollectivePostprocessEnv cpe; \
+    do { LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
+        int mpiError = MPI_##name(__VA_ARGS__); \
+        if (MPI_SUCCESS != mpiError && !is_process_failure_error(mpiError)) { \
+            fprintf(stderr, "[%s:%d] %s\n", \
+                    __FILE__, __LINE__, "Error in MPI_" #name); \
+            abort(); \
+        } \
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED; \
+    } while(0)
+#define MPI_COLLECTIVE_SAVE(var) \
+     cpe.env.MPI_COLLECTIVE_NAME.var = var;
+#define MPI_COLLECTIVE_POSTPROCESS \
+     cpe.ch = ch; \
+     cpe.arg = arg; \
+    X10RT_NET_DEBUG("call handler %s","x10rt_net_handler_" TOSTR(MPI_COLLECTIVE_NAME)); \
+    CONCAT(x10rt_net_handler_,MPI_COLLECTIVE_NAME)(cpe);
+#define SAVED(var) \
+     cpe.env.MPI_COLLECTIVE_NAME.var
+#define MPI_COLLECTIVE_POSTPROCESS_END
 #else
 #define MPI_COLLECTIVE(name, iname, ...) \
     CollectivePostprocessEnv cpe; \
