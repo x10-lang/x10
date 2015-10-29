@@ -205,7 +205,7 @@ namespace x10aux {
     void *coll_enter2(void *arg);
     void coll_handler2(x10rt_team t, void *arg);
     
-    void res_coll_handler(void *arg);
+    void failed_coll_handler(void *arg);
 }
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
