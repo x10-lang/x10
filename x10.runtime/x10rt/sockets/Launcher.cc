@@ -1185,7 +1185,7 @@ void Launcher::cb_sighandler_term(int signo)
 	#endif
 	for (uint32_t i = 0; i <= _singleton->_numchildren; i++)
 	{
-		if (_singleton->_pidlst[i] != -1)
+		if (_singleton->_pidlst[i] != -1 && kill(_singleton->_pidlst[i], 0) == 0)
 		{
 			#ifdef DEBUG
 				fprintf(stderr, "Launcher %d: killing pid=%d\n", _singleton->_myproc, _singleton->_pidlst[i]);
