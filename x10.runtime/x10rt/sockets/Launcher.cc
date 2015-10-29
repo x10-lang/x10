@@ -1181,7 +1181,7 @@ void Launcher::cb_sighandler_cld(int signo)
 void Launcher::cb_sighandler_term(int signo)
 {
 	#ifdef DEBUG
-		if (!_singleton->_running) fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
+		if (_singleton->_running) fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
 	#endif
 	for (uint32_t i = 0; i <= _singleton->_numchildren; i++)
 	{
