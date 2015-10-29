@@ -463,6 +463,12 @@ void x10aux::coll_handler(void *arg) {
     fs->notifyActivityTermination();
 }
 
+void x10aux::res_coll_handler(void *arg) {
+    x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
+    fs->notifyActivityTermination();
+    x10::xrx::Runtime::notifyPlaceDeath();
+}
+
 struct pointer_pair {
     void *fst;
     void *snd;

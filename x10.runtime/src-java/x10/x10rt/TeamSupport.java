@@ -197,8 +197,9 @@ public class TeamSupport {
         }
     }
     
-    public static void nativeAllReduce(int id, int role, Rail<?> src, int src_off, 
+    public static boolean nativeAllReduce(int id, int role, Rail<?> src, int src_off, 
                                        Rail<?> dst, int dst_off, int count, int op) {
+    	boolean success = true;
         if (!X10RT.forceSinglePlace) {
         int typeCode = getTypeCode(src);
         Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
@@ -209,11 +210,12 @@ public class TeamSupport {
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         try {
-            nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
+            success = nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeAllReduce");
         }
         }
+        return success;
     }
 
     public static void nativeIndexOfMax(int id, int role, Rail<?> src,
@@ -304,7 +306,7 @@ public class TeamSupport {
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);
 
-    private static native void nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
+    private static native Boolean nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);
     
