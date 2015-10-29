@@ -263,14 +263,15 @@ void x10rt_reduce (x10rt_team team, x10rt_place role,
     x10rt_lgl_reduce(team, role, root, sbuf, dbuf, op, dtype, count, ch, arg);
 }
 
-void x10rt_allreduce (x10rt_team team, x10rt_place role,
+bool x10rt_allreduce (x10rt_team team, x10rt_place role,
                       const void *sbuf, void *dbuf,
                       x10rt_red_op_type op, 
                       x10rt_red_type dtype,
                       size_t count,
+                      x10rt_completion_handler *errch,
                       x10rt_completion_handler *ch, void *arg)
 {
-    x10rt_lgl_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+    return x10rt_lgl_allreduce(team, role, sbuf, dbuf, op, dtype, count, errch, ch, arg);
 }
 
 

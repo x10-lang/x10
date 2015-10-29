@@ -354,11 +354,12 @@ X10RT_C void x10rt_net_reduce (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_lgl_allreduce
  * \param arg As in #x10rt_lgl_allreduce
  */
-X10RT_C void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                                   const void *sbuf, void *dbuf,
                                   x10rt_red_op_type op,
                                   x10rt_red_type dtype,
                                   size_t count,
+                                  x10rt_completion_handler *errch,
                                   x10rt_completion_handler *ch, void *arg);
 
 /** Counters exposed to the backend for direct (i.e. fast) manipulation.
