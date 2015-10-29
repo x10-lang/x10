@@ -934,11 +934,12 @@ X10RT_C void x10rt_reduce (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C void x10rt_allreduce (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_allreduce (x10rt_team team, x10rt_place role,
                               const void *sbuf, void *dbuf,
                               x10rt_red_op_type op,
                               x10rt_red_type dtype,
                               size_t count,
+                              x10rt_completion_handler *errch,
                               x10rt_completion_handler *ch, void *arg);
 
 /** Sets arg to 1.

@@ -1531,10 +1531,11 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	fatal_error("x10rt_net_reduce not implemented");
 }
 
-void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
-		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
+bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
+		x10rt_red_op_type op, x10rt_red_type dtype, size_t count,x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
 {
 	fatal_error("x10rt_net_allreduce not implemented");
+	return false;
 }
 
 const char *x10rt_net_error_msg (void) { return context.errorMsg; }
