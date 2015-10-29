@@ -1853,10 +1853,16 @@ private:
             //shrink MPI_COMM_WORLD to remove dead ranks before calling MPI_Comm_create
             MPI_Comm shrunken;
             OMPI_Comm_shrink(MPI_COMM_WORLD, &shrunken);
+            
+            MPI_Errhandler customErrorHandler;
+            MPI_Comm_create_errhandler(mpiErrorHandler, &customErrorHandler);
+            MPI_Comm_set_errhandler(shrunken, customErrorHandler);
+            
             if (MPI_SUCCESS != MPI_Comm_create(shrunken, grp, &comm)) {
                 fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
                 abort();
             }
+            MPI_Comm_set_errhandler(comm, customErrorHandler);
 #else
             if (MPI_SUCCESS != MPI_Comm_create(MPI_COMM_WORLD, grp, &comm)) {
             	fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
@@ -1923,10 +1929,12 @@ void x10rt_net_finalize(void) {
 struct CollectivePostprocessEnv {
     x10rt_completion_handler *ch;
     void *arg;
+    int mpiError;
     union {
         struct CollectivePostprocessEnvBarrier {
             x10rt_team team; x10rt_place role;
             x10rt_completion_handler *ch; void *arg;
+            int mpiError;
         } barrier;
         struct CollectivePostprocessEnvBcast {
             x10rt_team team; x10rt_place role;
@@ -1934,6 +1942,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } bcast;
         struct CollectivePostprocessEnvScatter {
             x10rt_team team; x10rt_place role;
@@ -1941,6 +1950,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } scatter;
         struct CollectivePostprocessEnvAlltoall {
             x10rt_team team; x10rt_place role;
@@ -1948,6 +1958,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } alltoall;
         struct CollectivePostprocessEnvAllreduce {
             x10rt_team team; x10rt_place role;
@@ -1955,9 +1966,11 @@ struct CollectivePostprocessEnv {
             x10rt_red_op_type op;
             x10rt_red_type dtype;
             size_t count;
+            x10rt_completion_handler *errch;
             x10rt_completion_handler *ch; void *arg;
             size_t el;
             void *buf;
+            int mpiError;
         } allreduce;
         struct CollectivePostprocessEnvScatterv {
             x10rt_team team; x10rt_place role;
@@ -1965,6 +1978,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; size_t dcount;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *scounts_; int *soffsets_;
+            int mpiError;
         } scatterv;
         struct CollectivePostprocessEnvGather {
             x10rt_team team; x10rt_place role;
@@ -1973,6 +1987,7 @@ struct CollectivePostprocessEnv {
             x10rt_completion_handler *ch; void *arg;
             int gsize;
             void *buf;
+            int mpiError;
         } gather;
         struct CollectivePostprocessEnvGatherv {
             x10rt_team team; x10rt_place role;
@@ -1980,6 +1995,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; const void *doffsets; const void *dcounts;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *dcounts_; int *doffsets_;
+            int mpiError;
         } gatherv;
         struct CollectivePostprocessEnvAllgather {
             x10rt_team team; x10rt_place role;
@@ -1988,6 +2004,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count; x10rt_completion_handler *ch; void *arg;
             int gsize;
             void *buf;
+            int mpiError;
         } allgather;
         struct CollectivePostprocessEnvAllgatherv {
             x10rt_team team; x10rt_place role;
@@ -1996,6 +2013,7 @@ struct CollectivePostprocessEnv {
             size_t el; x10rt_completion_handler *ch; void *arg;
             int gsize;
             int *dcounts_; int *doffsets_;
+            int mpiError;
         } allgatherv;
         struct CollectivePostprocessEnvAlltoallv {
             x10rt_team team; x10rt_place role;
@@ -2003,6 +2021,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; const void *doffsets; const void *dcounts;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *scounts_; int *soffsets_; int *dcounts_; int *doffsets_;
+            int mpiError;
         } alltoallv;
         struct CollectivePostprocessEnvReduce {
             x10rt_team team; x10rt_place role; x10rt_place root;
@@ -2013,6 +2032,7 @@ struct CollectivePostprocessEnv {
             x10rt_completion_handler *ch; void *arg;
             void *buf;
             int el;
+            int mpiError;
         } reduce;
     } env;
 };
@@ -2943,13 +2963,16 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
     coll_pdb.add_handler(cp);
 #define SAVED(var) \
      cpe.env.MPI_COLLECTIVE_NAME.var
-#define MPI_COLLECTIVE_POSTPROCESS_END X10RT_NET_DEBUG("%s: %"PRIxPTR"_%"PRIxPTR,"end postprocess", SAVED(ch), SAVED(arg));
+#define MPI_COLLECTIVE_POSTPROCESS_END { \
+    X10RT_NET_DEBUG("%s: %"PRIxPTR"_%"PRIxPTR,"end postprocess", SAVED(ch), SAVED(arg)); \
+    return true;
+}
 #elif defined(OPEN_MPI_ULFM)
 #define MPI_COLLECTIVE(name, iname, ...) \
     CollectivePostprocessEnv cpe; \
     do { LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
-        int mpiError = MPI_##name(__VA_ARGS__); \
-        if (MPI_SUCCESS != mpiError && !is_process_failure_error(mpiError)) { \
+        cpe.mpiError = MPI_##name(__VA_ARGS__); \
+        if (MPI_SUCCESS != cpe.mpiError && !is_process_failure_error(cpe.mpiError)) { \
             fprintf(stderr, "[%s:%d] %s\n", \
                     __FILE__, __LINE__, "Error in MPI_" #name); \
             abort(); \
@@ -2961,11 +2984,12 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #define MPI_COLLECTIVE_POSTPROCESS \
      cpe.ch = ch; \
      cpe.arg = arg; \
+     cpe.env.MPI_COLLECTIVE_NAME.mpiError = cpe.mpiError; \
     X10RT_NET_DEBUG("call handler %s","x10rt_net_handler_" TOSTR(MPI_COLLECTIVE_NAME)); \
     CONCAT(x10rt_net_handler_,MPI_COLLECTIVE_NAME)(cpe);
 #define SAVED(var) \
      cpe.env.MPI_COLLECTIVE_NAME.var
-#define MPI_COLLECTIVE_POSTPROCESS_END
+#define MPI_COLLECTIVE_POSTPROCESS_END X10RT_NET_DEBUG("calling ULFM blocking collective completed, mpi_return_code is: ", cpe.mpiError);
 #else
 #define MPI_COLLECTIVE(name, iname, ...) \
     CollectivePostprocessEnv cpe; \
@@ -3178,11 +3202,12 @@ static void x10rt_net_handler_alltoall (struct CollectivePostprocessEnv cpe) {
 #undef MPI_COLLECTIVE_NAME
 }
 
-void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+bool x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                           const void *sbuf, void *dbuf,
                           x10rt_red_op_type op, 
                           x10rt_red_type dtype,
                           size_t count,
+                          x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg)
 {
 #define MPI_COLLECTIVE_NAME allreduce
@@ -3197,7 +3222,9 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_Comm comm = mpi_tdb.comm(team);
     void *buf = (sbuf == dbuf) ? ChkAlloc<void>(count * el) : dbuf;
 
+    X10RT_NET_DEBUG("%s", "pre allreduce");
     MPI_COLLECTIVE(Allreduce, Iallreduce, (void*)sbuf, buf, count, mpi_red_type(dtype), mpi_red_op_type(dtype, op), comm);
+    X10RT_NET_DEBUG("%s", "pro allreduce");
 
     MPI_COLLECTIVE_SAVE(team);
     MPI_COLLECTIVE_SAVE(role);
@@ -3206,6 +3233,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_COLLECTIVE_SAVE(op);
     MPI_COLLECTIVE_SAVE(dtype);
     MPI_COLLECTIVE_SAVE(count);
+    MPI_COLLECTIVE_SAVE(errch);
     MPI_COLLECTIVE_SAVE(ch);
     MPI_COLLECTIVE_SAVE(arg);
 
@@ -3213,6 +3241,8 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_COLLECTIVE_SAVE(buf);
 
     MPI_COLLECTIVE_POSTPROCESS
+
+    return MPI_SUCCESS == SAVED(mpiError);
 }
 
 static void x10rt_net_handler_allreduce (struct CollectivePostprocessEnv cpe) {
@@ -3220,7 +3250,14 @@ static void x10rt_net_handler_allreduce (struct CollectivePostprocessEnv cpe) {
 	memcpy(SAVED(dbuf), SAVED(buf), SAVED(count) * SAVED(el));
 	free(SAVED(buf));
     }
+#ifdef OPEN_MPI_ULFM
+    if (is_process_failure_error(cpe.mpiError))
+    	SAVED(errch)(SAVED(arg));
+    else
+    	SAVED(ch)(SAVED(arg));
+#else
     SAVED(ch)(SAVED(arg));
+#endif
     MPI_COLLECTIVE_POSTPROCESS_END
 #undef MPI_COLLECTIVE_NAME
 }

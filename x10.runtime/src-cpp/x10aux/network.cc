@@ -462,6 +462,12 @@ void x10aux::coll_handler(void *arg) {
     x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
     fs->notifyActivityTermination();
 }
+//used with ULFM, called only when a collective has failed due to a process failure
+void x10aux::failed_coll_handler(void *arg) {
+    x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
+    fs->notifyActivityTermination();
+    x10::xrx::Runtime::notifyPlaceDeath();
+}
 
 struct pointer_pair {
     void *fst;
