@@ -133,6 +133,8 @@ class Launcher
 		int * _childCoutLinks; /* children's cout connections */
 		int * _childCerrorLinks; /* children's cerror connections */
 		int _exitcode; /* The exit code */
+		bool _running;
+		bool _resilient_x10;
 };
 #endif /* #ifdef */
 
