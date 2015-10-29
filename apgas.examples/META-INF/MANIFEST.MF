@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: apgas.examples
+Bundle-SymbolicName: apgas.examples
+Bundle-Version: 1.0.0.qualifier
+Export-Package: apgas.examples
+Require-Bundle: apgas;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: x10-users@lists.sourceforge.net
