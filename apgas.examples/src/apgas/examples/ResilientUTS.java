@@ -13,9 +13,12 @@ package apgas.examples;
 
 import static apgas.Constructs.*;
 
+import java.io.Serializable;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -32,213 +35,232 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.TransactionalMap;
-import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class ResilientUTS extends PlaceLocalObject {
   final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
-  final IMap<Integer, UTS> map;
-
-  final int me; // my index in the lifeline graph
-  final int prev; // index of the predecessor in the lifeline graph
-  final int next; // index of the successor in the lifeline graph
+  final IMap<Integer, UTS> map; // the resilient map for the current wave
   final int wave; // the integer id of the current wave
   final List<? extends Place> group; // the places in the current wave
-  final Random random;
-  final MessageDigest md = UTS.encoder();
-  final UTS bag = new UTS(64);
-  final ConcurrentLinkedQueue<Integer> thieves = new ConcurrentLinkedQueue<Integer>(); // pending
-                                                                                       // requests
-                                                                                       // from
-                                                                                       // thieves
-  final AtomicBoolean lifeline; // pending lifeline request?
-  int state = -2; // -3: abort, -2: inactive, -1: running, p: stealing from p
-  int transfers; // number of transactions so far
+  final Worker[] workers; // the workers at the current place
+  final int power; // 1<<power workers per place
+  final int mask;
 
-  ResilientUTS(int wave, List<? extends Place> group, int size, int ratio) {
-    this.group = group;
-    this.wave = wave;
+  @FunctionalInterface
+  static interface Fun extends Serializable {
+    void run(Worker w) throws Exception;
+  }
+
+  void myAsyncAt(int dst, Fun f) {
+    asyncAt(group.get(dst >> power), () -> f.run(workers[dst & mask]));
+  }
+
+  void myUncountedAsyncAt(int dst, Fun f) {
+    uncountedAsyncAt(group.get(dst >> power), () -> f.run(workers[dst & mask]));
+  }
+
+  ResilientUTS(int wave, Place[] group, int power, int size, int ratio) {
     map = hz.getMap("map" + wave);
-    me = group.indexOf(here());
-    random = new Random(me);
-    prev = (me + group.size() - 1) % group.size();
-    next = (me + 1) % group.size();
-    lifeline = new AtomicBoolean(((next % ratio) != 0)
-        || ((next / ratio) >= size));
+    this.group = Arrays.asList(group);
+    this.wave = wave;
+    this.power = power;
+    mask = (1 << power) - 1;
+    workers = new Worker[1 << power];
+    for (int i = 0; i <= mask; i++) {
+      workers[i] = new Worker(i, size, ratio);
+    }
     GlobalRuntime.getRuntime().setPlaceFailureHandler(this::unblock);
   }
 
-  synchronized void abort() {
-    if (state == -3) {
-      throw new DeadPlaceException(here());
-    }
-  }
-
-  public void run() throws DigestException {
-    try {
-      System.err.println(me + " starting");
-      synchronized (this) {
-        abort();
-        state = -1;
-      }
-      while (bag.size > 0) {
-        while (bag.size > 0) {
-          for (int n = 500; (n > 0) && (bag.size > 0); --n) {
-            bag.expand(md);
-          }
-          abort();
-          distribute();
-        }
-        map.set(me, bag.trim());
-        steal();
-      }
-      synchronized (this) {
-        abort();
-        state = -2;
-      }
-      distribute();
-      lifelinesteal();
-    } finally {
-      System.err.println(me + " stopping");
-    }
-  }
-
-  void lifelinesteal() {
-    if (group.size() == 1) {
-      return;
-    }
-    uncountedAsyncAt(group.get(prev), () -> {
-      lifeline.set(true);
-    });
-  }
-
-  void steal() {
-    if (group.size() == 1) {
-      return;
-    }
-    final int me = this.me;
-    int p = random.nextInt(group.size() - 1);
-    if (p >= me) {
-      p++;
-    }
-    synchronized (this) {
-      abort();
-      state = p;
-    }
-    uncountedAsyncAt(group.get(p), () -> {
-      request(me);
-    });
-    synchronized (this) {
-      while (state >= 0) {
-        try {
-          wait();
-        } catch (final InterruptedException e) {
-        }
-      }
-    }
-  }
-
-  void request(int thief) {
-    synchronized (this) {
-      if (state == -3) {
-        return;
-      }
-      if (state == -1) {
-        thieves.add(thief);
-        return;
-      }
-    }
-    uncountedAsyncAt(group.get(thief), () -> {
-      deal(null);
-    });
-  }
-
-  void lifelinedeal(UTS b) throws DigestException {
-    bag.merge(b);
-    run();
-  }
-
-  synchronized void deal(UTS loot) {
-    if (state == -3) {
-      return;
-    }
-    if (loot != null) {
-      bag.merge(loot);
-    }
-    state = -1;
-    notifyAll();
-  }
-
-  synchronized void unblock(Place p) {
-    if (p.id > 0) {
-      System.err.println("Observing failure of " + p + " from " + here());
-    }
+  void unblock(Place p) {
     if (!group.contains(p)) {
       return;
     }
-    state = -3;
-    notifyAll();
-  }
-
-  void transfer(int thief, UTS loot) {
-    transfers++;
-    final UTS bag = this.bag.trim();
-    final int me = this.me;
-    final int wave = this.wave;
-    hz.executeTransaction(new TransactionalTask<Object>() {
-      @Override
-      public Object execute(TransactionalTaskContext context)
-          throws TransactionException {
-        final TransactionalMap<Integer, UTS> map = context.getMap("map" + wave);
-        map.set(me, bag);
-        final UTS old = map.getForUpdate(thief);
-        loot.count = old == null ? 0 : old.count;
-        map.set(thief, loot);
-        return null;
-      }
-    });
-  }
-
-  void distribute() {
-    if (group.size() == 1) {
-      return;
+    if (p.id > 0) {
+      System.err.println("Observing failure of " + p + " from " + here());
     }
-    Integer thief;
-    while ((thief = thieves.poll()) != null) {
-      final UTS loot = bag.split();
-      if (loot != null) {
-        transfer(thief, loot);
+    for (int i = 0; i <= mask; ++i) {
+      workers[i].unblock(p);
+    }
+  }
+
+  final class Worker { // not serializable
+    final int me; // my index in the lifeline graph
+    final int prev; // index of the predecessor in the lifeline graph
+    final int next; // index of the successor in the lifeline graph
+    final Random random;
+    final MessageDigest md = UTS.encoder();
+    final UTS bag = new UTS(64);
+    // pending requests from thieves
+    final ConcurrentLinkedQueue<Integer> thieves = new ConcurrentLinkedQueue<Integer>();
+    final AtomicBoolean lifeline; // pending lifeline request?
+    int state = -2; // -3: abort, -2: inactive, -1: running, p: stealing from p
+    int transfers; // number of transactions so far
+
+    Worker(int id, int size, int ratio) {
+      me = (group.indexOf(here()) << power) + id;
+      random = new Random(me);
+      prev = (me + (group.size() << power) - 1) % (group.size() << power);
+      next = (me + 1) % (group.size() << power);
+      lifeline = new AtomicBoolean(((next % ratio) != 0)
+          || ((next / ratio) >= size));
+    }
+
+    synchronized void abort() {
+      if (state == -3) {
+        throw new DeadPlaceException(here());
       }
-      uncountedAsyncAt(group.get(thief), () -> {
-        deal(loot);
+    }
+
+    public void run() throws DigestException {
+      try {
+        System.err.println(me + " starting");
+        synchronized (this) {
+          abort();
+          state = -1;
+        }
+        while (bag.size > 0) {
+          while (bag.size > 0) {
+            for (int n = 500; (n > 0) && (bag.size > 0); --n) {
+              bag.expand(md);
+            }
+            abort();
+            distribute();
+          }
+          map.set(me, bag.trim());
+          steal();
+        }
+        synchronized (this) {
+          abort();
+          state = -2;
+        }
+        distribute();
+        lifelinesteal();
+      } finally {
+        System.err.println(me + " stopping");
+      }
+    }
+
+    void lifelinesteal() {
+      if (group.size() == 1 && power == 0) {
+        return;
+      }
+      myUncountedAsyncAt(prev, w -> w.lifeline.set(true));
+    }
+
+    void steal() {
+      if (group.size() == 1 && power == 0) {
+        return;
+      }
+      final int me = this.me;
+      int p = random.nextInt((group.size() << power) - 1);
+      if (p >= me) {
+        p++;
+      }
+      synchronized (this) {
+        abort();
+        state = p;
+      }
+      myUncountedAsyncAt(p, w -> w.request(me));
+      synchronized (this) {
+        while (state >= 0) {
+          try {
+            wait();
+          } catch (final InterruptedException e) {
+          }
+        }
+      }
+    }
+
+    void request(int thief) {
+      synchronized (this) {
+        if (state == -3) {
+          return;
+        }
+        if (state == -1) {
+          thieves.add(thief);
+          return;
+        }
+      }
+      myUncountedAsyncAt(thief, w -> w.deal(null));
+    }
+
+    void lifelinedeal(UTS b) throws DigestException {
+      bag.merge(b);
+      run();
+    }
+
+    synchronized void deal(UTS loot) {
+      if (state == -3) {
+        return;
+      }
+      if (loot != null) {
+        bag.merge(loot);
+      }
+      state = -1;
+      notifyAll();
+    }
+
+    synchronized void unblock(Place p) {
+      state = -3;
+      notifyAll();
+    }
+
+    void transfer(int thief, UTS loot) {
+      transfers++;
+      final UTS bag = this.bag.trim();
+      final int me = this.me;
+      final int wave = ResilientUTS.this.wave;
+      hz.executeTransaction(new TransactionalTask<Object>() {
+        @Override
+        public Object execute(TransactionalTaskContext context) {
+          final TransactionalMap<Integer, UTS> map = context.getMap("map"
+              + wave);
+          map.set(me, bag);
+          final UTS old = map.getForUpdate(thief);
+          loot.count = old == null ? 0 : old.count;
+          map.set(thief, loot);
+          return null;
+        }
       });
     }
-    if (bag.size > 0 && lifeline.get()) {
-      final UTS loot = bag.split();
-      if (loot != null) {
-        thief = next;
-        transfer(thief, loot);
-        lifeline.set(false);
-        asyncAt(group.get(next), () -> {
-          lifelinedeal(loot);
-        });
+
+    void distribute() {
+      if (group.size() == 1 && power == 0) {
+        return;
+      }
+      Integer thief;
+      while ((thief = thieves.poll()) != null) {
+        final UTS loot = bag.split();
+        if (loot != null) {
+          transfer(thief, loot);
+        }
+        myUncountedAsyncAt(thief, w -> w.deal(loot));
+      }
+      if (bag.size > 0 && lifeline.get()) {
+        final UTS loot = bag.split();
+        if (loot != null) {
+          thief = next;
+          transfer(thief, loot);
+          lifeline.set(false);
+          myAsyncAt(next, w -> w.lifelinedeal(loot));
+        }
       }
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public static List<UTS> step(List<UTS> bags, int wave) {
-    final List<? extends Place> group = places();
-    while (bags.size() > group.size()) {
+  public static List<UTS> step(List<UTS> bags, int wave, int power) {
+    final Place[] group = places().toArray(new Place[0]);
+    while (bags.size() > (group.length << power)) {
       final UTS b = bags.remove(bags.size() - 1);
       bags.get(0).merge(b);
       bags.get(0).count += b.count;
     }
     final int s = bags.size();
-    final int r = group.size() / s;
-    final ResilientUTS uts = PlaceLocalObject.make(group,
-        () -> new ResilientUTS(wave, group, s, r));
+    final int r = (group.length << power) / s;
+    final ResilientUTS uts = PlaceLocalObject.make(Arrays.asList(group),
+        () -> new ResilientUTS(wave, group, power, s, r));
     for (int i = 0; i < s; i++) {
       uts.map.set(i * r, bags.get(i));
     }
@@ -246,43 +268,41 @@ final class ResilientUTS extends PlaceLocalObject {
       finish(() -> {
         for (int i = 1; i < s; i++) {
           final UTS bag = bags.get(i);
-          asyncAt(group.get(i * r), () -> {
-            uts.bag.count = bag.count;
-            uts.lifelinedeal(bag);
+          uts.myAsyncAt(i * r, w -> {
+            w.bag.count = bag.count;
+            w.lifelinedeal(bag);
           });
         }
-        uts.bag.count = bags.get(0).count;
-        uts.lifelinedeal(bags.get(0));
+        uts.workers[0].bag.count = bags.get(0).count;
+        uts.workers[0].lifelinedeal(bags.get(0));
       });
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         e.printStackTrace();
       }
     }
-    return (List<UTS>) uts.hz
-        .executeTransaction(new TransactionalTask<Object>() {
+    final Collection<UTS> values = uts.hz
+        .executeTransaction(new TransactionalTask<Collection<UTS>>() {
           @Override
-          public Object execute(TransactionalTaskContext context)
-              throws TransactionException {
-            final TransactionalMap<Integer, UTS> map = context.getMap("map"
-                + wave);
-            final UTS bag = new UTS(64);
-            final ArrayList<UTS> l = new ArrayList<UTS>();
-            for (final UTS b : map.values()) {
-              if (b.size > 0) {
-                l.add(b);
-              } else {
-                bag.count += b.count;
-              }
-            }
-            if (!l.isEmpty()) {
-              l.get(0).count += bag.count;
-            } else {
-              l.add(bag);
-            }
-            return l;
+          public Collection<UTS> execute(TransactionalTaskContext context) {
+            return context.<Integer, UTS> getMap("map" + wave).values();
           }
         });
+    final UTS bag = new UTS();
+    final List<UTS> l = new ArrayList<UTS>();
+    for (final UTS b : values) {
+      if (b.size > 0) {
+        l.add(b);
+      } else {
+        bag.count += b.count;
+      }
+    }
+    if (!l.isEmpty()) {
+      l.get(0).count += bag.count;
+    } else {
+      l.add(bag);
+    }
+    return l;
   }
 
   static List<UTS> explode(UTS bag) {
@@ -306,11 +326,17 @@ final class ResilientUTS extends PlaceLocalObject {
       depth = Integer.parseInt(args[0]);
     } catch (final Exception e) {
     }
+    int _power = 1;
+    try {
+      _power = Integer.parseInt(args[1]);
+    } catch (final Exception e) {
+    }
+    final int power = _power;
 
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
-      System.setProperty(Configuration.APGAS_PLACES, "4");
+      System.setProperty(Configuration.APGAS_PLACES, "2");
     }
-    System.setProperty(Configuration.APGAS_THREADS, "2");
+    System.setProperty(Configuration.APGAS_THREADS, "" + ((1 << power) + 1));
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
 
     final int maxPlaces = places().size();
@@ -321,7 +347,7 @@ final class ResilientUTS extends PlaceLocalObject {
 
     final UTS tmp = new UTS(64);
     tmp.seed(md, 19, depth - 2);
-    finish(() -> ResilientUTS.step(explode(tmp), -1));
+    finish(() -> ResilientUTS.step(explode(tmp), -1, power));
 
     System.out.println("Starting...");
     Long time = -System.nanoTime();
@@ -336,7 +362,7 @@ final class ResilientUTS extends PlaceLocalObject {
       final List<UTS> b = bags;
       System.out.println("Wave: " + w);
       try {
-        bags = finish(() -> ResilientUTS.step(b, w));
+        bags = finish(() -> ResilientUTS.step(b, w, power));
       } catch (final MultipleException e) {
         if (!e.isDeadPlaceException()) {
           e.printStackTrace();
