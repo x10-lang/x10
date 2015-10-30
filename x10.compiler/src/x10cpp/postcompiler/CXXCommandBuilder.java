@@ -99,6 +99,10 @@ public class CXXCommandBuilder {
                defaultPostCompiler().contains("mpCC") ||
 	       defaultPostCompiler().contains("xlcxx");
     }
+
+    protected final boolean usingCLANG() {
+        return defaultPostCompiler().contains("clang");
+    }
     
     protected final boolean bluegeneQ() {
         return getPlatform().contains("bgq");
@@ -137,9 +141,9 @@ public class CXXCommandBuilder {
             if (options.x10_config.OPT_LEVEL != -1) {
                 cxxCmd.add("-O"+options.x10_config.OPT_LEVEL);
             } else {
-                cxxCmd.add(usingXLC() ? "-O3" : "-O2");
+                cxxCmd.add(usingXLC() || usingCLANG() ? "-O3" : "-O2");
             }
-            cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
+            if (!usingCLANG()) { cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions"); }
             cxxCmd.add("-DNO_TRACING");
             if (fx10()) {
                 cxxCmd.add("-Kfast");

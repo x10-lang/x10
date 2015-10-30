@@ -236,7 +236,11 @@ endif
 ifndef ENABLE_CROSS_COMPILE_ANY
   # if not user-specified, default g++
   ifndef USE_XLC
-    export USE_GCC=1
+    ifeq ($(shell uname -s),Darwin)
+      export USE_CLANG=1
+    else
+      export USE_GCC=1
+    endif
   endif
 
   # platform independent compiler flags and commands
@@ -249,6 +253,19 @@ ifndef ENABLE_CROSS_COMPILE_ANY
     endif
     ifndef CXX_NO_WARNINGS
       CXX_WARNING_FLAGS = -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value
+    endif
+  endif
+  ifdef USE_CLANG
+    override CXX = clang++
+    override CC = clang
+    override MPICXX = mpicxx
+    override SHLINK = clang++
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O3
+    endif
+    ifndef CXX_NO_WARNINGS
+      # even without -Wall clang++ enables some warnings we want to disable for compiling generated code
+      CXX_WARNING_FLAGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value
     endif
   endif
   ifdef USE_XLC
@@ -281,6 +298,14 @@ ifndef ENABLE_CROSS_COMPILE_ANY
 
   ifeq ($(shell uname -s),Linux)
     ifdef USE_GCC
+      override CXXFLAGS += -pthread
+      ifndef X10_STATIC_LIB
+        override CXXFLAGS_SHARED += -shared -fPIC
+        override LDFLAGS_SHARED += -lrt
+      endif
+      export X10RT_TEST_LDFLAGS = -Wl,--rpath -Wl,"$(X10_HOME)"/x10.runtime/x10rt/lib
+    endif
+    ifdef USE_CLANG
       override CXXFLAGS += -pthread
       ifndef X10_STATIC_LIB
         override CXXFLAGS_SHARED += -shared -fPIC
@@ -339,14 +364,6 @@ ifndef ENABLE_CROSS_COMPILE_ANY
       XARGS ?= /usr/bin/xargs
     else
     ifeq ($(shell uname -s),Darwin)
-      ifeq ($(shell readlink `which $(CXX)`),clang++) # avoid clang++ on Mountain Lion
-        CXX = g++
-        CC = gcc
-      endif
-      ifdef CXX_NO_WARNINGS
-        # even without -Wall clang++ enables some warnings we want to disable for compiling generated code
-        CXX_WARNING_FLAGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-value
-      endif
       export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
       ifndef X10_STATIC_LIB
         override CXXFLAGS_SHARED += -fPIC
