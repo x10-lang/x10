@@ -14,6 +14,12 @@ package x10.util.resilient;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+import x10.util.AbstractCollection;
+import x10.util.Collection;
+import x10.util.HashSet;
+import x10.util.Map;
+import x10.util.Set;
+
 /**
  * The ResilientBaseMap interface provides simple operations on resilient stores
  * @see ResilientMap
@@ -100,4 +106,25 @@ public interface ResilientBaseMap[K,V] {V haszero} {
      * Return the number of key-value pairs in the resilient map.
      */
     public def size(): Long;
+
+	/**
+     * Return a set of all keys in the map.
+     */
+    public abstract def keySet():Set[K];
+	
+	/**
+	 * Returns a set of all the values in the map.
+	 */
+	public abstract def values():Collection[V];
+	
+	/**
+     * Return a set of all the keys in the map whose entry satisfies a given predicate.
+     */
+	public abstract def keySet(predicate:(Map[K,V].Entry[K,V])=>boolean):Set[K];
+	
+	/**
+     * Return a set of all the values in the map whose entry satisfies a given predicate.
+     */
+	public abstract def values(predicate:(Map[K,V].Entry[K,V])=>boolean):Collection[V];
+
 }
