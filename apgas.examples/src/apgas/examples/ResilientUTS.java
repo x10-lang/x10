@@ -49,15 +49,25 @@ final class ResilientUTS extends PlaceLocalObject {
 
   @FunctionalInterface
   static interface Fun extends Serializable {
+    void run(Worker w);
+  }
+
+  @FunctionalInterface
+  static interface FunE extends Serializable {
     void run(Worker w) throws Exception;
   }
 
-  void myAsyncAt(int dst, Fun f) {
+  void myAsyncAt(int dst, FunE f) {
     asyncAt(group.get(dst >> power), () -> f.run(workers[dst & mask]));
   }
 
   void myUncountedAsyncAt(int dst, Fun f) {
-    uncountedAsyncAt(group.get(dst >> power), () -> f.run(workers[dst & mask]));
+    if (group.get(dst >> power).equals(here())) {
+      f.run(workers[dst & mask]);
+    } else {
+      uncountedAsyncAt(group.get(dst >> power),
+          () -> f.run(workers[dst & mask]));
+    }
   }
 
   ResilientUTS(int wave, Place[] group, int power, int size, int ratio) {
