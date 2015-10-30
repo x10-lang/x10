@@ -26,7 +26,6 @@ import apgas.DeadPlaceException;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
 import apgas.Place;
-import apgas.util.Cell;
 import apgas.util.PlaceLocalObject;
 
 import com.hazelcast.core.Hazelcast;
@@ -57,7 +56,7 @@ final class ResilientUTS extends PlaceLocalObject {
   int state = -2; // -3: abort, -2: inactive, -1: running, p: stealing from p
   int transfers; // number of transactions so far
 
-  ResilientUTS(int wave, List<? extends Place> group, int s) {
+  ResilientUTS(int wave, List<? extends Place> group, int size, int ratio) {
     this.group = group;
     this.wave = wave;
     map = hz.getMap("map" + wave);
@@ -65,7 +64,8 @@ final class ResilientUTS extends PlaceLocalObject {
     random = new Random(me);
     prev = (me + group.size() - 1) % group.size();
     next = (me + 1) % group.size();
-    lifeline = new AtomicBoolean(next >= s);
+    lifeline = new AtomicBoolean(((next % ratio) != 0)
+        || ((next / ratio) >= size));
     GlobalRuntime.getRuntime().setPlaceFailureHandler(this::unblock);
   }
 
@@ -228,37 +228,38 @@ final class ResilientUTS extends PlaceLocalObject {
   }
 
   @SuppressWarnings("unchecked")
-  public static ArrayList<UTS> step(ArrayList<UTS> col, int wave) {
+  public static List<UTS> step(List<UTS> bags, int wave) {
     final List<? extends Place> group = places();
-    while (col.size() > group.size()) {
-      final UTS b = col.remove(col.size() - 1);
-      col.get(0).merge(b);
-      col.get(0).count += b.count;
+    while (bags.size() > group.size()) {
+      final UTS b = bags.remove(bags.size() - 1);
+      bags.get(0).merge(b);
+      bags.get(0).count += b.count;
     }
-    final int s = col.size();
+    final int s = bags.size();
+    final int r = group.size() / s;
     final ResilientUTS uts = PlaceLocalObject.make(group,
-        () -> new ResilientUTS(wave, group, s));
-    for (int i = 0; i < col.size(); i++) {
-      uts.map.set(i, col.get(i));
+        () -> new ResilientUTS(wave, group, s, r));
+    for (int i = 0; i < s; i++) {
+      uts.map.set(i * r, bags.get(i));
     }
     try {
       finish(() -> {
-        for (int i = 1; i < col.size(); i++) {
-          final UTS bag = col.get(i);
-          asyncAt(group.get(i), () -> {
+        for (int i = 1; i < s; i++) {
+          final UTS bag = bags.get(i);
+          asyncAt(group.get(i * r), () -> {
             uts.bag.count = bag.count;
             uts.lifelinedeal(bag);
           });
         }
-        uts.bag.count = col.get(0).count;
-        uts.lifelinedeal(col.get(0));
+        uts.bag.count = bags.get(0).count;
+        uts.lifelinedeal(bags.get(0));
       });
     } catch (final MultipleException e) {
       if (!e.isDeadPlaceException()) {
         e.printStackTrace();
       }
     }
-    return (ArrayList<UTS>) uts.hz
+    return (List<UTS>) uts.hz
         .executeTransaction(new TransactionalTask<Object>() {
           @Override
           public Object execute(TransactionalTaskContext context)
@@ -284,6 +285,21 @@ final class ResilientUTS extends PlaceLocalObject {
         });
   }
 
+  static List<UTS> explode(UTS bag) {
+    final List<UTS> bags = new ArrayList<UTS>();
+    for (int i = 0; i < bag.upper[0]; i++) {
+      final UTS b = new UTS(64);
+      b.merge(bag);
+      if (i == 0) {
+        b.count = 1;
+      }
+      b.lower[0] = i;
+      b.upper[0] = i + 1;
+      bags.add(b);
+    }
+    return bags;
+  }
+
   public static void main(String[] args) {
     int depth = 13;
     try {
@@ -296,34 +312,31 @@ final class ResilientUTS extends PlaceLocalObject {
     }
     System.setProperty(Configuration.APGAS_THREADS, "2");
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
+
     final int maxPlaces = places().size();
+
+    final MessageDigest md = UTS.encoder();
 
     System.out.println("Warmup...");
 
-    final Cell<ArrayList<UTS>> cell = new Cell<ArrayList<UTS>>();
-    cell.set(new ArrayList<UTS>());
-
     final UTS tmp = new UTS(64);
-    final MessageDigest md = UTS.encoder();
     tmp.seed(md, 19, depth - 2);
-    cell.get().add(tmp);
-    finish(() -> ResilientUTS.step(cell.get(), -1));
-
-    cell.get().clear();
+    finish(() -> ResilientUTS.step(explode(tmp), -1));
 
     System.out.println("Starting...");
     Long time = -System.nanoTime();
 
     final UTS bag = new UTS(64);
     bag.seed(md, 19, depth);
-    cell.get().add(bag);
+    List<UTS> bags = explode(bag);
 
     int wave = 0;
-    while (cell.get().get(0).size > 0) {
+    while (bags.get(0).size > 0) {
       final int w = wave++;
+      final List<UTS> b = bags;
       System.out.println("Wave: " + w);
       try {
-        finish(() -> cell.set(ResilientUTS.step(cell.get(), w)));
+        bags = finish(() -> ResilientUTS.step(b, w));
       } catch (final MultipleException e) {
         if (!e.isDeadPlaceException()) {
           e.printStackTrace();
@@ -335,9 +348,8 @@ final class ResilientUTS extends PlaceLocalObject {
     System.out.println("Finished.");
 
     System.out.println("Depth: " + depth + ", Places: " + maxPlaces
-        + ", Waves: " + wave + ", Performance: " + cell.get().get(0).count
-        + "/" + UTS.sub("" + time / 1e9, 0, 6) + " = "
-        + UTS.sub("" + (cell.get().get(0).count / (time / 1e3)), 0, 6)
-        + "M nodes/s");
+        + ", Waves: " + wave + ", Performance: " + bags.get(0).count + "/"
+        + UTS.sub("" + time / 1e9, 0, 6) + " = "
+        + UTS.sub("" + (bags.get(0).count / (time / 1e3)), 0, 6) + "M nodes/s");
   }
 }

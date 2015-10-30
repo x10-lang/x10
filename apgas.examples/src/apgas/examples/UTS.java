@@ -30,10 +30,10 @@ public final class UTS implements Serializable {
     }
   }
 
-  private byte[] hash;
-  private int[] depth;
-  private int[] lower;
-  private int[] upper;
+  byte[] hash;
+  int[] depth;
+  int[] lower;
+  int[] upper;
   public int size; // number of nodes in the bag
   public long count; // number of nodes processed so far
 
