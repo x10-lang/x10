@@ -13,6 +13,7 @@ package apgas;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import apgas.impl.SerializableRunnable;
 
@@ -31,7 +32,7 @@ public final class Constructs {
    * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
    * to complete.
    * <p>
-   * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
    * exceptions then {@code finish(f)} then throws a {@link MultipleException}
    * that collects these uncaught exceptions.
    *
@@ -42,6 +43,24 @@ public final class Constructs {
    */
   public static void finish(Job f) {
     GlobalRuntime.getRuntime().finish(f);
+  }
+
+  /**
+   * Evaluates {@code f}, waits for all the tasks transitively spawned by
+   * {@code f}, and returns the result.
+   * <p>
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
+   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param <T>
+   *          the type of the result
+   * @param f
+   *          the function to run
+   * @return the result of the evaluation
+   */
+  public static <T> T finish(Callable<T> f) {
+    return GlobalRuntime.getRuntime().finish(f);
   }
 
   /**

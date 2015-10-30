@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
@@ -34,6 +35,7 @@ import apgas.MultipleException;
 import apgas.Place;
 import apgas.SerializableCallable;
 import apgas.SerializableJob;
+import apgas.util.Cell;
 import apgas.util.GlobalID;
 
 import com.hazelcast.core.IMap;
@@ -364,6 +366,13 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     if (exceptions != null) {
       throw new MultipleException(exceptions);
     }
+  }
+
+  @Override
+  public <T> T finish(Callable<T> f) {
+    final Cell<T> cell = new Cell<T>();
+    finish(() -> cell.set(f.call()));
+    return cell.get();
   }
 
   @Override
