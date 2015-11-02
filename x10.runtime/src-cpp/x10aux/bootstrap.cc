@@ -122,8 +122,6 @@ static void* real_x10_main_inner(void* _main_args) {
 
     setlinebuf(stdout);
 
-    x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
-
 #ifdef X10_USE_BDWGC
     GC_INIT();
 #endif

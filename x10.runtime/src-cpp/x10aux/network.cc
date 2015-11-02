@@ -40,7 +40,6 @@ using namespace x10aux;
 // caches to avoid repeatedly calling into x10rt for trivial things
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
-x10_int x10aux::num_local_cores = 1; // this will be set in template_main
 
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
