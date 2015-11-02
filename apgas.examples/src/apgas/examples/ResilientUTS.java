@@ -35,7 +35,6 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.TransactionalMap;
-import com.hazelcast.transaction.TransactionalTask;
 import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class ResilientUTS extends PlaceLocalObject {
@@ -46,6 +45,7 @@ final class ResilientUTS extends PlaceLocalObject {
   final Worker[] workers; // the workers at the current place
   final int power; // 1<<power workers per place
   final int mask;
+  final boolean resilient;
 
   @FunctionalInterface
   static interface Fun extends Serializable {
@@ -70,11 +70,13 @@ final class ResilientUTS extends PlaceLocalObject {
     }
   }
 
-  ResilientUTS(int wave, Place[] group, int power, int size, int ratio) {
-    map = hz.getMap("map" + wave);
+  ResilientUTS(int wave, Place[] group, int power, int size, int ratio,
+      boolean resilient) {
+    map = resilient ? hz.getMap("map" + wave) : null;
     this.group = Arrays.asList(group);
     this.wave = wave;
     this.power = power;
+    this.resilient = resilient;
     mask = (1 << power) - 1;
     workers = new Worker[1 << power];
     for (int i = 0; i <= mask; i++) {
@@ -106,7 +108,6 @@ final class ResilientUTS extends PlaceLocalObject {
     final ConcurrentLinkedQueue<Integer> thieves = new ConcurrentLinkedQueue<Integer>();
     final AtomicBoolean lifeline; // pending lifeline request?
     int state = -2; // -3: abort, -2: inactive, -1: running, p: stealing from p
-    int transfers; // number of transactions so far
 
     Worker(int id, int size, int ratio) {
       me = (group.indexOf(here()) << power) + id;
@@ -138,7 +139,9 @@ final class ResilientUTS extends PlaceLocalObject {
             abort();
             distribute();
           }
-          map.set(me, bag.trim());
+          if (resilient) {
+            map.set(me, bag.trim());
+          }
           steal();
         }
         synchronized (this) {
@@ -218,21 +221,16 @@ final class ResilientUTS extends PlaceLocalObject {
     }
 
     void transfer(int thief, UTS loot) {
-      transfers++;
       final UTS bag = this.bag.trim();
       final int me = this.me;
       final int wave = ResilientUTS.this.wave;
-      hz.executeTransaction(new TransactionalTask<Object>() {
-        @Override
-        public Object execute(TransactionalTaskContext context) {
-          final TransactionalMap<Integer, UTS> map = context.getMap("map"
-              + wave);
-          map.set(me, bag);
-          final UTS old = map.getForUpdate(thief);
-          loot.count = old == null ? 0 : old.count;
-          map.set(thief, loot);
-          return null;
-        }
+      hz.executeTransaction((TransactionalTaskContext context) -> {
+        final TransactionalMap<Integer, UTS> map = context.getMap("map" + wave);
+        map.set(me, bag);
+        final UTS old = map.getForUpdate(thief);
+        loot.count = old == null ? 0 : old.count;
+        map.set(thief, loot);
+        return null;
       });
     }
 
@@ -243,7 +241,7 @@ final class ResilientUTS extends PlaceLocalObject {
       Integer thief;
       while ((thief = thieves.poll()) != null) {
         final UTS loot = bag.split();
-        if (loot != null) {
+        if (loot != null && resilient) {
           transfer(thief, loot);
         }
         myUncountedAsyncAt(thief, w -> w.deal(loot));
@@ -252,7 +250,9 @@ final class ResilientUTS extends PlaceLocalObject {
         final UTS loot = bag.split();
         if (loot != null) {
           thief = next;
-          transfer(thief, loot);
+          if (resilient) {
+            transfer(thief, loot);
+          }
           lifeline.set(false);
           myAsyncAt(next, w -> w.lifelinedeal(loot));
         }
@@ -260,7 +260,8 @@ final class ResilientUTS extends PlaceLocalObject {
     }
   }
 
-  public static List<UTS> step(List<UTS> bags, int wave, int power) {
+  public static List<UTS> step(List<UTS> bags, int wave, int power,
+      boolean resilient) {
     final Place[] group = places().toArray(new Place[0]);
     while (bags.size() > (group.length << power)) {
       final UTS b = bags.remove(bags.size() - 1);
@@ -270,9 +271,11 @@ final class ResilientUTS extends PlaceLocalObject {
     final int s = bags.size();
     final int r = (group.length << power) / s;
     final ResilientUTS uts = PlaceLocalObject.make(Arrays.asList(group),
-        () -> new ResilientUTS(wave, group, power, s, r));
-    for (int i = 0; i < s; i++) {
-      uts.map.set(i * r, bags.get(i));
+        () -> new ResilientUTS(wave, group, power, s, r, resilient));
+    if (resilient) {
+      for (int i = 0; i < s; i++) {
+        uts.map.set(i * r, bags.get(i));
+      }
     }
     try {
       finish(() -> {
@@ -291,20 +294,29 @@ final class ResilientUTS extends PlaceLocalObject {
         e.printStackTrace();
       }
     }
-    final Collection<UTS> values = uts.hz
-        .executeTransaction(new TransactionalTask<Collection<UTS>>() {
-          @Override
-          public Collection<UTS> execute(TransactionalTaskContext context) {
-            return context.<Integer, UTS> getMap("map" + wave).values();
-          }
-        });
     final UTS bag = new UTS();
     final List<UTS> l = new ArrayList<UTS>();
-    for (final UTS b : values) {
-      if (b.size > 0) {
-        l.add(b);
-      } else {
-        bag.count += b.count;
+    if (resilient) {
+      final Collection<UTS> values = uts.hz.executeTransaction((
+          TransactionalTaskContext context) -> {
+        return context.<Integer, UTS> getMap("map" + wave).values();
+      });
+      for (final UTS b : values) {
+        if (b.size > 0) {
+          l.add(b);
+        } else {
+          bag.count += b.count;
+        }
+      }
+    } else {
+      for (final Place p : group) {
+        bag.count += at(p, () -> {
+          long count = 0;
+          for (int i = 0; i < 1 << power; i++) {
+            count += uts.workers[i].bag.count;
+          }
+          return count;
+        });
       }
     }
     if (!l.isEmpty()) {
@@ -347,7 +359,8 @@ final class ResilientUTS extends PlaceLocalObject {
       System.setProperty(Configuration.APGAS_PLACES, "2");
     }
     System.setProperty(Configuration.APGAS_THREADS, "" + ((1 << power) + 1));
-    System.setProperty(Configuration.APGAS_RESILIENT, "true");
+
+    final boolean resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
 
     final int maxPlaces = places().size();
 
@@ -357,7 +370,7 @@ final class ResilientUTS extends PlaceLocalObject {
 
     final UTS tmp = new UTS(64);
     tmp.seed(md, 19, depth - 2);
-    finish(() -> ResilientUTS.step(explode(tmp), -1, power));
+    finish(() -> ResilientUTS.step(explode(tmp), -1, power, resilient));
 
     System.out.println("Starting...");
     Long time = -System.nanoTime();
@@ -372,7 +385,7 @@ final class ResilientUTS extends PlaceLocalObject {
       final List<UTS> b = bags;
       System.out.println("Wave: " + w);
       try {
-        bags = finish(() -> ResilientUTS.step(b, w, power));
+        bags = finish(() -> ResilientUTS.step(b, w, power, resilient));
       } catch (final MultipleException e) {
         if (!e.isDeadPlaceException()) {
           e.printStackTrace();
