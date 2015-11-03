@@ -1320,7 +1320,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
 
-	bool usePseudoTTY = true;
+	bool usePseudoTTY = !_resilient_x10;
 	char * pseudoTTYEnv = getenv(X10_LAUNCHER_TTY);
 	if (pseudoTTYEnv != NULL)
 		usePseudoTTY = checkBoolEnvVar(pseudoTTYEnv);
