@@ -28,6 +28,11 @@ public abstract class ResilientTransactionManager {
         throw new Exception("Running transactions with a ResilientTransactionManager is not supported in this configuration");
     }
 	
+	@Native("java", "x10.util.resilient.managed.HazelcastTransactionManager.runLocalHazelcastTransaction__0$1x10$util$resilient$ResilientTransactionManager$3x10$util$resilient$managed$HazelcastTransactionManager$$T$2$G(#T$rtt, #run)")
+	public static def runLocalTransaction[T](run:(ResilientTransactionManager)=>T):T {
+	  throw new Exception("Running transactions with a ResilientTransactionManager is not supported in this configuration");
+	}
+
 	/**
 	   Returns a ResilientTransactionalMap[K,V].
 	   This should just be an instance method with type

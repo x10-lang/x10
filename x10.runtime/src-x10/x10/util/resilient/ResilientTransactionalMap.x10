@@ -35,6 +35,14 @@ public abstract class ResilientTransactionalMap[K,V] {V haszero} implements Resi
     }
 
 	/**
+	 * Factory method to create resilient map and run local transaction
+	 */
+	public static def runLocalTransaction[K,V,T](mapName:String, run:(ResilientTransactionalMap[K,V])=>T){V haszero}:T {
+	  return ResilientTransactionManager.runLocalTransaction[T]
+	  ((manager:ResilientTransactionManager)=>run(ResilientTransactionManager.getMap[K,V](manager, mapName)));
+	}
+
+	/**
      * Shorthand for {@link #get}
      */
     public operator this(k:K):V
