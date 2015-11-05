@@ -37,9 +37,7 @@ public class HazelcastTransactionManager
 	public static def runHazelcastTransaction[T](run:(ResilientTransactionManager)=>T):T {
         	val hz = getHazelcastInstance();
 			try {
-				return hz.executeTransaction(new com.hazelcast.transaction.TransactionOptions()
-				.setTimeout(1, TimeUnit.SECONDS),
-				new com.hazelcast.transaction.TransactionalTask() {
+				return hz.executeTransaction(new com.hazelcast.transaction.TransactionalTask() {
 						public def execute(context:com.hazelcast.transaction.TransactionalTaskContext)
 							throws com.hazelcast.transaction.TransactionException : Any {
 							finish {
@@ -55,8 +53,7 @@ public class HazelcastTransactionManager
 	  val hz = getHazelcastInstance();
 	  try {
 	    return hz.executeTransaction(new com.hazelcast.transaction.TransactionOptions()
-	    .setTransactionType(com.hazelcast.transaction.TransactionOptions.TransactionType.LOCAL)
-	    .setTimeout(1, TimeUnit.SECONDS),
+	    .setTransactionType(com.hazelcast.transaction.TransactionOptions.TransactionType.LOCAL),
 	        new com.hazelcast.transaction.TransactionalTask() {
 	      public def execute(context:com.hazelcast.transaction.TransactionalTaskContext)
 	      throws com.hazelcast.transaction.TransactionException : Any {
