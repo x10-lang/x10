@@ -52,10 +52,13 @@ String* x10aux::to_string(T v) { \
     return x10::lang::String::Lit(buf);              \
 }
 
-// hh is C99, not ansi c, so we use h instead.
-// This is fine as va_args turns everything to int anyway
+#if defined(__clang__)
+TO_STRING(4, x10_ubyte, unsigned char, "%hhu")
+TO_STRING(5, x10_byte, signed char, "%hhd")
+#else
 TO_STRING(4, x10_ubyte, unsigned char, "%hu")
 TO_STRING(5, x10_byte, signed char, "%hd")
+#endif
 
 TO_STRING(6, x10_ushort, unsigned short, "%hu")
 TO_STRING(7, x10_short, signed short, "%hd")
