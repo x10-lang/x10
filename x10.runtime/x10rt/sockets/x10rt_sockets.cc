@@ -1066,7 +1066,7 @@ x10rt_error x10rt_net_blocking_probe ()
 	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
-	while (probe(false, false));
+	while (probe(false, false)) { }
     return context.errorCode;
 }
 
