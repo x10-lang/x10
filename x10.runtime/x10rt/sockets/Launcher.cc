@@ -1373,7 +1373,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
 	}
 
-	if (_hostfname != '\0')
+	if (_hostfname[0] != '\0')
 	{
         argv[++z] = alloc_env_assign(X10_HOSTFILE, _hostfname);
 	}
