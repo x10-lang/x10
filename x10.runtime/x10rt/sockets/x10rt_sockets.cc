@@ -89,6 +89,7 @@ struct x10SocketState
 	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
 	// the read lock is used for listen socket handling and write lock for launcher communication
 	bool useNonblockingLinks; // flag to enable/disable buffered writes.  True by default
+	int sotimeout;
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
 	STATUS state;
@@ -179,6 +180,51 @@ int getPortEnv(unsigned int whichPlace)
 		#endif
 	}
 	return lp;
+}
+
+// set place-place socket link options.
+int setSocketOptions(int socketFD) {
+	int returnval = 0;
+	// set SO_LINGER
+	struct linger linger;
+	linger.l_onoff = 1;
+	linger.l_linger = 1;
+	if (setsockopt(socketFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
+		context.errorCode = X10RT_ERR_OTHER;
+		fatal_error("Error setting SO_LINGER on incoming socket");
+		returnval = -1;
+	}
+
+	if (context.useNonblockingLinks)
+	{
+		int flags = fcntl(socketFD, F_GETFL, 0);
+		if (fcntl(socketFD, F_SETFL, flags | O_NONBLOCK) == -1)
+			returnval = -1;
+	}
+
+	// enable keepalive
+	int keepalive = 1;
+	if(setsockopt(socketFD, SOL_SOCKET, SO_KEEPALIVE, &keepalive, sizeof(keepalive)) < 0) {
+		fprintf(stderr, "Socket keepalive option set failed");
+		returnval = -1;
+	}
+
+	// adjust timeout for detecting a dead place
+	if (context.sotimeout > -1) {
+		struct timeval timeout;
+		// context.sotimeout is in milliseconds.  convert to seconds + microseconds
+		timeout.tv_sec = context.sotimeout/1000;
+		timeout.tv_usec = (context.sotimeout - (timeout.tv_sec*1000)) * 1000;
+		if (setsockopt(socketFD, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+			fprintf(stderr, "Socket SO_RCVTIMEO option set failed");
+			returnval = -1;
+		}
+		if (setsockopt(socketFD, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) < 0) {
+			fprintf(stderr, "Socket SO_SNDTIMEO option set failed");
+			returnval = -1;
+		}
+	}
+	return returnval;
 }
 
 /*
@@ -413,20 +459,9 @@ int handleConnectionRequest()
 			pthread_mutex_init(&context.writeLocks[from], NULL);
 	    	context.socketLinks[from].fd = newFD;
 			context.socketLinks[from].events = POLLIN | POLLPRI;
-			// set SO_LINGER
-			struct linger linger;
-			linger.l_onoff = 1;
-			linger.l_linger = 1;
-			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-				context.errorCode = X10RT_ERR_OTHER;
-				fatal_error("Error setting SO_LINGER on incoming socket");
-				return -1;
-			}
-			if (context.useNonblockingLinks)
-			{
-				int flags = fcntl(newFD, F_GETFL, 0);
-				fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
-			}
+
+			setSocketOptions(newFD);
+
 			return 0;
 		}
 	}
@@ -564,15 +599,8 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				context.socketLinks[remotePlace].fd = newFD;
 				context.socketLinks[remotePlace].events = POLLIN | POLLPRI;
 
-				// set SO_LINGER
-				struct linger linger;
-				linger.l_onoff = 1;
-				linger.l_linger = 1;
-				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
-					context.errorCode = X10RT_ERR_OTHER;
-					fatal_error("Error setting SO_LINGER on outgoing socket");
-					return -1;
-				}
+				setSocketOptions(newFD);
+
 				if (context.useNonblockingLinks)
 				{
 					int flags = fcntl(newFD, F_GETFL, 0);
@@ -649,6 +677,12 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	context.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
 	if (context.useNonblockingLinks)
 		pthread_mutex_init(&context.pendingWriteLock, NULL);
+
+	char* socketTimeout = getenv(X10_SOCKET_TIMEOUT);
+	if (socketTimeout != NULL)
+		context.sotimeout = atoi(socketTimeout);
+	else
+		context.sotimeout = -1;
 
 	if (context.state == PREINITIALIZED) {
 		// phase 2 of the library mode.  Basically, initialize everything other than what was done above.  The arguments
