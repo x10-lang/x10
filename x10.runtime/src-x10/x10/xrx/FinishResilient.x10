@@ -133,7 +133,10 @@ abstract class FinishResilient extends FinishState {
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
-        if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
+        atomic {
+            // we do this in an atomic block to unblock whens which check for dead places
+            if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
+        }
     }
 
     @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath()")
