@@ -48,6 +48,11 @@ typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 enum STATUS {UNKNOWN, PREINITIALIZED, RUNNING_LIBRARY, RUNNING, SHUTDOWN};
+
+// special socket file descriptor values when not connected
+#define UNCONNECTED -1
+#define DEAD -2
+
 #define COPY_PUT_GET_BUFFER false // if the network is full, and a message needs to be sent in chunks, should the put/get buffer arg be copied, or reused?
 //#define DEBUG 1
 //#define DEBUG_MESSAGING 1
@@ -132,6 +137,14 @@ x10rt_error fatal_error(const char* message)
 		return fatal("(at place %u): %s: %s\n", context.myPlaceId, message, strerror(errno));
 	else
 		return fatal("(at place %u): %s\n", context.myPlaceId, message);
+}
+
+void markPlaceDead(x10rt_place deadPlace) {
+    #ifdef DEBUG
+	    printf("Place %d marking remote place %u as dead %u\n", x10rt_net_here(), deadPlace);
+    #endif
+	close(context.socketLinks[deadPlace].fd);
+	context.socketLinks[deadPlace].fd = DEAD;
 }
 
 /*
@@ -244,25 +257,17 @@ bool flushPendingData()
 		if (pthread_mutex_trylock(&context.writeLocks[context.pendingWrites->place]) == 0)
 		{
 			char * src = (char *) context.pendingWrites->data + (context.pendingWrites->size - context.pendingWrites->remainingToWrite);
-			while (context.pendingWrites->remainingToWrite > 0)
+			while (context.pendingWrites->remainingToWrite > 0 && context.socketLinks[context.pendingWrites->place].fd != DEAD)
 			{
 				int rc = ::write(context.socketLinks[context.pendingWrites->place].fd, src, context.pendingWrites->remainingToWrite);
 				if (rc == -1)
 				{
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
-					context.socketLinks[context.pendingWrites->place].fd = -2;
-					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
-					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
-					fatal_error("Unable to flush data"); // TODO: remove this fatal error and return a proper return code
-					return false;
+					markPlaceDead(context.pendingWrites->place);
 				}
 				if (rc == 0) {
-					context.socketLinks[context.pendingWrites->place].fd = -2;
-					pthread_mutex_unlock(&context.writeLocks[context.pendingWrites->place]);
-					pthread_mutex_destroy(&context.writeLocks[context.pendingWrites->place]);
-					fatal_error("Unable to flush data - socket closed"); // TODO: remove this fatal error and return a proper return code
-					return false;
+					markPlaceDead(context.pendingWrites->place);
 				}
 				src += rc;
 				context.pendingWrites->remainingToWrite -= rc;
@@ -274,9 +279,7 @@ bool flushPendingData()
 					fprintf(stderr, "Place %u flushed %u bytes of old data\n", context.myPlaceId, context.pendingWrites->size - context.pendingWrites->remainingToWrite);
 			#endif
 
-			if (context.pendingWrites->remainingToWrite > 0)
-				ableToFlush = false;
-			else
+			if (context.pendingWrites->remainingToWrite <= 0 || context.socketLinks[context.pendingWrites->place].fd == DEAD)
 			{
 				if (context.pendingWrites->deleteBufferWhenComplete)
 					free(context.pendingWrites->data);
@@ -284,6 +287,9 @@ bool flushPendingData()
 				context.pendingWrites = context.pendingWrites->next;
 				free(deleteme);
 			}
+			else
+				ableToFlush = false;
+			
 			dataRemains = (context.pendingWrites != NULL);
 		}
 		else
@@ -477,10 +483,10 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 	if (remotePlace > context.numPlaces || remotePlace == context.myPlaceId)
 		return -1;
 
-	if (!context.linkAtStartup || context.socketLinks[remotePlace].fd == -1)
+	if (!context.linkAtStartup || context.socketLinks[remotePlace].fd == UNCONNECTED)
 		probe(true, false); // handle any incoming connection requests - we may be able to skip a lookup.
 
-	if (context.socketLinks[remotePlace].fd == -1)
+	if (context.socketLinks[remotePlace].fd == UNCONNECTED)
 	{
 		#ifdef DEBUG
 			fprintf(stderr, "X10rt.Sockets: Place %u looking up place %u for a new connection\n", context.myPlaceId, remotePlace);
@@ -617,13 +623,14 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 				#ifdef DEBUG
 					fprintf(stderr, "X10rt.Sockets: Place %u did NOT establish a link to place %u\n", context.myPlaceId, remotePlace);
 				#endif
-				while (context.socketLinks[remotePlace].fd == -1) // there is a pending connection coming in.
+				while (context.socketLinks[remotePlace].fd == UNCONNECTED) // there is a pending connection coming in.
 					probe(true, false);
 			}
 		}
 		else
 		{ // failed to connect to the other end.
 			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
+			markPlaceDead(remotePlace);
 			return -1;
 		}
 	}
@@ -712,7 +719,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 				#ifdef DEBUG			
 					fprintf(stderr, "Place %u is at %s!\n", i, (*argv)[i]);
 				#endif
-				context.socketLinks[i].fd = -1;
+				context.socketLinks[i].fd = UNCONNECTED;
 			}
 		}
 		// initialize the unblock file descriptor
@@ -734,7 +741,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 			}
 		}
 		for (unsigned i=context.myPlaceId+1; i<context.numPlaces; i++)
-			while (context.socketLinks[i].fd == -1)
+			while (context.socketLinks[i].fd == UNCONNECTED)
 				probe(true, false); // wait for connections from all upper places
 	}
 	else {
@@ -784,7 +791,7 @@ x10rt_error x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		context.writeLocks = safe_malloc<pthread_mutex_t>(context.numPlaces);
 		for (unsigned int i=0; i<context.numPlaces; i++)
 		{
-			context.socketLinks[i].fd = -1;
+			context.socketLinks[i].fd = UNCONNECTED;
 			context.socketLinks[i].events = 0;
 		}
 		// initialize the unblock file descriptor
@@ -908,20 +915,20 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_notifier *n
 x10rt_place x10rt_net_ndead (void) {
 	x10rt_place count = 0;
 	for (x10rt_place i=0; i<context.numPlaces; i++)
-		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) count++;
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == DEAD) count++;
 	return count;
 }
 
 bool x10rt_net_is_place_dead (x10rt_place p) {
 	if (p >= context.numPlaces) return true;
 
-	return (context.socketLinks!=NULL && context.socketLinks[p].fd == -2);
+	return (context.socketLinks!=NULL && context.socketLinks[p].fd == DEAD);
 }
 
 x10rt_error x10rt_net_get_dead (x10rt_place *dead_places, x10rt_place len) {
 	x10rt_place position = 0;
 	for (x10rt_place i=0; i<context.numPlaces; i++)
-		if (context.socketLinks!=NULL && context.socketLinks[i].fd == -2) {
+		if (context.socketLinks!=NULL && context.socketLinks[i].fd == DEAD) {
 			dead_places[position] = i;
 			if (position == len)
 				return X10RT_ERR_OK;
@@ -962,32 +969,27 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
 	if (nonBlockingWrite(dp, &m, sizeof(m)) < (int)sizeof(m)) {
-		//return (void)fatal_error("sending STANDARD type");
-        close(context.socketLinks[dp].fd);
-        context.socketLinks[dp].fd = -2;
         pthread_mutex_unlock(&context.writeLocks[dp]);
+        markPlaceDead(dp);
         return;
     }
 	if (nonBlockingWrite(dp, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
 		//return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
-        close(context.socketLinks[dp].fd);
-        context.socketLinks[dp].fd = -2;
-        pthread_mutex_unlock(&context.writeLocks[dp]);
+		pthread_mutex_unlock(&context.writeLocks[dp]);
+		markPlaceDead(dp);
         return;
     }
 	if (nonBlockingWrite(dp, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
 		//return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
-        close(context.socketLinks[dp].fd);
-        context.socketLinks[dp].fd = -2;
         pthread_mutex_unlock(&context.writeLocks[dp]);
+		markPlaceDead(dp);
         return;
     }
 	if (parameters->len > 0) {
 		if (nonBlockingWrite(dp, parameters->msg, parameters->len) < (int)parameters->len) {
 			//return (void)fatal_error("sending STANDARD msg");
-            close(context.socketLinks[dp].fd);
-            context.socketLinks[dp].fd = -2;
             pthread_mutex_unlock(&context.writeLocks[dp]);
+			markPlaceDead(dp);
             return;
         }
     }
@@ -1079,7 +1081,7 @@ x10rt_error x10rt_net_probe ()
 		for (unsigned i=0; i<context.myPlaceId; i++)
 			initLink(i, NULL); // connect to all lower places
 		for (unsigned i=context.myPlaceId+1; i<context.numPlaces; i++)
-			while (context.socketLinks[i].fd == -1)
+			while (context.socketLinks[i].fd == UNCONNECTED)
 				probe(true, false); // wait for connections from all upper places
 		context.linkAtStartup = false;
 	}
@@ -1137,7 +1139,7 @@ bool probe (bool onlyProcessAccept, bool block)
 		{
 			while(true)
 			{
-				if (context.socketLinks[whichPlaceToHandle].fd > -1 && context.socketLinks[whichPlaceToHandle].revents)
+				if (context.socketLinks[whichPlaceToHandle].fd > UNCONNECTED && context.socketLinks[whichPlaceToHandle].revents)
 					break;
 
 				whichPlaceToHandle++;
@@ -1204,9 +1206,7 @@ bool probe (bool onlyProcessAccept, bool block)
 					#ifdef DEBUG_MESSAGING
 						fprintf(stderr, "X10rt.Sockets: Place %u detected a bad message from place %u (likely a closed socket)\n", context.myPlaceId, whichPlaceToHandle);
 					#endif
-					close(context.socketLinks[whichPlaceToHandle].fd);
-					context.socketLinks[whichPlaceToHandle].fd = -2;
-					pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
+					markPlaceDead(whichPlaceToHandle);
 					return false;
 				}
 				#ifdef DEBUG_MESSAGING
@@ -1377,15 +1377,7 @@ bool probe (bool onlyProcessAccept, bool block)
 			#endif
 
 			// link is broken.  Close it down.
-			#ifdef DEBUG
-            	int r = close(context.socketLinks[whichPlaceToHandle].fd);
-				if (r < 0)
-					fprintf(stderr, "X10rt.Sockets: place %u failed closing link to %u: %i\n", context.myPlaceId, whichPlaceToHandle, r);
-			#else
-				close(context.socketLinks[whichPlaceToHandle].fd);
-			#endif
-			context.socketLinks[whichPlaceToHandle].fd = -2;
-			pthread_mutex_destroy(&context.writeLocks[whichPlaceToHandle]);
+			markPlaceDead(whichPlaceToHandle);
 		}
 		else
 		{
@@ -1427,7 +1419,7 @@ void x10rt_net_finalize (void)
 
 	for (unsigned int i=0; i<context.numPlaces; i++)
 	{
-		if (context.socketLinks[i].fd > -1)
+		if (context.socketLinks[i].fd > UNCONNECTED)
 		{
 			pthread_mutex_lock(&context.writeLocks[i]);
 			#ifdef DEBUG
@@ -1438,11 +1430,11 @@ void x10rt_net_finalize (void)
 				close(context.socketLinks[i].fd);
 			#endif
 			pthread_mutex_unlock(&context.writeLocks[i]);
-			pthread_mutex_destroy(&context.writeLocks[i]);
 		}
+		pthread_mutex_destroy(&context.writeLocks[i]);
 	}
 
-	if (Launcher::_parentLauncherControlLink != -1)
+	if (Launcher::_parentLauncherControlLink != UNCONNECTED)
 	{
 		#ifdef DEBUG
 			int r = close(Launcher::_parentLauncherControlLink);
