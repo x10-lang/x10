@@ -1341,7 +1341,7 @@ public struct Team {
 	                    } else if (collType == COLL_GATHER || collType == COLL_GATHERV) {
 	                        val notNullTmp = local_temp_buff as Rail[T]{self!=null};
 	                        val grTmp:GlobalRail[T]{here==grTmp.rail.home};
-	                        if (dst == null) grTmp = new GlobalRail[T](new Rail[T]());
+	                        if (local_temp_buff == null) grTmp = new GlobalRail[T](new Rail[T]());
 	                        else grTmp = new GlobalRail[T](notNullTmp);
 	                        val childOffset = local_offset;
 	                        val childTotalData = local_counts_sum;
@@ -1431,7 +1431,7 @@ public struct Team {
 	                } else if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
 	                    val notNullTmp = local_temp_buff as Rail[T]{self!=null};
 	                    val grTmp:GlobalRail[T]{here==grTmp.rail.home};
-	                    if (dst == null) grTmp = new GlobalRail[T](new Rail[T]());
+	                    if (local_temp_buff == null) grTmp = new GlobalRail[T](new Rail[T]());
 	                    else grTmp = new GlobalRail[T](notNullTmp);
 	                    // root scatters direct from src
 	                    val parentOffset = (myLinks.parentIndex == -1) ? 0: local_offset;
