@@ -90,6 +90,9 @@ ifdef JAVA_HOME
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
+    ifeq ($(jarch),ppc64le)
+      jarch=ppc64
+    endif
 # -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/jre/lib/$(jarch)
   else
@@ -282,7 +285,6 @@ ifndef ENABLE_CROSS_COMPILE_ANY
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
     endif
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
     override CXXFLAGS += -qminimaltoc
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
     ifndef USE_32BIT
@@ -333,11 +335,21 @@ ifndef ENABLE_CROSS_COMPILE_ANY
        export X10RT_PLATFORM=linux_ppc_64_gcc
         endif
         ifdef USE_XLC
-	  export X10RT_PLATFORM=linux_ppc_64_xlc
+	      export X10RT_PLATFORM=linux_ppc_64_xlc
+	      override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
+        endif
+      else
+      ifeq ($(shell uname -m),ppc64le)
+        ifdef USE_GCC
+         export X10RT_PLATFORM=linux_ppc64le_gcc
+        endif
+        ifdef USE_XLC
+	      export X10RT_PLATFORM=linux_ppc64le_xlc
         endif
       else
         export X10RT_PLATFORM=linux_x86_32
         override XRX_PROPS_CXXFLAGS += -msse2 -mfpmath=sse
+      endif
       endif
       endif
     else
