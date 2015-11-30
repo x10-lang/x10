@@ -127,6 +127,14 @@ public final class Rail[T](
     public native operator this(index:Long)=(v:T):T{self==v};
 
     /**
+     * Return the string representation of this Rail.
+     *
+     * @param limit maximum number of elements to print
+     * @return the string representation of this Rail.
+     */
+    public native toString(limit:Long):String;
+
+    /**
      * Copy all of the values from the source Rail to the destination Rail.
      * The two arrays must be of equal size.
      *
@@ -199,10 +207,11 @@ public final class Rail[T](
             dst:Rail[T], dstIndex:Long, numElems:Long):void;
 
     /**
-     * Asynchronously copy the specified values from the source Rail to the 
+     * <p>Asynchronously copy the specified values from the source Rail to the 
      * specified portion of the Rail referenced by the destination GlobalRail.
-     * The activity created to do the copying will be uncounted, ie not be registered 
-     * with any finish.<p>
+     * The activity created to do the copying will be uncounted, ie not be 
+     * registered with any finish.  After the copy has completed, the notifier 
+     * function will be invoked at dst.home().</p>
      * 
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an
@@ -225,10 +234,11 @@ public final class Rail[T](
             notifier:()=>void):void;
 
     /**
-     * Asynchronously copy the specified values from the referenced source Rail to the 
-     * specified portion of the destination Rail referenced.
-     * The activity created to do the copying will be uncounted, ie not be registered 
-     * with any finish.<p>
+     * <p>Asynchronously copy the specified values from the Rail referenced
+     * by the source GlobalRail to the specified portion of the local destination Rail.
+     * The activity created to do the copying will be uncounted, ie not be 
+     * registered with any finish. After the copy has completed, the notifier
+     * function will be invoked in the current Place.</p>
      * 
      * Warning: This method is only intended to be used on Rails containing
      *   non-Object data elements.  The elements are actually copied via an

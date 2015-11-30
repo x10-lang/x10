@@ -556,10 +556,13 @@ String* String::__plus(T p1, String* p2) { \
     return String::Steal(newChars); \
 }
 
-// hh is C99, not ansi c, so we use h instead.
-// This is fine as va_args turns everything to int anyway
+#if defined(__clang__)
+STRING_PLUS_DEFS(4, x10_ubyte, unsigned char, "%hhu")
+STRING_PLUS_DEFS(5, x10_byte, signed char, "%hhd")
+#else
 STRING_PLUS_DEFS(4, x10_ubyte, unsigned char, "%hu")
 STRING_PLUS_DEFS(5, x10_byte, signed char, "%hd")
+#endif
 
 STRING_PLUS_DEFS(6, x10_ushort, unsigned short, "%hu")
 STRING_PLUS_DEFS(7, x10_short, signed short, "%hd")

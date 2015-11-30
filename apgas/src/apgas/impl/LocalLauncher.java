@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * The {@link Launcher} class implements a launcher on the localhost using a
- * {#link ProcessBuilder}.
+ * {link ProcessBuilder}.
  */
 final class LocalLauncher implements Launcher {
   /**
@@ -32,18 +32,23 @@ final class LocalLauncher implements Launcher {
   private int dying;
 
   /**
-   * Constructs a new {#link LocalLauncher} instance.
+   * Constructs a new {@link LocalLauncher} instance.
    */
   LocalLauncher() {
     Runtime.getRuntime().addShutdownHook(new Thread(() -> terminate()));
   }
 
   @Override
-  public void launch(int n, List<String> command) throws Exception {
+  public void launch(int n, List<String> command, boolean verbose)
+      throws Exception {
+    final ProcessBuilder pb = new ProcessBuilder(command);
+    pb.redirectOutput(Redirect.INHERIT);
+    pb.redirectError(Redirect.INHERIT);
     for (int i = 0; i < n; i++) {
-      final ProcessBuilder pb = new ProcessBuilder(command);
-      pb.redirectOutput(Redirect.INHERIT);
-      pb.redirectError(Redirect.INHERIT);
+      if (verbose) {
+        System.err.println("[APGAS] Spawning new place: "
+            + String.join(" ", command));
+      }
       Process process = pb.start();
       synchronized (this) {
         if (dying <= 1) {
@@ -56,21 +61,6 @@ final class LocalLauncher implements Launcher {
         throw new IllegalStateException("Shutdown in progress");
       }
     }
-  }
-
-  @Override
-  public boolean healthy() {
-    synchronized (this) {
-      if (dying > 0) {
-        return false;
-      }
-    }
-    for (final Process process : processes) {
-      if (!process.isAlive()) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override

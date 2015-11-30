@@ -38,12 +38,24 @@ ifeq ($(X10RT_PLATFORM), linux_x86_32)
   PAMI_MPCC += -pami
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  MOV_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  MOV_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
+endif
+ifeq ($(X10RT_PLATFORM), linux_ppc64le_gcc)
+  MOV_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  MOV_LDLIBS_PAMI    += -lpoe -lpami
+  APP_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  APP_LDLIBS_PAMI    += -lpoe -lpami
+endif
+ifeq ($(X10RT_PLATFORM), linux_ppc64le_xlc)
+  MOV_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  MOV_LDLIBS_PAMI    += -lpoe -lpami
+  APP_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
+  APP_LDLIBS_PAMI    += -lpoe -lpami
 endif
 ifeq ($(X10RT_PLATFORM), bgq_gcc)
   override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include

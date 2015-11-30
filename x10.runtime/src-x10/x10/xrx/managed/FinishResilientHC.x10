@@ -167,12 +167,13 @@ class FinishResilientHC extends FinishResilientBridge {
     
     private def this(id:FinishID, latch:SimpleLatch) { this.id = id; this.latch = latch; }
     public
-    static def make(parent:Any, latch:SimpleLatch):FinishResilientHC { // FinishState is inaccessible from another package ...
-        if (verbose>=1) debug(">>>> FinishResilientHC.make called, parent="+parent + " latch="+latch);
+    static def make(parent:Any):FinishResilientHC { // FinishState is inaccessible from another package ...
+        if (verbose>=1) debug(">>>> FinishResilientHC.make called, parent="+parent);
         val parentId = (parent instanceof FinishResilientHC) ? (parent as FinishResilientHC).id : FinishID.NULL; // ok to ignore other cases?
         
         // create FinishState
         val id = FinishID.getNewId();
+        val latch = new SimpleLatch();
         val fs = new FinishResilientHC(id, latch);
         
         // create State in Hazelcast IMap
@@ -333,13 +334,8 @@ class FinishResilientHC extends FinishResilientBridge {
     }
     
     public
-    def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity, ASYNC);
-    }
-
-    public
-    def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
-        return notifyActivityCreation(srcPlace, activity, AT);
+    def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
+        return notifyActivityCreation(srcPlace, null, AT);
     }
 
     public 

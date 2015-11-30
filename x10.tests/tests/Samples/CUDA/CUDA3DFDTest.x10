@@ -17,6 +17,7 @@ import harness.x10Test;
 
 public class CUDA3DFDTest extends x10Test {
     public def run():boolean {
+         if (!verifyCUDASettings()) return false;
          val args:Rail[String];
 	 val topo = PlaceTopology.getTopology();
          if (topo.numChildren(here) == 0) {

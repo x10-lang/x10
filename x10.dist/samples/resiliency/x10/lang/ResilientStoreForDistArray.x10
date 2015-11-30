@@ -23,7 +23,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
         if (here==Place.FIRST_PLACE) Console.OUT.println(name + "=" + v);
         return v;
     }
-    public static def make[K,V]():ResilientStoreForDistArray[K,V] {
+    public static def make[K,V](){V haszero}:ResilientStoreForDistArray[K,V] {
         switch (mode) {
         case 0N: return new ResilientStoreForDistArrayPlace0[K,V]();
         case 1N: return new ResilientStoreForDistArrayDistributed[K,V]();
@@ -38,7 +38,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
     /**
      * Place0 implementation of ResilientStore
      */
-    static class ResilientStoreForDistArrayPlace0[K,V] extends ResilientStoreForDistArray[K,V] {
+    static class ResilientStoreForDistArrayPlace0[K,V]{V haszero} extends ResilientStoreForDistArray[K,V] {
         val hm = at (Place.FIRST_PLACE) GlobalRef(new x10.util.HashMap[K,V]());
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
         public def save(key:K, value:V) {
@@ -73,7 +73,7 @@ public abstract class ResilientStoreForDistArray[K,V] {
      *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
-    static class ResilientStoreForDistArrayDistributed[K,V] extends ResilientStoreForDistArray[K,V] {
+    static class ResilientStoreForDistArrayDistributed[K,V]{V haszero} extends ResilientStoreForDistArray[K,V] {
         val hm = PlaceLocalHandle.make[x10.util.HashMap[K,V]](Place.places(), ()=>new x10.util.HashMap[K,V]());
         private def DEBUG(key:K, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:K, value:V) {

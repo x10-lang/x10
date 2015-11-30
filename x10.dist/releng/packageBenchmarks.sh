@@ -1,6 +1,8 @@
 #!/bin/bash
 
-svn_command=export
+# exit if anything goes wrong
+set -e
+
 workdir=/tmp/x10-bench-dist
 
 while [ $# != 0 ]; do
@@ -30,13 +32,15 @@ if [[ -z "$X10_VERSION" ]]; then
 fi
 
 if [[ -z "$X10_TAG" ]]; then
-    echo "usage: $0 must give X10 tag as -tag <svn tag>"
+    echo "usage: $0 must give X10 tag as -tag <git tag>"
     exit 1
 fi
 
 date
 
 distdir=$workdir/x10-benchmarks-$X10_VERSION
+repodir_bench=$workdir/x10-bench-git
+repodir_apps=$workdir/x10-apps-git
 
 echo
 echo cleaning $workdir
@@ -44,24 +48,25 @@ rm -rf $workdir
 mkdir -p $workdir || exit 1
 mkdir -p $workdir/x10-benchmarks-$X10_VERSION
 
-(
-cd $workdir/x10-benchmarks-$X10_VERSION
+echo
+echo cloning x10-benchmarks git repo
+cd $workdir
+git clone --depth 1 https://github.com/x10-lang/x10-benchmarks.git $repodir_bench
 
 echo
-echo "getting PERCS benchmarks "
-for i in FT KMEANS LU RA SSCA1 SSCA2 STREAM UTS
-do
-    svn $svn_command svn://svn.code.sourceforge.net/p/x10/code/benchmarks/tags/$X10_TAG/PERCS/$i
-done
+echo extracting PERCS benchmarks from repo
+cd $repodir_bench/PERCS
+git archive --format=tar $X10_TAG FT KMEANS LU RA SSCA1 SSCA2 STREAM UTS | (cd $distdir && tar xf - )
 
 echo
-echo "getting proxy and mini applications"
-for i in lulesh2
-do
-    svn $svn_command svn://svn.code.sourceforge.net/p/x10/code/applications/tags/$X10_TAG/$i
-done
-)
+echo cloning x10-applications git repo
+cd $workdir
+git clone --depth 1 https://github.com/x10-lang/x10-applications.git $repodir_apps
 
+echo
+echo extracting ProxyApps from app repo
+cd $repodir_apps
+git archive --format=tar $X10_TAG lulesh2 | (cd $distdir && tar xf - )
 
 tarfile="x10-benchmarks-$X10_VERSION"".tar.bz2"
 echo "The benchmarks are now exported to the directory $workdir"

@@ -40,7 +40,6 @@ using namespace x10aux;
 // caches to avoid repeatedly calling into x10rt for trivial things
 x10aux::place x10aux::here = -1;
 bool x10aux::x10rt_initialized = false;
-x10_int x10aux::num_local_cores = 1; // this will be set in template_main
 
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
@@ -461,6 +460,12 @@ void *x10aux::coll_enter() {
 void x10aux::coll_handler(void *arg) {
     x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
     fs->notifyActivityTermination();
+}
+//used with ULFM, called only when a collective has failed due to a process failure
+void x10aux::failed_coll_handler(void *arg) {
+    x10::xrx::FinishState* fs = (x10::xrx::FinishState*)arg;
+    fs->notifyActivityTermination();
+    x10::xrx::Runtime::notifyPlaceDeath();
 }
 
 struct pointer_pair {

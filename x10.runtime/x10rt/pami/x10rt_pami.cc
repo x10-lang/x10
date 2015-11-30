@@ -35,6 +35,9 @@
 #define X10RT_PAMI_BARRIER_ALG "X10RT_PAMI_BARRIER_ALG"
 #define X10RT_PAMI_BCAST_ALG "X10RT_PAMI_BCAST_ALG"
 #define X10RT_PAMI_SCATTER_ALG "X10RT_PAMI_SCATTER_ALG"
+#define X10RT_PAMI_SCATTERV_ALG "X10RT_PAMI_SCATTERV_ALG"
+#define X10RT_PAMI_GATHER_ALG "X10RT_PAMI_GATHER_ALG"
+#define X10RT_PAMI_GATHERV_ALG "X10RT_PAMI_GATHERV_ALG"
 #define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
 #define X10RT_PAMI_ALLTOALL_CHUNKS "X10RT_PAMI_ALLTOALL_CHUNKS"
 #define X10RT_PAMI_REDUCE_ALG "X10RT_PAMI_REDUCE_ALG"
@@ -113,6 +116,8 @@ struct x10rt_pami_team_callback
 	void *arg;
 	pami_xfer_t operation;
 	pami_work_t work;
+	size_t* counts;
+	size_t* offsets;
 };
 
 struct x10rt_pami_team
@@ -306,6 +311,15 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 
 	userChoice = getenv(X10RT_PAMI_SCATTER_ALG);
 	queryAvailableAlgorithms(team, PAMI_XFER_SCATTER, userChoice?atoi(userChoice):0);
+
+	userChoice = getenv(X10RT_PAMI_SCATTERV_ALG);
+	queryAvailableAlgorithms(team, PAMI_XFER_SCATTERV, userChoice?atoi(userChoice):0);
+
+	userChoice = getenv(X10RT_PAMI_GATHER_ALG);
+	queryAvailableAlgorithms(team, PAMI_XFER_GATHER, userChoice?atoi(userChoice):0);
+
+	userChoice = getenv(X10RT_PAMI_GATHERV_ALG);
+	queryAvailableAlgorithms(team, PAMI_XFER_GATHERV, userChoice?atoi(userChoice):0);
 
 	// all-to-all has issues, so we have our own implementation available
 	userChoice = getenv(X10RT_PAMI_ALLTOALL_ALG);
@@ -1729,7 +1743,9 @@ static void collective_operation_complete (pami_context_t   context,
 		fprintf(stderr, "Place %u completed collective operation. cookie=%p\n", state.myPlaceId, cookie);
 	#endif
 	cbd->tcb(cbd->arg);
-	free(cookie);
+	free(cbd->counts);
+	free(cbd->offsets);
+	free(cbd);
 }
 
 static void internal_alltoall_complete (pami_context_t   context,
@@ -1748,6 +1764,7 @@ static void internal_alltoall_complete (pami_context_t   context,
 
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = cbd->tch;
 	tcb->arg = cbd->arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1801,6 +1818,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1831,6 +1849,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a broadcast callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1869,6 +1888,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a scatter callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1899,6 +1919,148 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post a scatter on team %u", team);
     // The local copy is not needed.  PAMI handles this for us.
+}
+
+void x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root,
+		const void *sbuf, const void *soffsets, const void *scounts,
+		void *dbuf, size_t dcount, size_t el, x10rt_completion_handler *ch, void *arg)
+{
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a scatterv callback header");
+	tcb->tcb = ch;
+	tcb->arg = arg;
+
+	// change offsets and counts arrays from X10 datatypes to the type needed by PAMI
+	if (role == root) {
+		int gsize = x10rt_net_team_sz(team);
+		tcb->counts = (size_t*)x10rt_malloc(gsize * sizeof(size_t));
+		tcb->offsets = (size_t*)x10rt_malloc(gsize * sizeof(size_t));
+		if (tcb->counts == NULL || tcb->offsets == NULL) error("Unable to allocate memory for a scatterv offset & count headers");
+		for (int i = 0; i < gsize; ++i) {
+			tcb->counts[i] = static_cast<const int32_t*>(scounts)[i] * el;
+			tcb->offsets[i] = static_cast<const int32_t*>(soffsets)[i] * el;
+		}
+	}
+	else
+		tcb->counts = tcb->offsets = NULL;
+
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
+	tcb->operation.algorithm = state.teams[team].algorithm[PAMI_XFER_SCATTERV];
+	tcb->operation.cmd.xfer_scatterv.rcvbuf = (char*)dbuf;
+	if (team == 0)
+		tcb->operation.cmd.xfer_scatterv.root = root;
+	else
+		tcb->operation.cmd.xfer_scatterv.root = state.teams[team].places[root];
+	tcb->operation.cmd.xfer_scatterv.rtype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_scatterv.rtypecount = el*dcount;
+	tcb->operation.cmd.xfer_scatterv.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_scatterv.sdispls = tcb->offsets;
+	tcb->operation.cmd.xfer_scatterv.stype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_scatterv.stypecounts = tcb->counts;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing scatterv: role=%u, root=%u\n", state.myPlaceId, role, root);
+	#endif
+
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a scatterv on team %u", team);
+}
+
+void x10rt_net_gather (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
+		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
+{
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a gather callback header");
+	tcb->counts = tcb->offsets = NULL;
+	tcb->tcb = ch;
+	tcb->arg = arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
+	tcb->operation.algorithm = state.teams[team].algorithm[PAMI_XFER_GATHER];
+	tcb->operation.cmd.xfer_gather.rcvbuf = (char*)dbuf;
+	if (team == 0)
+		tcb->operation.cmd.xfer_gather.root = root;
+	else
+		tcb->operation.cmd.xfer_gather.root = state.teams[team].places[root];
+	tcb->operation.cmd.xfer_gather.rtype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_gather.rtypecount = el*count;
+	tcb->operation.cmd.xfer_gather.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_gather.stype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_gather.stypecount = el*count;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing gather: role=%u, root=%u\n", state.myPlaceId, role, root);
+	#endif
+
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a gather on team %u", team);
+}
+
+void x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, size_t scount,
+		void *dbuf, const void *doffsets, const void *dcounts, size_t el, x10rt_completion_handler *ch, void *arg)
+{
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a gatherv callback header");
+	tcb->tcb = ch;
+	tcb->arg = arg;
+
+	// change offsets and counts arrays from X10 datatypes to the type needed by PAMI
+	if (role == root) {
+		int gsize = x10rt_net_team_sz(team);
+		tcb->counts = (size_t*)x10rt_malloc(gsize * sizeof(size_t));
+		tcb->offsets = (size_t*)x10rt_malloc(gsize * sizeof(size_t));
+		if (tcb->counts == NULL || tcb->offsets == NULL) error("Unable to allocate memory for a gatherv offset & count headers");
+		for (int i = 0; i < gsize; ++i) {
+			tcb->counts[i] = static_cast<const int32_t*>(dcounts)[i] * el;
+			tcb->offsets[i] = static_cast<const int32_t*>(doffsets)[i] * el;
+		}
+	}
+	else
+		tcb->counts = tcb->offsets = NULL;
+
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
+	tcb->operation.algorithm = state.teams[team].algorithm[PAMI_XFER_GATHERV];
+	tcb->operation.cmd.xfer_gatherv.rcvbuf = (char*)dbuf;
+	if (team == 0)
+		tcb->operation.cmd.xfer_gatherv.root = root;
+	else
+		tcb->operation.cmd.xfer_gatherv.root = state.teams[team].places[root];
+	tcb->operation.cmd.xfer_gatherv.rtype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_gatherv.rtypecounts = tcb->counts;
+	tcb->operation.cmd.xfer_gatherv.rdispls = tcb->offsets;
+	tcb->operation.cmd.xfer_gatherv.sndbuf = (char*)sbuf;
+	tcb->operation.cmd.xfer_gatherv.stype = PAMI_TYPE_BYTE;
+	tcb->operation.cmd.xfer_gatherv.stypecount = el*scount;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u executing gatherv: role=%u, root=%u\n", state.myPlaceId, role, root);
+	#endif
+
+#ifdef POSTMESSAGES
+	pami_result_t status = PAMI_Context_post(state.context, &tcb->work, post_collective, (void *)tcb);
+#else
+	PAMI_Context_lock(state.context);
+	pami_result_t status = post_collective(state.context, tcb);
+	PAMI_Context_unlock(state.context);
+#endif
+	if (status != PAMI_SUCCESS) error("Unable to post a gatherv on team %u", team);
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
@@ -1952,6 +2114,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		// Issue the PAMI collective
 		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 		if (tcb == NULL) error("Unable to allocate memory for the all-to-all cookie");
+		tcb->counts = tcb->offsets = NULL;
 		tcb->tcb = ch;
 		tcb->arg = arg;
 		memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -1991,6 +2154,7 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a reduce callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -2034,12 +2198,13 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	if (status != PAMI_SUCCESS) error("Unable to post a reduce on team %u", team);
 }
 
-void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
-		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
+bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
+		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
 {
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a allreduce callback header");
+	tcb->counts = tcb->offsets = NULL;
 	tcb->tcb = ch;
 	tcb->arg = arg;
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
@@ -2077,4 +2242,5 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	PAMI_Context_unlock(state.context);
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post an allreduce on team %u", team);
+    return true; //PAMI is not resilient, always return true
 }

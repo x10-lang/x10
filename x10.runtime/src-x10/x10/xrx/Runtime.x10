@@ -117,10 +117,10 @@ public final class Runtime {
     @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt((long)(#epoch), (int)(#id), #body, #finishState, #prof, #preSendAction)")
     @Native("c++", "::x10aux::run_async_at((x10_long)(#id), #body, #finishState, #prof, #preSendAction)")
     public static native def x10rtSendAsyncInternal(epoch:Long, id:Long, body:()=>void, finishState:FinishState, 
-                                            prof:Profile, preSendAction:()=>void):void;
+                                                     prof:Profile, preSendAction:()=>void):void;
 
     public static def x10rtSendAsync(id:Long, body:()=>void, finishState:FinishState, 
-                                            prof:Profile, preSendAction:()=>void):void {
+                                     prof:Profile, preSendAction:()=>void):void {
         val epoch = epoch();
         if (CANCELLABLE) {
             if (activity() != null && activity().epoch < epoch) throw new CancellationException();
@@ -659,8 +659,7 @@ public final class Runtime {
             };
             submitLocalActivity(new Activity(epoch, asyncBody, state));
         } else {
-            val preSendAction = ()=>{ state.notifySubActivitySpawn(place); };
-            x10rtSendAsync(place.id, body, state, prof, preSendAction); // optimized case
+            state.spawnRemoteActivity(place, body, prof);
         }
         Unsafe.dealloc(body);
     }
@@ -849,62 +848,79 @@ public final class Runtime {
             }
         }
 
-        // Carefully manipulate the finishState, etc. so that 
-        // any asyncs spawned by body are governed by the current finishState
-        // not the finishState of the finish we create intenally here to
-        // enable blocking on the completion of remote execution of body
-        val srcPlace = here;
-        val realActivity = activity();
-        val finishState = realActivity.finishState();
-        val clockPhases = realActivity.clockPhases;
         val ser = new x10.io.Serializer();
         ser.writeAny(body);
         val bytes = ser.toRail();
 
-        finishState.notifyShiftedActivitySpawn(place);
-        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
-        try {
-	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    try {
-                        // Actually deserialize and evaluate user body
-                        val deser = new x10.io.Deserializer(bytes);
-                        val bodyPrime = deser.readAny() as ()=>void;
-                        bodyPrime();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
+        val srcPlace = here;
+        val realActivity = activity();
+        val clockPhases = realActivity.clockPhases;
+        val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);
+        val asyncFS = realActivity.finishState();
+        val atFSParent = realActivity.atFinishState();
+        val atFS = makeDefaultFinish(atFSParent);
+        val preSendAction = ()=> {
+             // Quiescent optimization to batch finish updates used by default remote finish 
+             // means we need to "double count" shifted activities. 
+             // See APGAS/Async/AsyncNext.x10 for a test case.
+             asyncFS.notifyShiftedActivitySpawn(place);
+             atFS.notifySubActivitySpawn(place);
+        };
+        val remoteBody = ()=> @x10.compiler.AsyncClosure {
+            if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
+                activity().clockPhases = clockPhases;
+                val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(localAtFS);
+                var exc:CheckedThrowable = null;
+                try {
+                    // Deserialize and execute user body
+                    val deser = new x10.io.Deserializer(bytes);
+                    val bodyPrime = deser.readAny() as ()=>void;
+                    bodyPrime();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
 
-                    // Wind up internal activity created for synchronization
-                    try {
-                        activity().swapFinish(syncFinishState);
-
-                        // Transmit potentially modified clockPhases back to srcPlace.
-                        val finalClockPhases = activity().clockPhases;
-                        activity().clockPhases = null;
-                        if (finalClockPhases != null) {
-                            @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
+                activity().swapFinish(localAtFS);
+                 
+                // If we have clocks, disassociate this activity from them
+                // and update the clock state of the remote activity.
+                try {
+                    val finalClockPhases = activity().clockPhases;
+                    activity().clockPhases = null;
+                    if (finalClockPhases != null) {
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (e:CheckedThrowable) {
-                        // Suppress exceptions during windup of internal activity.
-                        // Should not be user-visible.
-                    } finally {
-                        finishState.notifyShiftedActivityCompletion();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (e:CheckedThrowable) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
+                } finally {
+                    if (exc != null) localAtFS.pushException(exc);
+                    asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+         };
+
+        // Send the remote async with atFS as the governing finish
+        try {
+            x10rtSendAsync(place.id, remoteBody, atFS, prof, preSendAction);
+        } catch (e:CheckedThrowable) {
+            // If an exception is raised locally by x10rtSendAsync, defer it to be
+            // thrown (wrapped in a ME) from atFS.waitForFinish()
+            atFS.pushException(e);
+        }
+
+        // wait for the place-shifted activity initiated above to complete remotely
+        try {
+            atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
-            // Peel off the layer of ME wrapping caused by the internal finish above.
+            // Peel off the layer of ME wrapping injected by waitForFinish
             if (e.exceptions != null) {
                 if (e.exceptions.size == 1) {
                     throwCheckedWithoutThrows(e.exceptions(0));
@@ -913,8 +929,7 @@ public final class Runtime {
                     // to maintain the X10 semantics view that an at is a place shift
                     // by the same single activity.
                     for (e2 in e.exceptions) {
-                        if (e2 instanceof DeadPlaceException &&
-                            (e2 as DeadPlaceException).place == place) {
+                        if (e2 instanceof DeadPlaceException && (e2 as DeadPlaceException).place == place) {
                             throwCheckedWithoutThrows(e2);
                         }
                     }
@@ -924,7 +939,7 @@ public final class Runtime {
             // Unexpected.  Rethrow e to enable debugging.
             throw e;
         } finally {
-           realActivityGR.forget();
+            realActivityGR.forget();
         }
     }
 
@@ -948,7 +963,7 @@ public final class Runtime {
         val verbose = FinishResilient.verbose;
         if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
-                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                debug("DANGER: runImmediateAt called on @Immediate worker!");
                 new Exception().printStackTrace();
             }
         }
@@ -965,26 +980,28 @@ public final class Runtime {
             if (verbose>=4) debug("---- runImmediateAt initiating remote execution");
             at (dst) @Immediate("finish_resilient_low_level_at_out") async {
                 try {
-                    if (verbose>=4) debug("---- runImmediateAt(remote) calling cl()");
+                    if (verbose>=4) debug("---- runImmediateAt(remote) from "+condGR.home+" calling cl()");
                     cl();
-                    if (verbose>=4) debug("---- runImmediateAt(remote) returned from cl()");
+                    if (verbose>=4) debug("---- runImmediateAt(remote) from "+condGR.home+" returned from cl()");
                     at (condGR) @Immediate("finish_resilient_low_level_at_back") async {
                         if (verbose>=4) debug("---- runImmediateAt(home) releasing cond");
                         condGR().release();
                     }
                 } catch (t:Exception) {
-                    if (verbose>=4) debug("---- runImmediateAt(remote) caught exception="+t);
+                    if (verbose>=4) debug("---- runImmediateAt(remote) from "+condGR.home+" caught exception="+t);
                     at (condGR) @Immediate("finish_resilient_low_level_at_back_exc") async {
                         if (verbose>=4) debug("---- runImmediateAt(home) setting exc and releasing cond");
                         exc()(t);
                         condGR().release();
                     };
                 }
-                if (verbose>=4) debug("---- runImmediateAt(remote) finished");
+                if (verbose>=4) debug("---- runImmediateAt(remote) from "+condGR.home+" finished");
             };
         
             if (verbose>=4) debug("---- runImmediateAt waiting for cond");
+            if (NUM_IMMEDIATE_THREADS == 0n) increaseParallelism();
             cond.await();
+            if (NUM_IMMEDIATE_THREADS == 0n) decreaseParallelism(1n);
             if (verbose>=4) debug("---- runImmediateAt released from cond");
 	    // Unglobalize objects
 	    condGR.forget();
@@ -1085,76 +1102,90 @@ public final class Runtime {
             }
         }
 
-        // Carefully manipulate the finishState, etc. so that 
-        // any asyncs spawned by eval are governed by the current finishState
-        // not the finishState of the finish we create intenally here to
-        // enable blocking on the completion of remote execution of eval
-        val srcPlace = here;
-        val realActivity = activity();
-        val finishState = realActivity.finishState();
-        val clockPhases = realActivity.clockPhases;
         val ser = new x10.io.Serializer();
         ser.writeAny(eval);
         val bytes = ser.toRail();
-        val resultCell = new Cell[Any](null);
 
-        finishState.notifyShiftedActivitySpawn(place);
+        val srcPlace = here;
+        val realActivity = activity();
+        val clockPhases = realActivity.clockPhases;
         val realActivityGR = GlobalRef[Activity](clockPhases == null ? null : realActivity);        
-        val resultCellGR = GlobalRef[Cell[Any]](resultCell);
-        try {
-	    @Pragma(Pragma.FINISH_ASYNC) finish @x10.compiler.Profile(prof) at(place) async {
-                if (finishState.notifyShiftedActivityCreation(srcPlace, null)) {
-                    activity().clockPhases = clockPhases;
-                    val syncFinishState = activity().swapFinish(finishState);
-                    var exc:CheckedThrowable = null;
-                    var resBytes:Rail[Byte] = null;
-                    try {
-                        // Actually deserialize and evaluate user eval closure
-                        val deser = new x10.io.Deserializer(bytes);
-                        val evalPrime = deser.readAny() as ()=>Any;
-                        val res = evalPrime();
-                        val ser2 = new x10.io.Serializer();
-                        ser2.writeAny(res);
-                        resBytes = ser2.toRail();
-                    } catch (e:AtCheckedWrapper) {
-                        exc = e.getCheckedCause();
-                    } catch (e:WrappedThrowable) {
-                        exc = e.getCheckedCause();
-                    } catch (e:CheckedThrowable) {
-                        exc = e;
-                    }
+        val resultCell = new Cell[Rail[Byte]](null);
+        val resultCellGR = GlobalRef[Cell[Rail[Byte]]](resultCell);
+        val asyncFS = realActivity.finishState();
+        val atFSParent = realActivity.atFinishState();
+        val atFS = makeDefaultFinish(atFSParent);
+        val preSendAction = ()=> {
+             // Quiescent optimization to batch finish updates used by default remote finish 
+             // means we need to "double count" shifted activities. 
+             // See APGAS/Async/AsyncNext.x10 for a test case.
+             asyncFS.notifyShiftedActivitySpawn(place);
+             atFS.notifySubActivitySpawn(place);
+        };
+        val remoteBody = ()=> @x10.compiler.AsyncClosure {
+            if (asyncFS.notifyShiftedActivityCreation(srcPlace)) {
+                activity().clockPhases = clockPhases;
+                val localAtFS = activity().swapFinish(asyncFS); // An 'async' within bodyPrime goes to asyncFS
+                activity().setAtFinish(localAtFS);
+                var resBytes:Rail[Byte] = null;
+                var exc:CheckedThrowable = null;
+                try {
+                    // Deserialize and execute user body
+                    val deser = new x10.io.Deserializer(bytes);
+                    val evalPrime = deser.readAny() as ()=>Any;
+                    val res = evalPrime();
+                    val ser2 = new x10.io.Serializer();
+                    ser2.writeAny(res);
+                    resBytes = ser2.toRail();
+                } catch (e:AtCheckedWrapper) {
+                    exc = e.getCheckedCause();
+                } catch (e:WrappedThrowable) {
+                    exc = e.getCheckedCause();
+                } catch (e:CheckedThrowable) {
+                    exc = e;
+                }
 
-                    // Wind up internal activity created for synchronization
-                    activity().swapFinish(syncFinishState);
+                activity().swapFinish(localAtFS);
 
-                    // Transmit result and potentially modified clockPhases back to srcPlace.
+                // If we have clocks, disassociate this activity from them
+                // and update the clock state of the remote activity.
+                // Transmit the result (if we have one) back to the originating place.
+                try {
                     val finalClockPhases = activity().clockPhases;
                     activity().clockPhases = null;
                     val resBytes2 = resBytes;
-                    try {
-                        @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
-                            if (finalClockPhases != null) {
-                                realActivityGR().clockPhases = finalClockPhases;
-                            }
-                            if (resBytes2 != null) {
-                                val deser2 = new x10.io.Deserializer(resBytes2);
-                                resultCellGR().set(deser2.readAny());
-                            }
+                    @Pragma(Pragma.FINISH_ASYNC) finish at (srcPlace) async {
+                        if (finalClockPhases != null) {
+                            realActivityGR().clockPhases = finalClockPhases;
                         }
-                    } catch (me:MultipleExceptions) {
-                        if (me.exceptions != null && me.exceptions.size == 1) {
-                            syncFinishState.pushException(me.exceptions(0));
-                        } else {
-                            syncFinishState.pushException(me);
+                        if (resBytes2 != null) {
+                            resultCellGR().set(resBytes2);
                         }
-                    } finally {
-                        finishState.notifyShiftedActivityCompletion();
-                        if (exc != null) syncFinishState.pushException(exc);
                     }
+                } catch (me:MultipleExceptions) {
+                    // Suppress exceptions during windup of internal activity.
+                    // Should not be user-visible.
+                } finally {
+                    if (exc != null) localAtFS.pushException(exc);
+                    asyncFS.notifyShiftedActivityCompletion();
                 }
             }
+        };
+
+        // Send the remote async with atFS as the governing finish
+        try {
+            x10rtSendAsync(place.id, remoteBody, atFS, prof, preSendAction);
+        } catch (e:CheckedThrowable) {
+            // If an exception is raised locally by x10rtSendAsync, defer it to be
+            // thrown (wrapped in a ME) from atFS.waitForFinish()
+            atFS.pushException(e);
+        }
+
+        // wait for the place-shifted activity initiated above to complete remotely
+        try {
+            atFS.waitForFinish();
         } catch (e:MultipleExceptions) {
-            // Peel off the layer of ME wrapping caused by the internal finish above.
+            // Peel off the layer of ME wrapping injected by waitForFinish
             if (e.exceptions != null) {
                 if (e.exceptions.size == 1) {
                     throwCheckedWithoutThrows(e.exceptions(0));
@@ -1177,10 +1208,11 @@ public final class Runtime {
            realActivityGR.forget();
            resultCellGR.forget();
         }
-    
+
         // If we get here, the remote evaluation finished normally and we can
-        // return the result of the evaluation from resultCell.
-        return resultCell();
+        // return the result of the evaluation by deserialzing resultCell's Rail[Byte]
+        val deser = new x10.io.Deserializer(resultCell());
+        return deser.readAny();
     }
 
 
@@ -1204,7 +1236,7 @@ public final class Runtime {
         val verbose = FinishResilient.verbose;
         if (verbose>=1 && !Configuration.silenceInternalWarnings()) {
             if (Runtime.worker().promoted) {
-                debug("DANGER: lowlevelAt called on @Immediate worker!");
+                debug("DANGER: evalImmediateAt called on @Immediate worker!");
                 new Exception().printStackTrace();
             }
         }
@@ -1244,7 +1276,9 @@ public final class Runtime {
         };
         
         if (verbose>=4) debug("---- evalImmediateAt waiting for cond");
+        if (NUM_IMMEDIATE_THREADS == 0n) increaseParallelism();
         cond.await();
+        if (NUM_IMMEDIATE_THREADS == 0n) decreaseParallelism(1n);
         if (verbose>=4) debug("---- evalImmediateAt released from cond");
         val t = exc()();
 
@@ -1333,7 +1367,15 @@ public final class Runtime {
         if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
             return new FinishState.Finish();
         } else {
-            return FinishResilient.make(null/*parent*/, null/*latch*/);
+            return FinishResilient.make(null);
+        }
+    }
+
+    static def makeDefaultFinish(parent:FinishState):FinishState {
+        if (RESILIENT_MODE==Configuration.RESILIENT_MODE_NONE || RESILIENT_MODE==Configuration.RESILIENT_MODE_X10RT_ONLY) {
+            return new FinishState.Finish();
+        } else {
+            return FinishResilient.make(parent);
         }
     }
 
@@ -1381,7 +1423,7 @@ public final class Runtime {
                 f = new FinishState.Finish();
             }
         } else {
-            f = FinishResilient.make(null/*parent*/, null/*latch*/);
+            f = FinishResilient.make(null);
         }
 
         return activity().swapFinish(f);

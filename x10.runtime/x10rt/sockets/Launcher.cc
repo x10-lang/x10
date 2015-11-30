@@ -456,9 +456,8 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	if (!onlyCheckForNewConnections)
 		fprintf(stderr, "Launcher %d: main loop start\n", _myproc);
 	#endif
-	bool running = true;
 
-	while (running)
+	while (_running)
 	{
 		struct timeval timeout = { 0, 100000 };
 		fd_set infds, efds;
@@ -501,38 +500,37 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (_parentLauncherControlLink >= 0)
 		{
 			if (FD_ISSET(_parentLauncherControlLink, &efds))
-				running = handleDeadParent();
+				_running = handleDeadParent();
 			else if (FD_ISSET(_parentLauncherControlLink, &infds))
 				if (handleControlMessage(_parentLauncherControlLink) < 0)
-					running = handleDeadParent();
+					_running = handleDeadParent();
 		}
 		/* runtime and children control, stdout and stderr */
 		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
-            bool this_child_alive = true;
 			if (_childControlLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childControlLinks[i], &efds))
-					running = handleDeadChild(i, 0);
+					_running = handleDeadChild(i, 0);
 				else if (FD_ISSET(_childControlLinks[i], &infds))
 					if (handleControlMessage(_childControlLinks[i]) < 0)
-						running = handleDeadChild(i, 0);
+						_running = handleDeadChild(i, 0);
 			}
 
 			if (_childCoutLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCoutLinks[i], &efds))
-					running = handleDeadChild(i, 1);
+					_running = handleDeadChild(i, 1);
 				else if (FD_ISSET(_childCoutLinks[i], &infds))
-					running = handleChildCout(i);
+					_running = handleChildCout(i);
 			}
 
 			if (_childCerrorLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCerrorLinks[i], &efds))
-					running = handleDeadChild(i, 2);
+					_running = handleDeadChild(i, 2);
 				else if (FD_ISSET(_childCerrorLinks[i], &infds))
-					running = handleChildCerror(i);
+					_running = handleChildCerror(i);
 			}
 		}
 	}
@@ -1168,33 +1166,26 @@ void Launcher::cb_sighandler_cld(int signo)
 {
 	// one of our children died
 	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
-	if (_singleton->_dieAt == 0)
-	{
-        // Note that "X10_RESILIENT_MODE" is also checked in Configuration.x10
-        char* resilient_mode = getenv(X10_RESILIENT_MODE);
-        bool resilient_x10 = (resilient_mode!=NULL && strtol(resilient_mode, NULL, 10) != 0);
-
-        if (!resilient_x10) {
-            _singleton->_dieAt = SHUTDOWN_GRACE_PERIOD+time(NULL); // SHUTDOWN_GRACE_PERIOD seconds into the future
-            #ifdef DEBUG
-                fprintf(stderr, "Launcher %d: started the doomsday device\n", _singleton->_myproc);
-            #endif
-        } else {
-            #ifdef DEBUG
-                fprintf(stderr, "Launcher %d: not starting the doomsday device\n", _singleton->_myproc);
-            #endif
-        }
+	if (_singleton->_dieAt == 0 && !_singleton->_resilient_x10) {
+		_singleton->_dieAt = SHUTDOWN_GRACE_PERIOD+time(NULL); // SHUTDOWN_GRACE_PERIOD seconds into the future
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %d: started the doomsday device\n", _singleton->_myproc);
+		#endif
+	} else {
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %d: not starting the doomsday device\n", _singleton->_myproc);
+		#endif
 	}
 }
 
 void Launcher::cb_sighandler_term(int signo)
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
+		if (_singleton->_running) fprintf(stderr, "Launcher %d: got a SIGTERM\n", _singleton->_myproc);
 	#endif
 	for (uint32_t i = 0; i <= _singleton->_numchildren; i++)
 	{
-		if (_singleton->_pidlst[i] != -1)
+		if (_singleton->_pidlst[i] != -1 && kill(_singleton->_pidlst[i], 0) == 0)
 		{
 			#ifdef DEBUG
 				fprintf(stderr, "Launcher %d: killing pid=%d\n", _singleton->_myproc, _singleton->_pidlst[i]);
@@ -1329,7 +1320,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
 
-	bool usePseudoTTY = true;
+	bool usePseudoTTY = !_resilient_x10;
 	char * pseudoTTYEnv = getenv(X10_LAUNCHER_TTY);
 	if (pseudoTTYEnv != NULL)
 		usePseudoTTY = checkBoolEnvVar(pseudoTTYEnv);
@@ -1382,7 +1373,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
         argv[++z] = x10_var ? alloc_env_always_assign(var,val) : alloc_env_assign(var, val);
 	}
 
-	if (_hostfname != '\0')
+	if (_hostfname[0] != '\0')
 	{
         argv[++z] = alloc_env_assign(X10_HOSTFILE, _hostfname);
 	}

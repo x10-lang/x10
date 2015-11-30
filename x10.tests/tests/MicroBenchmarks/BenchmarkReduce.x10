@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
  */
 import harness.x10Test;
 
@@ -23,6 +23,7 @@ public class BenchmarkReduce extends x10Test {
 
 	public def run(): Boolean {
         finish for (place in Place.places()) at (place) async {
+            Team.WORLD.reduce(root, 1.0, Team.ADD);
             for (var s:Long= 1; s <= MAX_SIZE; s *= 2) {
                 val src = new Rail[Double](s, (i:Long) => i as Double);
                 val dst = new Rail[Double](s);

@@ -3,7 +3,6 @@
 # Igor Peshansky
 
 # Note: assumes everything is built
-# FIXME: check out afresh
 
 while [ $# != 0 ]; do
 
@@ -55,4 +54,4 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
-eval tar -cvzf "$cdir/$tarfile" --exclude=.svn INSTALL.txt README.txt RELEASE.NOTES.txt bin/{x10,runx10,x10c,x10cj,x10c++,X10Launcher,x10doc} epl-v10.html etc include stdlib lib/*.jar lib/logging.properties lib/${PLAT_LIBPAT} samples
+eval tar -cvzf "$cdir/$tarfile" --exclude=.gitignore INSTALL.txt README.txt RELEASE.NOTES.txt LICENSE.html bin/{x10,runx10,x10c,x10cj,x10c++,X10Launcher,x10doc} etc include stdlib lib/*.jar lib/logging.properties lib/${PLAT_LIBPAT} samples

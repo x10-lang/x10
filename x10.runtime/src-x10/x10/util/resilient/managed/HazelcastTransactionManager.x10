@@ -24,6 +24,7 @@ import x10.util.resilient.ResilientTransactionManager;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The HazelcastMap class implements a Resilient Transaction Manager using Hazelcast as the underlying implementation.
@@ -47,6 +48,23 @@ public class HazelcastTransactionManager
 			throw new Exception(e);
 		}
     }
+
+	public static def runLocalHazelcastTransaction[T](run:(ResilientTransactionManager)=>T):T {
+	  val hz = getHazelcastInstance();
+	  try {
+	    return hz.executeTransaction(new com.hazelcast.transaction.TransactionOptions()
+	    .setTransactionType(com.hazelcast.transaction.TransactionOptions.TransactionType.LOCAL),
+	        new com.hazelcast.transaction.TransactionalTask() {
+	      public def execute(context:com.hazelcast.transaction.TransactionalTaskContext)
+	      throws com.hazelcast.transaction.TransactionException : Any {
+	        finish {
+	          return run(new HazelcastTransactionManager(context));
+	        }
+	      }}) as T;
+	  } catch(e:com.hazelcast.transaction.TransactionException) {
+	    throw new Exception(e);
+	  }
+	}
 
     public static def getMap[K,V](manager:ResilientTransactionManager, mapName:String) {V haszero} : ResilientTransactionalMap[K,V] {
 		if(! (manager instanceof HazelcastTransactionManager)) {

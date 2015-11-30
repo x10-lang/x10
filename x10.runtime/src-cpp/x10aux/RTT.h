@@ -14,8 +14,6 @@
 
 #include <x10aux/config.h>
 #include <assert.h>
-#include <pthread.h>
-#include <x10aux/lock.h>
 #include <x10/lang/Complex.h>
 
 /* Macro to use in class declaration for boilerplate RTT junk */
@@ -59,6 +57,7 @@ namespace x10 {
 }
 
 namespace x10aux {
+    class reentrant_lock;
 
     class RuntimeType {
     private:

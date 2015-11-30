@@ -52,6 +52,8 @@
 #define X10_NOWRITEBUFFER "X10_NOWRITEBUFFER" // turns off non-blocking sockets
 #define X10_LIBRARY_MODE "X10_LIBRARY_MODE" // Don't use our own launcher, but instead rely on some external system.
 #define X10_LAUNCHER_TTY "X10_LAUNCHER_TTY" // set to false to disable Pseudo-TTY over SSH, which is used by default
+#define X10_SOCKET_TIMEOUT "X10_SOCKET_TIMEOUT" // milliseconds, how long to wait before marking a place as dead
+
 // don't miss X10_DEBUGGER_ID and X10_DEBUGGER_NAME over in DebugHelper.h
 
 // how many seconds to wait after the first runtime exits, before we force any remaining runtimes to die
@@ -133,6 +135,8 @@ class Launcher
 		int * _childCoutLinks; /* children's cout connections */
 		int * _childCerrorLinks; /* children's cerror connections */
 		int _exitcode; /* The exit code */
+		bool _running;
+		bool _resilient_x10;
 };
 #endif /* #ifdef */
 

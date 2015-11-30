@@ -16,6 +16,7 @@ import java.util.Set;
 
 import polyglot.ast.CodeNode;
 import polyglot.ast.Expr;
+import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
@@ -89,7 +90,7 @@ public class UnusedVariableEliminator extends ErrorHandlingVisitor {
         public Node leave(Node old, Node n, NodeVisitor v) {
             if (n instanceof LocalDecl && !uses.contains(((LocalDecl)n).localDef())) {
                 Expr init = ((LocalDecl) n).init();
-                if (init == null || init instanceof Local || init instanceof Special) {
+                if (init == null || init instanceof Local || init instanceof Special || init instanceof Lit) {
                     return nf.Empty(n.position());
                 } else {
                     return nf.Eval(n.position(), init);

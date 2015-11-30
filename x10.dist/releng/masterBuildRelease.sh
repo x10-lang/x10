@@ -7,7 +7,6 @@ hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com p7i
 
 x10dt_hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com"
 
-# TODO: we should get svn info by parsing svn info URL and extracting revision from there.
 while [ $# != 0 ]; do
   case $1 in
     -version)

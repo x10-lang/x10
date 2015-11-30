@@ -13,6 +13,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/alloc.h>
 #include <x10aux/atomic_ops.h>
+#include <x10aux/lock.h>
 #include <x10aux/reference_logger.h>
 
 #include <x10/lang/Reference.h>

@@ -2692,7 +2692,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		// the cast is because our generated member function may use a more general
 		// return type because c++ does not support covariant smartptr returns
-		// TODO: See TODO in CastInjector.
+		// this is not visible at the X10 level, so the CastInjector won't add the needed cast.
         Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
 		boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
 		if (needsCast) {

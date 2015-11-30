@@ -76,4 +76,3 @@ size_t x10aux::get_remote_op_batch (void)
     return strtoul(env, NULL, 10);
 }
 
-const bool x10aux::static_broadcast_naive = getBoolEnvVar("X10_STATIC_BROADCAST_NAIVE");

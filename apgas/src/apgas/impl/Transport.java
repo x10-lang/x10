@@ -26,6 +26,7 @@ import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -112,7 +113,7 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
    * @param master
    *          member to connect to or null
    * @param localhost
-   *          the preferred ip address of this host
+   *          the preferred ip address of this host or null
    * @param compact
    *          reduces thread creation if set
    */
@@ -136,6 +137,13 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
           ExecutionService.SCHEDULED_EXECUTOR, 2));
     }
 
+    // kryo
+    if (System.getProperty("apgas.serialization", "java").equals("kryo")) {
+      config.getSerializationConfig().addSerializerConfig(
+          new SerializerConfig().setTypeClass(SerializableRunnable.class)
+              .setImplementation(new KryoSerializer()));
+    }
+
     config.addMapConfig(new MapConfig(APGAS_FINISH)
         .setInMemoryFormat(InMemoryFormat.OBJECT));
 
@@ -143,7 +151,9 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
     final JoinConfig join = config.getNetworkConfig().getJoin();
     join.getMulticastConfig().setEnabled(false);
     join.getTcpIpConfig().setEnabled(true);
-    System.setProperty("hazelcast.local.localAddress", localhost);
+    if (localhost != null) {
+      System.setProperty("hazelcast.local.localAddress", localhost);
+    }
     if (master != null) {
       join.getTcpIpConfig().addMember(master);
       // also replace localhost will real ip as master is likely to expect this

@@ -13,6 +13,7 @@ package apgas;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
@@ -98,7 +99,7 @@ public abstract class GlobalRuntime {
    * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
    * to complete.
    * <p>
-   * If {@code f} or the transitively tasks spawned by {@code f} have uncaught
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
    * exceptions then {@code finish(F)} then throws a {@link MultipleException}
    * that collects these uncaught exceptions.
    *
@@ -108,6 +109,22 @@ public abstract class GlobalRuntime {
    *           if there are uncaught exceptions
    */
   protected abstract void finish(Job f);
+
+  /**
+   * Evaluates {@code f}, waits for all the tasks transitively spawned by
+   * {@code f}, and returns the result.
+   * <p>
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
+   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param <T>
+   *          the type of the result
+   * @param f
+   *          the function to run
+   * @return the result of the evaluation
+   */
+  protected abstract <T> T finish(Callable<T> f);
 
   /**
    * Submits a new local task to the global runtime with body {@code f} and
@@ -142,6 +159,17 @@ public abstract class GlobalRuntime {
    */
   protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
 
+  /**
+   * Submits an immediate task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f}. The termination of this task is not tracked
+   * by the enclosing finish. The call may block or not until the task
+   * completes. Exceptions may be masked or not.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   protected abstract void immediateAsyncAt(Place p, SerializableRunnable f);
 
   /**

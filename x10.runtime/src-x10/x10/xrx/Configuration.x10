@@ -95,10 +95,15 @@ final class Configuration {
 
     static def num_immediate_threads():Int {
         var v:Int = 1n;
-        try {
+        val asymmetric = envOrElse("X10_ASYMMETRIC_IMMEDIATE_THREAD", false);
+        if (asymmetric) {
+            v = here.id == 0 ? 1n : 0n;
+        } else {
             val defVal = Runtime.x10rtBlockingProbeSupport() ? "1" : "0";
-            v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", defVal));
-        } catch (NumberFormatException) {
+            try {
+                v = Int.parse(Runtime.env.getOrElse("X10_NUM_IMMEDIATE_THREADS", defVal));
+            } catch (NumberFormatException) {
+            }
         }
         return v;
     }
@@ -110,10 +115,7 @@ final class Configuration {
     static val RESILIENT_MODE_HC          = 12n; // FinishResilientHC
     static val RESILIENT_MODE_X10RT_ONLY  = 99n; // Resilient/Elastic X10RT, no resilient finish
     // The modes below are under development and not yet complete.
-    static val RESILIENT_MODE_PLACE0_OPTIMIZED = 21n; // FinishResilientPlace0opt
     static val RESILIENT_MODE_HC_OPTIMIZED     = 22n; // FinishResilientHCopt
-    static val RESILIENT_MODE_SAMPLE      = 91n; // FinishResilientSample + ResilientStorePlace0
-    static val RESILIENT_MODE_SAMPLE_HC   = 92n; // FinishResilientSample + ResilientStoreHC
 
     static def resilient_mode():Int { // called from Runtime.x10
         var v:Int = RESILIENT_MODE_NONE;

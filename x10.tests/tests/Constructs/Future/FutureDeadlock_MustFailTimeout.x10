@@ -9,9 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2014.
  */
 
-
 import harness.x10Test;
 import x10.util.concurrent.Future;
+
+// TIMEOUT: 30
 
 /**
  * A test case that illustrates that deadlock is possible

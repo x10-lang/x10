@@ -37,7 +37,7 @@ public final class Configuration {
    * {@code apgas.impl.Transport}".
    *
    */
-  public static final String APGAS_NETWORKTRANSPORT = "apgas.networktransport";
+  public static final String APGAS_TRANSPORT = "apgas.transport";
 
   /**
    * Enables or disables compression on the network links when using transport "
@@ -45,10 +45,14 @@ public final class Configuration {
    * <p>
    * Set to "none" or "snappy", which is the default.
    */
-  public static final String APGAS_NETWORKTRANSPORT_COMPRESSION = "apgas.networktransport.compression";
+  public static final String APGAS_TRANSPORT_COMPRESSION = "apgas.transport.compression";
 
   /**
-   * Number of places to spawn (Integer property).
+   * Desired number of places (Integer property).
+   * <p>
+   * Defaults to 1. If "{@code apgas.my.master}" is not set the global runtime
+   * will spawn the desired number of places, otherwise it will wait for the
+   * places to appear.
    */
   public static final String APGAS_PLACES = "apgas.places";
 
@@ -91,13 +95,12 @@ public final class Configuration {
    * set to "ip" the global runtime will connect to the first available
    * Hazelcast instance at this ip within the default port range.
    */
-  public static final String APGAS_MASTER = "apgas.master";
+  public static final String APGAS_MY_MASTER = "apgas.my.master";
 
   /**
-   * Disables the implicit shutdown of the global runtime when thread with ID 1
-   * terminates (Boolean property).
+   * Optionally specifies the preferred ip of this host (String property).
    */
-  public static final String APGAS_DAEMON = "apgas.daemon";
+  public static final String APGAS_MY_IP = "apgas.my.ip";
 
   /**
    * Specifies the java command to run for spawning places (String property).
@@ -125,4 +128,18 @@ public final class Configuration {
    * Defaults to "{@code apgas.impl.LocalLauncher}".
    */
   public static final String APGAS_LAUNCHER = "apgas.launcher";
+
+  /**
+   * If set the runtime will ouput on stderr the command line used to launch
+   * places (Boolean property).
+   */
+  public static final String APGAS_LAUNCHER_VERBOSE = "apgas.launcher.verbose";
+
+  /**
+   * Specifies the hostfile when using a compatible launcher such as "
+   * {@code apgas.impl.SshLauncher}" (String property).
+   * <p>
+   * Defaults tp "{@code hostfile}".
+   */
+  public static final String APGAS_HOSTFILE = "apgas.hostfile";
 }

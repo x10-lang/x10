@@ -90,6 +90,6 @@ public class TestNestedFinishMiddleFailSync extends x10Test  {
     }
 
     public static def main(Rail[String]) {
-	    new TestNestedFinishMiddleFail().execute();
+	    new TestNestedFinishMiddleFailSync().execute();
     }
 }

@@ -43,6 +43,7 @@ void x10aux::initialize_xrx() {
     x10::xrx::Runtime::FMGL(NTHREADS__do_init)();
     x10::xrx::Runtime::FMGL(MAX_THREADS__do_init)();
     x10::xrx::Runtime::FMGL(STATIC_THREADS__do_init)();
+    x10::xrx::Runtime::FMGL(STABLE_POOL_SIZE__do_init)();
     x10::xrx::Runtime::FMGL(NUM_IMMEDIATE_THREADS__do_init)();
     x10::xrx::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
     x10::xrx::Runtime::FMGL(BUSY_WAITING__do_init)();
@@ -120,8 +121,6 @@ static void* real_x10_main_inner(void* _main_args) {
     x10_main_args* main_args = (x10_main_args*)_main_args;
 
     setlinebuf(stdout);
-
-    x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
 
 #ifdef X10_USE_BDWGC
     GC_INIT();

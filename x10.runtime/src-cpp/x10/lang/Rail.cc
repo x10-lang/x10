@@ -20,39 +20,20 @@ namespace x10 {
     namespace lang {
 
         const serialization_id_t Rail_copy_to_serialization_id =
-            NetworkDispatcher::addPutFunctions(Rail_notifier,
-                                               Rail_notifier);
+            NetworkDispatcher::addPutFunctions(Rail_put_notifier,
+                                               Rail_put_notifier);
 
         const serialization_id_t Rail_uncounted_copy_to_serialization_id =
-            NetworkDispatcher::addPutFunctions(Rail_uncounted_notifier,
-                                               Rail_uncounted_notifier);
+            NetworkDispatcher::addPutFunctions(Rail_uncounted_put_notifier,
+                                               Rail_uncounted_put_notifier);
 
         const serialization_id_t Rail_copy_from_serialization_id =
-            NetworkDispatcher::addGetFunctions(Rail_notifier,
-                                               Rail_notifier);
+            NetworkDispatcher::addGetFunctions(Rail_get_notifier,
+                                               Rail_get_notifier);
 
         const serialization_id_t Rail_uncounted_copy_from_serialization_id =
-            NetworkDispatcher::addGetFunctions(Rail_uncounted_notifier,
-                                               Rail_uncounted_notifier);
-
-        
-        void Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
-            x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
-            place src = buf.read<place>();
-            // Perform the actions of both notifyActivityCreation and
-            // notifyActivityTermination in a single non-blocking action.
-            // This notifier is often running on an @Immediate worker thread.
-            fs->notifyActivityCreatedAndTerminated(Place::_make(src));
-        }
-
-        void Rail_serialize_finish_state(place dst, serialization_buffer &buf) {
-            // dst is the place where the finish update will occur, i.e. where the notifier runs
-            dst = parent(dst);
-            x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
-            fs->notifySubActivitySpawn(Place::_make(dst));
-            buf.write(fs);
-            buf.write(x10aux::here);
-        }
+            NetworkDispatcher::addGetFunctions(Rail_uncounted_get_notifier,
+                                               Rail_uncounted_get_notifier);
 
         void Rail_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes, Place dstPlace, bool overlap, VoidFun_0_0* notif) {
             if (dstPlace->FMGL(id) == x10aux::here) {
@@ -69,7 +50,10 @@ namespace x10 {
                 x10aux::place dst_place = dstPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 if (NULL == notif) {
-                    Rail_serialize_finish_state(dst_place, buf);
+                    x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
+                    fs->notifySubActivitySpawn(Place::_make(parent(dst_place)));
+                    buf.write(fs);
+                    buf.write(x10aux::here);
                     x10aux::send_put(dst_place, Rail_copy_to_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
                     buf.write(notif);
@@ -88,7 +72,10 @@ namespace x10 {
                 x10aux::place src_place = srcPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
                 if (NULL == notif) {
-                    Rail_serialize_finish_state(x10aux::here, buf);
+                    x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
+                    fs->notifySubActivitySpawn(Place::_make(x10aux::here));
+                    // notifier runs here; sleazy optimization to avoid true serialization...
+                    buf.write(static_cast<x10_ulong>((size_t)static_cast<void*>(fs)));
                     x10aux::send_get(src_place, Rail_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
                     buf.write(notif);
@@ -108,15 +95,34 @@ namespace x10 {
             }
         }
         
-        void Rail_notifier(deserialization_buffer &buf, x10_int) {
-            Rail_notifyEnclosingFinish(buf);
+        void Rail_get_notifier(deserialization_buffer &buf, x10_int) {
+            size_t val = static_cast<size_t>(buf.read<x10_ulong>());
+            x10::xrx::FinishState* fs = static_cast<x10::xrx::FinishState*>((void*)val);
+            // Perform the actions of both notifyActivityCreation and
+            // notifyActivityTermination in a single non-blocking action.
+            // This notifier is often running on an @Immediate worker thread.
+            fs->notifyActivityCreatedAndTerminated(Place::_make(x10aux::here));
         }
 
-        void Rail_uncounted_notifier(deserialization_buffer &buf, x10_int) {
+        void Rail_uncounted_get_notifier(deserialization_buffer &buf, x10_int) {
             VoidFun_0_0* notif = buf.read<VoidFun_0_0*>();
             VoidFun_0_0::__apply(notif);
         }
 
+        void Rail_put_notifier(deserialization_buffer &buf, x10_int) {
+            x10::xrx::FinishState* fs = buf.read<x10::xrx::FinishState*>();
+            place src = buf.read<place>();
+            // Perform the actions of both notifyActivityCreation and
+            // notifyActivityTermination in a single non-blocking action.
+            // This notifier is often running on an @Immediate worker thread.
+            fs->notifyActivityCreatedAndTerminated(Place::_make(src));
+        }
+
+        void Rail_uncounted_put_notifier(deserialization_buffer &buf, x10_int) {
+            VoidFun_0_0* notif = buf.read<VoidFun_0_0*>();
+            VoidFun_0_0::__apply(notif);
+        }
+        
         void rail_copyRaw(void *srcAddr, void *dstAddr, x10_long numBytes, bool overlap) {
             if (overlap) {
                 // potentially overlapping, use memmove

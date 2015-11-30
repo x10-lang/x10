@@ -13,6 +13,7 @@ import harness.x10Test;
 
 // NUM_PLACES: 3
 // RESILIENT_X10_ONLY
+// SKIP_HAZELCAST /* fails mutiple places */
 
 /**
  * Test nested at-async with double failes

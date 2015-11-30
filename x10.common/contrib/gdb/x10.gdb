@@ -2,4 +2,4 @@
 
 set print static-members off
 break x10aux::throwException
-handle SIGPWR SIGXCPU nostop noprint
+handle SIGPWR SIGXCPU SIG39 SIG40 nostop noprint

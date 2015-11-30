@@ -205,7 +205,7 @@ public final class DistArray[T] (
      * @return the newly created DistArray
      * @see #make[T](Dist)
      */
-    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T){T haszero}= new DistArray[T](dist, init, 0, false);
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T) = new DistArray[T](dist, init, 0, false);
 
     /**
      * Create a distributed array over the argument distribution whose elements
@@ -225,9 +225,9 @@ public final class DistArray[T] (
      * @return the newly created DistArray
      * @see #make[T](Dist)
      */
-    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean){T haszero}= new DistArray[T](dist, init, ghostWidth, periodic);
+    public static def make[T](dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean) = new DistArray[T](dist, init, ghostWidth, periodic);
 
-    def this(dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean){T haszero}:DistArray[T]{self.dist==dist} {
+    def this(dist:Dist, init:(Point(dist.rank))=>T, ghostWidth:Long, periodic:Boolean):DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T]{self.dist==this.dist} = () => {
@@ -238,7 +238,7 @@ public final class DistArray[T] (
             } else {
                 localRegion = dist(here);
             }
-            val localRaw = new Rail[T](localRegion.size());
+            val localRaw = Unsafe.allocRailUninitialized[T](localRegion.size());
             val reg = dist(here);
             for (pt in reg) {
                 localRaw(localRegion.indexOf(pt)) = init(pt);

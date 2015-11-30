@@ -18,6 +18,11 @@ import java.util.concurrent.RecursiveAction;
 import apgas.DeadPlaceException;
 import apgas.SerializableJob;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 /**
  * The {@link UncountedTask} class represents an uncounted task.
  *
@@ -26,7 +31,7 @@ import apgas.SerializableJob;
  * serialization process.
  */
 final class UncountedTask extends RecursiveAction implements
-    SerializableRunnable {
+    SerializableRunnable, KryoSerializable {
   private static final long serialVersionUID = 5031683857632950143L;
 
   /**
@@ -111,6 +116,27 @@ final class UncountedTask extends RecursiveAction implements
       ClassNotFoundException {
     try {
       f = (SerializableJob) in.readObject();
+    } catch (final Throwable e) {
+      final StackTraceElement elm = e.getStackTrace()[0];
+      System.err
+          .println("[APGAS] Failed to receive an uncounted task at place "
+              + GlobalRuntimeImpl.getRuntime().here + " (" + elm.getFileName()
+              + ":" + elm.getLineNumber() + ")");
+      System.err.println("[APGAS] Caused by: " + e);
+      System.err.println("[APGAS] Ignoring...");
+      f = NULL;
+    }
+  }
+
+  @Override
+  public void write(Kryo kryo, Output output) {
+    kryo.writeClassAndObject(output, f);
+  }
+
+  @Override
+  public void read(Kryo kryo, Input input) {
+    try {
+      f = (SerializableJob) kryo.readClassAndObject(input);
     } catch (final Throwable e) {
       final StackTraceElement elm = e.getStackTrace()[0];
       System.err

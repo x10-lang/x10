@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
  */
 import harness.x10Test;
 
@@ -22,6 +22,8 @@ public class BenchmarkBcast extends x10Test {
 	public def run(): Boolean {
         val root = Place(Place.numPlaces()-1);
         finish for (place in Place.places()) at (place) async {
+            val warmup = new Rail[Double](1);
+            Team.WORLD.bcast(root, warmup, 0, warmup, 0, 1); // warm up comms layer
             for (var s:Long= 1; s <= MAX_SIZE; s *= 2) {
                 val src = new Rail[Double](s, (i:Long) => i as Double);
                 val dst = new Rail[Double](s);
@@ -33,7 +35,7 @@ public class BenchmarkBcast extends x10Test {
 
                 // check correctness
                 for (i in 0..(s-1)) {
-                    chk(dst(i) == src(i), "elem " + i + " is " + dst(i) + " should be " + src(i)*Place.numPlaces());
+                    chk(dst(i) == src(i), "elem " + i + " is " + dst(i) + " should be " + src(i));
                 }
 
                 if (here == Place.FIRST_PLACE) Console.OUT.printf("bcast %d: %g ms\n", s, ((stop-start) as Double) / 1e6 / ITERS);

@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// TIMEOUT: 30
+
 /**
  * TODO: rename to ClockTest17 and check for exception
 

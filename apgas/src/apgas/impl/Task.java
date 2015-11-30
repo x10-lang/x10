@@ -22,6 +22,11 @@ import apgas.DeadPlaceException;
 import apgas.Job;
 import apgas.SerializableJob;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 /**
  * The {@link Task} class represents an APGAS task.
  *
@@ -29,7 +34,8 @@ import apgas.SerializableJob;
  * This class implements task serialization and handles errors in the
  * serialization process.
  */
-final class Task extends RecursiveAction implements SerializableRunnable {
+final class Task extends RecursiveAction implements SerializableRunnable,
+    KryoSerializable {
   private static final long serialVersionUID = 5288338719050788305L;
 
   /**
@@ -203,6 +209,35 @@ final class Task extends RecursiveAction implements SerializableRunnable {
     try {
       f = (SerializableJob) in.readObject();
     } catch (final Throwable e) {
+      if (GlobalRuntimeImpl.getRuntime().serializationException) {
+        finish.addSuppressed(e);
+      } else {
+        final StackTraceElement elm = e.getStackTrace()[0];
+        System.err.println("[APGAS] Failed to receive remote async at place "
+            + GlobalRuntimeImpl.getRuntime().here + " (" + elm.getFileName()
+            + ":" + elm.getLineNumber() + ")");
+        System.err.println("[APGAS] Caused by: " + e);
+        System.err.println("[APGAS] Ignoring...");
+      }
+      f = NULL;
+    }
+  }
+
+  @Override
+  public void write(Kryo kryo, Output output) {
+    kryo.writeClassAndObject(output, finish);
+    output.writeInt(parent);
+    kryo.writeClassAndObject(output, f);
+  }
+
+  @Override
+  public void read(Kryo kryo, Input input) {
+    finish = (Finish) kryo.readClassAndObject(input);
+    parent = input.readInt();
+    try {
+      f = (Job) kryo.readClassAndObject(input);
+    } catch (final Throwable e) {
+      e.printStackTrace();
       if (GlobalRuntimeImpl.getRuntime().serializationException) {
         finish.addSuppressed(e);
       } else {

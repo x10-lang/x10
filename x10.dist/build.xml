@@ -765,8 +765,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
     <target name="set-tar-location" depends="init,tar-location,src-tar-location,test-tar-location"/>
     <target name="tar" depends="init,set-tar-location,dist">
         <tar destfile="${tar.location}/x10-${x10.version}.tar.bz2" compression="bzip2" longfile="gnu">
-            <tarfileset prefix="" dir="${x10.home}" includes="LICENSE.html" />
-            <tarfileset prefix="" dir="${basedir}" includes="RELEASE.NOTES,INSTALL"/>
+            <tarfileset prefix="" dir="${basedir}" includes="RELEASE.NOTES,INSTALL,LICENSE.html"/>
             <tarfileset prefix="bin" dir="${bin}" includes="x10,x10c,x10cj,runjava"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
@@ -777,8 +776,7 @@ X10RT_PAMI_IS_DEFAULT='${X10RT_PAMI_IS_DEFAULT}'
     <target name="src-tar" depends="srctar"/>
     <target name="srctar" depends="init,set-tar-location,build">
         <tar destfile="${src.tar.location}/x10-${x10.version}-src.tar.bz2" compression="bzip2" longfile="gnu">
-            <tarfileset prefix="" dir="${x10.home}" includes="LICENSE.html" />
-            <tarfileset prefix="" dir="${basedir}" includes="RELEASE.NOTES.txt,BUILDING.txt"/>
+            <tarfileset prefix="" dir="${basedir}" includes="RELEASE.NOTES.txt,BUILDING.txt,LICENSE.html"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="bin/**,releng/**,**/.*.swp,lib/**,stdlib/**,etc/**"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" includes="bin/runx10" filemode="755"/>

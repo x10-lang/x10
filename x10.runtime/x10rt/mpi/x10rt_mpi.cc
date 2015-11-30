@@ -20,6 +20,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <unistd.h>
 
 #include <pthread.h>
 #include <errno.h>
@@ -40,14 +41,9 @@
 #include <x10rt_ser.h>
 
 
-
-#define MPI_ASYNC_SEND(...) MPI_Isend(__VA_ARGS__)
-
 // ULFM flags and extra header file
 #ifdef MPI_ERR_PROC_FAILED
 #define OPEN_MPI_ULFM true
-// ULFM: use Issend instead of Isend to get an error code in MPI_Test
-#define MPI_ASYNC_SEND(...) MPI_Issend(__VA_ARGS__)
 #include <mpi-ext.h>
 #endif
 
@@ -86,6 +82,8 @@ static void x10rt_net_coll_init(int *argc, char ** *argv, x10rt_msg_type *counte
 #define X10_STATIC_THREADS "X10_STATIC_THREADS"
 #define X10_NTHREADS "X10_NTHREADS"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
+#define X10_RESILIENT_MODE "X10_RESILIENT_MODE"
+#define X10RT_MPI_PROBE_SLEEP_MICROSECONDS "X10RT_MPI_PROBE_SLEEP_MICROSECONDS"
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -528,6 +526,11 @@ x10rt_error x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
 
     global_state.Init();
 
+    // default to 1 immediate thread if we're in resilient mode
+    char* resilientmode = getenv(X10_RESILIENT_MODE);
+    if (resilientmode && atoi(resilientmode) > 0)
+    	setenv(X10_NUM_IMMEDIATE_THREADS, "1", 0);
+
     // special case: if using static threads, and the thread count is exactly 1 we don't need multi-thread MPI
     char* sthreads = getenv(X10_STATIC_THREADS);
     char* nthreads = getenv(X10_NTHREADS);
@@ -756,48 +759,35 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     x10rt_lgl_stats.msg.messages_sent++ ;
     x10rt_lgl_stats.msg.bytes_sent += p->len;
 
-    x10rt_req * req;
-    req = global_state.free_list.popNoFail();
-    static bool in_recursion = false;
+    x10rt_req* req = global_state.free_list.popNoFail();
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(p->msg,
+    if (MPI_SUCCESS != MPI_Isend(p->msg,
                 p->len, MPI_BYTE,
                 p->dest_place,
                 p->type,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
-    if (true || ((global_state.pending_send_list.length() > 
-            X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion)) {
-        /* Block this send until all pending sends
-         * and receives have been completed. It is
-         * OK as per X10RT semantics to block a send,
-         * as long as we don't block x10rt_net_probe() */
-        in_recursion = true;
-        int complete = 0;
-        MPI_Status msg_status;
-        do {
-            LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-            //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed  (1)
-            if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
-                        &complete,
-                        &msg_status)) {
-            }
-            UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
-            x10rt_net_probe_ex(true);
-        } while (!complete);
-        global_state.free_list.enqueue(req);
-        in_recursion = false;
-    } else {
-        req->setBuf(p->msg);
-        req->setType(X10RT_REQ_TYPE_SEND);
-        global_state.pending_send_list.enqueue(req);
+    /* Block this send until all pending sends
+     * and receives have been completed. It is
+     * OK as per X10RT semantics to block a send,
+     * as long as we don't block x10rt_net_probe() */
+    int complete = 0;
+    while (true) {
+        //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed  (1)
+        MPI_Test(req->getMPIRequest(), &complete, MPI_STATUS_IGNORE);
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+
+        if (complete) break;
+
+        x10rt_net_probe_ex(true);
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     }
+    global_state.free_list.enqueue(req);
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -1112,34 +1102,32 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&get_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(get_msg,
+    if (MPI_SUCCESS != MPI_Isend(get_msg,
                 get_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_get_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
     /* Block this send until all pending sends
      * and receives have been completed. It is
      * OK as per X10RT semantics to block a send,
      * as long as we don't block x10rt_net_probe() */
     int complete = 0;
-    MPI_Status msg_status;
-    do {
-        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    while (true) {
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
-        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
-                    &complete,
-                    &msg_status)) {
-        }
+        MPI_Test(req->getMPIRequest(), &complete, MPI_STATUS_IGNORE);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+
+        if (complete) break;
+
         x10rt_net_probe_ex(true);
-    } while (!complete);
+        LOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    }
     global_state.free_list.enqueue(req);
 }
 
@@ -1178,14 +1166,14 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
     memcpy(static_cast <void *> (&put_msg[1]), p->msg, p->len);
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(put_msg,
+    if (MPI_SUCCESS != MPI_Isend(put_msg,
                 put_msg_len,
                 MPI_BYTE,
                 p->dest_place,
                 (global_state._reserved_tag_put_req << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1199,13 +1187,12 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
      * as long as we don't block x10rt_net_probe() */
     int complete = 0;
     int mpi_error;
-    MPI_Status msg_status;
     do {
         LOCK_IF_MPI_IS_NOT_MULTITHREADED;
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status);
+                    MPI_STATUS_IGNORE);
         UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
         x10rt_net_probe_ex(true);
     } while (!complete);
@@ -1219,7 +1206,7 @@ void x10rt_net_send_put(x10rt_msg_params *p, void *srcAddr, void *dstAddr, x10rt
 
     req = global_state.free_list.popNoFail();
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(srcAddr,
+    if (MPI_SUCCESS != MPI_Isend(srcAddr,
                 len,
                 MPI_BYTE,
                 p->dest_place,
@@ -1280,14 +1267,14 @@ static void get_incoming_req_completion(int dest_place,
     free(req->getBuf());
 
     /* reuse request for sending reply */
-    if (MPI_SUCCESS != MPI_ASYNC_SEND(local,
+    if (MPI_SUCCESS != MPI_Isend(local,
                 len,
                 MPI_BYTE,
                 dest_place,
                 (global_state._reserved_tag_get_data << 8) | tag,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
-        fprintf(stderr, "[%s:%d] Error in MPI_ASYNC_SEND\n", __FILE__, __LINE__);
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
     req->setBuf(NULL);
@@ -1380,7 +1367,6 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
  */
 static bool check_pending_sends() {
     int num_checked = 0;
-    MPI_Status msg_status;
     x10rt_req_queue * q = &global_state.pending_send_list;
 
     if (NULL == q->start()) return false;
@@ -1393,7 +1379,7 @@ static bool check_pending_sends() {
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
-                    &msg_status);
+                    MPI_STATUS_IGNORE);
 #ifndef OPEN_MPI_ULFM
 		if (MPI_SUCCESS != mpi_error) {
             fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
@@ -1520,7 +1506,7 @@ x10rt_error x10rt_net_probe (void) {
 
 bool x10rt_net_blocking_probe_support(void)
 {
-	return true;
+	return false; // this causes us to run with no immediate thread, and workers busy waiting
 }
 
 x10rt_error x10rt_net_blocking_probe (void) {
@@ -1529,8 +1515,19 @@ x10rt_error x10rt_net_blocking_probe (void) {
 	// when oversubscribing CPUs, this should give us performance close to true blocking support,
 	// although CPU utilization will still show 100%, so thinks like the CPU automatically going into
 	// a low-power state when idle won't work.
-	while (!x10rt_net_probe_ex(false)) sched_yield();
 
+	int sleep_microseconds = -1;
+	char* sleepMicrosEnv = getenv(X10RT_MPI_PROBE_SLEEP_MICROSECONDS);
+	if (sleepMicrosEnv && atoi(sleepMicrosEnv) > 0) {
+		sleep_microseconds = atoi(sleepMicrosEnv);
+	}
+	int counter = 1000;
+	while (!x10rt_net_probe_ex(false) && counter--) {
+		if (sleep_microseconds > 0)
+			usleep(sleep_microseconds);
+		else
+			sched_yield();
+	}
     return X10RT_ERR_OK;
 }
 
@@ -1634,10 +1631,7 @@ x10rt_coll_type x10rt_net_coll_support () {
 	else
         return X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 #else
-    return X10RT_COLL_NOCOLLECTIVES;
-    /*TODO: change it to X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
-     * then modify MPI_COLLECTIVE to not abort
-     * */
+    return  X10RT_COLL_ALLBLOCKINGCOLLECTIVES;
 #endif
 }
 
@@ -1855,10 +1849,26 @@ private:
             }
             delete[] ranks;
             MPI_Comm comm;
+#ifdef OPEN_MPI_ULFM
+            //shrink MPI_COMM_WORLD to remove dead ranks before calling MPI_Comm_create
+            MPI_Comm shrunken;
+            OMPI_Comm_shrink(MPI_COMM_WORLD, &shrunken);
+            
+            MPI_Errhandler customErrorHandler;
+            MPI_Comm_create_errhandler(mpiErrorHandler, &customErrorHandler);
+            MPI_Comm_set_errhandler(shrunken, customErrorHandler);
+            
+            if (MPI_SUCCESS != MPI_Comm_create(shrunken, grp, &comm)) {
+                fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
+                abort();
+            }
+            MPI_Comm_set_errhandler(comm, customErrorHandler);
+#else
             if (MPI_SUCCESS != MPI_Comm_create(MPI_COMM_WORLD, grp, &comm)) {
             	fprintf(stderr, "[%s:%d] %s\n", __FILE__, __LINE__, "Error in MPI_Comm_create");
             	abort();
             }
+#endif
             MPI_Group_free(&MPI_GROUP_WORLD);
             MPI_Group_free(&grp);
             UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
@@ -1919,10 +1929,12 @@ void x10rt_net_finalize(void) {
 struct CollectivePostprocessEnv {
     x10rt_completion_handler *ch;
     void *arg;
+    int mpiError;
     union {
         struct CollectivePostprocessEnvBarrier {
             x10rt_team team; x10rt_place role;
             x10rt_completion_handler *ch; void *arg;
+            int mpiError;
         } barrier;
         struct CollectivePostprocessEnvBcast {
             x10rt_team team; x10rt_place role;
@@ -1930,6 +1942,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } bcast;
         struct CollectivePostprocessEnvScatter {
             x10rt_team team; x10rt_place role;
@@ -1937,6 +1950,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } scatter;
         struct CollectivePostprocessEnvAlltoall {
             x10rt_team team; x10rt_place role;
@@ -1944,6 +1958,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count;
             x10rt_completion_handler *ch; void *arg;
             void *buf;
+            int mpiError;
         } alltoall;
         struct CollectivePostprocessEnvAllreduce {
             x10rt_team team; x10rt_place role;
@@ -1951,9 +1966,11 @@ struct CollectivePostprocessEnv {
             x10rt_red_op_type op;
             x10rt_red_type dtype;
             size_t count;
+            x10rt_completion_handler *errch;
             x10rt_completion_handler *ch; void *arg;
             size_t el;
             void *buf;
+            int mpiError;
         } allreduce;
         struct CollectivePostprocessEnvScatterv {
             x10rt_team team; x10rt_place role;
@@ -1961,6 +1978,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; size_t dcount;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *scounts_; int *soffsets_;
+            int mpiError;
         } scatterv;
         struct CollectivePostprocessEnvGather {
             x10rt_team team; x10rt_place role;
@@ -1969,6 +1987,7 @@ struct CollectivePostprocessEnv {
             x10rt_completion_handler *ch; void *arg;
             int gsize;
             void *buf;
+            int mpiError;
         } gather;
         struct CollectivePostprocessEnvGatherv {
             x10rt_team team; x10rt_place role;
@@ -1976,6 +1995,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; const void *doffsets; const void *dcounts;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *dcounts_; int *doffsets_;
+            int mpiError;
         } gatherv;
         struct CollectivePostprocessEnvAllgather {
             x10rt_team team; x10rt_place role;
@@ -1984,6 +2004,7 @@ struct CollectivePostprocessEnv {
             size_t el; size_t count; x10rt_completion_handler *ch; void *arg;
             int gsize;
             void *buf;
+            int mpiError;
         } allgather;
         struct CollectivePostprocessEnvAllgatherv {
             x10rt_team team; x10rt_place role;
@@ -1992,6 +2013,7 @@ struct CollectivePostprocessEnv {
             size_t el; x10rt_completion_handler *ch; void *arg;
             int gsize;
             int *dcounts_; int *doffsets_;
+            int mpiError;
         } allgatherv;
         struct CollectivePostprocessEnvAlltoallv {
             x10rt_team team; x10rt_place role;
@@ -1999,6 +2021,7 @@ struct CollectivePostprocessEnv {
             void *dbuf; const void *doffsets; const void *dcounts;
             size_t el; x10rt_completion_handler *ch; void *arg;
             int *scounts_; int *soffsets_; int *dcounts_; int *doffsets_;
+            int mpiError;
         } alltoallv;
         struct CollectivePostprocessEnvReduce {
             x10rt_team team; x10rt_place role; x10rt_place root;
@@ -2009,6 +2032,7 @@ struct CollectivePostprocessEnv {
             x10rt_completion_handler *ch; void *arg;
             void *buf;
             int el;
+            int mpiError;
         } reduce;
     } env;
 };
@@ -2049,12 +2073,11 @@ static bool test_and_call_handler(struct CollectivePostprocess & cp) {
     assert(!global_state.finalized);
 
     int complete = 0;
-    MPI_Status msg_status;
 
     LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Test(&cp.req,
                 &complete,
-                &msg_status)) {
+                MPI_STATUS_IGNORE)) {
     }
     UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
@@ -2079,9 +2102,6 @@ static void send_blocking_msg (int msg_id, x10rt_place home,
 static bool test_and_send_msg(struct BlockingMessage & bm) {
     assert(global_state.init);
     assert(!global_state.finalized);
-
-    int complete = 0;
-    MPI_Status msg_status;
 
     if (coll_state.startBlockingMessagte(bm.placec, bm.placev)) {
         X10RT_NET_DEBUG("%s", "send blocking message");
@@ -2284,7 +2304,7 @@ void send_team_new (x10rt_team teamc, x10rt_team *teamv, x10rt_place placec, x10
 
     x10rt_place home = x10rt_net_here();
 
-    CounterWithLock *counter = new_counter(x10rt_net_nhosts());
+    CounterWithLock *counter = new_counter(x10rt_net_nhosts()-x10rt_net_ndead());
     x10rt_remote_ptr counter_ = reinterpret_cast<x10rt_remote_ptr>(counter);
 
     x10rt_team t = teamv[0];
@@ -2925,6 +2945,7 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #if X10RT_NONBLOCKING_SUPPORTED
 #define MPI_COLLECTIVE(name, iname, ...) \
      CollectivePostprocess *cp = new CollectivePostprocess(); \
+     struct CollectivePostprocessEnv cpe = cp->env; \
      MPI_Request &req = cp->req; \
      LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
      if (MPI_SUCCESS != MPI_NONBLOCKING_COLLECTIVE_NAME(iname)(__VA_ARGS__, &req)) { \
@@ -2944,6 +2965,29 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #define SAVED(var) \
      cpe.env.MPI_COLLECTIVE_NAME.var
 #define MPI_COLLECTIVE_POSTPROCESS_END X10RT_NET_DEBUG("%s: %"PRIxPTR"_%"PRIxPTR,"end postprocess", SAVED(ch), SAVED(arg));
+#elif defined(OPEN_MPI_ULFM)
+#define MPI_COLLECTIVE(name, iname, ...) \
+    CollectivePostprocessEnv cpe; \
+    do { LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
+        cpe.mpiError = MPI_##name(__VA_ARGS__); \
+        if (MPI_SUCCESS != cpe.mpiError && !is_process_failure_error(cpe.mpiError)) { \
+            fprintf(stderr, "[%s:%d] %s\n", \
+                    __FILE__, __LINE__, "Error in MPI_" #name); \
+            abort(); \
+        } \
+        UNLOCK_IF_MPI_IS_NOT_MULTITHREADED; \
+    } while(0)
+#define MPI_COLLECTIVE_SAVE(var) \
+     cpe.env.MPI_COLLECTIVE_NAME.var = var;
+#define MPI_COLLECTIVE_POSTPROCESS \
+     cpe.ch = ch; \
+     cpe.arg = arg; \
+     cpe.env.MPI_COLLECTIVE_NAME.mpiError = cpe.mpiError; \
+    X10RT_NET_DEBUG("call handler %s","x10rt_net_handler_" TOSTR(MPI_COLLECTIVE_NAME)); \
+    CONCAT(x10rt_net_handler_,MPI_COLLECTIVE_NAME)(cpe);
+#define SAVED(var) \
+     cpe.env.MPI_COLLECTIVE_NAME.var
+#define MPI_COLLECTIVE_POSTPROCESS_END X10RT_NET_DEBUG("calling ULFM blocking collective completed, mpi_return_code is: ", cpe.mpiError);
 #else
 #define MPI_COLLECTIVE(name, iname, ...) \
     CollectivePostprocessEnv cpe; \
@@ -3156,11 +3200,12 @@ static void x10rt_net_handler_alltoall (struct CollectivePostprocessEnv cpe) {
 #undef MPI_COLLECTIVE_NAME
 }
 
-void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+bool x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                           const void *sbuf, void *dbuf,
                           x10rt_red_op_type op, 
                           x10rt_red_type dtype,
                           size_t count,
+                          x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg)
 {
 #define MPI_COLLECTIVE_NAME allreduce
@@ -3175,7 +3220,9 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_Comm comm = mpi_tdb.comm(team);
     void *buf = (sbuf == dbuf) ? ChkAlloc<void>(count * el) : dbuf;
 
+    X10RT_NET_DEBUG("%s", "pre allreduce");
     MPI_COLLECTIVE(Allreduce, Iallreduce, (void*)sbuf, buf, count, mpi_red_type(dtype), mpi_red_op_type(dtype, op), comm);
+    X10RT_NET_DEBUG("%s", "pro allreduce");
 
     MPI_COLLECTIVE_SAVE(team);
     MPI_COLLECTIVE_SAVE(role);
@@ -3184,6 +3231,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_COLLECTIVE_SAVE(op);
     MPI_COLLECTIVE_SAVE(dtype);
     MPI_COLLECTIVE_SAVE(count);
+    MPI_COLLECTIVE_SAVE(errch);
     MPI_COLLECTIVE_SAVE(ch);
     MPI_COLLECTIVE_SAVE(arg);
 
@@ -3191,6 +3239,8 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
     MPI_COLLECTIVE_SAVE(buf);
 
     MPI_COLLECTIVE_POSTPROCESS
+
+    return MPI_SUCCESS == SAVED(mpiError);
 }
 
 static void x10rt_net_handler_allreduce (struct CollectivePostprocessEnv cpe) {
@@ -3198,7 +3248,14 @@ static void x10rt_net_handler_allreduce (struct CollectivePostprocessEnv cpe) {
 	memcpy(SAVED(dbuf), SAVED(buf), SAVED(count) * SAVED(el));
 	free(SAVED(buf));
     }
+#ifdef OPEN_MPI_ULFM
+    if (is_process_failure_error(cpe.mpiError))
+    	SAVED(errch)(SAVED(arg));
+    else
+    	SAVED(ch)(SAVED(arg));
+#else
     SAVED(ch)(SAVED(arg));
+#endif
     MPI_COLLECTIVE_POSTPROCESS_END
 #undef MPI_COLLECTIVE_NAME
 }

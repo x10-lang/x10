@@ -24,17 +24,12 @@ public interface Launcher {
    *          number of processes to launch
    * @param command
    *          command line
+   * @param verbose
+   *          dumps the executed commands to stderr
    * @throws Exception
    *           if launching fails
    */
-  void launch(int n, List<String> command) throws Exception;
-
-  /**
-   * Checks that all processes launched are healthy.
-   *
-   * @return true if all processes are healthy
-   */
-  boolean healthy();
+  void launch(int n, List<String> command, boolean verbose) throws Exception;
 
   /**
    * Shuts down the {@link Launcher} instance.

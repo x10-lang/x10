@@ -20,9 +20,11 @@ import x10.io.Deserializer;
 import x10.io.Serializer;
 import x10.util.resilient.ResilientTransactionalMap;
 
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.Future;
+import x10.util.AbstractCollection;
+import x10.util.Collection;
+import x10.util.HashSet;
+import x10.util.Map;
+import x10.util.Set;
 
 /**
  * The HazelcastMap class implements a transactional view of a resilient Map using Hazelcast as the underlying implementation.
@@ -156,4 +158,27 @@ public class HazelcastTransactionalMap[K,V] {V haszero}
     public def size(): Long {
         return keyValueMap.size();
     };
+
+	/**
+     * Return a set of all keys in the map.
+     */
+    public def keySet():Set[K] {
+		val keySet = keyValueMap.keySet();
+		return InteropUtils.convert[K](keySet);
+	}
+
+		public def values():Collection[V] {
+		val values = keyValueMap.values();
+		return InteropUtils.convert[V](values);
+	}
+
+		public def keySet(predicate:(Map[K,V].Entry[K,V])=>boolean):Set[K] {
+		val keySet = keyValueMap.keySet(InteropUtils.convert(predicate));
+		return InteropUtils.convert[K](keySet);
+	}
+
+		public def values(predicate:(Map[K,V].Entry[K,V])=>boolean):Collection[V] {
+		val values = keyValueMap.values(InteropUtils.convert(predicate));
+		return InteropUtils.convert[V](values);
+	}
 }

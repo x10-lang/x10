@@ -61,8 +61,7 @@ public class SocketTransport extends Transport implements
         compact);
     this.runtime = runtime;
     this.useSnappy = System.getProperty(
-        Configuration.APGAS_NETWORKTRANSPORT_COMPRESSION, "snappy").equals(
-        "snappy");
+        Configuration.APGAS_TRANSPORT_COMPRESSION, "snappy").equals("snappy");
     localTransport = new x10.network.SocketTransport(this);
     if (master == null) {
       localTransport.establishLinks(0, null); // place 0

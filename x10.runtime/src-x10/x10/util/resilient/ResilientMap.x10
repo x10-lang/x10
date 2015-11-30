@@ -229,11 +229,6 @@ public abstract class ResilientMap[K,V] {V haszero} implements ResilientBaseMap[
     public abstract def unlock(k:K):void;
 
 	/**
-     * Return a set of all keys in the map.
-     */
-    public abstract def keySet():Set[K];
-
-	/**
 	 * Returns a set of all the entries in the map.
 	 */
     public abstract def entrySet():Set[Entry[K,V]];
@@ -243,16 +238,6 @@ public abstract class ResilientMap[K,V] {V haszero} implements ResilientBaseMap[
 	 */
 	public def entries():Set[Entry[K,V]]
 		= entrySet();
-
-	/**
-	 * Returns a set of all the values in the map.
-	 */
-	public abstract def values():Collection[V];
-
-	/**
-     * Return a set of all the keys in the map whose entry satisfies a given predicate.
-     */
-	public abstract def keySet(predicate:(Entry[K,V])=>boolean):Set[K];
 
 	/**
      * Return a set of all the entries that satisfy a given predicate.
@@ -265,8 +250,4 @@ public abstract class ResilientMap[K,V] {V haszero} implements ResilientBaseMap[
 	public def entries(predicate:(Entry[K,V])=>boolean):Set[Entry[K,V]]
 		= entrySet(predicate);
 
-	/**
-     * Return a set of all the values in the map whose entry satisfies a given predicate.
-     */
-	public abstract def values(predicate:(Entry[K,V])=>boolean):Collection[V];
 }

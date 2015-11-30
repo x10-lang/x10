@@ -34,8 +34,8 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   private transient val parent:Any; // parent finish
 //  private transient var exceptions:GrowableRail[CheckedThrowable](); // TODO
 
-  static def make(parent:Any, latch:SimpleLatch):FinishResilientHCopt {
-    return new FinishResilientHCopt(parent, latch);
+  static def make(parent:Any):FinishResilientHCopt {
+    return new FinishResilientHCopt(parent, new SimpleLatch());
   }
 
   private def this(parent:Any, latch:SimpleLatch) {
@@ -60,7 +60,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
       if (parent instanceof FinishResilientHCopt) {
         (parent as FinishResilientHCopt).init();
       }
-      f = FinishResilientHC.make(parent, new SimpleLatch());
+      f = FinishResilientHC.make(parent);
     }
     latch.unlock();
   }
@@ -84,10 +84,6 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     return srcPlace.equals(here) || f.notifyActivityCreation(srcPlace, activity);
   }
 
-  public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean {
-    return notifyActivityCreation(srcPlace, activity);
-  }
-
   public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void {
     init();
     f.notifyActivityCreationFailed(srcPlace, t);
@@ -100,17 +96,17 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
 
   public def notifyShiftedActivitySpawn(dstPlace:Place):void {
     init();
-    f.notifySubActivitySpawn(dstPlace, 0);
+    f.notifyShiftedActivitySpawn(dstPlace);
   }
 
-  public def notifyShiftedActivityCreation(srcPlace:Place, activity:Activity):Boolean {
+  public def notifyShiftedActivityCreation(srcPlace:Place):Boolean {
     init();
-    return f.notifyActivityCreation(srcPlace, activity, 0);
+    return f.notifyShiftedActivityCreation(srcPlace);
   }
 
   public def notifyShiftedActivityCompletion():void {
     init();
-    f.notifyActivityTermination(0);
+    f.notifyShiftedActivityCompletion();
   }
 
   public def notifyActivityTermination():void {

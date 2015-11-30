@@ -40,7 +40,8 @@ public class Launcher implements apgas.impl.Launcher {
       .createAMRMClient();
 
   @Override
-  public void launch(int n, List<String> command) throws Exception {
+  public void launch(int n, List<String> command, boolean verbose)
+      throws Exception {
     final List<String> chmod = new ArrayList<String>();
     chmod.add("chmod");
     chmod.add("a+rx");
@@ -75,11 +76,6 @@ public class Launcher implements apgas.impl.Launcher {
       } catch (final InterruptedException e) {
       }
     }
-  }
-
-  @Override
-  public boolean healthy() {
-    return true;
   }
 
   @Override

@@ -156,6 +156,11 @@ void Launcher::initialize(int argc, char ** argv)
 		_numchildren = 0;
 	}
 
+    // Note that "X10_RESILIENT_MODE" is also checked in Configuration.x10
+    char* resilient_mode = getenv(X10_RESILIENT_MODE);
+    _resilient_x10 = (resilient_mode!=NULL && strtol(resilient_mode, NULL, 10) != 0);
+	_running = true;
+
 	/* --------------------------------- */
 	/* copy SSH command from environment */
 	/* --------------------------------- */

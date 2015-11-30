@@ -22,12 +22,14 @@ class FinishResilientBridge extends FinishResilient {
     public static def debug(msg:String) { FinishResilient.debug(msg); }
     
     public def notifySubActivitySpawn(place:Place):void { throw new UnsupportedOperationException(); }
+    public def notifyShiftedActivitySpawn(place:Place):void { throw new UnsupportedOperationException(); }
     public def notifyRemoteContinuationCreated():void { throw new UnsupportedOperationException(); }
     public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean { throw new UnsupportedOperationException(); }
-    public def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean { throw new UnsupportedOperationException(); }
+    public def notifyShiftedActivityCreation(srcPlace:Place):Boolean { throw new UnsupportedOperationException(); }
     public def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     public def notifyActivityCreatedAndTerminated(srcPlace:Place):void { throw new UnsupportedOperationException(); }
     public def notifyActivityTermination():void { throw new UnsupportedOperationException(); }
+    public def notifyShiftedActivityCompletion():void { throw new UnsupportedOperationException(); }
     public def pushException(t:CheckedThrowable):void { throw new UnsupportedOperationException(); }
     public def waitForFinish():void { throw new UnsupportedOperationException(); }
 

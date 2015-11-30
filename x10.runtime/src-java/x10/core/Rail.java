@@ -327,9 +327,13 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
     }
 
     public String toString() {
+        return toString(10);
+    }
+
+    public String toString(long limit) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        int sz = size > 10 ? 10 : (int)size;
+        int sz = (int)(size > limit ? limit : size);
         for (int i = 0; i < sz; i++) {
             if (i > 0)
                 sb.append(",");

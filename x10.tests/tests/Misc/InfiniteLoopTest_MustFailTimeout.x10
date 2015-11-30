@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// TIMEOUT: 30
+
 /**
  * Test that loops forever (or until it times out).
  * Useful for testing the time limit feature.

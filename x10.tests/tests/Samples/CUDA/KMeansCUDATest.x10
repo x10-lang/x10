@@ -18,6 +18,7 @@ import harness.x10Test;
 
 public class KMeansCUDATest extends x10Test {
     public def run():boolean {
+         if (!verifyCUDASettings()) return false;
          val args = new Rail[String](2);
          args(0) = "-p"; 
          args(1) = pathCombine(["tests", "Samples"], "points.dat");

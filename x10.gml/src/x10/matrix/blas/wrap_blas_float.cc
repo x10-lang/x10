@@ -72,9 +72,9 @@ extern "C"  {
   
   // SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
 #if defined(__essl__)
-  void  saxpy(blas_long*N, blas_long*da, float*X, blas_long*incx, float*Y,blas_long* incy);
+  void saxpy(blas_long* N, float* da, float* X, blas_long* incx, float* Y, blas_long* incy);
 #else
-  void  saxpy_(blas_long*N, blas_long*da, float*X, blas_long*incx, float*Y,blas_long* incy); 
+  void saxpy_(blas_long* N, float* da, float* X, blas_long* incx, float* Y, blas_long* incy);
 #endif
 
   //------------------------------------------------------------------------
@@ -1112,6 +1112,21 @@ void copy(blas_long n, ElemType* x, ElemType* y)
   scopy(&n, x, &incx, y, &incy);
 #else
   scopy_(&n, x, &incx, y, &incy);
+#endif
+#else
+  error_missing_blas();
+#endif
+}
+
+void axpy(blas_long n, ElemType alpha, ElemType* x, ElemType *y) 
+{
+#ifdef ENABLE_BLAS
+  blas_long incx = 1;
+  blas_long incy = 1;
+#if defined(__essl__)
+  saxpy(&n, &alpha, x, &incx, y, &incy);
+#else
+  saxpy_(&n, &alpha, x, &incx, y, &incy);
 #endif
 #else
   error_missing_blas();

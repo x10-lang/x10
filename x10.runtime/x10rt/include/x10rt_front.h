@@ -757,6 +757,100 @@ X10RT_C void x10rt_scatter (x10rt_team team, x10rt_place role,
                             size_t el, size_t count,
                             x10rt_completion_handler *ch, void *arg);
 
+/** Asynchronously blocks until all members have received their part of root's array. The number
+ * of elements received by each member can be different. 
+ * Each member receives a contiguous and distinct portion of the sbuf array.  sbuf should be structured so that
+ * the portions are sorted in ascending order, e.g., the first member gets the portion at offset 0
+ * of sbuf, and the last member gets the portion at the end of sbuf.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is supplying the data
+ *
+ * \param sbuf The data that will be sent (will only be used when root == role)
+ * 
+ * \param soffsets the offsets of the members data from the sbuf array
+ * 
+ * \param scounts The number of elements being transferred to each member
+ *
+ * \param dbuf The array into which the data will be received for this member
+ * 
+ * \param dcount The number of elements to be received for this member, should equal scounts[role]
+ *
+ * \param el The size of each element, in bytes
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_scatterv (x10rt_team team, x10rt_place role,
+                             x10rt_place root, const void *sbuf,
+                             const void *soffsets, const void *scounts,
+                             void *dbuf, size_t dcount, size_t el,
+                             x10rt_completion_handler *ch, void *arg);
+
+
+/** Asynchronously blocks until the root collects all members parts of the root's array. Note that
+ * dbuf is n times the size of sbuf, where n is the number of members in the team.
+ * The root receives the members data and stores them contiguously in the dbuf with the same order 
+ * of the team members.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is supplying the data
+ *
+ * \param sbuf The data that will be sent from each member
+ * 
+ * \param dbuf The array into which the data will be received in the root
+ *
+ * \param el The size of each element, in bytes
+ * 
+ * \param count The number of elements to be sent to the root by each member
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_gather (x10rt_team team, x10rt_place role,
+							   x10rt_place root, const void *sbuf,
+							   void *dbuf, size_t el, size_t count,
+							   x10rt_completion_handler *ch, void *arg);
+
+/** Asynchronously blocks until the root collects all members parts of the root's array. The number of
+ * Elements sent by each member can be different. The root receives the members data and stores them contiguously in the dbuf with the same order 
+ * of the team members.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is supplying the data
+ *
+ * \param sbuf The data that will be sent from each member
+ * 
+ * \param scount The number of elements to be sent by this member, should equal dcounts[role]
+ * 
+ * \param dbuf The array into which the data will be received in the root
+ * 
+ * \param doffsets the offsets of the members data parts in the root's dbuf
+ * 
+ * \param dcounts the number of elements to be received by each member
+ *
+ * \param el The size of each element, in bytes
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+		                        const void *sbuf, size_t scount, void *dbuf,
+		                        const void *doffsets, const void *dcounts,
+		                        size_t el, x10rt_completion_handler *ch, void *arg);
+
 /** Asynchronously blocks until all members have received their portion of data from each 
  * member.  Note that sbuf and dbuf are the same size, which is n*el*count where n is the
  * number of members in the team.  The sbuf is supplied by each member, and is divided up and sent
@@ -840,11 +934,12 @@ X10RT_C void x10rt_reduce (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C void x10rt_allreduce (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_allreduce (x10rt_team team, x10rt_place role,
                               const void *sbuf, void *dbuf,
                               x10rt_red_op_type op,
                               x10rt_red_type dtype,
                               size_t count,
+                              x10rt_completion_handler *errch,
                               x10rt_completion_handler *ch, void *arg);
 
 /** Sets arg to 1.

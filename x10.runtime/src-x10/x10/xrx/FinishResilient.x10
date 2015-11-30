@@ -38,21 +38,29 @@ abstract class FinishResilient extends FinishState {
         try { throw new Exception(msg); } catch (e:Exception) { e.printStackTrace(); }
     }
     
+    // TODO: We should empirically tune this size for performance.
+    //       Initially I am picking a size that will make it very likely
+    //       that we will use a mix of both direct and indirect protocols
+    //       for a large number of test cases to shake out mixed-mode problems.
+    protected static val ASYNC_SIZE_THRESHOLD = Long.parse(Runtime.env.getOrElse("X10_RESILIENT_FINISH_SMALL_ASYNC_SIZE", "100"));
+    
     /*
      * Static methods to be implemented in subclasses
      */
-    // static def make(parent:FinishResilient, latch:SimpleLatch):FinishResilient;
+    // static def make(parent:FinishState):FinishResilient;
     // static def notifyPlaceDeath():void;
     
     /*
      * Other methods to be implemented in subclasses (declared in FinishState class)
      */
     // def notifySubActivitySpawn(place:Place):void;
+    // def notifyShiftedActivitySpawn(place:Place):void;
     // def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean;
-    // def notifyActivityCreationBlocking(srcPlace:Place, activity:Activity):Boolean;
+    // def notifyShiftedActivityCreation(srcPlace:Place):Boolean;
     // def notifyActivityCreationFailed(srcPlace:Place, t:CheckedThrowable):void;
     // def notifyActivityCreatedAndTerminated(srcPlace:Place):void;
     // def notifyActivityTermination():void;
+    // def notifyShiftedActivityTermination():void;
     // def pushException(t:CheckedThrowable):void;
     // def waitForFinish():void;
 
@@ -67,48 +75,30 @@ abstract class FinishResilient extends FinishState {
         val a = Runtime.activity();
         return (a!=null) ? a.finishState() : null;
     }
-    static def make(parent:FinishState, latch:SimpleLatch):FinishState { // parent/latch may be null
-        if (verbose>=1) debug("FinishResilient.make called, parent=" + parent + " latch=" + latch);
+    static def make(parent:FinishState):FinishState { // parent may be null
+        if (verbose>=1) debug("FinishResilient.make called, parent=" + parent);
         var fs:FinishState;
         switch (Runtime.RESILIENT_MODE) {
         case Configuration.RESILIENT_MODE_DEFAULT:
         case Configuration.RESILIENT_MODE_PLACE0:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientPlace0.make(p, l);
+            fs = FinishResilientPlace0.make(p);
             break;
         }
         case Configuration.RESILIENT_MODE_HC:
         {
             val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
             val o = p as Any;
-            fs = makeFinishResilientHC(o, l);
+            fs = makeFinishResilientHC(o);
             break;
         }
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
         {
            val p = (parent!=null) ? parent : getCurrentFS();
-           val l = (latch!=null) ? latch : new SimpleLatch();
            val o = p as Any;
-           fs = makeFinishResilientHCopt(o, l);
+           fs = makeFinishResilientHCopt(o);
            break;
-        }
-        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-        {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientPlace0opt.make(p, l);
-            break;
-        }
-        case Configuration.RESILIENT_MODE_SAMPLE:
-        case Configuration.RESILIENT_MODE_SAMPLE_HC:
-        {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            val l = (latch!=null) ? latch : new SimpleLatch();
-            fs = FinishResilientSample.make(p, l);
-            break;
         }
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
@@ -117,13 +107,13 @@ abstract class FinishResilient extends FinishState {
         return fs;
     }
 
-    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o, #l)")
-    private static def makeFinishResilientHC(o:Any, l:SimpleLatch):FinishState {
+    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o)")
+    private static def makeFinishResilientHC(o:Any):FinishState {
         failJavaOnlyMode();
         return null;
     }
-    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o, #l)")
-    private static def makeFinishResilientHCopt(o:Any, l:SimpleLatch):FinishState {
+    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o)")
+    private static def makeFinishResilientHCopt(o:Any):FinishState {
         failJavaOnlyMode();
         return null;
     }
@@ -140,17 +130,13 @@ abstract class FinishResilient extends FinishState {
         case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
             notifyPlaceDeath_HC();
             break;
-        case Configuration.RESILIENT_MODE_PLACE0_OPTIMIZED:
-            FinishResilientPlace0opt.notifyPlaceDeath();
-            break;
-        case Configuration.RESILIENT_MODE_SAMPLE:
-        case Configuration.RESILIENT_MODE_SAMPLE_HC:
-            FinishResilientSample.notifyPlaceDeath();
-            break;
         default:
             throw new UnsupportedOperationException("Unsupported RESILIENT_MODE " + Runtime.RESILIENT_MODE);
         }
-        if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
+        atomic {
+            // we do this in an atomic block to unblock whens which check for dead places
+            if (verbose>=1) debug("FinishResilient.notifyPlaceDeath returning");
+        }
     }
 
     @Native("java", "x10.xrx.managed.FinishResilientHC.notifyPlaceDeath()")

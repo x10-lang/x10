@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2014.
+ *  (C) Copyright IBM Corporation 2014-2015.
  */
 import harness.x10Test;
 
@@ -20,6 +20,7 @@ public class BenchmarkBarrier extends x10Test {
 
 	public def run(): Boolean {
         finish for (place in Place.places()) at (place) async {
+            Team.WORLD.barrier(); // warm up comms layer
             val start = System.nanoTime();
             for (iter in 1..ITERS) {
                 Team.WORLD.barrier();

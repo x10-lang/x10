@@ -21,6 +21,7 @@ import java.util.List;
 
 import apgas.SerializableJob;
 import apgas.util.GlobalID;
+import apgas.util.ByRef;
 
 /**
  * The {@link DefaultFinish} class implements the distributed termination
@@ -46,7 +47,8 @@ import apgas.util.GlobalID;
  * <p>
  * The finish body counts as one local task.
  */
-final class DefaultFinish implements Serializable, Finish {
+final class DefaultFinish implements Serializable, Finish,
+    ByRef<DefaultFinish> {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**
@@ -268,6 +270,32 @@ final class DefaultFinish implements Serializable, Finish {
     counts = tmp;
   }
 
+  @Override
+  public synchronized GlobalID id() {
+    if (id == null) {
+      id = new GlobalID();
+      id.putHere(this);
+    }
+    return id;
+  }
+
+  @Override
+  public DefaultFinish resolve(GlobalID id) {
+    this.id = id;
+    // count = 0;
+    DefaultFinish me = (DefaultFinish) id.putHereIfAbsent(this);
+    if (me == null) {
+      me = this;
+    }
+    synchronized (me) {
+      final int here = GlobalRuntimeImpl.getRuntime().here;
+      if (id.home.id != here && me.counts == null) {
+        me.counts = new int[GlobalRuntimeImpl.getRuntime().maxPlace()];
+      }
+      return me;
+    }
+  }
+
   /**
    * Serializes the finish object.
    *
@@ -277,12 +305,7 @@ final class DefaultFinish implements Serializable, Finish {
    *           if I/O errors occur
    */
   private void writeObject(ObjectOutputStream out) throws IOException {
-    synchronized (this) {
-      if (id == null) {
-        id = new GlobalID();
-        id.putHere(this);
-      }
-    }
+    id();
     out.defaultWriteObject();
   }
 
@@ -294,16 +317,6 @@ final class DefaultFinish implements Serializable, Finish {
    *           if an error occurs
    */
   private Object readResolve() throws ObjectStreamException {
-    DefaultFinish me = (DefaultFinish) id.putHereIfAbsent(this);
-    if (me == null) {
-      me = this;
-    }
-    synchronized (me) {
-      final int here = GlobalRuntimeImpl.getRuntime().here;
-      if (id.home.id != here && me.counts == null) {
-        me.counts = new int[GlobalRuntimeImpl.getRuntime().maxPlace()];
-      }
-    }
-    return me;
+    return resolve(id);
   }
 }

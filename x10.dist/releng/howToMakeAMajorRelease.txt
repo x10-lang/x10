@@ -24,47 +24,49 @@ I. Just before creating the release branch of X10 and X10DT
 
 II. Create the release branch and enter into final testing phase
 
-   1. Create a branch of X10 by using x10.dist/releng/makeBranch.sh 
-        makeBranch.sh -rev 27050 -branch x10-2.4.1 -x10
+   1. Have up-to-date clones of all X10 git repositories that contribute to
+      a release: x10, x10dt, x10-applications, x10-benchmarks, x10-documentation.
 
-   2. Create a matching branch of the internal test suite as well.
-        makeBranch.sh -rev 222 -branch x10-2.4.1 -torTest
+   2. We usually only create a true release branch for the X10 repo. In practice,
+      we rarely make changes during the release process in the other repositories
+      that we don't want in the release.  So, we branch X10 but continue to work
+      on master for all the other repos until it is time to tag.
+      In the X10 repo,
+        git branch x10-2.5.3
+        git push origin x10-2.5.3
 
    3. Clone the appropriate Build and Test jobs in Jenkins 
-      to enable testing on the branch you just created.
+      to enable testing on the branch of X10 you just created.
 
    4. If fixes need to be applied to the release after it is created, apply 
-      fixes to trunk first. After they pass regression testing on trunk, 
-      pull them over to the release branch using
-
-        svn merge -c <change revision> ^/trunk
+      fixes to master first. After they pass regression testing on master, 
+      pull them over to the release branch using normal git operations. 
+      In short,
+          git checkout x10-2.5.3
+          git cherry-pick <HASH OF DESIRED COMMIT>
+          git commit/push
 
 III. When all necessary fixes have been propagated to the release branch,
-     one can tag the release in svn and build the actual release artifacts:
+     one can tag the release in git and build the actual release artifacts:
 
    1. Update JIRA version management to indicate that version has been released.
 
-   2. Edit and commit release notes to the trunk. Release notes can be
-      mostly generated from JIRA.  Use svn merge to get the release
-      notes from the trunk to the release branch.
+   2. Edit and commit release notes to the master branch of X10 and to the 
+      release branch. Release notes can be mostly generated from JIRA.
       
       Also put highlights from the release notes into x10dt.help/html/whatsNew
       and update the toc to include the new page you just created.
 
-   3. Tag the release by using x10.dist/releng/makeTag.sh 
-      Use a svn revision number that matches one reported as good 
-      by a testing run.
+   3. Tag the release on the release branch in X10.
+        git checkout x10-2.5.3
+        git tag -a SF_RELEASE_2_5_3 -m "X10 2.5.3 release"
+        git push origin SF_RELEASE_2_5_3
 
-      makeTag.sh -rev 28000 -branch x10-2.4.1 -tag SF_RELEASE_2_4_1 -x10
-
-   4. Also use the same tag/revision to tag the applications, benchmarks
-      and x10dt. Do this as a separate makeTag operation because you'll be 
-      tagging using the trunk of these parts of the svn repository as the base. 
-
-      makeTag.sh -rev 28000 -tag SF_RELEASE_2_4_1 -app -bench -x10dt
+   4. Use the same tag you used for X10 (SF_RELEASE_2_5_3) to tag the master branch of 
+      x10dt, x10-applications, and x10-benchmarks.
 
    5. Go to Jenkins, select the Package-X10-Release job and then select
-      "Build With Parameters".  Select the appropriate svn tag, fill in
+      "Build With Parameters".  Select the appropriate tag, fill in
       the version number, and other parameters then hit the 'Build' button.
       Note, depending on how loaded slave machines are this step may take
       several hours to complete.  Tarballs will be automatically published
@@ -95,9 +97,9 @@ III. When all necessary fixes have been propagated to the release branch,
       update site zip from the download section into it.
 
    10. Make sure language manual has the right version, date, etc. 
-      Tag the language manual
-
-        makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
+       Tag the language manual
+        git tag -a SF_RELEASE_2_5_3 -m "X10 2.5.3 release"
+        git push origin SF_RELEASE_2_5_3
 
       Put language spec pdf in project web space at x10.sourceforge.net
       Update in place x10-latest.pdf in addition to creating a 

@@ -72,9 +72,9 @@ extern "C"  {
   
   // SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
 #if defined(__essl__)
-  void  daxpy(blas_long*N, blas_long*da, double*X, blas_long*incx, double*Y,blas_long* incy);
+  void daxpy(blas_long* N, double* da, double* X, blas_long* incx, double* Y, blas_long* incy);
 #else
-  void  daxpy_(blas_long*N, blas_long*da, double*X, blas_long*incx, double*Y,blas_long* incy); 
+  void daxpy_(blas_long* N, double* da, double* X, blas_long* incx, double* Y, blas_long* incy);
 #endif
 
   //------------------------------------------------------------------------
@@ -1117,6 +1117,22 @@ void copy(blas_long n, ElemType* x, ElemType* y)
   error_missing_blas();
 #endif
 }
+
+void axpy(blas_long n, ElemType alpha, ElemType* x, ElemType *y) 
+{
+#ifdef ENABLE_BLAS
+  blas_long incx = 1;
+  blas_long incy = 1;
+#if defined(__essl__)
+  daxpy(&n, &alpha, x, &incx, y, &incy);
+#else
+  daxpy_(&n, &alpha, x, &incx, y, &incy);
+#endif
+#else
+  error_missing_blas();
+#endif
+}
+
 
 // Dot product
 ElemType dot_prod(blas_long n, ElemType* x, ElemType* y)

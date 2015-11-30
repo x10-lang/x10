@@ -182,10 +182,10 @@ public class RailUtils {
     }
 
     /**
-     * Return the scan of the given operation over elements of the src Rail
-     * storing the results in the dst Rail.
+     * Return the inclusive scan of the given operation over elements of the
+     * src Rail storing the results in the dst Rail.
      * On return, the Nth element of dst is the result of applying the
-     * the reduction operation to src elements [0..N-1].
+     * the reduction operation to src elements [0..N].
      * 
      * @param src the source rail for the input to the scan operation
      * @param dst the destination rail for the results of the scan operation.
@@ -206,8 +206,8 @@ public class RailUtils {
     }
 
     /**
-     * Return a new Rail containing the scan of the given operation over
-     * elements of the src Rail.
+     * Return a new Rail containing the inclusive scan of the given operation
+     * over elements of the src Rail.
      * 
      * @param src the source rail for the input to the scan operation
      * @param op the reduction function to use in the scan
@@ -218,5 +218,45 @@ public class RailUtils {
                                       op:(T,T)=>T, unit:T):Rail[T] {
         val dst = Unsafe.allocRailUninitialized[T](src.size);
         return scan(src, dst, op, unit);
+    }
+    /**
+     * Compute the exclusive scan of the given operation over elements of the
+     * src Rail storing the results in the dst Rail.
+     * On return, the first element equals the unit value, and 
+     * the Nth element of dst is the result of applying the
+     * the reduction operation to src elements [0..N-1]. 
+     * 
+     * @param src the source rail for the input to the scan operation
+     * @param dst the destination rail for the results of the scan operation.
+     *   The same array may be passed as both src and dst for an in-place scan.
+     * @param op the reduction function to use in the scan
+     * @param unit the given initial value for the reduction, dst(0) = unit
+     * @return dst after updating its contents to contain the result of the scan
+     */    
+    public static @Inline def scanExclusive[T](src:Rail[T], dst:Rail[T],
+                                  op:(T,T)=>T, unit:T):Rail[T]{self==dst} {
+        assert src.size <= dst.size;
+        var accum:T = unit;
+        dst(0) = accum;
+        for (i in 1..(src.size-1)) {
+            accum = op(accum, src(i-1));
+            dst(i) = accum;
+        }
+        return dst;
+    }
+
+    /**
+     * Return a new Rail containing the exclusive scan of the given operation 
+     * over elements of the src Rail.
+     *
+     * @param src the source rail for the input to the scan operation
+     * @param op the reduction function to use in the scan
+     * @param unit the given initial value for the reduction, dst(0) = unit
+     * @return a new Rail containing the result of the scan
+     */
+    public static @Inline def scanExclusive[T](src:Rail[T],
+                                  op:(T,T)=>T, unit:T):Rail[T] {
+        val dst = Unsafe.allocRailUninitialized[T](src.size);
+        return scanExclusive(src, dst, op, unit);
     }
 }

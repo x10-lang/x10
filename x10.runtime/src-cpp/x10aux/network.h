@@ -25,8 +25,6 @@ namespace x10 { namespace xrx { class Runtime__Profile; } }
 
 namespace x10aux {
 
-    extern x10_int num_local_cores;
-
     typedef x10_short serialization_id_t;
 
     typedef x10rt_msg_type msg_type;
@@ -204,6 +202,8 @@ namespace x10aux {
     void coll_handler(void *arg);
     void *coll_enter2(void *arg);
     void coll_handler2(x10rt_team t, void *arg);
+    
+    void failed_coll_handler(void *arg);
 }
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -79,10 +79,6 @@ import x10.visit.ClosureCaptureVisitor;
  *   (b) casts injected on other assignment-like operations
  *       whose purpose is to ensure that representation level
  *       boxing/unboxing operations are performed.
- *       
- *  TODO:  There's a static cast for the return type of Call_c in MPGC.
- *         I think that should no longer be needed, since we are injecting casts
- *         thoroughly here.  Verify this and remove cast in Call_c if true.
  */
 public class CastInjector extends ContextVisitor {
     final Synthesizer synth;
