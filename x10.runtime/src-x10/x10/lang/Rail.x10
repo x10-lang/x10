@@ -132,7 +132,7 @@ public final class Rail[T](
      * @param limit maximum number of elements to print
      * @return the string representation of this Rail.
      */
-    public native toString(limit:Long):String;
+    public native def toString(limit:Long):String;
 
     /**
      * Copy all of the values from the source Rail to the destination Rail.
