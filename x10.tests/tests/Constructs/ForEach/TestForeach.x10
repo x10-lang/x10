@@ -30,33 +30,23 @@ public class TestForeach(N:Long) extends x10Test {
         };
 
         reset(x);
-        Foreach.Sequential.for(i:Long in 0..(N-1)) {
-	    body(i);
-	}
+        Foreach.sequential(0, N-1, body);
         check(x);
 
         reset(x);
-        Foreach.Basic.for(i:Long in 0..(N-1)) {
-	    body(i);
-	}
+        Foreach.basic(0, N-1, body);
         check(x);
 
         reset(x);
-        Foreach.Block.for(i:Long in 0..(N-1)) {
-	    body(i);
-	}
+        Foreach.block(0, N-1, body);
         check(x);
 
         reset(x);
-        Foreach.Cyclic.for(i:Long in 0..(N-1)) {
-	    body(i);
-	}
+        Foreach.cyclic(0, N-1, body);
         check(x);
 
         reset(x);
-        Foreach.Bisect.for(i:Long in 0..(N-1)) {
-	    body(i);
-	}
+        Foreach.bisect(0, N-1, body);
         check(x);
 
         return true;

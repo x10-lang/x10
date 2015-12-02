@@ -34,19 +34,13 @@ public class TestForeach2D(N:Long) extends x10Test {
             y(i,j) = y_ij;
         };
 
-        Foreach.Basic.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
-	    body(i,j);
-	}
+        Foreach.basic(0, N-1, 0, N-1, body);
         checkSame(x,y);
 
-        Foreach.Block.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
-	    body(i,j);
-	}
-	checkSame(x,y);
+        Foreach.block(0, N-1, 0, N-1, body);
+        checkSame(x,y);
 
-        Foreach.Bisect.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
-	    body(i,j);
-	}
+        Foreach.bisect(0, N-1, 0, N-1, body);
         checkSame(x,y);
 
         return true;

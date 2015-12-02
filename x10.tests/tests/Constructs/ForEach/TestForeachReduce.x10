@@ -33,76 +33,19 @@ public class TestForeachReduce(N:Long) extends x10Test {
             singleThreadedResult += body(i);
         }
 
-        val sum = ((a:Double,b:Double) => a+b);
-	val sumAndSave = (res:Cell[Double]) => {
-	    return (a:Double,b:Double) => {
-		val s = a+b;
-		res() = s;
-		s
-	    };
-	};
+        val sum = (a:Double,b:Double) => a+b;
 
-        val sequential = Foreach.Sequential.operator for(0..(N-1), sum, 0.0, body);
+        val sequential = Foreach.sequentialReduce(0, N-1, body, sum, 0.0);
         chk(sequential == singleThreadedResult);
 
-        val sequentialResult = new Cell[Double](0.0);
-	Foreach.Sequential.for(i:Long in 0..(N-1), sumAndSave(sequentialResult), 0.0) {
-	    body(i)
-	}
-        chk(sequentialResult() == singleThreadedResult);
-
-
-        val sequentialReduce = new Foreach.Sequential.Reducer(sum, 0.0);
-	sequentialReduce.for (i: Long in 0..(N-1)) {
-	    body(i)
-	}
-        chk(sequentialReduce.value() == singleThreadedResult);
-
-        val block = Foreach.Block.operator for(0..(N-1), sum, 0.0, body);
+        val block = Foreach.blockReduce(0, N-1, body, sum, 0.0);
         chk(block == singleThreadedResult);
 
-        val blockResult = new Cell[Double](0.0);
-	Foreach.Block.for(i:Long in 0..(N-1), sumAndSave(blockResult), 0.0) {
-	    body(i)
-	}
-        chk(blockResult() == singleThreadedResult);
-
-	val blockReduce = new Foreach.Block.Reducer(sum, 0.0);
-	blockReduce.for (i: Long in 0..(N-1)) {
-	    body(i)
-	}
-        chk(blockReduce.value() == singleThreadedResult);
-
-        val cyclic = Foreach.Cyclic.operator for(0..(N-1), sum, 0.0, body);
+        val cyclic = Foreach.cyclicReduce(0, N-1, body, sum, 0.0);
         chk(cyclic == singleThreadedResult);
 
-        val cyclicResult = new Cell[Double](0.0);
-	Foreach.Cyclic.for(i:Long in 0..(N-1), sumAndSave(cyclicResult), 0.0) {
-	    body(i)
-	}
-        chk(cyclicResult() == singleThreadedResult);
-
-	val cyclicReduce = new Foreach.Cyclic.Reducer(sum, 0.0);
-	cyclicReduce.for (i: Long in 0..(N-1)) {
-	    body(i)
-	}
-        chk(cyclicReduce.value() == singleThreadedResult);
-
-
-        val bisect = Foreach.Bisect.operator for(0..(N-1), sum, 0.0, body);
+        val bisect = Foreach.bisectReduce(0, N-1, body, sum, 0.0);
         chk(bisect == singleThreadedResult);
-
-        val bisectResult = new Cell[Double](0.0);
-	Foreach.Bisect.for(i:Long in 0..(N-1), sumAndSave(bisectResult), 0.0) {
-	    body(i)
-	}
-        chk(bisectResult() == singleThreadedResult);
-
-	val bisectReduce = new Foreach.Bisect.Reducer(sum, 0.0);
-	bisectReduce.for (i: Long in 0..(N-1)) {
-	    body(i)
-	}
-        chk(bisectReduce.value() == singleThreadedResult);
 
         return true;
 	}
