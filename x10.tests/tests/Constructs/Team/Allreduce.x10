@@ -88,7 +88,7 @@ public class Allreduce extends x10Test {
         {
             team.allreduce(src, 0L, dst, 0L, count, Team.MIN);
 
-            val oracle_base = 1.0f;
+            val oracle_base = 1.0;
             for (i in 0..(count-1)) {
                 val oracle:double = oracle_base * i * i;
                 if (dst(i) != oracle) {
