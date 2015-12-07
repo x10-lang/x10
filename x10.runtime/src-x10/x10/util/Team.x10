@@ -68,22 +68,20 @@ public struct Team {
             Team.roles(id) = role as Int;
             if (DEBUG) Runtime.println(here + " created native team "+id);
         }
-        if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
-            if (DEBUG) Runtime.println(here + " creating our own team "+id);
-            if (Team.state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
-                Team.state.grow(id+1);
-            while (Team.state.size() < id)
-                Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-            val teamState = new LocalTeamState(places, id, places.indexOf(here));
-            if (id == 0n) {
-                // Team.WORLD is constructed by each place during Runtime.start()
-                Team.state(id) = teamState;
-            } else {
-                atomic { Team.state(id) = teamState; }
-                teamState.init();
-            }
-            if (DEBUG) Runtime.println(here + " created our own team "+id);
+        if (DEBUG) Runtime.println(here + " creating our own team "+id);
+        if (Team.state.capacity() <= id) // TODO move this check into the GrowableRail.grow() method
+            Team.state.grow(id+1);
+        while (Team.state.size() < id)
+            Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
+        val teamState = new LocalTeamState(places, id, places.indexOf(here));
+        if (id == 0n) {
+            // Team.WORLD is constructed by each place during Runtime.start()
+            Team.state(id) = teamState;
+        } else {
+            atomic { Team.state(id) = teamState; }
+            teamState.init();
         }
+        if (DEBUG) Runtime.println(here + " created our own team "+id);
     }
 
     /** 
@@ -118,22 +116,20 @@ public struct Team {
             this.id = Team.state.size() as Int; // id is determined by the number of pre-defined places
         }
         if (DEBUG) Runtime.println(here + " new team ID is "+this.id);
-        if (collectiveSupportLevel < X10RT_COLL_ALLNONBLOCKINGCOLLECTIVES) {
-            val teamidcopy = this.id;
-            Place.places().broadcastFlat(()=>{
-                if (Team.state.capacity() <= teamidcopy)
-                    Team.state.grow(teamidcopy+1);
-                while (Team.state.size() < teamidcopy)
-                    Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
-                val groupIndex = places.indexOf(here);
-                if (groupIndex >= 0) {
-                    Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, groupIndex);
-                    Team.state(teamidcopy).init();
-                } else {
-                    Team.state(teamidcopy) = null;
-                }
-            }, (Place)=>true);
-        }
+        val teamidcopy = this.id;
+        Place.places().broadcastFlat(()=>{
+            if (Team.state.capacity() <= teamidcopy)
+                Team.state.grow(teamidcopy+1);
+            while (Team.state.size() < teamidcopy)
+                Team.state.add(null); // I am not a member of this team id.  Insert a dummy value.
+            val groupIndex = places.indexOf(here);
+            if (groupIndex >= 0) {
+                Team.state(teamidcopy) = new LocalTeamState(places, teamidcopy, groupIndex);
+                Team.state(teamidcopy).init();
+            } else {
+                Team.state(teamidcopy) = null;
+            }
+        }, (Place)=>true);
     }
 
     private static def nativeMake (places:Rail[Int], count:Int, result:Rail[Int]) : void {
