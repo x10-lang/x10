@@ -723,9 +723,10 @@ X10RT_C void x10rt_barrier (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C void x10rt_bcast (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_bcast (x10rt_team team, x10rt_place role,
                           x10rt_place root, const void *sbuf, void *dbuf,
                           size_t el, size_t count,
+                          x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg);
 
 /** Asynchronously blocks until all members have received their part of root's array.  Note that
@@ -785,10 +786,11 @@ X10RT_C void x10rt_scatter (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C void x10rt_scatterv (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_scatterv (x10rt_team team, x10rt_place role,
                              x10rt_place root, const void *sbuf,
                              const void *soffsets, const void *scounts,
                              void *dbuf, size_t dcount, size_t el,
+                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg);
 
 
@@ -846,10 +848,12 @@ X10RT_C void x10rt_gather (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C void x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+X10RT_C bool x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		                        const void *sbuf, size_t scount, void *dbuf,
 		                        const void *doffsets, const void *dcounts,
-		                        size_t el, x10rt_completion_handler *ch, void *arg);
+		                        size_t el,
+		                        x10rt_completion_handler *errch,
+		                        x10rt_completion_handler *ch, void *arg);
 
 /** Asynchronously blocks until all members have received their portion of data from each 
  * member.  Note that sbuf and dbuf are the same size, which is n*el*count where n is the

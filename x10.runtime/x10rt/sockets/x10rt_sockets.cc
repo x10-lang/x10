@@ -1511,10 +1511,13 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	fatal_error("x10rt_net_barrier not implemented");
 }
 
-void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
-		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
+bool x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
+		void *dbuf, size_t el, size_t count,
+		x10rt_completion_handler *errch,
+		x10rt_completion_handler *ch, void *arg)
 {
 	fatal_error("x10rt_net_bcast not implemented");
+	return false;
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
@@ -1523,10 +1526,11 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	fatal_error("x10rt_net_scatter not implemented");
 }
 
-void x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, const void *soffsets, const void *scounts,
-		void *dbuf, size_t dcount, size_t el, x10rt_completion_handler *ch, void *arg)
+bool x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, const void *soffsets, const void *scounts,
+		void *dbuf, size_t dcount, size_t el,x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
 {
 	fatal_error("x10rt_net_scatterv not implemented");
+	return false;
 }
 
 void x10rt_net_gather (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
@@ -1535,10 +1539,13 @@ void x10rt_net_gather (x10rt_team team, x10rt_place role, x10rt_place root, cons
 	fatal_error("x10rt_net_gather not implemented");
 }
 
-void x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, size_t scount,
-		void *dbuf, const void *doffsets, const void *dcounts, size_t el, x10rt_completion_handler *ch, void *arg)
+bool x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, size_t scount,
+		void *dbuf, const void *doffsets, const void *dcounts, size_t el,
+        x10rt_completion_handler *errch,
+		x10rt_completion_handler *ch, void *arg)
 {
 	fatal_error("x10rt_net_gatherv not implemented");
+    return false;
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,

@@ -148,9 +148,10 @@ X10RT_C void x10rt_emu_team_split (x10rt_team parent, x10rt_place parent_role,
 X10RT_C void x10rt_emu_barrier (x10rt_team team, x10rt_place role,
                                 x10rt_completion_handler *ch, void *arg);
     
-X10RT_C void x10rt_emu_bcast (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_emu_bcast (x10rt_team team, x10rt_place role,
                               x10rt_place root, const void *sbuf, void *dbuf,
                               size_t el, size_t count,
+                              x10rt_completion_handler *errch,
                               x10rt_completion_handler *ch, void *arg);
     
 X10RT_C void x10rt_emu_scatter (x10rt_team team, x10rt_place role,
@@ -158,10 +159,11 @@ X10RT_C void x10rt_emu_scatter (x10rt_team team, x10rt_place role,
                                 size_t el, size_t count,
                                 x10rt_completion_handler *ch, void *arg);
 
-X10RT_C void x10rt_emu_scatterv (x10rt_team team, x10rt_place role,
+X10RT_C bool x10rt_emu_scatterv (x10rt_team team, x10rt_place role,
         						 x10rt_place root, const void *sbuf, const void *soffsets, const void *scounts,
         						 void *dbuf, size_t dcount,
         						 size_t el,
+        						 x10rt_completion_handler *errch,
         						 x10rt_completion_handler *ch, void *arg);
 
 X10RT_C void x10rt_emu_gather (x10rt_team team, x10rt_place role,
@@ -169,10 +171,11 @@ X10RT_C void x10rt_emu_gather (x10rt_team team, x10rt_place role,
 							   void *dbuf, size_t el, size_t count,
 							   x10rt_completion_handler *ch, void *arg);
 
-X10RT_C void x10rt_emu_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+X10RT_C bool x10rt_emu_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		                        const void *sbuf, size_t scount, void *dbuf,
 		                        const void *doffsets, const void *dcounts,
 		                        size_t el,
+		                        x10rt_completion_handler *errch,
 		                        x10rt_completion_handler *ch, void *arg);
     
 X10RT_C void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
