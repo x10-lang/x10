@@ -27,7 +27,7 @@ public interface LocalViewResilientIterativeApp {
      * Checkpoint the application state at all places.
      * @param store a resilient store containing an application checkpoint
      */
-    public def checkpoint(store:ResilientStoreForApp):void;
+    public def checkpoint(store:ApplicationSnapshotsStore):void;
     
     /**
      * Restore the application state to the new place group, using the last
@@ -37,6 +37,6 @@ public interface LocalViewResilientIterativeApp {
      * @param lastCheckpointIter the iteration number of the saved checkpoint
      * @param list of added spare places for restore
      */
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void;
+    public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotsStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void;
     
 }

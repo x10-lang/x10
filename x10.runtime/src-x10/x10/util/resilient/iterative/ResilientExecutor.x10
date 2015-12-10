@@ -16,7 +16,7 @@ import x10.util.Timer;
 import x10.util.Random;
 
 public class ResilientExecutor {
-    private val store:ResilientStoreForApp;
+    private val store:ApplicationSnapshotsStore;
     private var places:PlaceGroup;
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
@@ -38,7 +38,7 @@ public class ResilientExecutor {
         this.itersPerCheckpoint = itersPerCheckpoint;
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0) {
             isResilient = true;
-            store = new ResilientStoreForApp();
+            store = new ApplicationSnapshotsStore();
             val hammerConfigFile = System.getenv("X10_GML_HAMMER_FILE");
             if (hammerConfigFile != null && !hammerConfigFile.equals("")){                
                 hammer = PlaceHammer.make(hammerConfigFile);

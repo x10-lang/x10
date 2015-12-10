@@ -22,7 +22,7 @@ import x10.xrx.Runtime;
  * TODO this type should be parametrized by [Key,Value] types, but this is
  * not possible due to limitation of Native X10: XTENLANG-3472
  */
-public abstract class DistObjectSnapshot {
+public abstract class DoubleInMemoryStore {
     static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     
@@ -43,10 +43,10 @@ public abstract class DistObjectSnapshot {
         return v;
     }
 
-    public static def make():DistObjectSnapshot {
+    public static def make():DoubleInMemoryStore {
         switch (mode) {
-            case 0N: return new DistObjectSnapshotPlace0();
-            case 1N: return new DistObjectSnapshotDistributed();
+            case 0N: return new DoubleInMemoryStorePlace0();
+            case 1N: return new DoubleInMemoryStoreDistributed();
             default: throw new Exception("unknown mode");
         }
     }
@@ -59,7 +59,7 @@ public abstract class DistObjectSnapshot {
     /**
      * Place0 implementation of ResilientStore
      */
-    static class DistObjectSnapshotPlace0 extends DistObjectSnapshot {
+    static class DoubleInMemoryStorePlace0 extends DoubleInMemoryStore {
         val hm = PlaceLocalHandle.make[HashMap[Any,Any]](getPlace0PlaceGroup(), ()=>new x10.util.HashMap[Any,Any]());
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
 
@@ -167,7 +167,7 @@ public abstract class DistObjectSnapshot {
      *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
-    static class DistObjectSnapshotDistributed extends DistObjectSnapshot {
+    static class DoubleInMemoryStoreDistributed extends DoubleInMemoryStore {
         val hm = PlaceLocalHandle.make[HashMap[Any,Any]](Place.places(), ()=>new x10.util.HashMap[Any,Any]());
         private def DEBUG(key:Any, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:Any, value:Any) {

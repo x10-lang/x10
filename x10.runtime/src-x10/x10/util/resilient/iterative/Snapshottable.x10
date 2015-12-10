@@ -15,10 +15,10 @@ package x10.util.resilient.iterative;
  * (distributed) state and restore to a previous snapshotted state.
  */
 public interface Snapshottable {
-    public def makeSnapshot():DistObjectSnapshot;
-    public def restoreSnapshot(snapshot:DistObjectSnapshot):void;
+    public def makeSnapshot():DoubleInMemoryStore;
+    public def restoreSnapshot(snapshot:DoubleInMemoryStore):void;
     
-    public def makeSnapshot_local(snapshot:DistObjectSnapshot):void;
-    public def restoreSnapshot_local(snapshot:DistObjectSnapshot):void;
+    public def makeSnapshot_local(snapshot:DoubleInMemoryStore):void;
+    public def restoreSnapshot_local(snapshot:DoubleInMemoryStore):void;
     
 }
