@@ -19,7 +19,7 @@ import x10.util.ArrayList;
 
 public class LocalViewResilientExecutor {
     private var placeTempData:PlaceLocalHandle[PlaceTempData];
-    private transient val store:ApplicationSnapshotsStore;
+    private transient val store:ApplicationSnapshotStore;
     private transient var places:PlaceGroup;
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
@@ -63,7 +63,7 @@ public class LocalViewResilientExecutor {
                 hammer = PlaceHammer.make(hammerConfigFile);
             }
         }
-        store = (isResilient)? new ApplicationSnapshotsStore(true, places):null;
+        store = (isResilient)? new ApplicationSnapshotStore(true, places):null;
     }
 
     public def run(app:LocalViewResilientIterativeApp) {

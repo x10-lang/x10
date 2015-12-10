@@ -6,15 +6,15 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2015.
- *  (C) Copyright Sara Salem Hamouda 2015.
+ *  (C) Copyright IBM Corporation 2014.
+ *  (C) Copyright Sara Salem Hamouda 2014.
  */
 package x10.util.resilient.iterative;
 
 import x10.util.HashMap;
 import x10.regionarray.Dist;
 
-public class ApplicationSnapshotsStore {
+public class ApplicationSnapshotStore {
    
     private transient val snapshots:Rail[ApplicationSnapshot] = new Rail[ApplicationSnapshot](2, (Long)=>new ApplicationSnapshot());
     private transient var tempSnapshot:ApplicationSnapshot = null;
@@ -32,11 +32,11 @@ public class ApplicationSnapshotsStore {
         this.places = plc;
     }
 
-    private def searchSnapshot(distObject:Snapshottable):DoubleInMemoryStore {        
+    private def searchSnapshot(distObject:Snapshottable):DistObjectSnapshot {        
         val consistentSnapshot = getConsistentSnapshot();
         val appSnapshotMap = consistentSnapshot.map;
         val iter = appSnapshotMap.keySet().iterator();
-        var snapshot:DoubleInMemoryStore = null;
+        var snapshot:DistObjectSnapshot = null;
         while (iter.hasNext()) {
             val key = iter.next();
             if (key.snapshottable == distObject){
@@ -75,7 +75,7 @@ public class ApplicationSnapshotsStore {
         save(distObject, snapshot, true);
     }
     
-    private def save(distObject:Snapshottable, snapshot:DoubleInMemoryStore, keepOldSnapshot:Boolean) {
+    private def save(distObject:Snapshottable, snapshot:DistObjectSnapshot, keepOldSnapshot:Boolean) {
         if (tempSnapshot==null)
             Console.OUT.println("New snapshot should be started first");        
         val snapshotKey = new SnapshottableEntryKey(distObject, keepOldSnapshot);
@@ -88,8 +88,8 @@ public class ApplicationSnapshotsStore {
         finish{
             while (iter.hasNext()) {
                 val key = iter.next();
-                var DoubleInMemoryStore:DoubleInMemoryStore = appSnapshotMap.getOrElse(key, null);                
-                if (DoubleInMemoryStore == null) {
+                var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);                
+                if (distObjectSnapshot == null) {
                     async{
                         val snapshot = key.snapshottable.makeSnapshot();
                         atomic appSnapshotMap.put(key, snapshot);
@@ -105,9 +105,9 @@ public class ApplicationSnapshotsStore {
         val iter = appSnapshotMap.keySet().iterator();        
         while (iter.hasNext()) {            
             val key = iter.next();            
-            var DoubleInMemoryStore:DoubleInMemoryStore = appSnapshotMap.getOrElse(key, null);               
-            if (DoubleInMemoryStore == null) {
-                val snapshot = DoubleInMemoryStore.make();
+            var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);               
+            if (distObjectSnapshot == null) {
+                val snapshot = DistObjectSnapshot.make();
                 appSnapshotMap.put(key, snapshot);
                 key.ignore = false;
             }
@@ -120,7 +120,7 @@ public class ApplicationSnapshotsStore {
             while (iter2.hasNext()) {
                 val key = iter2.next();
                 if (!key.ignore) {
-                    var DoubleInMemoryStore:DoubleInMemoryStore = appSnapshotMap.getOrElse(key, null);
+                    var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);
                     val snapshot = appSnapshotMap.getOrElse(key, null);                    
                     async key.snapshottable.makeSnapshot_local(snapshot);
                 }
@@ -152,8 +152,8 @@ public class ApplicationSnapshotsStore {
             finish{
                 while (iter.hasNext()) {
                     val key = iter.next();
-                    val DoubleInMemoryStore = appSnapshot.map.getOrElse(key, null);
-                    async key.snapshottable.restoreSnapshot(DoubleInMemoryStore);
+                    val distObjectSnapshot = appSnapshot.map.getOrElse(key, null);
+                    async key.snapshottable.restoreSnapshot(distObjectSnapshot);
                 }
             }
         }
@@ -167,8 +167,8 @@ public class ApplicationSnapshotsStore {
             val iter = appSnapshotMap.keySet().iterator();
             while (iter.hasNext()) {
                 val key = iter.next();
-                val DoubleInMemoryStore = appSnapshotMap.getOrElse(key, null);
-                async key.snapshottable.restoreSnapshot_local(DoubleInMemoryStore);                
+                val distObjectSnapshot = appSnapshotMap.getOrElse(key, null);
+                async key.snapshottable.restoreSnapshot_local(distObjectSnapshot);                
             }
         }
     }
@@ -184,7 +184,7 @@ class SnapshottableEntryKey(snapshottable:Snapshottable, keepOldSnapshot:Boolean
 }
 
 class ApplicationSnapshot {
-    var map:HashMap[SnapshottableEntryKey,DoubleInMemoryStore] = new x10.util.HashMap[SnapshottableEntryKey,DoubleInMemoryStore]();
+    var map:HashMap[SnapshottableEntryKey,DistObjectSnapshot] = new x10.util.HashMap[SnapshottableEntryKey,DistObjectSnapshot]();
     
     def delete():void{
         val iter = map.keySet().iterator(); 

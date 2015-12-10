@@ -26,7 +26,7 @@ public interface ResilientIterativeApp {
      * Checkpoint the application state at all places.
      * @param store a resilient store containing an application checkpoint
      */
-    public def checkpoint(store:ApplicationSnapshotsStore):void;
+    public def checkpoint(store:ApplicationSnapshotStore):void;
 
     /**
      * Restore the application state to the new place group, using the last
@@ -36,5 +36,5 @@ public interface ResilientIterativeApp {
      * @param lastCheckpointIter the iteration number of the saved checkpoint
      * @param list of added spare places for restore
      */
-    public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotsStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void;
+    public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void;
 }

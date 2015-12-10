@@ -22,8 +22,8 @@ import x10.xrx.Runtime;
  * TODO this type should be parametrized by [Key,Value] types, but this is
  * not possible due to limitation of Native X10: XTENLANG-3472
  */
-public abstract class DoubleInMemoryStore {
-    static val mode = getEnvInt("X10_RESILIENT_STORE_MODE");
+public abstract class DistObjectSnapshot {
+    static val mode = getEnvInt("X10_RESILIENT_STORE_MODE"); // Double in-memory is the default
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     
     static val localCopy = getEnvString("X10_RESILIENT_STORE_LOCAL_COPY", "clone"); // at, deep, clone
@@ -43,10 +43,10 @@ public abstract class DoubleInMemoryStore {
         return v;
     }
 
-    public static def make():DoubleInMemoryStore {
+    public static def make():DistObjectSnapshot {
         switch (mode) {
-            case 0N: return new DoubleInMemoryStorePlace0();
-            case 1N: return new DoubleInMemoryStoreDistributed();
+            case 0N: return new DoubleInMemoryStore(); // Distributed mode is the default
+            case 1N: return new DistObjectSnapshotPlace0();
             default: throw new Exception("unknown mode");
         }
     }
@@ -59,7 +59,7 @@ public abstract class DoubleInMemoryStore {
     /**
      * Place0 implementation of ResilientStore
      */
-    static class DoubleInMemoryStorePlace0 extends DoubleInMemoryStore {
+    static class DistObjectSnapshotPlace0 extends DistObjectSnapshot {
         val hm = PlaceLocalHandle.make[HashMap[Any,Any]](getPlace0PlaceGroup(), ()=>new x10.util.HashMap[Any,Any]());
         private def DEBUG(msg:String) { Console.OUT.println(msg); Console.OUT.flush(); }
 
@@ -167,7 +167,7 @@ public abstract class DoubleInMemoryStore {
      *       For it, delete(key) is or deleteAll() must be called first.
      *       Racing between multiple places are not also considered.
      */
-    static class DoubleInMemoryStoreDistributed extends DoubleInMemoryStore {
+    static class DoubleInMemoryStore extends DistObjectSnapshot {
         val hm = PlaceLocalHandle.make[HashMap[Any,Any]](Place.places(), ()=>new x10.util.HashMap[Any,Any]());
         private def DEBUG(key:Any, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
         public def save(key:Any, value:Any) {
