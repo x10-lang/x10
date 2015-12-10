@@ -6,8 +6,8 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
- *  (C) Copyright Sara Salem Hamouda 2014.
+ *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2015.
  */
 package x10.util.resilient.iterative;
 
