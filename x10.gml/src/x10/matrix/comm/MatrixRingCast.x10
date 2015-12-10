@@ -12,14 +12,11 @@
 package x10.matrix.comm;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
 /**
@@ -68,60 +65,7 @@ public class MatrixRingCast {
 			dmlist:DistArray[DenseMatrix](1), datCnt:Long, 
 			plist:Rail[Long]) : void {
 
-		@Ifdef("MPI_COMMU") {
-			mpiRingCast(dmlist, datCnt, plist);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			x10RingCast(dmlist, datCnt, plist);
-		}
-	}
-
-	/**
-	 * Send data of dense matrix from here to a list of places using
-	 * MPI send/recv routines. Note, the root place (place here) must be
-	 * in the list. The root place ID may appear multiple times in the
-	 * the list to speed up the performance. However, it also may increase
-	 * network contentions.
-	 * 
-	 * @param  dmlist     duplicated storage for copies of dense matrix in all places
-	 * @param  datCnt     count of data to send
-	 * @param  plist      the list of place IDs. Root place must be in the list
-	 */
-	protected static def mpiRingCast(
-			dmlist:DistArray[DenseMatrix](1), 
-			datCnt:Long,
-			plist:Rail[Long]):void {
-		
-		@Ifdef("MPI_COMMU") {
-			// Check place list 
-			if (plist.size <= 0) return ;
-
-			val root   = here.id();  //Implicitly copied to all places
-			finish {
-				val pltail = plist.size-1;
-				for (var p:Long=0; p < plist.size; p++) {
-					val nxtpid = (p==pltail)?plist(0):plist(p+1); //Implicitly carry to next place
-					val prepid = (p==0L)?plist(pltail):plist(p-1); //Implicitly carry to next place
-					val curpid = plist(p);
-
-                    at(dmlist.dist(curpid)) async {
-						//Need: dmlist, root, nxtpid, prepid, datCnt
-						val mypid  = here.id();
-						val matden = dmlist(mypid);
-
-						if (mypid != root) {
-							val dtag = prepid * 5000 + mypid;
-							WrapMPI.world.recv(matden.d, 0, datCnt, prepid, dtag);
-						}
-						if (nxtpid != root) {
-							val dtag = mypid * 5000 + nxtpid;
-							WrapMPI.world.send(matden.d, 0, datCnt, nxtpid, dtag);
-						}
-					}
-				}
-			}
-		}
+		x10RingCast(dmlist, datCnt, plist);
 	}
 
 	/**
@@ -158,72 +102,7 @@ public class MatrixRingCast {
 			datCnt:Long, 
 			plist:Rail[Long]) : void {
 
-		@Ifdef("MPI_COMMU") {
-			mpiRingCast(smlist, datCnt, plist);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			x10RingCast(smlist, datCnt, plist);
-		}
-	}
-
-	/**
-	 * Send columns in sparse matrix from here to a list of places using
-	 * X10 remote array copy.
-	 *
-	 * @param  smlist     distributed storage for copies of sparse matrix
-	 * @param  colCnt     counts of nonzero data to send
-	 * @param  plist      the list of place IDs
-	 */
-	protected static def mpiRingCast(
-			smlist:DistArray[SparseCSC](1), 
-			datCnt:Long,
-			plist:Rail[Long]):void {
-
-		@Ifdef("MPI_COMMU") {
-			// Check place list 
-			if (plist.size <= 0) return;
-
-			val root   = here.id();                     //Implicitly copied to all places
-			val srcspa = smlist(root);
-
-			srcspa.initRemoteCopyAtSource();
-			finish {
-				val pltail = plist.size-1;
-				for (var p:Long=0; p < plist.size; p++) {
-					val nxtpid = (p==pltail)?plist(0):plist(p+1); //Implicitly carry to next place
-					val prepid = (p==0L)?plist(pltail):plist(p-1); //Implicitly carry to next place
-					//val curpid = p;
-					val curpid = plist(p);
-
-                    at(smlist.dist(curpid)) async {
-						//Need: dmlist, root, nxtpid, prepid, colOff, datCnt, datasz
-						val mypid  = here.id();
-						val matspa = smlist(mypid);
-					
-						if (mypid != root) {
-							val dtag = prepid * 10000 + mypid;
-
-							//++++++++++++++++++++++++++++++++++++++++++++
-							//Do NOT call getIndex()/getValue() before init at destination place
-							//+++++++++++++++++++++++++++++++++++++++++++++
-							matspa.initRemoteCopyAtDest(datCnt);
-							WrapMPI.world.recv(matspa.getIndex(), 0, datCnt, prepid, dtag);
-							WrapMPI.world.recv(matspa.getValue(), 0, datCnt, prepid, dtag);
-						}
-						if (nxtpid != root) {
-							val dtag = mypid * 10000 + nxtpid;
-							WrapMPI.world.send(matspa.getIndex(), 0, datCnt, nxtpid, dtag);
-							WrapMPI.world.send(matspa.getValue(), 0, datCnt, nxtpid, dtag);
-						}
-					
-						if (mypid != root)
-							matspa.finalizeRemoteCopyAtDest();
-					}
-				}
-			}
-			srcspa.finalizeRemoteCopyAtSource();
-		}
+		x10RingCast(smlist, datCnt, plist);
 	}
 
 	/**

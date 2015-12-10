@@ -12,14 +12,10 @@
 package x10.matrix.comm;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * The class provides reduce-sum communication for distributed matrix,
@@ -27,12 +23,6 @@ import x10.matrix.comm.mpi.WrapMPI;
  * <p> This operation adds matrix blocks from all places and stores result
  * in dense format at here, using provided temporary dense matrix blocks
  * space to receive data.
- *
- * <p> Two implementations are available. One uses MPI routines, and the other
- * is based on X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
  * 
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
@@ -49,46 +39,8 @@ public class MatrixReduce {
 	public static def reduceSum(
 			ddmat:DistArray[DenseMatrix](1),
 			ddtmp:DistArray[DenseMatrix](1)):Long {
-		var datasz:Long = 0;
-		
-		@Ifdef("MPI_COMMU") {
-			datasz = mpiReduceSum(ddmat, ddtmp);
-		}
-		@Ifndef("MPI_COMMU") {
-			datasz = x10ReduceSum(ddmat, ddtmp);
-		}
-		return datasz;
+		return x10ReduceSum(ddmat, ddtmp);
 	} 
-
-	/**
-	 * Perform reduce sum of all matrces stored in the duplicated matrix
-	 * Result is stored in the matrix at root place.
-	 *
-	 * @param ddmat     input and output matrix. 
-	 * @param ddtmp     temp matrix storing the inter-place communication data.
-	 */
-	public static def mpiReduceSum(
-			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)):Long {
-		
-		val root = here.id();
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in ddmat) {
-				val pid = here.id();
-				val dst = ddmat(pid);
-				val sz  = dst.M * dst.N;
-				val src:DenseMatrix(dst.M, dst.N) = ddtmp(pid) as DenseMatrix(dst.M, dst.N);
-				//Check temp space
-				//if (ddtmp(pid) == null) 
-				//	ddtmp(pid) = dst.alloc();
-				//src = ddtmp(pid) as DenseMatrix(dst.M, dst.N);
-				dst.copyTo(src);
-				// Counting the all reduce-sum time in communication
-				WrapMPI.world.reduceSum(src.d, dst.d, sz, root);
-			}
-		}
-		return ddmat(root).M * ddmat(root).N;
-	}
 
 	/**
 	 * Sum of all matrices in the duplicated matrix and the result overwrite the
@@ -159,55 +111,8 @@ public class MatrixReduce {
 	public static def allReduceSum(
 			ddmat:DistArray[DenseMatrix](1),
 			ddtmp:DistArray[DenseMatrix](1)):Long {
-		var datasz:Long = 0;
-		
-		@Ifdef("MPI_COMMU") {
-			datasz = mpiAllReduceSum(ddmat, ddtmp);
-		}
-		@Ifndef("MPI_COMMU") {
-			datasz = x10AllReduceSum(ddmat, ddtmp);
-		}
-		return datasz;
+		return x10AllReduceSum(ddmat, ddtmp);
 	} 
-
-	/**
-	 * Perform all reduce sum operation. 
-	 * @see reduceSum()
-	 * Result is synchronized for all copies of duplicated matrix
-	 *
-	 * @param ddmat     input and output matrix. 
-	 * @param ddtmp     temp matrix storing the inter-place communication data.
-	 */
-	protected static def mpiAllReduceSum(
-			ddmat:DistArray[DenseMatrix](1),
-			ddtmp:DistArray[DenseMatrix](1)):Long {
-		
-		val root = here.id();
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in ddmat) {
-				val pid = here.id();
-				val dst = ddmat(pid);
-				val sz  = dst.M * dst.N;
-				val src = ddtmp(pid) as DenseMatrix(dst.M, dst.N);
-				//Check temp space
-				//if (ddtmp(pid) == null)
-				//	ddtmp(pid) = dst.alloc();
-				//src = ddtmp(pid) as DenseMatrix(dst.M, dst.N);
-				dst.copyTo(src);
-				// Counting the all reduce-sum time in communication
-
-				//Execution hang-up.
-				//X10 MPI runtime conflicts with MPI calls 
-				//WrapMPI.world.allReduceSum(src.d, dst.d, sz);
-
-				//Work-around. Not optimized
-				WrapMPI.world.reduceSum(src.d, dst.d, sz, root);
-				WrapMPI.world.bcast(dst.d, 0, sz, root);
-			}
-		}
-		
-		return ddmat(root).M * ddmat(root).N;
-	}
 
 	protected static def x10AllReduceSum(ddmat:DistArray[DenseMatrix](1),
 								  ddtmp:DistArray[DenseMatrix](1)):Long {

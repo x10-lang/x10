@@ -19,7 +19,7 @@ build_path	= build
 X10_FLAG	= -sourcepath $(X10_HOME)/x10.tests/tests/x10lib -d $(build_path)  -errors 5 -VERBOSE_CHECKS 
 
 # runtime settings
-runtime_list = mpi sock java
+runtime_list = sock java
 numplaces = 1
 test_args = 
 
@@ -38,7 +38,6 @@ run		: run_java
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 ###############################################

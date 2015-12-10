@@ -12,13 +12,10 @@
 package x10.matrix.comm;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
 import x10.matrix.block.Grid;
@@ -28,11 +25,6 @@ import x10.matrix.block.SparseBlock;
 /**
  * This class transfers matrix data across different places.
  * Matrix data is defined by DenseBlock, SparseBlock or DenseMatrix on DistArray.
- * 
- * <p> Two implementations are available, based on MPI routines and X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
  * 
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
@@ -85,56 +77,8 @@ public class MatrixRemoteCopy {
 			return srcden.M * colCnt;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
-		}
+		dsz = x10Copy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
 		return dsz;
-	}
-
-	/**
-	 * Using MPI routine to copy multiple columns from source dense matrix at here 
-	 * to the remote dense matrix of duplicated dense matrix at the specified place. 
-	 * MPI send and recv are performed at here and the remote place respectively.
-	 * 
-	 * @param srcden 	Input. The source dense matrix at here
-	 * @param dmlist 	Output. The duplicated dense matrix DistArray
-	 * @param dstpid 	Input. The place id of target dense matrix in the duplicated dense matrix.
-	 * @param coloff 	Input. Column offset in source matrix
-	 * @param colcnt 	Input. Count of columns to be copied from source dense matrix
-	 * @return -- Number of elements copied.
-	 */	
-	protected static def mpiCopy(
-			srcden:DenseMatrix, srcColOff:Long, 
-			dmlist:DistArray[DenseMatrix](1), dstpid:Long,
-			dstColOff:Long, colCnt:Long):Long  {
-		
-		assert (srcColOff+colCnt <= srcden.N) :
-					 "At source place, illegal column offset:"+srcColOff+
-					 " or column count:"+colCnt;
-
-		val srcpid = here.id();         //Implicitly carried to dst place
-		val datasz = srcden.M * colCnt; //Implicitly carried to dst place
-		@Ifdef("MPI_COMMU") { 
-			finish {
-				// At the destination place, receiving the data 
-				at(dmlist.dist(dstpid)) async {
-					//Remote capture: dmlist, srcpid, dstColOff, datasz
-					val dstden = dmlist(here.id());
-					val dstoff = dstden.M * dstColOff;
-					val tag    = srcpid * 10000 + here.id();
-					WrapMPI.world.recv(dstden.d, dstoff, datasz, srcpid, tag);
-				}
-
-                // At the source place, sending out the data
-                val srcoff = srcden.M * srcColOff;
-                val tag = srcpid * 10000 + dstpid;
-                WrapMPI.world.send(srcden.d, srcoff, datasz, dstpid, tag);
-			} 
-		}
-		return datasz;
 	}
 	
 	/**
@@ -198,13 +142,7 @@ public class MatrixRemoteCopy {
 			return dstden.M * colCnt;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
-		}
+		dsz = x10Copy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
 		return dsz;
 	}
 	
@@ -243,48 +181,6 @@ public class MatrixRemoteCopy {
 		
 		return rmt.length;
 	}
-	
-
-	/**
-	 * Using MPI routine to copy multiple columns of dense matrix 
-	 * from the specified place to here
-	 *
-	 * @param dmlist  		source dense matrix in the DistArray
-	 * @param srcpid  		source matrix's place id.
-	 * @param srcColOff  	column offset in source matrix
-	 * @param dstden  		destination dense matrix of the copy
-	 * @param dstColOff 	column offset in source matrix
-	 * @param colCnt 		count of columns to be copied in source matrix
-	 * @return 				number of elements copied
-	 */
-	protected static def mpiCopy(
-			dmlist:DistArray[DenseMatrix](1), srcpid:Long, srcColOff:Long,
-			dstden:DenseMatrix, dstColOff:Long, 
-			colCnt:Long):Long {
-
-		assert (dstColOff+colCnt <= dstden.N) :
-					 "At destination place, illegal column offset or count";
-
-		val dstpid = here.id();
-		val datasz = dstden.M * colCnt;
-
-		@Ifdef("MPI_COMMU") {
-		finish {
-			at(dmlist.dist(srcpid)) async {
-				//Need: dmlist, dstpid, srcColOff, datasz, 
-				val srcden = dmlist(here.id());
-				val srcoff = srcden.M * srcColOff;
-				val tag    = here.id() * 20000 + dstpid;
-				WrapMPI.world.send(srcden.d, srcoff, datasz, dstpid, tag);
-			}
-
-            val tag    = srcpid * 20000 + dstpid;
-            val dstoff = dstden.M * dstColOff;
-            WrapMPI.world.recv(dstden.d, dstoff, datasz, srcpid, tag);
-		}
-		}
-		return datasz;
-	}
 
 	/**
 	 * Copy multiple columns from source dense matrix at here to the specified remote 
@@ -311,46 +207,10 @@ public class MatrixRemoteCopy {
 			return srcden.M * colCnt;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
-		}
+		dsz = x10Copy(srcden, srcColOff, dmlist, dstpid, dstColOff, colCnt);
 		return dsz;
 	}
 
-	//Dense matrix remote copy to
-	protected static def mpiCopy(
-			srcden:DenseMatrix, srcColOff:Long,
-			dmlist:DistArray[DenseBlock](1), dstbid:Long, dstColOff:Long, 
-			colCnt:Long):Long {
-		
-		val srcbid = here.id();
-		val datasz = srcden.M * colCnt; //Implicitly carried to dst place
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(dmlist.dist(dstbid)) async {
-					//Need: srcbid, dst, dstColOff, datasz
-					val dstden = dmlist(here.id()).dense;
-					val tag    = srcbid * 60000 + here.id();
-					//!!!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!!!
-					//val off    = srcden.M * dstColOff;
-					// Do NOT capture srcden.M, the srcden object are copied to here
-					//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-					val off = dstden.M * dstColOff;
-					WrapMPI.world.recv(dstden.d, off, datasz, srcbid, tag);
-				}
-
-                val sttoff = srcden.M*srcColOff;
-                val tag = here.id() * 60000 + dstbid;
-                // src and dst must have the same leading dimension
-                WrapMPI.world.send(srcden.d, sttoff, datasz, dstbid, tag);
-			}
-		}
-		return datasz;
-	}
-	
 	// Dense matrix remote copy to
 	protected static def x10Copy(
 			srcden:DenseMatrix,  srcColOff:Long,
@@ -401,43 +261,9 @@ public class MatrixRemoteCopy {
 			return dstden.M * colCnt;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
-		}
+		dsz = x10Copy(dmlist, srcpid, srcColOff, dstden, dstColOff, colCnt);
 		return dsz;
 	}
-
-	//MPI matrix remote copy from
-	protected static def mpiCopy(
-			src:DistArray[DenseBlock](1), srcbid:Long, srcColOff:Long,
-			dstden:DenseMatrix, dstColOff:Long, 
-			colCnt:Long):Long {
-		
-		val dstbid = here.id();
-		val datcnt = dstden.M*colCnt; 
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(src.dist(srcbid)) async {
-					//Need:src, srcColOff, colCnt
-					val srcden = src(here.id()).getMatrix();
-					val tag = here.id() * 30000 + dstbid;
-					val off = srcden.M*srcColOff;
-					val cnt = srcden.M*colCnt;
-					WrapMPI.world.send(srcden.d, off, cnt, dstbid, tag);
-				}
-
-                val tag = srcbid * 30000 + dstbid;
-                val sttoff = dstden.M*dstColOff;
-                // src and dst must have the same leading dimension
-                WrapMPI.world.recv(dstden.d, sttoff, datcnt, srcbid, tag);
-			}
-		}
-		return datcnt;
-	}
-
 	
 	protected static def x10Copy(
 			src:DistArray[DenseBlock](1), srcbid:Long, srcColOff:Long,
@@ -513,61 +339,9 @@ public class MatrixRemoteCopy {
 			return dsz;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
-		}
+		dsz = x10Copy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
 		return dsz;
 	}
-
-
-	// Sparse matrix copy To based on MPI routine
-	/**
-	 * Based on mpi send/recv, copy data from here to remote place
-	 */
-	protected static def mpiCopy(
-			srcspa:SparseCSC, srcColOff:Long,
-			smlist:DistArray[SparseCSC](1), dstpid:Long, dstColOff:Long, 
-			colCnt:Long):Long {
-
-		assert (srcColOff+colCnt <= srcspa.N) :
-					 "At source place, illegal column offset and count";
-
-		val srcpid = here.id();        
-		val datasz = srcspa.countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
-
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(smlist.dist(dstpid)) async {
-					// Need: smlist, srcpid, dstColOff, datasz;
-					val dstspa = smlist(here.id());
-					val dstoff = dstspa.getNonZeroOffset(dstColOff);
-					val tag    = srcpid * 10000 + here.id();
-					
-					//++++++++++++++++++++++++++++++++++++++++++++
-					//Do NOT call getIndex()/getValue() before init at destination place
-					//+++++++++++++++++++++++++++++++++++++++++++++
-					dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datasz);
-					WrapMPI.world.recv(dstspa.getIndex(), dstoff, datasz, srcpid, tag);
-					WrapMPI.world.recv(dstspa.getValue(), dstoff, datasz, srcpid, tag+100001);
-					dstspa.finalizeRemoteCopyAtDest();
-				}
-
-                val tag    = srcpid * 10000 + dstpid;
-                val srcoff = srcspa.getNonZeroOffset(srcColOff);
-
-                srcspa.initRemoteCopyAtSource(srcColOff, colCnt);
-                WrapMPI.world.send(srcspa.getIndex(), srcoff, datasz, dstpid, tag);
-                WrapMPI.world.send(srcspa.getValue(), srcoff, datasz, dstpid, tag+100001);
-                srcspa.finalizeRemoteCopyAtSource();
-			}
-			
-		}
-		return datasz;
-	}
-
 
 	/**
 	 * Copy source sparse matrix from here to the remote sparse matrix at reomote 
@@ -638,60 +412,7 @@ public class MatrixRemoteCopy {
 			return dsz;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
-		}
-		return dsz;
-	}
-
-	/**
-	 * Based on mpi send/recv, copy data from remote place to here. The data size is 
-	 * transfered to here implicitly before matrix data copy.
-	 */
-	protected static def mpiCopy(
-			smlist:DistArray[SparseCSC](1), srcpid:Long, srcColOff:Long,
-			dstspa:SparseCSC, dstColOff:Long, 
-			colCnt:Long):Long {
-
-		assert (dstColOff+colCnt <= dstspa.N) :
-					 "At destination place, illegal column offset and count";
-
-		val dstpid = here.id();//Implicitly carried to dst place
-		val dsz = at(smlist.dist(srcpid)) 
-			smlist(here.id()).countNonZero(dstColOff, colCnt); //Implicitly carried to dst place
-
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(smlist.dist(srcpid)) async {
-					//Need: smlist, dstpid, srcColOff
-					val srcspa = smlist(here.id());
-					val srcoff = srcspa.getNonZeroOffset(srcColOff);;
-					val tag    = here.id() * 20000 + dstpid;
-					val datasz = dstspa.countNonZero(dstColOff, colCnt);
-					
-					srcspa.initRemoteCopyAtSource(srcColOff, colCnt);
-					WrapMPI.world.send(srcspa.getIndex(), srcoff, datasz, dstpid, tag);
-					WrapMPI.world.send(srcspa.getValue(), srcoff, datasz, dstpid, tag+1000002);
-					
-					srcspa.finalizeRemoteCopyAtSource();
-				}
-				
-                val tag    = srcpid * 20000 + dstpid;
-                val dstoff = dstspa.getNonZeroOffset(dstColOff);
-                //++++++++++++++++++++++++++++++++++++++++++++
-                //Do NOT call getIndex()/getValue() before init at destination place
-                //+++++++++++++++++++++++++++++++++++++++++++++
-                dstspa.initRemoteCopyAtDest(dstColOff, colCnt, dsz);
-                WrapMPI.world.recv(dstspa.getIndex(), dstoff, dsz, srcpid, tag);
-                WrapMPI.world.recv(dstspa.getValue(), dstoff, dsz, srcpid, tag+1000002);
-                dstspa.finalizeRemoteCopyAtDest();
-			}
-		}
-		
+		dsz = x10Copy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
 		return dsz;
 	}
 
@@ -773,58 +494,9 @@ public class MatrixRemoteCopy {
 			return dsz;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
-		}
+		dsz = x10Copy(srcspa, srcColOff, smlist, dstpid, dstColOff, colCnt);
 		return dsz;
 	}
-
-
-	/**
-	 * Based on mpi send/recv, copy data from here to remote place
-	 */
-	protected static def mpiCopy(
-			srcspa:SparseCSC, srcColOff:Long,
-			smlist:DistArray[SparseBlock](1), dstpid:Long, dstColOff:Long, 
-			colCnt:Long):Long {
-
-		assert (srcColOff+colCnt <= srcspa.N) :
-					 "At source place, illegal column offset and count";
-
-		val srcpid = here.id();        
-		val datasz = srcspa.countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(smlist.dist(dstpid)) async {
-					// Need: smlist, srcpid, dstColOff, datasz;
-					val dstspa = smlist(here.id()).getMatrix();
-					val dstoff = dstspa.getNonZeroOffset(dstColOff);
-					val tag    = srcpid * 10000 + here.id();
-					
-					//++++++++++++++++++++++++++++++++++++++++++++
-					//Do NOT call getIndex()/getValue() before init at destination place
-					//+++++++++++++++++++++++++++++++++++++++++++++
-					dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datasz);
-					WrapMPI.world.recv(dstspa.getIndex(), dstoff, datasz, srcpid, tag);
-					WrapMPI.world.recv(dstspa.getValue(), dstoff, datasz, srcpid, tag+100001);
-					dstspa.finalizeRemoteCopyAtDest();
-				}
-
-                val tag    = srcpid * 10000 + dstpid;
-                val srcoff = srcspa.getNonZeroOffset(srcColOff);
-
-                srcspa.initRemoteCopyAtSource(srcColOff, colCnt);
-                WrapMPI.world.send(srcspa.getIndex(), srcoff, datasz, dstpid, tag);
-                WrapMPI.world.send(srcspa.getValue(), srcoff, datasz, dstpid, tag+100001);
-                srcspa.finalizeRemoteCopyAtSource();
-			}
-		}
-		return datasz;
-	}
-
 
 	//Sparse matrix remote copy To
 	protected static def x10Copy(
@@ -887,53 +559,7 @@ public class MatrixRemoteCopy {
 			return dsz;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			dsz = mpiCopy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			dsz = x10Copy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
-		}
-		return dsz;
-	}
-
-	//Remote sparse matrix copy from
-	protected static def mpiCopy(
-			src:DistArray[SparseBlock](1), srcbid:Long, srcColOff:Long,
-			dstspa:SparseCSC, dstColOff:Long, 
-			colCnt:Long):Long {
-
-		val dstbid = here.id();
-		val dsz = at(src.dist(srcbid)) 
-			src(here.id()).getMatrix().countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(src.dist(srcbid)) async {
-					//Need: dstbid, src, srcColOff, datCnt
-					val srcspa = src(here.id()).getMatrix();
-					val tag    = here.id() * 40000 + dstbid;
-					val off    = srcspa.getNonZeroOffset(srcColOff);
-					val datcnt = srcspa.countNonZero(srcColOff, colCnt);
-					
-					srcspa.initRemoteCopyAtSource();
-					WrapMPI.world.send(srcspa.getIndex(), off, datcnt, dstbid, tag);
-					WrapMPI.world.send(srcspa.getValue(), off, datcnt, dstbid, tag+1000);
-					srcspa.finalizeRemoteCopyAtSource();
-				}
-
-                val tag = srcbid * 40000 + dstbid;
-                val off = dstspa.getNonZeroOffset(dstColOff);
-
-                dstspa.initRemoteCopyAtDest(dstColOff, colCnt, dsz);
-                //++++++++++++++++++++++++++++++++++++++++++++
-                //Do NOT call getIndex()/getValue() before init
-                //+++++++++++++++++++++++++++++++++++++++++++++
-                WrapMPI.world.recv(dstspa.getIndex(), off, dsz, srcbid, tag);
-                WrapMPI.world.recv(dstspa.getValue(), off, dsz, srcbid, tag+1000);
-                dstspa.finalizeRemoteCopyAtDest();
-
-			}
-		}
+		dsz = x10Copy(smlist, srcpid, srcColOff, dstspa, dstColOff, colCnt);
 		return dsz;
 	}
 
@@ -997,44 +623,7 @@ public class MatrixRemoteCopy {
 			return;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			{
-				mpiCopy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
-			}
-		}
-		@Ifndef("MPI_COMMU") {
-			{
-				x10Copy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
-			}
-		}
-	}
-
-	/*
-	 * Copy vector from here to remote dense matrix
-	 */
-	protected static def mpiCopy(
-			src:Rail[ElemType], srcOff:Long, 
-			dmlist:DistArray[DenseMatrix](1), dstpid:Long, dstColOff:Long, 
-			dataCnt:Long):void  {
-		
-        assert (srcOff+dataCnt <= src.size) :
-            "At source place, illegal data offset:"+srcOff+" or data count:"+dataCnt;
-		val srcpid = here.id();         //Implicitly carried to dst place
-		@Ifdef("MPI_COMMU") {
-			finish {
-				// At the destination place, receiving the data 
-				at(dmlist.dist(dstpid)) async {
-					//Need: dmlist, srcpid, dstColOff, datasz
-					val dstden = dmlist(here.id());
-					val dstoff = dstden.M * dstColOff;
-					val tag    = srcpid * 10000 + here.id();
-					WrapMPI.world.recv(dstden.d, dstoff, dataCnt, srcpid, tag);
-				}
-				// At the source place, sending out the data
-				val tag = srcpid * 10000 + dstpid;
-				WrapMPI.world.send(src, srcOff, dataCnt, dstpid, tag);
-			}
-		}
+		x10Copy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
 	}
 
 	/**
@@ -1083,42 +672,8 @@ public class MatrixRemoteCopy {
 			return;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			mpiCopy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			x10Copy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
-		}
+		x10Copy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
 	}
-
-	/**
-	 * Copy data from remote matrix to here in a vector
-	 */
-	protected static def mpiCopy(
-			dmlist:DistArray[DenseMatrix](1), srcpid:Long, srcColOff:Long,
-			dst:Rail[ElemType], dstOff:Long, 
-			dataCnt:Long):void {
-		
-		assert (dstOff+dataCnt <= dst.size) :
-		    "At destination place, illegal column offset or count";
-
-		val dstpid = here.id();
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(dmlist.dist(srcpid)) async {
-					//Need: dmlist, dstpid, srcColOff, dataCnt, 
-					val srcden = dmlist(here.id());
-					val srcoff = srcden.M * srcColOff;
-					val tag    = here.id() * 20000 + dstpid;
-					WrapMPI.world.send(srcden.d, srcoff, dataCnt, dstpid, tag);
-				}
-
-                val tag    = srcpid * 20000 + dstpid;
-                WrapMPI.world.recv(dst, dstOff, dataCnt, srcpid, tag);
-			}
-		}
-	}	
 
 	/**
 	 * Copy data from remote dense matrix to here in a vector
@@ -1165,40 +720,9 @@ public class MatrixRemoteCopy {
 			return ;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			mpiCopy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Copy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
-		}
+		x10Copy(src, srcOff, dmlist, dstpid, dstColOff, dataCnt);
 	}
-	
-	/**
-	 * Copy vector from here to remote dense matrix
-	 */
-	protected static def mpiCopy(
-			src:Rail[ElemType], srcOff:Long,
-			dst:DistArray[DenseBlock](1), dstbid:Long, dstColOff:Long, 
-			dataCnt:Long):void {
-		
-		val srcbid = here.id();
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(dst.dist(dstbid)) async {
-					//Need: srcbid, dst, dstColOff, dataCnt
-					val dstden = dst(here.id()).getMatrix();
-					val tag    = srcbid * 60000 + here.id();
-					val off    = dstden.M * dstColOff;
-					WrapMPI.world.recv(dstden.d, off, dataCnt, srcbid, tag);
-				}
 
-                val tag = here.id() * 60000 + dstbid;
-                // src and dst must have the same leading dimension
-                WrapMPI.world.send(src, srcOff, dataCnt, dstbid, tag);
-			}
-		}
-	}
-	
 	/**
 	 * Copy vector from here to remote block 
 	 */
@@ -1243,40 +767,9 @@ public class MatrixRemoteCopy {
 			return;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			mpiCopy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Copy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
-		}
+		x10Copy(dmlist, srcpid, srcColOff, dst, dstOff, dataCnt);
 	}
-	
-	/**
-	 * Copy data from remote block to here in vector
-	 */
-	protected static def mpiCopy(
-			src:DistArray[DenseBlock](1), srcbid:Long, srcColOff:Long,
-			dst:Rail[ElemType], dstOff:Long, 
-			dataCnt:Long):void {
 
-		val dstbid = here.id();
-		@Ifdef("MPI_COMMU") {
-			finish {
-				at(src.dist(srcbid)) async {
-					//Need:src, srcColOff, dataCnt
-					val srcden = src(here.id()).getMatrix();
-					val tag = here.id() * 30000 + dstbid;
-					val off = srcden.M*srcColOff;
-					WrapMPI.world.send(srcden.d, off, dataCnt, dstbid, tag);
-				}
-
-                val tag = srcbid * 30000 + dstbid;
-                // src and dst must have the same leading dimension
-                WrapMPI.world.recv(dst, dstOff, dataCnt, srcbid, tag);
-			}
-		}
-	}
-	
 	/**
 	 * Copy data from remote block to here in vector 
 	 */

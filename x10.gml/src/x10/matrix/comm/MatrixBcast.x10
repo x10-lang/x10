@@ -12,23 +12,14 @@
 package x10.matrix.comm;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 import x10.matrix.ElemType;
 
 import x10.matrix.DenseMatrix;
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
 /**
  * This class provides broadcast functions for dense and sparse matrices.
  * The result is defined in DistAarray structure which stores the broadcast data at all places.
- * 
- * <p> Two implementations are available. One uses MPI routines, 
- * and the other is based on X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
  * 
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
@@ -53,41 +44,8 @@ public class MatrixBcast {
 	 * @return            Number of elements to broadcast
 	 */
 	public static def bcast(dupmat:DistArray[DenseMatrix](1), coloff:Long, colcnt:Long):Long {
-		var datasz:Long = 0;
-		
-		@Ifdef("MPI_COMMU") {
-			datasz = mpiBcast(dupmat, coloff, colcnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			datasz = x10Bcast(dupmat, coloff, colcnt);
-		}
-		return datasz;
+		return x10Bcast(dupmat, coloff, colcnt);
 	} 
-
-	/**
-	 * Broadcast dense matrix stored by using MPI bcast routine.
-	 *
-	 * @param dmlist      Distributed storage for dense matrices in all places
-	 * @param colOff      Offset for the starting column
-	 * @param colCnt      Number of columns to broadcast
-	 * @return            Number of elements broadcast
-	 */
-	protected static def mpiBcast(dmlist:DistArray[DenseMatrix](1), colOff:Long, colCnt:Long):Long {
-		if (dmlist.dist.region.size() <= 1) return 0;
-
-		val root   = here.id();
-		val datasz = dmlist(root).M * colCnt;  //Using global matrix M to compute data size
-		
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in dmlist.dist) {
-				//Need: dmlist, datasz, root and colOff
-				val denmat = dmlist(here.id());	
-				val offset = denmat.M * colOff;
-				WrapMPI.world.bcast(denmat.d, offset, datasz, root);
-			}
-		}
-		return datasz;
-	}
 
 	/**
 	 *  Broadcast dense matrix among the pcnt number of places followed from here
@@ -162,54 +120,7 @@ public class MatrixBcast {
 	public static def bcast(
 			smlist:DistArray[SparseCSC](1), 
 			colOff:Long, colCnt:Long):Long {
-		
-		var datasz:Long = 0;
-		@Ifdef("MPI_COMMU") {
-			datasz = mpiBcast(smlist, colOff, colCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			datasz = x10Bcast(smlist, colOff, colCnt);
-		}
-		return datasz;
-	}
-
-
-	/**
-	 * Using MPI routine to implement sparse matrix broadcast
-	 */
-	protected static def mpiBcast(
-			smlist:DistArray[SparseCSC](1),
-			colOff:Long, colCnt:Long):Long {
-	
-		if (smlist.dist.region.size() <= 1) return 0;
-
-		val root   = here.id();
-		val datasz = smlist(root).countNonZero(colOff,colCnt);  
-		@Ifdef("MPI_COMMU") {
-
-			finish ateach([p] in smlist.dist) {
-				//Need: root, smlist, datasz, colOff, colCnt,
-				val spamat = smlist(here.id());	
-				val offset = spamat.getNonZeroOffset(colOff);
-				
-				//++++++++++++++++++++++++++++++++++++++++++++
-				//Do NOT call getIndex()/getValue() before init at destination place
-				//+++++++++++++++++++++++++++++++++++++++++++++
-				if (p == root) 
-					spamat.initRemoteCopyAtSource(colOff, colCnt);
-				else
-					spamat.initRemoteCopyAtDest(colOff, colCnt, datasz);
-				
-				WrapMPI.world.bcast(spamat.getIndex(), offset, datasz, root);
-				WrapMPI.world.bcast(spamat.getValue(), offset, datasz, root);
-				
-				if (p == root) 
-					spamat.finalizeRemoteCopyAtSource();
-				else
-					spamat.finalizeRemoteCopyAtDest();
-			}
-		}
-		return datasz;		
+		return x10Bcast(smlist, colOff, colCnt);
 	}
 
 	/**

@@ -12,20 +12,16 @@
 package x10.matrix.comm;
 
 import x10.regionarray.Dist;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
 
 /**
  * Broadcast data from the first block at local to all blocks.
- * In MPI implementation, it is required to have at least one block in BlockSet list.
  */
 public class BlockSetBcast extends BlockSetRemoteCopy {
 	/**
@@ -47,106 +43,9 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 	 * @return            Number of elements to broadcast
 	 */
 	public static def bcast(distBS:BlocksPLH, rootpid:Long):Long {
-		var dsz:Long = 0;
-			
-		@Ifdef("MPI_COMMU") {
-			val mat0 = distBS().getFirst();
-			if (mat0.isDense()) {
-				dsz= mpiBcastDense(distBS, rootpid);
-			} else if (mat0.isSparse()) {
-				dsz= mpiBcastSparse(distBS, rootpid);
-			} else {
-				throw new UnsupportedOperationException("Block type is not supported");
-			}
-		}
-		
-		@Ifndef("MPI_COMMU") {
-			dsz= x10Bcast(distBS, rootpid);
-		}
-
-		return dsz;
+		return x10Bcast(distBS, rootpid);
 	} 
-
-	/**
-	 * Broadcast dense matrix stored by using MPI bcast routine.
-	 *
-	 * @param dmlist      Distributed storage for dense matrices in all places
-	 * @param colOff      Offset for the starting column
-	 * @param colCnt      Number of columns to broadcast
-	 * @return            Number of elements broadcast
-	 */
-	protected static def mpiBcastDense(distBS:BlocksPLH, rootpid:Long):Long {
-		var datcnt:Long = 0;	
-		@Ifdef("MPI_COMMU") {
-			finish ateach(Dist.makeUnique()) {
-				val blkitr = distBS().iterator();
-				while (blkitr.hasNext()) {
-				//Get the data count from root block
-				//Remote capture: colOff, colCnt, rootpid
-					val blk  = blkitr.next();
-					val den  = blk.getMatrix() as DenseMatrix;
-					val datasz = den.M * den.N;
-					WrapMPI.world.bcast(den.d, 0, datasz, rootpid);
-				}
-			}
-			datcnt = distBS().getAllBlocksDataCount();
-		}
-		return datcnt;
-	}
-
-	/**
-	 * Using MPI routine to implement sparse matrix broadcast
-	 */
-	protected static def mpiBcastSparse(distBS:BlocksPLH, rootpid:Long):Long {
-		var datcnt:Long = 0;
-
-		@Ifdef("MPI_COMMU")	{
-			if (rootpid != here.id()) {
-				at(Place(rootpid)) {
-					mpiBcastSparse(distBS, rootpid);
-				}
-			}else {
-				var i:Long=0;
-				val blkitr = distBS().iterator();
-				val szlist = new Rail[Long](distBS().blocklist.size());
-				while (blkitr.hasNext()) {
-					val blk = blkitr.next();
-					szlist(i) = blk.getDataCount();
-					datcnt += szlist(i);
-					i++;
-				}
-
-				finish ateach(Dist.makeUnique()) {
-					//Remote capture: distBS, szlist
-					val itr = distBS().iterator();
-					var j:Long = 0;
-
-					while (itr.hasNext()) {
-						
-						val blk = itr.next();
-						val spa  = blk.getMatrix() as SparseCSC;
-						val datasz = szlist(j);
-						if (here.id() == rootpid) 
-							spa.initRemoteCopyAtSource();
-						else
-							spa.initRemoteCopyAtDest(datasz);
-				
-						WrapMPI.world.bcast(spa.getIndex(), 0, datasz, rootpid);
-						WrapMPI.world.bcast(spa.getValue(), 0, datasz, rootpid);
-						if (here.id() == rootpid) 
-							spa.finalizeRemoteCopyAtSource();
-						else
-							spa.finalizeRemoteCopyAtDest();
-						j++;
-					}
-				}
-			}
-		}
-		return datcnt;
-	}
 	
-	// x10 remote copy implemetation of bcast
-
 	/**
 	 *  Broadcast dense matrix among the pcnt number of places followed from here
 	 */

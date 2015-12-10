@@ -34,7 +34,7 @@ build_path	= build
 X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
 
 # runtime settings
-runtime_list = java sock mpi 
+runtime_list = java sock
 numplaces = 4
 test_args = 
 
@@ -44,7 +44,6 @@ test_args =
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 

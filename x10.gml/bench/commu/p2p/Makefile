@@ -34,7 +34,7 @@ build_path	= build
 X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
 
 # runtime settings
-runtime_list = mpi sock java
+runtime_list = sock java
 numplaces = 4
 test_args = 
 
@@ -44,9 +44,6 @@ TestP2P	: $(build_path)/TestP2P.class
 $(build_path)/TestP2P.class	: TestP2P.x10
 			$(X10C) $(X10_FLAG)  $< 
 			
-TestP2P_mpi	: TestP2P.x10
-	$(X10CXX)  -x10rt mpi $(X10_FLAG) $< -o $@ -post 'mpic++ # #'
-
 TestP2P_sock: TestP2P.x10
 	$(X10CXX) -x10rt sockets $(X10_FLAG) $< -o $@
 
@@ -59,6 +56,5 @@ clean_all::
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 

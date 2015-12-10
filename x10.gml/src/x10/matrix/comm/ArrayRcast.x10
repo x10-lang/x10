@@ -11,12 +11,7 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * Ring cast, similar to broadcast, sends data to selected places, while using place-to-place
@@ -29,15 +24,6 @@ import x10.matrix.comm.mpi.WrapMPI;
  *
  * <p> Two data types are supported, double-precision array and compressed
  * data array (CompressArray).
- * 
- * <p> Two implementations are available. One uses MPI routines, and the other
- * is based on X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class ArrayRcast extends ArrayRemoteCopy { 
 	/**
@@ -74,59 +60,8 @@ public class ArrayRcast extends ArrayRemoteCopy {
 			datCnt:Long, 
 			plist:Rail[Long]) : void {
 		
-		@Ifdef("MPI_COMMU") {
-			mpiRcast(dmlist, datCnt, plist);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			x10Rcast(dmlist, datCnt, plist);
-		}
+		x10Rcast(dmlist, datCnt, plist);
 	}
-	
-	/**
-	 * Send data from here to places in the list using
-	 * MPI send/recv routines.
-	 * 
-	 * @param  dmlist 		distributed storage for data arrays
-	 * @param  datCnt 		count of data elements to be sent
-	 * @param  plist 		the list of place ids. Root must be in the list
-	 */
-	protected static def mpiRcast(
-			dmlist:DistDataArray, 
-			datCnt:Long, 
-			plist:Rail[Long]):void {
-		
-	@Ifdef("MPI_COMMU") {
-		
-		// Check place list 
-		if (plist.size <= 0) return ;
-
-		val root   = here.id();                     //Implicitly copied to all places
-		finish {
-	
-			for (var p:Long=0; p < plist.size; p++) {
-				val nxtpid = (p==plist.size-1)?root:plist(p+1); //Implicitly carry to next place
-				val prepid = (p==0)?root:plist(p-1);            //Implicitly carry to next place
-				val curpid = plist(p);
-
-				at(dmlist.dist(curpid)) async {
-					//Need: dmlist, root, nxtpid, prepid, colOff, datasz
-					val mypid  = here.id();
-					val matbuf = dmlist(mypid);
-
-					if (mypid != root) {
-						val dtag = prepid * 5000 + mypid;
-						WrapMPI.world.recv(matbuf, 0, datCnt, prepid, dtag);
-					}
-					if (nxtpid != root) {
-						val dtag = mypid * 5000 + nxtpid;
-						WrapMPI.world.send(matbuf, 0, datCnt, nxtpid, dtag);
-					}
-				}
-			}
-		}
-	}
-	}	
 
 	/**
 	 * Broadcast data in compress array to all places.
@@ -160,72 +95,7 @@ public class ArrayRcast extends ArrayRemoteCopy {
 			datCnt:Long, 
 			plist:Rail[Long]) : void {
 		
-		@Ifdef("MPI_COMMU") {
-			mpiRcast(smlist, datCnt, plist);
-		}
-
-		@Ifndef("MPI_COMMU") {
-			x10Rcast(smlist, datCnt, plist);
-		}
-	}
-
-	/**
-	 * Send compress array from here to a list of places by using
-	 * X10 remote array copy.
-	 *
-	 * @param  smlist 		distributed storage for copies of compress array 
-	 * @param  datCnt 		counts of nonzero data elements to send
-	 * @param  plist 		the list of place IDs
-	 */
-	protected static def mpiRcast(
-			smlist:DistCompArray, 
-			datCnt:Long, 
-			plist:Rail[Long]):void {
-		
-		@Ifdef("MPI_COMMU") {
-			// Check place list 
-			if (plist.size <= 0) return;
-
-			val root   = here.id();                     //Implicitly copied to all places
-			val srcbuf = smlist(root);
-
-			//Not matrix, no need to initialize
-			//srcspa.initRemoteCopyAtSource(colOff, colCnt);
-			finish {
-				for (var p:Long=0; p < plist.size; p++) {
-					val nxtpid = (p==plist.size-1)?root:plist(p+1); //Implicitly carry to next place
-					val prepid = (p==0)?root:plist(p-1);            //Implicitly carry to next place
-					//val curpid = p;
-					val curpid = plist(p);
-
-					at(smlist.dist(curpid)) async {
-						//Need: dmlist, root, nxtpid, prepid, colOff, colCnt, datasz
-						val mypid  = here.id();
-						val matbuf = smlist(mypid);
-					
-						if (mypid != root) {
-							val dtag = prepid * 10000 + mypid;
-
-							//++++++++++++++++++++++++++++++++++++++++++++
-							// If there is not enough place in destination
-							// execution will exit
-							//+++++++++++++++++++++++++++++++++++++++++++++
-							WrapMPI.world.recv(matbuf.index, 0, datCnt, prepid, dtag);
-							WrapMPI.world.recv(matbuf.value, 0, datCnt, prepid, dtag);
-						}
-						if (nxtpid != root) {
-							val dtag = mypid * 10000 + nxtpid;
-							WrapMPI.world.send(matbuf.index, 0, datCnt, nxtpid, dtag);
-							WrapMPI.world.send(matbuf.value, 0, datCnt, nxtpid, dtag);
-						}
-						//Not matrix, no need to finalize
-						//if (mypid != root)
-						//	matspa.finalizeRemoteCopyAtDest();
-					}
-				}
-			}
-			//srcspa.finalizeRemoteCopyAtSource();
-		}
+		x10Rcast(smlist, datCnt, plist);
 	}
 
 	/**

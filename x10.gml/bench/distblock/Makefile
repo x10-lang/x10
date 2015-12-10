@@ -1,6 +1,5 @@
 # This is makefile for building SUMMA benchmarks, for
-# distributed dense and sparse matrices, as well as
-# SUMMA C-MPI implmentation
+# distributed dense and sparse matrices
 #
 
 ###################################################
@@ -12,7 +11,6 @@ target		= DistDenseBlockSUMMA
 
 #List of all targets
 target_list = DistDenseBlockSUMMA DistSparseBlockSUMMA
-##SummaMPIBench
 
 #-------------------------------------
 # GML path
@@ -25,7 +23,7 @@ build_path	= build
 X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
 
 # runtime settings
-runtime_list = mpi sock java pami
+runtime_list = sock java pami
 numplaces = 2
 test_args = 
 
@@ -35,7 +33,6 @@ test_args =
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 

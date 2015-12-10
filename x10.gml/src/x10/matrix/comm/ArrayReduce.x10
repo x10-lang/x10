@@ -11,23 +11,11 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * This class provides implementation for reduce-sum  operation for data arrays which
  * can be accessed via PlaceLocalHandle structure in all places.
- * 
- * <p>To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class ArrayReduce extends ArrayRemoteCopy {
     /** Reduce data from all places to here via PlaceLocalHandle */
@@ -45,12 +33,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
      */
     public static def reduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, 
             opFunc:(Rail[ElemType],Rail[ElemType],Long)=>Int):void {
-        @Ifdef("MPI_COMMU") {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-            x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), opFunc);
-        }
+        x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), opFunc);
     } 
 
 
@@ -66,12 +49,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
      */
     public static def reduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup,
                 opFunc:(Rail[ElemType],Rail[ElemType],Long)=>Int):void {                    
-        @Ifdef("MPI_COMMU") {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-            x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id, places, opFunc);
-        }
+        x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id, places, opFunc);
     }
 
     /**
@@ -82,19 +60,12 @@ public class ArrayReduce extends ArrayRemoteCopy {
      * @param datcnt    count of double-precision data elements
      */
     public static def reduceSum(dat:DataArrayPLH, tmp:DataArrayPLH,    datCnt:Long):void {
-        @Ifdef("MPI_COMMU") 
-        {
-            mpiReduceSum(dat, tmp, datCnt);
-        }
-        @Ifndef("MPI_COMMU") {
-            x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), 
+        x10ReduceToHere(dat, tmp, datCnt, Place.numPlaces(), 
                     (src:Rail[ElemType], dst:Rail[ElemType], c:Long)=>arraySum(src,dst,c));
-        }
     }
 
     /**
      * Reduce data array from a place group by adding them together.
-     * [MPI not supported]
      * 
      * @param ddmat     Distributed storage for input and output data arrays
      * @param ddtmp     temp distributed storage used in inter-place communication data.
@@ -102,35 +73,8 @@ public class ArrayReduce extends ArrayRemoteCopy {
      * @param places    the places used for reduction
      */
     public static def reduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup):void {        
-        @Ifdef("MPI_COMMU") {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-            x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id,places, 
+        x10ReduceToHere(dat, tmp, datCnt, places.size(), here.id,places, 
                (src:Rail[ElemType], dst:Rail[ElemType], c:Long)=>arraySum(src,dst,c));
-        }
-    }
-
-
-    /**
-     * Reduce arrays from all places to here by adding them together.
-     * 
-     * @param ddmat    Distributed storage for input and output data arrays. 
-     * @param ddtmp    Temp distributed storage
-     * @param datCnt   count of data in array
-     */
-    public static def mpiReduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long):void{
-        @Ifdef("MPI_COMMU") 
-        {
-            val root = here.id();
-            finish ateach([p] in WrapMPI.world.dist) {
-                val src = tmp();
-                val dst = dat();
-                Rail.copy(dst, 0L, src, 0L, datCnt);
-                // Counting the all reduce-sum time in communication
-                WrapMPI.world.reduceSum(src, dst, datCnt, root);
-            }
-        }
     }
     
     /**
@@ -192,12 +136,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
             datCnt:Long, 
             opFunc:(Rail[ElemType],Rail[ElemType],Long)=>Int) {
         
-        @Ifdef("MPI_COMMU")    {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-            x10AllReduce(dat, tmp, datCnt, opFunc); 
-        }
+        x10AllReduce(dat, tmp, datCnt, opFunc); 
     } 
 
     /**
@@ -210,21 +149,15 @@ public class ArrayReduce extends ArrayRemoteCopy {
      * @param datCnt   count of data in array
      */
     public static def allReduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long) {
-        @Ifdef("MPI_COMMU")    {
-            mpiAllReduceSum(dat, tmp, datCnt);
-        }
-        @Ifndef("MPI_COMMU") {
-            x10AllReduce(dat, tmp, datCnt, 
+        x10AllReduce(dat, tmp, datCnt, 
                     (src:Rail[ElemType], dst:Rail[ElemType], c:Long)=>arraySum(src,dst,c));
-        }
     } 
 
     
     /**
-     * Perform all reduce sum operation. [MPI not supported]
+     * Perform all reduce sum operation.
      * @see reduceSum()
      * Result is synchronized for all copies
-     * [MPI not supported]
      * 
      * @param ddmat    distributed storage for input and output data arrays in all places. 
      * @param ddtmp    temp distributed storage used in inter-place communication data.
@@ -232,43 +165,10 @@ public class ArrayReduce extends ArrayRemoteCopy {
      * @param places   the places used for reduction
      */
     public static def allReduceSum(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long, places:PlaceGroup) {
-        @Ifdef("MPI_COMMU") {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-               x10AllReduce(dat, tmp, datCnt, places,
+        x10AllReduce(dat, tmp, datCnt, places,
                (src:Rail[ElemType], dst:Rail[ElemType], c:Long)=>arraySum(src,dst,c));
-        }
     } 
 
-    /**
-     * Perform all reduce sum operation. 
-     * @see reduceSum()
-     * Result is synchronized for all copies
-     * 
-     * @param ddmat    distributed storage for input and output data arrays. 
-     * @param ddtmp    temp distributed storage used in inter-place communication.
-     * @param datCnt   count of data in array
-     */
-    protected static def mpiAllReduceSum(
-            dat:DataArrayPLH,
-            tmp:DataArrayPLH, 
-            datCnt:Long): void {
-        
-        @Ifdef("MPI_COMMU") 
-        {
-            val root = here.id();
-            finish ateach([p] in WrapMPI.world.dist) {
-                val pid = here.id();
-                val src = tmp();
-                val dst = dat();
-                Rail.copy(dst, 0L, src, 0L, datCnt);
-                // Counting the all reduce-sum time in communication
-                WrapMPI.world.allReduceSum(src, dst, datCnt);
-            }
-        }
-    }
-    
     protected static def x10AllReduce(dat:DataArrayPLH, tmp:DataArrayPLH, datCnt:Long,
             opFunc:(Rail[ElemType],Rail[ElemType],Long)=>Int){
     
@@ -280,7 +180,6 @@ public class ArrayReduce extends ArrayRemoteCopy {
     /**
      * Perform all reduce operation from a specified place group 
      * Result is synchronized for all copies
-     * [MPI not supported]
      * 
      * @param ddmat    distributed storage for input and output data arrays in all places. 
      * @param ddtmp    temp distributed storage used in inter-place communication data.

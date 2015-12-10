@@ -34,7 +34,6 @@ run		: run_java
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 ###################################################

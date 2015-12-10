@@ -11,23 +11,11 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * This class provides implementation for reduce-sum  operation for data arrays which
  * can be accessed via DistArray structure in all places.
- * 
- * <p>To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class DistArrayReduce extends DistArrayRemoteCopy {
 	/**
@@ -42,41 +30,7 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			ddtmp:DistDataArray, 
 			datCnt:Long):void {
 		
-		@Ifdef("MPI_COMMU") {
-			mpiReduceSum(ddmat, ddtmp, datCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10ReduceSum(ddmat, ddtmp, datCnt);
-		}
-	} 
-
-	/**
-	 * Perform sum of arrays from all places.  The addition result will replace input array.
-	 * <p>Note: Currently broken with runtime abort with message:
-	 * <p>[0] Abort: s->bytes_sent != 0 Rendezvous Push, 0 at line 484 in file ibv_rndv.c
-	 * <p>Still under investigation
-	 * 
-	 * @param ddmat    distributed storage for arrays in all places
-	 * @param ddtmp    temp distributed storage for arrays to receive data
-	 */
-	public static def mpiReduceSum(
-			ddmat:DistDataArray,
-			ddtmp:DistDataArray, 
-			datCnt:Long):void{
-		
-		@Ifdef("MPI_COMMU") {
-			val root = here.id();
-			//finish ateach(val [p]:Point in ddmat) {
-			finish ateach(val [p]:Point in Dist.makeUnique()) {
-				//Remote capture: root ddmat, ddtmp, datCnt;
-				val pid = here.id();
-				val src = ddtmp(pid);
-				val dst = ddmat(pid);
-				Rail.copy(dst, 0, src, 0, datCnt);
-				// Counting the all reduce-sum time in communication
-				WrapMPI.world.reduceSum(src, 0, dst, 0, datCnt, root);
-			}
-		}
+		x10ReduceSum(ddmat, ddtmp, datCnt);
 	}
 
 	/**
@@ -150,41 +104,9 @@ public class DistArrayReduce extends DistArrayRemoteCopy {
 			ddtmp:DistDataArray, 
 			datCnt:Long):void {
 		
-		@Ifdef("MPI_COMMU") {
-			mpiAllReduceSum(ddmat, ddtmp, datCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10AllReduceSum(ddmat, ddtmp, datCnt); 
-		}
-	} 
-
-	/**
-	 * Perform all reduce sum operation. 
-	 * @see reduceSum()
-	 * Result is synchronized for all copies
-	 *d
-	 * @param ddmat    Distributed storage for input and output data arrays in all places. 
-	 * @param ddtmp    Temp distributed storage of data arrays.
-	 */
-	protected static def mpiAllReduceSum(
-			ddmat:DistDataArray,
-			ddtmp:DistDataArray, 
-			datCnt:Long): void {
-		
-	@Ifdef("MPI_COMMU") {
-
-		val root = here.id();
-		finish ateach(val [p]:Point in ddmat) {
-			val pid = here.id();
-			val src = ddtmp(pid);
-			val dst = ddmat(pid);
-			Rail.copy(dst, 0, src, 0, datCnt);
-			// Counting the all reduce-sum time in communication
-			WrapMPI.world.allReduceSum(src, dst, datCnt);
-		}
+		x10AllReduceSum(ddmat, ddtmp, datCnt); 
 	}
-	}
-	
+
 	protected static def x10AllReduceSum(
 			ddmat:DistDataArray,
 			ddtmp:DistDataArray, 

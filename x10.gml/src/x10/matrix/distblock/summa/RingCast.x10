@@ -11,15 +11,11 @@
 
 package x10.matrix.distblock.summa;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
 import x10.matrix.sparse.SparseCSC;
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.distblock.BlockSet;
 
 /**
@@ -31,102 +27,13 @@ protected class RingCast  {
 	if (plist.size < 1) return;
 	val srcblk = distBS().findFrontBlock(rootbid, select);
 	if (srcblk.isDense()) {
-	    @Ifdef("MPI_COMMU") {
-		mpiRingCastDense(distBS, rootbid, datCnt, select, plist);
-	    }
-	    @Ifndef("MPI_COMMU") {
-		x10RingCastDense(distBS, rootbid, datCnt, select, plist);
-	    }
+	    x10RingCastDense(distBS, rootbid, datCnt, select, plist);
 	} else if (srcblk.isSparse()) {
-	    @Ifdef("MPI_COMMU") {
-		mpiRingCastSparse(distBS, rootbid, datCnt, select, plist);
-	    }
-	    @Ifndef("MPI_COMMU") {
-		x10RingCastSparse(distBS, rootbid, datCnt, select, plist);
-	    }                       
+	    x10RingCastSparse(distBS, rootbid, datCnt, select, plist);
 	} else {
 	    throw new UnsupportedOperationException("Error in block type");
 	}               
     }
-    
-    private static def mpiRingCastDense(distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
-					plist:Rail[Long]):void {
-	
-	@Ifdef("MPI_COMMU") 
-	{
-	    val plsz = plist.size;
-	    val root   = here.id();                     //Implicitly copied to all places
-	    finish {
-		for (var p:Long=0; p < plsz; p++) {
-		    val nxtpid = (p==plsz-1)?root:plist(p+1); //Implicitly carry to next place
-		    val prepid = (p==0L)?root:plist(p-1); //Implicitly carry to next place
-		    val curpid = plist(p);
-                    at(Place(curpid)) async {
-			//Need: nxtpid, prepid, distBS, rootbid, datCnt
-			val srcblk = distBS().findFrontBlock(rootbid, select);
-			val matbuf = srcblk.getData();
-			val dtag = rootbid;
-			//receive data from pre-place
-			WrapMPI.world.recv(matbuf, 0, datCnt, prepid, dtag);
-			if (nxtpid != root) {//send data to next-place
-			    WrapMPI.world.send(matbuf, 0, datCnt, nxtpid, dtag);
-			}
-		    }
-		}
-		//At root
-		async {
-		    val srcblk = distBS().findFrontBlock(rootbid, select);
-		    val den    = srcblk.getMatrix() as DenseMatrix;
-		    val dtag   = rootbid;
-		    val nxtpid = plist(0);
-		    WrapMPI.world.send(den.d, 0, datCnt, nxtpid, dtag);
-		}
-	    }
-	}
-    }
-    
-    private static def mpiRingCastSparse(distBS:PlaceLocalHandle[BlockSet], rootbid:Long, datCnt:Long, select:(Long,Long)=>Long,
-					 plist:Rail[Long]):void {
-        
-	@Ifdef("MPI_COMMU") 
-	{
-	    val plsz = plist.size;
-	    val root   = here.id();                     //Implicitly copied to all places
-	    finish {
-		for (var p:Long=0; p < plsz; p++) {
-		    val nxtpid = (p==plsz-1)?root:plist(p+1); //Implicitly carry to next place
-		    val prepid = (p==0L)?root:plist(p-1); //Implicitly carry to next place
-		    val curpid = plist(p);
-		    
-                    at(Place(curpid)) async {
-			//Need: nxtpid, prepid, distBS, rootbid, datCnt
-			val srcblk = distBS().findFrontBlock(rootbid, select);
-			val spa = srcblk.getMatrix() as SparseCSC;
-			val dtag = rootbid;
-			//Receive data
-			spa.initRemoteCopyAtDest(datCnt);
-			WrapMPI.world.recv(spa.getIndex(), 0L, datCnt, prepid, dtag);
-			WrapMPI.world.recv(spa.getValue(), 0L, datCnt, prepid, dtag+1000000);                                           
-			if (nxtpid != root) {
-			    WrapMPI.world.send(spa.getIndex(), 0L, datCnt, nxtpid, dtag);
-			    WrapMPI.world.send(spa.getValue(), 0L, datCnt, nxtpid, dtag+1000000);
-			}
-			spa.finalizeRemoteCopyAtDest();
-		    }
-		}
-		//At root
-		async {
-		    val srcblk = distBS().findFrontBlock(rootbid, select);
-		    val spa    = srcblk.getMatrix() as SparseCSC;
-		    val dtag   = rootbid;
-		    val nxtpid = plist(0);
-		    WrapMPI.world.send(spa.getIndex(), 0L, datCnt, nxtpid, dtag);
-		    WrapMPI.world.send(spa.getValue(), 0L, datCnt, nxtpid, dtag+1000000);
-		}
-	    }
-	}
-    }
-    
     
     // X10 DistRail.copy implementation of ring-cast
     

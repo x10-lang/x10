@@ -11,15 +11,10 @@
 
 package x10.matrix.comm;
 
-import x10.regionarray.Dist;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.distblock.BlockSet;
 
 /**
@@ -36,17 +31,12 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * 
 	 */
 	public static def reduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Long): void {
-		@Ifdef("MPI_COMMU") {
-			mpiReduceSum(distBS, tmpBS, rootpid);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Reduce(distBS, tmpBS, rootpid, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
-		}
+		x10Reduce(distBS, tmpBS, rootpid, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
 	}
 	
 	/**
 	 * Perform reduce on all blocks, and store the result at root block.
-	 * Input blocks will be modified.  The MPI implementation only has sum operation available.
+	 * Input blocks will be modified.
 	 * 
 	 * @param distBS        input distributed blocks
 	 * @param tmpBS         temporary space to store received blocks. Only one block is required for each place
@@ -56,12 +46,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	public static def reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
 			rootpid:Long,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
-		@Ifdef("MPI_COMMU") {
-			mpiReduceSum(distBS, tmpBS, rootpid);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Reduce(distBS, tmpBS, rootpid, opFunc);
-		}
+		x10Reduce(distBS, tmpBS, rootpid, opFunc);
 	}
 	
 	/**
@@ -145,33 +130,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		}
 	}
 	
-
-	/**
-	 * Perform reduce sum of all matrces stored in the duplicated matrix
-	 * Result is stored in the matrix at root place.
-	 * 
-	 * @param ddmat     input and output matrix. 
-	 * @param ddtmp     temp matrix storing the inter-place communication data.
-	 */
-	public static def mpiReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Long):void {
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in Dist.makeUnique()) {
-				//Remote capture: rootpid, 
-				for (var i:Long =0; i< distBS().blocklist.size(); i++) {
-					val blk = distBS().blocklist.get(i);
-					val dst = blk.getMatrix() as DenseMatrix;
-					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
-					
-					//Copy to src
-					dst.copyTo(src);
-					val dsz = dst.M*dst.N;
-					
-					WrapMPI.world.reduceSum(src.d, dst.d, dsz, rootpid);
-				}
-			}
-		}
-	}
-	
 	/**
 	 * Reduce all distributed blocks and store the result of sum of all blocks at specified root block.
 	 * All input blocks will be modified, and result will be stored at root block.
@@ -181,17 +139,12 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 * 
 	 */
 	public static def allReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH): void {
-		@Ifdef("MPI_COMMU") {
-			mpiAllReduceSum(distBS, tmpBS);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10AllReduce(distBS, tmpBS, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
-		}
+		x10AllReduce(distBS, tmpBS, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
 	}
 	
 	/**
 	 * Perform reduce on all blocks, and store the result at root block.
-	 * Input blocks will be modified.  The MPI implementation only has sum operation available.
+	 * Input blocks will be modified.
 	 * 
 	 * @param distBS        input distributed blocks
 	 * @param tmpBS         temporary space to store received blocks. Only one block is required for each place
@@ -200,12 +153,7 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 	 */
 	public static def allReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
-		@Ifdef("MPI_COMMU") {
-			mpiAllReduceSum(distBS, tmpBS);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10AllReduce(distBS, tmpBS, opFunc);
-		}
+		x10AllReduce(distBS, tmpBS, opFunc);
 	}
 
 	public static def x10AllReduce(distBS:BlocksPLH, tmpBS:BlocksPLH,
@@ -214,33 +162,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 		val rtpid = here.id();
 		x10Reduce(distBS, tmpBS, rtpid, opFunc);
 		BlockSetBcast.bcast(distBS, rtpid);
-	}
-
-	/**
-	 * Perform all reduce sum operation. 
-	 * @see reduceSum()
-	 * Result is synchronized for all copies of duplicated matrix
-	 * 
-	 * @param ddmat     input and output matrix. 
-	 * @param ddtmp     temp matrix storing the inter-place communication data.
-	 */
-	protected static def mpiAllReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH): void {
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in Dist.makeUnique()) {
-				//Remote capture: rootpid, 
-				for (var i:Long =0; i< distBS().blocklist.size(); i++) {
-					val blk = distBS().blocklist.get(i);
-					val dst = blk.getMatrix() as DenseMatrix;
-					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
-					
-					//Copy to src
-					dst.copyTo(src);
-					val dsz = dst.M*dst.N;
-					
-					WrapMPI.world.allReduceSum(src.d, dst.d, dsz);
-				}
-			}
-		}
 	}
 
 	/**

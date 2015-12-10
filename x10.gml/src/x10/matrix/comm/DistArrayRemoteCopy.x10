@@ -11,24 +11,13 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.CompressArray;
 
 /**
  * This class supports inter-place communication for data arrays which are defined
  * in DistArray at all places. 
- * 
- * <p>To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class DistArrayRemoteCopy {
 	private static val baseTagCopyTo:Int=100000n;
@@ -63,47 +52,9 @@ public class DistArrayRemoteCopy {
             "At source place, illegal data offset:"+srcOff+
             " or data count:"+dataCnt;
 		
-		@Ifdef("MPI_COMMU") {
-			{
-				mpiCopy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
-			}
-		}
-		@Ifndef("MPI_COMMU") {
-			{
-				x10Copy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
-			}
-		}
+		x10Copy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
 	}
-	
-	/*
-	 * Copy vector from here to remote dense matrix
-	 */
-	protected static def mpiCopy(
-			src:Rail[ElemType], srcOff:Int, 
-			dstlist:DistDataArray, dstpid:Int,
-			dstOff:Int,			 	dataCnt:Long) :void  {
-		
-	@Ifdef("MPI_COMMU") {
-		val srcpid = here.id();         //Implicitly carried to dst place
-		
-		finish {
-			async {
-				// At the source place, sending out the data
-				val tag = srcpid * baseTagCopyTo + dstpid;
-				WrapMPI.world.send(src, srcOff, dataCnt, dstpid, tag);
-			}
-			// At the destination place, receiving the data 
-			at(dstlist.dist(dstpid)) async {
-				val dst = dstlist(here.id());
-				//Need: dmlist, srcpid, dstColOff, datasz
-				assert (dstOff+dataCnt <= dst.size) :
-                    "Receiving side data overflow";
-				val tag    = srcpid * baseTagCopyTo + here.id();
-				WrapMPI.world.recv(dst, dstOff, dataCnt, srcpid, tag);
-			}
-		}
-	}
-	}
+
 	/**
 	 * Copy vector from here to remote dense matrix
 	 */
@@ -149,44 +100,9 @@ public class DistArrayRemoteCopy {
 		assert (dstOff+dataCnt <= dst.size) :
             "Receiving array overflow";
 		
-		@Ifdef("MPI_COMMU") {
-			{
-				mpiCopy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
-			}
-		}
+		x10Copy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
+	}
 
-		@Ifndef("MPI_COMMU") {
-			{
-				x10Copy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
-			}
-		}
-	}
-	/**
-	 * Copy data from remote matrix to here in a vector
-	 */
-	protected static def mpiCopy(
-			srclist:DistDataArray, srcpid:Int, srcOff:Int,
-			dst:Rail[ElemType], dstOff:Int, dataCnt:Long): void {
-		
-	@Ifdef("MPI_COMMU") {
-		val dstpid = here.id();
-		finish {
-			at(srclist.dist(srcpid)) async {
-				//Need: dstlist, dstpid, srcOff, dataCnt, 
-				val src = srclist(here.id());
-				val tag = here.id() * baseTagCopyFrom + dstpid;
-				assert (srcOff + dataCnt <= src.size) :
-                    "Sending array overflow";
-				
-				WrapMPI.world.send(src, srcOff, dataCnt, dstpid, tag);
-			}
-			async {
-				val tag    = srcpid * baseTagCopyFrom + dstpid;
-				WrapMPI.world.recv(dst, dstOff, dataCnt, srcpid, tag);
-			}
-		}
-	}
-	}	
 	/**
 	 * Copy data from remote dense matrix to here in a vector
 	 */
@@ -236,50 +152,8 @@ public class DistArrayRemoteCopy {
 		assert (srcOff+dataCnt <= src.storageSize()) :
             "Sending side overflow";
 		
-		@Ifdef("MPI_COMMU") {
-			{
-				mpiCopy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
-			}
-		}
-		@Ifndef("MPI_COMMU") {
-			{
-				x10Copy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
-			}
-		}
+		x10Copy(src, srcOff, dstlist, dstpid, dstOff, dataCnt);
 	}
-
-
-	/**
-	 * Based on mpi send/recv, copy data from here to remote place
-	 */
-	protected static def mpiCopy(
-			src:CompressArray, srcOff:Int,
-			dstlist:DistCompArray, dstpid:Int, dstOff:Int, 
-			dataCnt:Long): void {
-		
-	@Ifdef("MPI_COMMU") {
-
-		val srcpid = here.id();        
-		finish {
-			async {
-				val tag    = srcpid * baseTagCopyIdxTo + dstpid;
-				WrapMPI.world.send(src.index, srcOff, dataCnt, dstpid, tag);
-				WrapMPI.world.send(src.value, srcOff, dataCnt, dstpid, tag+100001);
-			}
-
-			at(dstlist.dist(dstpid)) async {
-				// Need: dstlist, srcpid, dstOff, dataCnt;
-				val dst = dstlist(here.id());
-				val tag = srcpid * baseTagCopyIdxTo + here.id();
-				assert (dstOff+dataCnt <= dst.storageSize()) :
-                    "Receiving side arrays overflow";
-				WrapMPI.world.recv(dst.index, dstOff, dataCnt, srcpid, tag);
-				WrapMPI.world.recv(dst.value, dstOff, dataCnt, srcpid, tag+100001);
-			}
-		}
-	}
-	}
-
 
 	//Sparse matrix remote copy To
 	protected static def x10Copy(
@@ -325,44 +199,7 @@ public class DistArrayRemoteCopy {
 			return;
 		}
 
-		@Ifdef("MPI_COMMU") {
-			{
-				mpiCopy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
-			}
-		}
-
-		@Ifndef("MPI_COMMU") {
-			{
-				x10Copy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
-			}
-		}
-	}
-
-	//Remote sparse matrix copy from
-	protected static def mpiCopy(
-			srclist:DistCompArray, srcpid:Int, srcOff:Int,
-			dst:CompressArray, dstOff:Int, 
-			dataCnt:Long): void {
-		
-	@Ifdef("MPI_COMMU") {
-		val dstbid = here.id();
-		finish {
-			at(srclist.dist(srcpid)) async {
-				//Need: dstpid, srclist, srcOff, dataCnt
-				val src = srclist(here.id());
-				val tag    = here.id() * baseTagCopyIdxFrom + dstbid;
-				WrapMPI.world.send(src.index, srcOff, dataCnt, dstbid, tag);
-				WrapMPI.world.send(src.value, srcOff, dataCnt, dstbid, tag+1000);
-			}
-			
-			async {
-				val tag = srcpid * baseTagCopyIdxFrom + dstbid;
-
-				WrapMPI.world.recv(dst.index, dstOff, dataCnt, srcpid, tag);
-				WrapMPI.world.recv(dst.value, dstOff, dataCnt, srcpid, tag+1000);
-			}
-		}
-	}
+		x10Copy(srclist, srcpid, srcOff, dst, dstOff, dataCnt);
 	}
 
 	//Sparse matrix remote copyt from

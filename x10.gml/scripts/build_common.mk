@@ -34,7 +34,6 @@ include $(gml_scripts)/system_setting.mk
 
 #include $(gml_scripts)/build_managed.mk
 #include $(gml_scripts)/build_native.mk
-#include $(gml_scripts)/build_native_mpi.mk
 
 #Build default target for all runtime backend and runtime transports
 all	:

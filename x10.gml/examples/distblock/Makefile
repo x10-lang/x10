@@ -16,7 +16,7 @@ build_path	= build
 X10_FLAG= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
 
 # runtime settings
-runtime_list = mpi sock java
+runtime_list = sock java
 numplaces = 4
 test_args = 
 
@@ -35,7 +35,6 @@ run		: run_java
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 ###################################################
@@ -47,8 +46,7 @@ help ::
 	@echo "";
 	@echo " To build examples with GML, you need to build GML library first by";
 	@echo " running \"make gmllib\" at the GML root directory.  This will create all depending libraries, jar files and";
-	@echo " and properties, which are used in building apps for managed backend, native";
-	@echo " backend, and native C++ on MPI transport";
+	@echo " and properties, which are used in building apps for managed backend, native backend";
 	@echo "";
 	@echo " NOTE: after GML library is built, the \"include\" in the matrix top directory";
 	@echo " must be preserved to compile apps.";

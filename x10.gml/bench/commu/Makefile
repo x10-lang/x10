@@ -10,10 +10,10 @@
 #
 
 # Run benchmarks
-# Run [bench] executable: make [run_mpi|run_sock|java]
+# Run [bench] executable: make [run_sock|java]
 
 # Bench mark test suite
-# cd [placehandle|distarray|distmatrix]/test_suite_[java|sock|mpi]; ./ptest_[probsizes|nodes|cores].pl -r
+# cd [placehandle|distarray|distmatrix]/test_suite_[java|sock]; ./ptest_[probsizes|nodes|cores].pl -r
 ##-------------------------------------
 SHELL=bash
 MAKE=make

@@ -11,26 +11,11 @@
 
 package x10.matrix.comm;
 
-import x10.regionarray.Dist;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * This class supports scatter operation for data arrays which are defined
  * in PlaceLocalHandle and DistArray at all places. 
- * 
- * <p> Two implementations are available. One uses MPI routines and 
- * the other is based on X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class ArrayScatter extends ArrayRemoteCopy {    
     /**
@@ -54,12 +39,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
                 Rail.copy(srcbuf, 0L, dstbuf, 0L, srcbuf.size);
 
             } else {
-                @Ifdef("MPI_COMMU") {
-                    mpiCopy(srcbuf, 0, dst, bid, 0, srcbuf.size);
-                }
-                @Ifndef("MPI_COMMU") {
-                    x10Copy(srcbuf, 0, dst, bid, 0, srcbuf.size);
-                }
+                x10Copy(srcbuf, 0, dst, bid, 0, srcbuf.size);
             }
             
         }
@@ -74,12 +54,7 @@ public class ArrayScatter extends ArrayRemoteCopy {
             gp:Rail[Long]): void {
         assert gp.size == Place.numPlaces();
 
-        @Ifdef("MPI_COMMU") {
-            mpiScatter(src, dst, gp);
-        }
-        @Ifndef("MPI_COMMU") {
-            x10Scatter(src, dst, gp);
-        }
+        x10Scatter(src, dst, gp);
     }
 
 
@@ -93,60 +68,9 @@ public class ArrayScatter extends ArrayRemoteCopy {
             places:PlaceGroup): void {
         assert gp.size == places.size();
         
-        @Ifdef("MPI_COMMU") {
-            throw new UnsupportedOperationException("No MPI implementation");
-        }
-        @Ifndef("MPI_COMMU") {
-            x10Scatter(src, dst, gp, places);
-        }
+        x10Scatter(src, dst, gp, places);
     }
 
-
-    /**
-     * Scatter data from array at here to all places 
-     * by calling mpi scatter routine.
-     * 
-     * @param src          source data array 
-     * @param dst          target distributed array
-     * @param gp          size list, or partitioning of array for scattering
-     */
-    public static def mpiScatter(
-            src:Rail[ElemType],
-            dst:DataArrayPLH, 
-            szlist:Rail[Long]): void {
-        
-    @Ifdef("MPI_COMMU") {
-        //Only one row block partition
-        val root = here.id();
-        finish     { 
-            for([p] in WrapMPI.world.dist) {
-                val datcnt = szlist(p);
-                if (p != root) {
-                    at(WrapMPI.world.dist(p)) async {
-                        val dstbuf = dst();
-                        /*******************************************/
-                        // Not working
-                        //val tmpbuf= null; //fake
-                        //val tmplst=null;//   //fake
-                        /*******************************************/
-                        val tmpbuf = new Rail[ElemType](0); //fake
-                        val tmplst = new Rail[Long](0);   //fake
-                        WrapMPI.world.scatterv(tmpbuf, tmplst, dstbuf, datcnt, root);
-                    }
-                } 
-            }
-            async {
-                /**********************************************/
-                // DO NOT move this block into for loop block
-                // MPI process will hang, Cause is not clear
-                /**********************************************/    
-                val dstbuf = dst();
-                WrapMPI.world.scatterv(src, szlist, dstbuf, szlist(root), root);
-            }            
-        }
-    }
-    }
-    
     /**
      * Copy array data from here to distributed array in all places
      * 

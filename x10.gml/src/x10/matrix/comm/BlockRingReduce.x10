@@ -11,15 +11,10 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
-import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.distblock.CastPlaceMap;
 
@@ -92,14 +87,8 @@ public class BlockRingReduce extends BlockRemoteCopy {
             val rightplst = new Rail[Long](rightPCnt, (i:Long)=>plst(leftPCnt+i));
             val leftplst  = new Rail[Long](leftPCnt, (i:Long)=>plst(i));
 
-            @Ifdef("MPI_COMMU") {
-                mpiBinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
+            x10BinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
                     leftplst, rightplst);
-            }
-            @Ifndef("MPI_COMMU") {
-               x10BinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
-                    leftplst, rightplst);
-            }
         } else if (pcnt == 1) {
             distBS().selectReduce(rootblk, colCnt, select, opFunc);
         }
@@ -141,49 +130,5 @@ public class BlockRingReduce extends BlockRemoteCopy {
 		
 		opFunc(rcvden, dstden, colCnt);
 		//dstmat.cellAdd(rcvmat as DenseMatrix(dstmat.M, dstmat.N));
-	}
-
-	private static def mpiBinaryTreeReduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, colCnt:Long,
-			select:(Long,Long)=>Long,
-			opFunc:(DenseMatrix, DenseMatrix, Long)=>DenseMatrix, 
-			nearbyPlcList:Rail[Long], 
-			remotePlcList:Rail[Long])  {
-				
-		@Ifdef("MPI_COMMU") {
-			val dstpid = here.id();
-			val rcvbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-			val rcvblk = tmpBS().findFrontBlock(rcvbid, select);
-			val rcvden = rcvblk.getMatrix() as DenseMatrix;
-			
-			finish {
-				//Left branch reduction
-				val remotepid = remotePlcList(0);
-				at(Place(remotepid)) async {
-					//Remote capture:distBS, tmpBS, colCnt, remotePlcList
-					val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-					val rmtblk = distBS().findFrontBlock(rootbid, select);
-					
-					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
-					
-					val rmtden = rmtblk.getMatrix() as DenseMatrix;
-					val datcnt = rmtden.M * colCnt;
-					val tag = baseTagCopyTo + here.id();
-					
-					WrapMPI.world.send(rmtblk.getData(), 0, datcnt, dstpid, tag);
-				}
-				//left branch reduction
-				async {
-					reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, nearbyPlcList);
-					
-					val datcnt = rcvden.M*colCnt;
-					val tag    = baseTagCopyTo + remotepid;
-					WrapMPI.world.recv(rcvden.d, 0, datcnt, remotepid, tag);
-				}
-			}
-			
-			val dstden = rootblk.getMatrix() as DenseMatrix;
-			opFunc(rcvden, dstden, colCnt);
-		}
 	}
 }

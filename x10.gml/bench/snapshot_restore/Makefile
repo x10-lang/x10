@@ -10,7 +10,7 @@
 #
 
 # Test run
-# Run [mpi|sockets|java] executable: make [run_mpi|run_sock|java]
+# Run [sockets|java] executable: make [run_sock|java]
 
 # Bench mark test suite
 # cd test_suite; ./ptest.pl -r
@@ -40,7 +40,7 @@ build_path	= build
 X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
 
 # runtime settings
-runtime_list = mpi sock java
+runtime_list = sock java
 
 ############################
 #Configure these parameters#
@@ -100,6 +100,5 @@ endif
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 

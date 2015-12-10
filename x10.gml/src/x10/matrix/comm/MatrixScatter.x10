@@ -12,14 +12,11 @@
 package x10.matrix.comm;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 
 import x10.matrix.block.Grid;
@@ -36,12 +33,6 @@ import x10.matrix.block.SparseBlock;
  * <p> The target data lives on DistArray of dense blocks or sparse blocks,
  * depending on the source matrix types.
  *
- * <p> Two implementations are available. One uses MPI routines, and the other is based on 
- * X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
  * <p>For more information on how to build different backends and runtime, 
  * run command "make help" at the root directory of GML library.
  */
@@ -88,113 +79,10 @@ public class MatrixScatter {
         assert (gp.numRowBlocks==1L ||gp.N==1L) :
 			"Number of row block in partition must be 1 or matrix is a vector";
 
-		@Ifdef("MPI_COMMU") {
-			if (gp.N==1L) 
-				mpiScatterVector(gp as Grid{gp.N==1L}, src.d, dst);
-			else
-				mpiScatterRowBs(gp, src, dst);
-		}
-		@Ifndef("MPI_COMMU") {
-			if (gp.N==1L)
-				x10ScatterVector(gp as Grid{gp.N==1L}, src.d, dst);
-			else
-				x10ScatterRowBs(gp, src, dst);
-		}
-	}
-	
-	/**
-	 * Scatter dense matrix at here to distributed dense blocks, partitioned 
-	 * in single row blocks via MPI scatter routine.
-	 *
-	 * @param gp         the partitioning having 1-row partitioning
-	 * @param srcden     source dense matrix blocks 
-	 * @param dst        target distributed dense block matrix 
-	 */
-	public static def mpiScatterRowBs(
-			gp:Grid, 
-			srcden:DenseMatrix,
-			dst:DistArray[DenseBlock](1)): void {
-
-		@Ifdef("MPI_COMMU") {
-
-		//Only one row block partition
-			val szlist = new Rail[Long](gp.numColBlocks, (i:Long)=>gp.colBs(i)*gp.rowBs(0));
-			val root = here.id();
-			finish 	{ 
-				for([p] in dst.dist) {
-					val datcnt = szlist(p);
-					if (p != root) {
-						at(dst.dist(p)) async {
-							val dstden = dst(here.id()).getMatrix();
-							/*******************************************/
-							// Not working
-							//val tmpbuf= null; //fake
-							//val tmplst=null;//   //fake
-							/*******************************************/
-							val tmpbuf = new Rail[ElemType](0); //fake
-							val tmplst = new Rail[Long](0);   //fake
-							WrapMPI.world.scatterv(tmpbuf, tmplst, dstden.d, datcnt, root);
-						}
-					} 
-				}
-
-				async {
-					/**********************************************/
-					// DO NOT move this block into for loop block
-					// MPI process will hang, Cause is not clear
-					/**********************************************/	
-					val dstden = dst(root).getMatrix();
-					WrapMPI.world.scatterv(srcden.d, szlist, dstden.d, szlist(root), root);
-				}
-			
-			}
-		}
-	}
-
-	/**
-	 * Scatter single column matrix (vector) to distributed dense blocks
-	 *
-	 * @param gp			matrix partitioning with single column blocks
-	 * @param src			source matrix data buffer
-	 * @param dst			destination dense blocks distributed among all blocks.
-	 */
-	public static def mpiScatterVector(
-			gp:Grid{self.N==1L}, 
-			src:Rail[ElemType], 
-			dst:DistArray[DenseBlock](1)): void {
-
-		@Ifdef("MPI_COMMU") {
-			//Only one row block partition
-			val szlist = gp.rowBs;
-			val root = here.id();
-			finish 	{ 
-				for([p] in dst.dist) {
-					val datcnt = szlist(p);
-					if (p != root) {
-						at(dst.dist(p)) async {
-							val dstden = dst(here.id()).getMatrix();
-							/*******************************************/
-							// Not working
-							//val tmpbuf= null; //fake
-							//val tmplst=null;//   //fake
-							/*******************************************/
-							val tmpbuf = new Rail[ElemType](0); //fake
-							val tmplst = new Rail[Long](0);   //fake
-							WrapMPI.world.scatterv(tmpbuf, tmplst, dstden.d, datcnt, root);
-						}
-					} 
-				}
-
-				async {
-					/**********************************************/
-					// DO NOT move this block into for loop block
-					// MPI process will hang, Cause is not clear
-					/**********************************************/	
-					val dstden = dst(root).getMatrix();
-					WrapMPI.world.scatterv(src, szlist, dstden.d, szlist(root), root);
-				}
-			}
-		}
+		if (gp.N==1L)
+			x10ScatterVector(gp as Grid{gp.N==1L}, src.d, dst);
+		else
+			x10ScatterRowBs(gp, src, dst);
 	}
 
 	/**
@@ -287,12 +175,7 @@ public class MatrixScatter {
 		assert (gp.numRowBlocks==1L || gp.N==1L) :
 					 "Number of row block in partition must be 1, or matrix is a vector";
 		// Test sparse block storage 
-		@Ifdef("MPI_COMMU") {
-			mpiScatterRowBs(gp, src, dst);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10ScatterRowBs(gp, src, dst);
-		}
+		x10ScatterRowBs(gp, src, dst);
 	}
 
     protected static def compNonZeroBs(gp:Grid, src:SparseCSC):Rail[Long] {
@@ -306,80 +189,6 @@ public class MatrixScatter {
 		}
 		return nzl;
 
-	}
-
-	protected static def mpiScatterRowBs(
-			gp:Grid, 
-			srcspa:SparseCSC,
-			dst:DistArray[SparseBlock](1)): void {
-
-		@Ifdef("MPI_COMMU") {
-
-		val root = here.id();			
-		var sttcol:Long = 0;
-		var datoff:Long = 0;
-		val nzlist = compNonZeroBs(gp, srcspa);
-		
-		finish {
-			for([p] in dst.dist) {
-				if (p != root) {
-					val datcnt = nzlist(p);
-					at(dst.dist(p)) async {
-						//Need: dst, root, datcnt
-						val dstspa = dst(here.id()).getMatrix();
-
-						// Not working
-						//val rcvidx = null; 
-						//val rcvval = null;
-						//val szl = null;
-
-						val tmpidx = new Rail[Long](0); 
-						val tmpval = new Rail[ElemType](0);
-						val tmplst = new Rail[Long](0);
-					
-						//++++++++++++++++++++++++++++++++++++++++++++
-						//Do NOT call getIndex()/getValue() before init
-						//+++++++++++++++++++++++++++++++++++++++++++++
-						dstspa.initRemoteCopyAtDest(datcnt);
-						WrapMPI.world.scatterv(tmpidx, tmplst, 
-									 dstspa.getIndex(), datcnt, root);
-						WrapMPI.world.scatterv(tmpval, tmplst, 
-									 dstspa.getValue(), datcnt, root);
-						dstspa.finalizeRemoteCopyAtDest();
-					}
-				} 
-			}
-			
-			{
-				// Root place block func
-				// Do NOT move into for loop
-				val dstspa = dst(root).getMatrix();
-				val srcidx = srcspa.getIndex();
-				val srcval = srcspa.getValue();
-				val datcnt = nzlist(root);
-
-				//++++++++++++++++++++++++++++++++++
-				// The init remote first method must be called before 
-				// getting the index and value arrays.
-				// When recieve side storage is smaller than
-				// incoming data, the storage will be re-allocated in the init method,
-				// therefore, making the earlier storage array object obsolete
-				//+++++++++++++++++++++++++++++++++++
-		   
-				dstspa.initRemoteCopyAtDest(datcnt);
-				srcspa.initRemoteCopyAtSource();
-
-				WrapMPI.world.scatterv(srcidx, nzlist, 
-							 dstspa.getIndex(), datcnt, root);
-				WrapMPI.world.scatterv(srcval, nzlist, 
-							 dstspa.getValue(), datcnt, root);
-
-				srcspa.finalizeRemoteCopyAtSource();
-				dstspa.finalizeRemoteCopyAtDest();
-
-			}
-		}
-		}
 	}
 
 	/**

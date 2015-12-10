@@ -11,15 +11,11 @@
 
 package x10.matrix.distblock.summa;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.distblock.BlockSet;
 
 /**
@@ -61,19 +57,9 @@ protected class BinaryTreeCast  {
         
         val srcblk = distBS().findFrontBlock(rootbid, select);
         if (srcblk.isDense()) {
-            @Ifdef("MPI_COMMU") {
-                mpiCopyDenseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
-            }
-            @Ifndef("MPI_COMMU") {
-                x10CopyDenseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
-            }
+            x10CopyDenseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
         } else if (srcblk.isSparse()) {
-            @Ifdef("MPI_COMMU") {
-                mpiCopySparseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
-            }
-            @Ifndef("MPI_COMMU") {
-                x10CopySparseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
-            }                   
+            x10CopySparseBlock(distBS, rootbid, srcblk, remotepid, datCnt, select, plist);
         } else {
             throw new UnsupportedOperationException("Error in block type");
         }
@@ -125,67 +111,5 @@ protected class BinaryTreeCast  {
             }
             dstspa.finalizeRemoteCopyAtDest();
         }       
-    }   
-    
-    private static def mpiCopyDenseBlock(distBS:PlaceLocalHandle[BlockSet], 
-                                         rootbid:Long, srcblk:MatrixBlock, rmtpid:Long, datCnt:Long, select:(Long,Long)=>Long, 
-                                         plist:Rail[Long]):void {
-        //Must use ":void", otherwise, @Ifdef("xxx") won't work
-        //Need further investiagtion.
-        val srcpid = here.id();
-        val srcden = srcblk.getMatrix() as DenseMatrix;
-        val tag    = rootbid;//RandTool.nextLong(Int.MAX_VALUE);
-        
-        @Ifdef("MPI_COMMU") 
-        {
-            //Tag is used to differ different ring cast.
-            //Row and column-wise ringcast must NOT be carried out at the same
-            //time. This tag only allows ringcast be differed by root block id.
-            finish {
-                at(Place(rmtpid)) async {
-                    //Remote capture:distBS, rootbid, datCnt, rtplist, tag
-                    val blk    = distBS().findFrontBlock(rootbid, select);
-                    val dstden = blk.getMatrix() as DenseMatrix;
-                    WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
-                    if (plist.size > 0)  {
-                        castToPlaces(distBS, rootbid, datCnt, select, plist);
-                    }
-                }
-                WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
-            }
-        }
-    }
-    
-    private static def mpiCopySparseBlock(distBS:PlaceLocalHandle[BlockSet], 
-                                          rootbid:Long, srcblk:MatrixBlock, rmtpid:Long, datCnt:Long, select:(Long,Long)=>Long, 
-                                          plist:Rail[Long]):void {
-        
-        val srcpid = here.id();
-        val srcspa = srcblk.getMatrix() as SparseCSC;
-        val tag = rootbid;//RandTool.nextLong(Int.MAX_VALUE);
-        //Tag must allow to differ multiply ringcast.
-        
-        @Ifdef("MPI_COMMU") 
-        {
-            finish {
-                at(Place(rmtpid)) async {
-                    //Remote capture:distBS, rootbid, datCnt, rtplist, tag
-                    val blk    = distBS().findFrontBlock(rootbid, select);
-                    val dstspa = blk.getMatrix() as SparseCSC;
-                    dstspa.initRemoteCopyAtDest(datCnt);
-                    WrapMPI.world.recv(dstspa.getIndex(), 0L, datCnt, srcpid, tag);
-                    WrapMPI.world.recv(dstspa.getValue(), 0L, datCnt, srcpid, tag+1000000);
-                    
-                    // Perform binary bcast on the right branch
-                    if (plist.size > 0) {
-                        castToPlaces(distBS, rootbid, datCnt, select, plist);
-                    }
-                    dstspa.finalizeRemoteCopyAtDest();
-                }
-                
-                WrapMPI.world.send(srcspa.getIndex(), 0L, datCnt, rmtpid, tag);
-                WrapMPI.world.send(srcspa.getValue(), 0L, datCnt, rmtpid, tag+1000000);
-            }
-        }
     }
 }

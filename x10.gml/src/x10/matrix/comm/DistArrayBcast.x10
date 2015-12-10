@@ -11,23 +11,10 @@
 
 package x10.matrix.comm;
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
-
-import x10.matrix.comm.mpi.WrapMPI;
 
 /**
  * This class broadcasts data in double-precision or CompressArray to all places
- * 
- * <p> Two implementations are available, using MPI routines and X10 remote array copy.
- * To enable MPI communication, add "-define MPI_COMMU -cxx-prearg -DMPI_COMMU"
- * in x10c++ build command, when you include commu package in your application source
- * code, or link to the proper GML library (native_mpi version).
- * 
- * <p>For more information on how to build different backends and runtime, 
- * run command "make help" at the root directory of GML library.
  */
 public class DistArrayBcast extends DistArrayRemoteCopy {
 	/**
@@ -49,32 +36,7 @@ public class DistArrayBcast extends DistArrayRemoteCopy {
 	public static def bcast(duplist:DistDataArray, dataCnt:Long) : void {
 		assert (dataCnt <= duplist(here.id()).size) : "Data overflow in bcast";
 		
-		@Ifdef("MPI_COMMU") {
-			mpiBcast(duplist, dataCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Bcast(duplist, dataCnt);
-		}
-	} 
-
-	/**
-	 * Broadcast double-precision data array via using MPI routine.
-	 *
-	 * @param dmlist     distributed storage for source and its copies.
-	 * @param dataCnt    count of double-precision data to broadcast
-	 */
-	protected static def mpiBcast(dmlist:DistDataArray, dataCnt:Long):void {
-			
-	@Ifdef("MPI_COMMU") {
-		if (dmlist.dist.region.size() <= 1) return;
-
-		val root   = here.id();
-		finish ateach(val [p]:Point in dmlist.dist) {
-			//Need: dmlist, dataCnt, root
-			val dstbuf = dmlist(here.id());	
-			WrapMPI.world.bcast(dstbuf, 0, dataCnt, root);
-		}
-	}
+		x10Bcast(duplist, dataCnt);
 	}
 
 	/**
@@ -142,34 +104,7 @@ public class DistArrayBcast extends DistArrayRemoteCopy {
 	public static def bcast(smlist:DistCompArray, dataCnt:Long): void {
 		assert (dataCnt <= smlist(here.id()).storageSize()) : "Data overflow in bcast";
 		
-		@Ifdef("MPI_COMMU") {
-			mpiBcast(smlist, dataCnt);
-		}
-		@Ifndef("MPI_COMMU") {
-			x10Bcast(smlist, dataCnt);
-		}
-	} 
-
-	/**
-	 * Broadcast data in compress array from here 
-	 * to all other places.
-	 *
-	 * @param smlist    distributed storage of compress array for source and its copies.
-	 * @param dataCnt   count of nonzero data to broadcast
-	 */
-	protected static def mpiBcast(smlist:DistCompArray, dataCnt:Long):void {
-		@Ifdef("MPI_COMMU") {
-			if (smlist.dist.region.size() <= 1) return;
-			
-			val root   = here.id();
-			finish ateach(val [p]:Point in smlist.dist) {
-				//Need: root, smlist, datasz, colOff, colCnt,
-				val ca = smlist(here.id());	
-				
-				WrapMPI.world.bcast(ca.index, 0, dataCnt, root);
-				WrapMPI.world.bcast(ca.value, 0, dataCnt, root);
-			}
-		}
+		x10Bcast(smlist, dataCnt);
 	}
 
 	/**

@@ -11,21 +11,15 @@
 
 package x10.matrix.comm;
 
-import x10.regionarray.Dist;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
-import x10.matrix.comm.mpi.WrapMPI;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
 
 /**
  * Broadcast data from the first block at local to all blocks.
- * In MPI implementation, it is required to have at least one block in BlockSet list.
  */
 public class BlockBcast extends BlockRemoteCopy {
 	/**
@@ -48,94 +42,8 @@ public class BlockBcast extends BlockRemoteCopy {
 	 * @return            Number of elements to broadcast
 	 */
 	public static def bcast(distBS:BlocksPLH, rootbid:Long, coloff:Long, colcnt:Long):Long {
-		var dsz:Long = 0;
-			
-		@Ifdef("MPI_COMMU") {
-			val mat0 = distBS().getFirst();
-			if (mat0.isDense()) {
-				dsz= mpiBcastDense(distBS, rootbid, coloff, colcnt);
-			} else if (mat0.isSparse()) {
-				dsz= mpiBcastSparse(distBS, rootbid, coloff, colcnt);
-			} else {
-				throw new UnsupportedOperationException("Block type is not supported");
-			}
-		}
-		
-		@Ifndef("MPI_COMMU") {
-			dsz= x10Bcast(distBS, rootbid, coloff, colcnt);
-		}
-
-		return dsz;
+		return x10Bcast(distBS, rootbid, coloff, colcnt);
 	} 
-
-	/**
-	 * Broadcast dense matrix stored by using MPI bcast routine.
-	 *
-	 * @param dmlist      Distributed storage for dense matrices in all places
-	 * @param colOff      Offset for the starting column
-	 * @param colCnt      Number of columns to broadcast
-	 * @return            Number of elements broadcast
-	 */
-	protected static def mpiBcastDense(distBS:BlocksPLH, rootbid:Long, colOff:Long, colCnt:Long):Long {
-		if (colCnt < 0) return 0;
-		
-		@Ifdef("MPI_COMMU") {
-			val rootpid    = distBS().findPlace(rootbid);
-			//Get the data count from root block
-			finish ateach(Dist.makeUnique()) {
-				//Remote capture: colOff, colCnt, rootpid
-				val bset = distBS();
-				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
-				val den  = blk.getMatrix() as DenseMatrix;
-				val offset = den.M * colOff;
-				val datasz = den.M * colCnt;
-				
-				WrapMPI.world.bcast(den.d, offset, datasz, rootpid);
-				bset.sync(blk, colOff, colCnt);
-			}
-		}
-		return distBS().getFirstMatrix().M * colCnt;
-	}
-
-	/**
-	 * Using MPI routine to implement sparse matrix broadcast
-	 * 
-	 */
-	protected static def mpiBcastSparse(distBS:BlocksPLH, rootbid:Long, colOff:Long, colCnt:Long):Long {
-		val datasz = compBlockDataSize(distBS, rootbid, colOff, colCnt);  
-
-		@Ifdef("MPI_COMMU") {
-			finish ateach([p] in Dist.makeUnique()) {
-				//Need: rootbid, distBS, datasz, colOff, colCnt,
-				val rootpid    = distBS().findPlace(rootbid);
-				val bset = distBS();
-				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
-				val spa  = blk.getMatrix() as SparseCSC;
-				val offset = spa.getNonZeroOffset(colOff);
-				
-				//++++++++++++++++++++++++++++++++++++++++++++
-				//Do NOT call getIndex()/getValue() before init at destination place
-				//+++++++++++++++++++++++++++++++++++++++++++++
-				if (p == rootpid) 
-					spa.initRemoteCopyAtSource(colOff, colCnt);
-				else
-					spa.initRemoteCopyAtDest(colOff, colCnt, datasz);
-				
-				WrapMPI.world.bcast(spa.getIndex(), offset, datasz, rootpid);
-				WrapMPI.world.bcast(spa.getValue(), offset, datasz, rootpid);
-				
-				if (p == rootpid) 
-					spa.finalizeRemoteCopyAtSource();
-				else
-					spa.finalizeRemoteCopyAtDest();
-				
-				bset.sync(blk, colOff, colCnt);
-			}
-		}
-		return datasz;
-	}
-	
-	// x10 remote copy implemetation of bcast
 
 	/**
 	 *  Broadcast dense matrix among the pcnt number of places followed from here
@@ -255,21 +163,4 @@ public class BlockBcast extends BlockRemoteCopy {
 			}
 		}
 	}
-
-	// private static def finalizeBcast(distBS:BlocksPLH, rootbid:Long, colOff:Long, colCnt:Long){
-	// 	val rootpid = here.id();
-	// 	finish ateach([p] in Dist.makeUnique()) {
-	// 		//Remote block set update
-	// 		val bset = distBS();
-	// 		val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
-	// 		if (blk.isSparse() && Place.numPlaces() > 1) {
-	// 			val spa = blk.getMatrix() as SparseCSC;
-	// 			if (here.id() != rootpid)
-	// 				spa.finalizeRemoteCopyAtDest();
-	// 			else
-	// 				spa.finalizeRemoteCopyAtSource();
-	// 		}
-	// 		bset.sync(blk, colOff, colCnt);
-	// 	}	
-	// }
 }
