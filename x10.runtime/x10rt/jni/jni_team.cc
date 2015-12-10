@@ -429,7 +429,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeScatterImpl(JNIEnv *env,
  * Method:    nativeBcastImpl
  * Signature: (IIILjava/lang/Object;ILjava/lang/Object;IIILx10/lang/FinishState;)V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBcastImpl(JNIEnv *env, jclass klazz,
+JNIEXPORT jobject JNICALL Java_x10_x10rt_TeamSupport_nativeBcastImpl(JNIEnv *env, jclass klazz,
                                                                       jint id, jint role, jint root,
                                                                       jobject src, jint src_off,
                                                                       jobject dst, jint dst_off,
@@ -578,7 +578,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBcastImpl(JNIEnv *env, j
     callbackArg->srcData = srcData;
     callbackArg->dstData = dstData;
 
-    x10rt_bcast(id, role, root, srcData, dstData, el, count, &postCopyCallback, callbackArg);
+    return (jobject)x10rt_bcast(id, role, root, srcData, dstData, el, count, &postCopyCallback, &postCopyCallback, callbackArg);
 }
 
 
@@ -955,7 +955,7 @@ JNIEXPORT jobject JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv 
     callbackArg->dstData = dstData;
 
     //FIXME: how to call the correct failure call back?
-    return (jobject) x10rt_allreduce(id, role, srcData, dstData, (x10rt_red_op_type)op, (x10rt_red_type)typecode,
+    return (jobject)x10rt_allreduce(id, role, srcData, dstData, (x10rt_red_op_type)op, (x10rt_red_type)typecode,
                     count, &postCopyCallback, &postCopyCallback, callbackArg);
 }
 

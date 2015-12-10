@@ -204,12 +204,13 @@ void x10rt_barrier (x10rt_team team, x10rt_place role,
     x10rt_lgl_barrier(team, role, ch, arg);
 }
 
-void x10rt_bcast (x10rt_team team, x10rt_place role,
+bool x10rt_bcast (x10rt_team team, x10rt_place role,
                   x10rt_place root, const void *sbuf, void *dbuf,
                   size_t el, size_t count,
+                  x10rt_completion_handler *errch,
                   x10rt_completion_handler *ch, void *arg)
 {
-    x10rt_lgl_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    return x10rt_lgl_bcast(team, role, root, sbuf, dbuf, el, count, errch, ch, arg);
 }
 
 void x10rt_scatter (x10rt_team team, x10rt_place role,
@@ -220,13 +221,14 @@ void x10rt_scatter (x10rt_team team, x10rt_place role,
     x10rt_lgl_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
 }
 
-void x10rt_scatterv (x10rt_team team, x10rt_place role,
+bool x10rt_scatterv (x10rt_team team, x10rt_place role,
                      x10rt_place root, const void *sbuf,
                      const void *soffsets, const void *scounts,
                      void *dbuf, size_t dcount, size_t el,
+                     x10rt_completion_handler *errch,
                      x10rt_completion_handler *ch, void *arg)
 {
-    x10rt_lgl_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, ch, arg);
+    return x10rt_lgl_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, errch, ch, arg);
 }
 
 
@@ -238,11 +240,13 @@ void x10rt_gather (x10rt_team team, x10rt_place role,
 	x10rt_lgl_gather (team, role, root, sbuf, dbuf, el, count, ch, arg);
 }
 
-void x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+bool x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		            const void *sbuf, size_t scount, void *dbuf, const void *doffsets, const void *dcounts,
-		            size_t el, x10rt_completion_handler *ch, void *arg)
+		            size_t el,
+		            x10rt_completion_handler *errch,
+		            x10rt_completion_handler *ch, void *arg)
 {
-	x10rt_lgl_gatherv (team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, ch, arg);
+	return x10rt_lgl_gatherv (team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, errch, ch, arg);
 }
 
 void x10rt_alltoall (x10rt_team team, x10rt_place role,
