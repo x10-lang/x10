@@ -69,7 +69,7 @@ public class TestDistBlock extends x10Test {
         ret &= (testScaleAdd(places));
         ret &= (testCellMult(places));
         ret &= (testCellDiv(places));
-	//ret &= (testSnapshotRestore(places)); TODO: test code needs revision
+	    //ret &= (testSnapshotRestore(places)); TODO: test code needs revision
         return ret;
     }
     

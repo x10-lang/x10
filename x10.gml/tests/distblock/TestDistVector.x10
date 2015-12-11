@@ -37,16 +37,16 @@ public class TestDistVector extends x10Test {
                             M + "-vectors");
         var ret:Boolean = true;
         val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.execludeSparePlaces(1) : Place.places();        
-	ret &= (testClone(places));
-	ret &= (testScale(places));
-	ret &= (testAdd(places));
-	ret &= (testAddSub(places));
-	ret &= (testAddAssociative(places));
-	ret &= (testScaleAdd(places));
-	ret &= (testCellMult(places));
-	ret &= (testCellDiv(places));
-	ret &= (testScatterGather(places));
-	ret &= (testSnapshotRestore(places));
+        ret &= (testClone(places));
+        ret &= (testScale(places));
+        ret &= (testAdd(places));
+        ret &= (testAddSub(places));
+        ret &= (testAddAssociative(places));
+        ret &= (testScaleAdd(places));
+        ret &= (testCellMult(places));
+        ret &= (testCellDiv(places));
+        ret &= (testScatterGather(places));
+        ret &= (testSnapshotRestore(places));
         return ret;
     }
     
