@@ -19,9 +19,11 @@ import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.util.resilient.ResilientIterativeApp;
-import x10.util.resilient.ResilientExecutor;
-import x10.util.resilient.ResilientStoreForApp;
+import x10.util.resilient.iterative.ResilientIterativeApp;
+import x10.util.resilient.iterative.ResilientExecutor;
+import x10.util.resilient.iterative.ApplicationSnapshotStore;
+import x10.util.Team;
+import x10.util.ArrayList;
 
 /**
  * Parallel Page Rank algorithm based on GML distributed block matrix.
@@ -61,7 +63,8 @@ public class PageRank implements ResilientIterativeApp {
     private val chkpntIterations:Long;
     private val nzd:Float;
     private var places:PlaceGroup;
-
+    private var team:Team;
+    
     public def this(
             g:DistBlockMatrix{self.M==self.N}, 
             p:DupVector(g.N), 
@@ -69,7 +72,8 @@ public class PageRank implements ResilientIterativeApp {
             it:Long,
             sparseDensity:Float,
             chkpntIter:Long,
-            places:PlaceGroup) {
+            places:PlaceGroup,
+            team:Team) {
         Debug.assure(DistGrid.isVertical(g.getGrid(), g.getMap()), 
                 "Input block matrix g does not have vertical distribution.");
         G = g;
@@ -77,22 +81,24 @@ public class PageRank implements ResilientIterativeApp {
         U = u as DistVector(G.N);
         iterations = it;
         
-        GP = DistVector.make(G.N, G.getAggRowBs(), places);//G must have vertical distribution
+        GP = DistVector.make(G.N, G.getAggRowBs(), places, team);//G must have vertical distribution
 
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
         this.places = places;
+        this.team = team;
     }
 
     public static def make(gN:Long, nzd:Float, it:Long, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
         //---- Distribution---
         val numRowPs = places.size();
         val numColPs = 1;
+        val team = new Team(places);
         
         val g = DistBlockMatrix.makeSparse(gN, gN, numRowBs, numColBs, numRowPs, numColPs, nzd, places);
-        val p = DupVector.make(gN, places);
-        val u = DistVector.make(gN, g.getAggRowBs(), places);
-        return new PageRank(g, p, u, it, nzd, chkpntIter, places);
+        val p = DupVector.make(gN, places, team);
+        val u = DistVector.make(gN, g.getAggRowBs(), places, team);
+        return new PageRank(g, p, u, it, nzd, chkpntIter, places, team);
     } 
     
     public def init(nzd:Float):void {
@@ -149,7 +155,7 @@ public class PageRank implements ResilientIterativeApp {
         iter++;
     }
 
-    public def checkpoint(store:ResilientStoreForApp):void {
+    public def checkpoint(store:ApplicationSnapshotStore):void {
         store.startNewSnapshot();
         store.saveReadOnly(G);
         store.saveReadOnly(U);
@@ -157,15 +163,16 @@ public class PageRank implements ResilientIterativeApp {
         store.commit();
     }
 
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void {
-        val newRowPs = newPlaces.size();
+    public def restore(newGroup:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void {
+        val newTeam = new Team(newGroup);
+        val newRowPs = newGroup.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
-        G.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
-        U.remake(G.getAggRowBs(), newPlaces);
-        P.remake(newPlaces);
+        G.remakeSparse(newRowPs, newColPs, nzd, newGroup, newAddedPlaces);
+        U.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
+        P.remake(newGroup, newTeam, newAddedPlaces);
         
-        GP.remake(G.getAggRowBs(), newPlaces);
+        GP.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
     
         store.restore();
         

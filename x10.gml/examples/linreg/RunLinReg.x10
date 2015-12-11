@@ -24,7 +24,8 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.regression.RegressionInputData;
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.Team;
 
 import linreg.LinearRegression;
 import linreg.SeqLinearRegression;
@@ -87,8 +88,9 @@ public class RunLinReg {
             }
         }
         val places = (skipPlaces==0n) ? Place.places() 
-                                      : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
-
+                                      : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+        val team = new Team(places);
+        
         val rowBlocks = opts("r", places.size());
         val colBlocks = opts("c", 1);
 
@@ -104,7 +106,7 @@ public class RunLinReg {
                 Console.OUT.println("Using dense matrix as non-zero density = " + nonzeroDensity);
                 X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
             }
-            y = DistVector.make(X.M, places);
+            y = DistVector.make(X.M, places, team);
 
             X.initRandom();
             y.initRandom();
@@ -115,7 +117,7 @@ public class RunLinReg {
             nonzeroDensity = 1.0f;
             
             X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
-            y = DistVector.make(X.M, places);
+            y = DistVector.make(X.M, places, team);
 
             // initialize labels, examples at each place
             finish for (place in places) at(place) async {
@@ -129,7 +131,7 @@ public class RunLinReg {
                     val blk = blkitr.next();              
                     blk.init((i:Long, j:Long)=> trainingExamples((i-startRow)*numFeatures+j));
                 }
-                y.distV().init((i:Long)=> trainingLabels(i));
+                y.init_local((i:Long)=> trainingLabels(i));
             }
         }
 
@@ -138,7 +140,7 @@ public class RunLinReg {
         val checkpointFrequency = opts("checkpointFreq", -1n);
 
         val parLR = new LinearRegression(X, y, iterations, checkpointFrequency,
-                                         nonzeroDensity, places);
+                                         nonzeroDensity, places, team);
 
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;

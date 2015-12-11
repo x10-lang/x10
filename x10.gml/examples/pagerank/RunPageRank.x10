@@ -15,7 +15,7 @@ import x10.util.Timer;
 
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.matrix.util.VerifyTool;
 
 /**
@@ -73,7 +73,7 @@ public class RunPageRank {
             Console.OUT.println("Error in settings");
         else {
             val places = (skipPlaces==0n) ? Place.places() 
-                                          : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+                                          : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 

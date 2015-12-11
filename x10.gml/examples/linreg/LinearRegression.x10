@@ -13,19 +13,19 @@ package linreg;
 
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
-
 import x10.util.Timer;
-
+import x10.util.ArrayList;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
 
 import x10.matrix.util.Debug;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
 
-import x10.util.resilient.ResilientIterativeApp;
-import x10.util.resilient.ResilientExecutor;
-import x10.util.resilient.ResilientStoreForApp;
+import x10.util.resilient.iterative.ResilientIterativeApp;
+import x10.util.resilient.iterative.ResilientExecutor;
+import x10.util.resilient.iterative.ApplicationSnapshotStore;
+import x10.util.Team;
 
 /**
  * Parallel linear regression based on GML distributed
@@ -54,6 +54,8 @@ public class LinearRegression implements ResilientIterativeApp {
     
     var norm_r2:ElemType;
     var lastCheckpointNorm:ElemType;
+    var lastCheckpointR:Vector;
+    var lastCheckpointW:Vector;    
     var iter:Long;
     
     //----Profiling-----
@@ -62,25 +64,27 @@ public class LinearRegression implements ResilientIterativeApp {
     public var commT:Long;
     private val nzd:Float;
     private var places:PlaceGroup;
-    
-    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Float, places:PlaceGroup) {
+    private var team:Team;
+        
+    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Float, places:PlaceGroup, team:Team) {
         maxIterations = it;
         this.V = v;
         this.y = y;
         
-        Vp = DistVector.make(V.M, V.getAggRowBs(), places);
+        Vp = DistVector.make(V.M, V.getAggRowBs(), places, team);
         
         r  = Vector.make(V.N);
-        d_p= DupVector.make(V.N, places);
+        d_p= DupVector.make(V.N, places, team);
         
-        d_q= DupVector.make(V.N, places);
+        d_q= DupVector.make(V.N, places, team);
         
         w  = Vector.make(V.N);
         
         this.checkpointFreq = chkpntIter;
         
         nzd = sparseDensity;
-        this.places = places;        
+        this.places = places;
+        this.team = team;
     }
     
     public def isFinished() {
@@ -88,7 +92,7 @@ public class LinearRegression implements ResilientIterativeApp {
     }
     
     public def run() {
-        val dupR = DupVector.make(V.N, Vp.places());
+        val dupR = DupVector.make(V.N, places, team);
         // 4: r=-(t(V) %*% y)
         dupR.mult(y, V);
         dupR.local().copyTo(r);
@@ -150,40 +154,41 @@ public class LinearRegression implements ResilientIterativeApp {
         iter++;
     }
     
-    public def checkpoint(resilientStore:ResilientStoreForApp) {       
+    public def checkpoint(resilientStore:ApplicationSnapshotStore) {
         resilientStore.startNewSnapshot();
         resilientStore.saveReadOnly(V);
         resilientStore.save(d_p);
         resilientStore.save(d_q);
-        resilientStore.save(r);
-        resilientStore.save(w);
         resilientStore.commit();
         lastCheckpointNorm = norm_r2;
+        lastCheckpointR = r.clone();
+        lastCheckpointW = w.clone();
     }
     
     /**
      * Restore from the snapshot with new PlaceGroup
      */
-    public def restore(newPg:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long) {
+    public def restore(newPg:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]) {
+        val newTeam = new Team(newPg);
         val newRowPs = newPg.size();
         val newColPs = 1;
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
-            V.remakeSparse(newRowPs, newColPs, nzd, newPg);
+            V.remakeSparse(newRowPs, newColPs, nzd, newPg, newAddedPlaces);
         } else {
-            V.remakeDense(newRowPs, newColPs, newPg);
+            V.remakeDense(newRowPs, newColPs, newPg, newAddedPlaces);
         }
-        d_p.remake(newPg);
-        Vp.remake(V.getAggRowBs(), newPg);
-        d_q.remake(newPg);
+        d_p.remake(newPg, newTeam, newAddedPlaces);
+        Vp.remake(V.getAggRowBs(), newPg, newTeam, newAddedPlaces);
+        d_q.remake(newPg, newTeam, newAddedPlaces);
         store.restore();
         
-        //adjust the iteration number and the norm value
+        //adjust the iteration number, the norm value and vectors
         iter = lastCheckpointIter;
         norm_r2 = lastCheckpointNorm;
-        places = newPg;        
+        r.copyTo(lastCheckpointR);
+        w.copyTo(lastCheckpointW);
+        places = newPg;
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
-        //Console.OUT.println("Load Balance After Restore: ");
-        //V.printLoadStatistics();
     }
 }
