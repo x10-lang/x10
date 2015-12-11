@@ -23,9 +23,9 @@ import x10.matrix.ElemType;
  * This class provides abstraction of compressed 1-dimension array or
  * compressed vector class based on compressed array.
  */
-public class Compress1D {
+public final class Compress1D {
 
-	public val cArray:CompressArray;
+	public val cArray:CompressArray{self!=null};
 	public var offset:Long;
 	public var length:Long;
 
@@ -35,7 +35,7 @@ public class Compress1D {
 	 * @param count      number of entries
 	 * @param ca     The storage for the compressed data
 	 */
-	public def this(offset:Long, count:Long, ca:CompressArray) {
+	public def this(offset:Long, count:Long, ca:CompressArray{self!=null}) {
 		assert offset+count <= ca.count;
 		this.cArray = ca;
 		this.offset = offset;
@@ -52,7 +52,6 @@ public class Compress1D {
 	 * @param off     Offset of storage data
 	 * @param ca     The storage for the compressed data
 	 */
-	@Inline
 	public def initConst(ldm:Long, v:ElemType, nzp:Float, off:Long, ca:CompressArray):void {
 		initConst(0, ldm, v, nzp, off, ca);
 	}
@@ -70,7 +69,7 @@ public class Compress1D {
 	 * @param off     Offset for the storage
 	 * @param ca     The storage of compressed array
 	 */
-	@Inline	public def initRandom(maxIndex:Long, nzp:Float, offset:Long, ca:CompressArray):void {
+	public def initRandom(maxIndex:Long, nzp:Float, offset:Long, ca:CompressArray):void {
 		initRandom(0, maxIndex, nzp, offset, ca);
 	}
 	
@@ -246,12 +245,12 @@ public class Compress1D {
 	 * Return the surface index at the this.offset+pos of 
 	 * compressed array of surface index 
 	 */
-	public def getIndex(pos:Long) = cArray.getIndex(offset+pos);
+	public final @Inline def getIndex(pos:Long) = cArray.getIndex(offset+pos);
 
 	/**
 	 * Return the value of compressed array at the this.offset+pos 
 	 */
-	public def getValue(pos:Long) = cArray.getValue(offset+pos);
+	public final @Inline def getValue(pos:Long) = cArray.getValue(offset+pos);
 
 	/**
 	 * Initialize or reset data in the compressed line.

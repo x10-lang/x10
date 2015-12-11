@@ -17,7 +17,9 @@ import x10.matrix.Vector;
 import x10.matrix.ElemType;
 
 import x10.matrix.distblock.DupVector;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.Team;
+import x10.util.ArrayList;
 
 public class TestDupVector extends x10Test {
     static def ET(a:Double)= a as ElemType;
@@ -32,7 +34,7 @@ public class TestDupVector extends x10Test {
         Console.OUT.println("DupVector clone/add/sub/scaling tests on "+
                             M + "-vectors");
         var ret:Boolean = true;
-        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.makeTestPlaceGroup(1) : Place.places();
+        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.execludeSparePlaces(1) : Place.places();
 	
 	    ret &= (testClone(places));
 	    ret &= (testScale(places));
@@ -50,7 +52,7 @@ public class TestDupVector extends x10Test {
     public def testClone(places:PlaceGroup):Boolean{
         Console.OUT.println("DupVector clone test");
         val dm = Vector.make(M).initRandom(); 
-        val dm1 = DupVector.make(dm, places);
+        val dm1 = DupVector.make(dm, places, new Team(places));
 	
         val dm2 = dm1.clone();
         var ret:Boolean = dm.equals(dm1.local());
@@ -73,7 +75,7 @@ public class TestDupVector extends x10Test {
     
     public def testScale(places:PlaceGroup):Boolean{
         Console.OUT.println("DupVector scaling test");
-        val dm = DupVector.make(M, places).initRandom();
+        val dm = DupVector.make(M, places, new Team(places)).initRandom();
         val dm1  = dm * ET(2.5);
         dm1.scale(ET(1.0/2.5));
         var ret:Boolean = dm1.checkSync();
@@ -86,7 +88,7 @@ public class TestDupVector extends x10Test {
     
     public def testAdd(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector addition test");
-        val dm = DupVector.make(M, places).initRandom();
+        val dm = DupVector.make(M, places, new Team(places)).initRandom();
         val dm1:DupVector(M) = -1 * dm;
         val dm0 = dm + dm1;
         val ret = dm0.equals(ET(0.0));
@@ -97,8 +99,8 @@ public class TestDupVector extends x10Test {
     
     public def testAddSub(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector add-sub test");
-        val dm = DupVector.make(M, places).initRandom();
-        val dm1= DupVector.make(M, places).initRandom();
+        val dm = DupVector.make(M, places, new Team(places)).initRandom();
+        val dm1= DupVector.make(M, places, new Team(places)).initRandom();
         val dm2= dm  + dm1;
         val dm_c  = dm2 - dm1;
         val ret   = dm.equals(dm_c);
@@ -109,9 +111,9 @@ public class TestDupVector extends x10Test {
     
     public def testAddAssociative(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector associative test");
-        val a = DupVector.make(M, places).init(ET(1.0));
-        val b = DupVector.make(M, places).initRandom(1n, 10n);
-        val c = DupVector.make(M, places).initRandom(10n, 100n);
+        val a = DupVector.make(M, places, new Team(places)).init(ET(1.0));
+        val b = DupVector.make(M, places, new Team(places)).initRandom(1n, 10n);
+        val c = DupVector.make(M, places, new Team(places)).initRandom(10n, 100n);
         val c1 = a + b + c;
         val c2 = a + (b + c);
         val ret = c1.equals(c2);
@@ -122,8 +124,8 @@ public class TestDupVector extends x10Test {
     
     public def testScaleAdd(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector scaling-add test");
-        val a:DupVector(M) = DupVector.make(M, places).initRandom();
-        val b:DupVector(M) = DupVector.make(M, places).initRandom();
+        val a:DupVector(M) = DupVector.make(M, places, new Team(places)).initRandom();
+        val b:DupVector(M) = DupVector.make(M, places, new Team(places)).initRandom();
         val a1:DupVector(a.M)= a * ET(0.2);
         val a2:DupVector(a.M)= a * ET(0.8);
         val a3= a1 + a2;
@@ -135,8 +137,8 @@ public class TestDupVector extends x10Test {
     
     public def testCellMult(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector cellwise mult test");
-        val a = DupVector.make(M, places).initRandom(1n, 10n);
-        val b = DupVector.make(M, places).initRandom(10n, 100n);
+        val a = DupVector.make(M, places, new Team(places)).initRandom(1n, 10n);
+        val b = DupVector.make(M, places, new Team(places)).initRandom(10n, 100n);
         val c = (a + b) * a;
         val d = a * a + b * a;
         val ret = c.equals(d);
@@ -147,8 +149,8 @@ public class TestDupVector extends x10Test {
     
     public def testCellDiv(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector cellwise mult-div test");
-        val a = DupVector.make(M, places).init(1);
-        val b = DupVector.make(M, places).init(1);
+        val a = DupVector.make(M, places, new Team(places)).init(1);
+        val b = DupVector.make(M, places, new Team(places)).init(1);
         val c = (a + b) * a;
         val d =  c / (a + b);
         val ret = d.equals(a);
@@ -160,7 +162,7 @@ public class TestDupVector extends x10Test {
     public def testReduce(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector reduce test");
         val np = places.size() as Double;        
-        val a = DupVector.make(M, places).init(1);
+        val a = DupVector.make(M, places, new Team(places)).init(1);
         a.reduceSum();
         var ret:Boolean = a.local().equals(np);
 	
@@ -178,7 +180,7 @@ public class TestDupVector extends x10Test {
     
     public def testSnapshotRestore(places:PlaceGroup):Boolean {
         Console.OUT.println("DupVector snapshot/restore test");
-        var dm:DupVector = DupVector.make(M, Place.places()).init(ET(1.0));
+        var dm:DupVector = DupVector.make(M, Place.places(), Team.WORLD).init(ET(1.0));
         var ret:Boolean = dm.equals(ET(1.0));        
         val dm_snapshot = dm.makeSnapshot();        
         dm.cellAdd(ET(2.0)); //change the vector after taking a snapshot       
@@ -186,7 +188,7 @@ public class TestDupVector extends x10Test {
         val dm1 = dm.clone();      
 	
         val newPlaceGroup:PlaceGroup = places;                
-        dm.remake(newPlaceGroup);        
+        dm.remake(newPlaceGroup, new Team(newPlaceGroup), new ArrayList[Place]());        
         dm.restoreSnapshot(dm_snapshot);       
 	
         ret &= !dm.equals(dm1);//different place groups  

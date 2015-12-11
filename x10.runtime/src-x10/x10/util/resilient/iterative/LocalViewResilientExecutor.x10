@@ -188,7 +188,10 @@ public class LocalViewResilientExecutor {
                     stepExecTime += Timer.milliTime();
                 } catch (ex:Exception) {
                     Console.OUT.println("[Hammer Log] Time DPE discovered is ["+Timer.milliTime()+"] ...");
-                    failureDetectionTime = Timer.milliTime() - hammer.killPlaceTime;
+                    if (hammer != null)
+                        failureDetectionTime = Timer.milliTime() - hammer.killPlaceTime;
+                    else
+                        failureDetectionTime = -1;
                     stepExecTime += Timer.milliTime() - failureDetectionTime;
                     placeTempData().place0TimePerIter.add( (Timer.milliTime()-placeTempData().place0TimeBeforeStep) );
                     throw ex;

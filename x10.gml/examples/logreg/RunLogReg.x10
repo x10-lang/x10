@@ -16,8 +16,9 @@ import x10.util.Timer;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
 
+import x10.util.Team;
 import logreg.SeqLogReg;
 import logreg.LogisticRegression;
 
@@ -64,7 +65,8 @@ public class RunLogReg {
                 Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
 
             val places = (skipPlaces==0n) ? Place.places() 
-                : PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
+                : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+            val team = new Team(places);
 
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
@@ -77,7 +79,7 @@ public class RunLogReg {
             Console.OUT.println("X: rows:"+mX+" cols:"+nX
                 +" density:"+nonzeroDensity+" iterations:"+iterations);
 
-            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places);
+            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places, team);
 	    
             var denX:DenseMatrix(mX,nX) = null;
             var y:Vector(mX) = null;

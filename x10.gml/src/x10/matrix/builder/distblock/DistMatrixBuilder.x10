@@ -69,21 +69,21 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
     }
     
     public def allocAllDenseBlocks(): DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             dmat.handleBS().allocDenseBlocks();
         }
         return this;
     }
     
     public def allocAllSparseBlocks(nzd:Float): DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             dmat.handleBS().allocSparseBlocks(nzd);
         }
         return this;
     }
     
     public def init(initFun:(Long,Long)=>ElemType) : DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().init(initFun);
@@ -93,7 +93,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
     }
     
     public def initRandom(nonZeroDensity:Float):DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().initRandom(nonZeroDensity, (Long,Long)=>RandTool.nextElemType[ElemType]());
@@ -103,7 +103,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
     }
     
     public def initRandom(nzDensity:Float, initFun:(Long,Long)=>ElemType) : DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().initRandom(nzDensity, initFun);
@@ -113,7 +113,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
     }
     
     public def initRandom() : DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().initRandom();
@@ -130,7 +130,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
         val by  = loc(3);
         val pIndex = dmat.handleBS().getDistMap().findPlaceIndex(bid);
         //Remote capture: bid, bx, by, 
-        at(dmat.getPlaces()(pIndex)) {
+        at(dmat.places()(pIndex)) {
             val blkset:BlockSet = dmat.handleBS();
             val blk:MatrixBlock = blkset.find(bid);
             if (blk == null) 
@@ -148,7 +148,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
         val by  = loc(3);
         val pIndex = dmat.handleBS().getDistMap().findPlaceIndex(bid);
         //Remote capture: bid, bx, by, 
-        val ret = at(dmat.getPlaces()(pIndex)) {
+        val ret = at(dmat.places()(pIndex)) {
             val blkset:BlockSet = dmat.handleBS();
             val blk:MatrixBlock = blkset.find(bid);
             if (blk == null) 
@@ -160,7 +160,7 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
     }
     
     public def toDistBlockMatrix():DistBlockMatrix(M,N) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 val blk = itr.next();
