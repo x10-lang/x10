@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.ElemType;
@@ -47,7 +45,6 @@ public class TestDupBlock extends x10Test {
 	Console.OUT.println("Starting Duplicated block matrix clone/add/sub/scaling tests");
 	
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testClone());
 	    ret &= (testSync());
 	    ret &= (testScale());
@@ -57,7 +54,6 @@ public class TestDupBlock extends x10Test {
 	    ret &= (testScaleAdd());
 	    ret &= (testCellMult());
 	    ret &= (testCellDiv());
-	}
         return ret;
     }
     public def testClone():Boolean{

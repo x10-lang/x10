@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.ElemType;
 
 import x10.matrix.dist.DupDenseMatrix;
@@ -38,11 +36,9 @@ public class TestDupSparse extends x10Test {
         Console.OUT.println("Starting dup sparse matrix tests in " + Place.numPlaces()+" places");
         
         var ret:Boolean = true;
-        @Ifndef("MPI_COMMU") { // TODO Deadlocks!
-            ret &=testClone();
-            ret &=testAddTo();
-            ret &=testSubTo();
-        }
+        ret &=testClone();
+        ret &=testAddTo();
+        ret &=testSubTo();
         return ret;
     }
     

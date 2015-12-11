@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -63,7 +61,6 @@ public class TestDistBlock extends x10Test {
         var ret:Boolean = true;
         val places = PlaceGroupBuilder.makeTestPlaceGroup(skipPlaces);
 	
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testClone(places));
 	    ret &= (testCopyTo(places));
 	    ret &= (testScale(places));
@@ -74,7 +71,6 @@ public class TestDistBlock extends x10Test {
 	    ret &= (testCellMult(places));
 	    ret &= (testCellDiv(places));
 	    ret &= (testSnapshotRestore(places));
-	}
         return ret;
     }
     

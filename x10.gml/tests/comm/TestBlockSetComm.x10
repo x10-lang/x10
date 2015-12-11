@@ -6,7 +6,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.util.Timer;
 import x10.regionarray.DistArray;
 
@@ -64,7 +63,6 @@ public class TestBlockSetComm extends x10Test {
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 
 		Console.OUT.println("******************************************************");
 		Console.OUT.println("Test dense block set commu in distributed block matrix");
@@ -81,7 +79,6 @@ public class TestBlockSetComm extends x10Test {
  		retval &= testCopyTo(dupspa);
  		retval &= testCopyFrom(dupspa);
  		retval &= testBcast(dupspa);
-    }
         return retval;
 	}
 

@@ -6,8 +6,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -54,7 +52,6 @@ public class TestSparseColl extends x10Test {
 	
     public def run():Boolean {
 		var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
   		ret &= (testSparseBcast());
  		ret &= (testSparseRingCast());
 		ret &= (testSparseGather());
@@ -64,7 +61,6 @@ public class TestSparseColl extends x10Test {
 // 		ret &= (testAllgather());
 // 		ret &= (testReduce());
 // 		ret &= (testAllReduce());
-    }
         return ret;
 	}
 

@@ -6,7 +6,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -66,7 +65,6 @@ public class TestBlockColl extends x10Test {
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		Console.OUT.println("****************************************************************");
 		Console.OUT.println("Test dense blocks collective commu in distributed block matrix");
 		Console.OUT.println("****************************************************************");
@@ -82,7 +80,6 @@ public class TestBlockColl extends x10Test {
 		retval &= testGather(sbmat, sblks);
 		retval &= testScatter(sblks, sbmat);
 
-    }
         return retval;
 	}
 

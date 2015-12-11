@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -54,7 +52,6 @@ public class TestDistDupMult extends x10Test {
     
     public def testDistS_DupD():Boolean {
         var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO DupDenseMatrix.init deadlocks!
 	    val numP = Place.numPlaces();
 	    Console.OUT.printf("Test Dist sparse mult Dup dense over %d places\n", numP);
 	    val gpartA = new Grid(M, K, numP, 1);
@@ -77,7 +74,6 @@ public class TestDistDupMult extends x10Test {
 	    ret = dc.equals(mc);
 	    if (!ret)
 		Console.OUT.println("-----DistCSC-DupDense multplication test failed!-----");
-	}
 	return ret;
     }
     

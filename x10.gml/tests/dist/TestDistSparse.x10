@@ -11,7 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.matrix.ElemType;
 import x10.matrix.util.Debug;
 import x10.matrix.block.Grid;
@@ -91,7 +90,6 @@ public class TestDistSparse extends x10Test {
     public def testGather():Boolean {
 	Console.OUT.println("Test dist sparse matrix gather");
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO gather deadlocks!
 	    val ds  = DistSparseMatrix.make(g, nzp);
 	    ds.initRandom();
 	    
@@ -103,7 +101,6 @@ public class TestDistSparse extends x10Test {
 	    
 	    if (!ret)
 		Console.OUT.println("--------------Test dist sparse matrix copy to failed!--------------");
-	}
 	return ret;
     }
     

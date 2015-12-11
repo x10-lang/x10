@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -71,11 +69,9 @@ public class TestDistDupMult extends x10Test {
 			   bM, bK, bK, bN, nzd);
 	
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testMult());
 	    ret &= (ret && testTransMult());
 	    ret &= (ret && testMultTrans());
-	}
 	return ret;
     }
     

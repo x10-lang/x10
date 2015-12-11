@@ -9,8 +9,6 @@
  *  (C) Copyright IBM Corporation 2012-2014.
  */
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -74,21 +72,19 @@ class TestRunSumma {
     
     public def run (): void {
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
-	    ret &= (testMult());
-	    ret &= (testMultTrans());
-	    ret &= (testSparseMult());
-	    ret &= (testSparseMultTrans());
-	    ret &= (testCylicDistMult());
-	    ret &= (testCylicDistMultTrans());
-	    ret &= (testRandomDistMult());
-	    ret &= (testRandomDistMultTrans());
-	    
-	    if (ret)
-		Console.OUT.println("Test passed!");
-	    else
-		Console.OUT.println("----------------Test failed!----------------");
-	}
+    ret &= (testMult());
+    ret &= (testMultTrans());
+    ret &= (testSparseMult());
+    ret &= (testSparseMultTrans());
+    ret &= (testCylicDistMult());
+    ret &= (testCylicDistMultTrans());
+    ret &= (testRandomDistMult());
+    ret &= (testRandomDistMultTrans());
+    
+    if (ret)
+	Console.OUT.println("Test passed!");
+    else
+	Console.OUT.println("----------------Test failed!----------------");
     }
     
     public def testMult():Boolean {

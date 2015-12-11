@@ -26,7 +26,7 @@ public class DistSparseBench {
 		val M = args.size > 0 ? Long.parse(args(0)):1000;
 		val K = args.size > 1 ? Long.parse(args(1)):1000;
 		val N = args.size > 2 ? Long.parse(args(2)):1000;
-		val nzD = args.size > 3 ?Double.parse(args(3)):0.1;
+		val nzD = args.size > 3 ?Float.parse(args(3)):0.1f;
 		val iter = args.size > 4 ? Long.parse(args(4)):1;
 		val ps = args.size > 5 ? Long.parse(args(5)):0;
 		val tc = new RunDistSparseBench(M, K, N, nzD, iter, ps);
@@ -35,7 +35,7 @@ public class DistSparseBench {
 }
 
 class RunDistSparseBench {
-	public val M:Long, N:Long, K:Long, iter:Long, nzD:Double, pCmp:Double;
+	public val M:Long, N:Long, K:Long, iter:Long, nzD:Float, pCmp:Double;
 	public val testps:Long; lastps:Long;
 	public val nplace:Long = Place.numPlaces();
 
@@ -49,7 +49,7 @@ class RunDistSparseBench {
 	val tB:DistSparseMatrix(btPart.M, btPart.N);
 	val C:DistDenseMatrix(cPart.M, cPart.N);
 	
-	public def this(m:Long, k:Long, n:Long, nzd:Double, it:Long, p:Long) {
+	public def this(m:Long, k:Long, n:Long, nzd:Float, it:Long, p:Long) {
 		M = m; N = n; K=k; iter=it; nzD =nzd; pCmp=nzD*nzD;
 		aPart = Grid.make(M, K);
 		bPart = Grid.make(K, N);

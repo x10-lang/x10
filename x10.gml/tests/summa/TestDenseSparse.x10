@@ -4,9 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -57,16 +54,14 @@ class SummaDenseMultSparseTest {
     
     public def run(): void {
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    
-	    ret &= (testDenseMultSparse());
-	    ret &= (testDenseMultSparseTrans());
-	    
-	    if (ret)
-		Console.OUT.println("SUMMA x10 distributed dense * sparse matrix multiply test passed!");
-	    else
-		Console.OUT.println("--------SUMMA x10 distributed dense * sparse matrix multiply test failed!--------");
-	}
+    ret &= (testDenseMultSparse());
+    ret &= (testDenseMultSparseTrans());
+    
+    if (ret)
+	Console.OUT.println("SUMMA x10 distributed dense * sparse matrix multiply test passed!");
+    else
+	Console.OUT.println("--------SUMMA x10 distributed dense * sparse matrix multiply test failed!--------");
     }
     
     public def testDenseMultSparse():Boolean {

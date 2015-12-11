@@ -6,7 +6,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.regionarray.Dist;
 
 import x10.matrix.ElemType;
@@ -58,10 +57,8 @@ public class TestGridReduce extends x10Test {
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		retval &= testRowReduceSum(dbmat);
  		retval &= testColReduceSum(dbmat);
-    }
         return retval;
 	}
 	

@@ -39,14 +39,6 @@ numplaces = 2
 test_args = 
 
 ###################################################
-
-c_mpi :
-	$(MAKE) target=SummaMPIBench mpi
-
-clean_all	::
-	rm -f SummaMPIBench
-
-###################################################
 # Including rules
 ###################################################
 include $(gml_path)/scripts/build_common.mk

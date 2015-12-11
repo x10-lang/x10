@@ -12,8 +12,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 import x10.matrix.blas.DenseMatrixBLAS;
@@ -37,12 +35,10 @@ public class TestDupMult extends x10Test {
         Console.OUT.println("Dup dense mult matrix tests in "+Place.numPlaces()+" places");
 	
         var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= testDupDup();
 	    ret &= testDupTransDup();
 	    ret &= testDupDupTrans();
 	    ret &= testDupDense();
-	}
         if (!ret)
             Console.OUT.println("--------Dup dense mult matrix test failed!--------");
         return ret;

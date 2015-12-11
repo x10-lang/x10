@@ -6,7 +6,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.util.Timer;
 import x10.regionarray.DistArray;
 
@@ -66,7 +65,6 @@ public class TestBlockP2P extends x10Test {
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		Console.OUT.println("Test dense blocks in distributed block matrix");
 
 		retval &= testCopyTo(srcden as Matrix, dbmat);
@@ -76,7 +74,6 @@ public class TestBlockP2P extends x10Test {
 	
 		retval &= testCopyTo(srcspa as Matrix, sbmat);
 		retval &= testCopyFrom(sbmat, dstspa as Matrix, srcspa as Matrix);
-    }
         return retval;
 	}
 

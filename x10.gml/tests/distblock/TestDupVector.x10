@@ -12,8 +12,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
@@ -36,7 +34,6 @@ public class TestDupVector extends x10Test {
         var ret:Boolean = true;
         val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.makeTestPlaceGroup(1) : Place.places();
 	
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testClone(places));
 	    ret &= (testScale(places));
 	    ret &= (testAdd(places));
@@ -47,7 +44,6 @@ public class TestDupVector extends x10Test {
 	    ret &= (testCellDiv(places));
 	    ret &= (testReduce(places));
 	    ret &= (testSnapshotRestore(places));
-	}
         return ret;
     }
     

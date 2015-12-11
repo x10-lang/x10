@@ -11,7 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
 import x10.matrix.ElemType;
 
 import x10.matrix.dist.DupDenseMatrix;
@@ -30,16 +29,14 @@ public class TestDupDense extends x10Test {
     }
     
     public def run():Boolean {
-	Console.OUT.println("Dup dense matrix tests in " + Place.numPlaces()+" places");
-	var ret:Boolean=true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
-	    ret &=testClone();
-	    ret &=testClone();
-	    ret &=testAddSub();
-	    ret &=testCellMult();
-	    ret &=testCellDiv();
-	}
-	return ret;
+        Console.OUT.println("Dup dense matrix tests in " + Place.numPlaces()+" places");
+        var ret:Boolean=true;
+        ret &=testClone();
+        ret &=testClone();
+        ret &=testAddSub();
+        ret &=testCellMult();
+        ret &=testCellDiv();
+        return ret;
     }
     
     public def testClone():Boolean {

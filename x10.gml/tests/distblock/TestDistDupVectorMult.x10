@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.util.MathTool;
@@ -46,14 +44,12 @@ public class TestDistDupVectorMult extends x10Test {
         Console.OUT.println("Dist-Dup block matrix vector multiply tests");
         
         var ret:Boolean = true;
-        @Ifndef("MPI_COMMU") { // TODO Deadlocks!
             ret &= (testDistMatDistVecMult());
             ret &= (testDistVecDistMatMult());
             ret &= (testDistMatDupVecMult());
             ret &= (testDupVecDistMatMult());
             ret &= (testDistDupDupMult());
             ret &= (testDupDistDupMult());
-        }
         return ret;
     }
     

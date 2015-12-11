@@ -8,8 +8,6 @@ import harness.x10Test;
 
 import x10.util.Timer;
 import x10.regionarray.DistArray;
-import x10.compiler.Ifdef;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -42,23 +40,17 @@ public class TestP2P extends x10Test {
 		nzdensity = d;
 		
 		dmat = DupDenseMatrix.make(m, n);
-	@Ifdef("MPI_COMMU") { // TODO Deadlocks!
-        smat = null;
-    }
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
-		smat = DupSparseMatrix.make(m, n, nzdensity);
-    }
+        smat = DupSparseMatrix.make(m, n, nzdensity);
+
 		numplace  = Place.numPlaces();
 	}
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		retval &= testCopyTo();
 		retval &= testCopyFrom();
 		retval &= testSparseCopyTo();
 		retval &= testSparseCopyFrom();
-    }
         return retval;
 	}
 

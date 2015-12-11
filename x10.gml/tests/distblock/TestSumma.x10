@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -71,7 +69,6 @@ public class TestSumma extends x10Test {
     
     public def run():Boolean {
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testMult());
 	    ret &= (testMultTrans());
 	    ret &= (testSparseMult());
@@ -81,7 +78,6 @@ public class TestSumma extends x10Test {
 	    //ret &= (testCylicDistMultTrans());
 	    //ret &= (testRandomDistMult());
 	    //ret &= (testRandomDistMultTrans());
-	}
         return ret;
     }
     

@@ -11,8 +11,6 @@
 
 import harness.x10Test;
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
@@ -101,7 +99,6 @@ public class TestDistDense extends x10Test {
 	
 	ddm.initRandom();
 	
-        @Ifndef("MPI_COMMU") { // TODO Gather in DBM.copyTo deadlocks!
 	    ddm.copyTo(dbm);
 	    ret &= ddm.equals(dbm);
 	    
@@ -110,7 +107,6 @@ public class TestDistDense extends x10Test {
 	    
 	    if (!ret)
 		Console.OUT.println("--------Dist dense matrix copyTo test failed!--------");
-	}
 	return ret;
     }
     
