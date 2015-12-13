@@ -46,7 +46,7 @@ public class DupBlockMatrix extends Matrix {
         super(bs().getGrid().M, bs().getGrid().N);
         handleDB  = bs;
         tmpDB = PlaceLocalHandle.make[BlockSet](Place.places(),
-                ()=>new BlockSet(bs().grid, bs().dmap, Place.places()));
+                ()=>new BlockSet(bs().grid, bs().dmap, here.id));
         tmpReady = false;
         local = PlaceLocalHandle.make[BlockMatrix(M,N)](Place.places(), 
                 ()=>((new BlockMatrix(bs().getGrid(), bs().blocklist)) as BlockMatrix(M,N)));
@@ -62,7 +62,7 @@ public class DupBlockMatrix extends Matrix {
     //Remote capture of g to all places
     public static def make(g:Grid) {
         val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
-                ()=>new BlockSet(g, DistMap.makeConstant(g.size, here.id()), Place.places()));
+                ()=>new BlockSet(g, DistMap.makeConstant(g.size, here.id()), here.id));
         return new DupBlockMatrix(hdl) as DupBlockMatrix(g.M, g.N);
     }
     
@@ -81,7 +81,7 @@ public class DupBlockMatrix extends Matrix {
     public static def make(m:Long, n:Long, blkM:Long, blkN:Long) {
         val hdl = PlaceLocalHandle.make[BlockSet](Place.places(), 
                 ()=>new BlockSet(new Grid(m, n, blkM, blkN), 
-                        DistMap.makeConstant(blkM*blkN, here.id()), Place.places()));
+                        DistMap.makeConstant(blkM*blkN, here.id()), here.id));
         return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
     }
 

@@ -72,7 +72,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
      * @param initFun   Matrix entry value generator function, mapping row-column to double. 
      */
     public def init(initFun:(Long,Long)=>ElemType) : DistSymMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             val pgrid = dmat.handleBS().getGrid();
             while (itr.hasNext()) {
@@ -96,7 +96,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
      * @param f                 nonzero value generator function.
      */
     public def initRandom(nzDensity:Float, f:(Long,Long)=>ElemType) : DistSymMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 val blk = itr.next();
@@ -119,7 +119,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
     
     // replicated from superclass to workaround xlC bug with using & itables
     public def initRandom(nonZeroDensity:Float):DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().initRandom(nonZeroDensity, (Long,Long)=>RandTool.nextElemType[ElemType]());
@@ -128,7 +128,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
         return this;
     }
     public def initRandom() : DistMatrixBuilder(this) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 itr.next().initRandom();
@@ -138,7 +138,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
     }
     
     public def mirror(toUpper:Boolean) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val blkitr = dmat.handleBS().iterator();
             while (blkitr.hasNext()) {
                 val blk = blkitr.next();
@@ -208,7 +208,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
     
     //public def toDistBlockMatrix():DistBlockMatrix(M,N) = dmat;
     public def toDistBlockMatrix():DistBlockMatrix(M,N) {
-        finish ateach(d in Dist.makeUnique(dmat.getPlaces())) {
+        finish ateach(d in Dist.makeUnique(dmat.places())) {
             val itr = dmat.handleBS().iterator();
             while (itr.hasNext()) {
                 val blk = itr.next();

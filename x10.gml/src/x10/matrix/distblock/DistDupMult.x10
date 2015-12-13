@@ -35,7 +35,7 @@ public class DistDupMult {
             B:DupBlockMatrix(A.N),
             C:DistBlockMatrix(A.M,B.N),
             plus:Boolean):DistBlockMatrix(C) {
-        val places = A.getPlaces();
+        val places = A.places();
         val gA = A.getGrid();
         val gB = B.getGrid();
         val gC = C.getGrid();
@@ -69,7 +69,7 @@ public class DistDupMult {
             B:DupBlockMatrix(A.M), 
             C:DistBlockMatrix(A.N,B.N),
             plus:Boolean):DistBlockMatrix(C) {
-        val places = A.getPlaces();
+        val places = A.places();
         val gA = A.getGrid();
         val gB = B.getGrid();
         val gC = C.getGrid();
@@ -103,7 +103,7 @@ public class DistDupMult {
             B:DupBlockMatrix{self.N==A.N},
             C:DistBlockMatrix(A.M,B.M), 
             plus:Boolean):DistBlockMatrix(C) {
-        val places = A.getPlaces();
+        val places = A.places();
         val gA = A.getGrid();
         val gB = B.getGrid();
         val gC = C.getGrid();

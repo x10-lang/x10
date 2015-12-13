@@ -18,7 +18,9 @@ import x10.matrix.ElemType;
 
 import x10.matrix.distblock.DistVector;
 import x10.matrix.util.RandTool;
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.Team;
+import x10.util.ArrayList;
 
 public class TestDistVector extends x10Test {
     
@@ -34,23 +36,23 @@ public class TestDistVector extends x10Test {
         Console.OUT.println("Starting distributed vector clone/add/sub/scaling tests on "+
                             M + "-vectors");
         var ret:Boolean = true;
-        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.makeTestPlaceGroup(1) : Place.places();        
-	    ret &= (testClone(places));
-	    ret &= (testScale(places));
-	    ret &= (testAdd(places));
-	    ret &= (testAddSub(places));
-	    ret &= (testAddAssociative(places));
-	    ret &= (testScaleAdd(places));
-	    ret &= (testCellMult(places));
-	    ret &= (testCellDiv(places));
-	    ret &= (testScatterGather(places));
-	    ret &= (testSnapshotRestore(places));
+        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.execludeSparePlaces(1) : Place.places();        
+        ret &= (testClone(places));
+        ret &= (testScale(places));
+        ret &= (testAdd(places));
+        ret &= (testAddSub(places));
+        ret &= (testAddAssociative(places));
+        ret &= (testScaleAdd(places));
+        ret &= (testCellMult(places));
+        ret &= (testCellDiv(places));
+        ret &= (testScatterGather(places));
+        ret &= (testSnapshotRestore(places));
         return ret;
     }
     
     public def testClone(places:PlaceGroup):Boolean{
         Console.OUT.println("Starting vector clone test");
-        val dm = DistVector.make(M, places);
+        val dm = DistVector.make(M, places, new Team(places));
         dm.initRandom(); // same as  val dm = Vector.make(N).initRandom(); 
 	
         val dm1 = dm.clone();
@@ -73,7 +75,7 @@ public class TestDistVector extends x10Test {
     
     public def testScale(places:PlaceGroup):Boolean{
         Console.OUT.println("Starting distributed vector scaling test");
-        val dm = DistVector.make(M, places).initRandom();
+        val dm = DistVector.make(M, places, new Team(places)).initRandom();
         val dm1  = dm * ET(2.5);
         dm1.scale(ET(1.0/2.5));
         val ret = dm.equals(dm1 as DistVector(dm.M));
@@ -84,7 +86,7 @@ public class TestDistVector extends x10Test {
     
     public def testAdd(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector addition test");
-        val dm = DistVector.make(M, places).initRandom();
+        val dm = DistVector.make(M, places, new Team(places)).initRandom();
         val dm1:DistVector(M) = -1 * dm;
         val dm0 = dm + dm1;
         val ret = dm0.equals(ET(0.0));
@@ -95,8 +97,8 @@ public class TestDistVector extends x10Test {
     
     public def testAddSub(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector add-sub test");
-        val dm = DistVector.make(M, places).initRandom();
-        val dm1= DistVector.make(M, places).initRandom();
+        val dm = DistVector.make(M, places, new Team(places)).initRandom();
+        val dm1= DistVector.make(M, places, new Team(places)).initRandom();
         val dm2= dm  + dm1;
         //
         val dm_c  = dm2 - dm1;
@@ -109,9 +111,9 @@ public class TestDistVector extends x10Test {
     public def testAddAssociative(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector associative test");
 	
-        val a = DistVector.make(M, places).init(ET(1.0));
-        val b = DistVector.make(M, places).initRandom(1n, 10n);
-        val c = DistVector.make(M, places).initRandom(10n, 100n);
+        val a = DistVector.make(M, places, new Team(places)).init(ET(1.0));
+        val b = DistVector.make(M, places, new Team(places)).initRandom(1n, 10n);
+        val c = DistVector.make(M, places, new Team(places)).initRandom(10n, 100n);
         val c1 = a + b + c;
         val c2 = a + (b + c);
         val ret = c1.equals(c2);
@@ -123,8 +125,8 @@ public class TestDistVector extends x10Test {
     public def testScaleAdd(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector scaling-add test");
 	
-        val a:DistVector(M) = DistVector.make(M, places).initRandom();
-        val b:DistVector(M) = DistVector.make(M, places).initRandom();
+        val a:DistVector(M) = DistVector.make(M, places, new Team(places)).initRandom();
+        val b:DistVector(M) = DistVector.make(M, places, new Team(places)).initRandom();
         val a1:DistVector(a.M)= a * ET(0.2);
         val a2:DistVector(a.M)= a * ET(0.8);
         val a3= a1 + a2;
@@ -137,8 +139,8 @@ public class TestDistVector extends x10Test {
     public def testCellMult(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector cellwise mult test");
 	
-        val a = DistVector.make(M, places).initRandom(1n, 10n);
-        val b = DistVector.make(M, places).initRandom(10n, 100n);
+        val a = DistVector.make(M, places, new Team(places)).initRandom(1n, 10n);
+        val b = DistVector.make(M, places, new Team(places)).initRandom(10n, 100n);
         val c = (a + b) * a;
         val d = a * a + b * a;
         val ret = c.equals(d);
@@ -150,8 +152,8 @@ public class TestDistVector extends x10Test {
     public def testCellDiv(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector cellwise mult-div test");
 	
-        val a = DistVector.make(M, places).init(1);
-        val b = DistVector.make(M, places).init(1);
+        val a = DistVector.make(M, places, new Team(places)).init(1);
+        val b = DistVector.make(M, places, new Team(places)).init(1);
         val c = (a + b) * a;
         val d =  c / (a + b);
         val ret = d.equals(a);
@@ -163,7 +165,7 @@ public class TestDistVector extends x10Test {
     public def testScatterGather(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector scatter-gather test");
 	
-        val a = DistVector.make(M, places);
+        val a = DistVector.make(M, places, new Team(places));
         val b = Vector.make(M).init(1);
         val c = Vector.make(M);
         a.copyFrom(b);
@@ -177,14 +179,14 @@ public class TestDistVector extends x10Test {
     
     public def testSnapshotRestore(places:PlaceGroup):Boolean {
         Console.OUT.println("Starting distributed vector snapshot/restore test");
-        var dm:DistVector = DistVector.make(M, Place.places()).init(ET(1.0));
+        var dm:DistVector = DistVector.make(M, Place.places(), Team.WORLD).init(ET(1.0));
 	
         var ret:Boolean = dm.equals(ET(1.0));        
         val dm_snapshot = dm.makeSnapshot();
         val dm1 = dm.clone();    
         dm.cellAdd(ET(2.0)); //change the vector after taking a snapshot        
         val newPlaceGroup:PlaceGroup = places;    
-        dm.remake(newPlaceGroup);        
+        dm.remake(newPlaceGroup, new Team(newPlaceGroup), new ArrayList[Place]());        
         dm.restoreSnapshot(dm_snapshot);    
         ret &= !dm.equals(dm1);//different place groups
         ret &= dm.equals(ET(1.0));

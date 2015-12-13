@@ -173,13 +173,13 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
         return coltt;
     }
     
-    public def getAggRowBs(grid:Grid):Rail[Long]{
-        val rbs = new Rail[Long](numRowPlaces, (i:Long)=>compLocalRows(grid, i as Long));
+    public def getAggRowBs(grid:Grid):Rail[Int]{
+        val rbs = new Rail[Int](numRowPlaces, (i:Long)=>compLocalRows(grid, i as Long) as Int);
         return rbs;
     }
     
-    public def getAggColBs(grid:Grid):Rail[Long]{
-        val cbs = new Rail[Long](numColPlaces, (i:Long)=>compLocalCols(grid, i as Long));
+    public def getAggColBs(grid:Grid):Rail[Int]{
+        val cbs = new Rail[Int](numColPlaces, (i:Long)=>compLocalCols(grid, i as Long) as Int);
         return cbs;
     }
 }

@@ -13,6 +13,7 @@ package logreg;
 import x10.matrix.ElemType;
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
+import x10.util.ArrayList;
 
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
@@ -22,9 +23,10 @@ import x10.util.Timer;
 
 import x10.matrix.util.Debug;
 
-import x10.util.resilient.ResilientIterativeApp;
-import x10.util.resilient.ResilientExecutor;
-import x10.util.resilient.ResilientStoreForApp;
+import x10.util.resilient.iterative.ResilientIterativeApp;
+import x10.util.resilient.iterative.ResilientExecutor;
+import x10.util.resilient.iterative.ApplicationSnapshotStore;
+import x10.util.Team;
 
 public class LogisticRegression implements ResilientIterativeApp {
     static val MAX_SPARSE_DENSITY = 0.1f;
@@ -40,7 +42,7 @@ public class LogisticRegression implements ResilientIterativeApp {
     /** Learned model weight vector, used for future predictions */
     public val w:Vector(X.N);
 
-    val dup_w:DupVector(X.N); 
+    val dup_w:DupVector(X.N);
     
     val tmp_y:DistVector(X.M);
 
@@ -59,6 +61,9 @@ public class LogisticRegression implements ResilientIterativeApp {
     var converge:Boolean;
     var delta:ElemType;
     var lastCheckpointDelta:ElemType;
+    var lastCheckpointGrad:Vector;
+    var lastCheckpointW:Vector;
+    
     var norm_r2:ElemType; 
     var alpha:ElemType;    
     var obj:ElemType; // value does not change after being initialized
@@ -80,35 +85,37 @@ public class LogisticRegression implements ResilientIterativeApp {
     private val chkpntIterations:Long;
     private val nzd:Float;
     private var places:PlaceGroup;
-
-    public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Float, chkpntIter:Long, places:PlaceGroup) {
+    var team:Team;
+    
+    public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Float, chkpntIter:Long, places:PlaceGroup, team:Team) {
         X=x_;
         this.y = y as DistVector(X.M);
         this.w = w as Vector(X.N);
         
-        dup_w  = DupVector.make(X.N, places);
+        dup_w  = DupVector.make(X.N, places, team);
 
         val rowBs = X.getAggRowBs();
-        tmp_y  = DistVector.make(X.M, rowBs, places);
-        o      = DistVector.make(X.M, rowBs, places);
+        tmp_y  = DistVector.make(X.M, rowBs, places, team);
+        o      = DistVector.make(X.M, rowBs, places, team);
         grad   = Vector.make(X.N);
         // Add temp memory space
         s      = Vector.make(X.N);
         r      = Vector.make(X.N);
         d      = Vector.make(X.N);
         Hd     = Vector.make(X.N);
-        onew   = DistVector.make(X.M, rowBs, places);
+        onew   = DistVector.make(X.M, rowBs, places, team);
         wnew   = Vector.make(X.N);
-        logisticnew = DistVector.make(X.M, rowBs, places);
+        logisticnew = DistVector.make(X.M, rowBs, places, team);
         
         maxIterations = it;
         maxinneriter =nit;
         chkpntIterations = chkpntIter;
         nzd = sparseDensity;
         this.places = places;
+        this.team = team;
     }
 
-    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup){
+    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup, team:Team){
         val X:DistBlockMatrix(mX, nX);
         if (nzd < MAX_SPARSE_DENSITY) {
             X = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
@@ -117,7 +124,7 @@ public class LogisticRegression implements ResilientIterativeApp {
             X = DistBlockMatrix.makeDense(mX, nX, nRowBs, nColBs, places.size(), 1, places);
         }
         val w = Vector.make(X.N);
-        val y = DistVector.make(X.M, X.getAggRowBs(), places);
+        val y = DistVector.make(X.M, X.getAggRowBs(), places, team);
         
         //X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
         X.initRandom(1, 10);
@@ -125,14 +132,14 @@ public class LogisticRegression implements ResilientIterativeApp {
         //w = Rand(rows=D, cols=1, min=0.0, max=0.0);
         w.initRandom();
         
-        return new LogisticRegression(X, y, w, it, nit, nzd, chkpntIter, places);
+        return new LogisticRegression(X, y, w, it, nit, nzd, chkpntIter, places, team);
     }
     
     public def run() {
         //o = X %*% w
         compute_XmultB(o, w);
         //logistic = 1.0/(1.0 + exp( -y * o))
-        val logistic = DistVector.make(X.M, X.getAggRowBs(), X.places());
+        val logistic = DistVector.make(X.M, X.getAggRowBs(), places, team);
         logistic.map(y, o, (y_i:ElemType, o_i:ElemType)=> (1.0 / (1.0 + Math.exp(-y_i * o_i))) as ElemType);
         
         //obj = 0.5 * t(w) %*% w + C*sum(logistic)
@@ -330,42 +337,45 @@ public class LogisticRegression implements ResilientIterativeApp {
         return iter >= maxIterations;
     }
     
-    public def checkpoint(store:ResilientStoreForApp):void {        
+    public def checkpoint(store:ApplicationSnapshotStore):void {        
         store.startNewSnapshot();
         store.saveReadOnly(X);
-        store.save(y);
-        store.save(grad);
-        store.save(o);
-        store.save(w);
+        store.save(y);        
+        store.save(o);        
         store.save(logisticD);
         store.commit();
         lastCheckpointDelta = delta;
+        lastCheckpointGrad = grad.clone();
+        lastCheckpointW = w.clone();
     }
     
-    public def restore(newPlaces:PlaceGroup, store:ResilientStoreForApp, lastCheckpointIter:Long):void{        
-        val newRowPs = newPlaces.size();
+    public def restore(newGroup:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void{        
+        val newTeam = new Team(newGroup);
+        val newRowPs = newGroup.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore LogisticRegression app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         
         // redistribute all matrices / vectors to new PlaceGroup
         if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces);
+            X.remakeSparse(newRowPs, newColPs, nzd, newGroup, newAddedPlaces);
         } else {
-            X.remakeDense(newRowPs, newColPs, newPlaces);
+            X.remakeDense(newRowPs, newColPs, newGroup, newAddedPlaces);
         }
         val rowBs = X.getAggRowBs();
-        y.remake(rowBs, newPlaces);
-        o.remake(rowBs, newPlaces);
-        onew.remake(rowBs, newPlaces);
+        y.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        o.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        onew.remake(rowBs, newGroup, newTeam, newAddedPlaces);
         
-        tmp_y.remake(rowBs, newPlaces);
-        logisticD.remake(rowBs, newPlaces);
-        logisticnew.remake(rowBs, newPlaces);
-        dup_w.remake(newPlaces);
+        tmp_y.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        logisticD.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        logisticnew.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        dup_w.remake(newGroup, newTeam, newAddedPlaces);
         
         store.restore();
         iter = lastCheckpointIter;
         delta = lastCheckpointDelta;
+        grad.copyTo(lastCheckpointGrad);
+        w.copyTo(lastCheckpointW);
         Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] delta["+delta+"] ...");
     }
 }

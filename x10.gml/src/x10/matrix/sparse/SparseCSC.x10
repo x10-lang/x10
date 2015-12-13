@@ -39,7 +39,7 @@ public class SparseCSC extends Matrix {
 	/**
 	 * Compress 2-dimension array
 	 */
-	public val ccdata:Compress2D;
+	public val ccdata:Compress2D{self!=null};
 		
 	// Temporary memory space used for type conversion and
 	// data compression
@@ -60,7 +60,7 @@ public class SparseCSC extends Matrix {
 	 * @param cd     Compress 2D data structure, which contains the
 	 *              the compressed array data storage
 	 */
-	public def this(m:Long, n:Long, cd:Compress2D):SparseCSC(m,n) {
+	public def this(m:Long, n:Long, cd:Compress2D{self!=null}):SparseCSC(m,n) {
 		super(m, n);
 		assert n <= cd.size();
 
@@ -77,7 +77,7 @@ public class SparseCSC extends Matrix {
 	 * @param n     Number of columns in the CSC sparse matrix
 	 * @param ca     The data storage of compressed array.
 	 */
-	public def this(m:Long, n:Long, ca:CompressArray):SparseCSC(m,n) {
+	public def this(m:Long, n:Long, ca:CompressArray{self!=null}):SparseCSC(m,n) {
 		super(m, n);
 		ccdata = Compress2D.make(n, ca);
 
