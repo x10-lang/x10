@@ -11,7 +11,6 @@
 
 package x10.parser.antlr;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -94,8 +93,8 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary.Operator;
 import polyglot.ast.While;
-import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Resource;
 import polyglot.lex.BooleanLiteral;
 import polyglot.lex.CharacterLiteral;
 import polyglot.lex.DoubleLiteral;
@@ -112,6 +111,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
@@ -168,7 +168,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected NodeFactory nf;
     protected FileSource srce;
     protected String fileName;
-
+    protected ExtensionInfo extInfo;
+    
     public static void clearState() {
     	if (parseCpt > 100) {
     		ParserCleaner.clearDFA();
@@ -180,21 +181,22 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 		ParserSerializer.write(outputStream);
     }
     
-    public static void readState() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
-    	FileResource resource = new FileResource(new File("parser.cache"));
+    public void readState() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
+    	Resource resource = extInfo.sourceLoader().pathloader().loadResource("parser.cache");
     	InputStream inputStream = resource.getInputStream();
 		ParserSerializer.read(inputStream);
     }
     
     private static int parseCpt = 0;
-    public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q) {
+    public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q, ExtensionInfo ext) {
         compilerOpts = opts;
         ts = t;
         nf = n;
         srce = source;
         eq = q;
         fileName = source.toString();
-
+        extInfo = ext;
+        
         parseCpt++;
     	if (parseCpt == 1 && compilerOpts.x10_config.ANTLR_CACHE_READ) {
     		try {

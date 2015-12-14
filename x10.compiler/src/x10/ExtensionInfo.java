@@ -197,18 +197,20 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     
     @Override
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
+        Parser parser;
         if (getOptions().x10_config.ANTLR_PARSER) {
-            return parserANTLR(reader, source, eq);
+            parser = parserANTLR(reader, source, eq);
         } else {
-            return parserLPG(reader, source, eq);
+            parser = parserLPG(reader, source, eq);
         }
+        return parser;
     }
 
     public Parser parserANTLR(Reader reader, FileSource source, ErrorQueue eq) {
         try {
             ANTLRInputStream inputStream = source.resource().getClass() == FileResource.class ? new ANTLRInputStream(new FileInputStream(source.path())) : new ANTLRInputStream(
                     reader);
-            return new ASTBuilder(inputStream, getOptions(), ts, nf, source, eq);
+            return new ASTBuilder(inputStream, getOptions(), ts, nf, source, eq, this);
         } catch (Exception e) {
             throw new IllegalStateException("Could not parse " + source.path());
         }
