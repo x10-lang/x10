@@ -117,6 +117,12 @@ public final class Configuration extends x10.config.Configuration {
     public boolean ANTLR_PARSER = true;
     private static final String ANTLR_PARSER_desc = "Use the ANTLR parser instead of the LPG parser.";
 
+    public boolean ANTLR_CACHE_WRITE = false;
+    private static final String ANTLR_PARSE_TREE_CACHE_WRITE_desc = "Save the state of the ANTLR parser.";
+
+    public boolean ANTLR_CACHE_READ = false;
+    private static final String ANTLR_PARSE_TREE_CACHE_READ_desc = "Restore the state of the ANTLR parser if the cache is available.";
+
     public boolean DISPLAY_PARSE_TREE = false;
     private static final String DISPLAY_PARSE_TREE_desc = "Open a dialog box that displays the parse tree.";
 

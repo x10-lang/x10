@@ -350,6 +350,7 @@
         <jar jarfile="${gen}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**/*.x10" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-x10" includes="x10/parser.cache" excludes="${jar}"/>
             <fileset dir="${basedir}/src-java">
                 <exclude name="${jar}" />
                 <include name="x10/**/*.java" if="${INCLUDE_JAVA_SOURCE}" />
