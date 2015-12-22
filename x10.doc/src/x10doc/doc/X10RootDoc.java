@@ -483,7 +483,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
      */
     public String[][] options() {
         // System.out.println("RootDoc.options() called.");
-        String[][] result = new String[][] { { "-d", outputDir }, { accessModifier, "" } };
+        String[][] result = new String[][] { { "-d", outputDir }, { accessModifier, "" }, {"-Xmaxerrs", "1000000"}, {"-Xmaxwarns", "1000000"}, {"-Xdoclint:none"}  };
         return result;
     }
 
@@ -535,33 +535,27 @@ public class X10RootDoc extends X10Doc implements RootDoc {
     }
 
     public void printError(String arg0) {
-        // TODO Auto-generated method stub
-
+    	System.err.println(arg0);
     }
 
     public void printError(SourcePosition arg0, String arg1) {
-        // TODO Auto-generated method stub
-
+    	System.err.println(arg0 +": "+arg1);
     }
 
     public void printNotice(String arg0) {
-        // TODO Auto-generated method stub
-
+    	System.out.println(arg0);
     }
 
     public void printNotice(SourcePosition arg0, String arg1) {
-        // TODO Auto-generated method stub
-
+    	System.out.println(arg0 +": "+arg1);
     }
 
     public void printWarning(String arg0) {
-        // TODO Auto-generated method stub
-
+    	System.out.println(arg0);
     }
 
     public void printWarning(SourcePosition arg0, String arg1) {
-        // TODO Auto-generated method stub
-
+    	System.out.println(arg0 + ":" +arg1);
     }
 
     public String stringDocObjNames(Collection<? extends Doc> c) {
