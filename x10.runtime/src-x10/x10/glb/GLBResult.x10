@@ -40,7 +40,7 @@ public abstract class GLBResult[R] {
      * User-defined display method for the result.
      * @param result to display
      */
-    public abstract def display(Rail[R]):void;
+    public abstract def display(result:Rail[R]):void;
     
     /**
      * Internal method used by {@link GLB}, it only retrieves the result from user once,

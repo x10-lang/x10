@@ -213,7 +213,7 @@ public final class Runtime {
          * allocator) will be returned.
          * 
          * @param hugePages allocate from pool of large pages?
-         * @param congurent allocate from congruent memory?
+         * @param congruent allocate from congruent memory?
          */
         public static def requestAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages && ALLOC_HC != null) return ALLOC_HC;
@@ -227,7 +227,7 @@ public final class Runtime {
          * If one is not available, an OutOfMemoryError will be thrown.
          * 
          * @param hugePages allocate from pool of large pages?
-         * @param congurent allocate from congruent memory?
+         * @param congruent allocate from congruent memory?
          */
         public static def requireAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages) {
