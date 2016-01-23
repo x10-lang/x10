@@ -21,6 +21,7 @@ import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Call_c;
+import polyglot.ast.Cast_c;
 import polyglot.ast.CharLit_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall_c;
@@ -180,6 +181,12 @@ public class CastInjector extends ContextVisitor {
                 }
             }
             return null == newInits ? tuple : tuple.arguments(newInits);
+        } else if (n instanceof Cast_c) {
+        	Type target = Types.baseType(((Cast_c)n).type());
+        	Type eType = Types.baseType(((Cast_c) n).expr().type());
+        	if (target instanceof FunctionType && eType instanceof FunctionType && eType.isSubtype(target,context)) {
+        		return upcastToFunctionType(((Cast_c) n).expr(), (FunctionType) target);
+        	}
         } else if (n instanceof BooleanLit_c || n instanceof IntLit_c || n instanceof FloatLit_c || n instanceof CharLit_c) {
             Lit_c lit = (Lit_c) n;
             if (Types.baseType(lit.type()).isAny()) {
