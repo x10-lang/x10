@@ -1,6 +1,6 @@
 ###################################################
 #This make file is used for building executable 
-#running on C++backend socket/pami transport.
+#running on C++backend socket/MPI/pami transport.
 ###################################################
 
 ##---------------
@@ -47,6 +47,11 @@ $(target)_sock_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src)
 		$(X10CXX) -g -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
+$(target)_mpi_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
+	        @echo "X10_HOME is |$(X10_HOME)|"
+		$(X10CXX) -g -x10rt mpi $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
+
 $(target)_pami_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
 		$(X10CXX) -g -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
@@ -54,6 +59,8 @@ $(target)_pami_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src)
 ###short-keys
 #Build in native for socket transport
 sock		: $(target)_sock_$(GML_ELEM_TYPE)
+#Build in native for MPI transport
+mpi		: $(target)_mpi_$(GML_ELEM_TYPE)
 #build in native for pami transport
 pami		: $(target)_pami_$(GML_ELEM_TYPE)
 
@@ -61,24 +68,29 @@ pami		: $(target)_pami_$(GML_ELEM_TYPE)
 all_sock	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) sock; )
 
+all_mpi	:
+			$(foreach src, $(target_list), $(MAKE) target=$(src) mpi; )
+
 all_pami	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) pami; )
 
 ##--------
 ## clean
 clean	::
-		rm -f $(target)_sock* $(target)_pami*
+		rm -f $(target)_sock* $(target)_mpi* $(target)_pami*
 
 clean_all ::
-		$(foreach f, $(target_list), rm -rf $(f)_sock* $(f)_pami*; )
+		$(foreach f, $(target_list), rm -rf $(f)_sock* $(f)_mpi* $(f)_pami*; )
 
 ###----------
 help	::
-	@echo "------------------- build for native sock or pami transport ------------";
+	@echo "------------------- build for native sock, mpi or pami transport ------------";
 	@echo " make sock       : build default target $(target) for native backend running on socket transport";
 	@echo " make all_sock   : build all targets [ $(target_list) ] for native backend running on socket transport";
+	@echo " make mpi        : build default target $(target) for native backend running on MPI transport";
+	@echo " make all_mpi    : build all targets [ $(target_list) ] for native backend running on MPI transport";
 	@echo " make pami       : build default target $(target) for native backend running on pami transport";
 	@echo " make all_pami   : build all targets [ $(target_list) ] for native backend running on pami transport";
-	@echo " make clean      : remove default built binary $(target)_sock $(target)_pami";
+	@echo " make clean      : remove default built binary $(target)_sock $(target)_mpi $(target)_pami";
 	@echo " make clean_all  : remove all builds for the list of targets";
 	@echo "";
