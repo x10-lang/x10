@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 package x10.xrx;
@@ -213,7 +213,7 @@ public final class Runtime {
          * allocator) will be returned.
          * 
          * @param hugePages allocate from pool of large pages?
-         * @param congurent allocate from congruent memory?
+         * @param congruent allocate from congruent memory?
          */
         public static def requestAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages && ALLOC_HC != null) return ALLOC_HC;
@@ -227,7 +227,7 @@ public final class Runtime {
          * If one is not available, an OutOfMemoryError will be thrown.
          * 
          * @param hugePages allocate from pool of large pages?
-         * @param congurent allocate from congruent memory?
+         * @param congruent allocate from congruent memory?
          */
         public static def requireAllocator(hugePages:Boolean, congruent:Boolean):MemoryAllocator {
             if (congruent && hugePages) {

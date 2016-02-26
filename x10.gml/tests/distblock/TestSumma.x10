@@ -6,12 +6,10 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2012-2014.
+ *  (C) Copyright IBM Corporation 2012-2016.
  */
 
 import harness.x10Test;
-
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -71,7 +69,6 @@ public class TestSumma extends x10Test {
     
     public def run():Boolean {
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testMult());
 	    ret &= (testMultTrans());
 	    ret &= (testSparseMult());
@@ -81,7 +78,6 @@ public class TestSumma extends x10Test {
 	    //ret &= (testCylicDistMultTrans());
 	    //ret &= (testRandomDistMult());
 	    //ret &= (testRandomDistMultTrans());
-	}
         return ret;
     }
     

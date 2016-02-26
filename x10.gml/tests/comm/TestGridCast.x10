@@ -1,12 +1,10 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2012-2014.
+ *  (C) Copyright IBM Corporation 2012-2016.
  */
 
 import harness.x10Test;
-
-import x10.compiler.Ifndef;
 
 import x10.matrix.util.Debug;
 import x10.matrix.block.BlockMatrix;
@@ -56,7 +54,6 @@ public class TestGridCast extends x10Test {
 	
     public def run():Boolean {
 		var retval:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 		Console.OUT.println("****************************************************************");
 		Console.OUT.println("Test dense blocks collective commu in distributed block matrix");
 		Console.OUT.println("****************************************************************");
@@ -71,7 +68,6 @@ public class TestGridCast extends x10Test {
 
 		retval &= testGridRowCast(sbmat);
 		retval &= testGridColCast(sbmat);		
-    }
         return retval;
 	}
 

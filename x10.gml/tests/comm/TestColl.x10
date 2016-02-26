@@ -1,13 +1,12 @@
 /*
  *  This file is part of the X10 Applications project.
  *
- *  (C) Copyright IBM Corporation 2011-2014.
+ *  (C) Copyright IBM Corporation 2011-2016.
  */
 
 import harness.x10Test;
 
 import x10.regionarray.DistArray;
-import x10.compiler.Ifndef;
 
 import x10.matrix.Matrix;
 import x10.matrix.ElemType;
@@ -52,7 +51,6 @@ public class TestColl extends x10Test {
 	
     public def run():Boolean {
 		var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
  		ret &= (testBcast());
  		//ret &= (testRingCast());
  		ret &= (testGather());
@@ -62,7 +60,6 @@ public class TestColl extends x10Test {
 		//ret &= (testAllgather());
  		ret &= (testReduce());
  		ret &= (testAllReduce());
-	}
         return ret;
     }
 

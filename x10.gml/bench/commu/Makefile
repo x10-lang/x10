@@ -6,14 +6,14 @@
 #  You may obtain a copy of the License at
 #      http://www.opensource.org/licenses/eclipse-1.0.php
 #
-#  (C) Copyright IBM Corporation 2006-2014.
+#  (C) Copyright IBM Corporation 2006-2016.
 #
 
 # Run benchmarks
-# Run [bench] executable: make [run_mpi|run_sock|java]
+# Run [bench] executable: make [run_sock|java]
 
 # Bench mark test suite
-# cd [placehandle|distarray|distmatrix]/test_suite_[java|sock|mpi]; ./ptest_[probsizes|nodes|cores].pl -r
+# cd [placehandle|distarray|distmatrix]/test_suite_[java|sock]; ./ptest_[probsizes|nodes|cores].pl -r
 ##-------------------------------------
 SHELL=bash
 MAKE=make

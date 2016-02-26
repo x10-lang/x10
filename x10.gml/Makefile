@@ -12,11 +12,10 @@ include scripts/build_common.mk
 default	: help 
 
 ## Managed backend must be built last
-all		: native_gml native_mpi_gml managed_gml
+all		: native_gml managed_gml
 
 ## short-cut keys
 native		: native_gml
-native_mpi	: native_mpi_gml
 managed		: managed_gml
 
 ## Source files
@@ -40,19 +39,11 @@ base_src=\
 	x10/matrix/util/ElemTypeTool.x10 \
 	x10/matrix/util/MathTool.x10 \
 	x10/matrix/util/PConsole.x10 \
-	x10/matrix/util/PlaceGroupBuilder.x10 \
 	x10/matrix/util/RandTool.x10 \
 	x10/matrix/util/StringTool.x10 \
 	x10/matrix/util/VerifyTool.x10 \
-	x10/util/resilient/DistObjectSnapshot.x10 \
-	x10/util/resilient/ResilientExecutor.x10 \
-	x10/util/resilient/ResilientIterativeApp.x10 \
-	x10/util/resilient/ResilientStoreForApp.x10 \
-	x10/util/resilient/Snapshot.x10 \
-	x10/util/resilient/Snapshottable.x10 \
 	x10/util/resilient/VectorSnapshotInfo.x10 \
-	x10/util/resilient/BlockSetSnapshotInfo.x10 \
-	x10/util/resilient/PlaceHammer.x10
+	x10/util/resilient/BlockSetSnapshotInfo.x10
 
 comm_src=\
 	x10/matrix/comm/ArrayBcast.x10 \
@@ -167,21 +158,10 @@ summa_src=\
 	x10/matrix/dist/summa/SummaSparseMultDense.x10 \
 	x10/matrix/dist/summa/SummaSparse.x10
 ##----
-## for mpi binding
-comm_mpi_src=\
-	x10/matrix/comm/mpi/RequestHandleMPI.x10  \
-	x10/matrix/comm/mpi/WrapMPI.x10
-
-summa_mpi_src=\
-	x10/matrix/dist/summa/mpi/SummaMPI.x10
-
-##-----
 
 ## basic lib src, non-parallel/dist version
 seq_src		= $(base_src) $(bwrap_src) $(lapack_src) $(sparse_src) $(block_src) 
 ## lib src parallel/dist version 
-##
-mpi_wrap	= $(comm_mpi_src) $(summa_mpi_src)
 lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 
 #--------------------------------------------------
@@ -194,8 +174,6 @@ ifdef COVERAGE
 endif
 
 #-define ENABLE_RING_COMM
-
-MPI_X10CXXFLAGS = -x10rt mpi -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
 
 ###################################################
 # X10 file built rules
@@ -224,7 +202,7 @@ clib : $(clib_src) chk_elem_type chk_dir
 	@echo "------------------ build lib for $(base_dir_elem) on $(HOSTNAME) -------------------"
 	cd $(src_path) && $(X10CXX) $(X10FLAGS) -report postcompile=1 $(X10CXX_PREARGS) $(X10CXX_POSTARGS) $(extra_opts) -buildx10lib ../$(base_dir_elem) -d ../$(build_path_elem) -o $(target) $(src) 
 	@echo "-------- Packaging source files into jar for $(base_dir_elem) --------"
-	cd $(src_path) && $(JAR) -cf ../$(base_dir_elem)/lib/$(target).jar $(src) $(mpi_wrap) # bundle mpi source
+	cd $(src_path) && $(JAR) -cf ../$(base_dir_elem)/lib/$(target).jar $(src)
 	@echo "------------ making properties file for $(target)_$(GML_ELEM_TYPE) ------------"
 	@echo "X10LIB_SRC_JAR=lib/$(target).jar" >> $(base_dir_elem)/$(target).properties
 
@@ -234,9 +212,6 @@ managed_gml		: $(lib_src)
 ## native on socket
 native_gml		: $(lib_src) 
 		@($(MAKE) clib target=native_gml src="$(lib_src)")
-
-native_mpi_gml	: $(lib_src) $(mpi_wrap) 
-		@($(MAKE) clib target=$@ src="$(lib_src) $(mpi_wrap)" extra_opts='$(MPI_X10CXXFLAGS)')
 
 ### build basic non-dist lib, single place (sequential matrix lib)
 managed_seq_gml	: $(seq_src)
@@ -321,7 +296,6 @@ chk_dir:
 		mkdir -p $(base_dir_elem)/lib
 		mkdir -p $(build_path)/x10/matrix/blas
 		mkdir -p $(build_path)/x10/matrix/lapack
-		mkdir -p $(build_path_elem)/x10/matrix/comm/mpi
 		mkdir -p $(build_path_elem)/x10/matrix/blas
 		mkdir -p $(build_path_elem)/x10/matrix/lapack
 
@@ -344,7 +318,6 @@ help	::
 	@echo "1) Build full library for multi-place execution"
 	@echo "make managed    -- make library tar file for managed backend: lib/managed_gml.jar and managed_gml.properties"
 	@echo "make native     -- make library and jar files for native backend: lib/libnative_gml.so, lib/native_gml.jar and native_gml.properties"
-	@echo "make native_mpi -- make library and jar files for native backend running on MPI transport: lib/libnative_mpi_gml.so, lib/native_mpi_gml.jar, and native_mpi_gml.properties"
 	@echo "make all   -- make all above"
 	@echo ""
 	@echo "2) Build subset library for single place or sequential code"  
@@ -365,10 +338,6 @@ help	::
 	@echo "2) Build app for native backend, add following settings in x10c++ command line"
 	@echo "   \"-classpath \$$(gml_lib)/native_gml.jar\""
 	@echo "   \"-x10lib \$$(gml_path)/native_gml.properties\""
-	@echo ""
-	@echo "3) Build app for native backend for MPI transport, add following settings in x10c++ command line"
-	@echo "   \"-classpath \$$(gml_lib)/native_mpi_gml.jar\""
-	@echo "   \"-x10lib \$$(gml_path)/native_mpi_gml.properties\""
 	@echo ""
 	@echo "------------------- Run application --------------------"
 	@echo "1) Managed backend"

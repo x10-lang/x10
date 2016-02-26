@@ -1,0 +1,3 @@
+mode=iteration
+#iteration_number:place to kill:[S|C|R] S:kill place during step execution, C: kill place during checkpoint, R: kill place during restore
+15:2:S

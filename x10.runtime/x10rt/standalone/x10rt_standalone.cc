@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright IBM Corporation 2006-2016.
  *
  *  This file was written by Ben Herta for IBM: bherta@us.ibm.com
  *
@@ -971,9 +971,10 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role,
     abort();
 }
 
-void x10rt_net_bcast (x10rt_team team, x10rt_place role,
+bool x10rt_net_bcast (x10rt_team team, x10rt_place role,
                       x10rt_place root, const void *sbuf, void *dbuf,
                       size_t el, size_t count,
+                      x10rt_completion_handler *errch,
                       x10rt_completion_handler *ch, void *arg)
 {
     abort();
@@ -987,10 +988,11 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role,
     abort();
 }
 
-void x10rt_net_scatterv (x10rt_team team, x10rt_place role,
+bool x10rt_net_scatterv (x10rt_team team, x10rt_place role,
                          x10rt_place root, const void *sbuf,
                          const void *soffsets, const void *scounts,
                          void *dbuf, size_t dcount, size_t el,
+                         x10rt_completion_handler *errch,
                          x10rt_completion_handler *ch, void *arg)
 {
     abort();
@@ -1004,10 +1006,12 @@ void x10rt_net_gather (x10rt_team team, x10rt_place role,
 	abort();
 }
 
-void x10rt_net_gatherv (x10rt_team team, x10rt_place role,
+bool x10rt_net_gatherv (x10rt_team team, x10rt_place role,
 		                x10rt_place root, const void *sbuf, size_t scount,
 		                void *dbuf, const void *doffsets, const void *dcounts,
-		                size_t el, x10rt_completion_handler *ch, void *arg)
+		                size_t el,
+                        x10rt_completion_handler *errch,
+		                x10rt_completion_handler *ch, void *arg)
 {
 	abort();
 }

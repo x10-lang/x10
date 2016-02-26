@@ -6,12 +6,10 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2011-2014.
+ *  (C) Copyright IBM Corporation 2011-2016.
  */
 
 import harness.x10Test;
-
-import x10.compiler.Ifndef;
 
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DupBlockMatrix;
@@ -47,7 +45,6 @@ public class TestDupBlock extends x10Test {
 	Console.OUT.println("Starting Duplicated block matrix clone/add/sub/scaling tests");
 	
 	var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= (testClone());
 	    ret &= (testSync());
 	    ret &= (testScale());
@@ -57,7 +54,6 @@ public class TestDupBlock extends x10Test {
 	    ret &= (testScaleAdd());
 	    ret &= (testCellMult());
 	    ret &= (testCellDiv());
-	}
         return ret;
     }
     public def testClone():Boolean{

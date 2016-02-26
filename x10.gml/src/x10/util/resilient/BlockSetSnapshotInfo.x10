@@ -14,6 +14,7 @@ package x10.util.resilient;
 import x10.util.HashMap;
 import x10.matrix.distblock.BlockSet;
 import x10.matrix.ElemType;
+import x10.util.resilient.iterative.Snapshot;
 
 public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements Snapshot {
     private var blockSet:BlockSet;
@@ -66,7 +67,7 @@ public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements 
         return blockSet;
     }
 
-    public final def remoteCopyAndSave(key:Any, hm:GlobalRef[HashMap[Any,Any]]) {
+    public final def remoteCopyAndSave(key:Any, hm:PlaceLocalHandle[HashMap[Any,Any]], backupPlace:Place) {	
         val idx = placeIndex;
         val sparse = isSparse;
         val blkCnt = blocksCount;
@@ -74,62 +75,50 @@ public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements 
         if (sparse) {
             val srcbuf_value = new GlobalRail[ElemType](value);
             val srcbuf_index = new GlobalRail[Long](index);
-            val srcbuf_meta = new GlobalRail[Long](metadata);
-            val srcbufCnt_value = value.size;
+            val metadata = this.metadata; // copy in body of 'at'
             val srcbufCnt_index = index.size;
-            val srcbufCnt_meta = metadata.size;
             
-            at(hm) {
-                val dstbuf_value = new Rail[ElemType](srcbufCnt_value);
-                val dstbuf_index = new Rail[Long](srcbufCnt_index);
-                val dstbuf_meta = new Rail[Long](srcbufCnt_meta);
-                
+            at(backupPlace) {
+                val dstbuf_value = Unsafe.allocRailUninitialized[ElemType](srcbuf_value.size);
+                val dstbuf_index = Unsafe.allocRailUninitialized[Long](srcbufCnt_index);
                 finish {
-                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbufCnt_value);
+                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbuf_value.size);
                     Rail.asyncCopy[Long](srcbuf_index, 0, dstbuf_index, 0, srcbufCnt_index);
-                    Rail.asyncCopy[Long](srcbuf_meta, 0, dstbuf_meta, 0, srcbufCnt_meta);
-                }
                 
-                val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
-                remoteBS.blocksCount = blkCnt;
-                remoteBS.metadata = dstbuf_meta;
-                remoteBS.index = dstbuf_index;
-                remoteBS.value = dstbuf_value;
-                atomic hm().put(key, remoteBS);
+                    val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
+                    remoteBS.blocksCount = blkCnt;
+                    remoteBS.metadata = metadata;
+                    remoteBS.index = dstbuf_index;
+                    remoteBS.value = dstbuf_value;
+                    atomic hm().put(key, remoteBS);
+                }
             }
         } else if (value != null) {
             val srcbuf_value = new GlobalRail[ElemType](value);
-            val srcbuf_meta = new GlobalRail[Long](metadata);
-            val srcbufCnt_value = value.size;
-            val srcbufCnt_meta = metadata.size;
+            val metadata = this.metadata; // copy in body of 'at'
             
-            at(hm) {
-                val dstbuf_value = new Rail[ElemType](srcbufCnt_value);
-                val dstbuf_meta = new Rail[Long](srcbufCnt_meta);
+            at(backupPlace) {
+                val dstbuf_value = Unsafe.allocRailUninitialized[ElemType](srcbuf_value.size);
                 
                 finish {
-                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbufCnt_value);
-                    Rail.asyncCopy[Long](srcbuf_meta, 0, dstbuf_meta, 0, srcbufCnt_meta);
-                } 
+                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbuf_value.size);
                 
-                val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
-                remoteBS.blocksCount = blkCnt;
-                remoteBS.metadata = dstbuf_meta;
-                remoteBS.value = dstbuf_value;
-                atomic hm().put(key, remoteBS);
-               }
+                    val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
+                    remoteBS.blocksCount = blkCnt;
+                    remoteBS.metadata = metadata;
+                    remoteBS.value = dstbuf_value;
+                    atomic hm().put(key, remoteBS);
+                }
+            }
         } else {
-              ///val copyBlockSet = blockSet;  no need to clone in save 
             val blocksCount = blockSet.blocklist.size();
-            val metaDataRail = blockSet.getBlocksMetaData();
-            val metaDataSize = metaDataRail.size;
+            val metadata = blockSet.getBlocksMetaData();
             val totalSize = blockSet.getStorageSize();
-            val allValue = new Rail[ElemType](totalSize);
+            val allValue = Unsafe.allocRailUninitialized[ElemType](totalSize);
             blockSet.flattenValue(allValue);
             val valGR = new GlobalRail[ElemType](allValue);
-            val mGR = new GlobalRail[Long](metaDataRail);
-            at(hm) {
-                val newBlockSet = BlockSet.remoteMakeDenseBlockSet(blocksCount, metaDataSize, totalSize, mGR, valGR);
+            at(backupPlace) {
+                val newBlockSet = BlockSet.remoteMakeDenseBlockSet(blocksCount, totalSize, metadata, valGR);
                 val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
                 remoteBS.blockSet = newBlockSet;
                 atomic hm().put(key, remoteBS);
@@ -145,25 +134,20 @@ public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements 
         if (sparse) {
             val srcbuf_value = new GlobalRail[ElemType](value);
             val srcbuf_index = new GlobalRail[Long](index);
-            val srcbuf_meta = new GlobalRail[Long](metadata);
-            val srcbufCnt_value = value.size;
+            val metadata = this.metadata; // copy in body of 'at'
             val srcbufCnt_index = index.size;
-            val srcbufCnt_meta = metadata.size;
             
             val resultGR = at(targetPlace) {
-                val dstbuf_value = new Rail[ElemType](srcbufCnt_value);
-                val dstbuf_index = new Rail[Long](srcbufCnt_index);
-                val dstbuf_meta = new Rail[Long](srcbufCnt_meta);
+                val dstbuf_value = Unsafe.allocRailUninitialized[ElemType](srcbuf_value.size);
+                val dstbuf_index = Unsafe.allocRailUninitialized[Long](srcbufCnt_index);
                 
                 finish {
-                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbufCnt_value);
+                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbuf_value.size);
                     Rail.asyncCopy[Long](srcbuf_index, 0, dstbuf_index, 0, srcbufCnt_index);
-                    Rail.asyncCopy[Long](srcbuf_meta, 0, dstbuf_meta, 0, srcbufCnt_meta);
-                } 
-                
+                }
                 val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
                 remoteBS.blocksCount = blkCnt;
-                remoteBS.metadata = dstbuf_meta;
+                remoteBS.metadata = metadata;
                 remoteBS.index = dstbuf_index;
                 remoteBS.value = dstbuf_value;
                 
@@ -173,22 +157,17 @@ public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements 
             return resultGR;
         } else if (value != null) { // dense
             val srcbuf_value = new GlobalRail[ElemType](value);
-            val srcbuf_meta = new GlobalRail[Long](metadata);
-            val srcbufCnt_value = value.size;
-            val srcbufCnt_meta = metadata.size;
+            val metadata = this.metadata; // copy in body of 'at'
                 
             val resultGR = at(targetPlace) {
-                val dstbuf_value = new Rail[ElemType](srcbufCnt_value);
-                val dstbuf_meta = new Rail[Long](srcbufCnt_meta);
+                val dstbuf_value = Unsafe.allocRailUninitialized[ElemType](srcbuf_value.size);
                 
                 finish {
-                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbufCnt_value);
-                    Rail.asyncCopy[Long](srcbuf_meta, 0, dstbuf_meta, 0, srcbufCnt_meta);
+                    Rail.asyncCopy[ElemType](srcbuf_value, 0, dstbuf_value, 0, srcbuf_value.size);
                 }
-                
                 val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
                 remoteBS.blocksCount = blkCnt;
-                remoteBS.metadata = dstbuf_meta;
+                remoteBS.metadata = metadata;
                 remoteBS.value = dstbuf_value;
                 
                 val gr = new GlobalRef[Any](remoteBS);
@@ -196,18 +175,14 @@ public class BlockSetSnapshotInfo(placeIndex:Long, isSparse:Boolean) implements 
             };
             return resultGR;
         } else { // dense
-            // because many threads can be loading the same object from the resilient store
-            val copyBlockSet = blockSet.clone();
-            val blocksCount = copyBlockSet.blocklist.size();
-            val metaDataRail = copyBlockSet.getBlocksMetaData();
-            val metaDataSize = metaDataRail.size;
-            val totalSize = copyBlockSet.getStorageSize();
-            val allValue = new Rail[ElemType](totalSize);
-            copyBlockSet.flattenValue(allValue);
+            val blocksCount = blockSet.blocklist.size();
+            val metadata = blockSet.getBlocksMetaData();
+            val totalSize = blockSet.getStorageSize();
+            val allValue = Unsafe.allocRailUninitialized[ElemType](totalSize);
+            blockSet.flattenValue(allValue);
             val valGR = new GlobalRail[ElemType](allValue);
-            val mGR = new GlobalRail[Long](metaDataRail);
             val resultGR = at(targetPlace) {
-                val newBlockSet = BlockSet.remoteMakeDenseBlockSet(blocksCount, metaDataSize, totalSize, mGR, valGR);
+                val newBlockSet = BlockSet.remoteMakeDenseBlockSet(blocksCount, totalSize, metadata, valGR);
                 val remoteBS = new BlockSetSnapshotInfo(idx, sparse);
                 remoteBS.blockSet = newBlockSet;
                 val gr = new GlobalRef[Any](remoteBS);

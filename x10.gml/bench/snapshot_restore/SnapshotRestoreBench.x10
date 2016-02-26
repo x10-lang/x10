@@ -6,12 +6,12 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 import x10.util.Timer;
 
-import x10.matrix.util.PlaceGroupBuilder;
+import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupVector;
@@ -36,7 +36,7 @@ public class SnapshotRestoreBench {
             return;
         }
         
-        val places = PlaceGroupBuilder.makeTestPlaceGroup(spare);
+        val places = PlaceGroupBuilder.execludeSparePlaces(spare);
         val M = M_KB * 1024;
         val N = N_KB * 1024;
         

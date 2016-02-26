@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 package x10.matrix.distblock;
@@ -30,7 +30,7 @@ import x10.matrix.util.RandTool;
  * constant and unique distrition of blocks to number of places.
  */
 public class DistMap(numBlock:Long, numPlace:Long)  {
-    private val blockmap:Rail[Long];            //mapping block ID to its place index in a Place Group
+    public val blockmap:Rail[Long];            //mapping block ID to its place index in a Place Group
     //public val placemap:Rail[ArrayList[Long]]; //mapping place ID to list of block IDs
     
     public def this(numBlk:Long, numPlc:Long) {

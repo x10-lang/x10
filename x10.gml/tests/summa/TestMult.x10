@@ -4,8 +4,6 @@
  *  (C) Copyright IBM Corporation 2011.
  */
 
-import x10.compiler.Ifndef;
-
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -51,69 +49,13 @@ class SummaMultTest {
     
     public def run(): void {
 	var ret:Boolean = true;
-        @Ifndef("MPI_COMMU") { // TODO Deadlocks!
-	    ret &= (testDenseMult());
-	    ret &= (testDenseTransMult());
-	    ret &= (testDenseMultTrans());
-	    
-	    if (!ret)
-		Console.OUT.println("--------SUMMA distributed dense matrix multiply test failed!--------");
-	}
-    }
+    ret &= (testDenseMult());
+    ret &= (testDenseTransMult());
+    ret &= (testDenseMultTrans());
     
-    /*
-      
-    //This method only works for native C++ and MPI transport
-    public def testMPI():Boolean {
-    val numP = Place.numPlaces();//Place.numPlaces();
-    Console.OUT.printf("\nTest C-SUMMA dist dense matrix MPI over %d places\n", numP);
-    val da = DistDenseMatrix.make(pA);
-    da.initRandom();
-    val db = DistDenseMatrix.make(pB);
-    db.initRandom();
-    
-    val dc = DistDenseMatrix.make(pC);
-    
-    SummaMPI.mult(1, 0.0, da, db, dc);
-    
-    val ma = da.toDense();
-    val mb = db.toDense();
-    val mc = DenseMatrix.make(ma.M, mb.N);
-    
-    mc.mult(ma, mb);
-    
-    val ret = dc.equals(mc as Matrix(dc.M, dc.N));
     if (!ret)
-    Console.OUT.println("-----SUMMA C-MPI distributed dense matrix multplication test failed!-----");
-    return ret;
+	Console.OUT.println("--------SUMMA distributed dense matrix multiply test failed!--------");
     }
-    
-    //This method only works for native C++ and MPI transport
-    public def testMultTransMPI():Boolean {
-    val numP = Place.numPlaces();//Place.numPlaces();
-    Console.OUT.printf("\nTest SUMMA C-MPI dist dense matrix multTrans MPI over %d places\n", numP);
-    val da = DistDenseMatrix.make(M, K);
-    da.initRandom();
-    
-    val db = DistDenseMatrix.make(N, K);
-    db.initRandom();
-    
-    val dc = DistDenseMatrix.make(M, N);
-    
-    SummaMPI.multTrans(1, 0.0, da, db, dc);
-    
-    val ma = da.toDense();
-    val mb = db.toDense();
-    val mc = DenseMatrix.make(ma.M, mb.M);
-    
-    mc.mult(ma, mb);
-    
-    val ret = dc.equals(mc as Matrix(dc.M, dc.N));
-    if (!ret)
-    Console.OUT.println("-----SUMMA C-MPI distributed dense matrix multTrans test failed!-----");
-    return ret;
-    }       
-    */
     
     public def testDenseMult():Boolean {
 	val numP = Place.numPlaces();//Place.numPlaces();

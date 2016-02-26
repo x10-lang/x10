@@ -1,37 +1,15 @@
-X10 Release 2.5.3
+X10 Release 2.5.4
 
 HIGHLIGHTS OF THIS RELEASE
-  We have switched to using an ANTLR generated parser in the X10
-  compiler.  This change significantly improved compiler support
-  for X10DT features. The X10 Editor is now much more resilient to 
-  syntax errors: features such as outline, hyperlink, hover help, 
-  and content-assist continue to work in the face of compilation errors.
-  For the content-assist feature to work, the user must first enter a 
-  semicolon (';') at the end of the statement to be completed.
 
-  Managed X10 now supports compression on the network communication links.
-  To enable it, set the system property "X10RT_COMPRESSION" to "snappy" 
-  when you launch your program.
-
-MINOR LANGUAGE CHANGE
-  To improve the quality of compiler diagnostics for syntax errors
-  and the usability of the X10DT editor, two backwards incompatible 
-  syntax changes are being made in X10 2.5.3: 
-    (1) There is no implicit return in method definitions
-    (2) The body of a method or constructor cannot be a block
-        introduced by an "="
-  Therefore, the following method definition is now incorrect:
-     def f (x: long) = {
-       x + 1
-     }
-   It now should be rewritten to either:
-     def f (x: long) {
-       return x + 1;
-     }
-   or:
-     def f (x: long) = x + 1;
-  A tool converting programs to the new syntax is available:
-    http://x10.sourceforge.net/misc/x10-2.5.3-converter/
+The main features of this release are improvements in Resilient X10.
+  (a) Significant performance improvements to the implementations of
+      resilient finish to eliminate resiliency overheads of local
+      activity creation. 
+  (b) The addition of ULFM-MPI as a network transport for Resilient
+      X10 applications.
+  (c) Enhanced standard library support for writing Resilient X10
+      applications and frameworks (see x10.util.resilient).
 
 LIMITATIONS OF THIS RELEASE
 
@@ -59,21 +37,30 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.5.3
+Below is a summary of JIRA issues addressed for the X10 2.5.4
 
-Release Notes - X10 - Version X10 2.5.3
+Release Notes - X10 - Version X10 2.5.4
 
-** New Feature
-    * [XTENLANG-3382] - Switch MacOS build of X10DT to 64bit
+** New Features and Improvements
+    * [XTENLANG-3536] - Indicate cancellation via CancellationException
+    * [XTENLANG-3539] - Update X10DT to Eclipse Luna (4.4) Release
+    * [XTENLANG-3540] - SparsePlaceGroup should support any set of Places; don't require ordering
 
-** Bug
-    * [XTENLANG-3495] - Stack overflow compiling LULESH with x10c -O
-    * [XTENLANG-3496] - Remote reference counting causes DeadPlaceException
-    * [XTENLANG-3503] - Native backend generates invalid C++ code or calls wrong method for function interfaces
-    * [XTENLANG-3507] - Team.WORLD.split causes an error when using openMPI
+** Bugs
+    * [XTENLANG-1551] - AST incompleteness -- ClassDecl has no body
+    * [XTENLANG-1834] - Missing comma in parameter list, but compiler error message points to the first valid line of code in the file
+    * [XTENLANG-1841] - Spurious initial error message when method body doens't parse
+    * [XTENLANG-2860] - Compiler crashes on string++
+    * [XTENLANG-3500] - NativeX10: poor performance of array indexing in loop in Lulesh
+    * [XTENLANG-3501] - Combination of @StackAllocateUninitialized rails and NO_CHECKS yields incorrect results on Lulesh
+    * [XTENLANG-3509] - Problem creating new team from a non-member place
+    * [XTENLANG-3510] - Bug in generated Java code for tuple of generic types
+    * [XTENLANG-3541] - Resilient X10: 'at' unblocked too soon on place failure
+    * [XTENLANG-3545] - Team collectives fail for user-defined types over X10RT=MPI
+
 
 For the details of JIRA issues fixed in this release, see
-  https://xtenlang.atlassian.net/jira/secure/ReleaseNote.jspa?projectId=10005&version=10160
+  https://xtenlang.atlassian.net/jira/secure/ReleaseNote.jspa?projectId=10005&version=10300
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:

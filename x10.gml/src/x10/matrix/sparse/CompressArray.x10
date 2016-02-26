@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 package x10.matrix.sparse;
@@ -30,7 +30,7 @@ import x10.util.StringBuilder;
  * are stored contiguously in an array called the <em>underlying array</em>.
  * Indices into the underlying array are called <em>underlying indices</em>.
  */
-public class CompressArray {
+public final class CompressArray {
     //TODO: Use Rail[Pair[Long,ElemType]] as backing storage.
 	//Comments: the underlying storage won't be compatible to conventional
 	//sparse matrix format CSC or CSR, because the indexes and values are 

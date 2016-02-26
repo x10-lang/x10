@@ -6,13 +6,11 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2016.
  *  (C) Copyright Australian National University 2013.
  */
 
 import harness.x10Test;
-
-import x10.compiler.Ifndef;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -37,12 +35,10 @@ public class TestDupMult extends x10Test {
         Console.OUT.println("Dup dense mult matrix tests in "+Place.numPlaces()+" places");
 	
         var ret:Boolean = true;
-	@Ifndef("MPI_COMMU") { // TODO Deadlocks!
 	    ret &= testDupDup();
 	    ret &= testDupTransDup();
 	    ret &= testDupDupTrans();
 	    ret &= testDupDense();
-	}
         if (!ret)
             Console.OUT.println("--------Dup dense mult matrix test failed!--------");
         return ret;

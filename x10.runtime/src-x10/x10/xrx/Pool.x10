@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2015.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 package x10.xrx;
@@ -61,8 +61,13 @@ class Pool {
                 workers.deadCount++;
             }
         }
+
+        // Once a worker is started, it may in turn create new workers.
+        // Save the value of workers.count before another thread modifies it.
+        val initWorkers = workers.count;
+
         // start the newly created threads
-        for (var i:Int = 0n; i<workers.count; i++) {
+        for (var i:Int = 0n; i<initWorkers; i++) {
             if (i != initialWorker.workerId) {
                 workers(i).start();
             }

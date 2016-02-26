@@ -34,7 +34,6 @@ include $(gml_scripts)/system_setting.mk
 
 #include $(gml_scripts)/build_managed.mk
 #include $(gml_scripts)/build_native.mk
-#include $(gml_scripts)/build_native_mpi.mk
 
 #Build default target for all runtime backend and runtime transports
 all	:
@@ -42,7 +41,7 @@ all	:
 
 ###
 clean	::
-		rm -rf $(build_path) $(target)_sock_$(GML_ELEM_TYPE) $(target)_pami_$(GML_ELEM_TYPE)
+		rm -rf $(build_path) $(target)_sock_$(GML_ELEM_TYPE) $(target)_mpi_$(GML_ELEM_TYPE) $(target)_pami_$(GML_ELEM_TYPE)
 
 clean_all:: 
 		rm -rf $(build_path)

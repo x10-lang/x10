@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2014.
+ *  (C) Copyright IBM Corporation 2006-2016.
  */
 
 package x10.matrix.sparse;
@@ -18,16 +18,16 @@ import x10.matrix.ElemType;
  * This class provides abstraction of 2-dimension compressed array based on Rail
  * of 1-dimensional compress array.
  */
-public class Compress2D {
+public final class Compress2D {
 
-	public val cLine:Rail[Compress1D];
+	public val cLine:Rail[Compress1D]{self!=null};
 
 	/**
 	 * Create a Compress2D with the given data.
 	 *
 	 * @param  cl      Rail of compress1D
 	 */
-	public def this(cl:Rail[Compress1D]) {
+	public def this(cl:Rail[Compress1D]{self!=null}) {
 		cLine = cl;
 	}
 

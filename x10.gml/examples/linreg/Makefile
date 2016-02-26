@@ -6,7 +6,7 @@
 #  You may obtain a copy of the License at
 #      http://www.opensource.org/licenses/eclipse-1.0.php
 #
-#  (C) Copyright IBM Corporation 2006-2014.
+#  (C) Copyright IBM Corporation 2006-2016.
 #
 
 ###################################################
@@ -29,7 +29,7 @@ X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5
 HAMMER_FILE ?= ./hammer_iter.txt
 
 # runtime settings
-runtime_list = mpi sock java
+runtime_list = sock java
 numplaces = 8
 test_args = -m 1000 -n 1000 --density 0.09 --iterations 30 --verify
 
@@ -42,7 +42,6 @@ run:		run_java
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
 include $(gml_path)/scripts/build_native.mk
-include $(gml_path)/scripts/build_native_mpi.mk
 include $(gml_path)/scripts/test_run.mk
 
 ###################################################

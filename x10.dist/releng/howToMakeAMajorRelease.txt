@@ -110,12 +110,10 @@ III. When all necessary fixes have been propagated to the release branch,
    11. Generate new x10doc and upload to project web space at x10.sourceforge.net
       update the "latest" sym link to point to the new directory.
 
-   12. Create a release page for the new release on the web site.  
-      Update the "X10 Releases" page to link to the new download version.
-      Update the "latest release" menu item in Downloads-submenu to point to 
-      the new release page.
-      Create a redirect entry to get a nice external URL 
-         (eg  http://x10-lang.org/releases/x10-release-223) for the release.
+   12. Create a release page for the new release on the web site in
+       the releases directory. Move the "latest-release" redirect from
+       the previous release to the new one.  Add the new release to the
+       list of all releases.
 
    13. Post release announcement in SF news and web page front-page news.
 
