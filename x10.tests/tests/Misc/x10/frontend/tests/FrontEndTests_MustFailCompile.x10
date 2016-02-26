@@ -1800,7 +1800,7 @@ class Possel811 { //XTENLANG-811
 	def i():void; 
   }
   def test() {
-    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): void, which is declared in Possel811.I
+    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): void, which is declared in Possel811.I // ERR
   }
 }
 

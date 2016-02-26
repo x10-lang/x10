@@ -204,6 +204,11 @@ nonExpressionStatement returns [Stmt ast]:
     | assignPropertyCall           #nonExpressionStatemen21
     | oBSOLETE_OfferStatement      #nonExpressionStatemen22
     | userStatement                #nonExpressionStatemen23
+    | methodInvocationStatement    #nonExpressionStatemen24
+    ;
+methodInvocationStatement returns [Stmt ast]:
+      methodName typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock   #methodInvocationStatement0
+    | primary typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock      #methodInvocationStatement1
     ;
 userStatement returns [Stmt ast]:
       userEnhancedForStatement #userStatement0

@@ -940,6 +940,18 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     }
 
     /**
+     *  Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Stmt} is returned.
+     */
+    private Stmt ast(MethodInvocationStatementContext ctx) {
+        if (ctx == null || ctx.ast == null) {
+            Position p = Position.COMPILER_GENERATED; // (ctx == null) ? Position.COMPILER_GENERATED : pos(ctx);
+            Stmt n = errorStmt(p);
+            return (Stmt) n.error(true);
+        }
+        return ctx.ast;
+    }
+
+    /**
      * Return the {@code ast} field of {@code ctx}. If {@code ctx} or {@code ctx.ast} is null, a dummy value of type {@code Receiver} is returned.
      */
     private Receiver ast(UserStatementPrefixContext ctx) {
@@ -4316,13 +4328,64 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.userStatement());
     }
 
+    /** Production: nonExpressionStatement ::= methodInvocationStatement (#nonExpressionStatemen24) */
+    @Override
+    public void exitNonExpressionStatemen24(NonExpressionStatemen24Context ctx) {
+        ctx.ast = ast(ctx.methodInvocationStatement());
+    }
+
+    /** Production: methodInvocationStatement ::= methodName typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock (#methodInvocationStatement0) */
+    @Override
+    public void exitMethodInvocationStatement0(MethodInvocationStatement0Context ctx) {
+    	ParsedName MethodName = ast(ctx.methodName());
+    	List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+    	List<Expr> ArgumentListopt;
+    	if (ctx.argumentListopt() == null) {
+    		ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    	} else {
+    		ArgumentListopt = ast(ctx.argumentListopt());
+    	}
+    	Block closureBodyBlock = ast(ctx.closureBodyBlock());
+    	Closure trailingClosure = makeClosure(closureBodyBlock.position(), closureBodyBlock);
+    	ArgumentListopt.add(trailingClosure);
+    	Expr call = nf.X10Call(pos(ctx), MethodName.prefix == null ? null : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt);
+    	ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
+    /** Production: methodInvocationStatement ::= primary typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock (#methodInvocationStatement1) */
+    @Override
+    public void exitMethodInvocationStatement1(MethodInvocationStatement1Context ctx) {
+    	Expr Primary = ast(ctx.primary());
+    	List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
+    	List<Expr> ArgumentListopt;
+    	if (ctx.argumentListopt() == null) {
+    		ArgumentListopt = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+    	} else {
+    		ArgumentListopt = ast(ctx.argumentListopt());
+    	}
+    	Block closureBodyBlock = ast(ctx.closureBodyBlock());
+    	Closure trailingClosure = makeClosure(closureBodyBlock.position(), closureBodyBlock);
+    	ArgumentListopt.add(trailingClosure);
+    	Expr call;
+    	if (Primary instanceof Field) {
+    		Field f = (Field) Primary;
+    		call = nf.X10Call(pos(ctx), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt);
+    	} else if (Primary instanceof AmbExpr) {
+    		AmbExpr f = (AmbExpr) Primary;
+    		call = nf.X10Call(pos(ctx), null, f.name(), TypeArgumentsopt, ArgumentListopt);
+    	} else {
+    		call = nf.ClosureCall(pos(ctx), Primary, TypeArgumentsopt, ArgumentListopt);
+    	}
+    	ctx.ast = nf.Eval(pos(ctx), call);
+    }
+
     /** Production: userStatement ::= userEnhancedForStatement (#userStatement0) */
     @Override
     public void exitUserStatement0(UserStatement0Context ctx) {
         ctx.ast = ast(ctx.userEnhancedForStatement());
     }
 
-    /** Production: userStatement ::= userIfThenStatement (#userStatement1) */
+	/** Production: userStatement ::= userIfThenStatement (#userStatement1) */
     @Override
     public void exitUserStatement1(UserStatement1Context ctx) {
         ctx.ast = ast(ctx.userIfThenStatement());
