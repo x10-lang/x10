@@ -4899,21 +4899,17 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = makeUserThrow(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
     }
 
-    /** Production: tryStatement ::= 'try' block catches (#tryStatement0) */
+    /** Production: tryStatement ::= 'try' block catchesopt finallyBlock? (#tryStatement0) */
     @Override
     public void exitTryStatement0(TryStatement0Context ctx) {
         Block Block = ast(ctx.block());
-        List<Catch> Catches = ast(ctx.catches());
+        List<Catch> Catches = ast(ctx.catchesopt());
+        if (ctx.finallyBlock() == null) {
         ctx.ast = nf.Try(pos(ctx), Block, Catches);
-    }
-
-    /** Production: tryStatement ::= 'try' block catchesopt finallyBlock (#tryStatement1) */
-    @Override
-    public void exitTryStatement1(TryStatement1Context ctx) {
-        Block Block = ast(ctx.block());
-        List<Catch> Catchesopt = ast(ctx.catchesopt());
-        Block Finally = ast(ctx.finallyBlock());
-        ctx.ast = nf.Try(pos(ctx), Block, Catchesopt, Finally);
+        } else {
+            Block Finally = ast(ctx.finallyBlock());
+            ctx.ast = nf.Try(pos(ctx), Block, Catches, Finally);
+        }
     }
 
     /** Production: catches ::= catchClause+ (#catches) */
@@ -4951,7 +4947,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return nf.Eval(pos, call);
     }
 
-    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatches    (#userTryStatement0) */
+    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?    (#userTryStatement0) */
     @Override
     public void exitUserTryStatement0(UserTryStatement0Context ctx) {
         Receiver prefix = ast(ctx.userStatementPrefix());
@@ -4961,23 +4957,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<Expr> argumentsopt = ast(ctx.argumentsopt());
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(closureBodyBlock.position(), closureBodyBlock);
-        List<Closure> catches = ast(ctx.userCatches());
-        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, null);
-    }
-
-    /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock    (#userTryStatement4) */
-    @Override
-    public void exitUserTryStatement4(UserTryStatement4Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
-        Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "try"));
-
-        List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
-        List<Expr> argumentsopt = ast(ctx.argumentsopt());
-        Block closureBodyBlock = ast(ctx.closureBodyBlock());
-        Closure body = makeClosure(closureBodyBlock.position(), closureBodyBlock);
         List<Closure> catches = ast(ctx.userCatchesopt());
-        Closure finally_ = ast(ctx.userFinallyBlock());
-        ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, finally_);
+        if (ctx.userFinallyBlock() == null) {
+            ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, null);
+        } else {
+            Closure finally_ = ast(ctx.userFinallyBlock());
+            ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, finally_);
+        }
     }
 
     /** Production: userCatches ::= userCatchClause+    (#userCatches) */

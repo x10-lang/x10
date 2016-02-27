@@ -1908,18 +1908,6 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTryStatement1(X10Parser.TryStatement1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTryStatement1(X10Parser.TryStatement1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCatches(X10Parser.CatchesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1963,18 +1951,6 @@ public class X10BaseListener implements X10Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUserTryStatement0(X10Parser.UserTryStatement0Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserTryStatement4(X10Parser.UserTryStatement4Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserTryStatement4(X10Parser.UserTryStatement4Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

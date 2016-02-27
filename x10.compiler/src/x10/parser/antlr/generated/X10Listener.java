@@ -1804,18 +1804,6 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitTryStatement0(X10Parser.TryStatement0Context ctx);
 	/**
-	 * Enter a parse tree produced by the {@code tryStatement1}
-	 * labeled alternative in {@link X10Parser#tryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterTryStatement1(X10Parser.TryStatement1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code tryStatement1}
-	 * labeled alternative in {@link X10Parser#tryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitTryStatement1(X10Parser.TryStatement1Context ctx);
-	/**
 	 * Enter a parse tree produced by {@link X10Parser#catches}.
 	 * @param ctx the parse tree
 	 */
@@ -1857,18 +1845,6 @@ public interface X10Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUserTryStatement0(X10Parser.UserTryStatement0Context ctx);
-	/**
-	 * Enter a parse tree produced by the {@code userTryStatement4}
-	 * labeled alternative in {@link X10Parser#userTryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterUserTryStatement4(X10Parser.UserTryStatement4Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code userTryStatement4}
-	 * labeled alternative in {@link X10Parser#userTryStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitUserTryStatement4(X10Parser.UserTryStatement4Context ctx);
 	/**
 	 * Enter a parse tree produced by {@link X10Parser#userCatches}.
 	 * @param ctx the parse tree

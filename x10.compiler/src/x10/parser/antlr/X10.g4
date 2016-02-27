@@ -340,8 +340,7 @@ userThrowStatement returns [Stmt ast]:
       userStatementPrefix kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
     ;
 tryStatement returns [Try ast]:
-      'try' block catches                    #tryStatement0
-    | 'try' block catchesopt finallyBlock    #tryStatement1
+      'try' block catchesopt finallyBlock?     #tryStatement0
     ;
 catches returns [List<Catch> ast]:
       catchClause+
@@ -353,8 +352,7 @@ finallyBlock returns [Block ast]:
       'finally' block
     ;
 userTryStatement returns [Stmt ast]:
-      userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatches                              #userTryStatement0
-    | userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock          #userTryStatement4
+      userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?         #userTryStatement0
     ;
 userCatches returns [List<Closure> ast]:
       userCatchClause+
