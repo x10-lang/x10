@@ -19,9 +19,7 @@ public class ParserCleanupGoal extends SourceGoal_c {
 
 	@Override
 	public boolean runTask() {
-		if (!((x10.ExtensionInfo) scheduler.extensionInfo()).getOptions().x10_config.ANTLR_CACHE_WRITE) {
-			ASTBuilder.clearState();
-		}
+		ASTBuilder.clearState();
 		return true;
 	}
 

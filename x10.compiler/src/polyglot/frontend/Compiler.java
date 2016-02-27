@@ -39,7 +39,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.OptimalCodeWriter;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
-import x10.X10CompilerOptions;
 import x10.optimizations.inlining.DeclStore;
 import x10.util.CollectionFactory;
 
@@ -263,12 +262,6 @@ public class Compiler
                 x10ext.warningSet().clear(); // again, to clear caching of warnings (to prevent duplicates)
                 x10ext.errorSet().clear();
                 scheduler.clearAll(sources); // to clear the fail flag of the scheduler
-
-                X10CompilerOptions opts = x10ext.getOptions();
-                if (opts.x10_config.ANTLR_CACHE_WRITE) {
-                	ParserTrainer trainer = new ParserTrainer(x10ext, sources);
-                	trainer.runTask();
-                }
 
                 List<Job> jobs = new ArrayList<Job>();
 

@@ -11,11 +11,6 @@
 
 package x10.parser.antlr;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -94,7 +89,6 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary.Operator;
 import polyglot.ast.While;
 import polyglot.frontend.FileSource;
-import polyglot.frontend.Resource;
 import polyglot.lex.BooleanLiteral;
 import polyglot.lex.CharacterLiteral;
 import polyglot.lex.DoubleLiteral;
@@ -176,17 +170,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     	}
     }
 
-    public static void writeState() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, FileNotFoundException {
-    	OutputStream outputStream = new FileOutputStream("parser.cache");
-		ParserSerializer.write(outputStream);
-    }
-    
-    public void readState() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
-    	Resource resource = extInfo.sourceLoader().pathloader().loadResource("parser.cache");
-    	InputStream inputStream = resource.getInputStream();
-		ParserSerializer.read(inputStream);
-    }
-    
     private static int parseCpt = 0;
     public ASTBuilder(ANTLRInputStream inputStream, X10CompilerOptions opts, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q, ExtensionInfo ext) {
         compilerOpts = opts;
@@ -198,22 +181,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         extInfo = ext;
         
         parseCpt++;
-    	if (parseCpt == 1 && compilerOpts.x10_config.ANTLR_CACHE_READ) {
-    		try {
-				readState();
-    		} catch (IOException exn) {
-                eq.enqueue(ErrorInfo.WARNING, srce + ": unable to load the parser state cache ("+exn+").");
-			} catch (Exception exn) {
-                eq.enqueue(ErrorInfo.WARNING, srce + ": unable to load the parser state cache ("+exn+").");
-			}
-    	}
         lexer = new X10Lexer(inputStream);
         tokens = new CommonTokenStream(lexer);
 
         p = new X10Parser(tokens);
 
         /* Use new caches */
-        if (!compilerOpts.x10_config.ANTLR_CACHE_WRITE && parseCpt > 100) {
+        if (parseCpt > 100) {
         	lexer.setInterpreter(new LexerATNSimulator(lexer, lexer.getATN(), lexer.getInterpreter().decisionToDFA, new PredictionContextCache()));
         	p.setInterpreter(new ParserATNSimulator(p, p.getATN(), p.getInterpreter().decisionToDFA, new PredictionContextCache()));
         }
