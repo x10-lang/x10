@@ -847,7 +847,7 @@ public final class Foreach {
          */
         public static @Inline operator for(range: LongRange,
                                            body:(i:Long)=>void) {
-            for (i in range.min..range.max) body(i);
+            for (i in range) body(i);
         }
 
         /**
@@ -858,15 +858,8 @@ public final class Foreach {
          */
         public static @Inline operator for(space:DenseIterationSpace_2,
                                            body:(i:Long, j:Long)=>void) {
-            val min0 = space.min0;
-            val min1 = space.min1;
-            val max0 = space.max0;
-            val max1 = space.max1;
-
-            for (i in min0..max0) {
-                for (j in min1..max1) {
+            for ([i, j] in space) {
                     body(i, j);
-                }
             }
         }
 
@@ -877,8 +870,8 @@ public final class Foreach {
          * @param max the maximum value of the index
          * @param body a closure that executes over a contiguous range of indices
          */
-        public static @Inline def slice(min:Long, max:Long,
-                                        body:(min:Long, max:Long)=>void) {
+        private static @Inline def slice(min:Long, max:Long,
+                                         body:(min:Long, max:Long)=>void) {
             body(min, max);
         }
 
@@ -894,7 +887,7 @@ public final class Foreach {
                                               reduce:(a:T,b:T)=>T, identity:T,
                                               body:(i:Long)=>T):T {
             var myRes:T = identity;
-            for (i in range.min .. range.max) {
+            for (i in range) {
                 myRes = reduce(myRes, body(i));
             }
             return myRes;
@@ -911,10 +904,8 @@ public final class Foreach {
                                               reduce:(a:T,b:T)=>T, identity:T,
                                               body:(i:Long,j:Long)=>T):T{
             var myRes:T = identity;
-            for (i in space.min0..space.max0) {
-                for (j in space.min1..space.max1) {
-                    myRes = reduce(myRes, body(i, j));
-                }
+            for ([i, j] in space) {
+                myRes = reduce(myRes, body(i, j));
             }
             return myRes;
         }
@@ -928,9 +919,9 @@ public final class Foreach {
          * @param body a closure that executes over a contiguous range of indices,
          *   returning the reduced value for that range
          */
-        public static @Inline def reduceSlice[T](min:Long, max:Long,
-                                                 reduce:(a:T,b:T)=>T,
-                                                 body:(min:Long, max:Long)=>T):T{
+        private static @Inline def reduceSlice[T](min:Long, max:Long,
+                                                  reduce:(a:T,b:T)=>T,
+                                                  body:(min:Long, max:Long)=>T):T{
             return body(min, max);
         }
 
@@ -1024,7 +1015,7 @@ public final class Foreach {
             if (Runtime.NTHREADS == 1n) {
                 Sequential.operator for(range,  body);
             } else {
-                finish for (i in range.min..range.max) async body(i);
+                finish for (i in range) async body(i);
             }
         }
 
@@ -1039,15 +1030,8 @@ public final class Foreach {
             if (Runtime.NTHREADS == 1n) {
                 Sequential.operator for(space, body);
             } else {
-                val min0 = space.min0;
-                val min1 = space.min1;
-                val max0 = space.max0;
-                val max1 = space.max1;
-
-                finish for (i in min0..max0) {
-                    for (j in min1..max1) {
-                        async body(i, j);
-                    }
+                finish for ([i, j] in space) {
+                    async body(i, j);
                 }
             }
         }
@@ -1069,8 +1053,8 @@ public final class Foreach {
          * @param max the maximum value of the index
          * @param body a closure that executes over a contiguous range of indices
          */
-        public static @Inline def slice(min:Long, max:Long,
-                                        body:(min:Long, max:Long)=>void) {
+        private static @Inline def slice(min:Long, max:Long,
+                                         body:(min:Long, max:Long)=>void) {
             val nthreads = Runtime.NTHREADS;
             if (nthreads == 1n) {
                 Sequential.slice(min, max, body);
@@ -1178,9 +1162,9 @@ public final class Foreach {
          * @param body a closure that executes over a contiguous range of indices,
          *   returning the reduced value for that range
          */
-        public static @Inline def reduceSlice[T](min:Long, max:Long,
-                                                 reduce:(a:T,b:T)=>T,
-                                                 body:(min:Long, max:Long)=>T):T{
+        private static @Inline def reduceSlice[T](min:Long, max:Long,
+                                                  reduce:(a:T,b:T)=>T,
+                                                  body:(min:Long, max:Long)=>T):T{
             val nthreads = Runtime.NTHREADS;
             if (nthreads == 1n) {
                 return body(min, max); // sequential
@@ -1414,9 +1398,9 @@ public final class Foreach {
          * @param grainSize the maximum grain size for an activity
          * @param body a closure that executes over a contiguous range of indices
          */
-        public static @Inline def slice(min:Long, max:Long,
-                                        grainSize:Long,
-                                        body:(min:Long, max:Long)=>void) {
+        private static @Inline def slice(min:Long, max:Long,
+                                         grainSize:Long,
+                                         body:(min:Long, max:Long)=>void) {
             if (Runtime.NTHREADS == 1n) {
                 Sequential.slice(min, max, body);
             } else {
@@ -1432,8 +1416,8 @@ public final class Foreach {
          * @param max the maximum value of the index
          * @param body a closure that executes over a contiguous range of indices
          */
-        public static @Inline def slice(min:Long, max:Long,
-                                        body:(min:Long, max:Long)=>void) {
+        private static @Inline def slice(min:Long, max:Long,
+                                         body:(min:Long, max:Long)=>void) {
             val grainSize = Math.max(1, (max-min) / (Runtime.NTHREADS*8));
             Foreach.Bisect.slice(min, max, grainSize, body);
         }
@@ -1514,17 +1498,17 @@ public final class Foreach {
          *   returning the reduced value for that range
          * @param reduce the reduction operation
          */
-        public static @Inline def reduceSlice[T](min:Long, max:Long,
-                                                 grainSize:Long,
-                                                 reduce:(a:T,b:T)=>T,
-                                                 body:(i:Long, j:Long)=>T):T {
+        private static @Inline def reduceSlice[T](min:Long, max:Long,
+                                                  grainSize:Long,
+                                                  reduce:(a:T,b:T)=>T,
+                                                  body:(i:Long, j:Long)=>T):T {
             if (Runtime.NTHREADS == 1n) {
                 return Sequential.reduceSlice(min, max, reduce, body);
             } else {
                 return doBisectReduce1D(min, max+1, grainSize, reduce, body);
             }
         }
-    
+
         /**
          * Reduce over a range of indices in parallel using recursive
          * bisection.  Bisection recurs until a minimum grain * size of
@@ -1535,9 +1519,9 @@ public final class Foreach {
          * @param body a closure that executes over a contiguous range of indices,
          *   returning the reduced value for that range
          */
-        public static @Inline def reduceSlice[T](min:Long, max:Long,
-                                                 reduce:(a:T,b:T)=>T,
-                                                 body:(i:Long, j:Long)=>T):T {
+        private static @Inline def reduceSlice[T](min:Long, max:Long,
+                                                  reduce:(a:T,b:T)=>T,
+                                                  body:(i:Long, j:Long)=>T):T {
             val grainSize = Math.max(1, (max-min) / (Runtime.NTHREADS*8));
             return Foreach.Bisect.reduceSlice(min, max, grainSize, reduce, body);
         }
@@ -1586,10 +1570,10 @@ public final class Foreach {
          * @param grainSize1 the maximum grain size for the second index dimension
          * @param body a closure that executes over a rectangular block of indices
          */
-        public static @Inline def slice(min0:Long, max0:Long,
-                                        min1:Long, max1:Long,
-                                        grainSize0:Long, grainSize1:Long,
-                                        body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
+        private static @Inline def slice(min0:Long, max0:Long,
+                                         min1:Long, max1:Long,
+                                         grainSize0:Long, grainSize1:Long,
+                                         body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
             if (Runtime.NTHREADS == 1n) {
                 body(min0, max0, min1, max1); // sequential
             } else {
@@ -1612,7 +1596,7 @@ public final class Foreach {
          * @param max1 the maximum value of the second index dimension
          * @param body a closure that executes over a rectangular block of indices
          */
-        public static @Inline def slice(min0:Long, max0:Long,
+        private static @Inline def slice(min0:Long, max0:Long,
                                          min1:Long, max1:Long,
                                          body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
             val grainSize0 = Math.max(1, (max0-min0) / Runtime.NTHREADS);
