@@ -4,13 +4,19 @@ import x10.lang.Math;
 
 public struct Tile {
 
+    public static struct DiamondIterator(L:Long , U:Long, T:Long, tau:Long) {
+    }
     /**
      * Diamond tiling following the implementation of "Parameterized
      * Diamond Tiling for Stencil Computations with Chapel parallel
      * iterators" ICS 2015.
      */
     public static class Diamond {
-	public static @Inline operator for (L:Long , U:Long, T:Long, tau:Long, body:(read:Long,write:Long,i:Long,j:Long)=>void) {
+	public static @Inline operator for (iterator: DiamondIterator, body:(read:Long,write:Long,i:Long,j:Long)=>void) {
+	    val L:Long = iterator.L;
+	    val U:Long = iterator.U;
+	    val T:Long = iterator.T;
+	    val tau:Long = iterator.tau;
 	    // Loop over tile wavefronts.
 	    // for (kt in ceild(3,tau) .. floord(3*T,tau)) {   // XXXXXXXXXX Modif
 	    // for (kt in (-2) .. floord(3*T,tau)) {           // XXXXXXXXXX Modif
@@ -74,7 +80,7 @@ public struct Tile {
     // =============================================
     /* Test */
     public static def main(Rail[String]) {
-	Diamond.for (read:Long,write:Long,x:Long,y:Long in 0, 9, 9, 3) {
+	Diamond.for (read:Long,write:Long,x:Long,y:Long in new DiamondIterator(0, 9, 9, 3)) {
 	    // Console.OUT.println("read = "+read+", write = "+write+", i = "+i+", j = "+j);
 	    Console.OUT.println("A["+write+", "+x+", "+y+"] = (A["+read+", "+(x-1)+", "+y+"] + A["+read+", "+x+", "+(y-1)+"] + A["+read+", "+x+", "+y+"] + A["+read+", "+x+", "+(y+1)+"] + A["+read+", "+(x+1)+", "+y+"]) / 5");
 	}

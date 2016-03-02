@@ -26,6 +26,7 @@ class Jacobi2D {
     val T = 100; // number of time steps
     val tau = 30;
     var verify: Boolean = false;
+    var benchmark: Boolean = true;
 
 
     // main
@@ -67,19 +68,23 @@ class Jacobi2D {
 	// 3 - jacobi 1D timed within an openmp loop
 	val start = timer.nanoTime();
 
-	Tile.Diamond.for (read:Long, write:Long, x:Long ,y:Long in lowerBound, upperBound, T, tau) {
+	Tile.Diamond.for (read:Long, write:Long, x:Long ,y:Long
+			      in new Tile.DiamondIterator(lowerBound, upperBound, T, tau)) {
 	    space(write, x, y) = (space(read, x, y-1) +
 				  space(read, x-1, y) +
 				  space(read, x, y+1) +
 				  space(read, x+1, y) +
 				  space(read, x, y) ) / 5;
 	}
+
 	//read <=> write;
 
 	val time = timer.nanoTime() - start;
 
 	// 4 - output and optional verification
-	if (printTime) { Console.OUT.println( "Diamond Time: "+ time / 1000000000.0 ); }
+	if (printTime) {
+	    Console.OUT.println( "Diamond Time: "+ time / 1000000000.0 );
+	}
 	if (verify) {
 	    if (verifyResult(space, computationDomain, false, T )) {
 		Console.OUT.println( "SUCCESS" );
@@ -87,8 +92,9 @@ class Jacobi2D {
 		Console.OUT.println( "FAILURE" );
 	    }
 	}
-
-	Console.OUT.println(Runtime.NTHREADS+","+ time / 1000000000.0);
+	if (benchmark) {
+	    Console.OUT.println(Runtime.NTHREADS+","+ time / 1000000000.0);
+	}
     }
 
 
