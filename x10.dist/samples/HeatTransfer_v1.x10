@@ -10,7 +10,7 @@
  */
 
 import x10.array.*;
-import x10.compiler.Foreach;
+import x10.util.foreach.Block;
 import x10.util.Team;
 
 /**
@@ -63,7 +63,7 @@ public class HeatTransfer_v1 {
                                                      li.max(0) == N+1 ? N : li.max(0),
                                                      li.max(1) == N+1 ? N : li.max(1));
             var delta:Double;
-            val collect = new Foreach.Block.Reducer((a:Double, b:Double)=>Math.max(a,b), 0.0);
+            val collect = new Block.Reducer((a:Double, b:Double)=>Math.max(a,b), 0.0);
             do {
                 // Compute new values, storing in tmp
                 collect.for (i:Long, j:Long in interior) {
@@ -77,7 +77,7 @@ public class HeatTransfer_v1 {
 
                 // Unlike Array, DistArray doesn't provide an optimized swap.
                 // So, until it does, we have to copy the data elements.
-                Foreach.Block.for(i:Long, j:Long in interior) {
+                Block.for(i:Long, j:Long in interior) {
                     A(i,j) = Tmp(i,j);
                 };
 

@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2014.
  */
 import x10.array.Array_2;
-import x10.compiler.Foreach;
+import x10.util.foreach.*;
 import harness.x10Test;
 
 /**
@@ -34,17 +34,17 @@ public class TestForeach2DUserDef(N:Long) extends x10Test {
             y(i,j) = y_ij;
         };
 
-	Foreach.Basic.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
+	Basic.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
 	    body(i,j);
 	}
         checkSame(x,y);
 
-	Foreach.Block.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
+	Block.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
 	    body(i,j);
 	}
         checkSame(x,y);
 
-	Foreach.Bisect.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
+	Bisect.for(i:Long, j:Long in 0..(N-1) * 0..(N-1)) {
 	    body(i,j);
 	}
         checkSame(x,y);

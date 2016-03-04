@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2014.
  */
-import x10.compiler.Foreach;
+import x10.util.foreach.*;
 import harness.x10Test;
 
 /**
@@ -30,31 +30,31 @@ public class TestForeachUserDef(N:Long) extends x10Test {
         };
 
         reset(x);
-	Foreach.Sequential.for(i:Long in 0..(N-1)) {
+	Sequential.for(i:Long in 0..(N-1)) {
 	    body(i);
 	}
         check(x);
 
         reset(x);
-	Foreach.Sequential.for(i:Long in 0..(N-1)) {
+	Sequential.for(i:Long in 0..(N-1)) {
 	    body(i);
 	}
         check(x);
 
         reset(x);
-	Foreach.Block.for(i:Long in 0..(N-1)) {
+	Block.for(i:Long in 0..(N-1)) {
 	    body(i);
 	}
         check(x);
 
         reset(x);
-	Foreach.Cyclic.for(i:Long in 0..(N-1)) {
+	Cyclic.for(i:Long in 0..(N-1)) {
 	    body(i);
 	}
         check(x);
 
         reset(x);
-	Foreach.Bisect.for(i:Long in 0..(N-1)) {
+	Bisect.for(i:Long in 0..(N-1)) {
 	    body(i);
 	}
         check(x);
