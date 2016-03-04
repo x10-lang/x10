@@ -29,16 +29,17 @@ public final class Block {
      * Execute the closure that iterates over a range of
      * indices. Several activities execute in parallel the closure
      * on a slice of the indices using a block decomposition.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    public static @Inline def slice(min:Long, max:Long,
-                                     body:(min:Long, max:Long)=>void) {
+    public static @Inline def slice(range:LongRange,
+                                     body:(range:LongRange)=>void) {
         val nthreads = Runtime.NTHREADS;
         if (nthreads == 1n) {
-            Sequential.slice(min, max, body);
+            Sequential.slice(range, body);
         } else {
+	    val min = range.min;
+	    val max = range.max;
             val numElems = max - min + 1;
             if (numElems < 1) return;
             val blockSize = numElems/nthreads;
@@ -48,7 +49,7 @@ public final class Block {
                 async {
                     val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
                     val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
-                    body(lo, hi);
+                    body(lo..hi);
                 }
             }
         }
@@ -61,8 +62,8 @@ public final class Block {
      */
     public static @Inline operator for(range: LongRange,
                                        body:(i:Long)=>void) {
-        val executeRange = (start:Long, end:Long)=> { Sequential.operator for(start..end, body); };
-        Block.slice(range.min, range.max, executeRange);
+        val executeRange = (range:LongRange)=> { Sequential.operator for(range, body); };
+        Block.slice(range, executeRange);
     }
 
 
@@ -97,14 +98,14 @@ public final class Block {
     public static @Inline operator for[T](range:LongRange,
                                           reduce:(a:T,b:T)=>T, identity:T,
                                           body:(i:Long)=>T):T{
-        val executeRange = (start:Long, end:Long) => {
+        val executeRange = (range:LongRange) => {
             var myRes:T = identity;
-            for (i in start..end) {
+            for (i in range) {
                 myRes = reduce(myRes, body(i));
             }
             myRes
         };
-        return Block.reduceSlice(range.min, range.max, reduce, executeRange);
+        return Block.reduceSlice(range, reduce, executeRange);
     }
 
     /**
@@ -136,21 +137,22 @@ public final class Block {
 
     /**
      * Reduce over a range of indices in parallel using a block decomposition.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param reduce the reduction operation
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    private static @Inline def reduceSlice[T](min:Long, max:Long,
+    private static @Inline def reduceSlice[T](range:LongRange,
                                               reduce:(a:T,b:T)=>T,
-                                              body:(min:Long, max:Long)=>T):T{
+                                              body:(range:LongRange)=>T):T{
         val nthreads = Runtime.NTHREADS;
         if (nthreads == 1n) {
-            return body(min, max); // sequential
+            return body(range); // sequential
         } else {
+	    val min = range.min;
+	    val max = range.max;
             val numElems = max - min + 1;
-            if (numElems < 1) return body(min, max);
+            if (numElems < 1) return body(range);
             val blockSize = numElems/nthreads;
             val leftOver = numElems - nthreads*blockSize;
             val results = Unsafe.allocRailUninitialized[T](nthreads);
@@ -159,7 +161,7 @@ public final class Block {
                 async {
                     val lo = min + blockSize*myT + (myT < leftOver ? myT : leftOver);
                     val hi = lo + blockSize + (myT < leftOver ? 0 : -1);
-                    results(myT) = body(lo, hi);
+                    results(myT) = body(lo..hi);
                 }
             }
             var res:T = results(0);

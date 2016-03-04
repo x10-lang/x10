@@ -27,33 +27,31 @@ public final class Bisect {
 
     /**
      * Iterate over a range of indices in parallel using recursive bisection.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param grainSize the maximum grain size for an activity
      * @param body a closure that executes over a contiguous range of indices
      */
-    public static @Inline def slice(min:Long, max:Long,
+    public static @Inline def slice(range:LongRange,
                                     grainSize:Long,
-                                    body:(min:Long, max:Long)=>void) {
+                                    body:(range:LongRange)=>void) {
         if (Runtime.NTHREADS == 1n) {
-            Sequential.slice(min, max, body);
+            Sequential.slice(range, body);
         } else {
-            finish doBisect1D(min, max+1, grainSize, body);
+            finish doBisect1D(range.min, range.max+1, grainSize, body);
         }
     }
 
     /**
      * Iterate over a range of indices in parallel using recursive
      * bisection. Bisection recurs until a minimum grain size of
-     * (max-min+1) / (Runtime.NTHREADS &times; 8) is reached.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * (range.max-range.min+1) / (Runtime.NTHREADS &times; 8) is reached.
+     * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    private static @Inline def slice(min:Long, max:Long,
-                                     body:(min:Long, max:Long)=>void) {
-        val grainSize = Math.max(1, (max-min) / (Runtime.NTHREADS*8));
-        Bisect.slice(min, max, grainSize, body);
+    private static @Inline def slice(range:LongRange,
+                                     body:(range:LongRange)=>void) {
+        val grainSize = Math.max(1, (range.max-range.min) / (Runtime.NTHREADS*8));
+        Bisect.slice(range, grainSize, body);
     }
 
     /**
@@ -69,8 +67,8 @@ public final class Bisect {
             Sequential.operator for(range, body);
         } else {
             // convert single index closure into execution over range
-            val executeRange = (start:Long, end:Long) => {
-                for (i in start..end) body(i);
+            val executeRange = (range:LongRange) => {
+                for (i in range) body(i);
             };
             finish doBisect1D(range.min, range.max+1, grainSize, executeRange);
         }
@@ -91,12 +89,12 @@ public final class Bisect {
 
     private static def doBisect1D(start:Long, end:Long,
                                   grainSize:Long,
-                                  body:(min:Long, max:Long)=>void) {
+                                  body:(range:LongRange)=>void) {
         if ((end-start) > grainSize) {
             async doBisect1D((start+end)/2L, end, grainSize, body);
             doBisect1D(start, (start+end)/2L, grainSize, body);
         } else {
-            body(start, end-1);
+            body(start..(end-1));
         }
     }
 
@@ -113,51 +111,49 @@ public final class Bisect {
                                           reduce:(a:T,b:T)=>T, identity:T,
                                           body:(i:Long)=>T):T {
         // convert single index closure into execution over range
-        val executeRange = (start:Long, end:Long) => {
+        val executeRange = (range:LongRange) => {
             var myRes:T = identity;
-            for (i in start..end) {
+            for (i in range) {
                 myRes = reduce(myRes, body(i));
             }
             myRes
         };
-        return reduceSlice(range.min, range.max, grainSize, reduce, executeRange);
+        return reduceSlice(range, grainSize, reduce, executeRange);
     }
 
     /**
      * Reduce over a range of indices in parallel using recursive bisection.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param grainSize the maximum grain size for an activity
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      * @param reduce the reduction operation
      */
-    private static @Inline def reduceSlice[T](min:Long, max:Long,
+    private static @Inline def reduceSlice[T](range:LongRange,
                                               grainSize:Long,
                                               reduce:(a:T,b:T)=>T,
-                                              body:(i:Long, j:Long)=>T):T {
+                                              body:(range:LongRange)=>T):T {
         if (Runtime.NTHREADS == 1n) {
-            return Sequential.reduceSlice(min, max, reduce, body);
+            return Sequential.reduceSlice(range, reduce, body);
         } else {
-            return doBisectReduce1D(min, max+1, grainSize, reduce, body);
+            return doBisectReduce1D(range.min, range.max+1, grainSize, reduce, body);
         }
     }
 
     /**
      * Reduce over a range of indices in parallel using recursive
      * bisection.  Bisection recurs until a minimum grain * size of
-     * (max-min+1) / (Runtime.NTHREADS &times; 8) is reached.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * (range.max-range.min+1) / (Runtime.NTHREADS &times; 8) is reached.
+     * @param range the range of the indices
      * @param reduce the reduction operation
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    private static @Inline def reduceSlice[T](min:Long, max:Long,
+    private static @Inline def reduceSlice[T](range:LongRange,
                                               reduce:(a:T,b:T)=>T,
-                                              body:(i:Long, j:Long)=>T):T {
-        val grainSize = Math.max(1, (max-min) / (Runtime.NTHREADS*8));
-        return Bisect.reduceSlice(min, max, grainSize, reduce, body);
+                                              body:(range:LongRange)=>T):T {
+        val grainSize = Math.max(1, (range.max-range.min) / (Runtime.NTHREADS*8));
+        return Bisect.reduceSlice(range, grainSize, reduce, body);
     }
 
     /**
@@ -175,7 +171,7 @@ public final class Bisect {
     private static def doBisectReduce1D[T](start:Long, end:Long,
                                         grainSize:Long,
                                         reduce:(a:T,b:T)=>T,
-                                        body:(min:Long, max:Long)=>T):T {
+                                        body:(range:LongRange)=>T):T {
         if ((end-start) > grainSize) {
             val asyncResult:T;
             val syncResult:T;
@@ -185,7 +181,7 @@ public final class Bisect {
             }
             return reduce(syncResult, asyncResult);
         } else {
-            return body(start, end-1);
+            return body(start..(end-1));
         }
     }
 
@@ -196,22 +192,18 @@ public final class Bisect {
      * constituting an activity. Bisection recurs on each subblock until each
      * activity is smaller than or equal to a maximum grain size in each
      * dimension.
-     * @param min0 the minimum value of the first index dimension
-     * @param max0 the maximum value of the first index dimension
-     * @param min1 the minimum value of the second index dimension
-     * @param max1 the maximum value of the second index dimension
+     * @param space the range of the indices
      * @param grainSize0 the maximum grain size for the first index dimension
      * @param grainSize1 the maximum grain size for the second index dimension
      * @param body a closure that executes over a rectangular block of indices
      */
-    private static @Inline def slice(min0:Long, max0:Long,
-                                     min1:Long, max1:Long,
+    private static @Inline def slice(space:DenseIterationSpace_2,
                                      grainSize0:Long, grainSize1:Long,
-                                     body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
+                                     body:(space:DenseIterationSpace_2)=>void) {
         if (Runtime.NTHREADS == 1n) {
-            body(min0, max0, min1, max1); // sequential
+            body(space); // sequential
         } else {
-            finish doBisect2D(min0, max0+1, min1, max1+1, grainSize0, grainSize1, body);
+            finish doBisect2D(space.min0, space.max0+1, space.min1, space.max1+1, grainSize0, grainSize1, body);
         }
     }
 
@@ -224,18 +216,16 @@ public final class Bisect {
      * (max-min+1) / Runtime.NTHREADS in each dimension.
      * <p>TODO divide each dim by N ~= sqrt(Runtime.NTHREADS &times; 8), biased
      *   towards more divisions in longer dim
-     * @param min0 the minimum value of the first index dimension
-     * @param max0 the maximum value of the first index dimension
+     * @param space the range of the indices
      * @param min1 the minimum value of the second index dimension
      * @param max1 the maximum value of the second index dimension
      * @param body a closure that executes over a rectangular block of indices
      */
-    private static @Inline def slice(min0:Long, max0:Long,
-                                     min1:Long, max1:Long,
-                                     body:(min0:Long, max0:Long, min1:Long, max1:Long)=>void) {
-        val grainSize0 = Math.max(1, (max0-min0) / Runtime.NTHREADS);
-        val grainSize1 = Math.max(1, (max1-min1) / Runtime.NTHREADS);
-        Bisect.slice(min0, max0, min1, max1, grainSize0, grainSize1, body);
+    private static @Inline def slice(space:DenseIterationSpace_2,
+                                     body:(space:DenseIterationSpace_2)=>void) {
+        val grainSize0 = Math.max(1, (space.max0-space.min0) / Runtime.NTHREADS);
+        val grainSize1 = Math.max(1, (space.max1-space.min1) / Runtime.NTHREADS);
+        Bisect.slice(space, grainSize0, grainSize1, body);
     }
 
     /**
@@ -254,12 +244,12 @@ public final class Bisect {
                                         grainSize0:Long, grainSize1:Long,
                                         body:(i:Long, j:Long)=>void) {
         // convert single index closure into execution over range
-        val executeRange = (min0:Long, max0:Long, min1:Long, max1:Long) => {
-            for (i in min0..max0)
-                for (j in min1..max1)
-                    body(i, j);
-        };
-        Bisect.slice(space.min0, space.max0, space.min1, space.max1, grainSize0, grainSize1, executeRange);
+        val executeRange = (space:DenseIterationSpace_2) => {
+            for ([i, j] in space) {
+		body(i, j);
+	    }
+	};
+	Bisect.slice(space, grainSize0, grainSize1, executeRange);
     }
 
     /**
@@ -288,7 +278,7 @@ public final class Bisect {
     private static def doBisect2D(s0:Long, e0:Long,
                                   s1:Long, e1:Long,
                                   g1:Long, g2:Long,
-                                  body:(min_i1:Long, max_i1:Long, min_i2:Long, max_i2:Long)=>void) {
+                                  body:(space:DenseIterationSpace_2)=>void) {
         if ((e0-s0) > g1 && ((e0-s0) >= (e1-s1) || (e1-s1) <= g2)) {
             async doBisect2D((s0+e0)/2L, e0, s1, e1, g1, g2, body);
             doBisect2D(s0, (s0+e0)/2L, s1, e1, g1, g2, body);
@@ -296,7 +286,7 @@ public final class Bisect {
             async doBisect2D(s0, e0, (s1+e1)/2L, e1, g1, g2, body);
             doBisect2D(s0, e0, s1, (s1+e1)/2L, g1, g2, body);
         } else {
-            body(s0, e0-1, s1, e1-1);
+            body(s0..(e0-1) * s1..(e1-1));
         }
     }
 

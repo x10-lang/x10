@@ -49,13 +49,12 @@ public final class Sequential {
     /**
      * Execute the closure that iterates over a range of
      * indices. A single activity executes the closure.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    public static @Inline def slice(min:Long, max:Long,
-                                    body:(min:Long, max:Long)=>void) {
-        body(min, max);
+    public static @Inline def slice(range:LongRange,
+                                    body:(range:LongRange)=>void) {
+        body(range);
     }
 
 
@@ -96,16 +95,15 @@ public final class Sequential {
 
     /**
      * Reduce over a range of indices in sequence in a single activity.
-     * @param min the minimum value of the index
-     * @param max the maximum value of the index
+     * @param range the range of the indices
      * @param reduce the reduction operation
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    public static @Inline def reduceSlice[T](min:Long, max:Long,
+    public static @Inline def reduceSlice[T](range:LongRange,
                                              reduce:(a:T,b:T)=>T,
-                                             body:(min:Long, max:Long)=>T):T{
-        return body(min, max);
+                                             body:(range:LongRange)=>T):T{
+        return body(range);
     }
 
     /**
