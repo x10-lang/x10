@@ -52,8 +52,8 @@ public final class Sequential {
      * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    public static @Inline def slice(range:LongRange,
-                                    body:(range:LongRange)=>void) {
+    public static @Inline operator for(range:LongRange,
+                                       body:(range:LongRange)=>void) {
         body(range);
     }
 
@@ -100,9 +100,9 @@ public final class Sequential {
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    public static @Inline def reduceSlice[T](range:LongRange,
-                                             reduce:(a:T,b:T)=>T,
-                                             body:(range:LongRange)=>T):T{
+    public static @Inline operator for[T](range:LongRange,
+                                          reduce:(a:T,b:T)=>T,
+                                          body:(range:LongRange)=>T):T{
         return body(range);
     }
 

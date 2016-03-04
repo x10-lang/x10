@@ -32,14 +32,14 @@ public final class Block {
      * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    public static @Inline def slice(range:LongRange,
-                                     body:(range:LongRange)=>void) {
+    public static @Inline operator for(range:LongRange,
+                                       body:(range:LongRange)=>void) {
         val nthreads = Runtime.NTHREADS;
         if (nthreads == 1n) {
-            Sequential.slice(range, body);
+            Sequential.operator for(range, body);
         } else {
-	    val min = range.min;
-	    val max = range.max;
+            val min = range.min;
+            val max = range.max;
             val numElems = max - min + 1;
             if (numElems < 1) return;
             val blockSize = numElems/nthreads;
@@ -63,7 +63,7 @@ public final class Block {
     public static @Inline operator for(range: LongRange,
                                        body:(i:Long)=>void) {
         val executeRange = (range:LongRange)=> { Sequential.operator for(range, body); };
-        Block.slice(range, executeRange);
+        Block.operator for(range, executeRange);
     }
 
 
@@ -105,7 +105,7 @@ public final class Block {
             }
             myRes
         };
-        return Block.reduceSlice(range, reduce, executeRange);
+        return Block.operator for(range, reduce, executeRange);
     }
 
     /**
@@ -142,15 +142,15 @@ public final class Block {
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    private static @Inline def reduceSlice[T](range:LongRange,
-                                              reduce:(a:T,b:T)=>T,
-                                              body:(range:LongRange)=>T):T{
+    private static @Inline operator for[T](range:LongRange,
+                                           reduce:(a:T,b:T)=>T,
+                                           body:(range:LongRange)=>T):T{
         val nthreads = Runtime.NTHREADS;
         if (nthreads == 1n) {
             return body(range); // sequential
         } else {
-	    val min = range.min;
-	    val max = range.max;
+            val min = range.min;
+            val max = range.max;
             val numElems = max - min + 1;
             if (numElems < 1) return body(range);
             val blockSize = numElems/nthreads;
