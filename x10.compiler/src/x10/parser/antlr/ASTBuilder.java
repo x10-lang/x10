@@ -5408,29 +5408,21 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         ctx.ast = ast(ctx.closureBodyBlock());
     }
 
-    /** Production: closureBodyBlock ::= annotationsopt '{' blockInteriorStatement* lastExpression '}' (#closureBodyBlock1) */
+    /** Production: closureBodyBlock ::= annotationsopt '{' blockInteriorStatement* lastExpression? '}' */
     @Override
-    public void exitClosureBodyBlock1(ClosureBodyBlock1Context ctx) {
-        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
-        Stmt LastExpression = ast(ctx.lastExpression());
-        List<Stmt> l = new ArrayList<Stmt>();
-        for (BlockInteriorStatementContext blockInteriorStatement : ctx.blockInteriorStatement()) {
-            l.addAll(ast(blockInteriorStatement));
-        }
-        l.add(LastExpression);
-        Block b = nf.Block(pos(ctx), l);
-        b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
-        ctx.ast = b;
-    }
-
-    /** Production: closureBodyBlock ::= annotationsopt block (#closureBodyBlock2) */
-    @Override
-    public void exitClosureBodyBlock2(ClosureBodyBlock2Context ctx) {
-        List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
-        Block Block = ast(ctx.block());
-        Block b = Block;
-        b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
-        ctx.ast = (polyglot.ast.Block) b.position(pos(ctx));
+    public void exitClosureBodyBlock(ClosureBodyBlockContext ctx) {
+    	List<AnnotationNode> Annotationsopt = ast(ctx.annotationsopt());
+    	Stmt LastExpression = ast(ctx.lastExpression());
+    	List<Stmt> l = new ArrayList<Stmt>();
+    	for (BlockInteriorStatementContext blockInteriorStatement : ctx.blockInteriorStatement()) {
+    		l.addAll(ast(blockInteriorStatement));
+    	}
+    	if (ctx.lastExpression() != null) {
+    		l.add(LastExpression);
+    	}
+    	Block b = nf.Block(pos(ctx), l);
+    	b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
+    	ctx.ast = (polyglot.ast.Block) b.position(pos(ctx));
     }
 
     /** Production: atExpression ::= annotationsopt 'at' '(' expression ')' closureBody (#atExpression) */

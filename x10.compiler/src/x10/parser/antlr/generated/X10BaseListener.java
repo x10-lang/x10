@@ -2424,25 +2424,13 @@ public class X10BaseListener implements X10Listener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx) { }
+	@Override public void enterClosureBodyBlock(X10Parser.ClosureBodyBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx) { }
+	@Override public void exitClosureBodyBlock(X10Parser.ClosureBodyBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

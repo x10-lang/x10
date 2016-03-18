@@ -448,8 +448,7 @@ closureBody returns [Block ast]:
     | closureBodyBlock                                         #closureBody1
     ;
 closureBodyBlock returns [Block ast]:
-      annotationsopt block                                     #closureBodyBlock2
-    | annotationsopt '{' blockInteriorStatement* lastExpression '}'   #closureBodyBlock1
+      annotationsopt '{' blockInteriorStatement* lastExpression? '}'
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody

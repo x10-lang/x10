@@ -2292,29 +2292,15 @@ public interface X10Listener extends ParseTreeListener {
 	 */
 	void exitClosureBody1(X10Parser.ClosureBody1Context ctx);
 	/**
-	 * Enter a parse tree produced by the {@code closureBodyBlock2}
-	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * Enter a parse tree produced by {@link X10Parser#closureBodyBlock}.
 	 * @param ctx the parse tree
 	 */
-	void enterClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx);
+	void enterClosureBodyBlock(X10Parser.ClosureBodyBlockContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code closureBodyBlock2}
-	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
+	 * Exit a parse tree produced by {@link X10Parser#closureBodyBlock}.
 	 * @param ctx the parse tree
 	 */
-	void exitClosureBodyBlock2(X10Parser.ClosureBodyBlock2Context ctx);
-	/**
-	 * Enter a parse tree produced by the {@code closureBodyBlock1}
-	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
-	 * @param ctx the parse tree
-	 */
-	void enterClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code closureBodyBlock1}
-	 * labeled alternative in {@link X10Parser#closureBodyBlock}.
-	 * @param ctx the parse tree
-	 */
-	void exitClosureBodyBlock1(X10Parser.ClosureBodyBlock1Context ctx);
+	void exitClosureBodyBlock(X10Parser.ClosureBodyBlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link X10Parser#atExpression}.
 	 * @param ctx the parse tree
