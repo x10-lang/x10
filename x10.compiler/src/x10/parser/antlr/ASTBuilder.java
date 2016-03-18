@@ -4493,7 +4493,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userIfThenStatement ::= userStatementPrefix kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?    (#userIfThenStatement0) */
     @Override
     public void exitUserIfThenStatement0(UserIfThenStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "if"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4666,7 +4666,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userWhileStatement ::= userStatementPrefix kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhileStatement0) */
     @Override
     public void exitUserWhileStatement0(UserWhileStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "while"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4697,7 +4697,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userDoStatement ::= userStatementPrefix kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'    (#userDoStatement0) */
     @Override
     public void exitUserDoStatement0(UserDoStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "do"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4783,7 +4783,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userBreakStatement ::= userStatementPrefix kw='break' typeArgumentsopt expressionopt ';'    (#userBreakStatement0) */
     @Override
     public void exitUserBreakStatement0(UserBreakStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "break"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4810,7 +4810,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userContinueStatement ::= userStatementPrefix kw='continue' typeArgumentsopt expressionopt ';'    (#userContinueStatement0) */
     @Override
     public void exitUserContinueStatement0(UserContinueStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "continue"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4864,7 +4864,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userThrowStatement ::= userStatementPrefix kw='throw' typeArgumentsopt expressionopt ';'    (#userThrowStatement0) */
     @Override
     public void exitUserThrowStatement0(UserThrowStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "throw"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -4924,7 +4924,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userTryStatement ::= userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?    (#userTryStatement0) */
     @Override
     public void exitUserTryStatement0(UserTryStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "try"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5003,7 +5003,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userAsyncStatement ::= userStatementPrefix kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock    (#userAsyncStatement0) */
     @Override
     public void exitUserAsyncStatement0(UserAsyncStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "async"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5035,7 +5035,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userAtStatement ::= userStatementPrefix kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtStatement0) */
     @Override
     public void exitUserAtStatement0(UserAtStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "at"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5064,7 +5064,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userAtomicStatement ::= userStatementPrefix kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock    (#userAtomicStatement0) */
     @Override
     public void exitUserAtomicStatement0(UserAtomicStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "atomic"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5095,7 +5095,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userWhenStatement ::= userStatementPrefix kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userWhenStatement0) */
     @Override
     public void exitUserWhenStatement0(UserWhenStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "when"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5143,7 +5143,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userAtEachStatement ::= userStatementPrefix kw='ateach' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock    (#userAtEachStatement0) */
     @Override
     public void exitUserAtEachStatement0(UserAtEachStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "ateach"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5159,7 +5159,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userAtEachStatement ::= userStatementPrefix kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtEachStatement4) */
     @Override
     public void exitUserAtEachStatement4(UserAtEachStatement4Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "ateach"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5222,7 +5222,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userEnhancedForStatement ::= userStatementPrefix 'for' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock    (#userEnhancedForStatement0) */
     @Override
     public void exitUserEnhancedForStatement0(UserEnhancedForStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "for"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5238,7 +5238,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userEnhancedForStatement ::= userStatementPrefix 'for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userEnhancedForStatement4) */
     @Override
     public void exitUserEnhancedForStatement4(UserEnhancedForStatement4Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "for"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
@@ -5274,7 +5274,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     /** Production: userFinishStatement ::= userStatementPrefix kw='finish' typeArgumentsopt argumentsopt closureBodyBlock    (#userFinishStatement0) */
     @Override
     public void exitUserFinishStatement0(UserFinishStatement0Context ctx) {
-        Receiver prefix = ast(ctx.userStatementPrefix());
+        Receiver prefix = ast(((NonExpressionStatemen23Context) ctx.parent.parent).userStatementPrefix());
         Field field = nf.Field(pos(prefix.position(), ctx.kw), prefix, nf.Id(pos(ctx.kw), "finish"));
 
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());

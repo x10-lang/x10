@@ -203,7 +203,7 @@ nonExpressionStatement returns [Stmt ast]:
     | finishStatement              #nonExpressionStatemen20
     | assignPropertyCall           #nonExpressionStatemen21
     | oBSOLETE_OfferStatement      #nonExpressionStatemen22
-    | userStatement                #nonExpressionStatemen23
+    | userStatementPrefix userStatement #nonExpressionStatemen23
     | methodInvocationStatement    #nonExpressionStatemen24
     ;
 methodInvocationStatement returns [Stmt ast]:
@@ -240,7 +240,7 @@ ifThenStatement returns [If ast]:
       'if' '(' expression ')' s1=statement ('else' s2=statement)?
     ;
 userIfThenStatement returns [Stmt ast]:
-      userStatementPrefix kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
+      kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -287,13 +287,13 @@ whileStatement returns [While ast]:
       'while' '(' expression ')' statement
     ;
 userWhileStatement returns [Stmt ast]:
-      userStatementPrefix kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
+      kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
     ;
 doStatement returns [Do ast]:
       'do' statement 'while' '(' expression ')' ';'
     ;
 userDoStatement returns [Stmt ast]:
-      userStatementPrefix kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
+      kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
     ;
 forStatement returns [Loop ast]:
       basicForStatement        #forStatement0
@@ -316,13 +316,13 @@ breakStatement returns [Branch ast]:
       'break' identifieropt ';'
     ;
 userBreakStatement returns [Stmt ast]:
-      userStatementPrefix kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
+      kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
     ;
 continueStatement returns [Branch ast]:
       'continue' identifieropt ';'
     ;
 userContinueStatement returns [Stmt ast]:
-      userStatementPrefix kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
+      kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
     ;
 returnStatement returns [Return ast]:
       'return' expressionopt ';'
@@ -337,7 +337,7 @@ throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
 userThrowStatement returns [Stmt ast]:
-      userStatementPrefix kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
+      kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
     ;
 tryStatement returns [Try ast]:
       'try' block catchesopt finallyBlock?     #tryStatement0
@@ -352,7 +352,7 @@ finallyBlock returns [Block ast]:
       'finally' block
     ;
 userTryStatement returns [Stmt ast]:
-      userStatementPrefix kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?         #userTryStatement0
+      kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?         #userTryStatement0
     ;
 userCatches returns [List<Closure> ast]:
       userCatchClause+
@@ -371,49 +371,49 @@ asyncStatement returns [Async ast]:
     | 'clocked' 'async' statement           #asyncStatement1
     ;
 userAsyncStatement returns [Stmt ast]:
-      userStatementPrefix kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
+      kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
     // | 'clocked' 'async' closureBodyBlock           #userAsyncStatement
     ;
 atStatement returns [AtStmt ast]:
       'at' '(' expression ')' statement
     ;
 userAtStatement returns [Stmt ast]:
-      userStatementPrefix kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
+      kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
     ;
 atomicStatement returns [Atomic ast]:
       'atomic' statement
     ;
 userAtomicStatement returns [Stmt ast]:
-      userStatementPrefix kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock         #userAtomicStatement0
+      kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock         #userAtomicStatement0
     ;
 whenStatement returns [When ast]:
       'when' '(' expression ')' statement
     ;
 userWhenStatement returns [Stmt ast]:
-      userStatementPrefix kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
+      kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
     ;
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
 userAtEachStatement returns [Stmt ast]:
-      userStatementPrefix kw='ateach' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userAtEachStatement0
-    | userStatementPrefix kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userAtEachStatement4
+      kw='ateach' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userAtEachStatement0
+    | kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userAtEachStatement4
     ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
     | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
 userEnhancedForStatement returns [Stmt ast]:
-      userStatementPrefix kw='for' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userEnhancedForStatement0
-    | userStatementPrefix kw='for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userEnhancedForStatement4
+      kw='for' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userEnhancedForStatement0
+    | kw='for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userEnhancedForStatement4
     ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0
     | 'clocked' 'finish' statement      #finishStatement1
     ;
 userFinishStatement returns [Stmt ast]:
-      userStatementPrefix kw='finish' typeArgumentsopt argumentsopt closureBodyBlock   #userFinishStatement0
+      kw='finish' typeArgumentsopt argumentsopt closureBodyBlock   #userFinishStatement0
     // | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
