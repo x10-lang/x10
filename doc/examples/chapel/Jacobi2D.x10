@@ -22,9 +22,9 @@ class Jacobi2D {
 
     var printTime: Boolean = false;
     val globalSeed = 0; //SeedGenerator.currentTime;
-    val problemSize = 4096;
+    val problemSize = 1000;
     val T = 100; // number of time steps
-    val tau = 344;
+    val tau = 30;
     var verify: Boolean = false;
     var benchmark: Boolean = true;
 
@@ -68,8 +68,8 @@ class Jacobi2D {
 	// 3 - jacobi 1D timed within an openmp loop
 	val start = timer.nanoTime();
 
-	Tile.Diamond.for (read:Long, write:Long, x:Long ,y:Long
-			      in new Tile.DiamondIterator(lowerBound, upperBound, T, tau)) {
+	Chapel.for (read:Long, write:Long, x:Long ,y:Long
+			      in Chapel.Iter.diamond(lowerBound, upperBound, T, tau)) {
 	    space(write, x, y) = (space(read, x, y-1) +
 				  space(read, x-1, y) +
 				  space(read, x, y+1) +

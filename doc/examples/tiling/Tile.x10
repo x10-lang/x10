@@ -1,6 +1,7 @@
 import x10.compiler.Inline;
-import x10.compiler.Foreach;
+import x10.util.foreach.*;
 import x10.lang.Math;
+import x10.array.Array_3;
 
 public struct Tile {
 
@@ -29,8 +30,7 @@ public struct Tile {
 		val k2_ub: Long = floord((2+2*kt)*tau-3*L-2, tau*3);
 
 		// Loops over tile coordinates within a parallel wavefront of tiles.
-		Foreach.Basic.for (k1:Long in k1_lb .. k1_ub) {
-		    for (x in k2_lb .. k2_ub) {
+        Basic.for (k1:Long, x:Long in k1_lb .. k1_ub * k2_lb .. k2_ub) {
 			val k2 = x-k1;
 
 			// Loop over time within a tile.
@@ -51,7 +51,6 @@ public struct Tile {
 			}
 		    }
 		}
-	    }
 	}
     }
 
@@ -80,7 +79,15 @@ public struct Tile {
     // =============================================
     /* Test */
     public static def main(Rail[String]) {
-	Diamond.for (read:Long,write:Long,x:Long,y:Long in new DiamondIterator(0, 9, 9, 3)) {
+	val A = new Array_3[Long](2, 10, 10);
+	val L = 1;
+	val U = 8;
+	val T = 8;
+	val tau = 3;
+	Diamond.for (read:Long,write:Long,x:Long,y:Long in DiamondIterator(L, U, T, tau)) {
+	    A(write, x, y) = (A(read, (x-1), y) + A(read, x, (y-1)) + A(read, x, y) + A(read, x, (y+1)) + A(read, (x+1), y)) / 5;
+
+
 	    // Console.OUT.println("read = "+read+", write = "+write+", i = "+i+", j = "+j);
 	    Console.OUT.println("A["+write+", "+x+", "+y+"] = (A["+read+", "+(x-1)+", "+y+"] + A["+read+", "+x+", "+(y-1)+"] + A["+read+", "+x+", "+y+"] + A["+read+", "+x+", "+(y+1)+"] + A["+read+", "+(x+1)+", "+y+"]) / 5");
 	}

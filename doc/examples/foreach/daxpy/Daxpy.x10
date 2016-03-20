@@ -10,7 +10,8 @@
  *  (C) Copyright IBM Corporation 2014.
  */
 
-import x10.compiler.Foreach;
+// import x10.compiler.Foreach;
+import x10.util.foreach.*;
 
 /**
  * Benchmarks simple DAXPY operation
@@ -33,9 +34,9 @@ public class Daxpy(N:Long) {
         }
 */
 
-        val body = (i:Long) => {
-            x(i) = alpha * x(i) + y(i);
-        };
+        // val body = (i:Long) => {
+        //     x(i) = alpha * x(i) + y(i);
+        // };
 
 /*
         // sequential
@@ -44,9 +45,14 @@ public class Daxpy(N:Long) {
         }
 */
         //Foreach.basic(start, end, body);
-        Foreach.block(start, end, body);
+        // Foreach.block(start, end, body);
         //Foreach.cyclic(start, end, body);
         //Foreach.bisect(start, end, body);
+
+	Block.for(i:Long in start..end) {
+	    x(i) = alpha * x(i) + y(i);
+	}
+
     }
 
 	public def testAll() {

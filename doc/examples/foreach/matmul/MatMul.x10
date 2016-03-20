@@ -10,7 +10,8 @@
  *  (C) Copyright IBM Corporation 2014.
  */
 
-import x10.compiler.Foreach;
+// import x10.compiler.Foreach;
+import x10.util.foreach.*;
 
 /**
  * Benchmarks naive matrix multiplication
@@ -35,13 +36,13 @@ public class MatMul(N:Long) {
         }
 */
         // NOTE: indices are in reversed order for column-major format
-        val body = (j:Long, i:Long) => {
-            var x:Double = 0.0;
-            for (k in 0..(N-1)) {
-                x += a(i+k*N) * b(k+j*N);
-            }
-            c(i+j*N) = x;
-        };
+        // val body = (j:Long, i:Long) => {
+        //     var x:Double = 0.0;
+        //     for (k in 0..(N-1)) {
+        //         x += a(i+k*N) * b(k+j*N);
+        //     }
+        //     c(i+j*N) = x;
+        // };
 
 /*
         // sequential
@@ -55,7 +56,26 @@ public class MatMul(N:Long) {
         //Foreach.basic(0, N-1, 0, N-1, body);
         //Foreach.block(0, N-1, 0, N-1, body);
         //Foreach.cyclic(0, N-1, 0, N-1, body);
-        Foreach.bisect(0, N-1, 0, N-1, body);
+        // Foreach.bisect(0, N-1, 0, N-1, body);
+
+        // NOTE: indices are in reversed order for column-major format
+	Block.for(j:Long, i:Long in 0..(N-1) * 0..(N-1)) {
+            var x:Double = 0.0;
+            for (k in 0..(N-1)) {
+                x += a(i+k*N) * b(k+j*N);
+            }
+            c(i+j*N) = x;
+	}
+
+        // val indices = new DenseIterationSpace_2(0, 0, (N-1), (N-1));
+	// Foreach.Block0.for([j,i]:Point(2) in indices) {
+        //     var x:Double = 0.0;
+        //     for (k in 0..(N-1)) {
+        //         x += a(i+k*N) * b(k+j*N);
+        //     }
+        //     c(i+j*N) = x;
+	// }
+
     }
 
 	public def testAll() {

@@ -9,6 +9,7 @@
 import x10.xrx.Runtime;
 import x10.util.*;
 import x10.array.*;
+import x10.util.foreach.Basic;
 
 class Jacobi2D {
 
@@ -68,16 +69,22 @@ class Jacobi2D {
 	// 3 - jacobi 1D timed within an openmp loop
 	val start = timer.nanoTime();
 
-	Tile.Diamond.for (read:Long, write:Long, x:Long ,y:Long
-			      in new Tile.DiamondIterator(lowerBound, upperBound, T, tau)) {
-	    space(write, x, y) = (space(read, x, y-1) +
-				  space(read, x-1, y) +
-				  space(read, x, y+1) +
-				  space(read, x+1, y) +
-				  space(read, x, y) ) / 5;
+	var readvar: Long = 0;
+	var writevar: Long = 1;
+	for (t in computationTimeRange) {
+        val read = readvar;
+        val write = writevar;
+	    Basic.for (x:Long in lowerBound..upperBound) {
+            for (y:Long in lowerBound..upperBound) {
+		        space(write, x, y) = (space(read, x, y-1) + space(read, x-1, y) +
+				      space(read, x, y+1) + space(read, x+1, y) +
+				      space(read, x, y) ) / 5.0;
+            }
+	    }
+	    val tmp = readvar;
+	    readvar = writevar;
+	    writevar = tmp;
 	}
-
-	//read <=> write;
 
 	val time = timer.nanoTime() - start;
 

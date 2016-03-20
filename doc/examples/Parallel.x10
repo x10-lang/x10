@@ -1,9 +1,11 @@
 class Parallel {
 
     public static operator for[T](c: Iterable[T], body: (T)=>void) {
-        for(x in c) {
-            async { body(x); }
-        }
+        finish {
+	    for(x in c) {
+		async { body(x); }
+	    }
+	}
     }
 
     public static def main(Rail[String]) {
