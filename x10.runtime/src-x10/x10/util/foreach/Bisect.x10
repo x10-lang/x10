@@ -48,8 +48,8 @@ public final class Bisect {
      * @param range the range of the indices
      * @param body a closure that executes over a contiguous range of indices
      */
-    private static @Inline operator for(range:LongRange,
-                                        body:(range:LongRange)=>void) {
+    public static @Inline operator for(range:LongRange,
+                                       body:(range:LongRange)=>void) {
         val grainSize = Math.max(1, (range.max-range.min) / (Runtime.NTHREADS*8));
         Bisect.operator for(range, grainSize, body);
     }
@@ -129,10 +129,10 @@ public final class Bisect {
      *   returning the reduced value for that range
      * @param reduce the reduction operation
      */
-    private static @Inline operator for[T](range:LongRange,
-                                           grainSize:Long,
-                                           reduce:(a:T,b:T)=>T,
-                                           body:(range:LongRange)=>T):T {
+    public static @Inline operator for[T](range:LongRange,
+                                          grainSize:Long,
+                                          reduce:(a:T,b:T)=>T,
+                                          body:(range:LongRange)=>T):T {
         if (Runtime.NTHREADS == 1n) {
             return Sequential.operator for(range, reduce, body);
         } else {
@@ -149,9 +149,9 @@ public final class Bisect {
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    private static @Inline operator for[T](range:LongRange,
-                                           reduce:(a:T,b:T)=>T,
-                                           body:(range:LongRange)=>T):T {
+    public static @Inline operator for[T](range:LongRange,
+                                          reduce:(a:T,b:T)=>T,
+                                          body:(range:LongRange)=>T):T {
         val grainSize = Math.max(1, (range.max-range.min) / (Runtime.NTHREADS*8));
         return Bisect.operator for(range, grainSize, reduce, body);
     }
@@ -197,9 +197,9 @@ public final class Bisect {
      * @param grainSize1 the maximum grain size for the second index dimension
      * @param body a closure that executes over a rectangular block of indices
      */
-    private static @Inline operator for(space:DenseIterationSpace_2,
-                                        grainSize0:Long, grainSize1:Long,
-                                        body:(space:DenseIterationSpace_2)=>void) {
+    public static @Inline operator for(space:DenseIterationSpace_2,
+                                       grainSize0:Long, grainSize1:Long,
+                                       body:(space:DenseIterationSpace_2)=>void) {
         if (Runtime.NTHREADS == 1n) {
             body(space); // sequential
         } else {
@@ -221,8 +221,8 @@ public final class Bisect {
      * @param max1 the maximum value of the second index dimension
      * @param body a closure that executes over a rectangular block of indices
      */
-    private static @Inline operator for (space:DenseIterationSpace_2,
-                                         body:(space:DenseIterationSpace_2)=>void) {
+    public static @Inline operator for (space:DenseIterationSpace_2,
+                                        body:(space:DenseIterationSpace_2)=>void) {
         val grainSize0 = Math.max(1, (space.max0-space.min0) / Runtime.NTHREADS);
         val grainSize1 = Math.max(1, (space.max1-space.min1) / Runtime.NTHREADS);
         Bisect.operator for(space, grainSize0, grainSize1, body);

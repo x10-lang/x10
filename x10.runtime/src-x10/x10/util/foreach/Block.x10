@@ -142,9 +142,9 @@ public final class Block {
      * @param body a closure that executes over a contiguous range of indices,
      *   returning the reduced value for that range
      */
-    private static @Inline operator for[T](range:LongRange,
-                                           reduce:(a:T,b:T)=>T,
-                                           body:(range:LongRange)=>T):T{
+    public static @Inline operator for[T](range:LongRange,
+                                          reduce:(a:T,b:T)=>T,
+                                          body:(range:LongRange)=>T):T{
         val nthreads = Runtime.NTHREADS;
         if (nthreads == 1n) {
             return body(range); // sequential
