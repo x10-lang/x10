@@ -2,10 +2,10 @@ class Parallel {
 
     public static operator for[T](c: Iterable[T], body: (T)=>void) {
         finish {
-	    for(x in c) {
-		async { body(x); }
-	    }
-	}
+            for(x in c) {
+                async { body(x); }
+            }
+        }
     }
 
     public static def main(Rail[String]) {
@@ -14,8 +14,8 @@ class Parallel {
             atomic { cpt() = cpt() + i; }
         }
         Parallel.operator for(1..10, (i:Long)=> {
-		atomic { cpt() = cpt() + i; }
-	    });
+                atomic { cpt() = cpt() + i; }
+            });
         Console.OUT.println(cpt());
     }
 }
