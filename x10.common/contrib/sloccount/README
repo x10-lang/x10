@@ -1,0 +1,15 @@
+This directory contains a patch -- sloccount.patch -- for David A. Wheeler's
+SLOCCount (Source-Lines-Of-Code) tool, to add support for X10 files.
+
+http://www.dwheeler.com/sloccount/
+
+It simply tells SLOCCount that files ending in ".x10" should be treated as Java
+code, and counted using the same rules.
+
+To use, first get the SLOCCount source code, then apply the patch and build
+according to the instructions in sloccount-code/sloccount.html, i.e.
+
+$ git clone git://git.code.sf.net/p/sloccount/code sloccount-code
+$ cd sloccount-code
+$ patch -p1 -i $X10_HOME/x10.common/contrib/sloccount/sloccount.patch
+$ make install

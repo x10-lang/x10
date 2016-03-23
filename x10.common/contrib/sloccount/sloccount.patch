@@ -1,0 +1,12 @@
+diff --git a/break_filelist b/break_filelist
+index a6fea48..9d0ae27 100755
+--- a/break_filelist
++++ b/break_filelist
+@@ -182,6 +182,7 @@ $noisy = 0;            # Set to 1 if you want noisy reports.
+   "sh" => "sh", "bash" => "sh",
+   "csh" => "csh", "tcsh" => "csh", 
+   "java" => "java",
++  "x10" => "java",
+   "lisp" => "lisp", "el" => "lisp", "scm" => "lisp", "sc" => "lisp", 
+   "lsp" => "lisp", "cl" => "lisp",
+   "jl" => "lisp",
