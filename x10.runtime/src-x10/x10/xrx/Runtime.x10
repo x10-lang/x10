@@ -154,6 +154,10 @@ public final class Runtime {
     @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def wsProcessEvents():void;
 
+    @Native("c++", "x10rt_agreement_support()")
+    @Native("java", "x10.x10rt.X10RT.agreementSupport()")
+    public static native def x10rtAgreementSupport():Boolean;
+    
     /**
      * Return a deep copy of the object graph rooted at o.
      */
