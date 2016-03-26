@@ -7,7 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2016.
- *  (C) Copyright Sara Salem Hamouda 2014-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2016.
  */
 package x10.util.resilient.iterative;
 
@@ -27,7 +27,7 @@ public abstract class DistObjectSnapshot {
     static val verbose = getEnvInt("X10_RESILIENT_STORE_VERBOSE");
     
     static val localCopy = getEnvString("X10_RESILIENT_STORE_LOCAL_COPY", "clone"); // at, deep, clone
-    static val remoteCopy = getEnvString("X10_RESILIENT_STORE_REMOTE_COPY", "at"); // at, dma
+    static val remoteCopy = getEnvString("X10_RESILIENT_STORE_REMOTE_COPY", "dma"); // at, dma
     static val forceDeepCopy = 0N;
     
     static def getEnvInt(name:String) {
@@ -45,7 +45,15 @@ public abstract class DistObjectSnapshot {
 
     public static def make():DistObjectSnapshot {
         switch (mode) {
-            case 0N: return new DoubleInMemoryStore(); // Distributed mode is the default
+            case 0N: return new DoubleInMemoryStore(Place.places()); // Distributed mode is the default
+            case 1N: return new DistObjectSnapshotPlace0();
+            default: throw new Exception("unknown mode");
+        }
+    }
+    
+    public static def make(places:PlaceGroup):DistObjectSnapshot {
+        switch (mode) {
+            case 0N: return new DoubleInMemoryStore(places); // Distributed mode is the default
             case 1N: return new DistObjectSnapshotPlace0();
             default: throw new Exception("unknown mode");
         }
@@ -55,6 +63,8 @@ public abstract class DistObjectSnapshot {
     public abstract def load(key:Any):Any;
     public abstract def delete(key:Any):void;
     public abstract def deleteAll():void;
+    public abstract def deleteAll_local():void;
+    public abstract def printKeys_local():void;
 
     /**
      * Place0 implementation of ResilientStore
@@ -93,6 +103,11 @@ public abstract class DistObjectSnapshot {
         public def deleteAll() {
             if (verbose>=1) DEBUG("deleteAll");
             at(Place.FIRST_PLACE) atomic { hm().clear(); }
+        }
+        
+        public def deleteAll_local() {
+        	if (verbose>=1) DEBUG("deleteAll_local");
+        	if (here.id == Place.FIRST_PLACE.id) atomic { hm().clear(); }
         }
         
         private def saveLocal(key:Any, value:Any){
@@ -157,6 +172,16 @@ public abstract class DistObjectSnapshot {
                 throw new Exception("unknown remote copy mode");
             }
         }
+        
+        public def printKeys_local(){
+        	if (here.id == Place.FIRST_PLACE.id) atomic {
+        	    val iter = hm().keySet().iterator();
+                while (iter.hasNext()) {
+                    val key = iter.next();
+                    Console.OUT.println("["+here+"] - key found ["+key+"] ...");
+                }
+        	}
+        }
     }
     
     /**
@@ -168,21 +193,29 @@ public abstract class DistObjectSnapshot {
      *       Racing between multiple places are not also considered.
      */
     static class DoubleInMemoryStore extends DistObjectSnapshot {
-        val hm = PlaceLocalHandle.make[HashMap[Any,Any]](Place.places(), ()=>new x10.util.HashMap[Any,Any]());
+    	val places:PlaceGroup;
+        val hm:PlaceLocalHandle[HashMap[Any,Any]];
         private def DEBUG(key:Any, msg:String) { Console.OUT.println("At " + here + ": key=" + key + ": " + msg); }
+        public def this(places:PlaceGroup){
+        	this.places = places;
+        	//a pointer exists at each place
+        	/*FIXME: Currently, when a spare place replaces a failed place, it will be only used to local checkpoints, 
+        	it will not serve as a backup place*/
+        	hm = PlaceLocalHandle.make[HashMap[Any,Any]](Place.places(), ()=>new x10.util.HashMap[Any,Any]());
+        }
         public def save(key:Any, value:Any) {
             if (verbose>=1) DEBUG(key, "save called");
             /* Store the copy of value locally */
             saveLocal(key, value);
             if (verbose>=1) DEBUG(key, "backed up locally");
             /* Backup the value in another place */
-            var backupPlace:Long = Math.abs(key.hashCode()) % Place.numPlaces();
+            var backupPlace:Long = Math.abs(key.hashCode()) % places.size();
             var trial:Long;
-            for (trial = 0L; trial < Place.numPlaces(); trial++) {
+            for (trial = 0L; trial < places.size(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) break; // found appropriate place
-                backupPlace = (backupPlace+1) % Place.numPlaces();
+                backupPlace = (backupPlace+1) % places.size();
             }
-            if (trial == Place.numPlaces()) {
+            if (trial == places.size()) {
                 /* no backup place available */
                 if (verbose>=1) DEBUG(key, "no backup place available");
             } else {
@@ -204,9 +237,9 @@ public abstract class DistObjectSnapshot {
                 /* falls through, check other places */
             }
             /* Try to load from another place */
-            var backupPlace:Long = Math.abs(key.hashCode()) % Place.numPlaces();
+            var backupPlace:Long = Math.abs(key.hashCode()) % places.size();
             var trial:Long;
-            for (trial = 0L; trial < Place.numPlaces(); trial++) {
+            for (trial = 0L; trial < places.size(); trial++) {
                 if (backupPlace != here.id && !Place.isDead(backupPlace)) {
                     if (verbose>=1) DEBUG(key, "checking backup place " + backupPlace);
                     try {
@@ -218,7 +251,7 @@ public abstract class DistObjectSnapshot {
                         /* falls through, try next place */
                     }
                 }
-                backupPlace = (backupPlace+1) % Place.numPlaces();
+                backupPlace = (backupPlace+1) % places.size();
             }
             if (verbose>=1) DEBUG(key, "no backup found, ERROR");
             if (verbose>=1) DEBUG(key, "load throwing exception");
@@ -226,16 +259,20 @@ public abstract class DistObjectSnapshot {
         }
         
         public def delete(key:Any) {
-            finish for (pl in Place.places()) {
+            finish for (pl in places) {
                 if (pl.isDead()) continue;
                 at(pl) async atomic { hm().remove(key); }
             }
         }
         public def deleteAll() {
-            finish for (pl in Place.places()) {
+            finish for (pl in places) {
                 if (pl.isDead()) continue;
                 at(pl) async atomic { hm().clear(); }
             }
+        }
+        
+        public def deleteAll_local() {
+        	atomic { hm().clear(); }
         }
         
         private def saveLocal(key:Any, value:Any) {
@@ -256,9 +293,9 @@ public abstract class DistObjectSnapshot {
         
         private def saveRemote(key:Any, value:Any, backupPlace:Long) {
             if (remoteCopy.equals("at")) {
-                at(Place(backupPlace)) atomic { hm().put(key, value); }
+                at(places(backupPlace)) atomic { hm().put(key, value); }
             } else if (remoteCopy.equals("dma")) {
-                (value as Snapshot).remoteCopyAndSave(key, hm, Place(backupPlace));
+                (value as Snapshot).remoteCopyAndSave(key, hm, places(backupPlace));
             } else {
                 throw new Exception("unknown remote copy mode");
             }
@@ -285,13 +322,13 @@ public abstract class DistObjectSnapshot {
         
         public def loadRemote(key:Any, backupPlace:Long):Any {
             if (remoteCopy.equals("at")) {
-                val value = at(Place(backupPlace)) {
+                val value = at(places(backupPlace)) {
                     var v:Any; atomic { v = hm().getOrThrow(key); } v
                 };
                 return value;
             } else if (remoteCopy.equals("dma")) {
                 val destPlace = here;
-                val gr = at(Place(backupPlace)) {
+                val gr = at(places(backupPlace)) {
                     var v:Any;
                     atomic { v = hm().getOrThrow(key); }
                     (v as Snapshot).remoteClone(destPlace)
@@ -301,6 +338,18 @@ public abstract class DistObjectSnapshot {
             } else {
                 throw new Exception("unknown remote copy mode");
             }
+        }
+        
+        public def printKeys_local(){
+        	atomic{
+        	    val iter = hm().keySet().iterator();
+        	    var str:String = "";
+                while (iter.hasNext()) {
+                    val key = iter.next();
+                    str += key + ",";
+                }
+                Console.OUT.println("["+here+"] - keys ["+str+"] ...");
+        	}
         }
     }
 }
