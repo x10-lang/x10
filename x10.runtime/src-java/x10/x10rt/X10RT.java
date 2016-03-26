@@ -410,6 +410,11 @@ public class X10RT {
       return state.compareTo(State.RUNNING) >= 0;
     }
 
+    public static boolean agreementSupport() {
+        assert isBooted();
+        return x10rt_agreement_support();
+    }
+
     /**
      * To be called once XRX is ready to process incoming asyncs.
      */
@@ -595,4 +600,6 @@ public class X10RT {
     private static native int x10rt_blocking_probe();
     
     private static native int x10rt_unblock_probe();
+    
+    private static native boolean x10rt_agreement_support ();
 }
