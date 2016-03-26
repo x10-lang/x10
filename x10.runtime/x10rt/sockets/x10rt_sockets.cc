@@ -1096,6 +1096,11 @@ bool x10rt_net_blocking_probe_support(void)
 	return true;
 }
 
+bool x10rt_net_agreement_support (void)
+{
+    return false;
+}
+
 x10rt_error x10rt_net_blocking_probe ()
 {
     CHECK_ERR_AND_RETURN;
@@ -1568,6 +1573,15 @@ bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 		x10rt_red_op_type op, x10rt_red_type dtype, size_t count,x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
 {
 	fatal_error("x10rt_net_allreduce not implemented");
+	return false;
+}
+
+bool x10rt_net_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg)
+{
+	fatal_error("x10rt_net_agree not implemented");
 	return false;
 }
 

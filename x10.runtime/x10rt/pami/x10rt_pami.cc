@@ -1247,6 +1247,11 @@ x10rt_error x10rt_net_unblock_probe (void)
 	return X10RT_ERR_OK;
 }
 
+bool x10rt_net_agreement_support (void)
+{
+    return false;
+}
+
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 void x10rt_net_finalize()
@@ -2248,4 +2253,13 @@ bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post an allreduce on team %u", team);
 	return true; //PAMI is not resilient
+}
+
+bool x10rt_net_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg)
+{
+	fatal_error("x10rt_net_agree not implemented");
+	return false;
 }
