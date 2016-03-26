@@ -90,9 +90,6 @@ ifdef JAVA_HOME
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
-    ifeq ($(jarch),ppc64le)
-      jarch=ppc64
-    endif
 # -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
     JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/jre/lib/$(jarch)
   else
@@ -242,7 +239,11 @@ ifndef ENABLE_CROSS_COMPILE_ANY
     ifeq ($(shell uname -s),Darwin)
       export USE_CLANG=1
     else
-      export USE_GCC=1
+      ifeq ($(shell uname -m),ppc64le)
+        export USE_XLC=1
+      else
+        export USE_GCC=1
+      endif
     endif
   endif
 
@@ -280,7 +281,6 @@ ifndef ENABLE_CROSS_COMPILE_ANY
     else
       override CXX = xlC_r
     endif
-    override MPICXX = mpCC
     override SHLINK = $(CXX)
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot

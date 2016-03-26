@@ -20,9 +20,6 @@
 
 #if defined(_ARCH_PPC) || defined(_ARCH_450) || defined(_ARCH_450d) || defined(__PPC__)
 #define X10_PPC_ARCH 1
-#if defined(__xlC__)
-#define X10_NO_GNU_INLINE_ASM 1
-#endif
 #endif
 
 #if defined(X10_PPC_ARCH) && defined(X10_NO_GNU_INLINE_ASM)
