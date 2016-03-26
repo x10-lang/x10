@@ -141,6 +141,12 @@ X10RT_C x10rt_error x10rt_net_blocking_probe (void);
  */
 X10RT_C x10rt_error x10rt_net_unblock_probe (void);
 
+/**
+ * Check if the transport supports resilient agreement. \see #x10rt_lgl_agreement_support
+ */
+X10RT_C bool x10rt_net_agreement_support (void);
+
+
 /** \see #x10rt_lgl_remote_op
  * \param place As in #x10rt_lgl_remote_op
  * \param remote_addr As in #x10rt_lgl_remote_op
@@ -364,6 +370,21 @@ X10RT_C bool x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                                   size_t count,
                                   x10rt_completion_handler *errch,
                                   x10rt_completion_handler *ch, void *arg);
+
+
+/** \see #x10rt_agree
+ * \param team As in #x10rt_allreduce
+ * \param role As in #x10rt_allreduce
+ * \param sbuf As in #x10rt_allreduce
+ * \param dbuf As in #x10rt_allreduce
+ * \param ch As in #x10rt_allreduce
+ * \param arg As in #x10rt_allreduce
+ */
+X10RT_C bool x10rt_net_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg);
+
 
 /** Counters exposed to the backend for direct (i.e. fast) manipulation.
  */
