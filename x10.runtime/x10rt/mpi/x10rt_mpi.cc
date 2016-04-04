@@ -129,6 +129,10 @@ static inline void get_lock(pthread_mutex_t * lock) {
     }
 }
 
+static inline bool try_lock(pthread_mutex_t * lock) {
+    return pthread_mutex_trylock(lock);
+}
+
 static inline void release_lock(pthread_mutex_t * lock) {
     if(pthread_mutex_unlock(lock)) {
         perror("pthread_mutex_unlock");
@@ -1366,16 +1370,16 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
  * NOTE: This must be called with global_state.lock held
  */
 static bool check_pending_sends() {
-    int num_checked = 0;
     x10rt_req_queue * q = &global_state.pending_send_list;
 
-    if (NULL == q->start()) return false;
-
     x10rt_req * req = q->start();
+
+    if (NULL == req) return false;
+
+    int num_checked = 0;
     while ((NULL != req) &&
             num_checked < X10RT_MAX_PEEK_DEPTH) {
         int complete = 0;
-        x10rt_req * req_copy = req;
         //ULFM Note: when a process fails, MPI_Test returns (54 or 55) and completed (1)
         int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
@@ -1386,41 +1390,41 @@ static bool check_pending_sends() {
             abort();
         }
 #endif
-		req = q->next(req);
         if (complete) {
-            switch (req_copy->getType()) {
+            switch (req->getType()) {
                 case X10RT_REQ_TYPE_SEND:
-                    send_completion(q, req_copy);
+                    send_completion(q, req);
                     break;
 #ifdef X10RT_MPI3_RMA
                 case X10RT_REQ_TYPE_GET_INCOMING_DATA:
-                    get_incoming_data_completion(q, req_copy);
+                    get_incoming_data_completion(q, req);
                     break;
                 case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
-                    put_incoming_data_completion(q, req_copy);
+                    put_incoming_data_completion(q, req);
                     break;
 #else
                 case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
-                    get_outgoing_req_completion(q, req_copy);
+                    get_outgoing_req_completion(q, req);
                     break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_DATA:
-                    get_outgoing_data_completion(q, req_copy);
+                    get_outgoing_data_completion(q, req);
                     break;
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
-                    put_outgoing_data_completion(q, req_copy);
+                    put_outgoing_data_completion(q, req);
                     break;
 #endif
                 case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
-                    put_outgoing_req_completion(q, req_copy);
+                    put_outgoing_req_completion(q, req);
                     break;
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
-                            __FILE__, __LINE__, req_copy->getType());
+                            __FILE__, __LINE__, req->getType());
                     abort();
                     break;
             };
             req = q->start();
         } else {
+    		req = q->next(req);
             num_checked++;
         }
     }
@@ -1434,15 +1438,15 @@ static bool check_pending_sends() {
  * NOTE: This must be called with global_state.lock held
  */
 static bool check_pending_receives() {
-    MPI_Status msg_status;
     x10rt_req_queue * q = &global_state.pending_recv_list;
 
-    if (NULL == q->start()) return false;
-
     x10rt_req * req = q->start();
+
+    if (NULL == req) return false;
+
     while (NULL != req) {
         int complete = 0;
-        x10rt_req * req_copy = req;
+        MPI_Status msg_status;
         int mpi_error = MPI_Test(req->getMPIRequest(),
                     &complete,
                     &msg_status);
@@ -1457,40 +1461,42 @@ static bool check_pending_receives() {
             abort();
         }
 #endif
-        req = q->next(req);
+
 #ifdef OPEN_MPI_ULFM
         if (is_process_failure_error(mpi_error)){
-        	recv_failed(q, req_copy);
+        	recv_failed(q, req);
         	req = q->start();
         	continue;
         }
 #endif
         if (complete) {
-            switch (req_copy->getType()) {
+            switch (req->getType()) {
                 case X10RT_REQ_TYPE_RECV:
-                    recv_completion(msg_status.MPI_TAG, get_recvd_bytes(&msg_status), q, req_copy);
+                    recv_completion(msg_status.MPI_TAG, get_recvd_bytes(&msg_status), q, req);
                     break;
 #ifndef X10RT_MPI3_RMA
                 case X10RT_REQ_TYPE_GET_INCOMING_DATA:
-                    get_incoming_data_completion(q, req_copy);
+                    get_incoming_data_completion(q, req);
                     break;
                 case X10RT_REQ_TYPE_GET_INCOMING_REQ:
-                    get_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
+                    get_incoming_req_completion(msg_status.MPI_SOURCE, q, req);
                     break;
                 case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
-                    put_incoming_data_completion(q, req_copy);
+                    put_incoming_data_completion(q, req);
                     break;
 #endif
                 case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
-                    put_incoming_req_completion(msg_status.MPI_SOURCE, q, req_copy);
+                    put_incoming_req_completion(msg_status.MPI_SOURCE, q, req);
                     break;
                 default:
                     fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
-                            __FILE__, __LINE__, req_copy->getType());
+                            __FILE__, __LINE__, req->getType());
                     abort();
                     break;
             };
             req = q->start();
+        } else {
+            req = q->next(req);
         }
     }
     return true;
@@ -2124,25 +2130,9 @@ static bool test_and_send_msg(struct BlockingMessage & bm) {
 
 struct TeamPostprocessDB {
 private:
-    bool isPolling;
     pthread_mutex_t lock;
     std::list<struct CollectivePostprocess> coll_list;
     std::list<struct BlockingMessage> msg_list;
-
-    bool canStartPolling() {
-        get_lock(&this->lock);
-        bool status = isPolling;
-        isPolling = true;
-        release_lock(&this->lock);
-
-        return !status;
-    }
-
-    void finishPolling() {
-        get_lock(&this->lock);
-        isPolling  = false;
-        release_lock(&this->lock);
-    }
 
 public:
     void init() {
@@ -2150,36 +2140,34 @@ public:
             perror("pthread_mutex_init");
             abort();
         }
-        isPolling  = false;
-        //isPolling  = true;
     }
 
     void add_handler(struct CollectivePostprocess *cp) {
         X10RT_NET_DEBUG("%s", "called");
-        while (!canStartPolling()) {
+        while (try_lock(&this->lock)) {
             x10rt_net_probe_ex(false);
         }
         coll_list.push_back(*cp);
-        finishPolling();
+        release_lock(&this->lock);
     }
 
     void add_handler(struct BlockingMessage *bm) {
         X10RT_NET_DEBUG("%s", "called");
-        while (!canStartPolling()) {
+        while (try_lock(&this->lock)) {
             x10rt_net_probe_ex(false);
         }
         msg_list.push_back(*bm);
-        finishPolling();
+        release_lock(&this->lock);
     }
 
     // returns true if anything is pending
     bool poll(void) {
         bool pending = true;
-        if (canStartPolling()) {
+        if (try_lock(&this->lock) == 0) {
             coll_list.remove_if(test_and_call_handler);
             msg_list.remove_if(test_and_send_msg);
            	pending = !coll_list.empty() || !msg_list.empty();
-            finishPolling();
+            release_lock(&this->lock);
         }
         return pending;
     }
