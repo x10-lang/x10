@@ -95,9 +95,8 @@ public class CXXCommandBuilder {
 
     
     protected final boolean usingXLC() {
-        return defaultPostCompiler().contains("xlC") || 
-               defaultPostCompiler().contains("mpCC") ||
-	       defaultPostCompiler().contains("xlcxx");
+        String pc = x10rt.props.getProperty("X10LIB_CXX");
+        return (pc != null && pc.startsWith("xl"));
     }
 
     protected final boolean usingCLANG() {
@@ -159,6 +158,8 @@ public class CXXCommandBuilder {
         }
 
         if (usingXLC()) {
+            cxxCmd.add("-Wno-return-type");      // Do not warn about non-void functions with no return
+            // BG
             cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
                                + ":1540-1101"    // Do not warn about non-void functions with no return
                                + ":1540-1102"    // Do not warn about uninitialized variables
