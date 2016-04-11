@@ -60,6 +60,10 @@ methodDeclaration returns [ProcedureDecl ast]:
     | applyOperatorDeclaration         #methodDeclarationApplyOp
     | setOperatorDeclaration           #methodDeclarationSetOp
     | conversionOperatorDeclaration    #methodDeclarationConversionOp
+    | keywordOperatorDeclatation       #methodDeclarationKeywordOp
+    ;
+keywordOperatorDeclatation returns [MethodDecl ast]:
+      methodModifiersopt 'operator' keywordOp typeParametersopt formalParameters whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 binaryOperatorDeclaration returns [MethodDecl ast]:
       methodModifiersopt 'operator' typeParametersopt '(' fp1=formalParameter ')' binOp '(' fp2=formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody     #binaryOperatorDecl
@@ -88,8 +92,8 @@ implicitConversionOperatorDeclaration returns [MethodDecl ast]:
       methodModifiersopt 'operator' typeParametersopt '(' formalParameter ')' whereClauseopt oBSOLETE_Offersopt throwsopt hasResultTypeopt methodBody
     ;
 propertyMethodDeclaration returns [MethodDecl ast]:
-      methodModifiersopt identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
-    | methodModifiersopt identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1 // This case cannot occur. It corresponds to a field declaration.
+      modifiersopt 'property' identifier typeParametersopt formalParameters whereClauseopt hasResultTypeopt methodBody     #propertyMethodDecl0
+    | modifiersopt 'property' identifier whereClauseopt hasResultTypeopt methodBody                                        #propertyMethodDecl1
     ;
 explicitConstructorInvocation returns [ConstructorCall ast]:
       'this' typeArgumentsopt '(' argumentListopt ')' ';'                  #explicitConstructorInvocationThis
@@ -199,12 +203,44 @@ nonExpressionStatement returns [Stmt ast]:
     | finishStatement              #nonExpressionStatemen20
     | assignPropertyCall           #nonExpressionStatemen21
     | oBSOLETE_OfferStatement      #nonExpressionStatemen22
+    | userStatementPrefix userStatement #nonExpressionStatemen23
+    | methodInvocationStatement    #nonExpressionStatemen24
+    ;
+methodInvocationStatement returns [Stmt ast]:
+      methodName typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock   #methodInvocationStatement0
+    | primary typeArgumentsopt ('(' argumentListopt ')')? closureBodyBlock      #methodInvocationStatement1
+    ;
+userStatement returns [Stmt ast]:
+      userEnhancedForStatement #userStatement0
+    | userIfThenStatement      #userStatement1
+    | userTryStatement         #userStatement2
+    | userThrowStatement       #userStatement3
+    | userAsyncStatement       #userStatement4
+    | userAtomicStatement      #userStatement5
+    | userWhenStatement        #userStatement6
+    | userFinishStatement      #userStatement7
+    | userAtStatement          #userStatement8
+    | userContinueStatement    #userStatement9
+    | userBreakStatement       #userStatement10
+    // | userReturnStatement      #userStatement11
+    | userAtEachStatement      #userStatement12
+    | userWhileStatement       #userStatement13
+    | userDoStatement          #userStatement14
+    ;
+userStatementPrefix returns [Receiver ast]:
+      fullyQualifiedName '.'          #userStatementPrefix0
+    | primary '.'                     #userStatementPrefix1
+    | s='super' '.'                   #userStatementPrefix2
+    | className '.'  s='super' '.'    #userStatementPrefix3
     ;
 oBSOLETE_OfferStatement returns [Offer ast]:
       'offer' expression ';'
     ;
 ifThenStatement returns [If ast]:
       'if' '(' expression ')' s1=statement ('else' s2=statement)?
+    ;
+userIfThenStatement returns [Stmt ast]:
+      kw='if' typeArgumentsopt '(' argumentListopt ')' s1=closureBodyBlock ('else' s2=closureBodyBlock)?        #userIfThenStatement0
     ;
 emptyStatement returns [Empty ast]:
       ';'
@@ -250,8 +286,14 @@ switchLabel returns [Case ast]:
 whileStatement returns [While ast]:
       'while' '(' expression ')' statement
     ;
+userWhileStatement returns [Stmt ast]:
+      kw='while' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhileStatement0
+    ;
 doStatement returns [Do ast]:
       'do' statement 'while' '(' expression ')' ';'
+    ;
+userDoStatement returns [Stmt ast]:
+      kw='do' typeArgumentsopt closureBodyBlock 'while' '(' argumentListopt ')' ';'        #userDoStatement0
     ;
 forStatement returns [Loop ast]:
       basicForStatement        #forStatement0
@@ -273,18 +315,32 @@ statementExpressionList returns [List<? extends Eval> ast]:
 breakStatement returns [Branch ast]:
       'break' identifieropt ';'
     ;
+userBreakStatement returns [Stmt ast]:
+      kw='break' typeArgumentsopt expressionopt ';'         #userBreakStatement0
+    ;
 continueStatement returns [Branch ast]:
       'continue' identifieropt ';'
+    ;
+userContinueStatement returns [Stmt ast]:
+      kw='continue' typeArgumentsopt expressionopt ';'         #userContinueStatement0
     ;
 returnStatement returns [Return ast]:
       'return' expressionopt ';'
     ;
+// userReturnStatement returns [Stmt ast]:
+//       fullyQualifiedName '.' kw='return' typeArgumentsopt expressionopt ';'         #userReturnStatement0
+//     | primary '.' kw='return' typeArgumentsopt expressionopt ';'                    #userReturnStatement1
+//     | s='super' '.' kw='return' typeArgumentsopt expressionopt ';'                  #userReturnStatement2
+//     | className '.'  s='super' '.' kw='return' typeArgumentsopt expressionopt ';'   #userReturnStatement3
+//     ;
 throwStatement returns [Throw ast]:
       'throw' expression ';'
     ;
+userThrowStatement returns [Stmt ast]:
+      kw='throw' typeArgumentsopt expressionopt ';'         #userThrowStatement0
+    ;
 tryStatement returns [Try ast]:
-      'try' block catches                    #tryStatement0
-    | 'try' block catchesopt finallyBlock    #tryStatement1
+      'try' block catchesopt finallyBlock?     #tryStatement0
     ;
 catches returns [List<Catch> ast]:
       catchClause+
@@ -295,6 +351,18 @@ catchClause returns [Catch ast]:
 finallyBlock returns [Block ast]:
       'finally' block
     ;
+userTryStatement returns [Stmt ast]:
+      kw='try' typeArgumentsopt argumentsopt closureBodyBlock userCatchesopt userFinallyBlock?         #userTryStatement0
+    ;
+userCatches returns [List<Closure> ast]:
+      userCatchClause+
+    ;
+userCatchClause returns [Closure ast]:
+      'catch' '(' formalParameterListopt ')' closureBodyBlock
+    ;
+userFinallyBlock returns [Closure ast]:
+      'finally' closureBodyBlock
+    ;
 clockedClauseopt returns [List<Expr> ast]:
       ('clocked' arguments)?
     ;
@@ -302,26 +370,51 @@ asyncStatement returns [Async ast]:
       'async' clockedClauseopt statement    #asyncStatement0
     | 'clocked' 'async' statement           #asyncStatement1
     ;
+userAsyncStatement returns [Stmt ast]:
+      kw='async' typeArgumentsopt argumentsopt clockedClauseopt closureBodyBlock        #userAsyncStatement0
+    // | 'clocked' 'async' closureBodyBlock           #userAsyncStatement
+    ;
 atStatement returns [AtStmt ast]:
       'at' '(' expression ')' statement
+    ;
+userAtStatement returns [Stmt ast]:
+      kw='at' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userAtStatement0
     ;
 atomicStatement returns [Atomic ast]:
       'atomic' statement
     ;
+userAtomicStatement returns [Stmt ast]:
+      kw='atomic' typeArgumentsopt argumentsopt closureBodyBlock         #userAtomicStatement0
+    ;
 whenStatement returns [When ast]:
       'when' '(' expression ')' statement
+    ;
+userWhenStatement returns [Stmt ast]:
+      kw='when' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock        #userWhenStatement0
     ;
 atEachStatement returns [X10Loop ast]:
       'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement     #atEachStatement0
     | 'ateach' '(' expression ')' statement                                     #atEachStatement1
     ;
+userAtEachStatement returns [Stmt ast]:
+      kw='ateach' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userAtEachStatement0
+    | kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userAtEachStatement4
+    ;
 enhancedForStatement returns [X10Loop ast]:
       'for' '(' loopIndex 'in' expression ')' statement     #enhancedForStatement0
     | 'for' '(' expression ')' statement                    #enhancedForStatement1
     ;
+userEnhancedForStatement returns [Stmt ast]:
+      kw='for' typeArgumentsopt '(' formalParameterList 'in' argumentListopt ')' closureBodyBlock       #userEnhancedForStatement0
+    | kw='for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock                                #userEnhancedForStatement4
+    ;
 finishStatement returns [Finish ast]:
       'finish' statement                #finishStatement0
     | 'clocked' 'finish' statement      #finishStatement1
+    ;
+userFinishStatement returns [Stmt ast]:
+      kw='finish' typeArgumentsopt argumentsopt closureBodyBlock   #userFinishStatement0
+    // | 'clocked' 'finish' statement      #finishStatement1
     ;
 castExpression returns [Expr ast]:
       primary                          #castExpression0
@@ -352,8 +445,10 @@ lastExpression returns [Return ast]:
     ;
 closureBody returns [Block ast]:
       expression                                               #closureBody0
-    | annotationsopt block                                     #closureBody2
-    | annotationsopt '{' blockInteriorStatement* lastExpression '}'   #closureBody1
+    | closureBodyBlock                                         #closureBody1
+    ;
+closureBodyBlock returns [Block ast]:
+      annotationsopt '{' blockInteriorStatement* lastExpression? '}'
     ;
 atExpression returns [AtExpr ast]:
       annotationsopt 'at' '(' expression ')' closureBody
@@ -558,6 +653,7 @@ primary returns [Expr ast]:
     | 'this'                              #primary4
     | className '.' 'this'                #primary5
     | '(' expression ')'                  #primary6
+    // | closureBodyBlock                    #primaryClosure
     // classInstanceCreationExpression
     | 'new' typeName typeArgumentsopt '(' argumentListopt ')' classBodyopt                             #primary7
     | primary '.' 'new' identifier typeArgumentsopt '(' argumentListopt ')' classBodyopt               #primary8
@@ -592,6 +688,12 @@ primary returns [Expr ast]:
     | primary '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                     #primary37
     | s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'                   #primary38
     | className '.' s='super' '.' 'operator' parenthesisOp '=' typeArgumentsopt '(' argumentListopt ')'     #primary39
+    // operatorKeyword
+    | 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                                       #primary40
+    | fullyQualifiedName '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                #primary41
+    | primary '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                           #primary42
+    | s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'                         #primary43
+    | className '.' s='super' '.' 'operator' keywordOp typeArgumentsopt '(' argumentListopt ')'           #primary44
     // errors
     | s='super' dot='.'                    #primaryError0
     | className '.' s='super' dot='.'      #primaryError1
@@ -747,7 +849,23 @@ binOp returns [Binary.Operator ast]:
 parenthesisOp:
        '(' ')'
     ;
-
+keywordOp returns [Id ast]:
+      'for'        #keywordOp0
+    | 'if'         #keywordOp1
+    | 'try'        #keywordOp2
+    | 'throw'      #keywordOp3
+    | 'async'      #keywordOp4
+    | 'atomic'     #keywordOp5
+    | 'when'       #keywordOp6
+    | 'finish'     #keywordOp7
+    | 'at'         #keywordOp8
+    | 'continue'   #keywordOp9
+    | 'break'      #keywordOp10
+    // | 'return'     #keywordOp11
+    | 'ateach'     #keywordOp12
+    | 'while'      #keywordOp13
+    | 'do'         #keywordOp14
+    ;
 hasResultTypeopt returns [TypeNode ast]:
       hasResultType?
     ;
@@ -774,6 +892,9 @@ expressionopt returns [Expr ast]:
     ;
 catchesopt returns [List<Catch> ast]:
       catches?
+    ;
+userCatchesopt returns [List<Closure> ast]:
+      userCatches?
     ;
 blockStatementsopt returns [List<Stmt> ast]:
       blockStatements?

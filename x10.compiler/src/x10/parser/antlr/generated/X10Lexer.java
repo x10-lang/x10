@@ -1,4 +1,4 @@
-// Generated from /Users/lmandel/x10/x10-parser/x10.compiler/src/x10/parser/antlr/X10.g4 by ANTLR 4.5
+// Generated from /Users/lmandel/x10/x10-dsl/x10.compiler/src/x10/parser/antlr/X10.g4 by ANTLR 4.5
 
   package x10.parser.antlr.generated;
 
@@ -161,14 +161,14 @@ public class X10Lexer extends Lexer {
 	}
 
 
-		
+
 	  /** Hidden channel for white spaces */
 	  public static final int WHITESPACES = 1;
 	  /** Hidden channel for X10Doc comments */
 	  public static final int DOCCOMMENTS = 2;
 	  /** Hidden channel for simple comments */
 	  public static final int COMMENTS = 3;
-		
+
 	  boolean isDecimal() {
 	      int next = _input.LA(1);
 	      return (next != '.') &&

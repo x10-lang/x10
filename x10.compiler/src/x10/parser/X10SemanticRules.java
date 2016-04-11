@@ -1022,7 +1022,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt '=>' ClosureBody
     void rule_ClosureExpression0(Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _ClosureBody) {
-        List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
+        List<Formal> FormalParameters = _FormalParameters == null ? Collections.<Formal>emptyList() : (List<Formal>) _FormalParameters;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
         TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;

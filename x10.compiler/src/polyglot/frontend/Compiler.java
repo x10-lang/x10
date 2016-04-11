@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +40,6 @@ import polyglot.util.OptimalCodeWriter;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
 import x10.optimizations.inlining.DeclStore;
-import x10.optimizations.inlining.Inliner;
 import x10.util.CollectionFactory;
 
 /**

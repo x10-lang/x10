@@ -242,5 +242,5 @@ public abstract class PlaceGroup implements Iterable[Place] {
     }
   }
 
-  public static make(numPlaces:Long) = new SimplePlaceGroup(numPlaces);
+  public static def make(numPlaces:Long) = new SimplePlaceGroup(numPlaces);
 }
