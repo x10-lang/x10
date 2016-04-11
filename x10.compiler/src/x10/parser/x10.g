@@ -1068,24 +1068,15 @@
         /.$BeginJava
 			r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,ClosureBody);
         $EndJava./
-    BlockExpression ::= BlockExpressionBody
-        /.$BeginJava
-            r.rule_ClosureExpression0(null,null,null,null,BlockExpressionBody);
-        $EndJava./
 
     LastExpression ::= Expression
         /.$BeginJava
 			r.rule_LastExpression0(Expression);
         $EndJava./
 
-    LastExpressionWithoutBlockExpression ::= ExpressionWithoutBlockExpression
+    ClosureBody ::= Expression
         /.$BeginJava
-			r.rule_LastExpression0(ExpressionWithoutBlockExpression);
-        $EndJava./
-
-    ClosureBody ::= ExpressionWithoutBlockExpression
-        /.$BeginJava
-			r.rule_ClosureBody0(ExpressionWithoutBlockExpression);
+			r.rule_ClosureBody0(Expression);
         $EndJava./
                   | Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
@@ -1095,16 +1086,7 @@
         /.$BeginJava
 			r.rule_ClosureBody2(Annotationsopt,Block);
         $EndJava./
-
-    BlockExpressionBody ::= Annotationsopt { BlockStatementsopt LastExpression }
-        /.$BeginJava
-			r.rule_ClosureBody1(Annotationsopt,BlockStatementsopt,LastExpression);
-        $EndJava./
-                  | Annotationsopt Block
-        /.$BeginJava
-			r.rule_ClosureBody2(Annotationsopt,Block);
-        $EndJava./
-
+                  
                   
     AtExpression ::= Annotationsopt at ( Expression ) ClosureBody
         /.$BeginJava
@@ -1520,9 +1502,9 @@
         $EndJava./
     
 
-    MethodBody ::= = LastExpressionWithoutBlockExpression ;
+    MethodBody ::= = LastExpression ;
         /.$BeginJava
-			r.rule_MethodBody0(LastExpressionWithoutBlockExpression);
+			r.rule_MethodBody0(LastExpression);
         $EndJava./
                   | = Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
@@ -2276,10 +2258,7 @@
         $EndJava./
     
     
-    ConditionalExpression ::= ConditionalExpressionWithoutBlockExpression
-                            | BlockExpression
-
-    ConditionalExpressionWithoutBlockExpression ::= ConditionalOrExpression
+    ConditionalExpression ::= ConditionalOrExpression
                             | ClosureExpression
                             | AtExpression
                             | OBSOLETE_FinishExpression
@@ -2290,9 +2269,6 @@
     
     AssignmentExpression ::= Assignment
                            | ConditionalExpression
-
-    AssignmentExpressionWithoutBlockExpression ::= Assignment
-                           | ConditionalExpressionWithoutBlockExpression
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava
@@ -2399,8 +2375,6 @@
         $EndJava./
     
     Expression ::= AssignmentExpression
-
-    ExpressionWithoutBlockExpression ::= AssignmentExpressionWithoutBlockExpression
     
     ConstantExpression ::= Expression
 
@@ -2753,5 +2727,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | OverloadableExpression | OverloadableUnaryExpressionPlusMinus | OverloadableUnaryExpression | OverloadableRangeExpression | OverloadableMultiplicativeExpression | OverloadableAdditiveExpression | OverloadableShiftExpression | OverloadableRelationalExpression | OverloadableEqualityExpression | OverloadableAndExpression | OverloadableExclusiveOrExpression | OverloadableInclusiveOrExpression | OverloadableConditionalAndExpression | OverloadableConditionalOrExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | IsRefConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt | Throwsopt | Throws | ThrowsList | BlockExpression | BlockExpressionBody | LastExpressionWithoutBlockExpression | ExpressionWithoutBlockExpression | ConditionalExpressionWithoutBlockExpression | AssignmentExpressionWithoutBlockExpression | OperatorPrefix
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | OverloadableExpression | OverloadableUnaryExpressionPlusMinus | OverloadableUnaryExpression | OverloadableRangeExpression | OverloadableMultiplicativeExpression | OverloadableAdditiveExpression | OverloadableShiftExpression | OverloadableRelationalExpression | OverloadableEqualityExpression | OverloadableAndExpression | OverloadableExclusiveOrExpression | OverloadableInclusiveOrExpression | OverloadableConditionalAndExpression | OverloadableConditionalOrExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | IsRefConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt | Throwsopt | Throws | ThrowsList
 %End
