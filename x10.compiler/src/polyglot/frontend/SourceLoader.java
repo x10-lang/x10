@@ -141,7 +141,7 @@ public class SourceLoader
 
     ClassPathResourceLoader pathloader;
     
-    public ClassPathResourceLoader pathloader() {
+    private ClassPathResourceLoader pathloader() {
 	if (pathloader == null)
 	    pathloader = new ClassPathResourceLoader(sourcePath,reporter);
 	return pathloader;
