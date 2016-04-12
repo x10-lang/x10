@@ -7,7 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2016.
- *  (C) Copyright Sara Salem Hamouda 2014-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2016.
  */
 
 package x10.matrix.distblock;
@@ -1132,7 +1132,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param snapshot a snapshot from which to restore the data
      */
     public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        restoreSnapshot(snapshot, false);
+        restoreSnapshot("", snapshot, false);
     }
     
     /**
@@ -1336,7 +1336,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         PlaceLocalHandle.destroy(places, cached, (Place)=>true);
     }
 
-    public def makeSnapshot_local(snapshot:DistObjectSnapshot):void {    
+    public def makeSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void {    
         val data = handleBS();
         val i = handleBS().placeIndex;
         val isSparse = data.blocklist.get(0).isSparse();
@@ -1355,21 +1355,21 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     
             val blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
             blockSetInfo.initSparse(blocksCount, metadata, allIndex, allValue);
-            snapshot.save(i, blockSetInfo);            
+            snapshot.save(prefix+i, blockSetInfo);            
         } else {            
             val blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
             blockSetInfo.setBlockSet(data);
-            snapshot.save(i, blockSetInfo);        
+            snapshot.save(prefix+i, blockSetInfo);        
         }
         handleBS().snapshotDistInfo.updateGrid(getGrid());
         handleBS().snapshotDistInfo.updateDistMap(getMap());      
     }    
     
-    public def restoreSnapshot_local(snapshot:DistObjectSnapshot):void {    
-        restoreSnapshot(snapshot, true);
+    public def restoreSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void {    
+        restoreSnapshot(prefix, snapshot, true);
     }
     
-    public def restoreSnapshot(snapshot:DistObjectSnapshot, localFlag:Boolean) {
+    public def restoreSnapshot(prefix:String, snapshot:DistObjectSnapshot, localFlag:Boolean) {
         val oldGrid = handleBS().snapshotDistInfo.getGrid();
         val newGrid = getGrid();
         if (!localFlag){
@@ -1385,12 +1385,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         else {
             if (!oldGrid.equals(newGrid)) {
                 if (isDistVertical())
-                    restoreSnapshotSubBlocksVerticalDist_local(snapshot);
+                    restoreSnapshotSubBlocksVerticalDist_local(prefix, snapshot);
                 else
-                    restoreSnapshotElementByElement_local(snapshot);
+                    restoreSnapshotElementByElement_local(prefix, snapshot);
             }
             else
-                restoreSnapshotBlockByBlock_local(snapshot);
+                restoreSnapshotBlockByBlock_local(prefix, snapshot);
         }
         
     }
@@ -1400,7 +1400,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * Restore the matrix element-by-element using the provided snapshot object 
      * @param snapshot a snapshot from which to restore the data
      */
-    private def restoreSnapshotElementByElement_local(snapshot:DistObjectSnapshot) {        
+    private def restoreSnapshotElementByElement_local(prefix:String, snapshot:DistObjectSnapshot) {        
         val oldGrid = handleBS().snapshotDistInfo.getGrid();
         val oldDistMap = handleBS().snapshotDistInfo.getDistMap();
         val cached = GlobalRef(new HashMap[Long, BlockSetSnapshotInfo]());
@@ -1416,7 +1416,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
             val map = cached();
             var cachedBlockSetInfo:BlockSetSnapshotInfo = map.get(loadPlaceIndex);
             if (cachedBlockSetInfo == null){                
-                cachedBlockSetInfo = snapshot.load(loadPlaceIndex) as BlockSetSnapshotInfo;
+                cachedBlockSetInfo = snapshot.load(prefix+loadPlaceIndex) as BlockSetSnapshotInfo;
                 map.put(loadPlaceIndex, cachedBlockSetInfo);
             }            
             val blockSet = cachedBlockSetInfo.getBlockSet();
@@ -1433,7 +1433,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
             init_local(initFunc);
     }
     
-    private def restoreSnapshotBlockByBlock_local(snapshot:DistObjectSnapshot) {
+    private def restoreSnapshotBlockByBlock_local(prefix:String, snapshot:DistObjectSnapshot) {
         val oldGrid = handleBS().snapshotDistInfo.getGrid();
         val oldDistMap = handleBS().snapshotDistInfo.getDistMap();
         val newGrid = getGrid();
@@ -1467,7 +1467,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         val placesIter = placeBlockMap.keySet().iterator();
         while (placesIter.hasNext()) {
             val oldPlaceIndex = placesIter.next();
-            val oldBlockSet = (snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo).getBlockSet();
+            val oldBlockSet = (snapshot.load(prefix+oldPlaceIndex) as BlockSetSnapshotInfo).getBlockSet();
             val blocksList = placeBlockMap.get(oldPlaceIndex);
             for (newBlock in blocksList){
                 val blockRowId = newBlock.myRowId;
@@ -1478,7 +1478,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         }        
     }
     
-    private def restoreSnapshotSubBlocksVerticalDist_local(snapshot:DistObjectSnapshot) {    
+    private def restoreSnapshotSubBlocksVerticalDist_local(prefix:String, snapshot:DistObjectSnapshot) {    
         val oldGrid = handleBS().snapshotDistInfo.getGrid();
         val oldMap = handleBS().snapshotDistInfo.getDistMap();
         val newGrid = getGrid();
@@ -1535,7 +1535,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
                     val  map = cached;
                     var cachedBlockSetInfo:BlockSetSnapshotInfo = map.get(oldPlaceIndex);
                     if (cachedBlockSetInfo == null) {
-                        cachedBlockSetInfo = snapshot.load(oldPlaceIndex) as BlockSetSnapshotInfo;
+                        cachedBlockSetInfo = snapshot.load(prefix+oldPlaceIndex) as BlockSetSnapshotInfo;
                         map.put(oldPlaceIndex, cachedBlockSetInfo);
                     }
                     val blockSet = cachedBlockSetInfo.getBlockSet();

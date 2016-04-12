@@ -7,7 +7,7 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2016.
- *  (C) Copyright Sara Salem Hamouda 2014-2015.
+ *  (C) Copyright Sara Salem Hamouda 2014-2016.
  */
 package x10.util.resilient.iterative;
 
@@ -122,7 +122,7 @@ public class ApplicationSnapshotStore {
                 if (!key.ignore) {
                     var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);
                     val snapshot = appSnapshotMap.getOrElse(key, null);                    
-                    async key.snapshottable.makeSnapshot_local(snapshot);
+                    async key.snapshottable.makeSnapshot_local("", snapshot);
                 }
             }
         }
@@ -168,7 +168,7 @@ public class ApplicationSnapshotStore {
             while (iter.hasNext()) {
                 val key = iter.next();
                 val distObjectSnapshot = appSnapshotMap.getOrElse(key, null);
-                async key.snapshottable.restoreSnapshot_local(distObjectSnapshot);                
+                async key.snapshottable.restoreSnapshot_local("", distObjectSnapshot);                
             }
         }
     }

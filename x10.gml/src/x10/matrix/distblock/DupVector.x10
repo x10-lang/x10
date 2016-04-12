@@ -102,7 +102,8 @@ public class DupVector(M:Long) implements Snapshottable {
     }
     
     public def initRandom_local(root:Place) {
-        dupV().vec.initRandom();
+    	if (here.id == root.id)
+            dupV().vec.initRandom();
         sync_local(root);
     }
     
@@ -603,16 +604,16 @@ public class DupVector(M:Long) implements Snapshottable {
     }
     
     
-    public def makeSnapshot_local(snapshot:DistObjectSnapshot):void {        
+    public def makeSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void {        
         val data = dupV().vec.d;
         val placeIndex = dupV().placeIndex;
-        snapshot.save(placeIndex, new VectorSnapshotInfo(placeIndex, data));
+        snapshot.save(prefix+placeIndex, new VectorSnapshotInfo(placeIndex, data));
     }
     
     
-    public def restoreSnapshot_local(snapshot:DistObjectSnapshot) {
+    public def restoreSnapshot_local(prefix:String, snapshot:DistObjectSnapshot) {
         val segmentPlaceIndex = dupV().placeIndex;
-        val storedVector = snapshot.load(segmentPlaceIndex) as VectorSnapshotInfo;
+        val storedVector = snapshot.load(prefix+segmentPlaceIndex) as VectorSnapshotInfo;
         val srcRail = storedVector.data;
         val dstRail = dupV().vec.d;
         Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
