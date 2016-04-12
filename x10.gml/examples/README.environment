@@ -36,8 +36,6 @@ X10_PLACE_GROUP_RESTORE_MODE:
     0: (default) Shrink mode, dead places won't be replaced
     1: Redundant mode which replaces the dead places with spare places.
        Use make run_redundant to test this mode.
-    2: Elastic mode which creates new places to replace the dead ones.
-       Use make run_elastic to test this mode.
 
 X10_ELASTIC_MAX_WAIT_SECONDS:
     This variable is only used if X10_PLACE_GROUP_RESTORE_MODE=2
@@ -48,8 +46,8 @@ X10_RESILIENT_STORE_MODE:
     This variable determines the type of Resilient Store to use when creating
     snapshots for the GML objects.
     Possible Values:
-    0: (default) Place Zero Resilient Store
-    1: Distributed Double In-Memory Resilient Store
+    0: Place Zero Resilient Store
+    1: (default) Distributed Double In-Memory Resilient Store
 
 X10_RESILIENT_STORE_LOCAL_COPY:
     This variable describes how the resilient store will create local copies.
@@ -61,8 +59,8 @@ X10_RESILIENT_STORE_LOCAL_COPY:
 X10_RESILIENT_STORE_REMOTE_COPY:
     This variable describes how the resilient store will create remote copies.
     Possible Values:
-    at  : (default) uses the at construct to create remote clones
-    dma : uses Rail.asyncCopy methods to create remote clones
+    at  : uses the at construct to create remote clones
+    dma : (default) uses Rail.asyncCopy methods to create remote clones
 
 X10_GML_REBALANCE:
     This variable determines whether restoring a Matrix should recalculate the

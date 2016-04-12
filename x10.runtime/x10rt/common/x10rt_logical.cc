@@ -917,6 +917,11 @@ x10rt_error x10rt_lgl_unblock_probe (void)
 	return x10rt_net_unblock_probe();
 }
 
+bool x10rt_lgl_agreement_support(void)
+{
+	return x10rt_net_agreement_support();
+}
+
 void x10rt_lgl_finalize (void)
 {
     if (g.error_code==X10RT_ERR_OK && getenv("X10RT_RXTX")) {
@@ -1103,6 +1108,19 @@ bool x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
         x10rt_emu_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, errch, ch, arg);
         while (x10rt_emu_coll_probe());
         return true; //TODO: should not always return true, but x10rt_emu_scatterv is not used in Team.x10
+    }
+}
+
+bool x10rt_lgl_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg)
+{
+    ESCAPE_IF_ERR_BOOL;
+    if (x10rt_lgl_agreement_support()) {
+        return x10rt_net_agree(team, role, sbuf, dbuf, errch, ch, arg);
+    } else {
+        return false;
     }
 }
 

@@ -896,6 +896,11 @@ bool x10rt_net_blocking_probe_support(void)
 	return false;
 }
 
+bool x10rt_net_agreement_support (void)
+{
+    return false;
+}
+
 x10rt_error x10rt_net_blocking_probe (void)
 {
 	// TODO: make this blocking.  For now, just call probe.
@@ -1041,6 +1046,14 @@ bool x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                           size_t count,
                           x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+bool x10rt_net_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg)
 {
     abort();
 }

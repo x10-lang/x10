@@ -326,6 +326,11 @@ X10RT_C x10rt_error x10rt_lgl_blocking_probe (void);
  */
 X10RT_C x10rt_error x10rt_lgl_unblock_probe (void);
 
+/**
+ * Check if resilient agreement is supported by the network \see #x10rt_agreement_support
+ */
+X10RT_C bool x10rt_lgl_agreement_support (void);
+
 /** Clean up the logical layer.  Called by #x10rt_finalize.
  */
 X10RT_C void x10rt_lgl_finalize (void); 
@@ -520,6 +525,19 @@ X10RT_C bool x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                                   size_t count,
                                   x10rt_completion_handler *errch,
                                   x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_agree
+ * \param team As in #x10rt_allreduce
+ * \param role As in #x10rt_allreduce
+ * \param sbuf As in #x10rt_allreduce
+ * \param dbuf As in #x10rt_allreduce
+ * \param ch As in #x10rt_allreduce
+ * \param arg As in #x10rt_allreduce
+ */
+X10RT_C bool x10rt_lgl_agree (x10rt_team team, x10rt_place role,
+                             const int *sbuf, int *dbuf,
+                             x10rt_completion_handler *errch,
+                             x10rt_completion_handler *ch, void *arg);
 
 #endif
 
