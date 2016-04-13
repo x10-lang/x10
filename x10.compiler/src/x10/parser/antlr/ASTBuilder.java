@@ -31,6 +31,7 @@ import org.antlr.v4.runtime.atn.LexerATNSimulator;
 import org.antlr.v4.runtime.atn.ParserATNSimulator;
 import org.antlr.v4.runtime.atn.PredictionContextCache;
 import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.misc.Utils;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -247,17 +248,6 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
 
     // Utility functions
 
-    /** Returns the position of a given parse tree node. */
-    protected Position pos(ParserRuleContext ctx) {
-        int line = ctx.getStart().getLine();
-        int column = ctx.getStart().getCharPositionInLine();
-        int offset = ctx.getStart().getStartIndex();
-        int endLine = ctx.getStop() == null ? ctx.getStart().getLine() : ctx.getStop().getLine();
-        int endColumn = ctx.getStop() == null ? ctx.getStart().getCharPositionInLine() : ctx.getStop().getCharPositionInLine();
-        int endOffset = ctx.getStop() == null ? ctx.getStart().getStopIndex() : ctx.getStop().getStopIndex();
-        return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
-    }
-
     /** Returns the position of a given token. */
     private Position pos(Token t) {
         int line = t.getLine();
@@ -267,6 +257,26 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         int endOffset = t.getStopIndex();
         int endColumn = column + endOffset - offset;
         return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
+    }
+    
+    /** Returns the position of a given parse tree node. */
+    protected Position pos(ParserRuleContext ctx) {
+    	Interval sourceInterval = ctx.getSourceInterval();
+    	List<Token> tokensList = tokens.getTokens(sourceInterval.a, sourceInterval.b);
+    	if (tokensList.size() == 0) {
+    		int line = ctx.getStart().getLine();
+    		int column = ctx.getStart().getCharPositionInLine();
+    		int offset = ctx.getStart().getStartIndex();
+    		int endLine = ctx.getStop() == null ? ctx.getStart().getLine() : ctx.getStop().getLine();
+    		int endColumn = ctx.getStop() == null ? ctx.getStart().getCharPositionInLine() : ctx.getStop().getCharPositionInLine();
+    		int endOffset = ctx.getStop() == null ? ctx.getStart().getStopIndex() : ctx.getStop().getStopIndex();
+    		return new Position("", fileName, line, column, endLine, endColumn, offset, endOffset);
+    	}
+    	Token firstToken = tokensList.get(0);
+    	Token lastToken = tokensList.get(tokensList.size()-1);
+    	Position pos1 = pos(firstToken);
+    	Position pos2 = pos(lastToken);
+    	return new Position(pos1, pos2);
     }
 
     /** Returns the position going from {@code ctx} to {@code t}. */
