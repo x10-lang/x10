@@ -41,7 +41,7 @@ namespace apgas {
     }
 
     int Runtime::numPlaces() {
-        return x10aux::num_places;
+        return x10rt_nplaces();
     }
     
     void Runtime::runSync(Task* task) {

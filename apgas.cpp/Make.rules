@@ -27,7 +27,7 @@ else
     XRX_INCLUDE=include
 endif
 
-override CXXFLAGS += $(X10LIB_CXXFLAGS) -I$(X10_DIST)/include -I$(X10_DIST)/stdlib/$(XRX_INCLUDE) 
+override CXXFLAGS += $(X10LIB_CXXFLAGS) -g -I$(X10_DIST)/include -I$(X10_DIST)/stdlib/$(XRX_INCLUDE) 
 
-APGAS_LINK_ARGS = -L$(X10_DIST)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(X10_DIST)/lib \
-	-L$(X10_DIST)/stdlib/$(XRX_LIB) -lapgas $(X10LIB_LDLIBS) -Wl,--rpath -Wl,$(X10_DIST)/stdlib/$(XRX_LIB)
+APGAS_LINK_ARGS = -Wl,--rpath -Wl,$(X10_DIST)/lib \
+	-L$(X10_DIST)/stdlib/$(XRX_LIB) -L$(APGAS_DIR) -lapgas $(X10LIB_LDLIBS) -L$(X10_DIST)/lib -l$(X10RT_LIB) -Wl,--rpath -Wl,$(X10_DIST)/stdlib/$(XRX_LIB)

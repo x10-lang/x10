@@ -31,7 +31,7 @@ class FibAsync : public Task {
             Task* myTasks[2];
             myTasks[0] = &child1;
             myTasks[1] = &child2;
-            myRuntime->runFinish(2, myTasks);
+            getRuntime()->runFinish(2, myTasks);
             result = child1.result + child2.result;
         }
     }

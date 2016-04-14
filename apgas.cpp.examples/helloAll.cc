@@ -63,10 +63,10 @@ class MyMain : public Task {
         if (argc-1 > 0) {
             printf("Hello World, I have %d things to say\n", argc-1);
             int numTasks = argc-1;
-            int np = myRuntime->numPlaces();
+            int np = getRuntime()->numPlaces();
             for (int i=0; i<numTasks; i++) {
                 RemoteTask* t = new (Runtime::alloc<MyTask>()) MyTask (x10::lang::String::Steal(argv[i+1]));
-                myRuntime->runAsyncAt(i % myRuntime->numPlaces(), t);
+                getRuntime()->runAsyncAt(i % np, t);
             }
         } else {
             printf("Please give me something to say on the command line\n");
