@@ -313,6 +313,13 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         return new Position(p1, p2);
     }
     
+    /** Returns the position going from {@code p1} to {@code ctx2} */
+    protected Position pos(Position p1, ParserRuleContext ctx2) {
+        Position p2 = pos(ctx2);
+		return new Position(p1, p2);
+	}
+
+
     private String removeNestedComment(String comment) {
         StringBuffer s = new StringBuffer(comment);
         for (int i = 2; i < comment.length() - 1; i++) {
@@ -4520,8 +4527,8 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
             Closure elseBody = makeClosure(closureBodyBlock2.position(), closureBodyBlock2);
             ArgumentListopt.add(elseBody);
         }
-        X10Call call = nf.X10Call(pos(ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
-        ctx.ast = nf.Eval(pos(ctx), call);
+        X10Call call = nf.X10Call(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, ArgumentListopt);
+        ctx.ast = nf.Eval(pos(prefix.position(), ctx), call);
     }
 
 
@@ -4684,7 +4691,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserWhile(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhile(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: doStatement ::= 'do' statement 'while' '(' expression ')' ';' (#doStatement) */
@@ -4715,7 +4722,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserDo(pos(ctx), field.target(), field.name(), TypeArgumentsopt, body, args);
+        ctx.ast = makeUserDo(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, body, args);
     }
 
     /** Production: forStatement ::= basicForStatement (#forStatement0) */
@@ -4799,7 +4806,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
         Expr e = ast(ctx.expressionopt());
 
-        ctx.ast = makeUserBreak(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
+        ctx.ast = makeUserBreak(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, e);
     }
 
     /** Production: continueStatement ::= 'continue' identifieropt ';' (#continueStatement) */
@@ -4826,7 +4833,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
         Expr e = ast(ctx.expressionopt());
 
-        ctx.ast = makeUserContinue(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
+        ctx.ast = makeUserContinue(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, e);
     }
 
     /** Production: returnStatement ::= 'return' expressionopt ';' (#returnStatement) */
@@ -4880,7 +4887,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         List<TypeNode> TypeArgumentsopt = ast(ctx.typeArgumentsopt());
         Expr e = ast(ctx.expressionopt());
 
-        ctx.ast = makeUserThrow(pos(ctx), field.target(), field.name(), TypeArgumentsopt, e);
+        ctx.ast = makeUserThrow(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, e);
     }
 
     /** Production: tryStatement ::= 'try' block catchesopt finallyBlock? (#tryStatement0) */
@@ -4943,10 +4950,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Closure body = makeClosure(closureBodyBlock.position(), closureBodyBlock);
         List<Closure> catches = ast(ctx.userCatchesopt());
         if (ctx.userFinallyBlock() == null) {
-            ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, null);
+            ctx.ast = makeUserTry(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, null);
         } else {
             Closure finally_ = ast(ctx.userFinallyBlock());
-            ctx.ast = makeUserTry(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, finally_);
+            ctx.ast = makeUserTry(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body, catches, finally_);
         }
     }
 
@@ -5022,10 +5029,10 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserAsync(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, clockedClause, body);
+        ctx.ast = makeUserAsync(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, clockedClause, body);
     }
 
-    /** Production: atStatement ::= 'at' '(' expression ')' statement (#atStatement) */
+	/** Production: atStatement ::= 'at' '(' expression ')' statement (#atStatement) */
     @Override
     public void exitAtStatement(AtStatementContext ctx) {
         Expr Expression = ast(ctx.expression());
@@ -5053,7 +5060,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserAt(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserAt(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: atomicStatement ::= 'atomic' statement (#atomicStatement) */
@@ -5082,7 +5089,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserAtomic(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
+        ctx.ast = makeUserAtomic(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
     }
 
     /** Production: whenStatement ::= 'when' '(' expression ')' statement (#whenStatement) */
@@ -5113,7 +5120,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserWhen(pos(ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
+        ctx.ast = makeUserWhen(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, args, body);
     }
 
     /** Production: atEachStatement ::= 'ateach' '(' loopIndex 'in' expression ')' clockedClauseopt statement (#atEachStatement0) */
@@ -5163,7 +5170,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure ateachBody = makeClosure(new Position(pos(ctx.formalParameterList()), closureBodyBlock.position()), formalParameterList, closureBodyBlock);
 
-        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, ateachBody);
+        ctx.ast = makeUserAtEach(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, ateachBody);
     }
 
     /** Production: userAtEachStatement ::= userStatementPrefix kw='ateach' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userAtEachStatement4) */
@@ -5178,7 +5185,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure ateachBody = makeClosure(closureBodyBlock.position(), closureBodyBlock);
 
-        ctx.ast = makeUserAtEach(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, ateachBody);
+        ctx.ast = makeUserAtEach(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, ateachBody);
     }
 
     /** Production: enhancedForStatement ::= 'for' '(' loopIndex 'in' expression ')' statement (#enhancedForStatement0) */
@@ -5242,7 +5249,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure forBody = makeClosure(new Position(pos(ctx.formalParameterList()), closureBodyBlock.position()), formalParameterList, closureBodyBlock);
 
-        ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, forBody);
+        ctx.ast = makeUserEnhancedFor(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, forBody);
     }
 
     /** Production: userEnhancedForStatement ::= userStatementPrefix 'for' typeArgumentsopt '(' argumentListopt ')' closureBodyBlock    (#userEnhancedForStatement4) */
@@ -5257,7 +5264,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block closureBodyBlock = ast(ctx.closureBodyBlock());
         Closure forBody = makeClosure(closureBodyBlock.position(), closureBodyBlock);
 
-        ctx.ast = makeUserEnhancedFor(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, forBody);
+        ctx.ast = makeUserEnhancedFor(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentListopt, forBody);
     }
 
     /** Production: finishStatement ::= 'finish' statement (#finishStatement0) */
@@ -5292,7 +5299,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
         Block block = ast(ctx.closureBodyBlock());
         Closure body = makeClosure(block.position(), block);
 
-        ctx.ast = makeUserFinish(pos(ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
+        ctx.ast = makeUserFinish(pos(prefix.position(), ctx), field.target(), field.name(), TypeArgumentsopt, argumentsopt, body);
     }
 
     /** Production: castExpression ::= primary (#castExpression0) */
