@@ -263,7 +263,7 @@ public class ASTBuilder extends X10BaseListener implements X10Listener, polyglot
     protected Position pos(ParserRuleContext ctx) {
     	Interval sourceInterval = ctx.getSourceInterval();
     	List<Token> tokensList = tokens.getTokens(sourceInterval.a, sourceInterval.b);
-    	if (tokensList.size() == 0) {
+    	if (tokensList == null || tokensList.size() == 0) {
     		int line = ctx.getStart().getLine();
     		int column = ctx.getStart().getCharPositionInLine();
     		int offset = ctx.getStart().getStartIndex();
