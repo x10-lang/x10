@@ -13,6 +13,8 @@
 import harness.x10Test;
 import x10.util.*;
 
+// SKIP_MANAGED_X10: Generic throwable not supported in Managed X10
+
 /**
  * Test operator redefinition. Works only with the C++ backend.
  * @author mandel
