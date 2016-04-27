@@ -50,6 +50,7 @@ namespace apgas {
         
         /**
          * Spawn a new task to be synchronously executed in the current Place.
+         * Task is controlled by an implicit root finish.
          * Will not return until task and all of its spawned children tasks complete.
          */
         void runSync(Task* task);
@@ -57,6 +58,7 @@ namespace apgas {
         /**
          * Spawn a new task to be asynchronously executed as a child of the
          * currently executing Task in the current Place.
+         * Must be called within a finish context.
          * Returns immediately (does not wait for task to execute)
          */
         void runAsync(Task* task);
@@ -64,6 +66,7 @@ namespace apgas {
         /**
          * Schedule the argument Task as an async to be asynchronously executed
          * at the argument Place.
+         * Must be called within a finish context.
          * Returns immediately (does not wait for task to execute)
          */
         void runAsyncAt(int place, RemoteTask* task);
@@ -71,6 +74,7 @@ namespace apgas {
         /**
          * Execute the body of the argument Task as the body of a Finish
          * statement in the current Task.
+         * Must be called within an existing finish context.
          * Will not return until task and all of its spawned children tasks complete.
          */
         void runFinish(Task* task);
@@ -78,6 +82,7 @@ namespace apgas {
         /**
          * Execute the argument tasks within a newly created finish scope.
          * A shorthand for a finish block that contains runAsync of all argument tasks.
+         * Must be called within an existing finish context.
          * Will not return until task and all of its spawned children tasks complete.
          */
         void runFinish(int numTasks, Task** tasks);

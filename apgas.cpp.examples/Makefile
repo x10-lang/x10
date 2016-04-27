@@ -7,7 +7,7 @@ include ../x10.runtime/Make.rules
 # Targets #
 ###########
 
-all:	hello helloAll fib
+all:	hello helloAll fib daxpy
 
 hello:	hello.cc
 	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
@@ -18,8 +18,11 @@ helloAll:	helloAll.cc
 fib:	fib.cc
 	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
 
+daxpy:	daxpy.cc
+	$(CXX) $(CXXFLAGS) -o $@ $< $(APGAS_LINK_ARGS)
+
 clean: 
-	$(RM) hello fib helloAll
+	$(RM) hello fib helloAll daxpy
 
 .PHONY: clean 
 
