@@ -43,20 +43,20 @@ class All extends x10Test {
 	    super.async[Long] clocked (1) {}
 	    SubAsync.super.async[Long] clocked (1) {}
 
-	    Async.async clocked (1) {}
-	    (new Async()).async clocked (1) {}
-	    super.async clocked (1) {}
-	    SubAsync.super.async clocked (1) {}
+	    Async.async clocked (false) {}
+	    (new Async()).async clocked (false) {}
+	    super.async clocked (false) {}
+	    SubAsync.super.async clocked (false) {}
 
 	    Async.async[Long, Boolean] clocked (1, true) {}
 	    (new Async()).async[Long, Boolean] clocked (1, true) {}
 	    super.async[Long, Boolean] clocked (1, true) {}
 	    SubAsync.super.async[Long, Boolean] clocked (1, true) {}
 
-	    Async.async clocked (1, true) {}
-	    (new Async()).async clocked (1, true) {}
-	    super.async clocked (1, true) {}
-	    SubAsync.super.async clocked (1, true) {}
+	    Async.async clocked (false, true) {}
+	    (new Async()).async clocked (false, true) {}
+	    super.async clocked (false, true) {}
+	    SubAsync.super.async clocked (false, true) {}
 
 	    operator async[Long, Boolean] (1, true, ()=>{});
 	    Async.operator async[Long, Boolean] (1, true, ()=>{});
@@ -89,20 +89,20 @@ class All extends x10Test {
 	    super.at[Long](1) {}
 	    SubAt.super.at[Long](1) {}
 
-	    At.at(1) {}
-	    (new At()).at(1) {}
-	    super.at(1) {}
-	    SubAt.super.at(1) {}
+	    At.at(false) {}
+	    (new At()).at(false) {}
+	    super.at(false) {}
+	    SubAt.super.at(false) {}
 
 	    At.at[Long, Boolean](1, true) {}
 	    (new At()).at[Long, Boolean](1, true) {}
 	    super.at[Long, Boolean](1, true) {}
 	    SubAt.super.at[Long, Boolean](1, true) {}
 
-	    At.at(1, true) {}
-	    (new At()).at(1, true) {}
-	    super.at(1, true) {}
-	    SubAt.super.at(1, true) {}
+	    At.at(false, true) {}
+	    (new At()).at(false, true) {}
+	    super.at(false, true) {}
+	    SubAt.super.at(false, true) {}
 
 	    operator at[Long, Boolean] (1, true, ()=>{});
 	    At.operator at[Long, Boolean] (1, true, ()=>{});
@@ -135,10 +135,10 @@ class All extends x10Test {
 	    super.atomic[Long](1) {}
 	    SubAtomic.super.atomic[Long](1) {}
 
-	    Atomic.atomic(1) {}
-	    (new Atomic()).atomic(1) {}
-	    super.atomic(1) {}
-	    SubAtomic.super.atomic(1) {}
+	    Atomic.atomic(false) {}
+	    (new Atomic()).atomic(false) {}
+	    super.atomic(false) {}
+	    SubAtomic.super.atomic(false) {}
 	}
     }
 
@@ -160,20 +160,20 @@ class All extends x10Test {
 	    super.when[Long](1) {}
 	    SubWhen.super.when[Long](1) {}
 
-	    When.when(1) {}
-	    (new When()).when(1) {}
-	    super.when(1) {}
-	    SubWhen.super.when(1) {}
+	    When.when(false) {}
+	    (new When()).when(false) {}
+	    super.when(false) {}
+	    SubWhen.super.when(false) {}
 
 	    When.when[Long, Boolean](1, true) {}
 	    (new When()).when[Long, Boolean](1, true) {}
 	    super.when[Long, Boolean](1, true) {}
 	    SubWhen.super.when[Long, Boolean](1, true) {}
 
-	    When.when(1, true) {}
-	    (new When()).when(1, true) {}
-	    super.when(1, true) {}
-	    SubWhen.super.when(1, true) {}
+	    When.when(false, true) {}
+	    (new When()).when(false, true) {}
+	    super.when(false, true) {}
+	    SubWhen.super.when(false, true) {}
 
 	    operator when[Long, Boolean] (1, true, ()=>{});
 	    When.operator when[Long, Boolean] (1, true, ()=>{});
@@ -206,10 +206,10 @@ class All extends x10Test {
 	    super.finish[Long](1) {}
 	    SubFinish.super.finish[Long](1) {}
 
-	    Finish.finish(1) {}
-	    (new Finish()).finish(1) {}
-	    super.finish(1) {}
-	    SubFinish.super.finish(1) {}
+	    Finish.finish(false) {}
+	    (new Finish()).finish(false) {}
+	    super.finish(false) {}
+	    SubFinish.super.finish(false) {}
 	}
     }
 
@@ -231,10 +231,10 @@ class All extends x10Test {
 	    super.throw[Long] 1 + 1;
 	    SubThrow.super.throw[Long] 1 + 1;
 
-	    Throw.throw 1 + 1;
-	    (new Throw()).throw 1 + 1;
-	    super.throw 1 + 1;
-	    SubThrow.super.throw 1 + 1;
+	    Throw.throw false && false;
+	    (new Throw()).throw false && false;
+	    super.throw false && false;
+	    SubThrow.super.throw false && false;
 
 	    operator throw[Long] (1 + 1);
 	    Throw.operator throw[Long] (1 + 1);
@@ -300,10 +300,10 @@ class All extends x10Test {
 	    super.try[Long](1) {} catch () {}
 	    SubTry.super.try[Long](1) {} catch () {}
 
-	    Try.try(1) {} catch () {}
-	    (new Try()).try(1) {} catch () {}
-	    super.try(1) {} catch () {}
-	    SubTry.super.try(1) {} catch () {}
+	    Try.try(false) {} catch () {}
+	    (new Try()).try(false) {} catch () {}
+	    super.try(false) {} catch () {}
+	    SubTry.super.try(false) {} catch () {}
 
 	}
     }
@@ -387,20 +387,20 @@ class All extends x10Test {
 	    super.while[Long](1) {}
 	    SubWhile.super.while[Long](1) {}
 
-	    While.while(1) {}
-	    (new While()).while(1) {}
-	    super.while(1) {}
-	    SubWhile.super.while(1) {}
+	    While.while(false) {}
+	    (new While()).while(false) {}
+	    super.while(false) {}
+	    SubWhile.super.while(false) {}
 
 	    While.while[Long, Boolean](1, true) {}
 	    (new While()).while[Long, Boolean](1, true) {}
 	    super.while[Long, Boolean](1, true) {}
 	    SubWhile.super.while[Long, Boolean](1, true) {}
 
-	    While.while(1, true) {}
-	    (new While()).while(1, true) {}
-	    super.while(1, true) {}
-	    SubWhile.super.while(1, true) {}
+	    While.while(false, true) {}
+	    (new While()).while(false, true) {}
+	    super.while(false, true) {}
+	    SubWhile.super.while(false, true) {}
 
 	    operator while[Long, Boolean] (1, true, ()=>{});
 	    While.operator while[Long, Boolean] (1, true, ()=>{});
@@ -428,20 +428,20 @@ class All extends x10Test {
 	    super.do[Long]{} while (1);
 	    SubDo.super.do[Long]{} while (1);
 
-	    Do.do{} while (1);
-	    (new Do()).do{} while (1);
-	    super.do{} while (1);
-	    SubDo.super.do{} while (1);
+	    Do.do{} while (false);
+	    (new Do()).do{} while (false);
+	    super.do{} while (false);
+	    SubDo.super.do{} while (false);
 
 	    Do.do[Long, Boolean]{} while (1, true);
 	    (new Do()).do[Long, Boolean]{} while (1, true);
 	    super.do[Long, Boolean]{} while (1, true);
 	    SubDo.super.do[Long, Boolean]{} while (1, true);
 
-	    Do.do{} while (1, true);
-	    (new Do()).do{} while (1, true);
-	    super.do{} while (1, true);
-	    SubDo.super.do{} while (1, true);
+	    Do.do{} while (false, true);
+	    (new Do()).do{} while (false, true);
+	    super.do{} while (false, true);
+	    SubDo.super.do{} while (false, true);
 
 	    operator do[Long, Boolean] (()=>{}, 1, true);
 	    Do.operator do[Long, Boolean] (()=>{}, 1, true);
