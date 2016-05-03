@@ -17,12 +17,12 @@ import polyglot.types.Context;
 import polyglot.types.FunctionInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Use;
+import polyglot.util.Predicate2;
 import x10.constraint.XTerm;
 
 /**
@@ -86,6 +86,13 @@ public interface MethodInstance
      * @param context TODO
      */
     boolean isSameMethod(MethodInstance mi, Context context);
+
+    /**
+     * Return true if this method has the same signature as <code>mi</code>.
+     * @param predicate the predicate to check type equality of formals.
+     * @param context TODO
+     */
+    boolean isSameMethod(MethodInstance mi, Context context, Predicate2<Type> predicate);
 
     MethodInstance returnTypeRef(Ref<? extends Type> returnType);
     

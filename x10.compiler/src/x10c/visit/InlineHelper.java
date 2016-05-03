@@ -46,6 +46,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -490,7 +491,7 @@ public class InlineHelper extends ContextVisitor {
 
     private boolean containsMethod(final List<Call> calls, Call call) {
         for (Call c : calls) {
-            if (c.methodInstance().isSameMethod(call.methodInstance(), context)) {
+            if (c.methodInstance().isSameMethod(call.methodInstance(), context, new BaseTypeEquals(context))) {
                 return true;
             }
         }

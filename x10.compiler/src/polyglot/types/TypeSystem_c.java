@@ -1940,6 +1940,15 @@ public class TypeSystem_c implements TypeSystem
 	return env(context).isSameMethod(m1, m2);
     }
 
+    /**
+     * Returns true iff <m1> is the same method as <m2>
+     */
+    public boolean isSameMethod(MethodInstance m1, MethodInstance m2, Context context, Predicate2<Type> predicate) {
+	assert_(m1);
+	assert_(m2);
+	return env(context).isSameMethod(m1, m2, predicate);
+    }
+
     public boolean callValid(ProcedureInstance<? extends ProcedureDef> prototype, Type thisType, List<Type> argTypes, Context context) {
 	assert_(prototype);
 	assert_(argTypes);

@@ -18,6 +18,7 @@ import java.util.List;
 
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.util.Copy;
+import polyglot.util.Predicate2;
 import polyglot.types.Package;
 import x10.types.MethodInstance;
 
@@ -130,6 +131,11 @@ public interface TypeEnv  {
      * Returns true iff <m1> is the same method as <m2>
      */
     public boolean isSameMethod(MethodInstance m1, MethodInstance m2);
+
+    /**
+     * Returns true iff <m1> is the same method as <m2>
+     */
+    public boolean isSameMethod(MethodInstance m1, MethodInstance m2, Predicate2<Type> predicate);
 
     public boolean callValid(ProcedureInstance<? extends ProcedureDef> prototype, Type thisType, List<Type> argTypes);
 

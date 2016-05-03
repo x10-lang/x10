@@ -145,6 +145,11 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
         return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
     }
 
+    /** Returns true if the procedure has the given formal parameter types. */
+    public boolean hasFormals(List<Type> formalTypes, Context context, Predicate2<Type> predicate) {
+        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, predicate);
+    }
+
 
     /** Returns true if a call can be made with the given argument types. */
     public boolean callValid(Type thisType, List<Type> argTypes, Context context) {

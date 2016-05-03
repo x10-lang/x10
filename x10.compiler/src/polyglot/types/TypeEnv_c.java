@@ -19,6 +19,7 @@ import java.util.*;
 import polyglot.frontend.Globals;
 import polyglot.main.Reporter;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import polyglot.util.Predicate2;
 import x10.types.MethodInstance;
 import x10.types.X10TypeEnv_c;
 
@@ -810,6 +811,13 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
      */
     public boolean isSameMethod(MethodInstance m1, MethodInstance m2) {
 	return m1.name().equals(m2.name()) && m1.hasFormals(m2.formalTypes(), context);
+    }
+
+    /**
+     * Returns true iff <m1> is the same method as <m2>
+     */
+    public boolean isSameMethod(MethodInstance m1, MethodInstance m2, Predicate2<Type> predicate) {
+	return m1.name().equals(m2.name()) && m1.hasFormals(m2.formalTypes(), context, predicate);
     }
 
     public boolean callValid(ProcedureInstance<? extends ProcedureDef> prototype, Type thisType, List<Type> argTypes) {

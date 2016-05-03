@@ -25,6 +25,7 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.Position;
+import polyglot.util.Predicate2;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
@@ -356,6 +357,13 @@ public interface TypeSystem {
      * @param context TODO
      */
     boolean isSameMethod(MethodInstance m1, MethodInstance m2, Context context);
+
+    /**
+     * Returns true iff <code>m1</code> is the same method as <code>m2</code>.
+     * @param predicate the predicate to check type equality of formals.
+     * @param context TODO
+     */
+    boolean isSameMethod(MethodInstance m1, MethodInstance m2, Context context, Predicate2<Type> predicate);
 
     /**
      * Returns true iff <code>m1</code> is more specific than <code>m2</code>.

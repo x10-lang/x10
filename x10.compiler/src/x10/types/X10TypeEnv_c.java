@@ -56,6 +56,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Predicate2;
 import polyglot.util.TransformingList;
 import polyglot.util.Transformation;
 import x10.constraint.XEQV;
@@ -2305,6 +2306,32 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             mj = fixThis(mj, y, x);
 
             return mi.hasFormals(mj.formalTypes(), context);
+        }
+        return false;
+    }
+
+    /**
+     * Returns true iff <m1> is the same method as <m2>
+     */
+    @Override
+    public boolean isSameMethod(MethodInstance mi, MethodInstance mj, Predicate2<Type> predicate) {
+        if (mi.name().equals(mj.name())) {
+           // String fullNameWithThis = mi.x10Def().thisVar().toString();
+          //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            XVar thisVar = mi.x10Def().thisVar(); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // ConstraintManager.getConstraintSystem().makeLocal(thisName);
+
+            List<XVar> ys = new ArrayList<XVar>(2);
+            List<XVar> xs = new ArrayList<XVar>(2);
+
+            MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+            MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+            final XVar[] y = ys.toArray(new XVar[ys.size()]);
+            final XVar[] x = xs.toArray(new XVar[ys.size()]);
+
+            mi = fixThis(mi, y, x);
+            mj = fixThis(mj, y, x);
+
+            return mi.hasFormals(mj.formalTypes(), context, predicate);
         }
         return false;
     }

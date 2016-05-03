@@ -42,6 +42,7 @@ import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.Predicate2;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
@@ -174,6 +175,10 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
 	}
 	
+    public boolean hasFormals(List<Type> formalTypes, Context context, Predicate2<Type> predicate) {
+        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, predicate);
+    }
+
 	public List<XVar> formals() {
 		if (formals == null) {
 			List<Integer> indices = new ArrayList<Integer>();

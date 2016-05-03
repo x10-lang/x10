@@ -20,6 +20,8 @@ import x10.types.X10ProcedureInstance;
 
 import java.util.List;
 
+import polyglot.util.Predicate2;
+
 /**
  * A <code>ProcedureInstance</code> contains the type information for a Java
  * procedure (either a method or a constructor).
@@ -59,6 +61,13 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
      * @param context TODO
      */
     boolean hasFormals(List<Type> arguments, Context context);
+
+    /**
+     * Returns true if the procedure has the given arguments.
+     * @param predicate the predicate to check type equality.
+     * @param context TODO
+     */
+    boolean hasFormals(List<Type> arguments, Context context, Predicate2<Type> predicate);
 
 
     /**

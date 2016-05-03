@@ -42,6 +42,7 @@ import polyglot.types.UpcastTransform;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.Predicate2;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
@@ -393,6 +394,11 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
     /** Returns true iff <this> is the same method as <m> */
     public final boolean isSameMethod(MethodInstance m, Context context) {
     return ts.isSameMethod((MethodInstance) this, m, context);
+    }
+
+    /** Returns true iff <this> is the same method as <m> */
+    public final boolean isSameMethod(MethodInstance m, Context context, Predicate2<Type> predicate) {
+    return ts.isSameMethod((MethodInstance) this, m, context, predicate);
     }
 
     public final List<MethodInstance> overrides(Context context) {
