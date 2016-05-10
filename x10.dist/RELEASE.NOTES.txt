@@ -1,15 +1,11 @@
-X10 Release 2.5.4
+X10 Release 2.6.0
 
 HIGHLIGHTS OF THIS RELEASE
 
-The main features of this release are improvements in Resilient X10.
-  (a) Significant performance improvements to the implementations of
-      resilient finish to eliminate resiliency overheads of local
-      activity creation. 
-  (b) The addition of ULFM-MPI as a network transport for Resilient
-      X10 applications.
-  (c) Enhanced standard library support for writing Resilient X10
-      applications and frameworks (see x10.util.resilient).
+TODO:  Write summary of DSL features and associated grammar changes.
+
+TODO:  Look at JIRA/git and summarize any other key changes
+
 
 LIMITATIONS OF THIS RELEASE
 
@@ -37,30 +33,13 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.5.4
+Below is a summary of JIRA issues addressed for the X10 2.6.0
 
-Release Notes - X10 - Version X10 2.5.4
-
-** New Features and Improvements
-    * [XTENLANG-3536] - Indicate cancellation via CancellationException
-    * [XTENLANG-3539] - Update X10DT to Eclipse Luna (4.4) Release
-    * [XTENLANG-3540] - SparsePlaceGroup should support any set of Places; don't require ordering
-
-** Bugs
-    * [XTENLANG-1551] - AST incompleteness -- ClassDecl has no body
-    * [XTENLANG-1834] - Missing comma in parameter list, but compiler error message points to the first valid line of code in the file
-    * [XTENLANG-1841] - Spurious initial error message when method body doens't parse
-    * [XTENLANG-2860] - Compiler crashes on string++
-    * [XTENLANG-3500] - NativeX10: poor performance of array indexing in loop in Lulesh
-    * [XTENLANG-3501] - Combination of @StackAllocateUninitialized rails and NO_CHECKS yields incorrect results on Lulesh
-    * [XTENLANG-3509] - Problem creating new team from a non-member place
-    * [XTENLANG-3510] - Bug in generated Java code for tuple of generic types
-    * [XTENLANG-3541] - Resilient X10: 'at' unblocked too soon on place failure
-    * [XTENLANG-3545] - Team collectives fail for user-defined types over X10RT=MPI
+<JIRA RELEASE NOTES TEXT GOES HERE>
 
 
 For the details of JIRA issues fixed in this release, see
-  https://xtenlang.atlassian.net/jira/secure/ReleaseNote.jspa?projectId=10005&version=10300
+  <JIRA URL FOR RELEASE NOTES GOES HERE>
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:

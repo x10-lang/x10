@@ -21,7 +21,7 @@ public class Version extends polyglot.main.Version {
     @Override
     public int major() { return 2; }
     @Override
-    public int minor() { return 5; }
+    public int minor() { return 6; }
     @Override
-    public int patch_level() { return 4; }
+    public int patch_level() { return 0; }
 }
