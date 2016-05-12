@@ -13,10 +13,6 @@ package x10.x10rt;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.HazelcastInstance;
 
 import x10.core.fun.VoidFun_0_1;
 import x10.lang.GlobalRail;
@@ -26,6 +22,9 @@ import x10.network.SocketTransport.Message;
 import x10.network.SocketTransport.PROBE_TYPE;
 import x10.network.SocketTransport.RETURNCODE;
 import x10.xrx.Configuration;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 public class X10RT {
     enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
@@ -82,15 +81,6 @@ public class X10RT {
             }
         }
         
-/*    	x10.lang.Runtime.get$staticMonitor();
-        x10.lang.Runtime.get$STRICT_FINISH();
-        x10.lang.Runtime.get$NTHREADS();
-        x10.lang.Runtime.get$MAX_THREADS();
-        x10.lang.Runtime.get$STATIC_THREADS();
-        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
-        x10.lang.Runtime.get$BUSY_WAITING();
-*/
-
         state = State.INITIALIZED;
         if (forceSinglePlace) {
         	hereId = 0;
@@ -99,13 +89,6 @@ public class X10RT {
         }
         else
         	return x10rt_preinit();
-    }
-    
-    /**
-     * @deprecated use {@link #init_library()} instead
-     */
-    public static synchronized String init_library(x10.runtime.impl.java.Runtime mainClass) {
-        return init_library();
     }
 
     /*

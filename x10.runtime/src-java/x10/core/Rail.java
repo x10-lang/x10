@@ -11,7 +11,6 @@
 
 package x10.core;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import x10.core.fun.Fun_0_1;
@@ -22,10 +21,10 @@ import x10.lang.GlobalRail;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
+import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -370,94 +369,15 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         System.arraycopy(src.value, (int)srcIndex, dst.value, (int)dstIndex, (int)numElems);
     }
 
-
     public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, Rail<T> src, final long srcIndexL, final GlobalRail<T> dst, final long dstIndexL, final long numElemsL) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
-        // synchronous version for the same place
+
         if (dst.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
-            return;
-        }
-
-        // extra copy here simplifies logic and allows us to do this entirely at the Java level.
-        // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
-        // it as just another async to execute remotely.
-        final Object dataToCopy;
-        if (numElems == src.size) {
-            dataToCopy = src.getBackingArray();
         } else {
-            dataToCopy = src.T.makeArray(numElems);
-            System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
-        }
-
-        VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst, dstIndex, numElems, null);
-
-        x10.xrx.Runtime.runAsync(dst.rail.home, copyBody, null);
-    }
-
-    // static nested class version of copyBody
-    public static class $Closure$0<T> extends Ref implements VoidFun_0_0 {
-        public Object srcData;
-        public GlobalRail<T> dst;
-        public int dstIndex;
-        public int numElems;
-        public VoidFun_0_0 notif;
-
-        // Just for allocation
-        $Closure$0() {
-        }
-        $Closure$0(Object srcData, GlobalRail<T> dst, int dstIndex, int numElems, VoidFun_0_0 notif) {
-            this.srcData = srcData;
-            this.dst = dst;
-            this.dstIndex = dstIndex;
-            this.numElems = numElems;
-            this.notif = notif;
-        }
-        public void $apply() {
-            if (numElems > 0) {
-                Object dstData = dst.$apply().getBackingArray();
-                System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
-            }
-            if (notif != null) {
-                notif.$apply();
-            }
-        }
-        public static final RuntimeType<$Closure$0> $RTT = StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT });
-        public RuntimeType<$Closure$0> $getRTT() {
-            return $RTT;
-        }
-        public Type<?> $getParam(int i) {
-            return null; // should return T if i = 0
-        }
-
-        //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
-        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-            $serializer.write(this.numElems);
-            if (this.numElems > 0) {
-                $serializer.write(this.srcData);
-            }
-            $serializer.write(this.dst);
-            $serializer.write(this.dstIndex);
-            $serializer.write(this.notif);
-        }
-
-        public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-            $Closure$0 $_obj = new $Closure$0();
-            $deserializer.record_reference($_obj);
-            return $_deserialize_body($_obj, $deserializer);
-        }
-
-        public static X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.numElems = $deserializer.readInt();
-            if ($_obj.numElems > 0) {
-                $_obj.srcData = $deserializer.readObject();
-            }
-            $_obj.dst = $deserializer.readObject();
-            $_obj.dstIndex = $deserializer.readInt();
-            $_obj.notif = $deserializer.readObject();
-            return $_obj;
+            Runtime.asyncCopyTo(T, src, srcIndex, dst, dstIndex, numElems);
         }
     }
 
@@ -465,123 +385,24 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
-        // synchronous version for the same place
+
         if (dst.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.value, srcIndex, dst.$apply().value, dstIndex, numElems);
             notifier.$apply();
-            return;
-        }
-
-        // extra copy here simplifies logic and allows us to do this entirely at the Java level.
-        // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
-        // it as just another async to execute remotely.
-        final Object dataToCopy;
-        if (numElems == src.size) {
-            dataToCopy = src.getBackingArray();
         } else {
-            dataToCopy = src.T.makeArray(numElems);
-            System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
+            Runtime.uncountedCopyTo(T, src, srcIndex, dst, dstIndex, numElems, notifier);
         }
-
-        VoidFun_0_0 copyBody = new $Closure$0(dataToCopy, dst, dstIndex, numElems, notifier);
-
-        x10.xrx.Runtime.runUncountedAsync(dst.rail.home, copyBody, null);
     }
 
     public static <T> void asyncCopy__0$1x10$lang$Rail$$T$2__2$1x10$lang$Rail$$T$2(Type T, final GlobalRail<T> src, final long srcIndexL, Rail<T> dst, final long dstIndexL, final long numElemsL) {
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
-        // synchronous version for the same place
+
         if (src.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
-            return;
-        }
-
-        final GlobalRail<T> dstWrapper = new GlobalRail<T>(ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
-
-        VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, null);
-
-        x10.xrx.Runtime.runAsync(src.rail.home, copyBody1, null);
-    }
-
-    // static nested class version of copyBody1
-    public static class $Closure$1<T> extends Ref implements VoidFun_0_0 {
-        public GlobalRail<T> src;
-        public int srcIndex;
-        public GlobalRail<T> dstWrapper;
-        public int dstIndex;
-        public int numElems;
-        public VoidFun_0_0 notifier;
-
-        //Just for allocation
-        $Closure$1() {
-        }
-        $Closure$1(GlobalRail<T> src, int srcIndex, GlobalRail<T> dstWrapper, int dstIndex, int numElems, VoidFun_0_0 notifier) {
-            this.src = src;
-            this.srcIndex = srcIndex;
-            this.dstWrapper = dstWrapper;
-            this.dstIndex = dstIndex;
-            this.numElems = numElems;
-            this.notifier = notifier;
-        }
-        public void $apply() {
-            // This body runs at src's home.  It accesses the data for src and then does
-            // another async back to dstWrapper's home to transfer the data.
-            Rail<T> srcData = src.$apply();
-
-            // extra copy here simplifies logic and allows us to do this entirely at the Java level.
-            // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
-            // it as just another async to execute remotely.
-            final Object dataToCopy;
-            if (numElems == srcData.size) {
-                dataToCopy = srcData.getBackingArray();
-            } else {
-                dataToCopy = src.$apply().T.makeArray(numElems);
-                System.arraycopy(srcData.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
-            }
-
-            // N.B. copyBody2 is same as copyBody 
-            VoidFun_0_0 copyBody2 = new $Closure$0(dataToCopy, dstWrapper, dstIndex, numElems, notifier);
-
-            if (notifier != null) {
-                x10.xrx.Runtime.runUncountedAsync(dstWrapper.rail.home, copyBody2, null);
-            } else {
-                x10.xrx.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
-            }
-        }
-        public static final RuntimeType<$Closure$1<?>> $RTT = StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
-        public RuntimeType<$Closure$1<?>> $getRTT() {
-            return $RTT;
-        }
-        public Type<?> $getParam(int i) {
-            return null; // should return T if i = 0
-        }
-
-        //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
-        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-            $serializer.write(this.src);
-            $serializer.write(this.srcIndex);
-            $serializer.write(this.dstWrapper);
-            $serializer.write(this.dstIndex);
-            $serializer.write(this.numElems);
-            $serializer.write(this.notifier);
-        }
-
-        public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-            $Closure$1 $_obj = new $Closure$1();
-            $deserializer.record_reference($_obj);
-            return $_deserialize_body($_obj, $deserializer);
-        }
-
-        public static X10JavaSerializable $_deserialize_body($Closure$1 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.src = $deserializer.readObject();
-            $_obj.srcIndex = $deserializer.readInt();
-            $_obj.dstWrapper = $deserializer.readObject();
-            $_obj.dstIndex = $deserializer.readInt();
-            $_obj.numElems = $deserializer.readInt();
-            $_obj.notifier = $deserializer.readObject();
-            return $_obj;
+        } else {
+            Runtime.asyncCopyFrom(T, src, srcIndex, dst, dstIndex, numElems);
         }
     }
 
@@ -589,17 +410,12 @@ public final class Rail<T> extends Ref implements x10.lang.Iterable,
         int srcIndex = (int)srcIndexL;
         int dstIndex = (int)dstIndexL;
         int numElems = (int)numElemsL;
-        // synchronous version for the same place
+
         if (src.rail.home.id == x10.xrx.Runtime.home().id) {
             System.arraycopy(src.$apply().value, srcIndex, dst.value, dstIndex, numElems);
             notifier.$apply();
-            return;
+        } else {
+            Runtime.uncountedCopyFrom(T, src, srcIndex, dst, dstIndex, numElems, notifier);
         }
-
-        final GlobalRail<T> dstWrapper = new GlobalRail<T>(ParameterizedType.make(Rail.$RTT, dst.T), dst, null);
-
-        VoidFun_0_0 copyBody1 = new $Closure$1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, notifier);
-
-        x10.xrx.Runtime.runUncountedAsync(src.rail.home, copyBody1, null);
     }
 }
