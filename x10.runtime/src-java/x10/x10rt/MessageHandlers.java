@@ -184,11 +184,67 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     // This function gets called by the x10rt callback that is registered to handle
     // the receipt of a put message
     private static void uncountedPutReceive(byte[] args) {
+        uncountedPutReceive(new ByteArrayInputStream(args));
+    }
+
+    
+    /*
+     * Java forms
+     */
+    public static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
+    	byte[] data;
+    	if (bb.hasArray())
+    		data = bb.array();
+    	else {
+    		data = new byte[bb.remaining()];
+    		bb.get(data);
+    	}
+    	
+    	if (callbackId == CALLBACKID.closureMessageID.ordinal()) {
+			runClosureAtReceive(new ByteArrayInputStream(data));
+    	} else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal()) {
+			runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
+    	} else if (callbackId == CALLBACKID.uncountedPutID.ordinal()) {
+		    uncountedPutReceive(new ByteArrayInputStream(data));
+    	} else {
+			System.err.println("Unknown message callback type: "+callbackId);
+    	}
+    }
+
+    private static void runClosureAtReceive(InputStream input) {
+        try {
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
+            actObj.$apply();
+        } catch (Throwable e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
+    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+    	FinishState finishState = (FinishState) deserializer.readObject();
+    	Place src = (Place) deserializer.readObject();
+        long epoch = deserializer.readLong();
+    	VoidFun_0_0 actObj;
+    	try {
+    	    actObj = (VoidFun_0_0) deserializer.readObject();
+    	} catch (Throwable e) {
+    	    // TODO: handle epoch?
+            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
+            return;
+    	}
+    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
+    }
+    
+    private static void uncountedPutReceive(InputStream input) {
         if (X10RT.VERBOSE) System.out.println("uncountedPutReceive is called");
 
         try {
-            ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
-            DataInputStream objStream = new DataInputStream(byteStream);
+            DataInputStream objStream = new DataInputStream(input);
             X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
 
             VoidFun_0_0 notifier = deserializer.readObject();
@@ -214,56 +270,6 @@ public class MessageHandlers implements NetworkTransportCallbacks {
                 e.printStackTrace();
             }
         }
-    }
-
-    
-    /*
-     * Java forms
-     */
-    public static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
-    	byte[] data;
-    	if (bb.hasArray())
-    		data = bb.array();
-    	else {
-    		data = new byte[bb.remaining()];
-    		bb.get(data);
-    	}
-    	
-    	if (callbackId == CALLBACKID.closureMessageID.ordinal())
-			runClosureAtReceive(new ByteArrayInputStream(data));
-		else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal())
-			runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
-		else
-			System.err.println("Unknown message callback type: "+callbackId);
-    }
-
-    static void runClosureAtReceive(InputStream input) {
-        try {
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
-            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
-            actObj.$apply();
-        } catch (Throwable e) {
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
-    	FinishState finishState = (FinishState) deserializer.readObject();
-    	Place src = (Place) deserializer.readObject();
-        long epoch = deserializer.readLong();
-    	VoidFun_0_0 actObj;
-    	try {
-    	    actObj = (VoidFun_0_0) deserializer.readObject();
-    	} catch (Throwable e) {
-    	    // TODO: handle epoch?
-            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
-            return;
-    	}
-    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
     }
     
     public void initDataStore(String connectTo) {
