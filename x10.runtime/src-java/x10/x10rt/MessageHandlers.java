@@ -18,12 +18,13 @@ import java.nio.ByteBuffer;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.core.fun.VoidFun_0_1;
-import x10.network.SocketTransport.CALLBACKID;
-import x10.xrx.FinishState;
+import x10.lang.GlobalRail;
 import x10.lang.Place;
 import x10.network.NetworkTransportCallbacks;
+import x10.network.SocketTransport.CALLBACKID;
 import x10.runtime.impl.java.Runtime;
 import x10.serialization.X10JavaDeserializer;
+import x10.xrx.FinishState;
 
 /**
  * A class to contain the Java portion of message send/receive pairs.
@@ -33,6 +34,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     // values set in native method registerHandlers()
     private static int closureMessageID;
     private static int simpleAsyncMessageID;
+    private static int uncountedPutMessageID;
     static VoidFun_0_1<Place> placeAddedHandler = null;
     static VoidFun_0_1<Place> placeRemovedHandler = null;
     private compressionCodec networkCompressor = ("snappy".equalsIgnoreCase(System.getProperty("X10RT_COMPRESSION", "none")))?compressionCodec.SNAPPY:compressionCodec.NONE;
@@ -168,6 +170,52 @@ public class MessageHandlers implements NetworkTransportCallbacks {
             }
     	}
     }
+    
+
+    /*
+     * This send/receive pair is used to implement an uncountedPut
+     */
+
+    public static void uncountedPutSend(int place, byte[] rawBytes) {
+        sendMessage(place, uncountedPutMessageID, rawBytes.length, rawBytes);
+    }
+        
+    // Invoked from native code at receiving place
+    // This function gets called by the x10rt callback that is registered to handle
+    // the receipt of a put message
+    private static void uncountedPutReceive(byte[] args) {
+        if (X10RT.VERBOSE) System.out.println("uncountedPutReceive is called");
+
+        try {
+            ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
+            DataInputStream objStream = new DataInputStream(byteStream);
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+
+            VoidFun_0_0 notifier = deserializer.readObject();
+            int numElems = deserializer.readInt();
+            if (numElems > 0) {
+                GlobalRail<?> dst = deserializer.readObject();
+                int dstIndex = deserializer.readInt();
+                Object srcData = deserializer.readObject();
+                Object dstData = dst.$apply().getBackingArray();
+
+                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking System.arraycopy");
+                System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
+            }
+
+            if (notifier != null) {
+                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking notifier");
+                notifier.$apply();
+            }
+            if (X10RT.VERBOSE) System.out.println("uncountedPutReceive complete");
+        } catch (Throwable e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in uncountedPutReceive.");
+                e.printStackTrace();
+            }
+        }
+    }
+
     
     /*
      * Java forms

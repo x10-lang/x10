@@ -454,9 +454,9 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     public static <T> void uncountedCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
-        // extra copy here simplifies logic and allows us to do this entirely at the Java level.
-        // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
-        // it as just another async to execute remotely.
+        // It is much more efficient for primitives to bulk-serialize an entire array than to do
+        // element by element serialization. Therefore incurring an extra copy if necessary 
+        // before serializing makes sense.
         final Object dataToCopy;
         if (numElems == src.size) {
             dataToCopy = src.getBackingArray();
@@ -465,9 +465,31 @@ public abstract class Runtime implements VoidFun_0_0 {
             System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
         }
 
-        VoidFun_0_0 copyBody = new asyncCopyBody0<T>(dataToCopy, dst, dstIndex, numElems, notifier);
-
-        x10.xrx.Runtime.runUncountedAsync(dst.rail.home, copyBody, null);
+        if (X10RT.javaSockets != null) {
+            // TODO: implement direct path for Java Sockets transport
+            VoidFun_0_0 copyBody = new asyncCopyBody0<T>(dataToCopy, dst, dstIndex, numElems, notifier);
+            x10.xrx.Runtime.runUncountedAsync(dst.rail.home, copyBody, null);
+        } else {
+            try {
+                X10JavaSerializer serializer = new X10JavaSerializer();
+                serializer.write(notifier);
+                serializer.write(numElems);
+                if (numElems > 0) {
+                    serializer.write(dst);
+                    serializer.write(dstIndex);
+                    serializer.write(dataToCopy);
+                }
+                
+                x10.x10rt.MessageHandlers.uncountedPutSend((int)dst.rail.home.id, serializer.getDataBytes());                
+            } catch (DeadPlaceException e) {
+                throw e;
+            } catch (Throwable e) {
+                if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                    System.out.println("WARNING: Ignoring uncaught exception in sending of uncountedCopyTo.");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
     
     public static <T> void asyncCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems) {
