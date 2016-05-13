@@ -11,16 +11,19 @@
 
 package x10.x10rt;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 import x10.core.fun.VoidFun_0_1;
 import x10.lang.GlobalRail;
 import x10.lang.Place;
 import x10.network.SocketTransport;
+import x10.network.SocketTransport.CALLBACKID;
 import x10.network.SocketTransport.Message;
 import x10.network.SocketTransport.PROBE_TYPE;
 import x10.network.SocketTransport.RETURNCODE;
+import x10.runtime.impl.java.Runtime;
 import x10.xrx.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -67,7 +70,7 @@ public class X10RT {
         if (libName.equals("disabled"))
             forceSinglePlace = true;
         else if (libName.equalsIgnoreCase("JavaSockets")) {
-      	  	X10RT.javaSockets = new SocketTransport(new MessageHandlers());
+      	  	X10RT.javaSockets = new SocketTransport(new X10RTTransportCallbacks());
       	    state = State.INITIALIZED;
       	  	return X10RT.javaSockets.getLocalConnectionInfo();
         }
@@ -169,7 +172,7 @@ public class X10RT {
       } 
       else if (libName.equalsIgnoreCase("JavaSockets")) {
     	  int ret;
-    	  X10RT.javaSockets = new SocketTransport(new MessageHandlers());
+    	  X10RT.javaSockets = new SocketTransport(new X10RTTransportCallbacks());
     	  // check if we are joining an existing computation
   		  String join = System.getProperty(X10_JOIN_EXISTING);
   		  if (join != null)
@@ -210,7 +213,7 @@ public class X10RT {
       }
       else {
           // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
-          Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+          java.lang.Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
               public void run() {
                   synchronized(X10RT.class) {
                       state = State.TEARING_DOWN;
@@ -245,13 +248,29 @@ public class X10RT {
     	else if (m.callbackId == -1) return true; // something was processed within the probe.  No data available
     	
     	// there is a message to process
-    	try {
-    		MessageHandlers.runCallback(m.callbackId, m.data);
-    		return true;
-    	} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+    	runCallback(m.callbackId, m.data);
+    	
+    	return true;
+    }
+    
+    private static void runCallback(int callbackId, ByteBuffer bb) {
+        byte[] data;
+        if (bb.hasArray())
+            data = bb.array();
+        else {
+            data = new byte[bb.remaining()];
+            bb.get(data);
+        }
+        
+        if (callbackId == CALLBACKID.closureMessageID.ordinal()) {
+            Runtime.runClosureAtReceive(new ByteArrayInputStream(data));
+        } else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal()) {
+            Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(data), true);
+        } else if (callbackId == CALLBACKID.uncountedPutID.ordinal()) {
+            Runtime.uncountedPutReceive(new ByteArrayInputStream(data));
+        } else {
+            System.err.println("Unknown message callback type: "+callbackId);
+        }
     }
 
     /**
@@ -408,15 +427,15 @@ public class X10RT {
     
     public static void registerHandlers() {
     	if (!forceSinglePlace && javaSockets == null)
-    		x10.x10rt.MessageHandlers.registerHandlers();
+    		x10.x10rt.NativeTransport.registerHandlers();
     }
     
     public static void registerPlaceAddedHandler(VoidFun_0_1<Place> function) {
-    	x10.x10rt.MessageHandlers.placeAddedHandler = function;
+        X10RTTransportCallbacks.placeAddedHandler = function;
     }
     
     public static void registerPlaceRemovedHandler(VoidFun_0_1<Place> function) {
-    	x10.x10rt.MessageHandlers.placeRemovedHandler = function;
+        X10RTTransportCallbacks.placeRemovedHandler = function;
     }
     
     // library-mode alternative to the shutdown hook in init()
@@ -507,31 +526,31 @@ public class X10RT {
     /*
      * Support for remote operations
      */
-    public static void remoteAdd(GlobalRail target, long idx, long val) {
+    public static void remoteAdd(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteAdd not implemented for Managed X10");
     }
-    public static void remoteAdd__1$u(GlobalRail target, long idx, long val) {
+    public static void remoteAdd__1$u(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteAdd not implemented for Managed X10");
     }
 
-    public static void remoteAnd(GlobalRail target, long idx, long val) {
+    public static void remoteAnd(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteAnd not implemented for Managed X10");
     }
-    public static void remoteAnd__1$u(GlobalRail target, long idx, long val) {
+    public static void remoteAnd__1$u(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteAnd not implemented for Managed X10");
     }
 
-    public static void remoteOr(GlobalRail target, long idx, long val) {
+    public static void remoteOr(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteOr not implemented for Managed X10");
     }
-    public static void remoteOr__1$u(GlobalRail target, long idx, long val) {
+    public static void remoteOr__1$u(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteOr not implemented for Managed X10");
     }
 
-    public static void remoteXor(GlobalRail target, long idx, long val) {
+    public static void remoteXor(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteXor not implemented for Managed X10");
     }
-    public static void remoteXor__1$u(GlobalRail target, long idx, long val) {
+    public static void remoteXor__1$u(GlobalRail<?> target, long idx, long val) {
         throw new UnsupportedOperationException("remoteXor not implemented for Managed X10");
     }
     
@@ -574,7 +593,7 @@ public class X10RT {
     /*
      * Subset of x10rt_front.h API related to messages that actually needs
      * to be exposed at the Java level (as opposed to being used
-     * in the native code backing the native methods of MessageHandlers.
+     * in the native code backing the native methods of NativeTransports.
      */
     private static native int x10rt_probe();
     

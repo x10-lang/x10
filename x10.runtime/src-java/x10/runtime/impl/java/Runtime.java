@@ -35,6 +35,7 @@ import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
+import x10.x10rt.NativeTransport;
 import x10.x10rt.X10RT;
 import x10.xrx.FinishState;
 
@@ -184,7 +185,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 
         x10.xrx.Runtime.start();
 
-        // x10rt-level registration of MessageHandlers
+        // x10rt-level registration of NativeTransport
         X10RT.registerHandlers();
         X10RT.registration_complete();
     }
@@ -228,7 +229,7 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     public void $apply() {
-        // x10rt-level registration of MessageHandlers
+        // x10rt-level registration of NativeTransport
         X10RT.registerHandlers();
         X10RT.registration_complete();
 
@@ -329,7 +330,8 @@ public abstract class Runtime implements VoidFun_0_0 {
         System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
-    // TODO: add epoch to x10rt transports
+    
+    // TODO: add epoch to x10rt native transports
     public static void runAsyncAt(long epoch, int place, VoidFun_0_0 body, FinishState finishState, 
                                   x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
@@ -368,7 +370,8 @@ public abstract class Runtime implements VoidFun_0_0 {
             		throw new DeadPlaceException(new Place(place), "Unable to send an async to "+place);
             	}
             } else {
-            	x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, serializer.getDataBytes());
+            	byte[] rawBytes = serializer.getDataBytes();
+                NativeTransport.sendMessage(place, NativeTransport.simpleAsyncMessageID, rawBytes.length, rawBytes);
             }
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
@@ -426,13 +429,9 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     /*
-     * execute a closure at the target place (closure ===> no exposed finish state processing)
+     * execute a closure at the target place (closure means it is not an activity with exposed finish state processing)
      */
     public static void runClosureAt(int place, VoidFun_0_0 body, x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
-        runAt(place, body, prof, preSendAction);
-    }
-
-	public static void runAt(int place, VoidFun_0_0 body, x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
 		try {
 			// TODO: bherta - all of this serialization needs to be reworked to write directly to the network (when possible), 
 			// skipping the intermediate buffers contained within the X10JavaSerializer class.
@@ -462,7 +461,8 @@ public abstract class Runtime implements VoidFun_0_0 {
             		throw new DeadPlaceException(new Place(place), "Unable to send a closure to "+place);
 				}
 			} else {
-			    x10.x10rt.MessageHandlers.runClosureAtSend(place, serializer.getDataBytes());
+			    byte[] rawBytes = serializer.getDataBytes();
+                NativeTransport.sendMessage(place, NativeTransport.closureMessageID, rawBytes.length, rawBytes);
 			}
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
@@ -530,6 +530,7 @@ public abstract class Runtime implements VoidFun_0_0 {
 
         x10.xrx.Runtime.runAsync(dst.rail.home, copyBody, null);
     }
+    
 
     public static <T> void uncountedCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
         X10JavaSerializer serializer = new X10JavaSerializer();
@@ -564,7 +565,8 @@ public abstract class Runtime implements VoidFun_0_0 {
                 throw new DeadPlaceException(new Place(place), "Unable to initiate uncountedCopyTo "+place);
             }
         } else {
-            x10.x10rt.MessageHandlers.uncountedPutSend(place, serializer.getDataBytes());                
+            byte[] rawBytes = serializer.getDataBytes();
+            NativeTransport.sendMessage(place, NativeTransport.uncountedPutMessageID, rawBytes.length, rawBytes);                
         }
     }
     

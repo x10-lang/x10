@@ -26,7 +26,7 @@
 
 #undef __stdcall
 #define __stdcall
-#include "x10_x10rt_MessageHandlers.h"
+#include "x10_x10rt_NativeTransport.h"
 #include "x10rt_jni_helpers.h"
 
 /*************************************************************************
@@ -86,11 +86,11 @@ void jni_messageReceiver_uncountedPut(const x10rt_msg_params *msg) {
 
 
 /*
- * Class:     x10_x10rt_MessageHandlers
+ * Class:     x10_x10rt_NativeTransport
  * Method:    sendJavaRemote
  * Signature: (III[B)V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, jclass klazz,
+JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_sendMessage(JNIEnv *env, jclass klazz,
                                                                   jint place,
                                                                   jint msg_id,
                                                                   jint arrayLen, jbyteArray array) {
@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, j
 
 
 /*
- * Class:     x10_x10rt_MessageHandlers
+ * Class:     x10_x10rt_NativeTransport
  * Method:    registerHandlers
  * Signature: ()V
  *
@@ -140,27 +140,27 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, j
  *       therefore we can freely update the backing C data
  *       structures without additional locking in the native level.
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *env, jclass klazz) {
+JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *env, jclass klazz) {
 
-    /* Get a hold of MessageHandlers.receiveAsync and stash away its invoke information */
+    /* Get a hold of NativeTransport.receiveAsync and stash away its invoke information */
     jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
     if (NULL == receiveId1) {
-        jniHelper_abort("Unable to resolve methodID for MessageHandlers.runClosureAtReceive\n");
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.runClosureAtReceive\n");
         return;
     }
     jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
     if (NULL == receiveId2) {
-        jniHelper_abort("Unable to resolve methodID for MessageHandlers.runSimpleAsyncAtReceive\n");
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.runSimpleAsyncAtReceive\n");
         return;
     }
     jmethodID receiveId3 = env->GetStaticMethodID(klazz, "uncountedPutReceive", "([B)V");
     if (NULL == receiveId3) {
-        jniHelper_abort("Unable to resolve methodID for MessageHandlers.uncountedPutReceive\n");
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.uncountedPutReceive\n");
         return;
     }
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
     if (NULL == globalClass) {
-        jniHelper_abort("OOM while attempting to allocate global reference for MessageHandlers class\n");
+        jniHelper_abort("OOM while attempting to allocate global reference for NativeTransport class\n");
         return;
     }
     runClosure.targetClass  = globalClass;
@@ -178,19 +178,19 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
 
     jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
     if (NULL == clsFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.closureMessageID\n");
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.closureMessageID\n");
         return;
     }
 
     jfieldID asyncFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageID", "I");
     if (NULL == asyncFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID\n");
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.simpleAsyncMessageID\n");
         return;
     }
 
     jfieldID uncountedPutFieldId = env->GetStaticFieldID(klazz, "uncountedPutMessageID", "I");
     if (NULL == uncountedPutFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for MessageHandlers.uncountedPutMessageID\n");
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.uncountedPutMessageID\n");
         return;
     }
     

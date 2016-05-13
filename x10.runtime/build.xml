@@ -251,8 +251,7 @@
         </exec>
         <delete failonerror="false">
 	  <fileset dir="${basedir}/x10rt/include" >
-	    <include name="x10_x10rt_MessageHandlers.h" />
-	    <include name="x10_x10rt_MessageHandlers_PlaceChangeWrapper.h" />
+	    <include name="x10_x10rt_NativeTransport.h" />
 	    <include name="x10_x10rt_TeamSupport.h" />
 	    <include name="x10_x10rt_X10RT.h" />
 	    <include name="x10_x10rt_X10RT_State.h" />
@@ -479,7 +478,7 @@
                   <pathelement location="${build}"/>
               </path>
             </classpath>
-            <class name="x10.x10rt.MessageHandlers"/>
+            <class name="x10.x10rt.NativeTransport"/>
             <class name="x10.x10rt.TeamSupport"/>
             <class name="x10.x10rt.X10RT"/>
         </javah>
