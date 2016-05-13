@@ -11,23 +11,18 @@
 package x10.x10rt;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import x10.core.fun.VoidFun_0_0;
 import x10.core.fun.VoidFun_0_1;
-import x10.lang.GlobalRail;
 import x10.lang.Place;
 import x10.network.NetworkTransportCallbacks;
 import x10.network.SocketTransport.CALLBACKID;
 import x10.runtime.impl.java.Runtime;
-import x10.serialization.X10JavaDeserializer;
-import x10.xrx.FinishState;
 
 /**
- * A class to contain the Java portion of message send/receive pairs.
+ * A class to contain the Java portion of message send/receive pairs
+ * for the native X10RT transports (sockets, mpi, ...).
  */
 public class MessageHandlers implements NetworkTransportCallbacks {
     
@@ -39,7 +34,6 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     static VoidFun_0_1<Place> placeRemovedHandler = null;
     private compressionCodec networkCompressor = ("snappy".equalsIgnoreCase(System.getProperty("X10RT_COMPRESSION", "none")))?compressionCodec.SNAPPY:compressionCodec.NONE;
 
-		
     /**
      * Register the native methods that will invoke runClosureAtReceive
      * and runSimpleAsyncAtReceive as message handlers with the x10rt layer.
@@ -49,7 +43,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     public static synchronized native void registerHandlers();
     
     /**
-     * Send an active message.
+     * Send an active message using a native X10RT transport.
      */
     private static native void sendMessage(int place, int msg_id, int arraylen, byte[] rawBytes);
 
@@ -69,41 +63,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     // This function gets called by the x10rt callback that is registered to handle
     // the receipt of general closures.
     private static void runClosureAtReceive(byte[] args) {
-    	try{
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is called");
-    		java.io.ByteArrayInputStream byteStream = new java.io.ByteArrayInputStream(args);
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
-
-    		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
-    		DataInputStream objStream = new DataInputStream(byteStream);
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
-    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-    			System.out.println("Starting deserialization ");
-    		}
-    		VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
-    		if (Runtime.PROF_SER) {
-    			long stop = System.nanoTime();
-    			long duration = stop-start;
-    			if (duration >= Runtime.PROF_SER_FILTER) {
-    				System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
-    			}
-    		}
-    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-    			System.out.println("Ending deserialization ");
-    		}
-
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast and deserialization");
-    		actObj.$apply();
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
-    		objStream.close();
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive is done !");
-    	} catch(Throwable ex){
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-                ex.printStackTrace();
-            }
-    	}
+        Runtime.runClosureAtReceive(new ByteArrayInputStream(args));
     }
 
     /*
@@ -112,7 +72,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
      * a remote place, which deserializes the two objects and invokes the
      * async body. 
      * 
-     * This is the "normal" case of used to implement a typical X10-level async.
+     * This is the "normal" case and is used to implement a typical X10-level async.
      */
     
     public static void runSimpleAsyncAtSend(int place, byte[] rawBytes) { 
@@ -123,54 +83,8 @@ public class MessageHandlers implements NetworkTransportCallbacks {
      * Receive a simple async
      */
     private static void runSimpleAsyncAtReceive(byte[] args) {
-    	try{
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is called");
-    		ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: ByteArrayInputStream");
-    		VoidFun_0_0 actObj;
-
-    		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
-    		DataInputStream objStream = new DataInputStream(byteStream);
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: ObjectInputStream");
-    		X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
-    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-    			System.out.println("Starting deserialization ");
-    		}
-    		FinishState finishState = (FinishState) deserializer.readObject();
-            Place src = (Place) deserializer.readObject();
-            
-            try {
-                actObj = (VoidFun_0_0) deserializer.readObject();
-                if (Runtime.PROF_SER) {
-                    long stop = System.nanoTime();
-                    long duration = stop-start;
-                    if (duration >= Runtime.PROF_SER_FILTER) {
-                        System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
-                    }
-                }
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Ending deserialization ");
-                }
-            } catch (Throwable e) {
-                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: handling exception during deserialization");
-                finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
-                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: exception pushed; bookkeeping complete");
-                return;
-            }
-    		
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after cast and deserialization");
-    		x10.xrx.Runtime.submitRemoteActivity(actObj, src, finishState);
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: after submitRemoteActivity");
-    		objStream.close();
-    		if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is done !");
-    	} catch(Exception ex){
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("runSimpleAsyncAtReceive error !!!");
-                ex.printStackTrace();
-            }
-    	}
+        Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(args), false);
     }
-    
 
     /*
      * This send/receive pair is used to implement an uncountedPut
@@ -184,12 +98,12 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     // This function gets called by the x10rt callback that is registered to handle
     // the receipt of a put message
     private static void uncountedPutReceive(byte[] args) {
-        uncountedPutReceive(new ByteArrayInputStream(args));
+        Runtime.uncountedPutReceive(new ByteArrayInputStream(args));
     }
 
     
     /*
-     * Java forms
+     * Message Dispatcher for JavaSockets transport
      */
     public static void runCallback(int callbackId, ByteBuffer bb) throws IOException {
     	byte[] data;
@@ -201,75 +115,14 @@ public class MessageHandlers implements NetworkTransportCallbacks {
     	}
     	
     	if (callbackId == CALLBACKID.closureMessageID.ordinal()) {
-			runClosureAtReceive(new ByteArrayInputStream(data));
+			Runtime.runClosureAtReceive(new ByteArrayInputStream(data));
     	} else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal()) {
-			runSimpleAsyncAtReceive(new ByteArrayInputStream(data));
+			Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(data), true);
     	} else if (callbackId == CALLBACKID.uncountedPutID.ordinal()) {
-		    uncountedPutReceive(new ByteArrayInputStream(data));
+		    Runtime.uncountedPutReceive(new ByteArrayInputStream(data));
     	} else {
 			System.err.println("Unknown message callback type: "+callbackId);
     	}
-    }
-
-    private static void runClosureAtReceive(InputStream input) {
-        try {
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
-            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
-            actObj.$apply();
-        } catch (Throwable e) {
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
-                e.printStackTrace();
-            }
-        }
-    }
-    
-    private static void runSimpleAsyncAtReceive(InputStream input) throws IOException {
-    	X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
-    	FinishState finishState = (FinishState) deserializer.readObject();
-    	Place src = (Place) deserializer.readObject();
-        long epoch = deserializer.readLong();
-    	VoidFun_0_0 actObj;
-    	try {
-    	    actObj = (VoidFun_0_0) deserializer.readObject();
-    	} catch (Throwable e) {
-    	    // TODO: handle epoch?
-            finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
-            return;
-    	}
-    	x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
-    }
-    
-    private static void uncountedPutReceive(InputStream input) {
-        if (X10RT.VERBOSE) System.out.println("uncountedPutReceive is called");
-
-        try {
-            DataInputStream objStream = new DataInputStream(input);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
-
-            VoidFun_0_0 notifier = deserializer.readObject();
-            int numElems = deserializer.readInt();
-            if (numElems > 0) {
-                GlobalRail<?> dst = deserializer.readObject();
-                int dstIndex = deserializer.readInt();
-                Object srcData = deserializer.readObject();
-                Object dstData = dst.$apply().getBackingArray();
-
-                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking System.arraycopy");
-                System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
-            }
-
-            if (notifier != null) {
-                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking notifier");
-                notifier.$apply();
-            }
-            if (X10RT.VERBOSE) System.out.println("uncountedPutReceive complete");
-        } catch (Throwable e) {
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in uncountedPutReceive.");
-                e.printStackTrace();
-            }
-        }
     }
     
     public void initDataStore(String connectTo) {
@@ -310,6 +163,7 @@ public class MessageHandlers implements NetworkTransportCallbacks {
         	this.place = place;
         }
 
+        @SuppressWarnings("unchecked")
         public static final x10.rtt.RuntimeType<PlaceChangeWrapper> $RTT = 
             x10.rtt.StaticVoidFunType.<PlaceChangeWrapper> make(PlaceChangeWrapper.class, new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
         

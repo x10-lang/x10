@@ -11,7 +11,9 @@
 
 package x10.runtime.impl.java;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -380,9 +382,51 @@ public abstract class Runtime implements VoidFun_0_0 {
             throw xe;
         }
     }
+    
+    /* the receiver side of runAsyncAt */
+    public static void runSimpleAsyncAtReceive(InputStream input, boolean expectEpoch) {
+        if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is called");
 
-    /**
-     * Synchronously executes body at place(id)
+        try {
+            long start = Runtime.PROF_SER ? System.nanoTime() : 0;
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                System.out.println("Starting deserialization ");
+            }
+            FinishState finishState = deserializer.readObject();
+            Place src = deserializer.readObject();
+            long epoch = expectEpoch ? deserializer.readLong() : 42;
+            VoidFun_0_0 actObj;
+            try {
+                actObj = deserializer.readObject();
+                if (Runtime.PROF_SER) {
+                    long stop = System.nanoTime();
+                    long duration = stop-start;
+                    if (duration >= Runtime.PROF_SER_FILTER) {
+                        System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
+                    }
+                }
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Ending deserialization ");
+                }
+            } catch (Throwable e) {
+                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: handling exception during deserialization");
+                finishState.notifyActivityCreationFailed(src, new x10.io.SerializationException(e));
+                if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive: exception pushed; bookkeeping complete");
+                return;
+            }
+            x10.xrx.Runtime.submitRemoteActivity(epoch, actObj, src, finishState);
+            if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is completed");
+        } catch(Exception ex){
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("runSimpleAsyncAtReceive error !!!");
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    /*
+     * execute a closure at the target place (closure ===> no exposed finish state processing)
      */
     public static void runClosureAt(int place, VoidFun_0_0 body, x10.xrx.Runtime.Profile prof, VoidFun_0_0 preSendAction) {
         runAt(place, body, prof, preSendAction);
@@ -435,6 +479,40 @@ public abstract class Runtime implements VoidFun_0_0 {
             }
 		}
 	}
+	
+	/* The receiver side code for runClosureAt */
+    public static void runClosureAtReceive(InputStream input) {
+        if (X10RT.VERBOSE) System.out.println("runClosureAtReceive invoked");
+
+        try{
+            long start = Runtime.PROF_SER ? System.nanoTime() : 0;
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(new DataInputStream(input));
+            if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                System.out.println("Starting deserialization ");
+            }
+            VoidFun_0_0 actObj = (VoidFun_0_0) deserializer.readObject();
+            if (Runtime.PROF_SER) {
+                long stop = System.nanoTime();
+                long duration = stop-start;
+                if (duration >= Runtime.PROF_SER_FILTER) {
+                    System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
+                }
+            }
+            if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                System.out.println("Ending deserialization ");
+            }
+            if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after deserialization");
+
+            actObj.$apply();
+            if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: completed");
+        } catch(Throwable ex){
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in @Immediate async.");
+                ex.printStackTrace();
+            }
+        }
+    }
+    
 
     public static <T> void asyncCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems) {
         // It is much more efficient for primitives to bulk-serialize an entire array than to do
@@ -487,6 +565,39 @@ public abstract class Runtime implements VoidFun_0_0 {
             }
         } else {
             x10.x10rt.MessageHandlers.uncountedPutSend(place, serializer.getDataBytes());                
+        }
+    }
+    
+    /* receiver side of uncountedCopyTo */
+    public static void uncountedPutReceive(InputStream input) {
+        if (X10RT.VERBOSE) System.out.println("uncountedPutReceive is called");
+
+        try {
+            DataInputStream objStream = new DataInputStream(input);
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+
+            VoidFun_0_0 notifier = deserializer.readObject();
+            int numElems = deserializer.readInt();
+            if (numElems > 0) {
+                GlobalRail<?> dst = deserializer.readObject();
+                int dstIndex = deserializer.readInt();
+                Object srcData = deserializer.readObject();
+                Object dstData = dst.$apply().getBackingArray();
+
+                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking System.arraycopy");
+                System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
+            }
+
+            if (notifier != null) {
+                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking notifier");
+                notifier.$apply();
+            }
+            if (X10RT.VERBOSE) System.out.println("uncountedPutReceive complete");
+        } catch (Throwable e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Ignoring uncaught exception in uncountedPutReceive.");
+                e.printStackTrace();
+            }
         }
     }
     
