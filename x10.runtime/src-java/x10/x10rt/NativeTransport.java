@@ -25,7 +25,7 @@ public class NativeTransport {
     public static int simpleAsyncMessageID;
     public static int getMessageID;
     public static int getCompletedMessageID;
-    public static int uncountedPutMessageID;
+    public static int putMessageID;
 
     /**
      * Register the native methods that will invoke runClosureAtReceive
@@ -61,7 +61,7 @@ public class NativeTransport {
     }
 
     // callback invoked from native code when receiving uncountedPutMessageID
-    private static void uncountedPutReceive(byte[] args) {
-        Runtime.uncountedPutReceive(new ByteArrayInputStream(args));
+    private static void putReceive(byte[] args) {
+        Runtime.putReceive(new ByteArrayInputStream(args));
     }
 }

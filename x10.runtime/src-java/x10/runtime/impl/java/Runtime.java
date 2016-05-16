@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import x10.core.Rail;
-import x10.core.Ref;
 import x10.core.fun.VoidFun_0_0;
 import x10.io.Reader;
 import x10.io.SerializationException;
@@ -29,12 +28,10 @@ import x10.lang.Place;
 import x10.network.SocketTransport;
 import x10.network.SocketTransport.RETURNCODE;
 import x10.rtt.RuntimeType;
-import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.runtime.impl.java.GetRegistry.GetHandle;
 import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 import x10.x10rt.NativeTransport;
 import x10.x10rt.X10RT;
@@ -51,17 +48,6 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
 
     protected String[] args;
-
-    // not used
-//    // constructor just for allocation
-//    public Runtime(java.lang.System[] $dummy) {
-//        // TODO
-//        // super($dummy);
-//    }
-//
-//    public Runtime $init() {
-//        return this;
-//    }
 
     public Runtime() {}
 
@@ -237,17 +223,17 @@ public abstract class Runtime implements VoidFun_0_0 {
         // build up Rail[String] for args
         final x10.core.Rail<String> aargs = new x10.core.Rail<String>(Types.STRING, (args == null) ? 0 : args.length);
         if (args != null) {
-	        for (int i = 0; i < args.length; i++) {
-	            aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
-	        }
+            for (int i = 0; i < args.length; i++) {
+                aargs.$set__1x10$lang$Rail$$T$G(i, args[i]);
+            }
         }
 
         // execute root x10 activity
         try {
             // start xrx
             x10.xrx.Runtime.start(
-            // body of main activity
-                                   new $Closure$Main(this, aargs));
+                    // body of main activity
+                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
             if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
@@ -423,11 +409,12 @@ public abstract class Runtime implements VoidFun_0_0 {
             if (X10RT.VERBOSE) System.out.println("runSimpleAsyncAtReceive is completed");
         } catch(Exception ex){
             if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("runSimpleAsyncAtReceive error !!!");
+                System.out.println("runSimpleAsyncAtReceive error");
                 ex.printStackTrace();
             }
         }
     }
+
 
     /*
      * execute a closure at the target place (closure means it is not an activity with exposed finish state processing)
@@ -516,8 +503,51 @@ public abstract class Runtime implements VoidFun_0_0 {
     
 
     public static <T> void asyncCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems) {
-        // It is much more efficient for primitives to bulk-serialize an entire array than to do
-        // element by element serialization. Therefore incurring an extra copy if necessary 
+        // It is much more efficient (especially for Java primitives) to bulk-serialize an entire array
+        // than to do element by element serialization. Therefore incurring an extra copy if necessary 
+        // before serializing makes sense.
+        final Object dataToCopy;
+        if (numElems == src.size) {
+            dataToCopy = src.getBackingArray();
+        } else {
+            dataToCopy = T.makeArray(numElems);
+            System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
+        }
+        
+        X10JavaSerializer serializer = new X10JavaSerializer();
+        FinishState fs = x10.xrx.Runtime.activity().finishState();
+        fs.notifySubActivitySpawn(dst.rail.home);
+        try {
+            serializer.write(fs);
+            serializer.write(X10RT.hereId());
+            serializer.write(numElems);
+            if (numElems > 0) {
+                serializer.write(dst);
+                serializer.write(dstIndex);
+                serializer.write(dataToCopy);
+            }
+        } catch (IOException e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: Error serializing data for asyncCopyTo message");
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        int place = (int)dst.rail.home.id;
+        if (X10RT.javaSockets != null) {
+            if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.putID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+                throw new DeadPlaceException(new Place(place), "Unable to initiate asyncCopyTo "+place);
+            }
+        } else {
+            byte[] rawBytes = serializer.getDataBytes();
+            NativeTransport.sendMessage(place, NativeTransport.putMessageID, rawBytes.length, rawBytes);                
+        }
+    }
+    
+    public static <T> void uncountedCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
+        // It is much more efficient (especially for Java primitives) to bulk-serialize an entire array
+        // than to do element by element serialization. Therefore incurring an extra copy if necessary 
         // before serializing makes sense.
         final Object dataToCopy;
         if (numElems == src.size) {
@@ -527,59 +557,46 @@ public abstract class Runtime implements VoidFun_0_0 {
             System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
         }
 
-        VoidFun_0_0 copyBody = new asyncCopyBody0<T>(dataToCopy, dst, dstIndex, numElems, null);
-
-        x10.xrx.Runtime.runAsync(dst.rail.home, copyBody, null);
-    }
-    
-
-    public static <T> void uncountedCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
         X10JavaSerializer serializer = new X10JavaSerializer();
         try {
             serializer.write(notifier);
+            serializer.write(X10RT.hereId());
             serializer.write(numElems);
             if (numElems > 0) {
                 serializer.write(dst);
                 serializer.write(dstIndex);
-                // It is much more efficient (especially for Java primitives) to bulk-serialize an entire array
-                // than to do element by element serialization. Therefore incurring an extra copy if necessary 
-                // before serializing makes sense.
-                final Object dataToCopy;
-                if (numElems == src.size) {
-                    dataToCopy = src.getBackingArray();
-                } else {
-                    dataToCopy = T.makeArray(numElems);
-                    System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
-                }
                 serializer.write(dataToCopy);
             }
-        } catch (Throwable e) {
+        } catch (IOException e) {
             if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in sending of uncountedCopyTo.");
+                System.out.println("WARNING: Ignoring uncaught exception in serialization of uncountedCopyTo message");
                 e.printStackTrace();
             }
+            return;
         }
 
         int place = (int)dst.rail.home.id;
         if (X10RT.javaSockets != null) {
-            if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.uncountedPutID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+            if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.putID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
                 throw new DeadPlaceException(new Place(place), "Unable to initiate uncountedCopyTo "+place);
             }
         } else {
             byte[] rawBytes = serializer.getDataBytes();
-            NativeTransport.sendMessage(place, NativeTransport.uncountedPutMessageID, rawBytes.length, rawBytes);                
+            NativeTransport.sendMessage(place, NativeTransport.putMessageID, rawBytes.length, rawBytes);                
         }
     }
     
-    /* receiver side of uncountedCopyTo */
-    public static void uncountedPutReceive(InputStream input) {
-        if (X10RT.VERBOSE) System.out.println("uncountedPutReceive is called");
+    /* receiver side of asyncCopyTo and uncountedCopyTo */
+    public static void putReceive(InputStream input) {
+        if (X10RT.VERBOSE) System.out.println("putReceive is called");
 
+        DataInputStream objStream = new DataInputStream(input);
+        X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+        Object fsOrNotif = null;
+        int srcPlace = 0;
         try {
-            DataInputStream objStream = new DataInputStream(input);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
-
-            VoidFun_0_0 notifier = deserializer.readObject();
+            fsOrNotif = deserializer.readObject();
+            srcPlace = deserializer.readInt();
             int numElems = deserializer.readInt();
             if (numElems > 0) {
                 GlobalRail<?> dst = deserializer.readObject();
@@ -587,22 +604,36 @@ public abstract class Runtime implements VoidFun_0_0 {
                 Object srcData = deserializer.readObject();
                 Object dstData = dst.$apply().getBackingArray();
 
-                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking System.arraycopy");
+                if (X10RT.VERBOSE) System.out.println("putReceive invoking System.arraycopy");
                 System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
             }
-
-            if (notifier != null) {
-                if (X10RT.VERBOSE) System.out.println("uncountedPutReceive invoking notifier");
-                notifier.$apply();
-            }
-            if (X10RT.VERBOSE) System.out.println("uncountedPutReceive complete");
         } catch (Throwable e) {
-            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: Ignoring uncaught exception in uncountedPutReceive.");
-                e.printStackTrace();
+            if (fsOrNotif instanceof FinishState) {
+                FinishState fs = (FinishState)fsOrNotif;
+                fs.pushException(e);
+                fs.notifyActivityCreatedAndTerminated(new Place(srcPlace));
+            } else {
+                if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                    System.out.println("WARNING: Ignoring uncaught exception in putReceive");
+                    e.printStackTrace();
+                }
             }
+            return;
         }
+        
+        if (fsOrNotif instanceof FinishState) {
+            if (X10RT.VERBOSE) System.out.println("putReceive notifying FinishState");
+            FinishState fs = (FinishState)fsOrNotif;
+            fs.notifyActivityCreatedAndTerminated(new Place(srcPlace));
+        } else if (fsOrNotif instanceof VoidFun_0_0) {
+            VoidFun_0_0 notifier = (VoidFun_0_0)fsOrNotif;
+            if (X10RT.VERBOSE) System.out.println("putReceive invoking notifier");
+            notifier.$apply();            
+        }
+        
+        if (X10RT.VERBOSE) System.out.println("putReceive complete");
     }
+
     
     public static <T> void asyncCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems) {
         FinishState fs = x10.xrx.Runtime.activity().finishState();
@@ -643,7 +674,7 @@ public abstract class Runtime implements VoidFun_0_0 {
             serializer.write(numElems);
         } catch (IOException e) {
             if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("WARNING: uncountedCopyFrom: exception while serializing message!");
+                System.out.println("WARNING: uncountedCopyFrom: exception while serializing message");
                 e.printStackTrace();
             }
             GetRegistry.squashGet(getId);
@@ -661,7 +692,6 @@ public abstract class Runtime implements VoidFun_0_0 {
         }
     }
 
-    
     public static void getReceive(InputStream input) {
         if (X10RT.VERBOSE) System.out.println("getReceive is called");
 
@@ -702,15 +732,13 @@ public abstract class Runtime implements VoidFun_0_0 {
             if (X10RT.VERBOSE) System.out.println("getReceive is completed");
         } catch(Exception ex){
             if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-                System.out.println("getReceive error !!!");
+                System.out.println("getReceive error");
                 ex.printStackTrace();
             }
         }
     }
     
-    
    public static void getCompletedReceive(InputStream input) {
-        
        if (X10RT.VERBOSE) System.out.println("getCompletedReceive is called");
 
        try {
@@ -753,75 +781,12 @@ public abstract class Runtime implements VoidFun_0_0 {
            if (X10RT.VERBOSE) System.out.println("getCompletedReceive is completed");
        } catch(Exception ex){
            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
-               System.out.println("getCompletedReceive error !!!");
+               System.out.println("getCompletedReceive error");
                ex.printStackTrace();
            }
        }        
    }
 
-    // static nested class version of copyBody
-    private static class asyncCopyBody0<T> extends Ref implements VoidFun_0_0 {
-	    public Object srcData;
-	    public GlobalRail<T> dst;
-	    public int dstIndex;
-	    public int numElems;
-	    public VoidFun_0_0 notif;
-	
-	    // Just for allocation
-	    asyncCopyBody0() {
-	    }
-	    asyncCopyBody0(Object srcData, GlobalRail<T> dst, int dstIndex, int numElems, VoidFun_0_0 notif) {
-	        this.srcData = srcData;
-	        this.dst = dst;
-	        this.dstIndex = dstIndex;
-	        this.numElems = numElems;
-	        this.notif = notif;
-	    }
-	    public void $apply() {
-	        if (numElems > 0) {
-	            Object dstData = dst.$apply().getBackingArray();
-	            System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
-	        }
-	        if (notif != null) {
-	            notif.$apply();
-	        }
-	    }
-	    public static final RuntimeType<asyncCopyBody0> $RTT = StaticVoidFunType.<asyncCopyBody0> make(asyncCopyBody0.class, new Type[] { VoidFun_0_0.$RTT });
-	    public RuntimeType<asyncCopyBody0> $getRTT() {
-	        return $RTT;
-	    }
-	    public Type<?> $getParam(int i) {
-	        return null; // should return T if i = 0
-	    }
-	
-	    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-	        $serializer.write(this.numElems);
-	        if (this.numElems > 0) {
-	            $serializer.write(this.srcData);
-	        }
-	        $serializer.write(this.dst);
-	        $serializer.write(this.dstIndex);
-	        $serializer.write(this.notif);
-	    }
-	
-	    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-	        asyncCopyBody0 $_obj = new asyncCopyBody0();
-	        $deserializer.record_reference($_obj);
-	        return $_deserialize_body($_obj, $deserializer);
-	    }
-	
-	    public static X10JavaSerializable $_deserialize_body(asyncCopyBody0 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-	        $_obj.numElems = $deserializer.readInt();
-	        if ($_obj.numElems > 0) {
-	            $_obj.srcData = $deserializer.readObject();
-	        }
-	        $_obj.dst = $deserializer.readObject();
-	        $_obj.dstIndex = $deserializer.readInt();
-	        $_obj.notif = $deserializer.readObject();
-	        return $_obj;
-	    }
-	}
-	
     /**
      * Return true if place(id) is local to this node
      */

@@ -266,8 +266,8 @@ public class X10RT {
             Runtime.runClosureAtReceive(new ByteArrayInputStream(data));
         } else if (callbackId == CALLBACKID.simpleAsyncMessageID.ordinal()) {
             Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(data), true);
-        } else if (callbackId == CALLBACKID.uncountedPutID.ordinal()) {
-            Runtime.uncountedPutReceive(new ByteArrayInputStream(data));
+        } else if (callbackId == CALLBACKID.putID.ordinal()) {
+            Runtime.putReceive(new ByteArrayInputStream(data));
         } else if (callbackId == CALLBACKID.getID.ordinal()) {
             Runtime.getReceive(new ByteArrayInputStream(data));
         } else if (callbackId == CALLBACKID.getCompletedID.ordinal()) {

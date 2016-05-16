@@ -61,7 +61,7 @@ public class SocketTransport {
 	    private MSGTYPE(int value) {this.value = value;}
 	    public int getValue(){return this.value;}
 	}; // note that GET_PLACE_REQUEST does not overlap with CTRL_MSG_TYPE
-	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID, getID, getCompletedID, uncountedPutID};
+	public static enum CALLBACKID {closureMessageID, simpleAsyncMessageID, getID, getCompletedID, putID};
 	public static enum RETURNCODE { // see matching list of error codes "x10rt_error" in x10rt_types.h 
 	    X10RT_ERR_OK,   /* No error */
 	    X10RT_ERR_MEM,   /* Out of memory error */

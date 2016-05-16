@@ -39,7 +39,7 @@ static methodDescription runClosure;
 static methodDescription runSimpleAsync;
 static methodDescription get;
 static methodDescription getCompleted;
-static methodDescription uncountedPut;
+static methodDescription put;
 
 /*************************************************************************
  *
@@ -82,8 +82,8 @@ void jni_messageReceiver_getCompleted(const x10rt_msg_params *msg) {
     jni_messageProcessor(msg, getCompleted);
 }
 
-void jni_messageReceiver_uncountedPut(const x10rt_msg_params *msg) {
-    jni_messageProcessor(msg, uncountedPut);
+void jni_messageReceiver_put(const x10rt_msg_params *msg) {
+    jni_messageProcessor(msg, put);
 }
 
 
@@ -160,7 +160,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
     runSimpleAsync.targetClass  = globalClass;
     get.targetClass  = globalClass;
     getCompleted.targetClass  = globalClass;
-    uncountedPut.targetClass = globalClass;
+    put.targetClass = globalClass;
     
     runClosure.targetMethod = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
     if (NULL == runClosure.targetMethod) {
@@ -182,9 +182,9 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
         jniHelper_abort("Unable to resolve methodID for NativeTransport.getCompletedReceive\n");
         return;
     }
-    uncountedPut.targetMethod = env->GetStaticMethodID(klazz, "uncountedPutReceive", "([B)V");
-    if (NULL == uncountedPut.targetMethod) {
-        jniHelper_abort("Unable to resolve methodID for NativeTransport.uncountedPutReceive\n");
+    put.targetMethod = env->GetStaticMethodID(klazz, "putReceive", "([B)V");
+    if (NULL == put.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.putReceive\n");
         return;
     }
     
@@ -192,7 +192,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
     jint simpleAsyncId = x10rt_register_msg_receiver(&jni_messageReceiver_runSimpleAsync, NULL, NULL, NULL, NULL);
     jint getId = x10rt_register_msg_receiver(&jni_messageReceiver_get, NULL, NULL, NULL, NULL);
     jint getCompletedId = x10rt_register_msg_receiver(&jni_messageReceiver_getCompleted, NULL, NULL, NULL, NULL);
-    jint uncountedPutId = x10rt_register_msg_receiver(&jni_messageReceiver_uncountedPut, NULL, NULL, NULL, NULL);
+    jint putId = x10rt_register_msg_receiver(&jni_messageReceiver_put, NULL, NULL, NULL, NULL);
 
     jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
     if (NULL == clsFieldId) {
@@ -214,9 +214,9 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
         jniHelper_abort("Unable to resolve fieldID for NativeTransport.getCompletedMessageID\n");
         return;
     }
-    jfieldID uncountedPutFieldId = env->GetStaticFieldID(klazz, "uncountedPutMessageID", "I");
-    if (NULL == uncountedPutFieldId) {
-        jniHelper_abort("Unable to resolve fieldID for NativeTransport.uncountedPutMessageID\n");
+    jfieldID putFieldId = env->GetStaticFieldID(klazz, "putMessageID", "I");
+    if (NULL == putFieldId) {
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.putMessageID\n");
         return;
     }
     
@@ -224,7 +224,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
     env->SetStaticIntField(klazz, asyncFieldId, simpleAsyncId);
     env->SetStaticIntField(klazz, getFieldId, getId);
     env->SetStaticIntField(klazz, getCompletedFieldId, getCompletedId);
-    env->SetStaticIntField(klazz, uncountedPutFieldId, uncountedPutId);
+    env->SetStaticIntField(klazz, putFieldId, putId);
     
     // We are done with registering message handlers
     x10rt_registration_complete();
