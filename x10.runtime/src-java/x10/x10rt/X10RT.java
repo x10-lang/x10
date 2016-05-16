@@ -268,6 +268,10 @@ public class X10RT {
             Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(data), true);
         } else if (callbackId == CALLBACKID.uncountedPutID.ordinal()) {
             Runtime.uncountedPutReceive(new ByteArrayInputStream(data));
+        } else if (callbackId == CALLBACKID.getID.ordinal()) {
+            Runtime.getReceive(new ByteArrayInputStream(data));
+        } else if (callbackId == CALLBACKID.getCompletedID.ordinal()) {
+            Runtime.getCompletedReceive(new ByteArrayInputStream(data));
         } else {
             System.err.println("Unknown message callback type: "+callbackId);
         }

@@ -23,6 +23,8 @@ public class NativeTransport {
     // messageIds;  their values set in native method registerHandlers()
     public static int closureMessageID;
     public static int simpleAsyncMessageID;
+    public static int getMessageID;
+    public static int getCompletedMessageID;
     public static int uncountedPutMessageID;
 
     /**
@@ -46,6 +48,16 @@ public class NativeTransport {
     // callback invoked from native code when receiving simpleAsyncMessageID
     private static void runSimpleAsyncAtReceive(byte[] args) {
         Runtime.runSimpleAsyncAtReceive(new ByteArrayInputStream(args), false);
+    }
+    
+    // callback invoked from native code when receiving getMessageID
+    private static void getReceive(byte[] args) {
+        Runtime.getReceive(new ByteArrayInputStream(args));
+    }
+    
+    // callback invoked from native code when receiving getCompletedMessageID
+    private static void getCompletedReceive(byte[] args) {
+        Runtime.getCompletedReceive(new ByteArrayInputStream(args));
     }
 
     // callback invoked from native code when receiving uncountedPutMessageID

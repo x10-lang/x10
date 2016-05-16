@@ -21,17 +21,18 @@ import x10.core.Rail;
 import x10.core.Ref;
 import x10.core.fun.VoidFun_0_0;
 import x10.io.Reader;
+import x10.io.SerializationException;
 import x10.io.Writer;
 import x10.lang.DeadPlaceException;
 import x10.lang.GlobalRail;
 import x10.lang.Place;
 import x10.network.SocketTransport;
 import x10.network.SocketTransport.RETURNCODE;
-import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.StaticVoidFunType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.runtime.impl.java.GetRegistry.GetHandle;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -604,23 +605,160 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
     
     public static <T> void asyncCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems) {
-
-        final GlobalRail<T> dstWrapper = new GlobalRail<T>(ParameterizedType.make(Rail.$RTT, T), dst, null);
-
-        VoidFun_0_0 copyBody1 = new Runtime.asyncCopyBody1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, null);
-
-        x10.xrx.Runtime.runAsync(src.rail.home, copyBody1, null);    
+        FinishState fs = x10.xrx.Runtime.activity().finishState();
+        fs.notifySubActivitySpawn(X10RT.here());
+        int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, fs, null);
+        X10JavaSerializer serializer = new X10JavaSerializer();
+        try {
+            serializer.write(X10RT.hereId());
+            serializer.write(getId);
+            serializer.write(src);
+            serializer.write(srcIndex);
+            serializer.write(numElems);
+        } catch (IOException e) {
+            fs.notifyActivityCreationFailed(X10RT.here(), new SerializationException(e));
+            GetRegistry.squashGet(getId);
+            return;
+        }
+        
+        int place = (int)src.rail.home.id;
+        if (X10RT.javaSockets != null) {
+            if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.getID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+                throw new DeadPlaceException(new Place(place), "Unable to initiate asyncCopyFrom "+place);
+            }
+        } else {
+            byte[] rawBytes = serializer.getDataBytes();
+            NativeTransport.sendMessage(place, NativeTransport.getMessageID, rawBytes.length, rawBytes);                
+        }
     }
     
     public static <T> void uncountedCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
-        final GlobalRail<T> dstWrapper = new GlobalRail<T>(ParameterizedType.make(Rail.$RTT, T), dst, null);
+        int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, null, notifier);
+        X10JavaSerializer serializer = new X10JavaSerializer();
+        try {
+            serializer.write(X10RT.hereId());
+            serializer.write(getId);
+            serializer.write(src);
+            serializer.write(srcIndex);
+            serializer.write(numElems);
+        } catch (IOException e) {
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("WARNING: uncountedCopyFrom: exception while serializing message!");
+                e.printStackTrace();
+            }
+            GetRegistry.squashGet(getId);
+            return;
+        }
+        
+        int place = (int)src.rail.home.id;
+        if (X10RT.javaSockets != null) {
+            if (X10RT.javaSockets.sendMessage(place, SocketTransport.CALLBACKID.getID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+                throw new DeadPlaceException(new Place(place), "Unable to initiate uncountedCopyFrom "+place);
+            }
+        } else {
+            byte[] rawBytes = serializer.getDataBytes();
+            NativeTransport.sendMessage(place, NativeTransport.getMessageID, rawBytes.length, rawBytes);                
+        }
+    }
 
-        VoidFun_0_0 copyBody1 = new Runtime.asyncCopyBody1<T>(src, srcIndex, dstWrapper, dstIndex, numElems, notifier);
+    
+    public static void getReceive(InputStream input) {
+        if (X10RT.VERBOSE) System.out.println("getReceive is called");
 
-        x10.xrx.Runtime.runUncountedAsync(src.rail.home, copyBody1, null);
+        try {
+            DataInputStream objStream = new DataInputStream(input);
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+            int dstPlace = deserializer.readInt();
+            int getId = deserializer.readInt();
+            GlobalRail<?> src = deserializer.readObject();
+            int srcIndex = deserializer.readInt();
+            int numElems = deserializer.readInt();
+ 
+            if (X10RT.VERBOSE) System.out.println("getReceive preparing get completed message");
+            Rail<?> srcRail = src.$apply();
+            final Object dataToCopy;
+            if (numElems == (int)srcRail.size) {
+                dataToCopy = srcRail.getBackingArray();
+            } else {
+                dataToCopy = srcRail.$getParam(0).makeArray(numElems);
+                System.arraycopy(srcRail.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
+            }
+            
+            X10JavaSerializer serializer = new X10JavaSerializer();
+            serializer.write(getId);
+            serializer.write(dataToCopy);
+            
+            if (X10RT.VERBOSE) System.out.println("getReceive sending getCompleted message back to dstPlace");
+            if (X10RT.javaSockets != null) {
+                if (X10RT.javaSockets.sendMessage(dstPlace, SocketTransport.CALLBACKID.getCompletedID.ordinal(), serializer.getDataBytes()) != RETURNCODE.X10RT_ERR_OK.ordinal()) {
+                    if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                        System.out.println("getCompleted error was not able to responde to initiating place");
+                     }
+                }
+            } else {
+                byte[] rawBytes = serializer.getDataBytes();
+                NativeTransport.sendMessage(dstPlace, NativeTransport.getCompletedMessageID, rawBytes.length, rawBytes);                
+            }
+            if (X10RT.VERBOSE) System.out.println("getReceive is completed");
+        } catch(Exception ex){
+            if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                System.out.println("getReceive error !!!");
+                ex.printStackTrace();
+            }
+        }
     }
     
     
+   public static void getCompletedReceive(InputStream input) {
+        
+       if (X10RT.VERBOSE) System.out.println("getCompletedReceive is called");
+
+       try {
+           DataInputStream objStream = new DataInputStream(input);
+           X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+
+           int getId = deserializer.readInt();
+           Object dataToCopy = deserializer.readObject();
+                      
+           GetHandle gh = GetRegistry.completeGet(getId);
+           if (gh == null) {
+               if (X10RT.VERBOSE || !x10.xrx.Configuration.silenceInternalWarnings$O()) {
+                   System.out.println("getReceiveCompleted lookup of GetHandle "+getId+" failed to find handle.");
+               }
+               return;
+           }
+           
+           if (X10RT.VERBOSE) System.out.println("getCompletedReceive performing copy");
+           try {
+               System.arraycopy(dataToCopy, 0, gh.dst.getBackingArray(), gh.dstIdx, gh.numElems);
+           } catch (Exception e) {
+               if (X10RT.VERBOSE) System.out.println("getCompletedReceive exception during copy");
+               if (gh.finishState != null) {
+                   gh.finishState.pushException(e);
+               } else {
+                   throw e; // rethrow to skip notifier processing and report as an error in outer catch block
+               }
+           }
+           
+           if (gh.finishState != null) {
+               if (X10RT.VERBOSE) System.out.println("getCompletedReceive notifying finish state");
+               gh.finishState.notifyActivityCreatedAndTerminated(X10RT.here());
+           }
+           
+           if (gh.notifier != null) {
+               if (X10RT.VERBOSE) System.out.println("getCompletedReceive invoking notifier function");
+               gh.notifier.$apply();
+           }
+           
+           if (X10RT.VERBOSE) System.out.println("getCompletedReceive is completed");
+       } catch(Exception ex){
+           if (!x10.xrx.Configuration.silenceInternalWarnings$O()) {
+               System.out.println("getCompletedReceive error !!!");
+               ex.printStackTrace();
+           }
+       }        
+   }
+
     // static nested class version of copyBody
     private static class asyncCopyBody0<T> extends Ref implements VoidFun_0_0 {
 	    public Object srcData;
@@ -684,85 +822,6 @@ public abstract class Runtime implements VoidFun_0_0 {
 	    }
 	}
 	
-	// static nested class version of copyBody1
-    private static class asyncCopyBody1<T> extends Ref implements VoidFun_0_0 {
-	    public GlobalRail<T> src;
-	    public int srcIndex;
-	    public GlobalRail<T> dstWrapper;
-	    public int dstIndex;
-	    public int numElems;
-	    public VoidFun_0_0 notifier;
-	
-	    //Just for allocation
-	    asyncCopyBody1() {
-	    }
-	    asyncCopyBody1(GlobalRail<T> src, int srcIndex, GlobalRail<T> dstWrapper, int dstIndex, int numElems, VoidFun_0_0 notifier) {
-	        this.src = src;
-	        this.srcIndex = srcIndex;
-	        this.dstWrapper = dstWrapper;
-	        this.dstIndex = dstIndex;
-	        this.numElems = numElems;
-	        this.notifier = notifier;
-	    }
-	    public void $apply() {
-	        // This body runs at src's home.  It accesses the data for src and then does
-	        // another async back to dstWrapper's home to transfer the data.
-	        Rail<T> srcData = src.$apply();
-	
-	        // extra copy here simplifies logic and allows us to do this entirely at the Java level.
-	        // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
-	        // it as just another async to execute remotely.
-	        final Object dataToCopy;
-	        if (numElems == srcData.size) {
-	            dataToCopy = srcData.getBackingArray();
-	        } else {
-	            dataToCopy = src.$apply().$getParam(0).makeArray(numElems);
-	            System.arraycopy(srcData.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
-	        }
-	
-	        // N.B. copyBody2 is same as copyBody 
-	        VoidFun_0_0 copyBody2 = new asyncCopyBody0(dataToCopy, dstWrapper, dstIndex, numElems, notifier);
-	
-	        if (notifier != null) {
-	            x10.xrx.Runtime.runUncountedAsync(dstWrapper.rail.home, copyBody2, null);
-	        } else {
-	            x10.xrx.Runtime.runAsync(dstWrapper.rail.home, copyBody2, null);
-	        }
-	    }
-	    public static final RuntimeType<asyncCopyBody1<?>> $RTT = StaticVoidFunType.<asyncCopyBody1<?>> make(asyncCopyBody1.class, new Type[] { VoidFun_0_0.$RTT });
-	    public RuntimeType<asyncCopyBody1<?>> $getRTT() {
-	        return $RTT;
-	    }
-	    public Type<?> $getParam(int i) {
-	        return null; // should return T if i = 0
-	    }
-	
-	    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-	        $serializer.write(this.src);
-	        $serializer.write(this.srcIndex);
-	        $serializer.write(this.dstWrapper);
-	        $serializer.write(this.dstIndex);
-	        $serializer.write(this.numElems);
-	        $serializer.write(this.notifier);
-	    }
-	
-	    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-	        asyncCopyBody1 $_obj = new asyncCopyBody1();
-	        $deserializer.record_reference($_obj);
-	        return $_deserialize_body($_obj, $deserializer);
-	    }
-	
-	    public static X10JavaSerializable $_deserialize_body(asyncCopyBody1 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-	        $_obj.src = $deserializer.readObject();
-	        $_obj.srcIndex = $deserializer.readInt();
-	        $_obj.dstWrapper = $deserializer.readObject();
-	        $_obj.dstIndex = $deserializer.readInt();
-	        $_obj.numElems = $deserializer.readInt();
-	        $_obj.notifier = $deserializer.readObject();
-	        return $_obj;
-	    }
-	}
-
     /**
      * Return true if place(id) is local to this node
      */

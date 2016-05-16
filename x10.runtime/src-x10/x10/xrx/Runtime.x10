@@ -1383,6 +1383,9 @@ public final class Runtime {
         }
     }
 
+    @Native("java", "x10.runtime.impl.java.GetRegistry.notifyPlaceDeath()")
+    private static def getRegistryNotifyPlaceDeath():void { }
+
     static def notifyPlaceDeath() : void {
         if (CANCELLABLE) {
             if (pool.cancelWatcher != null) {
@@ -1390,6 +1393,7 @@ public final class Runtime {
                 pool.cancelWatcher.release();
             }
         }
+
         if (RESILIENT_MODE == Configuration.RESILIENT_MODE_NONE) {
             // This case seems occur naturally on shutdown, so transparently ignore it.
             // The launcher is responsible for tear-down in the case of place death, nothing we need to do.
@@ -1397,6 +1401,7 @@ public final class Runtime {
             // Nothing to do at the XRX level in this mode.
         } else {
             FinishResilient.notifyPlaceDeath();
+            getRegistryNotifyPlaceDeath();
         }
     }
 

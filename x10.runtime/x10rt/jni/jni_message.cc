@@ -37,6 +37,8 @@
 
 static methodDescription runClosure;
 static methodDescription runSimpleAsync;
+static methodDescription get;
+static methodDescription getCompleted;
 static methodDescription uncountedPut;
 
 /*************************************************************************
@@ -67,10 +69,17 @@ void jni_messageProcessor(const x10rt_msg_params *msg, methodDescription target)
 void jni_messageReceiver_runClosure(const x10rt_msg_params *msg) {
     jni_messageProcessor(msg, runClosure);
 }
-    
 
 void jni_messageReceiver_runSimpleAsync(const x10rt_msg_params *msg) {
     jni_messageProcessor(msg, runSimpleAsync);
+}
+
+void jni_messageReceiver_get(const x10rt_msg_params *msg) {
+    jni_messageProcessor(msg, get);
+}
+
+void jni_messageReceiver_getCompleted(const x10rt_msg_params *msg) {
+    jni_messageProcessor(msg, getCompleted);
 }
 
 void jni_messageReceiver_uncountedPut(const x10rt_msg_params *msg) {
@@ -142,38 +151,47 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_sendMessage(JNIEnv *env, j
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *env, jclass klazz) {
 
-    /* Get a hold of NativeTransport.receiveAsync and stash away its invoke information */
-    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
-    if (NULL == receiveId1) {
-        jniHelper_abort("Unable to resolve methodID for NativeTransport.runClosureAtReceive\n");
-        return;
-    }
-    jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
-    if (NULL == receiveId2) {
-        jniHelper_abort("Unable to resolve methodID for NativeTransport.runSimpleAsyncAtReceive\n");
-        return;
-    }
-    jmethodID receiveId3 = env->GetStaticMethodID(klazz, "uncountedPutReceive", "([B)V");
-    if (NULL == receiveId3) {
-        jniHelper_abort("Unable to resolve methodID for NativeTransport.uncountedPutReceive\n");
-        return;
-    }
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
     if (NULL == globalClass) {
         jniHelper_abort("OOM while attempting to allocate global reference for NativeTransport class\n");
         return;
     }
     runClosure.targetClass  = globalClass;
-    runClosure.targetMethod = receiveId1;
-
     runSimpleAsync.targetClass  = globalClass;
-    runSimpleAsync.targetMethod = receiveId2;
-
+    get.targetClass  = globalClass;
+    getCompleted.targetClass  = globalClass;
     uncountedPut.targetClass = globalClass;
-    uncountedPut.targetMethod = receiveId3;
+    
+    runClosure.targetMethod = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
+    if (NULL == runClosure.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.runClosureAtReceive\n");
+        return;
+    }
+    runSimpleAsync.targetMethod = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
+    if (NULL == runSimpleAsync.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.runSimpleAsyncAtReceive\n");
+        return;
+    }
+    get.targetMethod = env->GetStaticMethodID(klazz, "getReceive", "([B)V");
+    if (NULL == get.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.getReceive\n");
+        return;
+    }
+    getCompleted.targetMethod = env->GetStaticMethodID(klazz, "getCompletedReceive", "([B)V");
+    if (NULL == getCompleted.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.getCompletedReceive\n");
+        return;
+    }
+    uncountedPut.targetMethod = env->GetStaticMethodID(klazz, "uncountedPutReceive", "([B)V");
+    if (NULL == uncountedPut.targetMethod) {
+        jniHelper_abort("Unable to resolve methodID for NativeTransport.uncountedPutReceive\n");
+        return;
+    }
     
     jint closureId = x10rt_register_msg_receiver(&jni_messageReceiver_runClosure, NULL, NULL, NULL, NULL);
     jint simpleAsyncId = x10rt_register_msg_receiver(&jni_messageReceiver_runSimpleAsync, NULL, NULL, NULL, NULL);
+    jint getId = x10rt_register_msg_receiver(&jni_messageReceiver_get, NULL, NULL, NULL, NULL);
+    jint getCompletedId = x10rt_register_msg_receiver(&jni_messageReceiver_getCompleted, NULL, NULL, NULL, NULL);
     jint uncountedPutId = x10rt_register_msg_receiver(&jni_messageReceiver_uncountedPut, NULL, NULL, NULL, NULL);
 
     jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
@@ -181,13 +199,21 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
         jniHelper_abort("Unable to resolve fieldID for NativeTransport.closureMessageID\n");
         return;
     }
-
     jfieldID asyncFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageID", "I");
     if (NULL == asyncFieldId) {
         jniHelper_abort("Unable to resolve fieldID for NativeTransport.simpleAsyncMessageID\n");
         return;
     }
-
+    jfieldID getFieldId = env->GetStaticFieldID(klazz, "getMessageID", "I");
+    if (NULL == getFieldId) {
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.getMessageID\n");
+        return;
+    }
+    jfieldID getCompletedFieldId = env->GetStaticFieldID(klazz, "getCompletedMessageID", "I");
+    if (NULL == getCompletedFieldId) {
+        jniHelper_abort("Unable to resolve fieldID for NativeTransport.getCompletedMessageID\n");
+        return;
+    }
     jfieldID uncountedPutFieldId = env->GetStaticFieldID(klazz, "uncountedPutMessageID", "I");
     if (NULL == uncountedPutFieldId) {
         jniHelper_abort("Unable to resolve fieldID for NativeTransport.uncountedPutMessageID\n");
@@ -196,6 +222,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_NativeTransport_registerHandlers(JNIEnv *e
     
     env->SetStaticIntField(klazz, clsFieldId, closureId);
     env->SetStaticIntField(klazz, asyncFieldId, simpleAsyncId);
+    env->SetStaticIntField(klazz, getFieldId, getId);
+    env->SetStaticIntField(klazz, getCompletedFieldId, getCompletedId);
     env->SetStaticIntField(klazz, uncountedPutFieldId, uncountedPutId);
     
     // We are done with registering message handlers
