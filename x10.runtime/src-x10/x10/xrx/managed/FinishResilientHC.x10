@@ -345,6 +345,11 @@ class FinishResilientHC extends FinishResilientBridge {
         notifyActivityTermination(ASYNC);
     }
 
+    public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
+        notifyActivityCreation(srcPlace, null, ASYNC);
+        notifyActivityTermination(ASYNC);
+    }
+
     public
     def notifyActivityTermination():void {
         notifyActivityTermination(ASYNC);
