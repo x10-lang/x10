@@ -345,9 +345,35 @@ class FinishResilientHC extends FinishResilientBridge {
         notifyActivityTermination(ASYNC);
     }
 
-    public def notifyActivityCreatedAndTerminated(srcPlace:Place) {
-        notifyActivityCreation(srcPlace, null, ASYNC);
-        notifyActivityTermination(ASYNC);
+    public def notifyActivityCreatedAndTerminated(srcPlace:Place):void {
+      val srcId = srcPlace.id;
+      val dstId = hereId;
+      val kind = ASYNC;
+      if (verbose>=1) debug(">>>> notifyActivityCreatedAndTerminated(id="+id+") called, srcId="+srcId);
+
+      try {
+        // counts[srcId,dstId]--;
+        propagate(id, new AbstractEntryProcessor/*[FinishID,State]*/() {
+            public def process(entry:Map.Entry/*[FinishID,State]*/) {
+                val state = entry.getValue() as State;
+                if (state == null || state.deadPlIds.contains(hereId)) throw new HereIsDeadError(); // finish thinks this place is dead, exit
+                if (Place.isDead(srcId) || state.deadPlIds.contains(srcId)) { // source place has died
+                    if (verbose>=2) debug("source place has died");
+                    if (!state.deadPlIds.contains(srcId)) { handleNewPlaceDeath(state, srcId); entry.setValue(filter(id, state)); }
+                    throw new PeerIsDeadException(); // throw exception to return false (no need to propagate)
+                }
+                val c2 = --state.counts(srcId, dstId, kind);
+                if (c2 == 0n) --state.nonzero; else if (c2 ==-1n) ++state.nonzero;
+                if (verbose>=3) state.dump("DUMP id="+id);
+                entry.setValue(filter(id, state));
+                return next(state);
+            }
+        });
+      } catch (e:PeerIsDeadException) {
+        if (verbose>=1) debug("<<<< notifyActivityCreatedAndTerminated(id="+id+") src was dead)");
+      }
+
+      if (verbose>=1) debug("<<<< notifyActivityCreatedAndTerminated(id="+id+") returning)");
     }
 
     public
