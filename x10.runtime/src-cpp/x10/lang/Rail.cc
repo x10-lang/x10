@@ -49,13 +49,16 @@ namespace x10 {
             } else {
                 x10aux::place dst_place = dstPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
+                x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
                 if (NULL == notif) {
-                    x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
-                    fs->notifySubActivitySpawn(Place::_make(parent(dst_place)));
+                    fs->notifySubActivitySpawn(Place::_make(parent(dst_place))); // must be remote; don't need separate notfyRCC
                     buf.write(fs);
                     buf.write(x10aux::here);
                     x10aux::send_put(dst_place, Rail_copy_to_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
+                    // Needed to prevent the worker that calls stopFinish from trying to
+                    // help and improperly scheduling an activity from an unrelated finish.
+                    fs->notifyRemoteContinuationCreated();
                     buf.write(notif);
                     x10aux::send_put(dst_place, Rail_uncounted_copy_to_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 }
@@ -71,13 +74,19 @@ namespace x10 {
             } else {
                 x10aux::place src_place = srcPlace->FMGL(id);
                 x10aux::serialization_buffer buf;
+                x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
                 if (NULL == notif) {
-                    x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
                     fs->notifySubActivitySpawn(Place::_make(x10aux::here));
+                    // Needed to prevent the worker that calls stopFinish from trying to
+                    // help and improperly scheduling an activity from an unrelated finish.
+                    fs->notifyRemoteContinuationCreated();
                     // notifier runs here; sleazy optimization to avoid true serialization...
                     buf.write(static_cast<x10_ulong>((size_t)static_cast<void*>(fs)));
                     x10aux::send_get(src_place, Rail_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
+                    // Needed to prevent the worker that calls stopFinish from trying to
+                    // help and improperly scheduling an activity from an unrelated finish.
+                    fs->notifyRemoteContinuationCreated();
                     buf.write(notif);
                     x10aux::send_get(src_place, Rail_uncounted_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 }

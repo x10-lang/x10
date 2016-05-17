@@ -718,10 +718,8 @@ public final class Runtime {
                 prof.bytes += ser.dataBytesWritten();
             }
 
-            // Needed to prevent the worker that calls stopFinish
-            // from trying to help and improperly scheduling an activity
-            // from an unrelated finish.
-	    activity().finishState().notifyRemoteContinuationCreated();
+            // Prevent stopFinish from improperly scheduling an unrelated activity
+	    activity().finishState().notifyRemoteContinuationCreated(); 
 
             // Spawn asynchronous activity
             val asyncBody = ()=>{
@@ -782,9 +780,7 @@ public final class Runtime {
 
         val epoch = a.epoch;
 
-        // Needed to prevent the worker that calls stopFinish
-        // from trying to help and improperly scheduling an activity
-        // from an unrelated finish.
+        // Prevent stopFinish from improperly scheduling an unrelated activity
 	activity().finishState().notifyRemoteContinuationCreated();
 
         submitLocalActivity(new Activity(epoch, body, new FinishState.UncountedFinish()));

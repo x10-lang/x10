@@ -19,9 +19,11 @@ public class ActivityManagement {
     public static FinishState activityCreationBookkeeping() {
         Activity activity = x10.xrx.Runtime.activity();
         FinishState fs = activity.finishState();
-        fs.notifyRemoteContinuationCreated();
         fs.notifySubActivitySpawn(x10.xrx.Runtime.home());
         fs.notifyActivityCreation$O(x10.xrx.Runtime.home(), null);
+        // Needed to prevent the worker that calls stopFinish from trying to
+        // help and improperly scheduling an activity from an unrelated finish.
+        fs.notifyRemoteContinuationCreated();
         return fs;
     }
 

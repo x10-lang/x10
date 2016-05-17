@@ -451,9 +451,11 @@ void x10aux::cuda_put (place gpu, void *srcAddr, void *dstAddr, size_t sz)
 
 void *x10aux::coll_enter() {
     x10::xrx::FinishState* fs = x10::xrx::Runtime::activity()->finishState();
-    fs->notifyRemoteContinuationCreated();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
     fs->notifyActivityCreation(x10::lang::Place::_make(x10aux::here), NULL);
+    // Needed to prevent the worker that calls stopFinish from trying to
+    // help and improperly scheduling an activity from an unrelated finish.
+    fs->notifyRemoteContinuationCreated(); 
     return fs;
 }
 

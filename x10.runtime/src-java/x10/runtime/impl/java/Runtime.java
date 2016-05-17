@@ -514,9 +514,10 @@ public abstract class Runtime implements VoidFun_0_0 {
             System.arraycopy(src.getBackingArray(), srcIndex, dataToCopy, 0, numElems);
         }
         
-        X10JavaSerializer serializer = new X10JavaSerializer();
         FinishState fs = x10.xrx.Runtime.activity().finishState();
-        fs.notifySubActivitySpawn(dst.rail.home);
+        fs.notifySubActivitySpawn(dst.rail.home); // must be non-local, so don't need explicit notifyRemoteContinuationCreated call
+
+        X10JavaSerializer serializer = new X10JavaSerializer();
         try {
             serializer.write(fs);
             serializer.write(X10RT.hereId());
@@ -546,6 +547,11 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
     
     public static <T> void uncountedCopyTo(Type<?> T, Rail<T> src, final int srcIndex, final GlobalRail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
+        // Needed to prevent the worker that calls stopFinish from trying to
+        // help and improperly scheduling an activity from an unrelated finish.
+        FinishState fs = x10.xrx.Runtime.activity().finishState();
+        fs.notifyRemoteContinuationCreated();
+
         // It is much more efficient (especially for Java primitives) to bulk-serialize an entire array
         // than to do element by element serialization. Therefore incurring an extra copy if necessary 
         // before serializing makes sense.
@@ -638,6 +644,10 @@ public abstract class Runtime implements VoidFun_0_0 {
     public static <T> void asyncCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems) {
         FinishState fs = x10.xrx.Runtime.activity().finishState();
         fs.notifySubActivitySpawn(X10RT.here());
+        // Needed to prevent the worker that calls stopFinish from trying to
+        // help and improperly scheduling an activity from an unrelated finish.
+        fs.notifyRemoteContinuationCreated();
+
         int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, fs, null);
         X10JavaSerializer serializer = new X10JavaSerializer();
         try {
@@ -664,6 +674,11 @@ public abstract class Runtime implements VoidFun_0_0 {
     }
     
     public static <T> void uncountedCopyFrom(Type<?> T, final GlobalRail<T> src, final int srcIndex, Rail<T> dst, final int dstIndex, final int numElems, VoidFun_0_0 notifier) {
+        FinishState fs = x10.xrx.Runtime.activity().finishState();
+        // Needed to prevent the worker that calls stopFinish from trying to
+        // help and improperly scheduling an activity from an unrelated finish.
+        fs.notifyRemoteContinuationCreated();
+
         int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, null, notifier);
         X10JavaSerializer serializer = new X10JavaSerializer();
         try {
