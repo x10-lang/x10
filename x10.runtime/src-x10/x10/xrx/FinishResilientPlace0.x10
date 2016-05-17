@@ -446,6 +446,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     private val grlc:GlobalRef[AtomicInteger];
     private transient val ref:GlobalRef[FinishResilientPlace0] = GlobalRef[FinishResilientPlace0](this);
     private transient var isGlobal:Boolean = false;
+    private transient var strictFinish:Boolean = false;
 
     // These fields are only valid / used in the root finish instance.
     private transient var latch:SimpleLatch; 
@@ -461,6 +462,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         grlc = GlobalRef[AtomicInteger](new AtomicInteger(1n)); // for myself.  Will be decremented in waitForFinish
         parent = p;
         isGlobal = false;
+        strictFinish = false;
         id = Id(here.id as Int, nextId.getAndIncrement());
     }
 
@@ -469,9 +471,11 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         val lc = deser.readAny() as GlobalRef[AtomicInteger];
         grlc = (lc.home == here) ? lc : GlobalRef[AtomicInteger](new AtomicInteger(1n));
         isGlobal = true;
+        strictFinish = true;
     }
 
     public def serialize(ser:Serializer) {
+        strictFinish = true;
         if (!isGlobal) globalInit(); // Once we have more than 1 copy of the finish state, we must go global
         ser.writeAny(id);
         ser.writeAny(grlc);
@@ -479,6 +483,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
     private def globalInit() {
         latch.lock();
+        strictFinish = true;
         if (!isGlobal) {
             if (verbose>=1) debug(">>>> doing globalInit for id="+id);
             val parentId:Id;
@@ -591,7 +596,8 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
     }
 
     def notifyRemoteContinuationCreated():void { 
-        if (!isGlobal) globalInit();
+        strictFinish = true;
+        if (verbose>=1) debug("<<<< notifyRemoteContinuationCreated(id="+id+") isGlobal = "+isGlobal);
     }
 
     /*
@@ -857,7 +863,7 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
 
         // If we haven't gone remote with this finish yet, see if this worker
         // can execute other asyncs that are governed by the finish before waiting on the latch.
-        if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || !isGlobal)) {
+        if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || !strictFinish)) {
             if (verbose>=2) debug("calling worker.join for id="+id);
             Runtime.worker().join(this.latch);
         }

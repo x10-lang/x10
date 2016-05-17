@@ -32,6 +32,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
 
   // for root instance
   private transient val parent:Any; // parent finish
+  private transient var strictFinish:Boolean;
 //  private transient var exceptions:GrowableRail[CheckedThrowable](); // TODO
 
   static def make(parent:Any):FinishResilientHCopt {
@@ -41,6 +42,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   private def this(parent:Any, latch:SimpleLatch) {
     this.parent = parent;
     this.latch = latch;
+    this.strictFinish = false;
   }
 
   public def serialize(s:x10.io.Serializer) {
@@ -52,10 +54,12 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     this.f = ds.readAny() as FinishResilientHC;
     this.parent = 42;
     this.latch = new SimpleLatch();
+    this.strictFinish = true;
   }
 
   private def init() {
     latch.lock();
+    strictFinish = true;
     if (f == null) {
       if (parent instanceof FinishResilientHCopt) {
         (parent as FinishResilientHCopt).init();
@@ -77,7 +81,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   }
 
   public def notifyRemoteContinuationCreated():void {
-    init();
+    strictFinish = true;
   }
 
   public def notifyActivityCreation(srcPlace:Place, activity:Activity):Boolean {
@@ -132,7 +136,7 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   
   public def waitForFinish():void {
     notifyActivityTermination();
-    if ((!Runtime.STRICT_FINISH) && (f == null)) {
+    if ((!Runtime.STRICT_FINISH) && (!strictFinish)) {
       joinFinish(latch);
     }
     latch.await();
