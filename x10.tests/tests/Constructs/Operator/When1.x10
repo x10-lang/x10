@@ -41,7 +41,7 @@ class When1 extends x10Test {
     public def run() : boolean {
 	val a = new CancelableWhen();
 	finish {
-	    for (i in 1..1000) {
+	    for (i in 1..100) {
 		async {
 		    a.when(()=>go) {
 			cpt = cpt + 1;
@@ -58,7 +58,7 @@ class When1 extends x10Test {
 	    }
 	    a.cancel();
 	}
-	return cpt == 1000;
+	return cpt == 100;
     }
 
     public static def main(Rail[String]) {
