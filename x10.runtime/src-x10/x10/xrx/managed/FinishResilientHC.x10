@@ -99,7 +99,13 @@ class FinishResilientHC extends FinishResilientBridge {
             var nz:Long = 0;
             val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
             s.add("  parentId="+parentId+" #non0="+nonzero+" #excs="+exceptions.size()+"\n");
-            s.add("    counts: "); for (v in counts)  { s.add(" " + v); if(v!=0n)nz++; } s.add('\n');
+            s.add(" non-zero counts:\n");
+            for ([i,j,k] in counts.indices()) {
+                if (counts(i,j,k) != 0n) {
+                    nz += 1;
+                    s.add("\t("+i+", "+j+(k==0 ? ", AT" : ", ASYNC")+") = "+counts(i,j,k)+"\n");
+                }
+            }
             s.add(" liveChIds: "); for (v in liveChIds) s.add(" " + v); s.add('\n');
             s.add(" deadChIds: "); for (v in deadChIds) s.add(" " + v); s.add('\n');
             s.add(" deadPlIds: "); for (v in deadPlIds) s.add(" " + v);
