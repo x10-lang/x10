@@ -61,10 +61,13 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     latch.lock();
     strictFinish = true;
     if (f == null) {
+      var exposedParent:Any = parent;
       if (parent instanceof FinishResilientHCopt) {
-        (parent as FinishResilientHCopt).init();
+        val optParent = (parent as FinishResilientHCopt);
+        optParent.init();
+        exposedParent = optParent.f;
       }
-      f = FinishResilientHC.make(parent);
+      f = FinishResilientHC.make(exposedParent);
     }
     latch.unlock();
   }
