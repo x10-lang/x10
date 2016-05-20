@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_Innerclasses_Are_For_Innermasses;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_While;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,21 +17,23 @@
 
 import harness.x10Test;
 
+ import x10.util.*;
 
-
-public class InnerClasses30 extends x10Test {
+public class ClassesUserDefStmt160 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(args:Rail[String]):void {
-        new InnerClasses30().execute();
+        new ClassesUserDefStmt160().execute();
     }
 
 
-// file Classes line 5178
- static class OC1 {
- static    class IC1 {}
-}
- static class OC2 extends OC1 {
- static    class IC2 extends IC1 {}
+// file Classes line 3303
+ static class Timeout {
+  public static operator while(ms: Long, body: ()=>void) {
+    val deadline = System.currentTimeMillis() + ms;
+    while (System.currentTimeMillis() < deadline) {
+      body();
+    }
+  }
 }
 
  static class Hook {

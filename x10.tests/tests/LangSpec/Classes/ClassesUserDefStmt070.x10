@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_SimplifiedRegion;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Async;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,29 +17,43 @@
 
 import harness.x10Test;
 
-import x10.regionarray.*;
 
-public class Classes280 extends x10Test {
+
+public class ClassesUserDefStmt070 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(args:Rail[String]):void {
-        new Classes280().execute();
+        new ClassesUserDefStmt070().execute();
     }
 
 
-// file Classes line 3655
- static class MyRegion(rank:Long) {
-  static type MyRegion(n:Long)=MyRegion{rank==n};
-  def this(r:Long):MyRegion(r) {
-    property(r);
+// file Classes line 2908
+ static class Escape {
+  private var task: ()=>void = null;
+  private var stop: Boolean = false;
+
+  public def this() {
+    async {
+      while (!stop) {
+        val t: () => void;
+        when (task != null || stop) {
+          t = task;
+          task = null;
+        }
+        if (t != null) {
+          async { t(); }
+        }
+      }
+    }
   }
-  def this(diag:Rail[Long]):MyRegion(diag.size){
-    property(diag.size);
+
+  public operator async (body: () => void) {
+    when (task == null) {
+      task = body;
+    }
   }
-  def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
-  def example() {
-    val R1 : MyRegion(3L) = new MyRegion([4,4,4 as Long]);
-    val R2 : MyRegion(3L) = new MyRegion([5,4,1]);
-    val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
+
+  public def stop() {
+    atomic { stop = true; }
   }
 }
 

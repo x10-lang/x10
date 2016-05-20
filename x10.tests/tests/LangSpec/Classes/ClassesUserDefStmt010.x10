@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_Innerclasses_Are_For_Innermasses;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_If;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,25 +17,33 @@
 
 import harness.x10Test;
 
+ import x10.util.*;
 
-
-public class InnerClasses30 extends x10Test {
+public class ClassesUserDefStmt010 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(args:Rail[String]):void {
-        new InnerClasses30().execute();
+        new ClassesUserDefStmt010().execute();
     }
 
 
-// file Classes line 5178
- static class OC1 {
- static    class IC1 {}
+// file Classes line 2369
+ static class RandomIf {
+    val random = new Random();
+    public operator if(then: ()=>void, else_: ()=>void) {
+        if (random.nextBoolean()) {
+            then();
+        } else {
+            else_();
+        }
+    }
 }
- static class OC2 extends OC1 {
- static    class IC2 extends IC1 {}
-}
-
- static class Hook {
-   def run():Boolean = true;
-}
+ static  class Hook{
+   var cpt : Long = 0;
+   def run() {
+     val random = new RandomIf();
+     random.if() { cpt++; } else { cpt++; }
+     return cpt == 1;
+   }
+ }
 
 }

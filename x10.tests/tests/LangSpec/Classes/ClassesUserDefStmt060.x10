@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_Innerclasses_Are_For_Innermasses;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Try;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,22 +17,31 @@
 
 import harness.x10Test;
 
+ import x10.util.*;
 
-
-public class InnerClasses30 extends x10Test {
+public class ClassesUserDefStmt060 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(args:Rail[String]):void {
-        new InnerClasses30().execute();
+        new ClassesUserDefStmt060().execute();
     }
 
 
-// file Classes line 5178
- static class OC1 {
- static    class IC1 {}
+// file Classes line 2829
+ static  class Test {
+public static def main(Rail[String]) {
+  Flatten.try {
+    finish {
+      async { throw new Exception("Exn 1"); }
+      async finish {
+        async { throw new Exception("Exn 2"); }
+        async { throw new Exception("Exn 3"); }
+      }
+    }
+  } catch (me: MultipleExceptions) {
+    Console.OUT.println(me.exceptions);
+  }
 }
- static class OC2 extends OC1 {
- static    class IC2 extends IC1 {}
-}
+ }
 
  static class Hook {
    def run():Boolean = true;

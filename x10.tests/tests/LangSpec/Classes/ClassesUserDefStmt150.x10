@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_Innerclasses_Are_For_Innermasses;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Ateach;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,21 +17,24 @@
 
 import harness.x10Test;
 
+ import x10.regionarray.Dist;
 
-
-public class InnerClasses30 extends x10Test {
+public class ClassesUserDefStmt150 extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(args:Rail[String]):void {
-        new InnerClasses30().execute();
+        new ClassesUserDefStmt150().execute();
     }
 
 
-// file Classes line 5178
- static class OC1 {
- static    class IC1 {}
-}
- static class OC2 extends OC1 {
- static    class IC2 extends IC1 {}
+// file Classes line 3244
+ static class Sequential {
+  public static operator ateach (d: Dist, body:(Point)=>void) {
+    for (place in d.places()) {
+      at(place) {
+        for (p in d|here) { body(p); }
+      }
+    }
+  }
 }
 
  static class Hook {
