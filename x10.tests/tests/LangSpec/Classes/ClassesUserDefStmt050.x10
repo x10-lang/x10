@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Try;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Try1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt050 extends x10Test {
     }
 
 
-// file Classes line 2790
+// file Classes line 2812
  static class Flatten {
 
   public static operator try(body:()=>void,

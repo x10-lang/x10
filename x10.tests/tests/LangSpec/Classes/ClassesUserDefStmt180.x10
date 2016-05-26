@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Continue;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Continue1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt180 extends x10Test {
     }
 
 
-// file Classes line 3367
+// file Classes line 3476
  static class Par {
   private static  class Continue extends Exception {}
 

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_When;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_When1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt090 extends x10Test {
     }
 
 
-// file Classes line 3022
+// file Classes line 3091
  static class CancelableWhen {
   private var stop : Boolean = false;
 

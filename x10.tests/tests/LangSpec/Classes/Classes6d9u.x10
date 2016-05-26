@@ -26,7 +26,7 @@ public class Classes6d9u extends x10Test {
     }
 
 
-// file Classes line 3751
+// file Classes line 3875
  static class Colorized[T] {
   private var thing:T;
   private var color:String;

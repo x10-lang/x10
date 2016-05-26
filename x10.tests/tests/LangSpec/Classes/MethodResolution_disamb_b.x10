@@ -26,7 +26,7 @@ public class MethodResolution_disamb_b extends x10Test {
     }
 
 
-// file Classes line 4997
+// file Classes line 5121
 
  static class Ambig {
   public val f : (Long)=>Long =  (x:Long) => x*x;

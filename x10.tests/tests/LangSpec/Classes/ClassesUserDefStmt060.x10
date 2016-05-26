@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Try;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Try2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,28 @@ public class ClassesUserDefStmt060 extends x10Test {
     }
 
 
-// file Classes line 2829
+// file Classes line 2851
+ static  class Flatten {
+   public static operator try(body:()=>void,
+                              handler:(MultipleExceptions)=>void) {
+     try { body(); }
+     catch (me: MultipleExceptions) {
+       val exns = new GrowableRail[CheckedThrowable]();
+       flatten(me, exns);
+       handler (new MultipleExceptions(exns));
+     }
+   }
+   private static def flatten(me:MultipleExceptions,
+                              acc:GrowableRail[CheckedThrowable]) {
+     for (e in me.exceptions) {
+       if (e instanceof MultipleExceptions) {
+         flatten(e as MultipleExceptions, acc);
+       } else {
+         acc.add(e);
+       }
+     }
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   Flatten.try {

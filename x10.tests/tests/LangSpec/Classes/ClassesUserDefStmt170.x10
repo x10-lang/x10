@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_While;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_While2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,15 @@ public class ClassesUserDefStmt170 extends x10Test {
     }
 
 
-// file Classes line 3321
+// file Classes line 3422
+ static  class Timeout {
+   public static operator while(ms: Long, body: ()=>void) {
+     val deadline = System.currentTimeMillis() + ms;
+     while (System.currentTimeMillis() < deadline) {
+       body();
+     }
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   val cpt = new Cell[Long](0);

@@ -26,7 +26,7 @@ public class MethodResolution10 extends x10Test {
     }
 
 
-// file Classes line 4550
+// file Classes line 4674
  // This depends on https://jira.codehaus.org/browse/XTENLANG-2696
  static class Res {
   public static  interface Surface {}

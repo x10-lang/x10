@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Break;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Break1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt200 extends x10Test {
     }
 
 
-// file Classes line 3442
+// file Classes line 3566
  static class Infinite {
   private static  class Break extends Exception {}
 

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_If;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_If3;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -17,7 +17,7 @@
 
 import harness.x10Test;
 
-
+ import x10.util.*;
 
 public class ClassesUserDefStmt025 extends x10Test {
    public def run() : boolean = (new Hook()).run();
@@ -26,7 +26,17 @@ public class ClassesUserDefStmt025 extends x10Test {
     }
 
 
-// file Classes line 2430
+// file Classes line 2441
+ static  class RandomIf {
+     val random = new Random();
+     public operator if(then: ()=>void, else_: ()=>void) {
+         if (random.nextBoolean()) {
+             then();
+         } else {
+             else_();
+         }
+     }
+ }
  static  class Test2 {
    def test() {
     val random = new RandomIf();

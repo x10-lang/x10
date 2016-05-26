@@ -26,7 +26,7 @@ public class InnerClasses50 extends x10Test {
     }
 
 
-// file Classes line 5233
+// file Classes line 5357
  static class OC {
  static   class IC {}
   def method(){

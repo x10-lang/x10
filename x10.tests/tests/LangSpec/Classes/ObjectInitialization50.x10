@@ -26,7 +26,7 @@ public class ObjectInitialization50 extends x10Test {
     }
 
 
-// file Classes line 4293
+// file Classes line 4417
  static class Score {
   public var currently : Long;
 }

@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Continue;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Continue2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,22 @@ public class ClassesUserDefStmt190 extends x10Test {
     }
 
 
-// file Classes line 3395
+// file Classes line 3504
+ static  class Par {
+   private static  class Continue extends Exception {}
+   public static operator continue () {
+     throw new Continue();
+   }
+   public static operator for[T](c: Iterable[T], body:(T)=>void) {
+     finish {
+       for(x in c) async {
+           try {
+             body(x);
+           } catch (Continue) {}
+         }
+     }
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   val cpt = new Cell[Long](0);

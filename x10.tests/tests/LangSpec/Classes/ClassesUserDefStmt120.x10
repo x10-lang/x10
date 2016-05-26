@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Finish;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Finish2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,19 @@ public class ClassesUserDefStmt120 extends x10Test {
     }
 
 
-// file Classes line 3117
+// file Classes line 3197
+ static  class SignalingFinish {
+   private var terminated : Boolean = false;
+   public operator finish(body: ()=>void) {
+     finish {
+       body();
+     }
+     atomic { terminated = true; }
+   }
+   public def join() {
+     when (terminated) {}
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   val t = new SignalingFinish();

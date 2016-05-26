@@ -26,7 +26,7 @@ public class MethodResolution_disamb_c extends x10Test {
     }
 
 
-// file Classes line 5024
+// file Classes line 5148
 
  static class Disambig {
   public val f : (Long)=>Long =  (x:Long) => x*x;

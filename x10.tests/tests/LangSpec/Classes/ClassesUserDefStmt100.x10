@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_When;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_When2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,18 @@ public class ClassesUserDefStmt100 extends x10Test {
     }
 
 
-// file Classes line 3047
+// file Classes line 3116
+ static  class CancelableWhen {
+   private var stop : Boolean = false;
+   public operator when(condition:Cell[Boolean], body:()=>void) {
+     when (condition() || stop) {
+       if (!stop) { body(); }
+     }
+   }
+   public def cancel() {
+     atomic { stop = true; }
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   val c = new CancelableWhen();

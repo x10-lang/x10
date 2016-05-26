@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Ateach;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Ateach1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt150 extends x10Test {
     }
 
 
-// file Classes line 3244
+// file Classes line 3345
  static class Sequential {
   public static operator ateach (d: Dist, body:(Point)=>void) {
     for (place in d.places()) {

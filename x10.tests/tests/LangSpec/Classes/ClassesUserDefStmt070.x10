@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Async;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_Async1;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,7 @@ public class ClassesUserDefStmt070 extends x10Test {
     }
 
 
-// file Classes line 2908
+// file Classes line 2951
  static class Escape {
   private var task: ()=>void = null;
   private var stop: Boolean = false;

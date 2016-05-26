@@ -26,7 +26,7 @@ public class ClassesUserDefStmt040 extends x10Test {
     }
 
 
-// file Classes line 2673
+// file Classes line 2695
  static class Parallel2 {
   public static operator for (space: DenseIterationSpace_2,
                               body: (i:Long, j:Long)=>void) {

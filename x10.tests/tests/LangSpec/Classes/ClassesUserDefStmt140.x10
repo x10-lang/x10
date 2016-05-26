@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_At;
+/* Current test harness gets confused by packages, but it would be in package Classes_UserDefStmt_At2;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -26,7 +26,16 @@ public class ClassesUserDefStmt140 extends x10Test {
     }
 
 
-// file Classes line 3190
+// file Classes line 3282
+ static  class Ring {
+   val places: PlaceGroup;
+   public def this (places: PlaceGroup) {
+     this.places = places;
+   }
+   public operator at(body: ()=>void) {
+     at(places.next(here)) { body(); }
+   }
+ }
  static  class Test {
 public static def main(Rail[String]) {
   val r = new Ring(Place.places());
