@@ -2260,6 +2260,6 @@ bool x10rt_net_agree (x10rt_team team, x10rt_place role,
                              x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg)
 {
-	fatal_error("x10rt_net_agree not implemented");
+	error("x10rt_net_agree not implemented");
 	return false;
 }
