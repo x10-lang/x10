@@ -88,16 +88,9 @@ abstract class FinishResilient extends FinishState {
         }
         case Configuration.RESILIENT_MODE_HC:
         {
-            val p = (parent!=null) ? parent : getCurrentFS();
-            val o = p as Any;
-            fs = makeFinishResilientHC(o);
-            break;
-        }
-        case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
-        {
            val p = (parent!=null) ? parent : getCurrentFS();
            val o = p as Any;
-           fs = makeFinishResilientHCopt(o);
+           fs = makeFinishResilientHCLocal(o);
            break;
         }
         default:
@@ -107,17 +100,11 @@ abstract class FinishResilient extends FinishState {
         return fs;
     }
 
-    @Native("java", "x10.xrx.managed.FinishResilientHC.make(#o)")
-    private static def makeFinishResilientHC(o:Any):FinishState {
+    @Native("java", "x10.xrx.managed.FinishResilientHCLocal.make(#o)")
+    private static def makeFinishResilientHCLocal(o:Any):FinishState {
         failJavaOnlyMode();
         return null;
     }
-    @Native("java", "x10.xrx.managed.FinishResilientHCopt.make(#o)")
-    private static def makeFinishResilientHCopt(o:Any):FinishState {
-        failJavaOnlyMode();
-        return null;
-    }
-
 
     static def notifyPlaceDeath() {
         if (verbose>=1) debug("FinishResilient.notifyPlaceDeath called");
@@ -127,7 +114,6 @@ abstract class FinishResilient extends FinishState {
             FinishResilientPlace0.notifyPlaceDeath();
             break;
         case Configuration.RESILIENT_MODE_HC:
-        case Configuration.RESILIENT_MODE_HC_OPTIMIZED:
             notifyPlaceDeath_HC();
             break;
         default:

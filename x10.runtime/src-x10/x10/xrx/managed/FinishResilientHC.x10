@@ -23,11 +23,12 @@ import java.util.Map;
 import x10.xrx.*;
 
 /*
- * Resilient Finish optimized for Hazelcast
- * This file is compiled only for Managed X10, so we can use Java classes here
+ * Resilient finish implemented using Hazelcast as a resilient store
+ * for finish state.
+ * 
+ * This file is compiled only for Managed X10, so we can directly use Java classes.
  */
-public
-class FinishResilientHC extends FinishResilientBridge {
+public class FinishResilientHC extends FinishResilientBridge {
     private static val verbose = FinishResilientBridge.verbose;
     private static val hereId = Runtime.hereLong();
     private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10

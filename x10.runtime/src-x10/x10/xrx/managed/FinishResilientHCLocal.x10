@@ -22,8 +22,15 @@ import java.util.Map;
 
 import x10.xrx.*;
 
-public
-class FinishResilientHCopt extends FinishResilientBridge implements x10.io.CustomSerialization {
+/**
+ * This class manages the local (non-resilient) state of a
+ * Hazelcast resilient finish. The key idea is the same as
+ * with Place0 finish:  resiliently count all place-shifting
+ * activities and summarize the local children of a place-shifting
+ * activity non-resiliently and upon local quiescence report to
+ * the resilient store that the place-shifting activity has terminated.
+ */
+public class FinishResilientHCLocal extends FinishResilientBridge implements x10.io.CustomSerialization {
   private var f:FinishResilientHC;
 
   // for all instances
@@ -35,8 +42,8 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
   private transient var strictFinish:Boolean;
 //  private transient var exceptions:GrowableRail[CheckedThrowable](); // TODO
 
-  static def make(parent:Any):FinishResilientHCopt {
-    return new FinishResilientHCopt(parent, new SimpleLatch());
+  static def make(parent:Any):FinishResilientHCLocal {
+    return new FinishResilientHCLocal(parent, new SimpleLatch());
   }
 
   private def this(parent:Any, latch:SimpleLatch) {
@@ -62,8 +69,8 @@ class FinishResilientHCopt extends FinishResilientBridge implements x10.io.Custo
     strictFinish = true;
     if (f == null) {
       var exposedParent:Any = parent;
-      if (parent instanceof FinishResilientHCopt) {
-        val optParent = (parent as FinishResilientHCopt);
+      if (parent instanceof FinishResilientHCLocal) {
+        val optParent = (parent as FinishResilientHCLocal);
         optParent.init();
         exposedParent = optParent.f;
       }

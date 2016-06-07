@@ -371,7 +371,7 @@ thrunstate="UNKNOWN_STATE"
 tcbackend="native"
 
 # resiliency modes
-tc_all_resilient_modes="0 1 12 22"
+tc_all_resilient_modes="0 1 12"
 tc_default_resilient_mode="0"
 tcresilient_modes="$tc_default_resilient_mode"
 typeset -i tcresilient_x10_only=0
@@ -773,9 +773,6 @@ function main {
 		12) 
 		    mode_name="hc_resilient_finish"
 		    ;;
-		22) 
-		    mode_name="hc_opt_resilient_finish"
-		    ;;
 		99) 
 		    mode_name="resilient_x10rt"
 		    ;;
@@ -789,12 +786,12 @@ function main {
 		continue;
 	    fi
 
-            if [[ "$tcbackend" == "native" && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
+            if [[ "$tcbackend" == "native" && "$mode_name" == "hc_resilient_finish" ]]; then
 		printf "\nSkipping hazelcast-based mode for Native X10\n";
 		continue;
 	    fi
 
-            if [[ $tcresilient_skip_hazelcast == 1 && ( "$mode_name" == "hc_resilient_finish" || "$mode_name" == "hc_opt_resilient_finish" ) ]]; then
+            if [[ $tcresilient_skip_hazelcast == 1 && "$mode_name" == "hc_resilient_finish" ]]; then
 		printf "\nSkipping hazelcast-based mode; test case not applicable for hazelcast\n";
 		continue;
 	    fi

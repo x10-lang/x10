@@ -484,7 +484,6 @@ public class X10RT {
     	// an existing cluster - it is the start of one.
         boolean useHazelcast = "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"));
         useHazelcast |= Configuration.resilient_mode$O() == Configuration.RESILIENT_MODE_HC;
-        useHazelcast |= Configuration.resilient_mode$O() == Configuration.RESILIENT_MODE_HC_OPTIMIZED;
     	
     	if (hereId == 0 && useHazelcast) {
     		if (X10RT.javaSockets == null) {
