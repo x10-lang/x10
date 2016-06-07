@@ -20,7 +20,7 @@ LIMITATIONS OF THIS RELEASE
 The size and index of arrays must be less than 2^31 with Managed X10.
 An attempt to allocate a longer array causes IllegalArgumentException. 
 
-The following features described in the 2.5 language manual do not
+The following features described in the 2.6 language manual do not
 currently work and may be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
