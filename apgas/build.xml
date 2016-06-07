@@ -6,7 +6,7 @@
     <property name="samples" location="${basedir}/samples"/>
     <property name="doc" location="${basedir}/doc"/>
     <property name="jar" value="${lib}/apgas.jar"/>
-    <property name="hazelcast.version" value="3.5.2"/>
+    <property name="hazelcast.version" value="3.6.3"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast.jar"/>
     <property name="kryo.version" value="3.0.3"/>
     <property name="kryo.jar" value="${lib}/kryo.jar"/>
