@@ -3,9 +3,9 @@
 # exit immediately on any error.
 set -e 
 
-hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com p7ih bgqfen1.watson.ibm.com"
+hosts="serenity.watson.ibm.com triloka1.pok.ibm.com p7ih bgqfen1.watson.ibm.com"
 
-x10dt_hosts="serenity.watson.ibm.com triloka1.pok.ibm.com bellatrix.watson.ibm.com"
+x10dt_hosts="serenity.watson.ibm.com triloka1.pok.ibm.com"
 
 while [ $# != 0 ]; do
   case $1 in
@@ -55,7 +55,7 @@ if [[ -z "$tag" ]]; then
 fi
 
 
-ssh orquesta.pok.ibm.com "mkdir -p /var/www/localhost/htdocs/x10dt/x10-rc-builds/$version"
+ssh triloka1.pok.ibm.com "mkdir -p /gsa/yktgsa/projects/x/x10-releases/$version"
 
 for host in $hosts
 do
@@ -63,19 +63,19 @@ do
     scp buildRelease.sh $host:/tmp 
     ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg $rpm_arg'"
     ssh $host "(cd /tmp; rm ./buildRelease.sh)"
-    echo "transfering binary build from $host to orquesta"
-    scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+    echo "transfering binary build from $host to yktgsa via triloka1"
+    scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
     if [[ "$rpm_arg" == "-rpm" ]]; then
-        scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.rpm" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+        scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.rpm" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
     fi
 
     if [[ -z "$pushed_source" ]]; then
-	echo "transfering source build and testsuite from $host to orquesta"
-	scp "$host:/tmp/x10-rc-$USER/x10-$version/x10-$version*.tar.bz2" "orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+	echo "transfering source build and testsuite from $host to yktgsa via triloka1"
+	scp "$host:/tmp/x10-rc-$USER/x10-$version/x10-$version*.tar.bz2" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
 	echo "Packaging benchmarks"
 	./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
-	echo "transfering benchmarks tar to orquesta"
-	scp "/tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2" "x10dt@orquesta.pok.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version/"
+	echo "transfering benchmarks tar to yktgsa via triloka1"
+	scp "/tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
 
 	export pushed_source="done"
     fi
