@@ -12,6 +12,7 @@
 package apgas.examples;
 
 import static apgas.Constructs.*;
+
 import apgas.Configuration;
 import apgas.Place;
 
@@ -22,8 +23,8 @@ final class HelloWorld {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
 
-    System.out.println("Running main at " + here() + " of " + places().size()
-        + " places");
+    System.out.println(
+        "Running main at " + here() + " of " + places().size() + " places");
 
     finish(() -> {
       for (final Place place : places()) {

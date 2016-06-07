@@ -18,9 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import apgas.DeadPlaceException;
-import apgas.Place;
-
 import com.hazelcast.config.Config;
 import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.config.InMemoryFormat;
@@ -39,6 +36,9 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.spi.ExecutionService;
+
+import apgas.DeadPlaceException;
+import apgas.Place;
 
 /**
  * The {@link Transport} class manages the Hazelcast cluster and implements
@@ -129,12 +129,12 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
       config.setProperty("hazelcast.operation.generic.thread.count", "2");
       config.setProperty("hazelcast.io.thread.count", "2");
       config.setProperty("hazelcast.event.thread.count", "2");
-      config.addExecutorConfig(new ExecutorConfig(
-          ExecutionService.ASYNC_EXECUTOR, 2));
-      config.addExecutorConfig(new ExecutorConfig(
-          ExecutionService.SYSTEM_EXECUTOR, 2));
-      config.addExecutorConfig(new ExecutorConfig(
-          ExecutionService.SCHEDULED_EXECUTOR, 2));
+      config.addExecutorConfig(
+          new ExecutorConfig(ExecutionService.ASYNC_EXECUTOR, 2));
+      config.addExecutorConfig(
+          new ExecutorConfig(ExecutionService.SYSTEM_EXECUTOR, 2));
+      config.addExecutorConfig(
+          new ExecutorConfig(ExecutionService.SCHEDULED_EXECUTOR, 2));
     }
 
     // kryo
@@ -144,8 +144,8 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
               .setImplementation(new KryoSerializer()));
     }
 
-    config.addMapConfig(new MapConfig(APGAS_FINISH)
-        .setInMemoryFormat(InMemoryFormat.OBJECT));
+    config.addMapConfig(
+        new MapConfig(APGAS_FINISH).setInMemoryFormat(InMemoryFormat.OBJECT));
 
     // join config
     final JoinConfig join = config.getNetworkConfig().getJoin();
@@ -158,8 +158,8 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
       join.getTcpIpConfig().addMember(master);
       // also replace localhost will real ip as master is likely to expect this
       if (master.startsWith("127.0.0.1") || master.startsWith("localhost")) {
-        join.getTcpIpConfig().addMember(
-            master.replaceFirst("127.0.0.1|localhost", localhost));
+        join.getTcpIpConfig()
+            .addMember(master.replaceFirst("127.0.0.1|localhost", localhost));
       }
     }
     config.setInstanceName(APGAS);

@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import apgas.SerializableJob;
-import apgas.util.GlobalID;
 import apgas.util.ByRef;
+import apgas.util.GlobalID;
 
 /**
  * The {@link DefaultFinish} class implements the distributed termination
@@ -47,8 +47,8 @@ import apgas.util.ByRef;
  * <p>
  * The finish body counts as one local task.
  */
-final class DefaultFinish implements Serializable, Finish,
-    ByRef<DefaultFinish> {
+final class DefaultFinish
+    implements Serializable, Finish, ByRef<DefaultFinish> {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**
@@ -264,8 +264,8 @@ final class DefaultFinish implements Serializable, Finish,
    *          a minimal size for the reallocation
    */
   private void resize(int min) {
-    final int[] tmp = new int[Math.max(min, GlobalRuntimeImpl.getRuntime()
-        .maxPlace())];
+    final int[] tmp = new int[Math.max(min,
+        GlobalRuntimeImpl.getRuntime().maxPlace())];
     System.arraycopy(counts, 0, tmp, 0, counts.length);
     counts = tmp;
   }

@@ -42,8 +42,8 @@ public abstract class GlobalRuntime {
      */
     private GlobalRuntimeWrapper() {
       try {
-        final String className = System.getProperty(
-            Configuration.APGAS_RUNTIME, "apgas.impl.GlobalRuntimeImpl");
+        final String className = System.getProperty(Configuration.APGAS_RUNTIME,
+            "apgas.impl.GlobalRuntimeImpl");
         runtime = (GlobalRuntime) Class.forName(className).newInstance();
       } catch (final ReflectiveOperationException e) {
         throw new RuntimeException(e);

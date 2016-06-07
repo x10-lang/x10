@@ -46,8 +46,8 @@ final class LocalLauncher implements Launcher {
     pb.redirectError(Redirect.INHERIT);
     for (int i = 0; i < n; i++) {
       if (verbose) {
-        System.err.println("[APGAS] Spawning new place: "
-            + String.join(" ", command));
+        System.err.println(
+            "[APGAS] Spawning new place: " + String.join(" ", command));
       }
       Process process = pb.start();
       synchronized (this) {

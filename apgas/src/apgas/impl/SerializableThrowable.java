@@ -36,8 +36,8 @@ final class SerializableThrowable implements Serializable, KryoSerializable {
   }
 
   private void writeObject(ObjectOutputStream out) throws IOException {
-    final NotSerializableException e = new NotSerializableException(t
-        .getClass().getCanonicalName());
+    final NotSerializableException e = new NotSerializableException(
+        t.getClass().getCanonicalName());
     e.setStackTrace(t.getStackTrace());
     out.writeObject(e);
     try {
@@ -46,8 +46,8 @@ final class SerializableThrowable implements Serializable, KryoSerializable {
     }
   }
 
-  private void readObject(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+  private void readObject(ObjectInputStream in)
+      throws IOException, ClassNotFoundException {
     t = (Throwable) in.readObject();
     try {
       t = (Throwable) in.readObject();
@@ -57,8 +57,8 @@ final class SerializableThrowable implements Serializable, KryoSerializable {
 
   @Override
   public void write(Kryo kryo, Output output) {
-    final NotSerializableException e = new NotSerializableException(t
-        .getClass().getCanonicalName());
+    final NotSerializableException e = new NotSerializableException(
+        t.getClass().getCanonicalName());
     e.setStackTrace(t.getStackTrace());
     kryo.writeClassAndObject(output, e);
     try {

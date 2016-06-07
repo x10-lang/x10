@@ -70,15 +70,15 @@ final class SshLauncher implements Launcher {
       if (hosts != null && hosts.hasNext()) {
         host = hosts.next();
       } else if (!warningEmitted) {
-        System.err
-            .println("[APGAS] Warning: hostfile too short; repeating last host: "
+        System.err.println(
+            "[APGAS] Warning: hostfile too short; repeating last host: "
                 + host);
         warningEmitted = true;
       }
       command.add(3, host);
       if (verbose) {
-        System.err.println("[APGAS] Spawning new place: "
-            + String.join(" ", command));
+        System.err.println(
+            "[APGAS] Spawning new place: " + String.join(" ", command));
       }
       Process process = pb.start();
       command.remove(3);

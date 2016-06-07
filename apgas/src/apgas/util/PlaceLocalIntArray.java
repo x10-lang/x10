@@ -69,7 +69,7 @@ public class PlaceLocalIntArray extends PlaceLocalObject {
    */
   public static PlaceLocalIntArray make(Collection<? extends Place> places,
       int localLength) {
-    return PlaceLocalObject.make(places, () -> new PlaceLocalIntArray(
-        localLength));
+    return PlaceLocalObject.make(places,
+        () -> new PlaceLocalIntArray(localLength));
   }
 }

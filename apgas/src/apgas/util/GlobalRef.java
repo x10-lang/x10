@@ -231,8 +231,8 @@ public class GlobalRef<T> implements Serializable, ByRef<GlobalRef<T>> {
     out.defaultWriteObject();
   }
 
-  private void readObject(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+  private void readObject(ObjectInputStream in)
+      throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     t = id.getOrDefaultHere(UNDEFINED);
   }

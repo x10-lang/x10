@@ -12,6 +12,7 @@
 package apgas.examples;
 
 import static apgas.Constructs.*;
+
 import apgas.GlobalRuntime;
 
 final class Fibonacci {

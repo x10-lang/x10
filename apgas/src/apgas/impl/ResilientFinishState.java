@@ -19,10 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import apgas.DeadPlaceException;
-import apgas.Place;
-import apgas.util.GlobalID;
-
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
@@ -30,6 +26,10 @@ import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.query.Predicate;
+
+import apgas.DeadPlaceException;
+import apgas.Place;
+import apgas.util.GlobalID;
 
 /**
  * The {@link ResilientFinishState} class defines the entry associated with a
@@ -202,8 +202,8 @@ final class ResilientFinishState implements Serializable {
           if (state.exceptions == null) {
             state.exceptions = new ArrayList<SerializableThrowable>();
           }
-          state.exceptions.add(new SerializableThrowable(
-              new DeadPlaceException(new Place(p))));
+          state.exceptions.add(
+              new SerializableThrowable(new DeadPlaceException(new Place(p))));
         }
         return state;
       });
@@ -290,17 +290,16 @@ final class ResilientFinishState implements Serializable {
   static <T> T execute(GlobalID id, boolean applyOnBackup,
       EntryProcessor<T> processor) {
     try {
-      return (T) GlobalRuntimeImpl.getRuntime().resilientFinishMap
-          .executeOnKey(id,
-              new AbstractEntryProcessor<GlobalID, ResilientFinishState>(
-                  applyOnBackup) {
-                private static final long serialVersionUID = -8787905766218374656L;
+      return (T) GlobalRuntimeImpl.getRuntime().resilientFinishMap.executeOnKey(
+          id, new AbstractEntryProcessor<GlobalID, ResilientFinishState>(
+              applyOnBackup) {
+            private static final long serialVersionUID = -8787905766218374656L;
 
-                @Override
-                public T process(Map.Entry<GlobalID, ResilientFinishState> entry) {
-                  return processor.process(entry);
-                }
-              });
+            @Override
+            public T process(Map.Entry<GlobalID, ResilientFinishState> entry) {
+              return processor.process(entry);
+            }
+          });
     } catch (final DeadPlaceError | HazelcastInstanceNotActiveException e) {
       // this place is dead for the world
       System.exit(42);
@@ -325,14 +324,14 @@ final class ResilientFinishState implements Serializable {
           @Override
           public GlobalID process(
               Map.Entry<GlobalID, ResilientFinishState> entry) {
-            final ResilientFinishState state = processor.process(entry
-                .getValue());
+            final ResilientFinishState state = processor
+                .process(entry.getValue());
             if (state == null) {
               return null;
             }
-            if (state.counts.size() > 0 || state.cids != null
-                && !state.cids.isEmpty() || state.deads == null
-                || !state.deads.contains(id.home.id)) {
+            if (state.counts.size() > 0
+                || state.cids != null && !state.cids.isEmpty()
+                || state.deads == null || !state.deads.contains(id.home.id)) {
               // state is still useful:
               // finish is incomplete or we need to preserve its exceptions
               entry.setValue(state);
@@ -340,8 +339,8 @@ final class ResilientFinishState implements Serializable {
               // finish is complete and place of finish has died, remove entry
               entry.setValue(null);
             }
-            if (state.counts.size() > 0 || state.cids != null
-                && !state.cids.isEmpty()) {
+            if (state.counts.size() > 0
+                || state.cids != null && !state.cids.isEmpty()) {
               return null;
             } else {
               return state.pid;
@@ -385,8 +384,8 @@ final class ResilientFinishState implements Serializable {
         });
   }
 
-  static private class EntryUpdatedOrRemovedListener implements
-      EntryUpdatedListener<GlobalID, ResilientFinishState>,
+  static private class EntryUpdatedOrRemovedListener
+      implements EntryUpdatedListener<GlobalID, ResilientFinishState>,
       EntryRemovedListener<GlobalID, ResilientFinishState> {
 
     private final ResilientFinish finish;

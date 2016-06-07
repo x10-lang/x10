@@ -160,8 +160,8 @@ final class GlobalUTS extends PlaceLocalObject {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
 
-    final GlobalUTS uts = PlaceLocalObject
-        .make(places(), () -> new GlobalUTS());
+    final GlobalUTS uts = PlaceLocalObject.make(places(),
+        () -> new GlobalUTS());
 
     System.out.println("Warmup...");
     uts.seed(19, depth - 2);

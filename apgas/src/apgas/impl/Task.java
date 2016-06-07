@@ -18,14 +18,14 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
-import apgas.DeadPlaceException;
-import apgas.Job;
-import apgas.SerializableJob;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
+import apgas.DeadPlaceException;
+import apgas.Job;
+import apgas.SerializableJob;
 
 /**
  * The {@link Task} class represents an APGAS task.
@@ -34,8 +34,8 @@ import com.esotericsoftware.kryo.io.Output;
  * This class implements task serialization and handles errors in the
  * serialization process.
  */
-final class Task extends RecursiveAction implements SerializableRunnable,
-    KryoSerializable {
+final class Task extends RecursiveAction
+    implements SerializableRunnable, KryoSerializable {
   private static final long serialVersionUID = 5288338719050788305L;
 
   /**
@@ -202,8 +202,8 @@ final class Task extends RecursiveAction implements SerializableRunnable,
    * @throws ClassNotFoundException
    *           if the class of the serialized object cannot be found
    */
-  private void readObject(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+  private void readObject(ObjectInputStream in)
+      throws IOException, ClassNotFoundException {
     finish = (Finish) in.readObject();
     parent = in.readInt();
     try {

@@ -68,8 +68,8 @@ class ResilientFinish implements Serializable, Finish {
   protected void init(Finish parent) {
     final GlobalID id = new GlobalID();
     this.id = id;
-    final GlobalID pid = parent instanceof ResilientFinish ? ((ResilientFinish) parent).id
-        : null;
+    final GlobalID pid = parent instanceof ResilientFinish
+        ? ((ResilientFinish) parent).id : null;
     final int here = GlobalRuntimeImpl.getRuntime().here;
     // map.set(id, new ResilientFinishState(pid, here, p));
     ResilientFinishState.update(id, state -> {
@@ -186,12 +186,11 @@ class ResilientFinish implements Serializable, Finish {
 
   private boolean isDone() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
-    return ResilientFinishState.execute(id,
-        false, // no need to apply on backup
+    return ResilientFinishState.execute(id, false, // no need to apply on backup
         entry -> {
           final ResilientFinishState state = entry.getValue();
-          if (state == null || state.deads != null
-              && state.deads.contains(here)) {
+          if (state == null
+              || state.deads != null && state.deads.contains(here)) {
             // parent finish thinks this place is dead, exit
             throw new DeadPlaceError();
           }
@@ -219,18 +218,16 @@ class ResilientFinish implements Serializable, Finish {
   public List<Throwable> exceptions() {
     final int here = GlobalRuntimeImpl.getRuntime().here;
     final List<SerializableThrowable> exceptions = ResilientFinishState
-        .execute(
-            id,
-            entry -> {
-              final ResilientFinishState state = entry.getValue();
-              if (state == null || state.deads != null
-                  && state.deads.contains(here)) {
-                // parent finish thinks this place is dead, exit
-                throw new DeadPlaceError();
-              }
-              entry.setValue(null);
-              return state.exceptions;
-            });
+        .execute(id, entry -> {
+          final ResilientFinishState state = entry.getValue();
+          if (state == null
+              || state.deads != null && state.deads.contains(here)) {
+            // parent finish thinks this place is dead, exit
+            throw new DeadPlaceError();
+          }
+          entry.setValue(null);
+          return state.exceptions;
+        });
     if (exceptions == null) {
       return null;
     }

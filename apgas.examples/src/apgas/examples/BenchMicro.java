@@ -12,6 +12,7 @@
 package apgas.examples;
 
 import static apgas.Constructs.*;
+
 import apgas.Configuration;
 import apgas.Place;
 
@@ -28,22 +29,22 @@ public class BenchMicro {
     }
 
     if (places().size() < 2) {
-      System.err
-          .println("Fair evaluation of place-zero based finish requires more than one place, and preferably more than one host.");
+      System.err.println(
+          "Fair evaluation of place-zero based finish requires more than one place, and preferably more than one host.");
       System.exit(1);
     }
 
     final long thinkTime = args.length == 0 ? 0 : Long.parseLong(args[0]);
 
     final boolean resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
-    System.out.println("Configuration: " + (resilient ? "" : "not ")
-        + "resilient");
+    System.out
+        .println("Configuration: " + (resilient ? "" : "not ") + "resilient");
 
     System.out.println("Running with " + places().size() + " places.");
-    System.out.println("Min elapsed time for each test: " + MIN_NANOS / 1e9
-        + " seconds.");
-    System.out.println("Think time for each activity: " + thinkTime
-        + " nanoseconds.");
+    System.out.println(
+        "Min elapsed time for each test: " + MIN_NANOS / 1e9 + " seconds.");
+    System.out.println(
+        "Think time for each activity: " + thinkTime + " nanoseconds.");
 
     System.out.println("Test based from place 0");
     doTest("place 0 -- ", thinkTime);
@@ -70,8 +71,8 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "empty finish: " + (time1 - time0) / 1E9
-        / OUTER_ITERS / iterCount + " seconds");
+    System.out.println(prefix + "empty finish: "
+        + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -86,9 +87,9 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "local termination of " + INNER_ITERS
-        + " activities: " + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount
-        + " seconds");
+    System.out.println(
+        prefix + "local termination of " + INNER_ITERS + " activities: "
+            + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -102,8 +103,8 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "single activity: " + (time1 - time0) / 1E9
-        / OUTER_ITERS / iterCount + " seconds");
+    System.out.println(prefix + "single activity: "
+        + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -118,8 +119,8 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "flat fan out: " + (time1 - time0) / 1E9
-        / OUTER_ITERS / iterCount + " seconds");
+    System.out.println(prefix + "flat fan out: "
+        + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -158,9 +159,9 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "fan out, internal work " + INNER_ITERS
-        + " activities: " + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount
-        + " seconds");
+    System.out.println(
+        prefix + "fan out, internal work " + INNER_ITERS + " activities: "
+            + (time1 - time0) / 1E9 / OUTER_ITERS / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -177,8 +178,8 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "fan out, broadcast: " + (time1 - time0) / 1E9
-        / iterCount + " seconds");
+    System.out.println(prefix + "fan out, broadcast: "
+        + (time1 - time0) / 1E9 / iterCount + " seconds");
 
     iterCount = 0;
     time0 = System.nanoTime();
@@ -207,20 +208,20 @@ public class BenchMicro {
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "tree fan out: " + (time1 - time0) / 1E9
-        / iterCount + " seconds");
+    System.out.println(prefix + "tree fan out: "
+        + (time1 - time0) / 1E9 / iterCount + " seconds");
 
     iterCount = 0;
-    final Place endPlace = place((home.id + places().size() - 1)
-        % places().size());
+    final Place endPlace = place(
+        (home.id + places().size() - 1) % places().size());
     time0 = System.nanoTime();
     do {
       ring(t, endPlace);
       time1 = System.nanoTime();
       iterCount++;
     } while (time1 - time0 < MIN_NANOS);
-    System.out.println(prefix + "ring around via at: " + (time1 - time0) / 1E9
-        / iterCount + " seconds");
+    System.out.println(prefix + "ring around via at: "
+        + (time1 - time0) / 1E9 / iterCount + " seconds");
   }
 
   private static void downTree(long t) {

@@ -23,9 +23,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import apgas.Configuration;
+import apgas.DeadPlaceException;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
-import apgas.DeadPlaceException;
 import apgas.Place;
 import apgas.util.GlobalRef;
 
@@ -147,8 +147,8 @@ public class ApgasTest {
   static class Foo implements java.io.Serializable {
     private static final long serialVersionUID = -3520177294998943335L;
 
-    private void readObject(ObjectInputStream in) throws IOException,
-        ClassNotFoundException {
+    private void readObject(ObjectInputStream in)
+        throws IOException, ClassNotFoundException {
       throw new NotSerializableException(this.getClass().getCanonicalName());
     }
   }

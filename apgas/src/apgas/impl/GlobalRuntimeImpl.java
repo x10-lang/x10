@@ -27,6 +27,8 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Consumer;
 
+import com.hazelcast.core.IMap;
+
 import apgas.Configuration;
 import apgas.Constructs;
 import apgas.GlobalRuntime;
@@ -37,8 +39,6 @@ import apgas.SerializableCallable;
 import apgas.SerializableJob;
 import apgas.util.Cell;
 import apgas.util.GlobalID;
-
-import com.hazelcast.core.IMap;
 
 /**
  * The {@link GlobalRuntimeImpl} class implements the
@@ -128,8 +128,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
   public GlobalRuntimeImpl() throws Exception {
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
-    final int threads = Integer.getInteger(Configuration.APGAS_THREADS, Runtime
-        .getRuntime().availableProcessors());
+    final int threads = Integer.getInteger(Configuration.APGAS_THREADS,
+        Runtime.getRuntime().availableProcessors());
     final int maxThreads = Integer.getInteger(Configuration.APGAS_MAX_THREADS,
         256);
     final String master = System.getProperty(Configuration.APGAS_MY_MASTER);
@@ -172,14 +172,14 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     pool = new ForkJoinPool(maxThreads, new WorkerFactory(), null, false);
     final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
     ctl.setAccessible(true);
-    ctl.setLong(pool, ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
+    ctl.setLong(pool,
+        ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
 
     // initialize transport
     Transport transport = null;
     if (transportName != null) {
       try {
-        transport = (Transport) Class
-            .forName(transportName)
+        transport = (Transport) Class.forName(transportName)
             .getDeclaredConstructor(GlobalRuntimeImpl.class, String.class,
                 String.class, boolean.class)
             .newInstance(this, master, ip, compact);
@@ -220,8 +220,9 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     here = transport.here();
     home = new Place(here);
 
-    resilientFinishMap = resilient ? transport
-        .<GlobalID, ResilientFinishState> getResilientFinishMap() : null;
+    resilientFinishMap = resilient
+        ? transport.<GlobalID, ResilientFinishState> getResilientFinishMap()
+        : null;
 
     // install hook on thread 1
     if (master == null) {
@@ -251,9 +252,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       try {
         final ArrayList<String> command = new ArrayList<String>();
         command.add(java);
-        command.add("-Xbootclasspath:"
-            + toAbsoluteClassPath(ManagementFactory.getRuntimeMXBean()
-                .getBootClassPath()));
+        command.add("-Xbootclasspath:" + toAbsoluteClassPath(
+            ManagementFactory.getRuntimeMXBean().getBootClassPath()));
         command.add("-cp");
         command.add(toAbsoluteClassPath(System.getProperty("java.class.path")));
         for (final String property : System.getProperties()
@@ -308,8 +308,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       for (final int id : removed) {
         placeSet.remove(new Place(id));
       }
-      places = Collections.<Place> unmodifiableList(new ArrayList<Place>(
-          placeSet));
+      places = Collections
+          .<Place> unmodifiableList(new ArrayList<Place>(placeSet));
     }
     if (removed.isEmpty()) {
       return;
@@ -359,8 +359,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
   @Override
   public void finish(Job f) {
     final Worker worker = currentWorker();
-    final Finish finish = factory.make(worker == null ? NullFinish.SINGLETON
-        : worker.task.finish);
+    final Finish finish = factory
+        .make(worker == null ? NullFinish.SINGLETON : worker.task.finish);
     new Task(finish, f, here).finish(worker);
     final List<Throwable> exceptions = finish.exceptions();
     if (exceptions != null) {

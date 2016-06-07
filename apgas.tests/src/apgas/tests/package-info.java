@@ -13,4 +13,3 @@
  * The {@link apgas.tests} package contains test programs for the APGAS API.
  */
 package apgas.tests;
-

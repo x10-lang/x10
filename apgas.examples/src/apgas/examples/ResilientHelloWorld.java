@@ -28,8 +28,8 @@ final class ResilientHelloWorld {
       System.setProperty(Configuration.APGAS_PLACES, "4");
     }
 
-    System.out.println("Running main at " + here() + " of " + places().size()
-        + " places");
+    System.out.println(
+        "Running main at " + here() + " of " + places().size() + " places");
 
     for (int i = 0;; i++) {
       final int ii = i;
@@ -38,10 +38,8 @@ final class ResilientHelloWorld {
           final Collection<? extends Place> world = places();
           System.out.println(ii + ": There are " + world.size() + " places");
           for (final Place place : world) {
-            finish(() -> asyncAt(
-                place,
-                () -> finish(() -> System.out.println(ii + ": Hello from "
-                    + here()))));
+            finish(() -> asyncAt(place, () -> finish(
+                () -> System.out.println(ii + ": Hello from " + here()))));
           }
         });
       } catch (final MultipleException e) {

@@ -63,12 +63,11 @@ public class KMeans {
 
   public static void run(int numPoints, int iterations, boolean warmup) {
     if (!warmup) {
-      System.out
-          .printf(
-              "Resilient K-Means: %d clusters, %d points, %d dimensions, %d places, %d threads\n",
-              CLUSTERS, numPoints, DIM,
-              Integer.valueOf(System.getProperty(Configuration.APGAS_PLACES)),
-              Integer.valueOf(System.getProperty(Configuration.APGAS_THREADS)));
+      System.out.printf(
+          "Resilient K-Means: %d clusters, %d points, %d dimensions, %d places, %d threads\n",
+          CLUSTERS, numPoints, DIM,
+          Integer.valueOf(System.getProperty(Configuration.APGAS_PLACES)),
+          Integer.valueOf(System.getProperty(Configuration.APGAS_THREADS)));
     }
 
     final GlobalRef<ClusterState> globalClusterState = new GlobalRef<ClusterState>(
@@ -79,11 +78,11 @@ public class KMeans {
         places(), () -> {
           return new float[CLUSTERS][DIM];
         });
-    final GlobalRef<float[][]> globalPoints = new GlobalRef<float[][]>(
-        places(),
+    final GlobalRef<float[][]> globalPoints = new GlobalRef<float[][]>(places(),
         () -> {
           final Random rand = new Random(here().id);
-          final float[][] localPoints = new float[numPoints / places().size()][DIM];
+          final float[][] localPoints = new float[numPoints
+              / places().size()][DIM];
           for (int i = 0; i < numPoints / places().size(); i++) {
             for (int j = 0; j < DIM; j++) {
               localPoints[i][j] = rand.nextFloat();
@@ -114,71 +113,67 @@ public class KMeans {
 
       finish(() -> {
         for (final Place place : places()) {
-          asyncAt(
-              place,
-              () -> {
+          asyncAt(place, () -> {
 
-                final float[][] currentClusters = globalCurrentClusters.get();
+            final float[][] currentClusters = globalCurrentClusters.get();
+            for (int i = 0; i < CLUSTERS; i++) {
+              for (int j = 0; j < DIM; j++) {
+                currentClusters[i][j] = centralCurrentClusters[i][j];
+              }
+            }
+
+            final ClusterState clusterState = globalClusterState.get();
+            final float[][] newClusters = clusterState.clusters;
+            for (int i = 0; i < CLUSTERS; i++) {
+              Arrays.fill(newClusters[i], 0.0f);
+            }
+            final int[] clusterCounts = clusterState.clusterCounts;
+            Arrays.fill(clusterCounts, 0);
+
+            /* compute new clusters and counters */
+            final float[][] points = globalPoints.get();
+
+            for (int p = 0; p < points.length; p++) {
+              int closest = -1;
+              float closestDist = Float.MAX_VALUE;
+              for (int k = 0; k < CLUSTERS; k++) {
+                float dist = 0;
+                for (int d = 0; d < DIM; d++) {
+                  final double tmp = points[p][d] - currentClusters[k][d];
+                  dist += tmp * tmp;
+                }
+                if (dist < closestDist) {
+                  closestDist = dist;
+                  closest = k;
+                }
+              }
+
+              for (int d = 0; d < DIM; d++) {
+                newClusters[closest][d] += points[p][d];
+              }
+              clusterCounts[closest]++;
+            }
+
+            asyncAt(centralClusterStateGr.home(), () -> {
+              // combine place clusters to central
+              final float[][] centralNewClusters = centralClusterStateGr
+                  .get().clusters;
+              synchronized (centralNewClusters) {
                 for (int i = 0; i < CLUSTERS; i++) {
                   for (int j = 0; j < DIM; j++) {
-                    currentClusters[i][j] = centralCurrentClusters[i][j];
+                    centralNewClusters[i][j] += newClusters[i][j];
                   }
                 }
-
-                final ClusterState clusterState = globalClusterState.get();
-                final float[][] newClusters = clusterState.clusters;
-                for (int i = 0; i < CLUSTERS; i++) {
-                  Arrays.fill(newClusters[i], 0.0f);
+              }
+              final int[] centralClusterCounts = centralClusterStateGr
+                  .get().clusterCounts;
+              synchronized (centralClusterCounts) {
+                for (int j = 0; j < CLUSTERS; j++) {
+                  centralClusterCounts[j] += clusterCounts[j];
                 }
-                final int[] clusterCounts = clusterState.clusterCounts;
-                Arrays.fill(clusterCounts, 0);
-
-                /* compute new clusters and counters */
-                final float[][] points = globalPoints.get();
-
-                for (int p = 0; p < points.length; p++) {
-                  int closest = -1;
-                  float closestDist = Float.MAX_VALUE;
-                  for (int k = 0; k < CLUSTERS; k++) {
-                    float dist = 0;
-                    for (int d = 0; d < DIM; d++) {
-                      final double tmp = points[p][d] - currentClusters[k][d];
-                      dist += tmp * tmp;
-                    }
-                    if (dist < closestDist) {
-                      closestDist = dist;
-                      closest = k;
-                    }
-                  }
-
-                  for (int d = 0; d < DIM; d++) {
-                    newClusters[closest][d] += points[p][d];
-                  }
-                  clusterCounts[closest]++;
-                }
-
-                asyncAt(
-                    centralClusterStateGr.home(),
-                    () -> {
-                      // combine place clusters to central
-                      final float[][] centralNewClusters = centralClusterStateGr
-                          .get().clusters;
-                      synchronized (centralNewClusters) {
-                        for (int i = 0; i < CLUSTERS; i++) {
-                          for (int j = 0; j < DIM; j++) {
-                            centralNewClusters[i][j] += newClusters[i][j];
-                          }
-                        }
-                      }
-                      final int[] centralClusterCounts = centralClusterStateGr
-                          .get().clusterCounts;
-                      synchronized (centralClusterCounts) {
-                        for (int j = 0; j < CLUSTERS; j++) {
-                          centralClusterCounts[j] += clusterCounts[j];
-                        }
-                      }
-                    });
-              });
+              }
+            });
+          });
         }
       });
 

@@ -55,8 +55,8 @@ public final class UTS implements Serializable {
     final int offset = size * 20;
     md.digest(hash, offset, 20);
     final int v = ((0x7f & hash[offset + 16]) << 24)
-        | ((0xff & hash[offset + 17]) << 16)
-        | ((0xff & hash[offset + 18]) << 8) | (0xff & hash[offset + 19]);
+        | ((0xff & hash[offset + 17]) << 16) | ((0xff & hash[offset + 18]) << 8)
+        | (0xff & hash[offset + 19]);
     final int n = (int) (Math.log(1.0 - v / 2147483648.0) / den);
     if (n > 0) {
       if (d > 1) {

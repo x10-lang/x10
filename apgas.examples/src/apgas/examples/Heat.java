@@ -12,6 +12,7 @@
 package apgas.examples;
 
 import static apgas.Constructs.*;
+
 import apgas.GlobalRuntime;
 
 /**
@@ -47,9 +48,10 @@ public class Heat {
         async(() -> {
           double localMax = 0.0;
           for (int y = 1; y <= N - 2; y++) {
-            current[x * N + y] = (previous[x * N + y + 1]
-                + previous[x * N + y - 1] + previous[(x + 1) * N + y] + previous[(x - 1)
-                * N + y]) / 4.0;
+            current[x * N
+                + y] = (previous[x * N + y + 1] + previous[x * N + y - 1]
+                    + previous[(x + 1) * N + y] + previous[(x - 1) * N + y])
+                    / 4.0;
             localMax = Math.max(localMax,
                 Math.abs(current[x * N + y] - previous[x * N + y]));
           }

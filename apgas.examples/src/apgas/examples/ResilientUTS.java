@@ -24,18 +24,18 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.TransactionalMap;
+import com.hazelcast.transaction.TransactionalTaskContext;
+
 import apgas.Configuration;
 import apgas.DeadPlaceException;
 import apgas.GlobalRuntime;
 import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.PlaceLocalObject;
-
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.TransactionalMap;
-import com.hazelcast.transaction.TransactionalTaskContext;
 
 final class ResilientUTS extends PlaceLocalObject {
   final HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("apgas");
@@ -114,8 +114,8 @@ final class ResilientUTS extends PlaceLocalObject {
       random = new Random(me);
       prev = (me + (group.size() << power) - 1) % (group.size() << power);
       next = (me + 1) % (group.size() << power);
-      lifeline = new AtomicBoolean(((next % ratio) != 0)
-          || ((next / ratio) >= size));
+      lifeline = new AtomicBoolean(
+          ((next % ratio) != 0) || ((next / ratio) >= size));
     }
 
     synchronized void abort() {
@@ -297,10 +297,10 @@ final class ResilientUTS extends PlaceLocalObject {
     final UTS bag = new UTS();
     final List<UTS> l = new ArrayList<UTS>();
     if (resilient) {
-      final Collection<UTS> values = uts.hz.executeTransaction((
-          TransactionalTaskContext context) -> {
-        return context.<Integer, UTS> getMap("map" + wave).values();
-      });
+      final Collection<UTS> values = uts.hz
+          .executeTransaction((TransactionalTaskContext context) -> {
+            return context.<Integer, UTS> getMap("map" + wave).values();
+          });
       for (final UTS b : values) {
         if (b.size > 0) {
           l.add(b);
