@@ -78,6 +78,15 @@ public final class Configuration {
   public static final String APGAS_COMPACT = "apgas.compact";
 
   /**
+   * Name of the serialization framework to instantiate (String property).
+   * <p>
+   * Currently "{@code java}" and "{@code kryo}" are supported. Defaults to
+   * "{@code kryo}".
+   *
+   */
+  public static final String APGAS_SERIALIZATION = "apgas.serialization";
+
+  /**
    * Specifies how to handle serialization errors when spawning remote tasks
    * (Boolean property).
    * <p>

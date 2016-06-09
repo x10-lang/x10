@@ -138,6 +138,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
     final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
+    final String serialization = System
+        .getProperty(Configuration.APGAS_SERIALIZATION, "kryo");
     final String finishName = System.getProperty(Configuration.APGAS_FINISH);
     final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
     final String transportName = System
@@ -175,6 +177,14 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     ctl.setLong(pool,
         ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
 
+    // serialization
+    final Boolean kryo = !"java".equals(serialization);
+    if (kryo && !"kryo".equals(serialization)) {
+      System.err
+          .println("[APGAS] Unable to instantiate serialization framework: "
+              + serialization + ". Using default serialization.");
+    }
+
     // initialize transport
     Transport transport = null;
     if (transportName != null) {
@@ -192,7 +202,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       }
     }
     if (transport == null) {
-      transport = new Transport(this, master, ip, compact);
+      transport = new Transport(this, master, ip, compact, kryo);
     }
     this.transport = transport;
 

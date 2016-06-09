@@ -115,10 +115,12 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
    * @param localhost
    *          the preferred ip address of this host or null
    * @param compact
-   *          reduces thread creation if set
+   *          reduce thread creation if set
+   * @param kryo
+   *          use kryo serialization if set
    */
   protected Transport(GlobalRuntimeImpl runtime, String master,
-      String localhost, boolean compact) {
+      String localhost, boolean compact, boolean kryo) {
     this.runtime = runtime;
     // config
     final Config config = new Config();
@@ -138,7 +140,7 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
     }
 
     // kryo
-    if (System.getProperty("apgas.serialization", "java").equals("kryo")) {
+    if (kryo) {
       config.getSerializationConfig().addSerializerConfig(
           new SerializerConfig().setTypeClass(SerializableRunnable.class)
               .setImplementation(new KryoSerializer()));
