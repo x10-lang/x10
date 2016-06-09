@@ -18,8 +18,8 @@ import java.util.List;
  */
 final class NoLauncher implements Launcher {
   @Override
-  public void launch(int n, List<String> command, boolean verbose)
-      throws Exception {
+  public void launch(int n, List<String> command, List<String> hosts,
+      boolean verbose) throws Exception {
     if (verbose) {
       System.err.println("[APGAS] Ignoring attempt to spawn new place: "
           + String.join(" ", command));
@@ -27,6 +27,11 @@ final class NoLauncher implements Launcher {
   }
 
   @Override
-  public synchronized void shutdown() {
+  public void shutdown() {
+  }
+
+  @Override
+  public boolean healthy() {
+    return true;
   }
 }

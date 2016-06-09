@@ -18,21 +18,31 @@ import java.util.List;
  */
 public interface Launcher {
   /**
-   * Launches n processes with the given command line.
+   * Launches n processes with the given command line and host list.
    *
    * @param n
    *          number of processes to launch
    * @param command
    *          command line
+   * @param hosts
+   *          host list (possibly null or incomplete)
    * @param verbose
    *          dumps the executed commands to stderr
    * @throws Exception
    *           if launching fails
    */
-  void launch(int n, List<String> command, boolean verbose) throws Exception;
+  void launch(int n, List<String> command, List<String> hosts, boolean verbose)
+      throws Exception;
 
   /**
    * Shuts down the {@link Launcher} instance.
    */
   void shutdown();
+
+  /**
+   * Checks that all the processes launched are healthy.
+   *
+   * @return true if all subprocesses are healthy
+   */
+  boolean healthy();
 }

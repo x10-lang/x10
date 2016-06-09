@@ -134,7 +134,7 @@ public final class Configuration {
   /**
    * Name of the launcher implementation class to instantiate (String property).
    * <p>
-   * Defaults to "{@code apgas.impl.LocalLauncher}".
+   * Defaults to "{@code apgas.impl.SShLauncher}".
    */
   public static final String APGAS_LAUNCHER = "apgas.launcher";
 

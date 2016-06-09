@@ -40,8 +40,8 @@ public class Launcher implements apgas.impl.Launcher {
       .createAMRMClient();
 
   @Override
-  public void launch(int n, List<String> command, boolean verbose)
-      throws Exception {
+  public void launch(int n, List<String> command, List<String> hosts,
+      boolean verbose) throws Exception {
     final List<String> chmod = new ArrayList<String>();
     chmod.add("chmod");
     chmod.add("a+rx");
@@ -66,8 +66,8 @@ public class Launcher implements apgas.impl.Launcher {
     for (int containers = 0; containers < n;) {
       final AllocateResponse response = rmClient.allocate(responseId++);
       for (final Container container : response.getAllocatedContainers()) {
-        final ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-            null, null, command, null, null, null);
+        final ContainerLaunchContext ctx = ContainerLaunchContext
+            .newInstance(null, null, command, null, null, null);
         nmClient.startContainer(container, ctx);
       }
       containers += response.getAllocatedContainers().size();
@@ -81,8 +81,8 @@ public class Launcher implements apgas.impl.Launcher {
   @Override
   public void shutdown() {
     try {
-      rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED,
-          "", null);
+      rmClient.unregisterApplicationMaster(FinalApplicationStatus.SUCCEEDED, "",
+          null);
     } catch (final YarnException | IOException e) {
     }
     rmClient.stop();
@@ -100,8 +100,8 @@ public class Launcher implements apgas.impl.Launcher {
    */
   public static void main(String[] args) throws IOException, YarnException {
     if (args.length <= 0) {
-      System.err.println("Usage: yarn " + Launcher.class.getCanonicalName()
-          + " COMMAND");
+      System.err.println(
+          "Usage: yarn " + Launcher.class.getCanonicalName() + " COMMAND");
       System.exit(1);
     }
     final List<String> command = new ArrayList<String>();
@@ -122,15 +122,12 @@ public class Launcher implements apgas.impl.Launcher {
     final YarnClient yarnClient = YarnClient.createYarnClient();
     yarnClient.init(conf);
     yarnClient.start();
-    final String cp = String
-        .join(
-            ApplicationConstants.CLASS_PATH_SEPARATOR,
-            conf.getStrings(
-                YarnConfiguration.YARN_APPLICATION_CLASSPATH,
-                YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH));
+    final String cp = String.join(ApplicationConstants.CLASS_PATH_SEPARATOR,
+        conf.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH,
+            YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH));
     final Map<String, String> env = Collections.singletonMap(
-        Environment.CLASSPATH.name(), classpath
-            + ApplicationConstants.CLASS_PATH_SEPARATOR + cp);
+        Environment.CLASSPATH.name(),
+        classpath + ApplicationConstants.CLASS_PATH_SEPARATOR + cp);
     final ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(null,
         env, command, null, null, null);
     final ApplicationSubmissionContext appContext = yarnClient
@@ -155,5 +152,10 @@ public class Launcher implements apgas.impl.Launcher {
       }
     }
     System.err.println(appId + " finished with state " + appState);
+  }
+
+  @Override
+  public boolean healthy() {
+    return true;
   }
 }

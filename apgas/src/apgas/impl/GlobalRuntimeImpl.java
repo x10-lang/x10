@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -156,6 +157,15 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final boolean launcherVerbose = Boolean
         .getBoolean(Configuration.APGAS_LAUNCHER_VERBOSE);
     final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE);
+    List<String> hosts = null;
+    if (master == null && hostfile != null) {
+      try {
+        hosts = Files.readAllLines(FileSystems.getDefault().getPath(hostfile));
+      } catch (final IOException e) {
+        System.err.println("[APGAS] Unable to read hostfile: " + hostfile);
+        System.err.println("[APGAS] Defaulting to localhost");
+      }
+    }
 
     // initialize finish
     Finish.Factory factory = null;
@@ -197,16 +207,19 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     if (ip == null) {
       try {
         String host = master;
-        try {
-          if (host == null) {
-            host = Files
-                .readAllLines(FileSystems.getDefault().getPath(hostfile))
-                .get(0);
+        if (host == null && hosts != null) {
+          for (final String h : hosts) {
+            try {
+              if (!InetAddress.getByName(h).isLoopbackAddress()) {
+                host = h;
+                break;
+              }
+            } catch (final UnknownHostException e) {
+            }
           }
-        } catch (final Exception e) {
         }
         if (host == null) {
-          host = "localhost";
+          host = InetAddress.getLoopbackAddress().getHostAddress();
         }
         final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
             .getNetworkInterfaces();
@@ -269,11 +282,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         }
       }
       if (launcher == null) {
-        if (hostfile == null) {
-          launcher = new LocalLauncher();
-        } else {
-          launcher = new SshLauncher();
-        }
+        launcher = new SshLauncher();
       }
     }
     this.launcher = launcher;
@@ -329,7 +338,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
             + transport.getAddress());
         command.add(getClass().getSuperclass().getCanonicalName());
 
-        launcher.launch(p - 1, command, launcherVerbose);
+        launcher.launch(p - 1, command, hosts, launcherVerbose);
       } catch (final Throwable t) {
         // initiate shutdown
         shutdown();
@@ -342,6 +351,9 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       try {
         Thread.sleep(100);
       } catch (final InterruptedException e) {
+      }
+      if (!launcher.healthy()) {
+        throw new IOException("A process exited prematurely");
       }
     }
   }

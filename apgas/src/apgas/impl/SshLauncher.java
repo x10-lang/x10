@@ -11,15 +11,12 @@
 
 package apgas.impl;
 
-import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import apgas.Configuration;
 
 /**
  * The {@link SshLauncher} class implements a launcher using ssh.
@@ -44,44 +41,51 @@ final class SshLauncher implements Launcher {
   }
 
   @Override
-  public void launch(int n, List<String> command, boolean verbose)
-      throws Exception {
+  public void launch(int n, List<String> command, List<String> hosts,
+      boolean verbose) throws Exception {
     final ProcessBuilder pb = new ProcessBuilder(command);
     pb.redirectOutput(Redirect.INHERIT);
     pb.redirectError(Redirect.INHERIT);
-    command.add(0, "ssh");
-    command.add(1, "-t");
-    command.add(2, "-t");
-    final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE,
-        "hostfile");
-    Iterator<String> hosts = null;
     boolean warningEmitted = false;
-    try {
-      hosts = Files.readAllLines(FileSystems.getDefault().getPath(hostfile))
-          .iterator();
-    } catch (final IOException e) {
-      System.err.println("[APGAS] Unable to read hostfile: " + hostfile);
-      System.err.println("[APGAS] Defaulting to localhost");
-      warningEmitted = true;
-    }
-    String host = "localhost";
+    final Iterator<String> it = hosts == null ? null : hosts.iterator();
+    String host = InetAddress.getLoopbackAddress().getHostAddress();
 
     for (int i = 0; i < n; i++) {
-      if (hosts != null && hosts.hasNext()) {
-        host = hosts.next();
+      if (it != null && it.hasNext()) {
+        host = it.next();
       } else if (!warningEmitted) {
         System.err.println(
             "[APGAS] Warning: hostfile too short; repeating last host: "
                 + host);
         warningEmitted = true;
       }
-      command.add(3, host);
-      if (verbose) {
-        System.err.println(
-            "[APGAS] Spawning new place: " + String.join(" ", command));
+      Process process;
+      boolean local = false;
+      try {
+        local = InetAddress.getByName(host).isLoopbackAddress();
+      } catch (final UnknownHostException e) {
       }
-      Process process = pb.start();
-      command.remove(3);
+      if (local) {
+        process = pb.start();
+        if (verbose) {
+          System.err.println(
+              "[APGAS] Spawning new place: " + String.join(" ", command));
+        }
+      } else {
+        command.add(0, "ssh");
+        command.add(1, "-t");
+        command.add(2, "-t");
+        command.add(3, host);
+        if (verbose) {
+          System.err.println(
+              "[APGAS] Spawning new place: " + String.join(" ", command));
+        }
+        process = pb.start();
+        command.remove(0);
+        command.remove(0);
+        command.remove(0);
+        command.remove(0);
+      }
       synchronized (this) {
         if (dying <= 1) {
           processes.add(process);
@@ -112,5 +116,20 @@ final class SshLauncher implements Launcher {
     for (final Process process : processes) {
       process.destroyForcibly();
     }
+  }
+
+  @Override
+  public boolean healthy() {
+    synchronized (this) {
+      if (dying > 0) {
+        return false;
+      }
+    }
+    for (final Process process : processes) {
+      if (!process.isAlive()) {
+        return false;
+      }
+    }
+    return true;
   }
 }
