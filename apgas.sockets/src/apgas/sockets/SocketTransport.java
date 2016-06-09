@@ -54,11 +54,13 @@ public class SocketTransport extends Transport implements
    *          the preferred ip address of this host
    * @param compact
    *          reduces thread creation if set
+   * @param kryo
+   *          todo
    */
   public SocketTransport(GlobalRuntimeImpl runtime, String master,
-      String localhost, boolean compact) {
+      String localhost, boolean compact, boolean kryo) {
     super(runtime, master == null ? null : master.split(",")[0], localhost,
-        compact);
+        compact, kryo);
     this.runtime = runtime;
     this.useSnappy = System.getProperty(
         Configuration.APGAS_TRANSPORT_COMPRESSION, "snappy").equals("snappy");
