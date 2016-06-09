@@ -158,11 +158,6 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
     }
     if (master != null) {
       join.getTcpIpConfig().addMember(master);
-      // also replace localhost will real ip as master is likely to expect this
-      if (master.startsWith("127.0.0.1") || master.startsWith("localhost")) {
-        join.getTcpIpConfig()
-            .addMember(master.replaceFirst("127.0.0.1|localhost", localhost));
-      }
     }
     config.setInstanceName(APGAS);
 

@@ -11,12 +11,19 @@
 
 package apgas.impl;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -133,7 +140,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     final int maxThreads = Integer.getInteger(Configuration.APGAS_MAX_THREADS,
         256);
     final String master = System.getProperty(Configuration.APGAS_MY_MASTER);
-    final String ip = System.getProperty(Configuration.APGAS_MY_IP);
+    String ip = System.getProperty(Configuration.APGAS_MY_IP);
     serializationException = Boolean
         .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
@@ -148,6 +155,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         .getProperty(Configuration.APGAS_LAUNCHER);
     final boolean launcherVerbose = Boolean
         .getBoolean(Configuration.APGAS_LAUNCHER_VERBOSE);
+    final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE);
 
     // initialize finish
     Finish.Factory factory = null;
@@ -185,6 +193,42 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
               + serialization + ". Using default serialization.");
     }
 
+    // attempt to select a good ip for this host
+    if (ip == null) {
+      try {
+        String host = master;
+        try {
+          if (host == null) {
+            host = Files
+                .readAllLines(FileSystems.getDefault().getPath(hostfile))
+                .get(0);
+          }
+        } catch (final Exception e) {
+        }
+        if (host == null) {
+          host = "localhost";
+        }
+        final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+            .getNetworkInterfaces();
+        while (networkInterfaces.hasMoreElements()) {
+          final NetworkInterface ni = networkInterfaces.nextElement();
+          if (!InetAddress.getByName(host).isReachable(ni, 0, 100)) {
+            continue;
+          }
+          final Enumeration<InetAddress> e = ni.getInetAddresses();
+          while (e.hasMoreElements()) {
+            final InetAddress inetAddress = e.nextElement();
+            if (inetAddress.isLoopbackAddress()
+                || inetAddress instanceof Inet6Address) {
+              continue;
+            }
+            ip = inetAddress.getHostAddress();
+          }
+        }
+      } catch (final IOException e) {
+      }
+    }
+
     // initialize transport
     Transport transport = null;
     if (transportName != null) {
@@ -205,6 +249,10 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       transport = new Transport(this, master, ip, compact, kryo);
     }
     this.transport = transport;
+    if (launcherVerbose) {
+      System.err.println(
+          "[APGAS] New place starting at " + transport.getAddress() + ".");
+    }
 
     // initialize launcher
     Launcher launcher = null;
@@ -221,7 +269,11 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         }
       }
       if (launcher == null) {
-        launcher = new LocalLauncher();
+        if (hostfile == null) {
+          launcher = new LocalLauncher();
+        } else {
+          launcher = new SshLauncher();
+        }
       }
     }
     this.launcher = launcher;
@@ -274,7 +326,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
           }
         }
         command.add("-D" + Configuration.APGAS_MY_MASTER + "="
-            + (master == null ? transport.getAddress() : master));
+            + transport.getAddress());
         command.add(getClass().getSuperclass().getCanonicalName());
 
         launcher.launch(p - 1, command, launcherVerbose);

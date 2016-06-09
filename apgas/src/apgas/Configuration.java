@@ -139,8 +139,7 @@ public final class Configuration {
   public static final String APGAS_LAUNCHER = "apgas.launcher";
 
   /**
-   * If set the runtime will ouput on stderr the command line used to launch
-   * places (Boolean property).
+   * Controls the verbosity of the launcher (Boolean property).
    */
   public static final String APGAS_LAUNCHER_VERBOSE = "apgas.launcher.verbose";
 
