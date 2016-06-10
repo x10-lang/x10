@@ -308,7 +308,9 @@ public class Transport implements com.hazelcast.core.ItemListener<Member>,
     if (place > maxPlace) {
       maxPlace = place;
     }
-    runtime.updatePlaces(added, removed);
+    if (!added.isEmpty() || !removed.isEmpty()) {
+      runtime.updatePlaces(added, removed);
+    }
   }
 
   @Override
