@@ -21,7 +21,6 @@ import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -162,8 +161,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       try {
         hosts = Files.readAllLines(FileSystems.getDefault().getPath(hostfile));
       } catch (final IOException e) {
-        System.err.println("[APGAS] Unable to read hostfile: " + hostfile);
-        System.err.println("[APGAS] Defaulting to localhost");
+        System.err.println("[APGAS] Unable to read hostfile: " + hostfile
+            + ". Using localhost.");
       }
     }
 
@@ -239,6 +238,22 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
           }
         }
       } catch (final IOException e) {
+      }
+    }
+
+    // check first entry of hostfile
+    if (hosts != null) {
+      try {
+        final InetAddress inet = InetAddress.getByName(hosts.get(0));
+        if (!inet.isLoopbackAddress()) {
+          if (NetworkInterface.getByInetAddress(inet) == null) {
+            System.err.println(
+                "[APGAS] First hostfile entry does not correspond to localhost. Ignoring and using localhost instead.");
+          }
+        }
+      } catch (final Exception e) {
+        System.err.println(
+            "[APGAS] Unable to resolve first hostfile entry. Ignoring and using localhost instead.");
       }
     }
 
@@ -323,10 +338,11 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       try {
         final ArrayList<String> command = new ArrayList<String>();
         command.add(java);
-        command.add("-Xbootclasspath:" + toAbsoluteClassPath(
-            ManagementFactory.getRuntimeMXBean().getBootClassPath()));
+        command.add("-Duser.dir=" + System.getProperty("user.dir"));
+        command.add("-Xbootclasspath:"
+            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
         command.add("-cp");
-        command.add(toAbsoluteClassPath(System.getProperty("java.class.path")));
+        command.add(System.getProperty("java.class.path"));
         for (final String property : System.getProperties()
             .stringPropertyNames()) {
           if (property.startsWith("apgas.")
@@ -356,14 +372,6 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         throw new IOException("A process exited prematurely");
       }
     }
-  }
-
-  static private String toAbsoluteClassPath(String classPath) {
-    final String[] cp = classPath.split(":");
-    for (int i = 0; i < cp.length; ++i) {
-      cp[i] = Paths.get(cp[i]).toAbsolutePath().normalize().toString();
-    }
-    return String.join(":", cp);
   }
 
   /**
