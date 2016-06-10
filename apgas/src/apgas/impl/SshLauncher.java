@@ -51,13 +51,15 @@ final class SshLauncher implements Launcher {
     String host = InetAddress.getLoopbackAddress().getHostAddress();
 
     for (int i = 0; i < n; i++) {
-      if (it != null && it.hasNext()) {
-        host = it.next();
-      } else if (!warningEmitted) {
-        System.err.println(
-            "[APGAS] Warning: hostfile too short; repeating last host: "
-                + host);
-        warningEmitted = true;
+      if (it != null) {
+        if (it.hasNext()) {
+          host = it.next();
+        } else if (!warningEmitted) {
+          System.err.println(
+              "[APGAS] Warning: hostfile too short; repeating last host: "
+                  + host);
+          warningEmitted = true;
+        }
       }
       Process process;
       boolean local = false;

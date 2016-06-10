@@ -352,7 +352,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         Thread.sleep(100);
       } catch (final InterruptedException e) {
       }
-      if (!launcher.healthy()) {
+      if (launcher != null && !launcher.healthy()) {
         throw new IOException("A process exited prematurely");
       }
     }
@@ -438,7 +438,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     new Task(finish, f, here).finish(worker);
     final List<Throwable> exceptions = finish.exceptions();
     if (exceptions != null) {
-      throw new MultipleException(exceptions);
+      throw MultipleException.make(exceptions);
     }
   }
 

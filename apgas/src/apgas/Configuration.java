@@ -25,6 +25,8 @@ public final class Configuration {
   /**
    * Name of the {@link GlobalRuntime} class implementation to instantiate
    * (String property).
+   * <p>
+   * Defaults to {@code apgas.impl.GlobalRuntimeImpl}.
    */
   public static final String APGAS_RUNTIME = "apgas.runtime";
 

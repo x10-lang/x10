@@ -16,7 +16,7 @@ import static apgas.Constructs.*;
 import java.util.Collection;
 
 import apgas.Configuration;
-import apgas.MultipleException;
+import apgas.DeadPlacesException;
 import apgas.Place;
 
 final class ResilientHelloWorld {
@@ -42,12 +42,8 @@ final class ResilientHelloWorld {
                 () -> System.out.println(ii + ": Hello from " + here()))));
           }
         });
-      } catch (final MultipleException e) {
-        if (!e.isDeadPlaceException()) {
-          e.printStackTrace();
-        } else {
-          System.err.println(ii + ": Ignoring DeadPlaceException");
-        }
+      } catch (final DeadPlacesException e) {
+        System.err.println(ii + ": Ignoring dead place exceptions");
         try {
           Thread.sleep(2000);
         } catch (final InterruptedException x) {

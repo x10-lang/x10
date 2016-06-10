@@ -30,25 +30,39 @@ public class MultipleException extends RuntimeException {
    *          the uncaught exceptions that contributed to this
    *          {@code MultipleException}
    */
-  public MultipleException(Collection<Throwable> exceptions) {
+  protected MultipleException(Collection<Throwable> exceptions) {
     for (final Throwable t : exceptions) {
       addSuppressed(t);
     }
   }
 
   /**
-   * Returns true if every suppressed exception is a DeadPlaceException.
+   * Makes a new {@link MultipleException} from the specified {@code exceptions}
+   * with a type reflecting the contained dead place exceptions.
    *
-   * @return true if every suppressed exception is a DeadPlaceException
+   * @param exceptions
+   *          the uncaught exceptions that contributed to this
+   *          {@code MultipleException}
+   * @return the exception
    */
-  public boolean isDeadPlaceException() {
-    for (final Throwable t : getSuppressed()) {
-      if (t instanceof DeadPlaceException || t instanceof MultipleException
-          && ((MultipleException) t).isDeadPlaceException()) {
-        continue;
+  public static MultipleException make(Collection<Throwable> exceptions) {
+    boolean all = true;
+    boolean none = true;
+    for (final Throwable t : exceptions) {
+      all = all && (t instanceof DeadPlaceException
+          || t instanceof DeadPlacesException);
+      none = none && !(t instanceof DeadPlaceException
+          || t instanceof MixedException);
+      if (!all && !none) {
+        break;
       }
-      return false;
     }
-    return true;
+    if (none) {
+      return new MultipleException(exceptions);
+    }
+    if (all) {
+      return new DeadPlacesException(exceptions);
+    }
+    return new MixedException(exceptions);
   }
 }

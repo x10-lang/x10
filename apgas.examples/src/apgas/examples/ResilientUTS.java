@@ -32,8 +32,8 @@ import com.hazelcast.transaction.TransactionalTaskContext;
 
 import apgas.Configuration;
 import apgas.DeadPlaceException;
+import apgas.DeadPlacesException;
 import apgas.GlobalRuntime;
-import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.PlaceLocalObject;
 
@@ -289,10 +289,7 @@ final class ResilientUTS extends PlaceLocalObject {
         uts.workers[0].bag.count = bags.get(0).count;
         uts.workers[0].lifelinedeal(bags.get(0));
       });
-    } catch (final MultipleException e) {
-      if (!e.isDeadPlaceException()) {
-        e.printStackTrace();
-      }
+    } catch (final DeadPlacesException e) {
     }
     final UTS bag = new UTS();
     final List<UTS> l = new ArrayList<UTS>();
@@ -386,10 +383,7 @@ final class ResilientUTS extends PlaceLocalObject {
       System.out.println("Wave: " + w);
       try {
         bags = finish(() -> ResilientUTS.step(b, w, power, resilient));
-      } catch (final MultipleException e) {
-        if (!e.isDeadPlaceException()) {
-          e.printStackTrace();
-        }
+      } catch (final DeadPlacesException e) {
       }
     }
 
