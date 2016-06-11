@@ -48,7 +48,12 @@ final class SshLauncher implements Launcher {
     pb.redirectError(Redirect.INHERIT);
     boolean warningEmitted = false;
     final Iterator<String> it = hosts == null ? null : hosts.iterator();
-    String host = InetAddress.getLoopbackAddress().getHostAddress();
+    String host;
+    if (it != null && it.hasNext()) {
+      host = it.next();
+    } else {
+      host = InetAddress.getLoopbackAddress().getHostAddress();
+    }
 
     for (int i = 0; i < n; i++) {
       if (it != null) {
