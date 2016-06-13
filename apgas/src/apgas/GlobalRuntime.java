@@ -40,11 +40,12 @@ public abstract class GlobalRuntime {
     /**
      * Initializes the {@link GlobalRuntime} instance for this place.
      */
-    private GlobalRuntimeWrapper() {
+    private GlobalRuntimeWrapper(String[] args) {
       try {
         final String className = System.getProperty(Configuration.APGAS_RUNTIME,
             "apgas.impl.GlobalRuntimeImpl");
-        runtime = (GlobalRuntime) Class.forName(className).newInstance();
+        runtime = (GlobalRuntime) Class.forName(className)
+            .getConstructor(String[].class).newInstance((Object) args);
       } catch (final ReflectiveOperationException e) {
         throw new RuntimeException(e);
       }
@@ -72,7 +73,7 @@ public abstract class GlobalRuntime {
     if (r == null) {
       synchronized (GlobalRuntime.class) {
         if (runtime == null) {
-          runtime = new GlobalRuntimeWrapper();
+          runtime = new GlobalRuntimeWrapper(null);
         }
         r = runtime;
       }
@@ -237,6 +238,13 @@ public abstract class GlobalRuntime {
    *          ignored
    */
   public static void main(String[] args) {
-    getRuntime();
+    final GlobalRuntimeWrapper r = runtime;
+    if (r == null) {
+      synchronized (GlobalRuntime.class) {
+        if (runtime == null) {
+          runtime = new GlobalRuntimeWrapper(args);
+        }
+      }
+    }
   }
 }

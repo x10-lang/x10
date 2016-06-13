@@ -18,11 +18,21 @@ import java.util.List;
  */
 final class NoLauncher implements Launcher {
   @Override
-  public void launch(int n, List<String> command, List<String> hosts,
+  public Process launch(int n, List<String> command, String host,
       boolean verbose) throws Exception {
     if (verbose) {
       System.err.println("[APGAS] Ignoring attempt to spawn new place: "
           + String.join(" ", command));
+    }
+    return null;
+  }
+
+  @Override
+  public void launch(int n, List<String> command, List<String> hosts,
+      boolean verbose) throws Exception {
+    if (verbose) {
+      System.err.println("[APGAS] Ignoring attempt to spawn " + n
+          + " new place(s): " + String.join(" ", command));
     }
   }
 
@@ -34,4 +44,5 @@ final class NoLauncher implements Launcher {
   public boolean healthy() {
     return true;
   }
+
 }

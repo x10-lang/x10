@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -129,10 +130,13 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
   /**
    * Constructs a new {@link GlobalRuntimeImpl} instance.
    *
+   * @param args
+   *          the command line arguments
+   *
    * @throws Exception
    *           if an error occurs
    */
-  public GlobalRuntimeImpl() throws Exception {
+  public GlobalRuntimeImpl(String[] args) throws Exception {
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
     final int threads = Integer.getInteger(Configuration.APGAS_THREADS,
@@ -160,9 +164,62 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     if (master == null && hostfile != null) {
       try {
         hosts = Files.readAllLines(FileSystems.getDefault().getPath(hostfile));
+        if (hosts.size() == 0) {
+          System.err.println(
+              "[APGAS] Empty hostfile: " + hostfile + ". Using localhost.");
+        }
       } catch (final IOException e) {
         System.err.println("[APGAS] Unable to read hostfile: " + hostfile
             + ". Using localhost.");
+      }
+    }
+    if (hosts == null || hosts.size() == 0) {
+      hosts = Collections
+          .singletonList(InetAddress.getLoopbackAddress().getHostAddress());
+    }
+
+    // initialize launcher
+    Launcher launcher = null;
+    if (master == null && p > 1) {
+      if (launcherName != null) {
+        try {
+          launcher = (Launcher) Class.forName(launcherName).newInstance();
+        } catch (InstantiationException | IllegalAccessException
+            | ExceptionInInitializerError | ClassNotFoundException
+            | NoClassDefFoundError | ClassCastException e) {
+          System.err.println("[APGAS] Unable to instantiate launcher: "
+              + launcherName + ". Using default launcher.");
+          e.printStackTrace();
+        }
+      }
+      if (launcher == null) {
+        launcher = new SshLauncher();
+      }
+    }
+    this.launcher = launcher;
+
+    if (master == null && args != null && args.length > 0) {
+      // invoked as a launcher
+      try {
+        final ArrayList<String> command = new ArrayList<String>();
+        command.add(java);
+        command.add("-Duser.dir=" + System.getProperty("user.dir"));
+        command.add("-Xbootclasspath:"
+            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
+        command.add("-cp");
+        command.add(System.getProperty("java.class.path"));
+        for (final String property : System.getProperties()
+            .stringPropertyNames()) {
+          if (property.startsWith("apgas.")
+              && !property.startsWith("apgas.my.")) {
+            command.add("-D" + property + "=" + System.getProperty(property));
+          }
+        }
+        command.addAll(Arrays.asList(args));
+        System.exit(launcher.launch(1, command, hosts.get(0), launcherVerbose)
+            .waitFor());
+      } catch (final Throwable t) {
+        throw t;
       }
     }
 
@@ -206,7 +263,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     if (ip == null) {
       try {
         String host = master;
-        if (host == null && hosts != null) {
+        if (host == null) {
           for (final String h : hosts) {
             try {
               if (!InetAddress.getByName(h).isLoopbackAddress()) {
@@ -242,19 +299,17 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     }
 
     // check first entry of hostfile
-    if (hosts != null) {
-      try {
-        final InetAddress inet = InetAddress.getByName(hosts.get(0));
-        if (!inet.isLoopbackAddress()) {
-          if (NetworkInterface.getByInetAddress(inet) == null) {
-            System.err.println(
-                "[APGAS] First hostfile entry does not correspond to localhost. Ignoring and using localhost instead.");
-          }
+    try {
+      final InetAddress inet = InetAddress.getByName(hosts.get(0));
+      if (!inet.isLoopbackAddress()) {
+        if (NetworkInterface.getByInetAddress(inet) == null) {
+          System.err.println(
+              "[APGAS] First hostfile entry does not correspond to localhost. Ignoring and using localhost instead.");
         }
-      } catch (final Exception e) {
-        System.err.println(
-            "[APGAS] Unable to resolve first hostfile entry. Ignoring and using localhost instead.");
       }
+    } catch (final Exception e) {
+      System.err.println(
+          "[APGAS] Unable to resolve first hostfile entry. Ignoring and using localhost instead.");
     }
 
     // initialize transport
@@ -281,26 +336,6 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       System.err.println(
           "[APGAS] New place starting at " + transport.getAddress() + ".");
     }
-
-    // initialize launcher
-    Launcher launcher = null;
-    if (master == null && p > 1) {
-      if (launcherName != null) {
-        try {
-          launcher = (Launcher) Class.forName(launcherName).newInstance();
-        } catch (InstantiationException | IllegalAccessException
-            | ExceptionInInitializerError | ClassNotFoundException
-            | NoClassDefFoundError | ClassCastException e) {
-          System.err.println("[APGAS] Unable to instantiate launcher: "
-              + launcherName + ". Using default launcher.");
-          e.printStackTrace();
-        }
-      }
-      if (launcher == null) {
-        launcher = new SshLauncher();
-      }
-    }
-    this.launcher = launcher;
 
     // initialize here
     here = transport.here();

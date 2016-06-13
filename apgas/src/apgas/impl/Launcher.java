@@ -18,14 +18,34 @@ import java.util.List;
  */
 public interface Launcher {
   /**
-   * Launches n processes with the given command line and host list.
+   * Launches one process with the given command line at the specified host.
+   *
+   * @param n
+   *          number of processes to launch
+   * @param command
+   *          command line
+   * @param host
+   *          host
+   * @param verbose
+   *          dumps the executed commands to stderr
+   * @return the process object
+   * @throws Exception
+   *           if launching fails
+   */
+  Process launch(int n, List<String> command, String host, boolean verbose)
+      throws Exception;
+
+  /**
+   * Launches n processes with the given command line and host list. The first
+   * host of the list is skipped. If the list is incomplete, the last host is
+   * repeated.
    *
    * @param n
    *          number of processes to launch
    * @param command
    *          command line
    * @param hosts
-   *          host list (possibly null or incomplete)
+   *          host list (not null, not empty, but possibly incomplete)
    * @param verbose
    *          dumps the executed commands to stderr
    * @throws Exception

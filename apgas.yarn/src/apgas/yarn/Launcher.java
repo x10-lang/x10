@@ -158,4 +158,11 @@ public class Launcher implements apgas.impl.Launcher {
   public boolean healthy() {
     return true;
   }
+
+  @Override
+  public Process launch(int n, List<String> command, String host,
+      boolean verbose) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
