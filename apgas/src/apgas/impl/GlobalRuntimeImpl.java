@@ -53,10 +53,11 @@ import apgas.util.GlobalID;
  * {@link apgas.GlobalRuntime} class.
  */
 public final class GlobalRuntimeImpl extends GlobalRuntime {
+  private static GlobalRuntimeImpl runtime;
   /**
-   * The value of the APGAS_SERIALIZATION_EXCEPTION system property.
+   * The value of the APGAS_VERBOSE_SERIALIZATION system property.
    */
-  final boolean serializationException;
+  final boolean verboseSerialization;
 
   /**
    * The value of the APGAS_RESILIENT system property.
@@ -124,7 +125,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
   }
 
   public static GlobalRuntimeImpl getRuntime() {
-    return (GlobalRuntimeImpl) GlobalRuntime.getRuntime();
+    return runtime;
   }
 
   /**
@@ -132,33 +133,28 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
    *
    * @param args
    *          the command line arguments
-   *
-   * @throws Exception
-   *           if an error occurs
    */
   public GlobalRuntimeImpl(String[] args) throws Exception {
+    GlobalRuntimeImpl.runtime = this;
     // parse configuration
     final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
     final int threads = Integer.getInteger(Configuration.APGAS_THREADS,
         Runtime.getRuntime().availableProcessors());
-    final int maxThreads = Integer.getInteger(Configuration.APGAS_MAX_THREADS,
-        256);
-    final String master = System.getProperty(Configuration.APGAS_MY_MASTER);
-    String ip = System.getProperty(Configuration.APGAS_MY_IP);
-    serializationException = Boolean
-        .getBoolean(Configuration.APGAS_SERIALIZATION_EXCEPTION);
+    final int maxThreads = Integer.getInteger(Config.APGAS_MAX_THREADS, 256);
+    final String master = System.getProperty(Configuration.APGAS_MASTER);
+    String ip = null;
+    verboseSerialization = Boolean
+        .getBoolean(Configuration.APGAS_VERBOSE_SERIALIZATION);
     resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
-    final boolean compact = Boolean.getBoolean(Configuration.APGAS_COMPACT);
-    final String serialization = System
-        .getProperty(Configuration.APGAS_SERIALIZATION, "kryo");
-    final String finishName = System.getProperty(Configuration.APGAS_FINISH);
-    final String java = System.getProperty(Configuration.APGAS_JAVA, "java");
-    final String transportName = System
-        .getProperty(Configuration.APGAS_TRANSPORT);
-    final String launcherName = System
-        .getProperty(Configuration.APGAS_LAUNCHER);
+    final boolean compact = Boolean.getBoolean(Config.APGAS_COMPACT);
+    final String serialization = System.getProperty(Config.APGAS_SERIALIZATION,
+        "kryo");
+    final String finishName = System.getProperty(Config.APGAS_FINISH);
+    final String java = System.getProperty(Config.APGAS_JAVA, "java");
+    final String transportName = System.getProperty(Config.APGAS_TRANSPORT);
+    final String launcherName = System.getProperty(Config.APGAS_LAUNCHER);
     final boolean launcherVerbose = Boolean
-        .getBoolean(Configuration.APGAS_LAUNCHER_VERBOSE);
+        .getBoolean(Configuration.APGAS_VERBOSE_LAUNCHER);
     final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE);
     List<String> hosts = null;
     if (master == null && hostfile != null) {
@@ -210,8 +206,7 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
         command.add(System.getProperty("java.class.path"));
         for (final String property : System.getProperties()
             .stringPropertyNames()) {
-          if (property.startsWith("apgas.")
-              && !property.startsWith("apgas.my.")) {
+          if (property.startsWith("apgas.")) {
             command.add("-D" + property + "=" + System.getProperty(property));
           }
         }
@@ -385,8 +380,8 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
             command.add("-D" + property + "=" + System.getProperty(property));
           }
         }
-        command.add("-D" + Configuration.APGAS_MY_MASTER + "="
-            + transport.getAddress());
+        command.add(
+            "-D" + Configuration.APGAS_MASTER + "=" + transport.getAddress());
         command.add(getClass().getSuperclass().getCanonicalName());
 
         launcher.launch(p - 1, command, hosts, launcherVerbose);
@@ -473,7 +468,6 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
-  @Override
   public void finish(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = factory
@@ -485,14 +479,12 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     }
   }
 
-  @Override
   public <T> T finish(Callable<T> f) {
     final Cell<T> cell = new Cell<T>();
     finish(() -> cell.set(f.call()));
     return cell.get();
   }
 
-  @Override
   public void async(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? NullFinish.SINGLETON
@@ -501,7 +493,6 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     new Task(finish, f, here).async(worker);
   }
 
-  @Override
   public void asyncAt(Place p, SerializableJob f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? NullFinish.SINGLETON
@@ -510,23 +501,19 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     new Task(finish, f, here).asyncat(p.id);
   }
 
-  @Override
   public void uncountedAsyncAt(Place p, SerializableJob f) {
     new UncountedTask(f).uncountedasyncat(p.id);
   }
 
-  @Override
   public void immediateAsyncAt(Place p, SerializableRunnable f) {
     transport.send(p.id, f);
   }
 
-  @Override
   public void at(Place p, SerializableJob f) {
     Constructs.finish(() -> Constructs.asyncAt(p, f));
   }
 
   @SuppressWarnings("unchecked")
-  @Override
   public <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
     final GlobalID id = new GlobalID();
     final Place home = here();
@@ -537,17 +524,14 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     return (T) id.removeHere();
   }
 
-  @Override
   public Place here() {
     return home;
   }
 
-  @Override
   public List<? extends Place> places() {
     return places;
   }
 
-  @Override
   public Place place(int id) {
     return new Place(id);
   }

@@ -17,7 +17,7 @@ import java.util.Collection;
  * A {@link DeadPlacesException} is a {@link MultipleException} caused only by
  * dead place exceptions.
  */
-public class DeadPlacesException extends MixedException {
+public class DeadPlacesException extends MultipleException {
   private static final long serialVersionUID = 1904057943221698941L;
 
   /**
@@ -28,7 +28,7 @@ public class DeadPlacesException extends MixedException {
    *          the uncaught exceptions that contributed to this
    *          {@code MultipleException}
    */
-  protected DeadPlacesException(Collection<Throwable> exceptions) {
+  DeadPlacesException(Collection<Throwable> exceptions) {
     super(exceptions);
   }
 }

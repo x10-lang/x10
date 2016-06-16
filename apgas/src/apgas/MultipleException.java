@@ -30,7 +30,7 @@ public class MultipleException extends RuntimeException {
    *          the uncaught exceptions that contributed to this
    *          {@code MultipleException}
    */
-  protected MultipleException(Collection<Throwable> exceptions) {
+  MultipleException(Collection<Throwable> exceptions) {
     for (final Throwable t : exceptions) {
       addSuppressed(t);
     }
@@ -46,23 +46,12 @@ public class MultipleException extends RuntimeException {
    * @return the exception
    */
   public static MultipleException make(Collection<Throwable> exceptions) {
-    boolean all = true;
-    boolean none = true;
     for (final Throwable t : exceptions) {
-      all = all && (t instanceof DeadPlaceException
-          || t instanceof DeadPlacesException);
-      none = none && !(t instanceof DeadPlaceException
-          || t instanceof MixedException);
-      if (!all && !none) {
-        break;
+      if (!(t instanceof DeadPlaceException
+          || t instanceof DeadPlacesException)) {
+        return new MultipleException(exceptions);
       }
     }
-    if (none) {
-      return new MultipleException(exceptions);
-    }
-    if (all) {
-      return new DeadPlacesException(exceptions);
-    }
-    return new MixedException(exceptions);
+    return new DeadPlacesException(exceptions);
   }
 }

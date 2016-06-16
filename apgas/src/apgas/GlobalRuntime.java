@@ -11,13 +11,10 @@
 
 package apgas;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
-import apgas.impl.SerializableRunnable;
+import apgas.impl.GlobalRuntimeImpl;
 
 /**
  * The {@link GlobalRuntime} class provides mechanisms to initialize and shut
@@ -29,33 +26,29 @@ import apgas.impl.SerializableRunnable;
  */
 public abstract class GlobalRuntime {
   /**
-   * A wrapper class for implementing double-checked locking.
+   * The command line arguments if the main method of this class is invoked.
+   */
+  private static String[] args;
+
+  /**
+   * A wrapper class for implementing the singleton pattern.
    */
   private static class GlobalRuntimeWrapper {
     /**
      * The {@link GlobalRuntime} instance for this place.
      */
-    private final GlobalRuntime runtime;
+    private static final GlobalRuntimeImpl runtime;
 
-    /**
-     * Initializes the {@link GlobalRuntime} instance for this place.
-     */
-    private GlobalRuntimeWrapper(String[] args) {
+    static {
       try {
-        final String className = System.getProperty(Configuration.APGAS_RUNTIME,
-            "apgas.impl.GlobalRuntimeImpl");
-        runtime = (GlobalRuntime) Class.forName(className)
-            .getConstructor(String[].class).newInstance((Object) args);
-      } catch (final ReflectiveOperationException e) {
+        runtime = new GlobalRuntimeImpl(args);
+      } catch (final RuntimeException e) {
+        throw e;
+      } catch (final Exception e) {
         throw new RuntimeException(e);
       }
     }
   }
-
-  /**
-   * The {@link GlobalRuntimeWrapper} instance for this place.
-   */
-  private static GlobalRuntimeWrapper runtime;
 
   /**
    * Constructs a new {@link GlobalRuntime} instance.
@@ -69,17 +62,22 @@ public abstract class GlobalRuntime {
    * @return the GlobalRuntime instance
    */
   public static GlobalRuntime getRuntime() {
-    GlobalRuntimeWrapper r = runtime;
-    if (r == null) {
-      synchronized (GlobalRuntime.class) {
-        if (runtime == null) {
-          runtime = new GlobalRuntimeWrapper(null);
-        }
-        r = runtime;
-      }
-    }
-    return r.runtime;
+    return getRuntimeImpl();
   }
+
+  /**
+   * Returns the {@link GlobalRuntimeImpl} instance for this place.
+   *
+   * @return the GlobalRuntimeImpl instance
+   */
+  static GlobalRuntimeImpl getRuntimeImpl() {
+    return GlobalRuntimeWrapper.runtime;
+  }
+
+  /**
+   * Shuts down the {@link GlobalRuntime} instance.
+   */
+  public abstract void shutdown();
 
   /**
    * Registers a place failure handler.
@@ -92,139 +90,6 @@ public abstract class GlobalRuntime {
   public abstract void setPlaceFailureHandler(Consumer<Place> handler);
 
   /**
-   * Shuts down the {@link GlobalRuntime} instance.
-   */
-  public abstract void shutdown();
-
-  /**
-   * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
-   * to complete.
-   * <p>
-   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
-   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
-   * that collects these uncaught exceptions.
-   *
-   * @param f
-   *          the function to run
-   * @throws MultipleException
-   *           if there are uncaught exceptions
-   */
-  protected abstract void finish(Job f);
-
-  /**
-   * Evaluates {@code f}, waits for all the tasks transitively spawned by
-   * {@code f}, and returns the result.
-   * <p>
-   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
-   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
-   * that collects these uncaught exceptions.
-   *
-   * @param <T>
-   *          the type of the result
-   * @param f
-   *          the function to run
-   * @return the result of the evaluation
-   */
-  protected abstract <T> T finish(Callable<T> f);
-
-  /**
-   * Submits a new local task to the global runtime with body {@code f} and
-   * returns immediately.
-   *
-   * @param f
-   *          the function to run
-   */
-  protected abstract void async(Job f);
-
-  /**
-   * Submits a new task to the global runtime to be run at {@link Place}
-   * {@code p} with body {@code f} and returns immediately.
-   *
-   * @param p
-   *          the place of execution
-   * @param f
-   *          the function to run
-   */
-  protected abstract void asyncAt(Place p, SerializableJob f);
-
-  /**
-   * Submits an uncounted task to the global runtime to be run at {@link Place}
-   * {@code p} with body {@code f} and returns immediately. The termination of
-   * this task is not tracked by the enclosing finish. If an exception is thrown
-   * by the task it is logged to System.err and ignored.
-   *
-   * @param p
-   *          the place of execution
-   * @param f
-   *          the function to run
-   */
-  protected abstract void uncountedAsyncAt(Place p, SerializableJob f);
-
-  /**
-   * Submits an immediate task to the global runtime to be run at {@link Place}
-   * {@code p} with body {@code f}. The termination of this task is not tracked
-   * by the enclosing finish. The call may block or not until the task
-   * completes. Exceptions may be masked or not.
-   *
-   * @param p
-   *          the place of execution
-   * @param f
-   *          the function to run
-   */
-  protected abstract void immediateAsyncAt(Place p, SerializableRunnable f);
-
-  /**
-   * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
-   * transitively spawned by {@code f}.
-   * <p>
-   * Equivalent to {@code finish(()->asyncat(p, f))}
-   *
-   * @param p
-   *          the requested place of execution
-   * @param f
-   *          the function to run
-   */
-  protected abstract void at(Place p, SerializableJob f);
-
-  /**
-   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
-   * transitively spawned by {@code f}, and returns the result.
-   *
-   * @param <T>
-   *          the type of the result
-   * @param p
-   *          the requested place of execution
-   * @param f
-   *          the function to run
-   * @return the result of the evaluation
-   */
-  protected abstract <T extends Serializable> T at(Place p,
-      SerializableCallable<T> f);
-
-  /**
-   * Returns the current {@link Place}.
-   *
-   * @return the current place
-   */
-  protected abstract Place here();
-
-  /**
-   * Returns the place with the given ID.
-   *
-   * @param id
-   *          the requested ID
-   * @return the place with the given ID
-   */
-  protected abstract Place place(int id);
-
-  /**
-   * Returns the current list of places in the global runtime.
-   *
-   * @return the current list of places in the global runtime
-   */
-  protected abstract List<? extends Place> places();
-
-  /**
    * Returns the executor service for the place.
    *
    * @return the executor service
@@ -232,19 +97,13 @@ public abstract class GlobalRuntime {
   public abstract ExecutorService getExecutorService();
 
   /**
-   * Intializes the global runtime.
+   * Initializes the global runtime.
    *
    * @param args
-   *          ignored
+   *          the command line arguments
    */
   public static void main(String[] args) {
-    final GlobalRuntimeWrapper r = runtime;
-    if (r == null) {
-      synchronized (GlobalRuntime.class) {
-        if (runtime == null) {
-          runtime = new GlobalRuntimeWrapper(args);
-        }
-      }
-    }
+    GlobalRuntime.args = args;
+    getRuntime();
   }
 }

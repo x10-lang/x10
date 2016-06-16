@@ -12,8 +12,8 @@
 package apgas;
 
 /**
- * The {@link Configuration} class defines the names of the system properties
- * used to configure the global runtime.
+ * The {@link Configuration} class declares the main system properties used to
+ * configure the global runtime.
  */
 public final class Configuration {
   /**
@@ -23,133 +23,56 @@ public final class Configuration {
   }
 
   /**
-   * Name of the {@link GlobalRuntime} class implementation to instantiate
-   * (String property).
+   * Property {@value #APGAS_PLACES} specifies the desired number of places
+   * (Integer property).
    * <p>
-   * Defaults to {@code apgas.impl.GlobalRuntimeImpl}.
-   */
-  public static final String APGAS_RUNTIME = "apgas.runtime";
-
-  /**
-   * Name of the network transport class implementation to instantiate (String
-   * property).
-   * <p>
-   * Currently "{@code apgas.impl.Transport}" and "
-   * {@code apgas.sockets.SocketTransport}" are supported. Defaults to "
-   * {@code apgas.impl.Transport}".
-   *
-   */
-  public static final String APGAS_TRANSPORT = "apgas.transport";
-
-  /**
-   * Enables or disables compression on the network links when using transport "
-   * {@code apgas.sockets.SocketTransport}".
-   * <p>
-   * Set to "none" or "snappy", which is the default.
-   */
-  public static final String APGAS_TRANSPORT_COMPRESSION = "apgas.transport.compression";
-
-  /**
-   * Desired number of places (Integer property).
-   * <p>
-   * Defaults to 1. If "{@code apgas.my.master}" is not set the global runtime
-   * will spawn the desired number of places, otherwise it will wait for the
-   * places to appear.
+   * Defaults to 1. If {@value #APGAS_MASTER} is not set the global runtime
+   * spawns the desired number of places, otherwise it waits for the places to
+   * appear.
    */
   public static final String APGAS_PLACES = "apgas.places";
 
   /**
-   * Desired level of parallelism (Integer property).
+   * Property {@value #APGAS_MASTER} optionally specifies the ip or socket
+   * address of the master node (String property).
    * <p>
-   * The return value of "{@code Runtime.getRuntime().availableProcessors()}" is
+   * If set to an ip the global runtime connects to the first available global
+   * runtime instance at this ip within the default port range.
+   */
+  public static final String APGAS_MASTER = "apgas.master";
+
+  /**
+   * Property {@value #APGAS_HOSTFILE} specifies a filename that lists hosts on
+   * which to launch places (String property).
+   */
+  public static final String APGAS_HOSTFILE = "apgas.hostfile";
+
+  /**
+   * Property {@value #APGAS_RESILIENT} enables fault tolerance (Boolean
+   * property).
+   * <p>
+   * If set, the global runtime does not abort the execution if a place fails.
+   */
+  public static final String APGAS_RESILIENT = "apgas.resilient";
+
+  /**
+   * Property {@value #APGAS_THREADS} specifies the desired level of parallelism
+   * (Integer property).
+   * <p>
+   * The return value of {@code Runtime.getRuntime().availableProcessors()} is
    * used if this property is not set.
    */
   public static final String APGAS_THREADS = "apgas.threads";
 
   /**
-   * Upper bound on the number of persistent threads in the thread pool (Integer
-   * property).
-   * <p>
-   * Defaults to 256.
+   * Property {@value #APGAS_VERBOSE_SERIALIZATION} controls the verbosity of
+   * the serialization (Boolean property).
    */
-  public static final String APGAS_MAX_THREADS = "apgas.max.threads";
+  public static final String APGAS_VERBOSE_SERIALIZATION = "apgas.verbose.serialization";
 
   /**
-   * Reduces the number of threads used by Hazelcast if set (Boolean property).
+   * Property {@value #APGAS_VERBOSE_LAUNCHER} controls the verbosity of the
+   * launcher (Boolean property).
    */
-  public static final String APGAS_COMPACT = "apgas.compact";
-
-  /**
-   * Name of the serialization framework to instantiate (String property).
-   * <p>
-   * Currently "{@code java}" and "{@code kryo}" are supported. Defaults to
-   * "{@code kryo}".
-   *
-   */
-  public static final String APGAS_SERIALIZATION = "apgas.serialization";
-
-  /**
-   * Specifies how to handle serialization errors when spawning remote tasks
-   * (Boolean property).
-   * <p>
-   * By default, serialization exceptions are logged to System.err but masked.
-   * If this property is set to "true" serialization exceptions are not masked.
-   * In all cases, a remote task that failed to serialize is dropped.
-   */
-  public static final String APGAS_SERIALIZATION_EXCEPTION = "apgas.serialization.exception";
-
-  /**
-   * Specifies the ip or socket address of the master node to connect to if any
-   * (String property).
-   * <p>
-   * If set to "ip:port" the global runtime will only connect to this port. If
-   * set to "ip" the global runtime will connect to the first available
-   * Hazelcast instance at this ip within the default port range.
-   */
-  public static final String APGAS_MY_MASTER = "apgas.my.master";
-
-  /**
-   * Optionally specifies the preferred ip of this host (String property).
-   */
-  public static final String APGAS_MY_IP = "apgas.my.ip";
-
-  /**
-   * Specifies the java command to run for spawning places (String property).
-   * <p>
-   * Defaults to "{@code java}".
-   */
-  public static final String APGAS_JAVA = "apgas.java";
-
-  /**
-   * Enables or disables resiliency.
-   */
-  public static final String APGAS_RESILIENT = "apgas.resilient";
-
-  /**
-   * Name of the finish implementation class to instantiate (String property).
-   * <p>
-   * Defaults to "{@code apgas.impl.DefaultFinish}" or "
-   * {@code apgas.impl.ResilientFinish}".
-   */
-  public static final String APGAS_FINISH = "apgas.finish";
-
-  /**
-   * Name of the launcher implementation class to instantiate (String property).
-   * <p>
-   * Defaults to "{@code apgas.impl.SShLauncher}".
-   */
-  public static final String APGAS_LAUNCHER = "apgas.launcher";
-
-  /**
-   * Controls the verbosity of the launcher (Boolean property).
-   */
-  public static final String APGAS_LAUNCHER_VERBOSE = "apgas.launcher.verbose";
-
-  /**
-   * Specifies the hostfile when using a compatible launcher such as "
-   * {@code apgas.impl.SshLauncher}" (String property).
-   * <p>
-   * Defaults tp "{@code hostfile}".
-   */
-  public static final String APGAS_HOSTFILE = "apgas.hostfile";
+  public static final String APGAS_VERBOSE_LAUNCHER = "apgas.verbose.launcher";
 }
