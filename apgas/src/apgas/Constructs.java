@@ -121,7 +121,7 @@ public final class Constructs {
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
    * transitively spawned by {@code f}.
    * <p>
-   * Equivalent to {@code finish(()->asyncat(p, f))}
+   * Equivalent to {@code finish(() -> asyncAt(p, f))}
    *
    * @param p
    *          the place of execution
