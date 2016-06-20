@@ -64,6 +64,7 @@ import x10.rtt.FloatType;
    versions of the native methods (eg scale). We dynamically check
    whether the rail being passed into the *ET methods is a double or
    float rail, and call the corresponding native method. 
+   Note: only one ElemType (float or double) is supported per run.
 
  */
 public class WrapBLAS {
@@ -71,7 +72,8 @@ public class WrapBLAS {
     static { 
         String lib = "jblas";
         String ext = System.getenv("GML_ELEM_TYPE");
-        if (ext != null) lib += "_" + ext;
+        if (ext == null) ext = "double";
+        lib += "_" + ext;
 
         System.loadLibrary(lib);
     }
