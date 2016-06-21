@@ -134,273 +134,280 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
    * @param args
    *          the command line arguments
    */
-  public GlobalRuntimeImpl(String[] args) throws Exception {
-    GlobalRuntimeImpl.runtime = this;
-    // parse configuration
-    final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
-    final int threads = Integer.getInteger(Configuration.APGAS_THREADS,
-        Runtime.getRuntime().availableProcessors());
-    final int maxThreads = Integer.getInteger(Config.APGAS_MAX_THREADS, 256);
-    final String master = System.getProperty(Configuration.APGAS_MASTER);
-    String ip = null;
-    verboseSerialization = Boolean
-        .getBoolean(Configuration.APGAS_VERBOSE_SERIALIZATION);
-    resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
-    final boolean compact = Boolean.getBoolean(Config.APGAS_COMPACT);
-    final String serialization = System.getProperty(Config.APGAS_SERIALIZATION,
-        "kryo");
-    final String finishName = System.getProperty(Config.APGAS_FINISH);
-    final String java = System.getProperty(Config.APGAS_JAVA, "java");
-    final String transportName = System.getProperty(Config.APGAS_TRANSPORT);
-    final String launcherName = System.getProperty(Config.APGAS_LAUNCHER);
-    final boolean launcherVerbose = Boolean
-        .getBoolean(Configuration.APGAS_VERBOSE_LAUNCHER);
-    final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE);
-    List<String> hosts = null;
-    if (master == null && hostfile != null) {
-      try {
-        hosts = Files.readAllLines(FileSystems.getDefault().getPath(hostfile));
-        if (hosts.size() == 0) {
-          System.err.println(
-              "[APGAS] Empty hostfile: " + hostfile + ". Using localhost.");
-        }
-      } catch (final IOException e) {
-        System.err.println("[APGAS] Unable to read hostfile: " + hostfile
-            + ". Using localhost.");
-      }
-    }
-    if (hosts == null || hosts.size() == 0) {
-      hosts = Collections
-          .singletonList(InetAddress.getLoopbackAddress().getHostAddress());
-    }
-
-    // initialize launcher
-    Launcher launcher = null;
-    if (master == null && p > 1) {
-      if (launcherName != null) {
+  public GlobalRuntimeImpl(String[] args) {
+    try {
+      GlobalRuntimeImpl.runtime = this;
+      // parse configuration
+      final int p = Integer.getInteger(Configuration.APGAS_PLACES, 1);
+      final int threads = Integer.getInteger(Configuration.APGAS_THREADS,
+          Runtime.getRuntime().availableProcessors());
+      final int maxThreads = Integer.getInteger(Config.APGAS_MAX_THREADS, 256);
+      final String master = System.getProperty(Configuration.APGAS_MASTER);
+      String ip = null;
+      verboseSerialization = Boolean
+          .getBoolean(Configuration.APGAS_VERBOSE_SERIALIZATION);
+      resilient = Boolean.getBoolean(Configuration.APGAS_RESILIENT);
+      final boolean compact = Boolean.getBoolean(Config.APGAS_COMPACT);
+      final String serialization = System
+          .getProperty(Config.APGAS_SERIALIZATION, "kryo");
+      final String finishName = System.getProperty(Config.APGAS_FINISH);
+      final String java = System.getProperty(Config.APGAS_JAVA, "java");
+      final String transportName = System.getProperty(Config.APGAS_TRANSPORT);
+      final String launcherName = System.getProperty(Config.APGAS_LAUNCHER);
+      final boolean launcherVerbose = Boolean
+          .getBoolean(Configuration.APGAS_VERBOSE_LAUNCHER);
+      final String hostfile = System.getProperty(Configuration.APGAS_HOSTFILE);
+      List<String> hosts = null;
+      if (master == null && hostfile != null) {
         try {
-          launcher = (Launcher) Class.forName(launcherName).newInstance();
+          hosts = Files
+              .readAllLines(FileSystems.getDefault().getPath(hostfile));
+          if (hosts.size() == 0) {
+            System.err.println(
+                "[APGAS] Empty hostfile: " + hostfile + ". Using localhost.");
+          }
+        } catch (final IOException e) {
+          System.err.println("[APGAS] Unable to read hostfile: " + hostfile
+              + ". Using localhost.");
+        }
+      }
+      if (hosts == null || hosts.size() == 0) {
+        hosts = Collections
+            .singletonList(InetAddress.getLoopbackAddress().getHostAddress());
+      }
+
+      // initialize launcher
+      Launcher launcher = null;
+      if (master == null && p > 1) {
+        if (launcherName != null) {
+          try {
+            launcher = (Launcher) Class.forName(launcherName).newInstance();
+          } catch (InstantiationException | IllegalAccessException
+              | ExceptionInInitializerError | ClassNotFoundException
+              | NoClassDefFoundError | ClassCastException e) {
+            System.err.println("[APGAS] Unable to instantiate launcher: "
+                + launcherName + ". Using default launcher.");
+            e.printStackTrace();
+          }
+        }
+        if (launcher == null) {
+          launcher = new SshLauncher();
+        }
+      }
+      this.launcher = launcher;
+
+      if (master == null && args != null && args.length > 0) {
+        // invoked as a launcher
+        try {
+          final ArrayList<String> command = new ArrayList<String>();
+          command.add(java);
+          command.add("-Duser.dir=" + System.getProperty("user.dir"));
+          command.add("-Xbootclasspath:"
+              + ManagementFactory.getRuntimeMXBean().getBootClassPath());
+          command.add("-cp");
+          command.add(System.getProperty("java.class.path"));
+          for (final String property : System.getProperties()
+              .stringPropertyNames()) {
+            if (property.startsWith("apgas.")) {
+              command.add("-D" + property + "=" + System.getProperty(property));
+            }
+          }
+          command.addAll(Arrays.asList(args));
+          System.exit(launcher.launch(1, command, hosts.get(0), launcherVerbose)
+              .waitFor());
+        } catch (final Throwable t) {
+          throw t;
+        }
+      }
+
+      // initialize finish
+      Finish.Factory factory = null;
+      if (finishName != null) {
+        final String finishFactoryName = finishName + "$Factory";
+        try {
+          factory = (Finish.Factory) Class.forName(finishFactoryName)
+              .newInstance();
         } catch (InstantiationException | IllegalAccessException
             | ExceptionInInitializerError | ClassNotFoundException
             | NoClassDefFoundError | ClassCastException e) {
-          System.err.println("[APGAS] Unable to instantiate launcher: "
-              + launcherName + ". Using default launcher.");
+          System.err.println("[APGAS] Unable to instantiate finish factory: "
+              + finishFactoryName + ". Using default factory.");
+        }
+      }
+      if (factory == null) {
+        this.factory = resilient ? new ResilientFinishOpt.Factory()
+            : new DefaultFinish.Factory();
+      } else {
+        this.factory = factory;
+      }
+
+      // initialize scheduler
+      pool = new ForkJoinPool(maxThreads, new WorkerFactory(), null, false);
+      final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
+      ctl.setAccessible(true);
+      ctl.setLong(pool,
+          ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
+
+      // serialization
+      final Boolean kryo = !"java".equals(serialization);
+      if (kryo && !"kryo".equals(serialization)) {
+        System.err
+            .println("[APGAS] Unable to instantiate serialization framework: "
+                + serialization + ". Using default serialization.");
+      }
+
+      // attempt to select a good ip for this host
+      if (ip == null) {
+        try {
+          String host = master;
+          if (host == null) {
+            for (final String h : hosts) {
+              try {
+                if (!InetAddress.getByName(h).isLoopbackAddress()) {
+                  host = h;
+                  break;
+                }
+              } catch (final UnknownHostException e) {
+              }
+            }
+          }
+          if (host == null) {
+            host = InetAddress.getLoopbackAddress().getHostAddress();
+          }
+          final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+              .getNetworkInterfaces();
+          while (networkInterfaces.hasMoreElements()) {
+            final NetworkInterface ni = networkInterfaces.nextElement();
+            if (!InetAddress.getByName(host).isReachable(ni, 0, 100)) {
+              continue;
+            }
+            final Enumeration<InetAddress> e = ni.getInetAddresses();
+            while (e.hasMoreElements()) {
+              final InetAddress inetAddress = e.nextElement();
+              if (inetAddress.isLoopbackAddress()
+                  || inetAddress instanceof Inet6Address) {
+                continue;
+              }
+              ip = inetAddress.getHostAddress();
+            }
+          }
+        } catch (final IOException e) {
+        }
+      }
+
+      // check first entry of hostfile
+      try {
+        final InetAddress inet = InetAddress.getByName(hosts.get(0));
+        if (!inet.isLoopbackAddress()) {
+          if (NetworkInterface.getByInetAddress(inet) == null) {
+            System.err.println(
+                "[APGAS] First hostfile entry does not correspond to localhost. Ignoring and using localhost instead.");
+          }
+        }
+      } catch (final Exception e) {
+        System.err.println(
+            "[APGAS] Unable to resolve first hostfile entry. Ignoring and using localhost instead.");
+      }
+
+      // initialize transport
+      Transport transport = null;
+      if (transportName != null) {
+        try {
+          transport = (Transport) Class.forName(transportName)
+              .getDeclaredConstructor(GlobalRuntimeImpl.class, String.class,
+                  String.class, boolean.class)
+              .newInstance(this, master, ip, compact);
+        } catch (InstantiationException | IllegalAccessException
+            | ExceptionInInitializerError | ClassNotFoundException
+            | NoClassDefFoundError | ClassCastException e) {
+          System.err.println("[APGAS] Unable to instantiate transport: "
+              + transportName + ". Using default transport.");
           e.printStackTrace();
         }
       }
-      if (launcher == null) {
-        launcher = new SshLauncher();
+      if (transport == null) {
+        transport = new Transport(this, master, ip, compact, kryo);
       }
-    }
-    this.launcher = launcher;
-
-    if (master == null && args != null && args.length > 0) {
-      // invoked as a launcher
-      try {
-        final ArrayList<String> command = new ArrayList<String>();
-        command.add(java);
-        command.add("-Duser.dir=" + System.getProperty("user.dir"));
-        command.add("-Xbootclasspath:"
-            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
-        command.add("-cp");
-        command.add(System.getProperty("java.class.path"));
-        for (final String property : System.getProperties()
-            .stringPropertyNames()) {
-          if (property.startsWith("apgas.")) {
-            command.add("-D" + property + "=" + System.getProperty(property));
-          }
-        }
-        command.addAll(Arrays.asList(args));
-        System.exit(launcher.launch(1, command, hosts.get(0), launcherVerbose)
-            .waitFor());
-      } catch (final Throwable t) {
-        throw t;
+      this.transport = transport;
+      if (launcherVerbose) {
+        System.err.println(
+            "[APGAS] New place starting at " + transport.getAddress() + ".");
       }
-    }
 
-    // initialize finish
-    Finish.Factory factory = null;
-    if (finishName != null) {
-      final String finishFactoryName = finishName + "$Factory";
-      try {
-        factory = (Finish.Factory) Class.forName(finishFactoryName)
-            .newInstance();
-      } catch (InstantiationException | IllegalAccessException
-          | ExceptionInInitializerError | ClassNotFoundException
-          | NoClassDefFoundError | ClassCastException e) {
-        System.err.println("[APGAS] Unable to instantiate finish factory: "
-            + finishFactoryName + ". Using default factory.");
-      }
-    }
-    if (factory == null) {
-      this.factory = resilient ? new ResilientFinishOpt.Factory()
-          : new DefaultFinish.Factory();
-    } else {
-      this.factory = factory;
-    }
+      // initialize here
+      here = transport.here();
+      home = new Place(here);
 
-    // initialize scheduler
-    pool = new ForkJoinPool(maxThreads, new WorkerFactory(), null, false);
-    final Field ctl = ForkJoinPool.class.getDeclaredField("ctl");
-    ctl.setAccessible(true);
-    ctl.setLong(pool,
-        ctl.getLong(pool) + (((long) maxThreads - threads) << 48));
+      resilientFinishMap = resilient
+          ? transport.<GlobalID, ResilientFinishState> getResilientFinishMap()
+          : null;
 
-    // serialization
-    final Boolean kryo = !"java".equals(serialization);
-    if (kryo && !"kryo".equals(serialization)) {
-      System.err
-          .println("[APGAS] Unable to instantiate serialization framework: "
-              + serialization + ". Using default serialization.");
-    }
-
-    // attempt to select a good ip for this host
-    if (ip == null) {
-      try {
-        String host = master;
-        if (host == null) {
-          for (final String h : hosts) {
-            try {
-              if (!InetAddress.getByName(h).isLoopbackAddress()) {
-                host = h;
-                break;
+      // install hook on thread 1
+      if (master == null) {
+        final Thread thread[] = new Thread[Thread.activeCount()];
+        Thread.enumerate(thread);
+        for (final Thread t : thread) {
+          if (t != null && t.getId() == 1) {
+            new Thread(() -> {
+              while (t.isAlive()) {
+                try {
+                  t.join();
+                } catch (final InterruptedException e) {
+                }
               }
-            } catch (final UnknownHostException e) {
-            }
+              shutdown();
+            }).start();
+            break;
           }
         }
-        if (host == null) {
-          host = InetAddress.getLoopbackAddress().getHostAddress();
-        }
-        final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
-            .getNetworkInterfaces();
-        while (networkInterfaces.hasMoreElements()) {
-          final NetworkInterface ni = networkInterfaces.nextElement();
-          if (!InetAddress.getByName(host).isReachable(ni, 0, 100)) {
-            continue;
-          }
-          final Enumeration<InetAddress> e = ni.getInetAddresses();
-          while (e.hasMoreElements()) {
-            final InetAddress inetAddress = e.nextElement();
-            if (inetAddress.isLoopbackAddress()
-                || inetAddress instanceof Inet6Address) {
-              continue;
-            }
-            ip = inetAddress.getHostAddress();
-          }
-        }
-      } catch (final IOException e) {
       }
-    }
 
-    // check first entry of hostfile
-    try {
-      final InetAddress inet = InetAddress.getByName(hosts.get(0));
-      if (!inet.isLoopbackAddress()) {
-        if (NetworkInterface.getByInetAddress(inet) == null) {
-          System.err.println(
-              "[APGAS] First hostfile entry does not correspond to localhost. Ignoring and using localhost instead.");
+      // start monitoring cluster
+      transport.start();
+
+      // launch additional places
+      if (master == null && p > 1) {
+        try {
+          final ArrayList<String> command = new ArrayList<String>();
+          command.add(java);
+          command.add("-Duser.dir=" + System.getProperty("user.dir"));
+          command.add("-Xbootclasspath:"
+              + ManagementFactory.getRuntimeMXBean().getBootClassPath());
+          command.add("-cp");
+          command.add(System.getProperty("java.class.path"));
+          for (final String property : System.getProperties()
+              .stringPropertyNames()) {
+            if (property.startsWith("apgas.")
+                && !property.startsWith("apgas.my.")) {
+              command.add("-D" + property + "=" + System.getProperty(property));
+            }
+          }
+          command.add(
+              "-D" + Configuration.APGAS_MASTER + "=" + transport.getAddress());
+          command.add(getClass().getSuperclass().getCanonicalName());
+
+          launcher.launch(p - 1, command, hosts, launcherVerbose);
+        } catch (final Throwable t) {
+          // initiate shutdown
+          shutdown();
+          throw t;
         }
       }
+
+      // wait for enough places to join the global runtime
+      while (maxPlace() < p) {
+        try {
+          Thread.sleep(100);
+        } catch (final InterruptedException e) {
+        }
+        if (launcher != null && !launcher.healthy()) {
+          throw new IOException("A process exited prematurely");
+        }
+      }
+    } catch (final RuntimeException e) {
+      throw e;
     } catch (final Exception e) {
-      System.err.println(
-          "[APGAS] Unable to resolve first hostfile entry. Ignoring and using localhost instead.");
-    }
-
-    // initialize transport
-    Transport transport = null;
-    if (transportName != null) {
-      try {
-        transport = (Transport) Class.forName(transportName)
-            .getDeclaredConstructor(GlobalRuntimeImpl.class, String.class,
-                String.class, boolean.class)
-            .newInstance(this, master, ip, compact);
-      } catch (InstantiationException | IllegalAccessException
-          | ExceptionInInitializerError | ClassNotFoundException
-          | NoClassDefFoundError | ClassCastException e) {
-        System.err.println("[APGAS] Unable to instantiate transport: "
-            + transportName + ". Using default transport.");
-        e.printStackTrace();
-      }
-    }
-    if (transport == null) {
-      transport = new Transport(this, master, ip, compact, kryo);
-    }
-    this.transport = transport;
-    if (launcherVerbose) {
-      System.err.println(
-          "[APGAS] New place starting at " + transport.getAddress() + ".");
-    }
-
-    // initialize here
-    here = transport.here();
-    home = new Place(here);
-
-    resilientFinishMap = resilient
-        ? transport.<GlobalID, ResilientFinishState> getResilientFinishMap()
-        : null;
-
-    // install hook on thread 1
-    if (master == null) {
-      final Thread thread[] = new Thread[Thread.activeCount()];
-      Thread.enumerate(thread);
-      for (final Thread t : thread) {
-        if (t != null && t.getId() == 1) {
-          new Thread(() -> {
-            while (t.isAlive()) {
-              try {
-                t.join();
-              } catch (final InterruptedException e) {
-              }
-            }
-            shutdown();
-          }).start();
-          break;
-        }
-      }
-    }
-
-    // start monitoring cluster
-    transport.start();
-
-    // launch additional places
-    if (master == null && p > 1) {
-      try {
-        final ArrayList<String> command = new ArrayList<String>();
-        command.add(java);
-        command.add("-Duser.dir=" + System.getProperty("user.dir"));
-        command.add("-Xbootclasspath:"
-            + ManagementFactory.getRuntimeMXBean().getBootClassPath());
-        command.add("-cp");
-        command.add(System.getProperty("java.class.path"));
-        for (final String property : System.getProperties()
-            .stringPropertyNames()) {
-          if (property.startsWith("apgas.")
-              && !property.startsWith("apgas.my.")) {
-            command.add("-D" + property + "=" + System.getProperty(property));
-          }
-        }
-        command.add(
-            "-D" + Configuration.APGAS_MASTER + "=" + transport.getAddress());
-        command.add(getClass().getSuperclass().getCanonicalName());
-
-        launcher.launch(p - 1, command, hosts, launcherVerbose);
-      } catch (final Throwable t) {
-        // initiate shutdown
-        shutdown();
-        throw t;
-      }
-    }
-
-    // wait for enough places to join the global runtime
-    while (maxPlace() < p) {
-      try {
-        Thread.sleep(100);
-      } catch (final InterruptedException e) {
-      }
-      if (launcher != null && !launcher.healthy()) {
-        throw new IOException("A process exited prematurely");
-      }
+      throw new RuntimeException(e);
     }
   }
 

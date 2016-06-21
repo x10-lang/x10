@@ -37,17 +37,8 @@ public abstract class GlobalRuntime {
     /**
      * The {@link GlobalRuntime} instance for this place.
      */
-    private static final GlobalRuntimeImpl runtime;
-
-    static {
-      try {
-        runtime = new GlobalRuntimeImpl(args);
-      } catch (final RuntimeException e) {
-        throw e;
-      } catch (final Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
+    private static final GlobalRuntimeImpl runtime = new GlobalRuntimeImpl(
+        args);;
   }
 
   /**
