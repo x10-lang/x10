@@ -227,11 +227,8 @@ final class Task extends RecursiveAction
     finish = (Finish) kryo.readClassAndObject(input);
     parent = input.readInt();
     try {
-      System.err.println("HERE1");
       f = (Job) kryo.readClassAndObject(input);
-      System.err.println("HERE2");
     } catch (final Throwable e) {
-      System.err.println("HERE3");
       if (GlobalRuntimeImpl.getRuntime().verboseSerialization
           && !(e instanceof DeadPlaceException)) {
         System.err.println("[APGAS] Failed to receive a task at place "
