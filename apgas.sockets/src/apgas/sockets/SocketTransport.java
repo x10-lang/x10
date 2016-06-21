@@ -62,8 +62,7 @@ public class SocketTransport extends Transport implements
     super(runtime, master == null ? null : master.split(",")[0], localhost,
         compact, kryo);
     this.runtime = runtime;
-    this.useSnappy = System.getProperty(
-        Configuration.APGAS_TRANSPORT_COMPRESSION, "snappy").equals("snappy");
+    this.useSnappy = System.getProperty("apgas.transport.compression", "snappy").equals("snappy");
     localTransport = new x10.network.SocketTransport(this);
     if (master == null) {
       localTransport.establishLinks(0, null); // place 0
