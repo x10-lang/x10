@@ -11,26 +11,19 @@
 
 package apgas.util;
 
-/**
- * The {@link ByRef} interface.
- *
- * @param <T>
- *          the object type
- */
-public interface ByRef<T extends ByRef<T>> {
-  /**
-   * Returns the id of the object.
-   *
-   * @return the id of the object
-   */
-  GlobalID id();
+import java.io.ObjectStreamException;
 
-  /**
-   * Returns the object with the given id.
-   *
-   * @param id
-   *          the id of the object
-   * @return the object
-   */
-  T resolve(GlobalID id);
+import com.esotericsoftware.kryo.KryoSerializable;
+
+/**
+ * The {@link Replaceable} interface.
+ */
+public interface Replaceable extends KryoSerializable {
+  default Object readResolve() throws ObjectStreamException {
+    return this;
+  }
+
+  default Object writeReplace() throws ObjectStreamException {
+    return this;
+  }
 }

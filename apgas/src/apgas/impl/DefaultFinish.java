@@ -12,6 +12,7 @@
 package apgas.impl;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -19,9 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import apgas.SerializableJob;
-import apgas.util.ByRef;
 import apgas.util.GlobalID;
+import apgas.util.Replaceable;
 
 /**
  * The {@link DefaultFinish} class implements the distributed termination
@@ -47,8 +52,7 @@ import apgas.util.GlobalID;
  * <p>
  * The finish body counts as one local task.
  */
-final class DefaultFinish
-    implements Serializable, Finish, ByRef<DefaultFinish> {
+final class DefaultFinish implements Finish, Serializable, Replaceable {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**
@@ -270,7 +274,6 @@ final class DefaultFinish
     counts = tmp;
   }
 
-  @Override
   public synchronized GlobalID id() {
     if (id == null) {
       id = new GlobalID();
@@ -279,9 +282,35 @@ final class DefaultFinish
     return id;
   }
 
+  /**
+   * Serializes the finish object.
+   *
+   * @param out
+   *          the object output stream
+   * @throws IOException
+   *           if I/O errors occur
+   */
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.writeObject(id());
+  }
+
   @Override
-  public DefaultFinish resolve(GlobalID id) {
-    this.id = id;
+  public void write(Kryo kryo, Output output) {
+    kryo.writeObject(output, id());
+  }
+
+  private void readObject(ObjectInputStream in)
+      throws IOException, ClassNotFoundException {
+    id = (GlobalID) in.readObject();
+  }
+
+  @Override
+  public void read(Kryo kryo, Input input) {
+    id = kryo.readObject(input, GlobalID.class);
+  }
+
+  @Override
+  public Object readResolve() throws ObjectStreamException {
     // count = 0;
     DefaultFinish me = (DefaultFinish) id.putHereIfAbsent(this);
     if (me == null) {
@@ -294,29 +323,5 @@ final class DefaultFinish
       }
       return me;
     }
-  }
-
-  /**
-   * Serializes the finish object.
-   *
-   * @param out
-   *          the object output stream
-   * @throws IOException
-   *           if I/O errors occur
-   */
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    id();
-    out.defaultWriteObject();
-  }
-
-  /**
-   * Deserializes the finish object.
-   *
-   * @return the finish object
-   * @throws ObjectStreamException
-   *           if an error occurs
-   */
-  private Object readResolve() throws ObjectStreamException {
-    return resolve(id);
   }
 }

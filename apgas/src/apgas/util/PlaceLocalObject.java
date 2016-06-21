@@ -17,6 +17,10 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 import apgas.Constructs;
 import apgas.DeadPlaceException;
 import apgas.Place;
@@ -31,18 +35,30 @@ import apgas.SerializableCallable;
  * instance. This id is resolved at the destination place to the object local to
  * the place.
  */
-public class PlaceLocalObject implements Serializable {
-  private static final class ObjectReference implements Serializable {
+public class PlaceLocalObject implements Serializable, Replaceable {
+  private static final class ObjectReference
+      implements Serializable, Replaceable {
     private static final long serialVersionUID = -2416972795695833335L;
 
-    private final GlobalID id;
+    private GlobalID id;
 
     private ObjectReference(GlobalID id) {
       this.id = id;
     }
 
-    private Object readResolve() throws ObjectStreamException {
+    @Override
+    public Object readResolve() throws ObjectStreamException {
       return id.getHere();
+    }
+
+    @Override
+    public void write(Kryo kryo, Output output) {
+      kryo.writeObject(output, id);
+    }
+
+    @Override
+    public void read(Kryo kryo, Input input) {
+      id = kryo.readObject(input, GlobalID.class);
     }
   }
 
@@ -102,7 +118,16 @@ public class PlaceLocalObject implements Serializable {
    * @throws ObjectStreamException
    *           N/A
    */
-  protected Object writeReplace() throws ObjectStreamException {
+  @Override
+  public Object writeReplace() throws ObjectStreamException {
     return new ObjectReference(id);
+  }
+
+  @Override
+  public void write(Kryo kryo, Output output) {
+  }
+
+  @Override
+  public void read(Kryo kryo, Input input) {
   }
 }

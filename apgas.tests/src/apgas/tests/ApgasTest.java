@@ -35,7 +35,7 @@ public class ApgasTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     System.setProperty(Configuration.APGAS_PLACES, "4");
-    System.setProperty("apgas.serialization", "java");
+    // System.setProperty("apgas.serialization", "java");
     GlobalRuntime.getRuntime();
   }
 

@@ -15,8 +15,13 @@ import static apgas.Constructs.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Collection;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 import apgas.DeadPlaceException;
 import apgas.Place;
@@ -32,7 +37,7 @@ import apgas.SerializableCallable;
  * @param <T>
  *          the type of the reference
  */
-public class GlobalRef<T> implements Serializable, ByRef<GlobalRef<T>> {
+public class GlobalRef<T> implements Serializable, Replaceable {
   private static final long serialVersionUID = 4462229293688114477L;
 
   private static final Object UNDEFINED = new Object();
@@ -208,32 +213,36 @@ public class GlobalRef<T> implements Serializable, ByRef<GlobalRef<T>> {
     return id.hashCode();
   }
 
-  @Override
-  public synchronized GlobalID id() {
-    synchronized (this) {
-      if (id == null) {
-        id = new GlobalID();
-        id.putHere(t);
-      }
+  private synchronized GlobalID id() {
+    if (id == null) {
+      id = new GlobalID();
+      id.putHere(t);
     }
     return id;
   }
 
-  @Override
-  public GlobalRef<T> resolve(GlobalID id) {
-    this.id = id;
-    t = id.getOrDefaultHere(UNDEFINED);
-    return this;
+  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    out.writeObject(id());
   }
 
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    id();
-    out.defaultWriteObject();
+  @Override
+  public void write(Kryo kryo, Output output) {
+    kryo.writeObject(output, id());
   }
 
   private void readObject(ObjectInputStream in)
       throws IOException, ClassNotFoundException {
-    in.defaultReadObject();
+    id = (GlobalID) in.readObject();
+  }
+
+  @Override
+  public void read(Kryo kryo, Input input) {
+    id = kryo.readObject(input, GlobalID.class);
+  }
+
+  @Override
+  public Object readResolve() throws ObjectStreamException {
     t = id.getOrDefaultHere(UNDEFINED);
+    return this;
   }
 }
