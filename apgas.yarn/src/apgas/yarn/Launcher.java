@@ -160,7 +160,7 @@ public class Launcher implements apgas.impl.Launcher {
   }
 
   @Override
-  public Process launch(int n, List<String> command, String host,
+  public Process launch(List<String> command, String host,
       boolean verbose) throws Exception {
     // TODO Auto-generated method stub
     return null;

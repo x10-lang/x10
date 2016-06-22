@@ -47,18 +47,21 @@ final class SshLauncher implements Launcher {
     pb.redirectOutput(Redirect.INHERIT);
     pb.redirectError(Redirect.INHERIT);
     boolean warningEmitted = false;
-    final Iterator<String> it = hosts.iterator();
+    final Iterator<String> it = hosts == null ? null : hosts.iterator();
     String host;
-    host = it.next();
+    host = it == null ? InetAddress.getLoopbackAddress().getHostAddress()
+        : it.next();
 
     for (int i = 0; i < n; i++) {
-      if (it.hasNext()) {
-        host = it.next();
-      } else if (!warningEmitted) {
-        System.err.println(
-            "[APGAS] Warning: hostfile too short; repeating last host: "
-                + host);
-        warningEmitted = true;
+      if (it != null) {
+        if (it.hasNext()) {
+          host = it.next();
+        } else if (!warningEmitted) {
+          System.err.println(
+              "[APGAS] Warning: hostfile too short; repeating last host: "
+                  + host);
+          warningEmitted = true;
+        }
       }
       Process process;
       boolean local = false;
@@ -101,8 +104,8 @@ final class SshLauncher implements Launcher {
   }
 
   @Override
-  public Process launch(int n, List<String> command, String host,
-      boolean verbose) throws Exception {
+  public Process launch(List<String> command, String host, boolean verbose)
+      throws Exception {
     final ProcessBuilder pb = new ProcessBuilder(command);
     pb.redirectOutput(Redirect.INHERIT);
     pb.redirectError(Redirect.INHERIT);
