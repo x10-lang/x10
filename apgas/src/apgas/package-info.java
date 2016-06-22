@@ -10,6 +10,6 @@
  */
 
 /**
- * The {@link apgas} package defines the core APGAS API.
+ * The {@link apgas} package defines the core APGAS abstractions.
  */
 package apgas;

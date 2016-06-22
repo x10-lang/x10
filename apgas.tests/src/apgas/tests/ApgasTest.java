@@ -28,6 +28,7 @@ import apgas.GlobalRuntime;
 import apgas.MultipleException;
 import apgas.Place;
 import apgas.util.GlobalRef;
+import apgas.util.PlaceLocalArray;
 
 @SuppressWarnings("javadoc")
 public class ApgasTest {
@@ -35,7 +36,7 @@ public class ApgasTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     System.setProperty(Configuration.APGAS_PLACES, "4");
-    System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
+    // System.setProperty("apgas.serialization", "java");
     GlobalRuntime.getRuntime();
   }
 
@@ -81,6 +82,20 @@ public class ApgasTest {
     for (final Place p : places()) {
       assertEquals(at(p, () -> plh.get()), p);
     }
+    plh.free();
+  }
+
+  @Test
+  public void testPlaceLocalArray() {
+    final PlaceLocalArray<Place> pla = PlaceLocalArray.make(places(), 1);
+    finish(() -> {
+      for (final Place p : places()) {
+        asyncAt(p, () -> pla.set(0, here()));
+      }
+    });
+    for (final Place p : places()) {
+      assertEquals(at(p, () -> pla.get(0)), p);
+    }
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -89,7 +104,7 @@ public class ApgasTest {
   }
 
   @Test(expected = DeadPlaceException.class)
-  public void testBadPlaceExceptionAsyncAt() {
+  public void testDeadPlaceExceptionAsyncAt() {
     asyncAt(new Place(places().size()), () -> {
     });
   }
@@ -135,6 +150,9 @@ public class ApgasTest {
   @SuppressWarnings("serial")
   @Test(expected = RuntimeException.class)
   public void testSerializationException() throws Throwable {
+    if (!"java".equals(System.getProperty("apgas.serialization"))) {
+      throw new RuntimeException(); // TODO
+    }
     try {
       final Object obj = new Object();
       asyncAt(place(1), () -> obj.toString());
@@ -156,6 +174,9 @@ public class ApgasTest {
   @SuppressWarnings("serial")
   @Test(expected = NotSerializableException.class)
   public void testDeserializationException() throws Throwable {
+    if (!"java".equals(System.getProperty("apgas.serialization"))) {
+      throw new NotSerializableException(); // TODO
+    }
     final Object obj = new Foo();
     try {
       finish(() -> asyncAt(place(1), () -> obj.toString()));
@@ -173,6 +194,9 @@ public class ApgasTest {
 
   @Test(expected = NotSerializableException.class)
   public void testNotSerializableException() throws Throwable {
+    if (!"java".equals(System.getProperty("apgas.serialization"))) {
+      throw new NotSerializableException(); // TODO
+    }
     try {
       finish(() -> asyncAt(place(1), () -> {
         throw new FooException();

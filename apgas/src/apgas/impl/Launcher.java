@@ -20,8 +20,6 @@ public interface Launcher {
   /**
    * Launches one process with the given command line at the specified host.
    *
-   * @param n
-   *          number of processes to launch
    * @param command
    *          command line
    * @param host
@@ -32,7 +30,7 @@ public interface Launcher {
    * @throws Exception
    *           if launching fails
    */
-  Process launch(int n, List<String> command, String host, boolean verbose)
+  Process launch(List<String> command, String host, boolean verbose)
       throws Exception;
 
   /**

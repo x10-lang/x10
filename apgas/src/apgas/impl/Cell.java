@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2016.
  */
 
-package apgas.util;
+package apgas.impl;
 
 /**
  * The {@link Cell} class implements a mutable generic container.

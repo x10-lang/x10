@@ -10,6 +10,6 @@
  */
 
 /**
- * The {@link apgas.impl} package implements the APGAS API.
+ * The {@link apgas.impl} package implements the global runtime.
  */
 package apgas.impl;

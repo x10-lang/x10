@@ -106,9 +106,9 @@ public class Launcher implements apgas.impl.Launcher {
     }
     final List<String> command = new ArrayList<String>();
     command.add(args[0]);
-    command.add("-D" + apgas.Configuration.APGAS_LAUNCHER + "="
+    command.add("-D" + apgas.impl.Config.APGAS_LAUNCHER + "="
         + Launcher.class.getCanonicalName());
-    command.add("-D" + apgas.Configuration.APGAS_JAVA + "=" + args[0]);
+    command.add("-D" + apgas.impl.Config.APGAS_JAVA + "=" + args[0]);
     String classpath = "";
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-cp") || args[i].equals("-classpath")) {
@@ -160,7 +160,7 @@ public class Launcher implements apgas.impl.Launcher {
   }
 
   @Override
-  public Process launch(int n, List<String> command, String host,
+  public Process launch(List<String> command, String host,
       boolean verbose) throws Exception {
     // TODO Auto-generated method stub
     return null;

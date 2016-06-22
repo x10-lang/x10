@@ -78,20 +78,16 @@ final class UncountedTask extends RecursiveAction
    * @param p
    *          the place ID
    */
-  void uncountedasyncat(int p) {
+  void uncountedAsyncAt(int p) {
     try {
       GlobalRuntimeImpl.getRuntime().transport.send(p, this);
     } catch (final Throwable e) {
-      if (GlobalRuntimeImpl.getRuntime().serializationException
-          || e instanceof DeadPlaceException) {
-        throw e;
-      } else {
-        final StackTraceElement elm = new Exception().getStackTrace()[3];
+      if (GlobalRuntimeImpl.getRuntime().verboseSerialization
+          && !(e instanceof DeadPlaceException)) {
         System.err.println("[APGAS] Failed to spawn an uncounted task at place "
-            + p + " (" + elm.getFileName() + ":" + elm.getLineNumber() + ")");
-        System.err.println("[APGAS] Caused by: " + e.getCause());
-        System.err.println("[APGAS] Ignoring...");
+            + p + " due to: " + e);
       }
+      throw e;
     }
   }
 
@@ -116,12 +112,9 @@ final class UncountedTask extends RecursiveAction
     try {
       f = (SerializableJob) in.readObject();
     } catch (final Throwable e) {
-      final StackTraceElement elm = e.getStackTrace()[0];
-      System.err.println("[APGAS] Failed to receive an uncounted task at place "
-          + GlobalRuntimeImpl.getRuntime().here + " (" + elm.getFileName() + ":"
-          + elm.getLineNumber() + ")");
-      System.err.println("[APGAS] Caused by: " + e);
-      System.err.println("[APGAS] Ignoring...");
+      System.err.println(
+          "[APGAS] Ignoring failure to receive an uncounted task at place "
+              + GlobalRuntimeImpl.getRuntime().here + " due to: " + e);
       f = NULL;
     }
   }
@@ -136,12 +129,9 @@ final class UncountedTask extends RecursiveAction
     try {
       f = (SerializableJob) kryo.readClassAndObject(input);
     } catch (final Throwable e) {
-      final StackTraceElement elm = e.getStackTrace()[0];
-      System.err.println("[APGAS] Failed to receive an uncounted task at place "
-          + GlobalRuntimeImpl.getRuntime().here + " (" + elm.getFileName() + ":"
-          + elm.getLineNumber() + ")");
-      System.err.println("[APGAS] Caused by: " + e);
-      System.err.println("[APGAS] Ignoring...");
+      System.err.println(
+          "[APGAS] Ignoring failure to receive an uncounted task at place "
+              + GlobalRuntimeImpl.getRuntime().here + " due to: " + e);
       f = NULL;
     }
   }

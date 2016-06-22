@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import x10.network.NetworkTransportCallbacks;
-import apgas.Configuration;
 import apgas.DeadPlaceException;
 import apgas.Place;
 import apgas.impl.GlobalRuntimeImpl;
@@ -62,8 +61,7 @@ public class SocketTransport extends Transport implements
     super(runtime, master == null ? null : master.split(",")[0], localhost,
         compact, kryo);
     this.runtime = runtime;
-    this.useSnappy = System.getProperty(
-        Configuration.APGAS_TRANSPORT_COMPRESSION, "snappy").equals("snappy");
+    this.useSnappy = System.getProperty(apgas.impl.Config.APGAS_TRANSPORT_COMPRESSION, "snappy").equals("snappy");
     localTransport = new x10.network.SocketTransport(this);
     if (master == null) {
       localTransport.establishLinks(0, null); // place 0

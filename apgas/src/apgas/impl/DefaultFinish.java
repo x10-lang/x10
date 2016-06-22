@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import apgas.SerializableJob;
-import apgas.util.ByRef;
 import apgas.util.GlobalID;
 
 /**
@@ -47,8 +46,7 @@ import apgas.util.GlobalID;
  * <p>
  * The finish body counts as one local task.
  */
-final class DefaultFinish
-    implements Serializable, Finish, ByRef<DefaultFinish> {
+final class DefaultFinish implements Serializable, Finish {
   private static final long serialVersionUID = 3789869778188598267L;
 
   /**
@@ -232,7 +230,7 @@ final class DefaultFinish
       spawn(id.home.id);
       new Task(this, (SerializableJob) () -> {
         that.addSuppressed(t.t);
-      }, here).asyncat(id.home.id);
+      }, here).asyncAt(id.home.id);
     }
   }
 
@@ -270,7 +268,11 @@ final class DefaultFinish
     counts = tmp;
   }
 
-  @Override
+  /**
+   * Returns the id of the object.
+   *
+   * @return the id of the object
+   */
   public synchronized GlobalID id() {
     if (id == null) {
       id = new GlobalID();
@@ -279,7 +281,13 @@ final class DefaultFinish
     return id;
   }
 
-  @Override
+  /**
+   * Returns the object with the given id.
+   *
+   * @param id
+   *          the id of the object
+   * @return the object
+   */
   public DefaultFinish resolve(GlobalID id) {
     this.id = id;
     // count = 0;

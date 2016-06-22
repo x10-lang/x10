@@ -15,8 +15,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import apgas.impl.SerializableRunnable;
-
 /**
  * The {@link Constructs} class defines the APGAS constructs by means of static
  * methods.
@@ -42,7 +40,7 @@ public final class Constructs {
    *           if there are uncaught exceptions
    */
   public static void finish(Job f) {
-    GlobalRuntime.getRuntime().finish(f);
+    GlobalRuntime.getRuntimeImpl().finish(f);
   }
 
   /**
@@ -60,7 +58,7 @@ public final class Constructs {
    * @return the result of the evaluation
    */
   public static <T> T finish(Callable<T> f) {
-    return GlobalRuntime.getRuntime().finish(f);
+    return GlobalRuntime.getRuntimeImpl().finish(f);
   }
 
   /**
@@ -71,7 +69,7 @@ public final class Constructs {
    *          the function to run
    */
   public static void async(Job f) {
-    GlobalRuntime.getRuntime().async(f);
+    GlobalRuntime.getRuntimeImpl().async(f);
   }
 
   /**
@@ -84,14 +82,14 @@ public final class Constructs {
    *          the function to run
    */
   public static void asyncAt(Place p, SerializableJob f) {
-    GlobalRuntime.getRuntime().asyncAt(p, f);
+    GlobalRuntime.getRuntimeImpl().asyncAt(p, f);
   }
 
   /**
    * Submits an uncounted task to the global runtime to be run at {@link Place}
    * {@code p} with body {@code f} and returns immediately. The termination of
-   * this task is not tracked by the enclosing finish. If an exception is thrown
-   * by the task it is logged to System.err and ignored.
+   * this task is not tracked by the enclosing finish. Exceptions thrown by the
+   * task are ignored.
    *
    * @param p
    *          the place of execution
@@ -99,22 +97,7 @@ public final class Constructs {
    *          the function to run
    */
   public static void uncountedAsyncAt(Place p, SerializableJob f) {
-    GlobalRuntime.getRuntime().uncountedAsyncAt(p, f);
-  }
-
-  /**
-   * Submits an immediate task to the global runtime to be run at {@link Place}
-   * {@code p} with body {@code f}. The termination of this task is not tracked
-   * by the enclosing finish. The call may block or not until the task
-   * completes. Exceptions may be masked or not.
-   *
-   * @param p
-   *          the place of execution
-   * @param f
-   *          the function to run
-   */
-  public static void immediateAsyncAt(Place p, SerializableRunnable f) {
-    GlobalRuntime.getRuntime().immediateAsyncAt(p, f);
+    GlobalRuntime.getRuntimeImpl().uncountedAsyncAt(p, f);
   }
 
   /**
@@ -131,14 +114,14 @@ public final class Constructs {
    */
   public static <SerializableT extends Serializable> SerializableT at(Place p,
       SerializableCallable<SerializableT> f) {
-    return GlobalRuntime.getRuntime().at(p, f);
+    return GlobalRuntime.getRuntimeImpl().at(p, f);
   }
 
   /**
    * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
    * transitively spawned by {@code f}.
    * <p>
-   * Equivalent to {@code finish(()->asyncat(p, f))}
+   * Equivalent to {@code finish(() -> asyncAt(p, f))}
    *
    * @param p
    *          the place of execution
@@ -146,7 +129,7 @@ public final class Constructs {
    *          the function to run
    */
   public static void at(Place p, SerializableJob f) {
-    GlobalRuntime.getRuntime().at(p, f);
+    GlobalRuntime.getRuntimeImpl().at(p, f);
   }
 
   /**
@@ -155,7 +138,7 @@ public final class Constructs {
    * @return the current place
    */
   public static Place here() {
-    return GlobalRuntime.getRuntime().here();
+    return GlobalRuntime.getRuntimeImpl().here();
   }
 
   /**
@@ -166,7 +149,7 @@ public final class Constructs {
    * @return the place with the given ID
    */
   public static Place place(int id) {
-    return GlobalRuntime.getRuntime().place(id);
+    return GlobalRuntime.getRuntimeImpl().place(id);
   }
 
   /**
@@ -175,6 +158,6 @@ public final class Constructs {
    * @return the current list of places in the global runtime
    */
   public static List<? extends Place> places() {
-    return GlobalRuntime.getRuntime().places();
+    return GlobalRuntime.getRuntimeImpl().places();
   }
 }

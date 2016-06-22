@@ -19,7 +19,6 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
 import apgas.Place;
-import apgas.util.ByRef;
 import apgas.util.GlobalID;
 import apgas.util.PlaceLocalObject;
 
@@ -37,8 +36,8 @@ class KryoSerializer implements StreamSerializer<Object> {
         protected Serializer newDefaultSerializer(Class type) {
           if (PlaceLocalObject.class.isAssignableFrom(type)) {
             return new PlaceLocalSerializer();
-          } else if (ByRef.class.isAssignableFrom(type)) {
-            return new ByRefSerializer();
+          } else if (DefaultFinish.class.isAssignableFrom(type)) {
+            return new DefaultFinishSerializer();
           } else {
             return super.newDefaultSerializer(type);
           }
@@ -123,15 +122,16 @@ class KryoSerializer implements StreamSerializer<Object> {
     }
   }
 
-  private static class ByRefSerializer<T extends ByRef<T>>
-      extends Serializer<T> {
+  private static class DefaultFinishSerializer
+      extends Serializer<DefaultFinish> {
     @Override
-    public void write(Kryo kryo, Output output, T object) {
+    public void write(Kryo kryo, Output output, DefaultFinish object) {
       kryo.writeObject(output, object.id());
     }
 
     @Override
-    public T read(Kryo kryo, Input input, Class<T> type) {
+    public DefaultFinish read(Kryo kryo, Input input,
+        Class<DefaultFinish> type) {
       return kryo.newInstance(type)
           .resolve(kryo.readObject(input, GlobalID.class));
     }

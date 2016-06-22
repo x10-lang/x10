@@ -18,8 +18,7 @@ import java.util.List;
  */
 final class NoLauncher implements Launcher {
   @Override
-  public Process launch(int n, List<String> command, String host,
-      boolean verbose) throws Exception {
+  public Process launch(List<String> command, String host, boolean verbose) {
     if (verbose) {
       System.err.println("[APGAS] Ignoring attempt to spawn new place: "
           + String.join(" ", command));

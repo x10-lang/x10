@@ -22,7 +22,6 @@ import apgas.Place;
 final class ResilientHelloWorld {
   public static void main(String[] args) {
     System.setProperty(Configuration.APGAS_RESILIENT, "true");
-    System.setProperty(Configuration.APGAS_SERIALIZATION_EXCEPTION, "true");
     // Run with four places unless specified otherwise
     if (System.getProperty(Configuration.APGAS_PLACES) == null) {
       System.setProperty(Configuration.APGAS_PLACES, "4");

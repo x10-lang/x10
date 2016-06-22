@@ -17,6 +17,14 @@
     <property name="objenesis.version" value="2.1"/>
     <property name="objenesis.jar" value="${lib}/objenesis.jar"/>
     <property name="apgas.zip" value="${basedir}/apgas.zip"/>
+    <path id="classpath">
+        <pathelement location="${hazelcast.jar}"/>
+        <pathelement location="${kryo.jar}"/>
+        <pathelement location="${minlog.jar}"/>
+        <pathelement location="${reflectasm.jar}"/>
+        <pathelement location="${objenesis.jar}"/>
+    </path>
+
     <target name="check-dependencies">
         <available file="${hazelcast.jar}" property="hazelcast.present"/>
         <available file="${kryo.jar}" property="kryo.present"/>
@@ -54,16 +62,9 @@
         <jar jarfile="${jar}" basedir="${bin}"/>
     </target>
     <target name="compile" depends="hazelcast,kryo,minlog,reflectasm,objenesis">
-        <javac destdir="${bin}" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
+        <javac destdir="${bin}" classpathref="classpath" includeantruntime="false" debug="on" createMissingPackageInfoClass="false">
             <src path="${src}"/>
             <include name="**"/>
-            <classpath>
-                <pathelement location="${hazelcast.jar}"/>
-                <pathelement location="${kryo.jar}"/>
-                <pathelement location="${minlog.jar}"/>
-                <pathelement location="${reflectasm.jar}"/>
-                <pathelement location="${objenesis.jar}"/>
-            </classpath>
         </javac>
     </target>
     <target name="samples" depends="init">
@@ -76,6 +77,6 @@
         <zip destfile="${apgas.zip}" basedir="${basedir}" includes="README.txt,epl-v10.html,lib/**,samples/**"/>
     </target>
     <target name="javadoc">
-        <javadoc access="protected" author="false" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
+        <javadoc access="protected" classpathref="classpath" author="false" destdir="${doc}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.8" sourcepath="${src}" packagenames="apgas,apgas.util" splitindex="true" use="true" version="true"/>
     </target>
 </project>
