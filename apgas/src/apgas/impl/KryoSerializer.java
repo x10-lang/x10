@@ -2,8 +2,8 @@ package apgas.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectStreamException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
 import org.objenesis.strategy.SerializingInstantiatorStrategy;
 
@@ -19,7 +19,6 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
 import apgas.Place;
-import apgas.util.Replaceable;
 import apgas.util.GlobalID;
 import apgas.util.PlaceLocalObject;
 
@@ -31,9 +30,19 @@ class KryoSerializer implements StreamSerializer<Object> {
   private static final ThreadLocal<Kryo> kryoThreadLocal = new ThreadLocal<Kryo>() {
     @Override
     protected Kryo initialValue() {
-      final Kryo kryo = new Kryo();
-      kryo.addDefaultSerializer(Replaceable.class,
-          new ReplaceableSerializer());
+      final Kryo kryo = new Kryo() {
+        @Override
+        @SuppressWarnings("rawtypes")
+        protected Serializer newDefaultSerializer(Class type) {
+          if (PlaceLocalObject.class.isAssignableFrom(type)) {
+            return new PlaceLocalSerializer();
+          } else if (DefaultFinish.class.isAssignableFrom(type)) {
+            return new DefaultFinishSerializer();
+          } else {
+            return super.newDefaultSerializer(type);
+          }
+        }
+      };
       kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
       kryo.register(Task.class);
       kryo.register(UncountedTask.class);
@@ -76,27 +85,55 @@ class KryoSerializer implements StreamSerializer<Object> {
   public void destroy() {
   }
 
-  private static class ReplaceableSerializer extends Serializer<Replaceable> {
-    @Override
-    public void write(Kryo kryo, Output output, Replaceable object) {
+  private static class PlaceLocalSerializer<T extends PlaceLocalObject>
+      extends Serializer<T> {
+    static Class<?> objectReferenceClass;
+    static Method writeReplace;
+    static Method readResolve;
+    static {
       try {
-        object = (Replaceable) object.writeReplace();
-      } catch (final ObjectStreamException e) {
+        objectReferenceClass = Class
+            .forName(PlaceLocalObject.class.getName() + "$ObjectReference");
+        writeReplace = PlaceLocalObject.class.getDeclaredMethod("writeReplace");
+        writeReplace.setAccessible(true);
+        readResolve = objectReferenceClass.getDeclaredMethod("readResolve");
+        readResolve.setAccessible(true);
+      } catch (final Exception e) {
       }
-      object.write(kryo, output);
     }
 
     @Override
-    public Replaceable read(Kryo kryo, Input input,
-        Class<Replaceable> type) {
-      Replaceable object = kryo.newInstance(type);
-      object.read(kryo, input);
+    public void write(Kryo kryo, Output output, T object) {
       try {
-        object = (Replaceable) object.readResolve();
-      } catch (final ObjectStreamException e) {
+        kryo.writeObject(output, writeReplace.invoke(object));
+      } catch (final Exception e) {
       }
-      kryo.reference(object);
-      return object;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T read(Kryo kryo, Input input, Class<T> type) {
+      try {
+        return (T) readResolve
+            .invoke(kryo.readObject(input, objectReferenceClass));
+      } catch (final Exception e) {
+        return null;
+      }
+    }
+  }
+
+  private static class DefaultFinishSerializer
+      extends Serializer<DefaultFinish> {
+    @Override
+    public void write(Kryo kryo, Output output, DefaultFinish object) {
+      kryo.writeObject(output, object.id());
+    }
+
+    @Override
+    public DefaultFinish read(Kryo kryo, Input input,
+        Class<DefaultFinish> type) {
+      return kryo.newInstance(type)
+          .resolve(kryo.readObject(input, GlobalID.class));
     }
   }
 }

@@ -81,6 +81,7 @@ public class ApgasTest {
     for (final Place p : places()) {
       assertEquals(at(p, () -> plh.get()), p);
     }
+    plh.free();
   }
 
   @Test(expected = IllegalArgumentException.class)

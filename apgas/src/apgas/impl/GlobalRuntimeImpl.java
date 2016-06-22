@@ -45,7 +45,6 @@ import apgas.MultipleException;
 import apgas.Place;
 import apgas.SerializableCallable;
 import apgas.SerializableJob;
-import apgas.util.Cell;
 import apgas.util.GlobalID;
 
 /**

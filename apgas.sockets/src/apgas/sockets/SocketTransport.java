@@ -21,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import x10.network.NetworkTransportCallbacks;
-import apgas.Configuration;
 import apgas.DeadPlaceException;
 import apgas.Place;
 import apgas.impl.GlobalRuntimeImpl;

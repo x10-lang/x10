@@ -13,15 +13,8 @@ package apgas.util;
 
 import static apgas.Constructs.*;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.Collection;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 import apgas.DeadPlaceException;
 import apgas.Place;
@@ -37,7 +30,7 @@ import apgas.SerializableCallable;
  * @param <T>
  *          the type of the reference
  */
-public class GlobalRef<T> implements Serializable, Replaceable {
+public class GlobalRef<T> implements Serializable {
   private static final long serialVersionUID = 4462229293688114477L;
 
   private static final Object UNDEFINED = new Object();
@@ -47,18 +40,13 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    * <p>
    * This ID is null until the reference is first serialized.
    */
-  protected GlobalID id;
-
-  /**
-   * The target object of this {@link GlobalRef} at the current place if any.
-   */
-  protected transient Object t;
+  protected final GlobalID id;
 
   /**
    * The collection of places where this {@link GlobalRef} instance is valid or
    * null if it is only valid at the place of instantiation.
    */
-  protected transient Collection<? extends Place> places;
+  protected final transient Collection<? extends Place> places;
 
   /**
    * Constructs a {@link GlobalRef} to the given object.
@@ -67,10 +55,9 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    *          the target of the global reference
    */
   public GlobalRef(T t) {
-    this.t = t;
-    if (t instanceof PlaceLocalObject) {
-      id = ((PlaceLocalObject) t).id;
-    }
+    id = new GlobalID();
+    id.putHere(t);
+    places = null;
   }
 
   /**
@@ -94,23 +81,19 @@ public class GlobalRef<T> implements Serializable, Replaceable {
     final GlobalID id = new GlobalID();
     this.id = id;
     this.places = places;
-    try {
-      finish(() -> {
-        for (final Place p : places) {
-          try {
-            asyncAt(p, () -> {
-              id.putHere(initializer.call());
-            });
-          } catch (final DeadPlaceException e) {
-            async(() -> {
-              throw e;
-            });
-          }
+    finish(() -> {
+      for (final Place p : places) {
+        try {
+          asyncAt(p, () -> {
+            id.putHere(initializer.call());
+          });
+        } catch (final DeadPlaceException e) {
+          async(() -> {
+            throw e;
+          });
         }
-      });
-    } finally {
-      t = id.getOrDefaultHere(UNDEFINED);
-    }
+      }
+    });
   }
 
   /**
@@ -130,9 +113,6 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    *           if not invoked from the home place of the global reference
    */
   public void free() {
-    if (id == null) {
-      return;
-    }
     if (!id.home.equals(here())) {
       throw new BadPlaceException();
     }
@@ -149,11 +129,7 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    * @return a place
    */
   public Place home() {
-    if (id == null) {
-      return here();
-    } else {
-      return id.home;
-    }
+    return id.home;
   }
 
   /**
@@ -165,7 +141,7 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    */
   @SuppressWarnings("unchecked")
   public T get() {
-    final Object t = this.t;
+    final Object t = id.getOrDefaultHere(UNDEFINED);
     if (t == UNDEFINED) {
       throw new BadPlaceException();
     }
@@ -179,22 +155,16 @@ public class GlobalRef<T> implements Serializable, Replaceable {
    * @param t
    *          the target of the global reference
    */
-  public synchronized void set(T t) {
-    this.t = t;
-    if (id != null) {
-      id.putHere(t);
-    }
+  public void set(T t) {
+    id.putHere(t);
   }
 
   /**
    * Removes the target object for this {@link GlobalRef} instance at the
    * current place.
    */
-  public synchronized void unset() {
-    t = UNDEFINED;
-    if (id != null) {
-      id.removeHere();
-    }
+  public void unset() {
+    id.removeHere();
   }
 
   @Override
@@ -211,38 +181,5 @@ public class GlobalRef<T> implements Serializable, Replaceable {
   @Override
   public int hashCode() {
     return id.hashCode();
-  }
-
-  private synchronized GlobalID id() {
-    if (id == null) {
-      id = new GlobalID();
-      id.putHere(t);
-    }
-    return id;
-  }
-
-  private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-    out.writeObject(id());
-  }
-
-  @Override
-  public void write(Kryo kryo, Output output) {
-    kryo.writeObject(output, id());
-  }
-
-  private void readObject(ObjectInputStream in)
-      throws IOException, ClassNotFoundException {
-    id = (GlobalID) in.readObject();
-  }
-
-  @Override
-  public void read(Kryo kryo, Input input) {
-    id = kryo.readObject(input, GlobalID.class);
-  }
-
-  @Override
-  public Object readResolve() throws ObjectStreamException {
-    t = id.getOrDefaultHere(UNDEFINED);
-    return this;
   }
 }
