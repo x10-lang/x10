@@ -188,7 +188,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
      * this += alpha * V
      */
     public def scaleAdd(alpha:ElemType, v:Vector(M)) {
-        BLAS.compAxpy(this.M, alpha, this.d, v.d);
+        BLAS.compAxpy(this.M, alpha, v.d, this.d);
         return this;
     }
 
