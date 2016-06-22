@@ -296,7 +296,7 @@ public class DupVector(M:Long) implements Snapshottable {
     }
     
     public def scaleAdd_local(alpha:ElemType, v:DupVector(M)) {
-        BLAS.compAxpy(this.M, alpha, this.local().d, v.local().d);
+        BLAS.compAxpy(this.M, alpha, v.local().d, this.local().d);
         return this;
     }
     
