@@ -477,6 +477,19 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     transport.shutdown();
   }
 
+  /**
+   * Runs {@code f} then waits for all tasks transitively spawned by {@code f}
+   * to complete.
+   * <p>
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
+   * exceptions then {@code finish(f)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param f
+   *          the function to run
+   * @throws MultipleException
+   *           if there are uncaught exceptions
+   */
   public void finish(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = factory
@@ -488,12 +501,33 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     }
   }
 
+  /**
+   * Evaluates {@code f}, waits for all the tasks transitively spawned by
+   * {@code f}, and returns the result.
+   * <p>
+   * If {@code f} or the tasks transitively spawned by {@code f} have uncaught
+   * exceptions then {@code finish(F)} then throws a {@link MultipleException}
+   * that collects these uncaught exceptions.
+   *
+   * @param <T>
+   *          the type of the result
+   * @param f
+   *          the function to run
+   * @return the result of the evaluation
+   */
   public <T> T finish(Callable<T> f) {
     final Cell<T> cell = new Cell<T>();
     finish(() -> cell.set(f.call()));
     return cell.get();
   }
 
+  /**
+   * Submits a new local task to the global runtime with body {@code f} and
+   * returns immediately.
+   *
+   * @param f
+   *          the function to run
+   */
   public void async(Job f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? NullFinish.SINGLETON
@@ -502,26 +536,78 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     new Task(finish, f, here).async(worker);
   }
 
+  /**
+   * Submits a new task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   public void asyncAt(Place p, SerializableJob f) {
     final Worker worker = currentWorker();
     final Finish finish = worker == null ? NullFinish.SINGLETON
         : worker.task.finish;
     finish.spawn(p.id);
-    new Task(finish, f, here).asyncat(p.id);
+    new Task(finish, f, here).asyncAt(p.id);
   }
 
+  /**
+   * Submits an uncounted task to the global runtime to be run at {@link Place}
+   * {@code p} with body {@code f} and returns immediately. The termination of
+   * this task is not tracked by the enclosing finish. Exceptions thrown by the
+   * task are ignored.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   public void uncountedAsyncAt(Place p, SerializableJob f) {
-    new UncountedTask(f).uncountedasyncat(p.id);
+    new UncountedTask(f).uncountedAsyncAt(p.id);
   }
 
+  /**
+   * /** Submits an immediate task to the global runtime to be run at
+   * {@link Place} {@code p} with body {@code f}.
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   public void immediateAsyncAt(Place p, SerializableRunnable f) {
     transport.send(p.id, f);
   }
 
+  /**
+   * Runs {@code f} at {@link Place} {@code p} and waits for all the tasks
+   * transitively spawned by {@code f}.
+   * <p>
+   * Equivalent to {@code finish(() -> asyncAt(p, f))}
+   *
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   */
   public void at(Place p, SerializableJob f) {
     Constructs.finish(() -> Constructs.asyncAt(p, f));
   }
 
+  /**
+   * Evaluates {@code f} at {@link Place} {@code p}, waits for all the tasks
+   * transitively spawned by {@code f}, and returns the result.
+   *
+   * @param <T>
+   *          the type of the result (must implement java.io.Serializable)
+   * @param p
+   *          the place of execution
+   * @param f
+   *          the function to run
+   * @return the result of the evaluation
+   */
   @SuppressWarnings("unchecked")
   public <T extends Serializable> T at(Place p, SerializableCallable<T> f) {
     final GlobalID id = new GlobalID();
@@ -533,14 +619,31 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
     return (T) id.removeHere();
   }
 
+  /**
+   * Returns the current {@link Place}.
+   *
+   * @return the current place
+   */
   public Place here() {
     return home;
   }
 
+  /**
+   * Returns the current list of places in the global runtime.
+   *
+   * @return the current list of places in the global runtime
+   */
   public List<? extends Place> places() {
     return places;
   }
 
+  /**
+   * Returns the place with the given ID.
+   *
+   * @param id
+   *          the requested ID
+   * @return the place with the given ID
+   */
   public Place place(int id) {
     return new Place(id);
   }
