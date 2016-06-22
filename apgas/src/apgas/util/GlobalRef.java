@@ -37,14 +37,11 @@ public class GlobalRef<T> implements Serializable {
 
   /**
    * The {@link GlobalID} instance for this {@link GlobalRef} instance.
-   * <p>
-   * This ID is null until the reference is first serialized.
    */
   protected final GlobalID id;
 
   /**
-   * The collection of places where this {@link GlobalRef} instance is valid or
-   * null if it is only valid at the place of instantiation.
+   * The collection of places used to construct the {@link GlobalRef} if any.
    */
   protected final transient Collection<? extends Place> places;
 
@@ -55,8 +52,12 @@ public class GlobalRef<T> implements Serializable {
    *          the target of the global reference
    */
   public GlobalRef(T t) {
-    id = new GlobalID();
-    id.putHere(t);
+    if (t instanceof PlaceLocalObject) {
+      id = ((PlaceLocalObject) t).id;
+    } else {
+      id = new GlobalID();
+      id.putHere(t);
+    }
     places = null;
   }
 

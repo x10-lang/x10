@@ -49,7 +49,7 @@ public class GlobalID implements Serializable {
   /**
    * The local ID component of this {@link GlobalID} instance.
    * <p>
-   * This local ID is guaranteed to be unique for this place but not accross all
+   * This local ID is guaranteed to be unique for this place but not across all
    * places.
    */
   public final int lid;
@@ -147,6 +147,9 @@ public class GlobalID implements Serializable {
             that.removeHere();
           });
         } catch (final DeadPlaceException e) {
+          async(() -> {
+            throw e;
+          });
         }
       }
     });
