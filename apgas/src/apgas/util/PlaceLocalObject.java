@@ -102,7 +102,7 @@ public class PlaceLocalObject implements Serializable {
    * @throws ObjectStreamException
    *           N/A
    */
-  protected Object writeReplace() throws ObjectStreamException {
+  public Object writeReplace() throws ObjectStreamException {
     return new ObjectReference(id);
   }
 }
