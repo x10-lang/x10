@@ -11,9 +11,6 @@
 
 package apgas.impl;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -269,27 +266,24 @@ final class DefaultFinish implements Serializable, Finish {
   }
 
   /**
-   * Returns the id of the object.
-   *
-   * @return the id of the object
+   * Prepares the finish object for serialization.
+   * 
+   * @return this
    */
-  public synchronized GlobalID id() {
+  public synchronized Object writeReplace() {
     if (id == null) {
       id = new GlobalID();
       id.putHere(this);
     }
-    return id;
+    return this;
   }
 
   /**
-   * Returns the object with the given id.
+   * Deserializes the finish object.
    *
-   * @param id
-   *          the id of the object
-   * @return the object
+   * @return the finish object
    */
-  public DefaultFinish resolve(GlobalID id) {
-    this.id = id;
+  public Object readResolve() {
     // count = 0;
     DefaultFinish me = (DefaultFinish) id.putHereIfAbsent(this);
     if (me == null) {
@@ -302,29 +296,5 @@ final class DefaultFinish implements Serializable, Finish {
       }
       return me;
     }
-  }
-
-  /**
-   * Serializes the finish object.
-   *
-   * @param out
-   *          the object output stream
-   * @throws IOException
-   *           if I/O errors occur
-   */
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    id();
-    out.defaultWriteObject();
-  }
-
-  /**
-   * Deserializes the finish object.
-   *
-   * @return the finish object
-   * @throws ObjectStreamException
-   *           if an error occurs
-   */
-  private Object readResolve() throws ObjectStreamException {
-    return resolve(id);
   }
 }

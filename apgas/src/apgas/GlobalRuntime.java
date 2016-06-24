@@ -38,7 +38,7 @@ public abstract class GlobalRuntime {
      * The {@link GlobalRuntime} instance for this place.
      */
     private static final GlobalRuntimeImpl runtime = new GlobalRuntimeImpl(
-        args);;
+        args);
   }
 
   /**
@@ -76,7 +76,7 @@ public abstract class GlobalRuntime {
    * The handler is invoked for each failed place.
    *
    * @param handler
-   *          the handler to register or null to deregister the current handler
+   *          the handler to register or null to unregister the current handler
    */
   public abstract void setPlaceFailureHandler(Consumer<Place> handler);
 

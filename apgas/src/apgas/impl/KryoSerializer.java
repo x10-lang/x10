@@ -32,17 +32,18 @@ class KryoSerializer implements StreamSerializer<Object> {
     protected Kryo initialValue() {
       final Kryo kryo = new Kryo() {
         @Override
-        @SuppressWarnings("rawtypes")
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         protected Serializer newDefaultSerializer(Class type) {
-          if (PlaceLocalObject.class.isAssignableFrom(type)) {
-            return new PlaceLocalSerializer();
-          } else if (DefaultFinish.class.isAssignableFrom(type)) {
-            return new DefaultFinishSerializer();
-          } else {
-            return super.newDefaultSerializer(type);
+          try {
+            type.getMethod("writeReplace");
+            return new CustomSerializer();
+          } catch (final NoSuchMethodException e) {
           }
+          return super.newDefaultSerializer(type);
         }
       };
+      kryo.addDefaultSerializer(DefaultFinish.class,
+          new DefaultFinishSerializer());
       kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
       kryo.register(Task.class);
       kryo.register(UncountedTask.class);
@@ -85,40 +86,28 @@ class KryoSerializer implements StreamSerializer<Object> {
   public void destroy() {
   }
 
-  private static class PlaceLocalSerializer<T extends PlaceLocalObject>
-      extends Serializer<T> {
-    static Class<?> objectReferenceClass;
-    static Method writeReplace;
-    static Method readResolve;
-    static {
+  private static class CustomSerializer extends Serializer<Object> {
+    @Override
+    public void write(Kryo kryo, Output output, Object object) {
       try {
-        objectReferenceClass = Class
-            .forName(PlaceLocalObject.class.getName() + "$ObjectReference");
-        writeReplace = PlaceLocalObject.class.getDeclaredMethod("writeReplace");
-        writeReplace.setAccessible(true);
-        readResolve = objectReferenceClass.getDeclaredMethod("readResolve");
+        final Method writeReplace = object.getClass().getMethod("writeReplace");
+        object = writeReplace.invoke(object);
+      } catch (final Exception e) {
+      }
+      kryo.writeClassAndObject(output, object);
+    }
+
+    @Override
+    public Object read(Kryo kryo, Input input, Class<Object> type) {
+      Object object = kryo.readClassAndObject(input);
+      try {
+        final Method readResolve = object.getClass()
+            .getDeclaredMethod("readResolve");
         readResolve.setAccessible(true);
+        object = readResolve.invoke(object);
       } catch (final Exception e) {
       }
-    }
-
-    @Override
-    public void write(Kryo kryo, Output output, T object) {
-      try {
-        kryo.writeObject(output, writeReplace.invoke(object));
-      } catch (final Exception e) {
-      }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public T read(Kryo kryo, Input input, Class<T> type) {
-      try {
-        return (T) readResolve
-            .invoke(kryo.readObject(input, objectReferenceClass));
-      } catch (final Exception e) {
-        return null;
-      }
+      return object;
     }
   }
 
@@ -126,14 +115,16 @@ class KryoSerializer implements StreamSerializer<Object> {
       extends Serializer<DefaultFinish> {
     @Override
     public void write(Kryo kryo, Output output, DefaultFinish object) {
-      kryo.writeObject(output, object.id());
+      object.writeReplace();
+      kryo.writeObject(output, object.id);
     }
 
     @Override
     public DefaultFinish read(Kryo kryo, Input input,
         Class<DefaultFinish> type) {
-      return kryo.newInstance(type)
-          .resolve(kryo.readObject(input, GlobalID.class));
+      final DefaultFinish f = kryo.newInstance(type);
+      f.id = kryo.readObject(input, GlobalID.class);
+      return (DefaultFinish) f.readResolve();
     }
   }
 }
