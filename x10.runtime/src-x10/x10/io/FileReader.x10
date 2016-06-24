@@ -68,8 +68,13 @@ public class FileReader extends InputStreamReader implements Unserializable {
 	    w.write(s.bytes());
         }
     };
-    private static val M = new FRLM();
-    public def lines():ReaderIterator[String] = new ReaderIterator[String](M, this);
+
+    private var lines:ReaderIterator[String];
+    public def lines():ReaderIterator[String] {
+        if (lines == null)
+            lines = new ReaderIterator[String](new FRLM(), this);
+        return lines;
+    }
 
     public def this(file: File) {
         super(new FileInputStream(file.getPath()));
