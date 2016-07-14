@@ -75,7 +75,6 @@ public class System {
      * May be less than the number requested, if resources are not available, 
      * or if the current launcher does not support adding places after startup.
      */
-    
     @Native("java", "x10.x10rt.X10RT.addPlaces(#newPlaces)")
     public static def addPlaces(newPlaces:Long): Long {
         return 0;
@@ -124,7 +123,7 @@ public class System {
      */
     @Native("java", "x10.x10rt.X10RT.registerPlaceAddedHandler(#handler)")
     public static def registerPlaceAddedHandler(handler:(Place)=>void): void {
-        return; // not yet supported in native X10
+        throw new UnsupportedOperationException("registerPlaceAddedHandler not implemented for NativeX10");
     }
 
     /*
@@ -141,7 +140,7 @@ public class System {
      */
     @Native("java", "x10.x10rt.X10RT.registerPlaceRemovedHandler(#handler)")
     public static def registerPlaceRemovedHandler(handler:(Place)=>void): void {
-        return; // not yet supported in native X10
+        throw new UnsupportedOperationException("registerPlaceRemovedHandler not implemented for NativeX10");
     }
 
 
