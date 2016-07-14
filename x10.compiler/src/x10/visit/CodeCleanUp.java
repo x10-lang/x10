@@ -119,9 +119,11 @@ public class CodeCleanUp extends ContextVisitor {
         
         if (n instanceof StmtExpr) {
             StmtExpr ste = (StmtExpr)n;
-            if (isEmpty(ste.statements())) {
+            if (isEmpty(ste.statements()) && ste.result() != null) {
                 // Simplify StmtExpr({}, E) to just E
                 // Simplify StmtExpr({;, ;, ... ;}, E) to just E
+                // Note: we do not handle the completely empty StmtExpr ({ ; }) here;
+                //       it will be eliminated one level "up" in the tree when sinkEval is called on Eval(({ ; }))
                 return ste.result().position(n.position());
             }
             if (ste.result() instanceof Local) {
