@@ -137,7 +137,7 @@ classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
 [ -n "$debug" ] && args="-DEBUG=$debug $args"
 
 # include libx10.properties as a x10lib unless rtdev
-[ -z "$rtdev" ] && args="-x10lib ${STDLIB_DIR}/libx10.properties $args"
+[ -z "$rtdev" ] && args="-x10lib \"${STDLIB_DIR}/libx10.properties\" $args"
 
 # define backend-specific macro
 [ -z "$DDEF" ] && DDEF="__JAVA__"
