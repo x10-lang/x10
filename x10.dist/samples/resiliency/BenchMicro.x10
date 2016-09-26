@@ -131,7 +131,7 @@ public class BenchMicro {
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"flat fan out, message back: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
+        Console.OUT.println(prefix+"flat fan out - message back: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
@@ -152,7 +152,7 @@ public class BenchMicro {
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"fan out, internal work "+INNER_ITERS+" activities: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
+        Console.OUT.println(prefix+"fan out - internal work "+INNER_ITERS+" activities: "+(time1-time0)/1E9/OUTER_ITERS/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
@@ -169,7 +169,7 @@ public class BenchMicro {
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"fan out, broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
+        Console.OUT.println(prefix+"fan out - broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
@@ -188,7 +188,7 @@ public class BenchMicro {
             time1 = System.nanoTime();
             iterCount++;
         } while (time1-time0 < MIN_NANOS);
-        Console.OUT.println(prefix+"fan out, nested finish broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
+        Console.OUT.println(prefix+"fan out - nested finish broadcast: "+(time1-time0)/1E9/iterCount+" seconds");
 
         iterCount = 0;
         time0 = System.nanoTime();
