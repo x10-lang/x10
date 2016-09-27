@@ -20,6 +20,8 @@
     <property name="ecj.jar.url" value="dependencies/ecj-4.4.2.jar"/>
     <property name="hazelcast.jar" value="hazelcast-3.3.1.jar"/>
     <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.3.1.jar"/>
+    <property name="hazelcast-client.jar" value="hazelcast-client-3.3.1.jar"/>
+    <property name="hazelcast-client.jar.url" value="dependencies/hazelcast-client-3.3.1.jar"/>
     <property name="snappy-java.jar" value="snappy-java.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
@@ -108,6 +110,9 @@
         </condition>
         <condition property="local.hazelcast.jar" value="${env.LOCAL_HAZELCAST_JAR}">
             <isset property="env.LOCAL_HAZELCAST_JAR"/>
+        </condition>
+        <condition property="local.hazelcast-client.jar" value="${env.LOCAL_HAZELCAST_CLIENT_JAR}">
+            <isset property="env.LOCAL_HAZELCAST_CLIENT_JAR"/>
         </condition>
         <condition property="local.wala.jar" value="${env.LOCAL_WALA_JAR}">
             <isset property="env.LOCAL_WALA_JAR"/>
@@ -250,6 +255,7 @@
         <available property="antlr.jar.present" file="${lib}/${antlr.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
+        <available property="hazelcast-client.jar.present" file="${lib}/${hazelcast-client.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
         <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
@@ -263,6 +269,7 @@
                 <isset property="antlr.jar.present"/>
                 <isset property="ecj.jar.present"/>
                 <isset property="hazelcast.jar.present"/>
+                <isset property="hazelcast-client.jar.present"/>
                 <isset property="wala.jar.present"/>
                 <isset property="wala2.jar.present"/>
                 <isset property="wala3.jar.present"/>
@@ -343,6 +350,19 @@
         <copy file="${local.hazelcast.jar}" tofile="${lib}/${hazelcast.jar}"/>
         <available property="hazelcast.jar.present" file="${lib}/${hazelcast.jar}"/>
         <fail message="Unable to find ${hazelcast.jar} at ${local.hazelcast.jar}" unless="hazelcast.jar.present"/>
+    </target>
+
+    <target name="hazelcast-client-jar" depends="init,hazelcast-client-local-jar" unless="local.hazelcast-client.jar">
+        <mkdir dir="${lib}"/>
+	<get-x10-dependency src="${hazelcast-client.jar.url}" dest="${lib}/${hazelcast-client.jar}"/>
+        <available property="hazelcast-client.jar.present" file="${lib}/${hazelcast-client.jar}"/>
+        <fail message="Unable to get ${hazelcast-client.jar} from ${hazelcast-client.jar.url}" unless="hazelcast-client.jar.present"/>
+    </target>
+    <target name="hazelcast-client-local-jar" depends="init" if="local.hazelcast-client.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.hazelcast-client.jar}" tofile="${lib}/${hazelcast-client.jar}"/>
+        <available property="hazelcast-client.jar.present" file="${lib}/${hazelcast-client.jar}"/>
+        <fail message="Unable to find ${hazelcast-client.jar} at ${local.hazelcast-client.jar}" unless="hazelcast-client.jar.present"/>
     </target>
 
     <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
@@ -436,7 +456,7 @@
         <fail message="Unable to find ${log.jar} at ${local.log.jar}" unless="log.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,antlr-jar,ecj-jar,hazelcast-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,antlr-jar,ecj-jar,hazelcast-jar,hazelcast-client-jar,wala-jar,wala2-jar,wala3-jar,shrike-jar,equinox-jar,math-jar,log-jar"/>
 
 	<target name="download-dependencies" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -657,6 +677,7 @@ LPG_JAR='${lpg.jar}'
 ANTLR_JAR='${antlr.jar}'
 ECJ_JAR='${ecj.jar}'
 HAZELCAST_JAR='${hazelcast.jar}'
+HAZELCAST_CLIENT_JAR='${hazelcast-client.jar}'
 SNAPPY_JAR='${snappy-java.jar}'
 WALA_JAR='${wala.jar}'
 WALA2_JAR='${wala2.jar}'
