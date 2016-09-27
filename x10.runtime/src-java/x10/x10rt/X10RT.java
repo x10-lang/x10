@@ -508,7 +508,8 @@ public class X10RT {
 			}
 			
 			// wait until the number of expected containers have joined us
-			while (hazelcastDatastore.getContainerCount() < numPlaces() ) {
+			int numHCInstances = HazelcastDatastore.numHazelcastInstances();
+			while (hazelcastDatastore.getContainerCount() < numHCInstances ) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -522,8 +523,8 @@ public class X10RT {
     // this form of initDataStore is used to load the data store on demand after normal startup
     // it takes one argument which is used to describe where this datastore should connect to
     static void initDataStore(String connectTo) {
-    	//System.out.println("Connecting to hazelcast at "+connectTo);
-    	hazelcastDatastore = new HazelcastDatastore(connectTo);
+        //System.out.println("Connecting to hazelcast at "+connectTo);
+        hazelcastDatastore = new HazelcastDatastore(connectTo);
     }
     
     /*
