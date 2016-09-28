@@ -13,7 +13,7 @@ package x10.xrx.managed;
 import x10.util.concurrent.SimpleLatch;
 import x10.util.GrowableRail;
 import x10.util.ArrayList;
-import x10.array.Array_3;
+import x10.util.HashMap;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.AbstractEntryProcessor;
@@ -33,9 +33,8 @@ public class FinishResilientHC extends FinishResilientBridge {
     private static val hereId = Runtime.hereLong();
     private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10
 
-    private static val AT = 0;
-    private static val ASYNC = 1;
-    private static val AT_AND_ASYNC = AT..ASYNC;
+    private static val AT = 0n;
+    private static val ASYNC = 1n;
     
     private static val useX10RTforInit = true; // turn off this to use my own initialization code
     private static val imap:IMap = getIMap("FinishResilientHC");
@@ -88,10 +87,16 @@ public class FinishResilientHC extends FinishResilientBridge {
         private static val nextId = new x10.util.concurrent.AtomicLong();
         static def getNewId() = FinishID(hereId, nextId.getAndIncrement()); //TODO: overflow check?
     }
-    
-    private static class State(parentId:FinishID) { // data stored into Hazelcast IMap
-        var nonzero:Long = 0; // number of non-zero entries in counts array
-        val counts = new Array_3[Int](MAX_PLACES, MAX_PLACES, 2); //TODO: make this dynamic
+
+    private static struct Edge(src:Int, dst:Int, kind:Int) {
+        public def toString() = "<"+(kind == AT ? "at" : "async")+" from "+src+" to "+dst+">";
+        def this(srcId:Long, dstId:Long, kind:Int) {
+            property(srcId as Int, dstId as Int, kind);
+        }
+    }
+
+    private static final class State(parentId:FinishID) { // data stored into Hazelcast IMap
+        val counts = new HashMap[Edge,Int]();
         val liveChIds = new ArrayList[FinishID](); // FinishIDs of live children
         val deadChIds = new ArrayList[FinishID](); // FinishIDs of dead children
         val deadPlIds = new ArrayList[Long]();     // Place IDs that have died during the finish
@@ -99,19 +104,36 @@ public class FinishResilientHC extends FinishResilientBridge {
         def dump(msg:Any) {
             var nz:Long = 0;
             val s = new x10.util.StringBuilder(); s.add(msg); s.add('\n');
-            s.add("  parentId="+parentId+" #non0="+nonzero+" #excs="+exceptions.size()+"\n");
+            s.add("  parentId="+parentId+" #non0="+counts.size()+" #excs="+exceptions.size()+"\n");
             s.add(" non-zero counts:\n");
-            for ([i,j,k] in counts.indices()) {
-                if (counts(i,j,k) != 0n) {
-                    nz += 1;
-                    s.add("\t("+i+", "+j+(k==0 ? ", AT" : ", ASYNC")+") = "+counts(i,j,k)+"\n");
-                }
+            for (e in counts.entries()) {
+                s.add("\t"+e.getKey()+" = "+e.getValue()+"\n");
             }
             s.add(" liveChIds: "); for (v in liveChIds) s.add(" " + v); s.add('\n');
             s.add(" deadChIds: "); for (v in deadChIds) s.add(" " + v); s.add('\n');
             s.add(" deadPlIds: "); for (v in deadPlIds) s.add(" " + v);
             debug(s.toString());
-            if (nz != nonzero) debug("ERROR: incorrect nonzero count");
+        }
+        def increment(src:Long, dst:Long, k:Int):void {
+            val e = Edge(src,dst,k);
+            counts.put(e, counts.getOrElse(e, 0n)+1n);
+        }
+        def decrement(src:Long, dst:Long, k:Int):void {
+            val e = Edge(src,dst,k);
+            val oldCount = counts(e);
+            if (oldCount == 1n) {
+                counts.remove(e);
+            } else {
+                counts(e) = oldCount-1n;
+            }
+        }
+        def nonZero(src:Long, dst:Long, k:Int):Boolean {
+            val e = Edge(src,dst,k);
+            return counts.getOrElse(e, 0n) != 0n;
+        }
+        def clear(src:Long, dst:Long, k:Int):void {
+            val e = Edge(src,dst,k);
+            counts.remove(e);
         }
     }
     
@@ -148,7 +170,7 @@ public class FinishResilientHC extends FinishResilientBridge {
     }
     // check if the state needs to be still preserved
     private static def filter(id:FinishID, state:State):State {
-        if (state.nonzero > 0 || !state.liveChIds.isEmpty() || !state.deadPlIds.contains(id.placeId)) {
+        if (state.counts.size() > 0 || !state.liveChIds.isEmpty() || !state.deadPlIds.contains(id.placeId)) {
            return state; // state is still useful, finish in incomplete or we need to preserve its exceptions
         } else {
            return null;  // finish is complete and place of finish has died, remove entry
@@ -156,7 +178,7 @@ public class FinishResilientHC extends FinishResilientBridge {
     }
     // check if the state is quiescent, and return its parentId for next processing
     private static def next(state:State):FinishID {
-        if (state.nonzero > 0 || !state.liveChIds.isEmpty()) {
+        if (state.counts.size() > 0 || !state.liveChIds.isEmpty()) {
             return FinishID.NULL;  // not quiescent yet
         } else {
             return state.parentId; // quiescent, return parentId
@@ -185,8 +207,7 @@ public class FinishResilientHC extends FinishResilientBridge {
         
         // create State in Hazelcast IMap
         val state = new State(parentId);
-        state.counts(hereId, hereId, ASYNC) = 1n; // for myself, will be decremented in waitForFinish
-        state.nonzero = 1;
+        state.increment(hereId, hereId, ASYNC); // for myself, will be decremented in waitForFinish
         if (verbose>=3) state.dump("DUMP id="+id);
         val prev = imap.put(id, state); assert prev==null;
         
@@ -242,18 +263,18 @@ public class FinishResilientHC extends FinishResilientBridge {
         assert !state.deadPlIds.contains(placeId);
         state.deadPlIds.add(placeId); 
         for (var i:Long = 0; i < MAX_PLACES; i++) {
-            if (state.counts(i, placeId, ASYNC) != 0n) {
+            if (state.nonZero(i, placeId, ASYNC)) {
                 addDeadPlaceException(state, placeId); //@@ should add n times?
-                state.counts(i, placeId, ASYNC) = 0n; --state.nonzero;
+                state.clear(i, placeId, ASYNC);
             }
-            if (state.counts(i, placeId, AT) != 0n) {
-                state.counts(i, placeId, AT) = 0n; --state.nonzero;
+            if (state.nonZero(i, placeId, AT)) {
+                state.clear(i, placeId, AT);
             }
-            if (state.counts(placeId, i, ASYNC) != 0n) {
-                state.counts(placeId, i, ASYNC) = 0n; --state.nonzero;
+            if (state.nonZero(placeId, i, ASYNC)) {
+                state.clear(placeId, i, ASYNC);
             }
-            if (state.counts(placeId, i, AT) != 0n) {
-                state.counts(placeId, i, AT) = 0n; --state.nonzero;
+            if (state.nonZero(placeId, i, AT)) {
+                state.clear(placeId, i, AT);
             }
         }
     }
@@ -272,7 +293,7 @@ public class FinishResilientHC extends FinishResilientBridge {
         notifySubActivitySpawn(dstPlace, AT);
     }
     public
-    def notifySubActivitySpawn(dstPlace:Place, kind:long):void {
+    def notifySubActivitySpawn(dstPlace:Place, kind:Int):void {
         val srcId = hereId, dstId = dstPlace.id;
         if (dstId != srcId) strictFinish = true;
 
@@ -284,13 +305,12 @@ public class FinishResilientHC extends FinishResilientBridge {
                 val state = entry.getValue() as State;
                 if (state == null || state.deadPlIds.contains(hereId)) throw new HereIsDeadError(); // finish thinks this place is dead, exit
                 if (Place.isDead(dstId) || state.deadPlIds.contains(dstId)) { // destination place has died
-                    // should not do ++counts, because following notifyActivityCreation/Termination will not be executed
+                    // should not increment counts, because following notifyActivityCreation/Termination will not be executed
                     if (verbose>=2) debug("destination place has died, just adding DPE");
                     if (!state.deadPlIds.contains(dstId)) handleNewPlaceDeath(state, dstId);
                     if (kind == ASYNC) addDeadPlaceException(state, dstId); 
                 } else {
-                    val c = ++state.counts(srcId, dstId, kind);
-                    if (c == 1n) ++state.nonzero; else if (c == 0n) --state.nonzero;
+                    state.increment(srcId, dstId, kind);
                 }
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
@@ -307,7 +327,7 @@ public class FinishResilientHC extends FinishResilientBridge {
     }
 
     public
-    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:long):Boolean {
+    def notifyActivityCreation(srcPlace:Place, activity:Activity, kind:Int):Boolean {
         val srcId = srcPlace.id, dstId = hereId;
         if (verbose>=1) debug(">>>> notifyActivityCreation(id="+id+") called, srcId="+srcId + " dstId="+dstId+" kind="+kind);
         
@@ -322,10 +342,8 @@ public class FinishResilientHC extends FinishResilientBridge {
                     if (!state.deadPlIds.contains(srcId)) { handleNewPlaceDeath(state, srcId); entry.setValue(filter(id, state)); }
                     throw new PeerIsDeadException(); // throw exception to return false (no need to propagate)
                 }
-                val c1 = ++state.counts(dstId, dstId, kind);
-                if (c1 == 1n) ++state.nonzero; else if (c1 == 0n) --state.nonzero;
-                val c2 = --state.counts(srcId, dstId, kind);
-                if (c2 == 0n) --state.nonzero; else if (c2 ==-1n) ++state.nonzero;
+                state.increment(dstId, dstId, kind);
+                state.decrement(srcId, dstId, kind);
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
                 return next(state);
@@ -369,8 +387,7 @@ public class FinishResilientHC extends FinishResilientBridge {
                     if (!state.deadPlIds.contains(srcId)) { handleNewPlaceDeath(state, srcId); entry.setValue(filter(id, state)); }
                     throw new PeerIsDeadException(); // throw exception to return false (no need to propagate)
                 }
-                val c2 = --state.counts(srcId, dstId, kind);
-                if (c2 == 0n) --state.nonzero; else if (c2 ==-1n) ++state.nonzero;
+                state.decrement(srcId, dstId, kind);
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
                 return next(state);
@@ -394,7 +411,7 @@ public class FinishResilientHC extends FinishResilientBridge {
     }
 
     public
-    def notifyActivityTermination(kind:long):void {
+    def notifyActivityTermination(kind:Int):void {
         val dstId = hereId;
         if (verbose>=1) debug(">>>> notifyActivityTermination(id="+id+") called, dstId="+dstId+" kind="+kind);
         
@@ -403,8 +420,7 @@ public class FinishResilientHC extends FinishResilientBridge {
             public def process(entry:Map.Entry/*[FinishID,State]*/) {
                 val state = entry.getValue() as State;
                 if (state == null || state.deadPlIds.contains(hereId)) throw new HereIsDeadError(); // finish thinks this place is dead, exit
-                val c = --state.counts(dstId, dstId, kind);
-                if (c == 0n) --state.nonzero; else if (c ==-1n) ++state.nonzero;
+                state.decrement(dstId, dstId, kind);
                 if (verbose>=3) state.dump("DUMP id="+id);
                 entry.setValue(filter(id, state));
                 return next(state);
@@ -473,7 +489,7 @@ public class FinishResilientHC extends FinishResilientBridge {
         assert id.placeId==hereId;
         assert latch!=null; // original local FinishState
         if (verbose>=3) state.dump("DUMP id="+id);
-        if (state.nonzero > 0 || !state.liveChIds.isEmpty()) {
+        if (state.counts.size() > 0 || !state.liveChIds.isEmpty()) {
             if (verbose>=2) debug("checkStatus(id="+id+") returning, state is still alive");
             return; // state is still alive
         }
