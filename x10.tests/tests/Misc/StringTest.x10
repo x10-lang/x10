@@ -28,6 +28,7 @@ public class StringTest extends x10Test {
 
         val start = "Start Twelve  ";
         chk(start.trim().equals("Start Twelve"));
+        chk(start.contains("Twelve"));
         val end = " Total Ten.";
         chk(end.trim().equals("Total Ten."));
         val bothEnds = "  Four  ";
