@@ -363,6 +363,14 @@ public final class String implements Comparable[String], CharSequence {
     @Native("java", "(#this).lastIndexOf(#str, #i)")
     public native def lastIndexOf(str:String, i:Int):Int;
 
+    /**
+     * Returns true if and only if this String contains the specified String.
+     * @param str the given String
+     * @return true if this String contains str.
+     *         The method returns false otherwise.
+     */
+    @Native("java", "(#this).contains(#str)")
+    public native def contains(str:String):Boolean;
 
     /**
      * Splits this String around matches of the given string; 
