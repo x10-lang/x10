@@ -249,6 +249,10 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
     return (x10_int) (pos - haystack);
 }
 
+x10_boolean String::contains(String* str) {
+    return this->indexOf(str) >= 0;
+}
+
 String* String::substring(x10_int start, x10_int end) {
 #ifndef NO_BOUNDS_CHECKS
     if (start < 0) throwStringIndexOutOfBoundsException(start, FMGL(content_length));

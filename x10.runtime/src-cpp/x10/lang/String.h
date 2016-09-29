@@ -122,6 +122,8 @@ namespace x10 {
                 return lastIndexOf(c, this->length()-1);
             }
 
+            x10_boolean contains(String* s);
+
             CharSequence* subSequence(x10_int start, x10_int end) {
                 return reinterpret_cast<CharSequence*>(substring(start, end));
             }
