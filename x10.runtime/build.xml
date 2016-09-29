@@ -3,7 +3,7 @@
 <project name="x10.runtime" default="dist" basedir=".">
     &buildfile;
     <property name="dep.baseurl" value="http://x10-lang.org"/>
-    <property name="dep.baseurl.alt" value="http://sourceforge.net/projects/x10/files"/>
+    <property name="dep.baseurl.alt" value="http://downloads.sourceforge.net/project/x10"/>
     <property name="bdwgc.version" value="7.4.2"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
