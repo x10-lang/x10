@@ -11,6 +11,7 @@
 
 import x10.util.Option;
 import x10.util.OptionsParser;
+import x10.util.Team;
 import x10.util.Timer;
 
 import x10.matrix.DenseMatrix;
@@ -65,6 +66,7 @@ public class RunSVM {
         val print = opts("p");
 
         val places = Place.places();
+        val team = Team.WORLD;
         val addBias = true;
         val inputData = RegressionInputData.readFromFile(inputFile, places, libsvmInput, trainingFraction, addBias);
 
@@ -72,7 +74,7 @@ public class RunSVM {
         val nX = inputData.numFeatures+1;
         
         val X = DistBlockMatrix.makeDense(mX, nX, places.size(), 1, places.size(), 1, places);
-        val y = DistVector.make(X.M, places);
+        val y = DistVector.make(X.M, places, team);
 
         // initialize labels, examples at each place
         finish for (place in places) at(place) async {
@@ -87,7 +89,7 @@ public class RunSVM {
                 // examples have an additional feature appended for the intercept
                 blk.init((i:Long, j:Long)=> trainingExamples((i-startRow)*nX+j));
             }
-            y.distV().init((i:Long)=> trainingLabels(i));
+            y.init_local((i:Long)=> trainingLabels(i));
         }
 
         var localX:DenseMatrix(mX, nX) = null;
@@ -108,7 +110,7 @@ public class RunSVM {
             + ", regularization: " + regularization
             + " for " + iterations + " iterations...");
 
-        val parSVM = new SVM(nX, places).train(X, y, stepSize, regularization, iterations);
+        val parSVM = new SVM(nX, places, team).train(X, y, stepSize, regularization, iterations);
 
         if (inputData.numTest > 0) {
             Debug.flushln("Attempting to predict " + inputData.numTest

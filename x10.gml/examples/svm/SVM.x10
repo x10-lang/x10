@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2014-2016.
  */
 
+import x10.util.Team;
 import x10.matrix.Vector;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistVector;
@@ -23,9 +24,9 @@ public class SVM(N:Long) {
 	public val w:DupVector(N);
 
     /** Construct a new SVM with (N-1) features, plus an intercept. */
-    public def this(N:Long, places:PlaceGroup) {
+    public def this(N:Long, places:PlaceGroup, team:Team) {
         property(N);
-        w = DupVector.make(N, places);
+        w = DupVector.make(N, places, team);
         w.init((i:Long)=>(i==N-1) ? /* intercept */ 1.0 : 0.0);
     }
 
