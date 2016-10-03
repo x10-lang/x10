@@ -59,7 +59,6 @@ public class CompareLogRegSystemML {
         }
 
         val featuresFile = opts("f", "");
-        Console.OUT.println(featuresFile);
         if (featuresFile.equals("")) {
             Console.ERR.println("logReg: missing features file\ntry `CompareLogRegSystemML -h ' for more information");
             System.setExitCode(1n);
