@@ -32,12 +32,15 @@ public class RunLogReg {
 					    Option("v","verify","verify the parallel result against sequential computation"),
 					    Option("p","print","print matrix V, vectors d and w on completion")
 					    ], [
+                        Option("f","dataFile","input data file name"),
+                        Option("l","labelsFile","input labels file name"),
 						Option("m","rows","number of rows, default = 10"),
 						Option("n","cols","number of columns, default = 10"),
 						Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
 						Option("c","colBlocks","number of columnn blocks; default = 1"),
 						Option("d","density","nonzero density, default = 0.5"),
-						Option("i","iterations","number of iterations, default = 2"),
+						Option("i","iterations","number of outer (Newton) iterations, default = 100"),
+						Option("x","innerIterations","number of inner (conjugate gradient) iterations, default = 0 (no max)"),
 						Option("s","skip","skip places count (at least one place should remain), default = 0"),
 						Option("", "checkpointFreq","checkpoint iteration frequency")
 						]);
@@ -66,13 +69,14 @@ public class RunLogReg {
             val startTime = Timer.milliTime();
             
             val places = (skipPlaces==0n) ? Place.places() 
-                : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+                : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
             val team = new Team(places);
             
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
             val nonzeroDensity = opts("d", 0.5f);
-            val iterations = opts("i", 2n);
+            val iterations = opts("i", 100n);
+            val innerIterations = opts("x", 0n);
             val verify = opts("v");
             val print = opts("p");
             val checkpointFreq = opts("checkpointFreq", -1n);
@@ -80,7 +84,7 @@ public class RunLogReg {
             Console.OUT.println("X: rows:"+mX+" cols:"+nX
                 +" density:"+nonzeroDensity+" iterations:"+iterations);
 
-            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places, team);
+            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, innerIterations, checkpointFreq, places, team);
 	    
             var denX:DenseMatrix(mX,nX) = null;
             var y:Vector(mX) = null;
@@ -94,7 +98,7 @@ public class RunLogReg {
 	    
             Debug.flushln("Starting logistic regression");
 			
-	    prun.run(startTime);
+	    prun.train(startTime);
 						
 	    if (verify) { /* Sequential run */
                 

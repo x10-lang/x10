@@ -12,22 +12,21 @@
 ###################################################
 # Source and target file
 ###################################################
+target_list = RunLogReg CompareLogRegSystemML
 target = RunLogReg
 
-target_list = $(target)
-
 ## for source dependence check 
-depend_src  = SeqLogReg.x10 LogisticRegression.x10
+depend_src  = SeqLogReg.x10 LogisticRegression.x10 CompareLogRegSystemML.x10
 #-------------------------------------
 # build path
 build_path	= build
 gml_path    = $(X10_HOME)/x10.gml
 
 # compile options
-X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 10 -VERBOSE_CHECKS -O -NO_CHECKS
 
 # runtime settings
-runtime_list = native java
+runtime_list = sock java
 numplaces = 9
 test_args = -m 1000 -n 10 --density 1.0 --iterations 30 --checkpointFreq 10 -s 1 --verify 
 

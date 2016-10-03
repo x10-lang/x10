@@ -28,7 +28,7 @@ import x10.util.resilient.iterative.LocalViewResilientExecutor;
 import x10.util.resilient.iterative.ApplicationSnapshotStore;
 import x10.util.Team;
 
-public class LogisticRegression implements LocalViewResilientIterativeApp {
+public class LogisticRegression(N:Long) implements LocalViewResilientIterativeApp {
     static val MAX_SPARSE_DENSITY = 0.1f;
     val C = 2;
     val tol = 0.000001f;
@@ -40,13 +40,13 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
     /** Vector of training regression targets */
     public val y:DistVector(X.M);
     /** Learned model weight vector, used for future predictions */
-    public val w:DupVector(X.N);
+    public val w:DupVector(N);
     
     val tmp_y:DistVector(X.M);
 
     val o:DistVector(X.M);
-    val grad:DupVector(X.N);
-    
+    val grad:DupVector(N);
+
     val eta0 = 0.0f;
     val eta1 = 0.25f;
     val eta2 = 0.75f;
@@ -63,73 +63,72 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
     var logisticD:DistVector(X.M); // value does not change after being initialized
     
     // Temp memory space
-    val s:DupVector(X.N);
-    val r:DupVector(X.N);
-    val d:DupVector(X.N);
-    val Hd:DupVector(X.N);
+    val s:DupVector(N);
+    val r:DupVector(N);
+    val d:DupVector(N);
+    val Hd:DupVector(N);
     val onew:DistVector(X.M);
-    val wnew:DupVector(X.N);
+    val wnew:DupVector(N);
     val logisticnew:DistVector(X.M);    
     
     public var parCompT:Long=0;
     public var seqCompT:Long=0;
     public var commT:Long;
     
-    private val chkpntIterations:Long;
+    private val chkpntIterations:Int;
     private val nzd:Float;
     private val root:Place;
     
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
     
-    public def this(x_:DistBlockMatrix, y:DistVector, w:DupVector, logisticD:DistVector, it:Long, nit:Long, sparseDensity:Float, chkpntIter:Long, places:PlaceGroup, team:Team) {
-        X=x_;
+    public def this(N:Long, x_:DistBlockMatrix, y:DistVector, it:Int, nit:Int, nzd:Float, chkpntIter:Int, places:PlaceGroup, team:Team) {
+        property(N);
+        this.X=x_;
         this.y = y as DistVector(X.M);
-        this.w = w as DupVector(X.N);
-        this.logisticD = logisticD as DistVector(X.M);
-        
+        this.w = DupVector.make(X.N, places, team);
+        w.initRandom_local(here);
         val rowBs = X.getAggRowBs();
+        this.logisticD = DistVector.make(X.M, rowBs, X.places(), team);
+        this.nzd = nzd;
+        
+
         tmp_y  = DistVector.make(X.M, rowBs, places, team);
         o      = DistVector.make(X.M, rowBs, places, team);
-        grad   = DupVector.make(X.N, places,team);
+        grad   = DupVector.make(N, places,team);
         // Add temp memory space
-        s      = DupVector.make(X.N, places, team);
-        r      = DupVector.make(X.N, places, team);
-        d      = DupVector.make(X.N, places, team);
-        Hd     = DupVector.make(X.N, places, team);
+        s      = DupVector.make(N, places, team);
+        r      = DupVector.make(N, places, team);
+        d      = DupVector.make(N, places, team);
+        Hd     = DupVector.make(N, places, team);
         onew   = DistVector.make(X.M, rowBs, places, team);
-        wnew   = DupVector.make(X.N, places, team);
+        wnew   = DupVector.make(N, places, team);
         logisticnew = DistVector.make(X.M, rowBs, places, team);
         
         maxIterations = it;
         maxinneriter =nit;
         chkpntIterations = chkpntIter;
-        nzd = sparseDensity;
         root = here;
         this.team = team;
     }
 
-    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup, team:Team){
+    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Int, nit:Int, chkpntIter:Int, places:PlaceGroup, team:Team){
         val X:DistBlockMatrix(mX, nX);
+        val sparse:Boolean;
         if (nzd < MAX_SPARSE_DENSITY) {
             X = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
         } else {
             Console.OUT.println("using dense matrix as non-zero density = " + nzd);
             X = DistBlockMatrix.makeDense(mX, nX, nRowBs, nColBs, places.size(), 1, places);
         }
-        val w = DupVector.make(X.N, places, team);
-        val aggRowBs = X.getAggRowBs();
-        val y = DistVector.make(X.M, aggRowBs, places, team);
-        val logisticD = DistVector.make(X.M, aggRowBs, X.places(), team);
-        
-        val root = here;
+        val y = DistVector.make(X.M, X.getAggRowBs(), places, team);
+
         finish for (place in places) at(place) async {
             X.initRandom_local(1, 10);
             y.initRandom_local(1, 10);
-            w.initRandom_local(root);
         }
-        
-        return new LogisticRegression(X, y, w, logisticD, it, nit, nzd, chkpntIter, places, team);
+
+        return new LogisticRegression(nX, X, y, it, nit, nzd, chkpntIter, places, team);
     }
     
     public def isFinished_local() {
@@ -137,7 +136,7 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
     }
     
     
-    public def run(startTime:Long) {
+    public def train(startTime:Long) {
         val start = (startTime != 0)?startTime:Timer.milliTime();  
         assert (X.isDistVertical()) : "dist block matrix must have vertical distribution";
         val places = X.places();
@@ -313,12 +312,12 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
         }
     }
     
-    private def compute_XmultB_local(result:DistVector(X.M), opB:DupVector(X.N)):void {
+    private def compute_XmultB_local(result:DistVector(X.M), opB:DupVector(N)):void {
         // o = X %*% w
         result.mult_local(X, opB);
     }
     
-    private def compute_grad_local(grad:DupVector(X.N), logistic:DistVector(X.M)):void {
+    private def compute_grad_local(grad:DupVector(N), logistic:DistVector(X.M)):void {
         // grad = w + C*t(X) %*% ((logistic - 1)*y)
         logistic.map_local(logistic, y, (x:ElemType, v:ElemType)=> {(x - 1.0f) * v});
         compute_tXmultB_local(grad, logistic);
@@ -328,7 +327,7 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
     }
 
     
-    private def compute_Hd_local(Hd:DupVector(X.N), logisticD:DistVector(X.M), d:DupVector(X.N)):void {
+    private def compute_Hd_local(Hd:DupVector(N), logisticD:DistVector(X.M), d:DupVector(N)):void {
         // Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
         compute_XmultB_local(tmp_y, d);
         tmp_y.cellMult_local(logisticD);
@@ -338,7 +337,7 @@ public class LogisticRegression implements LocalViewResilientIterativeApp {
         seqCompT += Timer.milliTime() - stt;
     }
     
-    private def compute_tXmultB_local(result:DupVector(X.N), B:DistVector(X.M)):void {
+    private def compute_tXmultB_local(result:DupVector(N), B:DistVector(X.M)):void {
         result.mult_local(root, B, X);
     }
     
