@@ -31,7 +31,6 @@ import x10.xrx.*;
 public class FinishResilientHC extends FinishResilientBridge {
     private static val verbose = FinishResilientBridge.verbose;
     private static val hereId = Runtime.hereLong();
-    private static val MAX_PLACES = Place.numPlaces(); // TODO: remove the MAX_PLACES dependency to support elastic X10
 
     private static val AT = 0n;
     private static val ASYNC = 1n;
@@ -135,6 +134,9 @@ public class FinishResilientHC extends FinishResilientBridge {
             val e = Edge(src,dst,k);
             counts.remove(e);
         }
+        def clear(e:Edge):void {
+            counts.remove(e);
+        }
     }
     
     /*
@@ -232,22 +234,24 @@ public class FinishResilientHC extends FinishResilientBridge {
     public
     static def notifyPlaceDeath():void {
         if (verbose>=1) debug(">>>> notifyPlaceDeath called");
-        if (hereId != 0) { //TODO: remove the place0 dependency
-            if (verbose>=1) debug("<<<< notifyPlaceDeath returning, not at Place 0");
+        val lowestPlace = hereId == Place.places()(0).id;
+        if (!lowestPlace) {
+            if (verbose>=1) debug("<<<< notifyPlaceDeath returning, not at lowest numbered place");
             return;
         }
         
-      for (_id in imap.keySet()) { // process all states
+        for (_id in imap.keySet()) { // process all states
         val id = _id as FinishID;
         propagate(id, new AbstractEntryProcessor/*[FinishID,State]*/() {
             public def process(entry:Map.Entry/*[FinishID,State]*/) {
                 val state = entry.getValue() as State;
                 if (state == null) return FinishID.NULL; // entry has been removed already, ignore
                 var newDead:Long = 0;
-              for (var p:Long = 0; p < MAX_PLACES; p++) {
-                if (!Place.isDead(p)) continue;
-                if (state.deadPlIds.contains(p)) continue; // death of this place has already been processed
-                newDead++; handleNewPlaceDeath(state, p);
+                // NOTE: can't say for (p in Place.places()) because we need to see the dead places
+                for (p in 0..(Place.numPlaces() - 1)) {
+                    if (!Place.isDead(p)) continue;
+                    if (state.deadPlIds.contains(p)) continue; // death of this place has already been processed
+                    newDead++; handleNewPlaceDeath(state, p);
               }
               if (newDead == 0) return FinishID.NULL; // nothing changed for this state
               if (verbose>=3) state.dump("DUMP id="+id);
@@ -261,21 +265,21 @@ public class FinishResilientHC extends FinishResilientBridge {
     }
     private static def handleNewPlaceDeath(state:State, placeId:Long) { // should be called from AbstractEntryProcessor.process
         assert !state.deadPlIds.contains(placeId);
-        state.deadPlIds.add(placeId); 
-        for (var i:Long = 0; i < MAX_PLACES; i++) {
-            if (state.nonZero(i, placeId, ASYNC)) {
-                addDeadPlaceException(state, placeId); //@@ should add n times?
-                state.clear(i, placeId, ASYNC);
+        state.deadPlIds.add(placeId);
+
+        val toClear = new ArrayList[Edge]();
+        for (entry in state.counts.entries()) {
+            val edge = entry.getKey();
+            val count = entry.getValue();
+            if (edge.src == (placeId as Int) || edge.dst == (placeId as Int)) {
+                toClear.add(edge);
             }
-            if (state.nonZero(i, placeId, AT)) {
-                state.clear(i, placeId, AT);
+            if (edge.dst == (placeId as Int) && edge.kind == ASYNC) {
+                addDeadPlaceException(state, placeId);
             }
-            if (state.nonZero(placeId, i, ASYNC)) {
-                state.clear(placeId, i, ASYNC);
-            }
-            if (state.nonZero(placeId, i, AT)) {
-                state.clear(placeId, i, AT);
-            }
+        }
+        for (e in toClear) {
+            state.clear(e);
         }
     }
     private static def addDeadPlaceException(state:State, placeId:Long) {
