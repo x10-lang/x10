@@ -7,18 +7,6 @@
 base_dir_elem=$(gml_path)/native_$(GML_ELEM_TYPE)
 build_path_elem=$(gml_path)/native_$(GML_ELEM_TYPE)/include
 
-# runtime settings
-# numplaces = 1
-# test_args = 
-
-
-###################################################
-# Source and target file
-###################################################
-
-# test source
-x10src		= $(target).x10
-
 ###################################################
 # settings
 ###################################################
@@ -31,9 +19,6 @@ gml_scripts	= $(gml_path)/scripts
 # Build rules
 ###################################################
 include $(gml_scripts)/system_setting.mk
-
-#include $(gml_scripts)/build_managed.mk
-#include $(gml_scripts)/build_native.mk
 
 #Build default target for all runtime backend and runtime transports
 all	:

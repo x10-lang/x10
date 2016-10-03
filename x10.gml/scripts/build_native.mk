@@ -19,9 +19,6 @@
 #$(GML_ELEM_TYPE) ## float or double
 
 ###################################################
-x10src		= $(target).x10
-
-###################################################
 # Source files and paths
 ###################################################
 
@@ -42,17 +39,17 @@ ifdef PROFILE
 endif
 
 #vj: used to depend on gml_inc
-$(target)_sock_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
+%_sock_$(GML_ELEM_TYPE)	: %.x10 $(depend_src) 
 	        @echo "X10_HOME is |$(X10_HOME)|"
 		$(X10CXX) -g -x10rt sockets $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
-$(target)_mpi_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
+%_mpi_$(GML_ELEM_TYPE)	: %.x10 $(depend_src) 
 	        @echo "X10_HOME is |$(X10_HOME)|"
 		$(X10CXX) -g -x10rt mpi $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
-$(target)_pami_$(GML_ELEM_TYPE)	: $(x10src) $(depend_src) 
+%_pami_$(GML_ELEM_TYPE)	: %.x10 $(depend_src) 
 		$(X10CXX) -g -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post ' \# $(POST_PATH) \# $(POST_LIBS)'
 
@@ -75,11 +72,7 @@ all_pami	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) pami; )
 
 ##--------
-## clean
-clean	::
-		rm -f $(target)_sock* $(target)_mpi* $(target)_pami*
-
-clean_all ::
+clean ::
 		$(foreach f, $(target_list), rm -rf $(f)_sock* $(f)_mpi* $(f)_pami*; )
 
 ###----------
