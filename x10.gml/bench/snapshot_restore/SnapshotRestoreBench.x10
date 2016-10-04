@@ -36,7 +36,7 @@ public class SnapshotRestoreBench {
             return;
         }
         
-        val places = PlaceGroupBuilder.execludeSparePlaces(spare);
+        val places = PlaceGroupBuilder.excludeSparePlaces(spare);
         val M = M_KB * 1024;
         val N = N_KB * 1024;
         

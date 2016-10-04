@@ -73,7 +73,7 @@ public class RunPageRank {
             Console.OUT.println("Error in settings");
         else {
             val places = (skipPlaces==0n) ? Place.places() 
-                                          : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+                                          : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 

@@ -209,7 +209,6 @@ public class RegressionInputData(numFeatures:Long) {
 
         val addPoint = (labelLine:String, featuresLine:String, labels:ArrayList[ElemType], points:ArrayList[ElemType]) => {
             var label:ElemType = StringTool.parse[ElemType](labelLine);
-            if (label < (0 as ElemType)) label = 0 as ElemType; // scale -1,1 to 0,1
             labels.add(label);
             val rawFeatures = featuresLine.split(",");
             for (n in 0..(numFeatures-1)) {

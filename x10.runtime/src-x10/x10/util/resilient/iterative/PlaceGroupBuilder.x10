@@ -88,7 +88,7 @@ public class PlaceGroupBuilder {
         return new RestorePlaceGroup(new SparsePlaceGroup(group.toRail()), addedSparePlaces);        
     }
 
-    public static def execludeSparePlaces(sparePlaces:Long):PlaceGroup {
+    public static def excludeSparePlaces(sparePlaces:Long):PlaceGroup {
         val livePlaces = new x10.util.ArrayList[Place]();
         val allPlaces = Place.places();
         val inPlacesCount = allPlaces.size() - sparePlaces;
@@ -99,7 +99,7 @@ public class PlaceGroupBuilder {
         return placeGroup;
     }
     
-    public static def execludePlace(placeId:Long):PlaceGroup {
+    public static def excludePlace(placeId:Long):PlaceGroup {
         val livePlaces = new x10.util.ArrayList[Place]();
         val allPlaces = Place.places();
         for (var i:Long = 0; i < Place.numPlaces(); i++){

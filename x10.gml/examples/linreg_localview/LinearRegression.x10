@@ -9,6 +9,7 @@
  *  (C) Copyright IBM Corporation 2011-2016.
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
+
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
 import x10.regionarray.Dist;
@@ -28,12 +29,15 @@ import x10.util.resilient.iterative.ApplicationSnapshotStore;
 import x10.util.Team;
 
 /**
- * Parallel linear regression based on GML distributed
- * dense/sparse matrix
+ * Parallel linear regression using a conjugate gradient solver
+ * over distributed dense/sparse matrix
+ * @see Ghoting et al. (2011) "SystemML: 
+ *      Declarative Machine Learning on MapReduce"
  */
 public class LinearRegression implements LocalViewResilientIterativeApp {
     public static val MAX_SPARSE_DENSITY = 0.1f;
-    static val lambda = 1e-6 as Float; // regularization parameter
+    public val lambda:Float; // regularization parameter
+    public val tolerance:Float = 0.000001f;
     
     /** Matrix of training examples */
     public val V:DistBlockMatrix;
@@ -63,10 +67,11 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
     
-    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Float, places:PlaceGroup, team:Team) {
-        maxIterations = it;
+    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team) {
+        this.maxIterations = it;
         this.V = v;
         this.y = y;
+        this.lambda = regularization;
         
         Vp = DistVector.make(V.M, V.getAggRowBs(), places, team);
         
@@ -75,8 +80,8 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
         
         d_q= DupVector.make(V.N, places, team);
         
-        d_w = DupVector.make(V.N, places, team);      
-        
+        d_w = DupVector.make(V.N, places, team);  
+
         this.checkpointFreq = chkpntIter;
         
         nzd = sparseDensity;
@@ -85,7 +90,8 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
     }
     
     public def isFinished_local() {
-        return appTempDataPLH().iter >= maxIterations;
+        return appTempDataPLH().iter >= maxIterations
+            || appTempDataPLH().norm_r2 <= appTempDataPLH().norm_r2_target;
     }
     
     //startTime parameter added to account for the time taken by RunLinReg to initialize the input data
@@ -104,9 +110,11 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
         // Parallel computing
         if (appTempDataPLH().iter == 0) {
             team.barrier();
-            
+
 appTempDataPLH().globalCompTime -= Timer.milliTime();
-            d_r.mult_local(root, y, V);        
+            // 4: r=-(t(V) %*% y)
+            d_r.mult_local(root, y, V);
+            d_r.scale_local(-1.0 as ElemType);
 appTempDataPLH().globalCompTime += Timer.milliTime();
             
 appTempDataPLH().localCompTime -= Timer.milliTime();
@@ -114,14 +122,19 @@ appTempDataPLH().localCompTime -= Timer.milliTime();
         
             // 5: p=-r
             r.copyTo(d_p.local());
-            // 4: r=-(t(V) %*% y)
-            r.scale(-1.0 as ElemType);
-            // 6: norm_r2=sum(r*r)
-            appTempDataPLH().norm_r2 = r.dot(r);
+            d_p.scale_local(-1.0 as ElemType);
             
+            // 6: norm_r2=sum(r*r)
+            val norm_r2_initial = r.dot(r);
+
+            appTempDataPLH().norm_r2 = norm_r2_initial;
+            appTempDataPLH().norm_r2_initial = norm_r2_initial;
+            appTempDataPLH().norm_r2_target = norm_r2_initial * tolerance * tolerance;
+
+            Console.OUT.println("||r|| initial value = " + Math.sqrt(norm_r2_initial) + ",  target value = " + Math.sqrt(appTempDataPLH().norm_r2_target));
+
 appTempDataPLH().localCompTime += Timer.milliTime();
         }
-
         // 10: q=((t(V) %*% (V %*% p)) )
 
         //////Global view step:  d_q.mult(Vp.mult(V, d_p), V);
@@ -138,7 +151,8 @@ appTempDataPLH().localCompTime -= Timer.milliTime();
         val q = d_q.local();
         val r = d_r.local(); 
         q.scaleAdd(lambda, p);
-            
+        q(q.M-1) -= lambda * p(q.M-1); // don't regularize intercept!
+
         // 11: alpha= norm_r2/(t(p)%*%q);
         val alpha = appTempDataPLH().norm_r2 / p.dotProd(q);
              
@@ -158,7 +172,11 @@ appTempDataPLH().localCompTime -= Timer.milliTime();
         val beta = appTempDataPLH().norm_r2/old_norm_r2;
             
         // 17: p=-r+beta*p;
-        p.scale(beta).cellSub(r);                
+        p.scale(beta).cellSub(r);       
+
+        Console.OUT.println("Iteration " + appTempDataPLH().iter
+         + ":  ||r|| / ||r init|| = "
+             + Math.sqrt(appTempDataPLH().norm_r2 / appTempDataPLH().norm_r2_initial));
        
         appTempDataPLH().iter++;        
 appTempDataPLH().localCompTime += Timer.milliTime();
@@ -209,12 +227,13 @@ appTempDataPLH().localCompTime += Timer.milliTime();
         Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
     }    
     
-    class AppTempData{
-        public var norm_r2:ElemType;
+    class AppTempData {
+        public var norm_r2:ElemType = 1.0 as ElemType;
+        public var norm_r2_initial:ElemType;
+        public var norm_r2_target:ElemType = 0.0 as ElemType;
         public var iter:Long;
         
         public var localCompTime:Long;
         public var globalCompTime:Long;
-        
     }
 }

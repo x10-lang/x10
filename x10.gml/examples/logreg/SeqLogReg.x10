@@ -61,7 +61,7 @@ public class SeqLogReg {
 		val logistic = Vector.make(X.M);
 		logistic.map(y, o, (y_i:ElemType, o_i:ElemType)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
-		val obj = 0.5 * w.dot(w) + C*logistic.sum();
+		var obj:ElemType = 0.5 * w.dot(w) + C*logistic.sum();
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
 		val grad = Vector.make(X.N);
@@ -106,7 +106,7 @@ public class SeqLogReg {
 // 			d = r
 			r.copyTo(d);
 // 			inneriter = 0
-			val inneriter:Long=0;
+			var inneriter:Long=0;
 // 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
 			var innerconverge:Boolean;// = (r.norm() <= psi * norm_grad);
  			innerconverge = false;
@@ -126,8 +126,6 @@ public class SeqLogReg {
  				val sts = s.dot(s);
 // 				delta2 = delta*delta 
  				val delta2 = delta*delta;
-// 				shouldBreak = false;
- 				var shouldBreak:Boolean = false;
  				if (sts > delta2) {
 // 					std = t(s) %*% d
  					val std = s.dot(d);
@@ -142,17 +140,12 @@ public class SeqLogReg {
  						tau = (rad - std)/dtd;
  					}
 
-//                                      s = s + castAsScalar(tau) * d
-                                        s.scaleAdd(tau, d);
-//                                      r = r - castAsScalar(tau) * Hd
-                                        r.scaleAdd(-tau, Hd);
-
-//                                      #break
-                                        shouldBreak = true;
-                                        innerconverge = true;
-                                } 
-
- 				if (!shouldBreak) {
+//                  s = s + castAsScalar(tau) * d
+                    s.scaleAdd(tau, d);
+//                  r = r - castAsScalar(tau) * Hd
+                    r.scaleAdd(-tau, Hd);
+                    innerconverge = true;
+                } else {
 // 					r = r - castAsScalar(alpha) * Hd
  					r.scaleAdd(-alpha, Hd);
 // 					old_norm_r2 = norm_r2 
@@ -163,9 +156,12 @@ public class SeqLogReg {
  					val beta = norm_r2/old_norm_r2;
 // 					d = r + beta*d
  					d.scale(beta).cellAdd(r);
-// 					innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
- 					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
- 				}				
+                    inneriter++;
+// 					innerconverge = (sqrt(norm_r2) <= psi * norm_grad)
+ 					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad);
+ 				}	
+                inneriter++;
+                innerconverge = innerconverge | (maxinneriter > 0 && inneriter > maxinneriter);			
  			}  
 // 			# END TRUST REGION SUB-PROBLEM
 // 			# compute rho, update w, obtain delta
@@ -181,8 +177,8 @@ public class SeqLogReg {
 // 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
  			val objnew = 0.5 * wnew.dot(wnew) + C * logisticnew.sum();
 
-// 			rho = (objnew - obj) / qk
- 			val rho = (objnew - obj)/qk;
+// 			rho = (obj - objnew) / qk
+ 			val rho = (obj - objnew) / qk;
 // 			snorm = sqrt(sum( s * s ))
  			val snorm = s.norm();
  			if (rho > eta0) {
@@ -192,6 +188,8 @@ public class SeqLogReg {
  				onew.copyTo(o);
 // 				grad = w + C*t(X) %*% ((logisticnew - 1) * y )
  				compute_grad(grad, logisticnew);
+
+                obj = objnew;
  			} 
 
                         iter = iter + 1;

@@ -77,7 +77,7 @@ public class RunPageRank {
         else {
             val startTime = Timer.milliTime();
             val places = (sparePlaces==0n) ? Place.places() 
-                                          : PlaceGroupBuilder.execludeSparePlaces(sparePlaces);
+                                          : PlaceGroupBuilder.excludeSparePlaces(sparePlaces);
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
