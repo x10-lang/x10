@@ -170,7 +170,7 @@ public class RegressionInputData(numFeatures:Long) {
     /**
      * Read labeled points from a SystemML file, dividing them into a training set
      * and a test set according to the specified training fraction.
-     * Assumes that the datafile is in binary format, with metadata in a
+     * Assumes that the datafile is in CSV format, with metadata in a
      * separate file <fileName>.mtd.
      * @param fileName the input file name
      * @param trainingFraction the proportion of examples that should be assigned

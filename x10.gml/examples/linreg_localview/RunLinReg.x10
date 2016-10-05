@@ -46,7 +46,7 @@ public class RunLinReg {
             Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.9"),
-            Option("i","iterations","number of iterations, default = 10"),
+            Option("i","iterations","number of iterations, default = 0 (no max)"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
             Option("", "checkpointFreq","checkpoint iteration frequency")
         ]);
@@ -67,10 +67,10 @@ public class RunLinReg {
         var nonzeroDensity:Float = opts("d", 0.9f);
         val verify = opts("v");
         val print = opts("p");
-        val iterations = opts("i", 2n);
+        val iterations = opts("i", 0n);
         val skipPlaces = opts("s", 0n);
 
-        if (iterations<1 || nonzeroDensity<0.0f
+        if (nonzeroDensity<0.0f
          || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
             Console.OUT.println("Error in settings");
             System.setExitCode(1n);
@@ -158,16 +158,16 @@ public class RunLinReg {
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;
         if (verify) {
-            val bX:BlockMatrix(parLR.V.M, parLR.V.N);
+            val bX:BlockMatrix(parLR.X.M, parLR.X.N);
             if (nonzeroDensity < 0.1f) {
-                bX = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
+                bX = BlockMatrix.makeSparse(parLR.X.getGrid(), nonzeroDensity);
             } else {
-                bX = BlockMatrix.makeDense(parLR.V.getGrid());
+                bX = BlockMatrix.makeDense(parLR.X.getGrid());
             }
             localX = DenseMatrix.make(M, N);
             localY = Vector.make(M);
 
-            X.copyTo(bX as BlockMatrix(parLR.V.M, parLR.V.N));
+            X.copyTo(bX as BlockMatrix(parLR.X.M, parLR.X.N));
             bX.copyTo(localX);
             y.copyTo(localY as Vector(y.M));
         }
