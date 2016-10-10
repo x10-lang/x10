@@ -33,7 +33,7 @@ public class TestDistBuilder extends x10Test {
                             M+"x"+ N + " matrices");
         var ret:Boolean = true;
         ret &= (testInit());
-        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.execludeSparePlaces(1) : Place.places();
+        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.excludeSparePlaces(1) : Place.places();
         
         ret &= (testInit(places));
         

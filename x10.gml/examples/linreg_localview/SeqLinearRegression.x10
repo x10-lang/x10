@@ -14,72 +14,90 @@ import x10.matrix.ElemType;
 
 /**
  * Sequential implementation of linear regression.
- * Based on linear regression script in SystemML from Ghoting et al. (2011).
- * @see Ghoting et al. (2011) SystemML: Declarative machine learning on
- *      MapReduce. Proceedings of ICDE 2011 doi:10.1109/ICDE.2011.5767930
+ * Based on linear regression script in SystemML
+ * @see Elgohary et al. (2016). "Compressed linear algebra for large-scale
+ *      machine learning". http://dx.doi.org/10.14778/2994509.2994515
  */
 public class SeqLinearRegression {
     static val lambda = 1e-6 as Float; // regularization parameter
+    public val tolerance:Float = 0.000001f;
 
     /** Matrix of training examples */
-	public val V:DenseMatrix;
+	public val X:DenseMatrix;
     /** Vector of training regression targets */
-    public val y:Vector(V.M);
+    public val y:Vector(X.M);
 
     /** Learned model weight vector, used for future predictions */
-    public val w:Vector(V.N);
+    public val w:Vector(X.N);
 
 	public val maxIterations:Long;
 	
-	val p:Vector(V.N);
-	val Vp:Vector(V.M);
+	val p:Vector(X.N);
+	val Xp:Vector(X.M);
 
-	val r:Vector(V.N);
-	val q:Vector(V.N);
+	val r:Vector(X.N);
+	val q:Vector(X.N);
 	
-	public def this(V:DenseMatrix, y:Vector(V.M), it:Long) {
-		this.V = V;
+	public def this(X:DenseMatrix, y:Vector(X.M), it:Long) {
+		this.X = X;
         this.y = y;
-		maxIterations = it;
+        if (it > 0) {
+            this.maxIterations = it;
+        } else {
+            this.maxIterations = X.N; // number of features
+        }
 
-		Vp = Vector.make(V.M);
-		r  = Vector.make(V.N);
-		p  = Vector.make(V.N);
-		q  = Vector.make(V.N);
-		w  = Vector.make(V.N);
+		Xp = Vector.make(X.M);
+		r  = Vector.make(X.N);
+		p  = Vector.make(X.N);
+		q  = Vector.make(X.N);
+		w  = Vector.make(X.N);
 		w.init(0.0 as ElemType);
 	}
 	
 	public def run():Vector {
-        // 4: r=-(t(V) %*% y)
-        r.mult(y, V);
-        // 5: p=-r
-        r.copyTo(p);
-        // 4: r=-(t(V) %*% y)
+        // 4: r = -(t(X) %*% y);
+        r.mult(y, X);
         r.scale(-1.0 as ElemType);
-        // 6: norm_r2=sum(r*r)
-        var norm_r2:ElemType = r.dot(r);
 
-		for (1..maxIterations) {
-			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
-			q.mult(Vp.mult(V, p), V).scaleAdd(lambda, p);
-			// 11: alpha= norm_r2/(t(p)%*%q);
+        // 5: norm_r2 = sum(r * r); p = -r;
+        r.copyTo(p);
+        p.scale(-1.0 as ElemType);
+        var norm_r2:ElemType = r.dot(r);
+        val norm_r2_initial = norm_r2;
+        val norm_r2_target = norm_r2_initial * tolerance * tolerance;
+
+        Console.OUT.println("||r|| initial value = " + Math.sqrt(norm_r2)
+         + ",  target value = " + Math.sqrt(norm_r2_target));
+
+		for (var iter:Int = 0n; iter < maxIterations && norm_r2 > norm_r2_target; ++iter) {
+            // compute conjugate gradient
+            // 9: q = ((t(X) %*% (X %*% p)) + lambda * p);
+			q.mult(Xp.mult(X, p), X).scaleAdd(lambda, p);
+            q(q.M-1) -= lambda * p(q.M-1); // don't regularize intercept!
+
+            // 11: alpha = norm_r2 / sum(p * q);
 			val alpha = norm_r2 / p.dotProd(q);
 			
-			// 12: w=w+alpha*p;
+            // update model and residuals
+            // 13: w = w + alpha * p;
 			w.scaleAdd(alpha, p);
-			
-			// 13: old norm r2=norm r2;
+
+            // 14: r = r + alpha * q;
+			r.scaleAdd(alpha, q);
+
+            // 15: old_norm_r2 = norm_r2;
 			val old_norm_r2 = norm_r2;
 
-			// 14: r=r+alpha*q;
-			r.scaleAdd(alpha, q);
-            // 15: norm_r2=sum(r*r);
+            // 16: norm_r2 = sum(r^2);
 			norm_r2 = r.dot(r);
-			// 16: beta=norm r2/old norm r2;
-			val beta = norm_r2/old_norm_r2;
-			// 17: p=-r+beta*p;
-			p.scale(beta).cellSub(r);
+
+            // 17: p = -r + norm_r2/old_norm_r2 * p;
+			p.scale(norm_r2/old_norm_r2).cellSub(r);
+
+            Console.OUT.println("Iteration " + iter
+             + ":  ||r|| / ||r init|| = "
+                 + Math.sqrt(norm_r2 / norm_r2_initial));
 		}
 
 		return w;

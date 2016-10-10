@@ -59,7 +59,7 @@ public class TestDistBlock extends x10Test {
         Console.OUT.println("DistBlockMatrix clone/add/sub/scaling tests");
 	
         var ret:Boolean = true;
-        val places = PlaceGroupBuilder.execludeSparePlaces(skipPlaces);	
+        val places = PlaceGroupBuilder.excludeSparePlaces(skipPlaces);	
         ret &= (testClone(places));
         ret &= (testCopyTo(places));
         ret &= (testScale(places));

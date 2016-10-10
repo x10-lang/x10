@@ -39,6 +39,7 @@ public class RunLogReg {
 						Option("c","colBlocks","number of columnn blocks; default = 1"),
 						Option("d","density","nonzero density, default = 0.5"),
 						Option("i","iterations","number of iterations, default = 2"),
+                        Option("t","innerIterations","number of inner iterations, default = 0 (no limit)"),
 						Option("s","skip","skip places count (at least one place should remain), default = 0"),
 						Option("", "checkpointFreq","checkpoint iteration frequency")
 						]);
@@ -65,13 +66,14 @@ public class RunLogReg {
                 Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
 
             val places = (skipPlaces==0n) ? Place.places() 
-                : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+                : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
             val team = new Team(places);
 
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
             val nonzeroDensity = opts("d", 0.5f);
             val iterations = opts("i", 2n);
+            val innerIterations = opts("t", 0n);
             val verify = opts("v");
             val print = opts("p");
             val checkpointFreq = opts("checkpointFreq", -1n);
@@ -79,7 +81,7 @@ public class RunLogReg {
             Console.OUT.println("X: rows:"+mX+" cols:"+nX
                 +" density:"+nonzeroDensity+" iterations:"+iterations);
 
-            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, iterations, checkpointFreq, places, team);
+            val prun = LogisticRegression.make(mX, nX, rowBlocks, colBlocks, nonzeroDensity, iterations, innerIterations, checkpointFreq, places, team);
 	    
             var denX:DenseMatrix(mX,nX) = null;
             var y:Vector(mX) = null;
@@ -100,7 +102,7 @@ public class RunLogReg {
 				    totalTime, prun.parCompT, prun.seqCompT, prun.commT);
 			
 			if (verify) { /* Sequential run */
-				val seq = new SeqLogReg(denX, y, w, iterations, iterations);
+				val seq = new SeqLogReg(denX, y, w, iterations, 0);
 
 		        Debug.flushln("Starting sequential logistic regression");
 				seq.run();

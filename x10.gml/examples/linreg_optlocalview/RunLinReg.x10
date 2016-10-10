@@ -88,7 +88,7 @@ public class RunLinReg {
         val startTime = Timer.milliTime();
         
         val places = (skipPlaces==0n) ? Place.places() 
-                                      : PlaceGroupBuilder.execludeSparePlaces(skipPlaces);
+                                      : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
         val team = new Team(places);
         
         val rowBlocks = opts("r", places.size());

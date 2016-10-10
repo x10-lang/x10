@@ -13,16 +13,12 @@ import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Timer;
 
-import x10.matrix.DenseMatrix;
-import x10.matrix.Vector;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistVector;
-//import x10.matrix.regression.RegressionInputData;
-import x10.matrix.util.Debug;
+import x10.matrix.regression.RegressionInputData;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 
 import x10.util.Team;
-import x10.matrix.util.MathTool;
 
 /**
  * Run Logistic Regression using GML against input files created by SystemML
