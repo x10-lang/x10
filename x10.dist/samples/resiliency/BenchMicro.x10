@@ -226,6 +226,10 @@ public class BenchMicro {
         val parent = here.id;
         val child1 = parent*2 + 1;
         val child2 = child1 + 1;
+        if (parent == 1 && Place.numPlaces() == 2) {
+            // special case to invert tree so scaling calcuation is reasonable.
+            finish at (Place(0)) async think(thinkTime);
+        }
         if (child1 < Place.numPlaces() || child2 < Place.numPlaces()) {
             finish {
                 if (child1 < Place.numPlaces()) at (Place(child1)) async downTree(thinkTime);
