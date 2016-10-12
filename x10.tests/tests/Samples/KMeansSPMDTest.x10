@@ -32,7 +32,7 @@ public class KMeansSPMDTest extends x10Test {
              });
              pts
          };
-         val clusters = KMeansSPMD.computeClusters(Place.places(), initPoints, 2, 4, 50, false);
+         val clusters = KMeansSPMD.computeClusters(Place.places(), initPoints, 2, 4, 50, 1e-6f, false);
 
          // We know the inital centroids were selected by averaging the initial 4
          // points in each place.  Therefore we know the expected order of the centroids

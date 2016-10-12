@@ -51,6 +51,7 @@ public class KMeansSPMD {
             Option("i","iterations","quit after this many iterations"),
             Option("c","clusters","number of clusters to find"),
             Option("d","dim","number of dimensions"),
+            Option("e","epsilon","convergence threshold"),
             Option("n","num","quantity of points")
         ]);
         if (opts.filteredArgs().size!=0L) {
@@ -68,6 +69,7 @@ public class KMeansSPMD {
         val numPoints = opts("-n", 2000);
         val iterations = opts("-i",50);
         val dim = opts("-d", 4);
+        val epsilon = opts("-e", 1e-3f); // negative epsilon forces i iterations.
         val verbose = opts("-v");
 
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
@@ -80,14 +82,14 @@ public class KMeansSPMD {
             pts
         };
 
-        val clusters = computeClusters(pg, initPoints, dim, numClusters, iterations, verbose);
+        val clusters = computeClusters(pg, initPoints, dim, numClusters, iterations, epsilon, verbose);
 
         Console.OUT.println("\nFinal results:");
         printPoints(clusters);
     }
 
     static def computeClusters(pg:PlaceGroup, initPoints:(Place)=>Array_2[Float], dim:Long,
-                               numClusters:Long, iterations:Long, verbose:Boolean):Array_2[Float] {
+                               numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean):Array_2[Float] {
         val ans = new Array_2[Float](numClusters, dim);
         val ansRef = GlobalRail(ans.raw());
 
@@ -121,7 +123,7 @@ public class KMeansSPMD {
                 team.barrier();
                 barrierTime += System.nanoTime();
 
-                main_loop: for (iter in 0..(iterations-1)) {
+                for (iter in 0..(iterations-1)) {
                     Array.copy(clusters, oldClusters);
 
                     clusters.raw().clear();
@@ -164,13 +166,16 @@ public class KMeansSPMD {
                     }
 
                     // TEST FOR CONVERGENCE
-                    for (j in 0..(numClusters*dim-1)) {
-                        if (true/*||Math.abs(clusters_old(j)-clusters(j))>0.0001*/) continue main_loop;
+                    var converged:Boolean = true;
+                    for ([i,j] in clusters.indices()) {
+                        if (Math.abs(oldClusters(i,j)-clusters(i,j)) > epsilon) {
+                            converged = false;
+                            break;
+                        }
                     }
+                    if (converged) break;
 
-                    break;
-
-                } // main_loop
+                } // iterations loop
 
                 Console.OUT.printf("%d: computation %.3f s communication %.3f s (barrier %.3f s)\n", 
                     here.id, computeTime/1E9, commTime/1E9, barrierTime/1E9);
