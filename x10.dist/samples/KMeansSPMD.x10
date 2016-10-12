@@ -9,10 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2016.
  */
 
-import x10.array.*;
-import x10.util.Random;
+import x10.array.Array;
+import x10.array.Array_2;
+import x10.util.foreach.Block;
 import x10.util.OptionsParser;
 import x10.util.Option;
+import x10.util.Random;
 import x10.util.Team;
 
 /**
@@ -42,7 +44,7 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args:Rail[String]) {here == Place.FIRST_PLACE } {
+    public static def main (args:Rail[String]) {
         val opts = new OptionsParser(args, [
             Option("q","quiet","just print time taken"),
             Option("v","verbose","print out each iteration"),
@@ -102,6 +104,7 @@ public class KMeansSPMD {
 
                 // Initialize points for this place
                 val myPoints = initPoints(here);
+                val numPoints = myPoints.numElems_1;
 
                 // Set initial cluster centroids to average of first k points in each place.
                 val clusters  = new Array_2[Float](numClusters, dim, (i:long, j:long)=>myPoints(i,j));
@@ -130,24 +133,36 @@ public class KMeansSPMD {
                     clusterCounts.clear();
 
                     computeTime -= System.nanoTime();
-                    for (p in 0..(myPoints.numElems_1-1)) {
-                        var closest:Long = -1;
-                        var closestDist:Float = Float.MAX_VALUE;
-                        for (k in 0..(numClusters-1)) {
-                            var dist : Float = 0;
-                            for (d in 0..(dim-1)) { 
-                                val tmp = myPoints(p,d) - oldClusters(k,d);
-                                dist += tmp * tmp;
+                    Block.for(mine:LongRange in 0..(numPoints-1)) {
+                        val scratchClusters = new Array_2[Float](numClusters, dim);
+                        val scratchClusterCounts = new Rail[Int](numClusters);
+                        for (p in mine) {
+                            var closest:Long = -1;
+                            var closestDist:Float = Float.MAX_VALUE;
+                            for (k in 0..(numClusters-1)) {
+                                var dist : Float = 0;
+                                for (d in 0..(dim-1)) {
+                                    val tmp = myPoints(p,d) - oldClusters(k,d);
+                                    dist += tmp * tmp;
+                                }
+                                if (dist < closestDist) {
+                                    closestDist = dist;
+                                    closest = k;
+                                }
                             }
-                            if (dist < closestDist) {
-                                closestDist = dist;
-                                closest = k;
+                            for (d in 0..(dim-1)) {
+                                scratchClusters(closest,d) += myPoints(p,d);
+                            }
+                            scratchClusterCounts(closest)++;
+                        }
+                        atomic {
+                            for ([i,j] in clusters.indices()) {
+                                clusters(i,j) += scratchClusters(i,j);
+                            }
+                            for (i in scratchClusterCounts.range()) {
+                                clusterCounts(i) += scratchClusterCounts(i);
                             }
                         }
-                        for (d in 0..(dim-1)) {
-                            clusters(closest,d) += myPoints(p,d);
-                        }
-                        clusterCounts(closest)++;
                     }
                     computeTime += System.nanoTime();
 
@@ -157,7 +172,9 @@ public class KMeansSPMD {
                     commTime += System.nanoTime();
 
                     for (k in 0..(numClusters-1)) {
-                        for (d in 0..(dim-1)) clusters(k,d) /= clusterCounts(k);
+                        if (clusterCounts(k) > 0) {
+                            for (d in 0..(dim-1)) clusters(k,d) /= clusterCounts(k);
+                        }
                     }
 
                     if (here.id==0 && verbose) {
