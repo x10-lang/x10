@@ -10,16 +10,47 @@
  */
 
 import harness.x10Test;
+import x10.util.Random;
+import x10.array.Array_2;
 
 // SOURCEPATH: x10.dist/samples
 
 public class KMeansSPMDTest extends x10Test {
     public def run():boolean {
-         val args = new Rail[String](2);
-         args(0) = "-p"; 
-         args(1) = pathCombine(["tests", "Samples"], "points.dat");
-         KMeansSPMD.main(args); // ERR: Warning: Generated a dynamic check for the method call.
-         return true;
+         val pg = Place.places();
+
+         // Create 4 clusters of random points around (-10,-10), (10,10), (-10,10), and (10,-10)
+         val initPoints = (Place) => {
+             val rand = new Random(here.id);
+             val pts = new Array_2[Float](20000, 2, (i:Long, j:Long) => {
+                 switch ((i%4) as Int) {
+                     case 0n: return -10.5f + rand.nextFloat();
+                     case 1n: return 9.5f + rand.nextFloat();
+                     case 2n: return (j==0 ? -10.5f : 9.5f) + rand.nextFloat();
+                     default: return (j==0 ? 9.5f : -10.5f) + rand.nextFloat();
+                 }
+             });
+             pts
+         };
+         val clusters = KMeansSPMD.computeClusters(Place.places(), initPoints, 2, 4, 50, false);
+
+         // We know the inital centroids were selected by averaging the initial 4
+         // points in each place.  Therefore we know the expected order of the centroids
+         // and can do a very simple test for correctness.
+         val expected = Array_2.makeView([ -10f, -10f, 10f, 10f, -10f, 10f, 10f, -10f ], 4, 2);
+         var pass:Boolean = true;
+         for ([i,j] in expected.indices()) {
+             pass &= (Math.abs(clusters(i,j) - expected(i,j)) < 0.01);
+         }
+
+         if (!pass) {
+             Console.OUT.println("Expected clusters: ");
+             KMeansSPMD.printPoints(expected);
+             Console.OUT.println("Actual clusters: ");
+             KMeansSPMD.printPoints(clusters);
+         }
+
+         return pass;
     }
 
     public static def main(args:Rail[String]) {
