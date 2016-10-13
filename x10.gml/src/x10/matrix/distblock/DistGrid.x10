@@ -18,8 +18,8 @@ import x10.matrix.block.Grid;
  * A DistGrid instance specifies how blocks are distributed among places in a grid.
  * DistGrid uses integer array to map block IDs to place IDs.
  * DistGrid is a special case of distribution map, in which matrix blocks in a partition
- * grid is distributed in places of grid. Blocks neighoring in partitioning grid are
- * either in the same place or neighering places.
+ * grid are distributed to places in a grid. Neighboring blocks in the grid are
+ * distributed either to the same place or to neighboring places.
  */
 public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
     public val dmap:DistMap;
@@ -33,20 +33,21 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
     
     public def this(matgrid:Grid, nRowPs:Long, nColPs:Long) {
         property(nRowPs, nColPs);
-        dmap = new DistMap(matgrid.size, nRowPs*nColPs);
         Debug.assure(
                 nRowPs <= matgrid.numRowBlocks && nColPs <= matgrid.numColBlocks, 
                 "Cannot distribute ("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks"+
                 " over ("+nRowPs+" x "+nColPs+") places");       
-        placeGrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, nRowPs, nColPs);                
+        placeGrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, nRowPs, nColPs);         
+        val blockmap = new Rail[Long](matgrid.size);
         //This is not an efficient method, 
         for (var cb:Long=0; cb<matgrid.numColBlocks; cb++) { 
             for (var rb:Long=0; rb<matgrid.numRowBlocks; rb++) {
                 val plcIndex = placeGrid.findBlock(rb, cb); 
                 val bid = matgrid.getBlockId(rb, cb);
-                dmap.set(bid, plcIndex);                
+                blockmap(bid) = plcIndex;                
             }
         }
+        this.dmap = new DistMap(blockmap, nRowPs*nColPs);
     }
     
     public static def compPartition(num:Long, blks:Long, plcs:Long):Rail[Long] {
@@ -114,6 +115,7 @@ public class DistGrid(numRowPlaces:Long, numColPlaces:Long) {
         return new DistGrid(matgrid, rowPs, colPs);
     }
     
+    /** Create a new DistGrid with a single column and as many rows as there are live places. */
     public static def makeHorizontal(g:Grid) = makeHorizontal(g, Place.numPlaces());
 
     public static def makeHorizontal(g:Grid, numPlaces:Long) = makeMaxRow(g, 1, numPlaces);

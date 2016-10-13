@@ -70,8 +70,8 @@ class RunSummaExample {
         exampleMult();
         exampleMultTrans();
         exampleSparseMult();
-        exampleCylicDistMult();
-        exampleCylicDistMultTrans();
+        exampleCyclicDistMult();
+        exampleCyclicDistMultTrans();
         exampleRandomDistMult();
         exampleRandomDistMultTrans();
     }
@@ -185,24 +185,24 @@ class RunSummaExample {
     }
     
     
-    public def exampleCylicDistMult():Boolean {
+    public def exampleCyclicDistMult():Boolean {
         //Matrix partitioning
         val gA = new Grid(M, K, bM, bN);
         val gB = new Grid(K, N, bM, bN);
         val gC = new Grid(M, N, bM, bN);
         //Block distribution
-        val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
+        val dmap = DistMap.makeCyclic(bM*bN, Place.numPlaces());
         
-        Console.OUT.println("Starting SUMMA on multiply dense block Matrix example using cylic distribution");
+        Console.OUT.println("Starting SUMMA on multiply dense block Matrix example using cyclic distribution");
         Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
                            M, K, K, N, bM, bN);
-        Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
+        Console.OUT.printf("cyclic distribution in %d places\n", Place.numPlaces());
         
         val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
         val b = DistBlockMatrix.makeDense(gB, dmap).initRandom();
         val c = DistBlockMatrix.makeDense(gC, dmap);
         SummaMult.mult(a, b, c, false);
-        Debug.flushln("Done SUMMA mult using cylic block distribution");
+        Debug.flushln("Done SUMMA mult using cyclic block distribution");
         
         if (!vrf) return true;
         
@@ -213,31 +213,31 @@ class RunSummaExample {
         ret &= dc.equals(c as Matrix(dc.M,dc.N));
         
         if (ret)
-            Console.OUT.println("Cylic distribution of dense block Matrix SUMMA mult example passed!");
+            Console.OUT.println("Cyclic distribution of dense block Matrix SUMMA mult example passed!");
         else
-            Console.OUT.println("--------Cylic distribution of dense block matrix SUMMA mult example failed!--------");
+            Console.OUT.println("--------Cyclic distribution of dense block matrix SUMMA mult example failed!--------");
         return ret;
     }
     
-    public def exampleCylicDistMultTrans():Boolean {
+    public def exampleCyclicDistMultTrans():Boolean {
         //Matrix partitioning
         val gA = new Grid(M, K, bM, bN);
         val gBt = new Grid(N, K, bM, bN);
         val gC = new Grid(M, N, bM, bN);
         //Block distribution
-        val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
+        val dmap = DistMap.makeCyclic(bM*bN, Place.numPlaces());
         
-        Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix example using cylic distribution");
+        Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix example using cyclic distribution");
         Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
                            M, K, K, N, bM, bN);
-        Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
+        Console.OUT.printf("cyclic distribution in %d places\n", Place.numPlaces());
         
         val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
         val b = DistBlockMatrix.makeDense(gBt, dmap).initRandom() as DistBlockMatrix{self.N==a.N};
         val c = DistBlockMatrix.makeDense(gC, dmap) as DistBlockMatrix(a.M,b.M);
         
         SummaMultTrans.multTrans(a, b, c, false);
-        Debug.flushln("Done SUMMA multTrans using cylic block distribution");
+        Debug.flushln("Done SUMMA multTrans using cyclic block distribution");
         
         if (!vrf) return true;
         
@@ -248,9 +248,9 @@ class RunSummaExample {
         dc.multTrans(da, db, false);
         
         if (ret)
-            Console.OUT.println("Cylic distribution of dense block Matrix SUMMA mult-trans example passed!");
+            Console.OUT.println("Cyclic distribution of dense block Matrix SUMMA mult-trans example passed!");
         else
-            Console.OUT.println("--------Cylic distribution of dense block matrix SUMMA mult-trans example failed!--------");
+            Console.OUT.println("--------Cyclic distribution of dense block matrix SUMMA mult-trans example failed!--------");
         return ret;
     }
     

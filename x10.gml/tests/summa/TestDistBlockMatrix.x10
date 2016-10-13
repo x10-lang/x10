@@ -76,8 +76,8 @@ class TestRunSumma {
     ret &= (testMultTrans());
     ret &= (testSparseMult());
     ret &= (testSparseMultTrans());
-    ret &= (testCylicDistMult());
-    ret &= (testCylicDistMultTrans());
+    ret &= (testCyclicDistMult());
+    ret &= (testCyclicDistMultTrans());
     ret &= (testRandomDistMult());
     ret &= (testRandomDistMultTrans());
     
@@ -185,13 +185,13 @@ class TestRunSumma {
 	return ret;
     }
     
-    public def testCylicDistMult():Boolean {
-	Console.OUT.println("Starting SUMMA on multiply dense block Matrix test using cylic distribution");
+    public def testCyclicDistMult():Boolean {
+	Console.OUT.println("Starting SUMMA on multiply dense block Matrix test using cyclic distribution");
 	Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 			   M, K, K, N, bM, bN);
-	Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
+	Console.OUT.printf("cyclic distribution in %d places\n", Place.numPlaces());
 	var ret:Boolean = true;
-	val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
+	val dmap = DistMap.makeCyclic(bM*bN, Place.numPlaces());
 	
 	val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 	val b = DistBlockMatrix.makeDense(gB, dmap).initRandom();
@@ -204,19 +204,19 @@ class TestRunSumma {
 	ret &= dc.equals(c as Matrix(dc.M,dc.N));
 	
 	if (ret)
-	    Console.OUT.println("Cylic distribution of dense block Matrix SUMMA mult test passed!");
+	    Console.OUT.println("Cyclic distribution of dense block Matrix SUMMA mult test passed!");
 	else
-	    Console.OUT.println("--------Cylic distribution of dense block matrix SUMMA mult test failed!--------");
+	    Console.OUT.println("--------Cyclic distribution of dense block matrix SUMMA mult test failed!--------");
 	return ret;
     }
     
-    public def testCylicDistMultTrans():Boolean {
-	Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix test using cylic distribution");
+    public def testCyclicDistMultTrans():Boolean {
+	Console.OUT.println("Starting SUMMA on mult-trans dense block Matrix test using cyclic distribution");
 	Console.OUT.printf("matrix (%dx%d) x (%dx%d) partitioned in (%dx%d) blocks ",
 			   M, K, K, N, bM, bN);
-	Console.OUT.printf("cylic distribution in %d places\n", Place.numPlaces());
+	Console.OUT.printf("cyclic distribution in %d places\n", Place.numPlaces());
 	var ret:Boolean = true;
-	val dmap = DistMap.makeCylic(bM*bN, Place.numPlaces());
+	val dmap = DistMap.makeCyclic(bM*bN, Place.numPlaces());
 	
 	val a = DistBlockMatrix.makeDense(gA, dmap).initRandom();
 	val b = DistBlockMatrix.makeDense(gTransB, dmap).initRandom() as DistBlockMatrix{self.N==a.N};
@@ -230,9 +230,9 @@ class TestRunSumma {
 	dc.multTrans(da, db, false);
 	
 	if (ret)
-	    Console.OUT.println("Cylic distribution of dense block Matrix SUMMA mult-trans test passed!");
+	    Console.OUT.println("Cyclic distribution of dense block Matrix SUMMA mult-trans test passed!");
 	else
-	    Console.OUT.println("--------Cylic distribution of dense block matrix SUMMA mult-trans test failed!--------");
+	    Console.OUT.println("--------Cyclic distribution of dense block matrix SUMMA mult-trans test failed!--------");
 	return ret;
     }
     

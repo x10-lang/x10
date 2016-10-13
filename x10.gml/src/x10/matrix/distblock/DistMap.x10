@@ -19,49 +19,27 @@ import x10.compiler.Inline;
 import x10.matrix.util.RandTool;
 
 /**
- * This class represents how matrix blocks in a partition grid are distributed
- * to all places.
+ * This class represents a mapping from matrix blocks to indices in a PlaceGroup.
  * <p>
- * In a grid partitioning, all blocks are assigned with block numbers in a column-wise
- * fashion.  DistGrid provides a mechanism (mapping functions) between a block number
- * and a place number.
- * 
- * <p> There are several mapping functions provided in this class, including cylic, 
- * constant and unique distrition of blocks to number of places.
+ * There are several mappings provided in this class, including cyclic, 
+ * constant, unique and random distribution of blocks to places.
  */
 public class DistMap(numBlock:Long, numPlace:Long)  {
-    public val blockmap:Rail[Long];            //mapping block ID to its place index in a Place Group
-    //public val placemap:Rail[ArrayList[Long]]; //mapping place ID to list of block IDs
+    val blockmap:Rail[Long];            //mapping block ID to its place index in a Place Group
     
-    public def this(numBlk:Long, numPlc:Long) {
-        property(numBlk, numPlc);
-        blockmap = new Rail[Long](numBlk, -1);
-        //placemap = new Rail[ArrayList[Long]](numPlc, (i:Long)=>(new ArrayList[Long]()));
-    }
-    
-    public def this(blkmap:Rail[Long], numPlc:Long) {
+    def this(blkmap:Rail[Long], numPlc:Long) {
         property(blkmap.size as Long, numPlc);
         blockmap = blkmap;
-        //placemap = plcmap;
     }
 
-    public static def make(numBlk:Long):DistMap {
-        return new DistMap(numBlk, Place.numPlaces());
-    } 
-    public static def make(numBlk:Long, numPlc:Long):DistMap {
-        return new DistMap(numBlk, numPlc);
-    } 
     public static def make(numBlk:Long, mapfunc:(Long)=>Long) = make(numBlk, mapfunc, Place.numPlaces());
     
     public static def make(numBlk:Long, mapfunc:(Long)=>Long, numPlc:Long) {
-        val dmap = make(numBlk, numPlc);
-        for (var b:Long=0; b<numBlk; b++) 
-            dmap.set(b, mapfunc(b));
-        return dmap;
+        return new DistMap(new Rail[Long](numBlk, mapfunc), numPlc);
     }
     
-    public static def makeCylic(numBlk:Long) = make(numBlk, (i:Long)=>i%Place.numPlaces());
-    public static def makeCylic(numBlk:Long, numPlc:Long) = make(numBlk, (i:Long)=>i%numPlc);
+    public static def makeCyclic(numBlk:Long) = make(numBlk, (i:Long)=>i%Place.numPlaces());
+    public static def makeCyclic(numBlk:Long, numPlc:Long) = make(numBlk, (i:Long)=>i%numPlc);
     public static def makeUnique() = make(Place.numPlaces(), (i:Long)=>i);
     public static def makeUnique(places:PlaceGroup) = make(places.size(), (i:Long)=>i);
     public static def makeUnique(numBlk:Long) = make(numBlk, (i:Long)=>i);
@@ -69,8 +47,6 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
     public static def makeConstant(numBlk:Long) = make(numBlk, (i:Long)=>0L);
     public static def makeConstant(numBlk:Long, p:Long) = make(numBlk, (i:Long)=>p); 
 
-    //This method could leave emply block for some place
-    //public static def makeRandom(numBlk:Long, numPlc:Long) = make(numBlk, (i:Long)=>RandTool.nextLong(numPlc));
     /**
      * Make random block distribution. Note, every place must have at least one block.
      */
@@ -87,7 +63,6 @@ public class DistMap(numBlock:Long, numPlace:Long)  {
         for (; i<numBlk; i++) bmap(i) = RandTool.nextLong(numPlc);
         
         return new DistMap(bmap, numPlc);
-        //make(numBlk, (i:Long)=>RandTool.nextLong(numPlc));
     }
 
     /**
