@@ -30,7 +30,7 @@ X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -
 # runtime settings
 runtime_list = native java
 numplaces = 4
-test_args = -m 10 --density 1.0 --iterations 30 --checkpointFreq 10 #--verify
+test_args = -m 100000 --density 0.00125 --iterations 30 --checkpointFreq 10 #--verify
 
 ###################################################
 # Build rules

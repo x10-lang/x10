@@ -70,7 +70,7 @@ public class RunPageRank {
         
         val mG = opts("m", (20000*Math.sqrt(placesCount*5)) as Long );
         
-        Console.OUT.printf("G: rows/cols %d density: %.3f (non-zeros: %d) iterations: %d\n",
+        Console.OUT.printf("G: rows/cols %d density: %.3e (non-zeros: %d) iterations: %d\n",
                             mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
 	if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
@@ -116,9 +116,7 @@ public class RunPageRank {
                 val seqP = seqPR.run();
                 Debug.flushln("Verifying results against sequential version");
                 val localP = Vector.make(g.N);
-                Console.OUT.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$44 before");
                 paraP.copyTo(localP);
-                Console.OUT.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$44 after");
                 if (VerifyTool.testSame(localP, seqP)) 
                     Console.OUT.println("Verification passed.");
                 else

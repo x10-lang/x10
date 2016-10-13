@@ -135,10 +135,9 @@ public class PageRank implements LocalViewResilientIterativeApp {
 
     public def printInfo() {
         val nzc =  G.getTotalNonZeroCount() ;
-        val nzd =  nzc / (G.M * G.N);
         Console.OUT.printf("Input Matrix G:(%dx%d), partition:(%dx%d) blocks, ",
                 G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
-        Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 
+        Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%d\n", 
                 Place.numPlaces(), 1,  nzd, nzc);
 
         Console.OUT.printf("Input duplicated vector P(%d), duplicated in all places\n", P.M);
