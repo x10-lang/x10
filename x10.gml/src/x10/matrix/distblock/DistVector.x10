@@ -178,16 +178,15 @@ public class DistVector(M:Long) implements Snapshottable {
     
 
     public def copyTo(vec:Vector(M)):void {
-        val root = here;
         val gr = new GlobalRail[ElemType](vec.d);
         finish for (place in places) at (place) async {
             val src = distV().vec.d;
             var dst:Rail[ElemType] = null;
-            if (here.id == root.id){
+            if (here == gr.home){
                 dst = gr();
             }   
 distV().gathervTime -= Timer.milliTime(); 
-            team.gatherv(root, src, 0, dst, 0, getSegSize());
+            team.gatherv(gr.home, src, 0, dst, 0, getSegSize());
 distV().gathervTime += Timer.milliTime();
         }
     }
@@ -205,16 +204,15 @@ distV().gathervTime += Timer.milliTime();
 
 
     public def copyFrom(vec:Vector(M)): void {
-        val root = here;
         val gr = new GlobalRail[ElemType](vec.d);
         finish for (place in places) at (place) async {
             var src:Rail[ElemType] = null;
             val dst = distV().vec.d;
-            if (here.id == root.id){
+            if (here == gr.home){
                 src = gr();
             }
 distV().scattervTime -= Timer.milliTime();           
-            team.scatterv(root,src, 0, dst, 0, getSegSize());
+            team.scatterv(gr.home, src, 0, dst, 0, getSegSize());
 distV().scattervTime += Timer.milliTime();
         }
     }
