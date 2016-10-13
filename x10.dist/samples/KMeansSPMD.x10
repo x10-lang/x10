@@ -28,7 +28,7 @@ import x10.util.Team;
  * Points are stored in each Place in an Array_2[Float].
  *
  * For the highest throughput and most scalable implementation of
- * the KMeans algorithm in X10, please see KMeans.x10 in the
+ * the KMeans algorithm in X10 for Native X10, see KMeans.x10 in the
  * X10 Benchmarks Suite (separate download from x10-lang.org).
  */
 public class KMeansSPMD {
@@ -41,7 +41,7 @@ public class KMeansSPMD {
         val numPoints:Long;
         val numClusters:Long;
         val dim:Long;
-        var computeTime:Long = 0;
+        var kernelTime:Long = 0;
         var commTime:Long = 0;
 
         def this(initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long) {
@@ -81,14 +81,14 @@ public class KMeansSPMD {
     }
 
     static def oneStep(ls:LocalState, team:Team, dim:Long, numClusters:Long, epsilon:Float):Boolean {
+        // Prepare for computation
         Array.copy(ls.clusters, ls.oldClusters);
-
         ls.clusters.raw().clear();
         ls.clusterCounts.clear();
 
         // Primary kernel: for every point, determine current closest
         //                 cluster and assign the point to that cluster.
-        ls.computeTime -= System.nanoTime();
+        ls.kernelTime -= System.nanoTime();
         Block.for(mine:LongRange in 0..(ls.numPoints-1)) {
             val scratchClusters = new Array_2[Float](numClusters, dim);
             val scratchClusterCounts = new Rail[Int](numClusters);
@@ -120,9 +120,9 @@ public class KMeansSPMD {
                 }
             }
         }
-        ls.computeTime += System.nanoTime();
+        ls.kernelTime += System.nanoTime();
 
-        // Aggregate computed clusters across all places
+        // Sum computed new centroids and counts across all places
         ls.commTime -= System.nanoTime();
         team.allreduce(ls.clusters.raw(), 0L, ls.clusters.raw(), 0L, ls.clusters.raw().size, Team.ADD);
         team.allreduce(ls.clusterCounts, 0L, ls.clusterCounts, 0L, ls.clusterCounts.size, Team.ADD);
@@ -168,7 +168,7 @@ public class KMeansSPMD {
                 }
 
                 Console.OUT.printf("%d: computation %.3f s communication %.3f s\n",
-                                   here.id, ls.computeTime/1E9, ls.commTime/1E9);
+                                   here.id, ls.kernelTime/1E9, ls.commTime/1E9);
 
                 team.barrier();
 
@@ -222,7 +222,10 @@ public class KMeansSPMD {
             pts
         };
 
+        val start = System.nanoTime();
         val clusters = computeClusters(pg, initPoints, dim, numClusters, iterations, epsilon, verbose);
+        val stop = System.nanoTime();
+        Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 
         Console.OUT.println("\nFinal results:");
         printPoints(clusters);
