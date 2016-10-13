@@ -22,7 +22,7 @@ public class KMeansSPMDTest extends x10Test {
          // Create 4 clusters of random points around (-10,-10), (10,10), (-10,10), and (10,-10)
          val initPoints = (Place) => {
              val rand = new Random(here.id);
-             val pts = new Array_2[Float](20000, 2, (i:Long, j:Long) => {
+             val pts = new Array_2[Float](50000, 2, (i:Long, j:Long) => {
                  switch ((i%4) as Int) {
                      case 0n: return -10.5f + rand.nextFloat();
                      case 1n: return 9.5f + rand.nextFloat();
