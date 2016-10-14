@@ -187,8 +187,10 @@ public class KMeans {
         val stop = System.nanoTime();
         Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 
-        Console.OUT.println("\nFinal results:");
-        printPoints(clusters);
+        if (verbose) {
+            Console.OUT.println("\nFinal results:");
+            printPoints(clusters);
+        }
     }
 }
 

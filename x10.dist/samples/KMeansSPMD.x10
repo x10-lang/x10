@@ -167,10 +167,11 @@ public class KMeansSPMD {
                     }
                 }
 
-                Console.OUT.printf("%d: computation %.3f s communication %.3f s\n",
-                                   here.id, ls.kernelTime/1E9, ls.commTime/1E9);
-
-                team.barrier();
+                if (verbose) {
+                    Console.OUT.printf("%d: computation %.3f s communication %.3f s\n",
+                                       here.id, ls.kernelTime/1E9, ls.commTime/1E9);
+                    team.barrier();
+                }
 
                 if (here.id == 0) {
                     finish Rail.asyncCopy(ls.clusters.raw(), 0, ansRef, 0, ls.clusters.raw().size);
@@ -227,8 +228,10 @@ public class KMeansSPMD {
         val stop = System.nanoTime();
         Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 
-        Console.OUT.println("\nFinal results:");
-        printPoints(clusters);
+        if (verbose) {
+            Console.OUT.println("\nFinal results:");
+            printPoints(clusters);
+        }
     }
 }
 
