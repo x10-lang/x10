@@ -19,7 +19,7 @@ import x10.util.ArrayList;
  */
 public class PlaceGroupBuilder {
 
-    static val mode = getEnvLong("X10_PLACE_GROUP_RESTORE_MODE", RESTORE_MODE_SHRINK);
+    static val mode = getEnvLong("X10_PLACE_GROUP_RESTORE_MODE", RESTORE_MODE_REPLACE_REDUNDANT);
     private static val VERBOSE = (System.getenv("DEBUG_RESILIENT_EXECUTOR") != null 
                           && System.getenv("DEBUG_RESILIENT_EXECUTOR").equals("1"));
     
@@ -108,14 +108,5 @@ public class PlaceGroupBuilder {
         }
         var placeGroup:SparsePlaceGroup = new SparsePlaceGroup(livePlaces.toRail());
         return placeGroup;
-    }
-}
-
-class RestorePlaceGroup {
-    val newGroup:PlaceGroup;
-    val newAddedPlaces:ArrayList[Place];
-    public def this(g:PlaceGroup, n:ArrayList[Place]){
-        this.newGroup = g;
-        this.newAddedPlaces = n;
     }
 }
