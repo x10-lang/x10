@@ -40,11 +40,14 @@ public class KMeansSPMD {
         val clusterCounts:Rail[Int];
         val numPoints:Long;
         val numClusters:Long;
+        val epsilon:Float;
         val dim:Long;
+        val team:Team;
         var kernelTime:Long = 0;
         var commTime:Long = 0;
+        var converged:Boolean = false;
 
-        def this(initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long) {
+        def this(team:Team, initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long, epsilon:Float) {
             points = initPoints(here);
             oldClusters = new Array_2[Float](numClusters, dim);
             val tmp = points; // hack around escaping this in constructor
@@ -53,6 +56,75 @@ public class KMeansSPMD {
             numPoints = points.numElems_1;
             this.numClusters = numClusters;
             this.dim = dim;
+            this.epsilon = epsilon;
+            this.team = team;
+        }
+
+        def isFinished() = converged;
+
+        def step():void {
+            // Prepare for computation
+            Array.copy(clusters, oldClusters);
+            clusters.raw().clear();
+            clusterCounts.clear();
+
+            // Primary kernel: for every point, determine current closest
+            //                 cluster and assign the point to that cluster.
+            kernelTime -= System.nanoTime();
+            Block.for(mine:LongRange in 0..(numPoints-1)) {
+                val scratchClusters = new Array_2[Float](numClusters, dim);
+                val scratchClusterCounts = new Rail[Int](numClusters);
+                for (p in mine) {
+                    var closest:Long = -1;
+                    var closestDist:Float = Float.MAX_VALUE;
+                    for (k in 0..(numClusters-1)) {
+                        var dist : Float = 0;
+                        for (d in 0..(dim-1)) {
+                            val tmp = points(p,d) - oldClusters(k,d);
+                            dist += tmp * tmp;
+                        }
+                        if (dist < closestDist) {
+                            closestDist = dist;
+                            closest = k;
+                        }
+                    }
+                    for (d in 0..(dim-1)) {
+                        scratchClusters(closest,d) += points(p,d);
+                    }
+                    scratchClusterCounts(closest)++;
+                }
+                atomic {
+                    for ([i,j] in scratchClusters.indices()) {
+                        clusters(i,j) += scratchClusters(i,j);
+                    }
+                    for (i in scratchClusterCounts.range()) {
+                        clusterCounts(i) += scratchClusterCounts(i);
+                    }
+                }
+            }
+            kernelTime += System.nanoTime();
+
+            // Reduction to accumulate new centroids and counts across all places
+            commTime -= System.nanoTime();
+            team.allreduce(clusters.raw(), 0L, clusters.raw(), 0L, clusters.raw().size, Team.ADD);
+            team.allreduce(clusterCounts, 0L, clusterCounts, 0L, clusterCounts.size, Team.ADD);
+            commTime += System.nanoTime();
+
+            // Normalize to compute new cluster centroids
+            for (k in 0..(numClusters-1)) {
+                if (clusterCounts(k) > 0) {
+                    for (d in 0..(dim-1)) clusters(k,d) /= clusterCounts(k);
+                }
+            }
+
+            // Test for convergence
+            converged = false;
+            for ([i,j] in clusters.indices()) {
+                if (Math.abs(oldClusters(i,j) - clusters(i,j)) > epsilon) {
+                    return; // leaves converged false
+                }
+            }
+            converged = true;
         }
     }
 
@@ -68,8 +140,8 @@ public class KMeansSPMD {
     }
 
     static def initialize(pg:PlaceGroup, team:Team, initPoints:(Place)=>Array_2[Float],
-                          dim:Long, numClusters:Long):LocalState {
-        val ls = new LocalState(initPoints, dim, numClusters);
+                          dim:Long, numClusters:Long, epsilon:Float):LocalState {
+        val ls = new LocalState(team, initPoints, dim, numClusters, epsilon);
 
         // Set initial cluster centroids to average of first k points in each place.
         team.allreduce(ls.points.raw(), 0, ls.clusters.raw(), 0, numClusters*dim, Team.ADD);
@@ -80,70 +152,6 @@ public class KMeansSPMD {
         return ls;
     }
 
-    static def oneStep(ls:LocalState, team:Team, dim:Long, numClusters:Long, epsilon:Float):Boolean {
-        // Prepare for computation
-        Array.copy(ls.clusters, ls.oldClusters);
-        ls.clusters.raw().clear();
-        ls.clusterCounts.clear();
-
-        // Primary kernel: for every point, determine current closest
-        //                 cluster and assign the point to that cluster.
-        ls.kernelTime -= System.nanoTime();
-        Block.for(mine:LongRange in 0..(ls.numPoints-1)) {
-            val scratchClusters = new Array_2[Float](numClusters, dim);
-            val scratchClusterCounts = new Rail[Int](numClusters);
-            for (p in mine) {
-                var closest:Long = -1;
-                var closestDist:Float = Float.MAX_VALUE;
-                for (k in 0..(numClusters-1)) {
-                    var dist : Float = 0;
-                    for (d in 0..(dim-1)) {
-                        val tmp = ls.points(p,d) - ls.oldClusters(k,d);
-                        dist += tmp * tmp;
-                    }
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closest = k;
-                    }
-                }
-                for (d in 0..(dim-1)) {
-                    scratchClusters(closest,d) += ls.points(p,d);
-                }
-                scratchClusterCounts(closest)++;
-            }
-            atomic {
-                for ([i,j] in scratchClusters.indices()) {
-                    ls.clusters(i,j) += scratchClusters(i,j);
-                }
-                for (i in scratchClusterCounts.range()) {
-                    ls.clusterCounts(i) += scratchClusterCounts(i);
-                }
-            }
-        }
-        ls.kernelTime += System.nanoTime();
-
-        // Sum computed new centroids and counts across all places
-        ls.commTime -= System.nanoTime();
-        team.allreduce(ls.clusters.raw(), 0L, ls.clusters.raw(), 0L, ls.clusters.raw().size, Team.ADD);
-        team.allreduce(ls.clusterCounts, 0L, ls.clusterCounts, 0L, ls.clusterCounts.size, Team.ADD);
-        ls.commTime += System.nanoTime();
-
-        // Normalize to compute new cluster centroids
-        for (k in 0..(numClusters-1)) {
-            if (ls.clusterCounts(k) > 0) {
-                for (d in 0..(dim-1)) ls.clusters(k,d) /= ls.clusterCounts(k);
-            }
-        }
-
-        // Test for convergence
-        for ([i,j] in ls.clusters.indices()) {
-            if (Math.abs(ls.oldClusters(i,j) - ls.clusters(i,j)) > epsilon) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     static def computeClusters(pg:PlaceGroup, initPoints:(Place)=>Array_2[Float], dim:Long,
                                numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean):Array_2[Float] {
         val ans = new Array_2[Float](numClusters, dim);
@@ -152,15 +160,15 @@ public class KMeansSPMD {
         val team = pg.equals(Place.places()) ? Team.WORLD : Team(pg);
         finish {
             for (h in pg) at (h) async {
-                val ls = initialize(pg, team, initPoints, dim, numClusters);
+                val ls = initialize(pg, team, initPoints, dim, numClusters, epsilon);
                 if (here.id==0 && verbose) {
                     Console.OUT.println("Initial clusters: ");
                     printPoints(ls.clusters);
                 }
 
                 for (iter in 0..(iterations-1)) {
-                    val converged = oneStep(ls, team, dim, numClusters, epsilon);
-                    if (converged) break;
+                    ls.step();
+                    if (ls.isFinished()) break;
                     if (here.id==0 && verbose) {
                         Console.OUT.println("Iteration: "+iter);
                         printPoints(ls.clusters);
