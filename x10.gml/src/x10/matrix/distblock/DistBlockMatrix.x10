@@ -16,10 +16,10 @@ import x10.regionarray.Dist;
 import x10.util.Timer;
 import x10.util.StringBuilder;
 
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
-
+import x10.matrix.DenseMatrix;
+import x10.matrix.Matrix;
+import x10.matrix.Vector;
 
 import x10.matrix.util.MathTool;
 import x10.matrix.block.Grid;
@@ -37,6 +37,7 @@ import x10.util.resilient.BlockSetSnapshotInfo;
 import x10.util.ArrayList;
 import x10.util.HashMap;
 import x10.util.RailUtils;
+import x10.util.Team;
 import x10.compiler.Inline;
 
 public type DistBlockMatrix(M:Long, N:Long)=DistBlockMatrix{self.M==M, self.N==N};   
@@ -71,22 +72,25 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     //This field only defined when DistGrid is used in block distribution
     transient var gdist:DistGrid = null;
 
+    private var team:Team;
     private var places:PlaceGroup;
     
     //The place group on which the matrix is distributed
     @Inline public def places() = places;
     
-    public def this(bs:PlaceLocalHandle[BlockSet], plcs:PlaceGroup) {
+    public def this(bs:PlaceLocalHandle[BlockSet], plcs:PlaceGroup, team:Team) {
         super(bs().grid.M, bs().grid.N);
         handleBS  = bs;
         places = plcs;
+        this.team = team;
     }
     
-    public def this(gridDist:DistGrid, bs:PlaceLocalHandle[BlockSet], plcs:PlaceGroup) {
+    public def this(gridDist:DistGrid, bs:PlaceLocalHandle[BlockSet], plcs:PlaceGroup, team:Team) {
         super(bs().grid.M, bs().grid.N);
         gdist = gridDist;        
         handleBS  = bs;
         places = plcs;
+        this.team = team;
     }
     
     /**
@@ -98,21 +102,21 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param dmpa  partitioning blocks distribution map
      * @return      DistBlockMatrix object (no memory allocation for matrix data)
      */
-     public static def make(g:Grid, dmap:DistMap):DistBlockMatrix(g.M, g.N) = make(g, dmap, Place.places());
+     public static def make(g:Grid, dmap:DistMap):DistBlockMatrix(g.M, g.N) = make(g, dmap, Place.places(), Team.WORLD);
      
-     public static def make(g:Grid, dmap:DistMap, places:PlaceGroup):DistBlockMatrix(g.M, g.N){
+     public static def make(g:Grid, dmap:DistMap, places:PlaceGroup, team:Team):DistBlockMatrix(g.M, g.N){
         //Remote capture: g, dmap
         val bs = PlaceLocalHandle.make[BlockSet](places, ()=>(new BlockSet(g, dmap, places.indexOf(here))));//Remote capture
-        return new DistBlockMatrix(bs, places) as DistBlockMatrix(g.M,g.N);
+        return new DistBlockMatrix(bs, places, team) as DistBlockMatrix(g.M,g.N);
     }
      
-    public static def make(g:Grid, gridDist:DistGrid):DistBlockMatrix(g.M, g.N) = make(g, gridDist, Place.places());
+    public static def make(g:Grid, gridDist:DistGrid):DistBlockMatrix(g.M, g.N) = make(g, gridDist, Place.places(), Team.WORLD);
     
-    public static def make(g:Grid, gridDist:DistGrid, places:PlaceGroup):DistBlockMatrix(g.M, g.N){
+    public static def make(g:Grid, gridDist:DistGrid, places:PlaceGroup, team:Team):DistBlockMatrix(g.M, g.N){
         //Remote capture: g, dmap
         val dmap = gridDist.dmap;
         val bs = PlaceLocalHandle.make[BlockSet](places, ()=>(new BlockSet(g, dmap, places.indexOf(here))));//Remote capture
-        return new DistBlockMatrix(gridDist, bs, places) as DistBlockMatrix(g.M,g.N);
+        return new DistBlockMatrix(gridDist, bs, places, team) as DistBlockMatrix(g.M,g.N);
     }
     
     /**
@@ -128,19 +132,19 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param colPs     number of columns of place grid
      */
     public static def make(m:Long, n:Long, rowBs:Long, colBs:Long, rowPs:Long, colPs:Long):DistBlockMatrix(m,n) {
-        return make(m, n, rowBs, colBs, rowPs, colPs, Place.places());
+        return make(m, n, rowBs, colBs, rowPs, colPs, Place.places(), Team.WORLD);
     }
     
     public static def make(m:Long, n:Long, 
             rowBs:Long, colBs:Long, 
-            rowPs:Long, colPs:Long, places:PlaceGroup):DistBlockMatrix(m,n) {
+            rowPs:Long, colPs:Long, places:PlaceGroup, team:Team):DistBlockMatrix(m,n) {
         assert (rowPs*colPs == places.size()) :
             "Block partitioning error";        
         val blks = PlaceLocalHandle.make[BlockSet](places, 
-                ()=>(BlockSet.make(m,n,rowBs,colBs,rowPs,colPs, places)));
+                ()=>(BlockSet.make(m, n, rowBs, colBs, rowPs, colPs, places)));
         val mygrid = blks().getGrid();
         val gdist = new DistGrid(mygrid, rowPs, colPs);
-        return new DistBlockMatrix(gdist, blks, places) as DistBlockMatrix(m,n);
+        return new DistBlockMatrix(gdist, blks, places, team) as DistBlockMatrix(m,n);
         
         //val grid = new Grid(m, n, rowBs, colBs);
         //val dstgrid = new DistGrid(grid, rowPs, colPs);
@@ -156,13 +160,13 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @return DistBlockMatrix instance without memory allocation for matrix data
      */
     public static def make(m:Long, n:Long, rowBs:Long, colBs:Long):DistBlockMatrix(m,n) {
-       return make(m, n, rowBs, colBs, Place.places());
+       return make(m, n, rowBs, colBs, Place.places(), Team.WORLD);
     }
     
-    public static def make(m:Long, n:Long, rowBs:Long, colBs:Long, places:PlaceGroup):DistBlockMatrix(m,n) {
+    public static def make(m:Long, n:Long, rowBs:Long, colBs:Long, places:PlaceGroup, team:Team):DistBlockMatrix(m,n) {
         val colPs:Long = MathTool.sqrt(places.size());
         val rowPs = places.size() / colPs;
-        return make(m, n, rowBs, colBs, rowPs, colPs, places);
+        return make(m, n, rowBs, colBs, rowPs, colPs, places, team);
     }
     
     /**
@@ -172,13 +176,13 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @return DistBlockMatrix instance
      */
     public static def make(m:Long, n:Long):DistBlockMatrix(m,n) {
-        return make(m, n, Place.places());
+        return make(m, n, Place.places(), Team.WORLD);
     }
     
-    public static def make(m:Long, n:Long, places:PlaceGroup):DistBlockMatrix(m,n) {
+    public static def make(m:Long, n:Long, places:PlaceGroup, team:Team):DistBlockMatrix(m,n) {
         val colBs = MathTool.sqrt(places.size());
         val rowBs = places.size() / colBs;
-        return make(m, n, rowBs, colBs, rowBs, colBs, places);
+        return make(m, n, rowBs, colBs, rowBs, colBs, places, team);
     }
     
     /**
@@ -194,15 +198,15 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      public static def make(m:Long, n:Long,rowbs:Long, colbs:Long,
              rowPartFunc:(Long)=>Long,colPartFunc:(Long)=>Long,mapFunc:(Long)=>Long){
      
-         return make(m, n,rowbs, colbs,rowPartFunc,colPartFunc,mapFunc, Place.places());
+         return make(m, n,rowbs, colbs,rowPartFunc,colPartFunc,mapFunc, Place.places(), Team.WORLD);
      }
      public static def make(m:Long, n:Long, rowbs:Long, colbs:Long,
-            rowPartFunc:(Long)=>Long, colPartFunc:(Long)=>Long, mapFunc:(Long)=>Long, places:PlaceGroup) {
+            rowPartFunc:(Long)=>Long, colPartFunc:(Long)=>Long, mapFunc:(Long)=>Long, places:PlaceGroup, team:Team) {
         
         val ttbs = rowbs * colbs;
         val blks = PlaceLocalHandle.make[BlockSet](places, 
                 ()=>(new BlockSet(Grid.make(rowbs, colbs, rowPartFunc, colPartFunc), DistMap.make(ttbs, mapFunc, places.size()), places.indexOf(here))));         
-        return new DistBlockMatrix(blks, places);
+        return new DistBlockMatrix(blks, places, team);
     }
 
     //Make a copy, but sharing partitioning grid and distribution map
@@ -210,79 +214,79 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         val sblks = d.handleBS;
         val dblks = PlaceLocalHandle.make[BlockSet](d.places(), 
                 ()=>(BlockSet.makeDense(sblks().grid, sblks().dmap, d.places())));
-        return  new DistBlockMatrix(d.gdist, dblks, d.places()) as DistBlockMatrix(d.M,d.N);
+        return new DistBlockMatrix(d.gdist, dblks, d.places(), d.team) as DistBlockMatrix(d.M, d.N);
     }
     public static def makeDense(g:Grid, gd:DistGrid):DistBlockMatrix(g.M,g.N) =
-        makeDense(g, gd, Place.places());
+        makeDense(g, gd, Place.places(), Team.WORLD);
     
-    public static def makeDense(g:Grid, gd:DistGrid, places:PlaceGroup):DistBlockMatrix(g.M,g.N) {
+    public static def makeDense(g:Grid, gd:DistGrid, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) {
         val bs = PlaceLocalHandle.make[BlockSet](places, 
                 ()=>(BlockSet.makeDense(g, gd.dmap, places)));//Remote capture
-        return new DistBlockMatrix(gd, bs, places) as DistBlockMatrix(g.M,g.N);        
+        return new DistBlockMatrix(gd, bs, places, team) as DistBlockMatrix(g.M,g.N);        
     }
     public static def makeSparse(g:Grid, gd:DistGrid, nzp:Float):DistBlockMatrix(g.M,g.N) =
-        makeSparse(g, gd, nzp, Place.places());
+        makeSparse(g, gd, nzp, Place.places(), Team.WORLD);
     
-    public static def makeSparse(g:Grid, gd:DistGrid, nzp:Float, places:PlaceGroup):DistBlockMatrix(g.M,g.N) {
+    public static def makeSparse(g:Grid, gd:DistGrid, nzp:Float, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) {
         val bs = PlaceLocalHandle.make[BlockSet](places, 
                 ()=>(BlockSet.makeSparse(g, gd.dmap, nzp, places)));//Remote capture
-        return new DistBlockMatrix(gd, bs, places) as DistBlockMatrix(g.M,g.N);        
+        return new DistBlockMatrix(gd, bs, places, team) as DistBlockMatrix(g.M,g.N);        
     }
 
     public static def makeDense(g:Grid, d:DistMap):DistBlockMatrix(g.M,g.N) =
-        makeDense(g, d, Place.places());
+        makeDense(g, d, Place.places(), Team.WORLD);
     
-    public static def makeDense(g:Grid, d:DistMap, places:PlaceGroup):DistBlockMatrix(g.M,g.N) {
+    public static def makeDense(g:Grid, d:DistMap, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) {
         val bs = PlaceLocalHandle.make[BlockSet](places, 
                 ()=>(BlockSet.makeDense(g, d, places)));//Remote capture
-        return new DistBlockMatrix(bs, places) as DistBlockMatrix(g.M,g.N);        
+        return new DistBlockMatrix(bs, places, team) as DistBlockMatrix(g.M,g.N);        
     }
     public static def makeSparse(g:Grid, d:DistMap, nzp:Float):DistBlockMatrix(g.M,g.N) =
-        makeSparse(g, d, nzp, Place.places());
+        makeSparse(g, d, nzp, Place.places(), Team.WORLD);
     
-    public static def makeSparse(g:Grid, d:DistMap, nzp:Float, places:PlaceGroup):DistBlockMatrix(g.M,g.N) {
+    public static def makeSparse(g:Grid, d:DistMap, nzp:Float, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) {
         val bs = PlaceLocalHandle.make[BlockSet](places, 
                 ()=>(BlockSet.makeSparse(g, d, nzp, places)));//Remote capture
-        return new DistBlockMatrix(bs, places) as DistBlockMatrix(g.M,g.N);        
+        return new DistBlockMatrix(bs, places, team) as DistBlockMatrix(g.M,g.N);        
     }
     
     public static def makeDense(g:Grid):DistBlockMatrix(g.M,g.N) =
-        makeDense(g, Place.places());
+        makeDense(g, Place.places(), Team.WORLD);
     
-    public static def makeDense(g:Grid, places:PlaceGroup):DistBlockMatrix(g.M,g.N) =
-        makeDense(g, DistGrid.make(g, places.size()).dmap, places);
+    public static def makeDense(g:Grid, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) =
+        makeDense(g, DistGrid.make(g, places.size()).dmap, places, team);
     
     public static def makeSparse(g:Grid, nzp:Float):DistBlockMatrix(g.M,g.N) =
-        makeSparse(g, nzp, Place.places());
+        makeSparse(g, nzp, Place.places(), Team.WORLD);
     
-    public static def makeSparse(g:Grid, nzp:Float, places:PlaceGroup):DistBlockMatrix(g.M,g.N) =
-        makeSparse(g, DistGrid.make(g, places.size()).dmap, nzp, places);
+    public static def makeSparse(g:Grid, nzp:Float, places:PlaceGroup, team:Team):DistBlockMatrix(g.M,g.N) =
+        makeSparse(g, DistGrid.make(g, places.size()).dmap, nzp, places, team);
 
 
 
     public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long) =
-        makeDense(m, n, rbs, cbs, rps, cps, Place.places());
+        makeDense(m, n, rbs, cbs, rps, cps, Place.places(), Team.WORLD);
         
-    public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long, places:PlaceGroup) =
-        make(m, n, rbs, cbs, rps, cps, places).allocDenseBlocks();
+    public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long, places:PlaceGroup, team:Team) =
+        make(m, n, rbs, cbs, rps, cps, places, team).allocDenseBlocks();
 
     public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long) =
-        makeDense(m, n, rbs, cbs, Place.places());
+        makeDense(m, n, rbs, cbs, Place.places(), Team.WORLD);
     
-    public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long, places:PlaceGroup) =
-        make(m, n, rbs, cbs, places).allocDenseBlocks();
+    public static def makeDense(m:Long, n:Long, rbs:Long, cbs:Long, places:PlaceGroup, team:Team) =
+        make(m, n, rbs, cbs, places, team).allocDenseBlocks();
 
     public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long, npz:Float) =
-        makeSparse(m, n, rbs, cbs, rps, cps, npz, Place.places());
+        makeSparse(m, n, rbs, cbs, rps, cps, npz, Place.places(), Team.WORLD);
     
-    public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long, npz:Float, places:PlaceGroup) =
-        make(m, n, rbs, cbs, rps, cps, places).allocSparseBlocks(npz);
+    public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, rps:Long, cps:Long, npz:Float, places:PlaceGroup, team:Team) =
+        make(m, n, rbs, cbs, rps, cps, places, team).allocSparseBlocks(npz);
 
     public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, npz:Float) =
-        makeSparse(m, n, rbs, cbs, npz, Place.places());
+        makeSparse(m, n, rbs, cbs, npz, Place.places(), Team.WORLD);
     
-    public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, npz:Float, places:PlaceGroup) =
-        make(m, n, rbs, cbs, places).allocSparseBlocks(npz);
+    public static def makeSparse(m:Long, n:Long, rbs:Long, cbs:Long, npz:Float, places:PlaceGroup, team:Team) =
+        make(m, n, rbs, cbs, places, team).allocSparseBlocks(npz);
 
     /**
      * Allocate dense matrix for all blocks
@@ -460,7 +464,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     public def alloc(m:Long, n:Long) : DistBlockMatrix(m,n) {
         assert (m==M && n==N) :
             "Matrix dimension is not same";
-        val nm = DistBlockMatrix.make(getGrid(), getMap(), places) as DistBlockMatrix(m,n);
+        val nm = DistBlockMatrix.make(getGrid(), getMap(), places, team) as DistBlockMatrix(m,n);
         finish ateach(p in Dist.makeUnique(places)) {
             val blkitr = handleBS().iterator();
             val nblk   = nm.handleBS();
@@ -475,7 +479,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     public def clone():DistBlockMatrix(M,N) {
         val bs = PlaceLocalHandle.make[BlockSet](places,     
                     ()=>(handleBS().clone()));
-        return new DistBlockMatrix(bs, places) as DistBlockMatrix(M,N);
+        return new DistBlockMatrix(bs, places, team) as DistBlockMatrix(M,N);
     }
     
     public def reset() {
@@ -648,6 +652,40 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
             val blk = blkitr.next();
             blk.getMatrix().scale(alpha);
         }
+    }
+
+    public def sum():ElemType {
+        throw new UnsupportedOperationException("DistBlockMatrix.sum");
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        finish ateach(p in Dist.makeUnique(places))  {
+            rowSumTo_local(vec);
+        }
+    }
+
+    public def rowSumTo_local(vec:Vector(M)) {
+        val blkitr = handleBS().iterator();
+        while (blkitr.hasNext()) {
+            val blk = blkitr.next();
+            blk.getMatrix().rowSumTo(vec);
+        }
+        team.allreduce(vec.d, 0, vec.d, 0, this.M, Team.ADD);
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        finish ateach(p in Dist.makeUnique(places))  {
+            colSumTo_local(vec);
+        }
+    }
+
+    public def colSumTo_local(vec:Vector(N)) {
+        val blkitr = handleBS().iterator();
+        while (blkitr.hasNext()) {
+            val blk = blkitr.next();
+            blk.getMatrix().colSumTo(vec);
+        }
+        team.allreduce(vec.d, 0, vec.d, 0, this.N, Team.ADD);
     }
     
     public def cellAdd(that:Matrix(M,N)): Matrix(this)  {

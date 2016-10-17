@@ -16,6 +16,7 @@ import x10.regionarray.DistArray;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
@@ -475,6 +476,18 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
             local().scale(a);
         }        
         return this;
+    }
+
+    public def sum():ElemType {
+        throw new UnsupportedOperationException("DistSparseMatrix.sum");
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        throw new UnsupportedOperationException("DistSparseMatrix.rowSumTo");
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        throw new UnsupportedOperationException("DistSparseMatrix.colSumTo");
     }
 
     /**

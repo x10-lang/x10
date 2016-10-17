@@ -5,6 +5,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Team;
 import x10.matrix.ElemType;
 
 import x10.matrix.distblock.DistBlockMatrix;
@@ -56,7 +57,7 @@ public class TestDistBuilder extends x10Test {
     public def testInit(places:PlaceGroup):Boolean{        
         var ret:Boolean = true;        
         val nblk = places.size();        
-        val dmat = DistBlockMatrix.make(M,M, nblk, nblk, places);
+        val dmat = DistBlockMatrix.make(M,M, nblk, nblk, places, new Team(places));
         val dbld = new DistMatrixBuilder(dmat);      
         val dbld_2 = dbld.allocAllDenseBlocks();
         dbld_2.initRandom(nzd, (r:Long,c:Long)=>ET(1.0+r+2*c));

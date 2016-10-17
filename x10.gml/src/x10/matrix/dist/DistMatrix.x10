@@ -14,9 +14,10 @@ package x10.matrix.dist;
 import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
+import x10.matrix.DenseMatrix;
+import x10.matrix.Matrix;
+import x10.matrix.Vector;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
@@ -367,6 +368,18 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
             local().scale(a);
         }
         return this;
+    }
+
+    public def sum():ElemType {
+        throw new UnsupportedOperationException("DistMatrix.sum");
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        throw new UnsupportedOperationException("DistMatrix.rowSumTo");
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        throw new UnsupportedOperationException("DistMatrix.colSumTo");
     }
      
     /**

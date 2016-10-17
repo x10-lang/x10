@@ -17,6 +17,7 @@ import x10.util.ArrayList;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.ElemType;
@@ -387,6 +388,26 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
             listBs(b).getMatrix().scale(a);
         }
         return this;
+    }
+
+    public def sum():ElemType {
+        var sum:ElemType = 0.0 as ElemType;
+        for (b in 0..(grid.size-1)) {
+            sum += listBs(b).getMatrix().sum();
+        }
+        return sum;
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        for (b in 0..(grid.size-1)) {
+            listBs(b).getMatrix().rowSumTo(vec);
+        }
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        for (b in 0..(grid.size-1)) {
+            listBs(b).getMatrix().colSumTo(vec);
+        }
     }
 
     /**

@@ -73,7 +73,7 @@ public class RunSVM {
         val mX = inputData.numTraining;
         val nX = inputData.numFeatures+1;
         
-        val X = DistBlockMatrix.makeDense(mX, nX, places.size(), 1, places.size(), 1, places);
+        val X = DistBlockMatrix.makeDense(mX, nX, places.size(), 1, places.size(), 1, places, team);
         val y = DistVector.make(X.M, places, team);
 
         // initialize labels, examples at each place

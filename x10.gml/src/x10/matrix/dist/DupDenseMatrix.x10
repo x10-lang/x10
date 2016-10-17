@@ -16,6 +16,7 @@ import x10.regionarray.DistArray;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
@@ -356,6 +357,17 @@ public class DupDenseMatrix extends Matrix {
 		return this;
     }
 
+    public def sum():ElemType {
+        return this.local().sum();
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        this.local().rowSumTo(vec);
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        this.local().colSumTo(vec);
+    }
 
 	/**
 	 * Cellwise addition. 

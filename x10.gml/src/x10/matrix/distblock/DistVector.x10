@@ -191,7 +191,13 @@ distV().gathervTime += Timer.milliTime();
         }
     }
     
-    public def copyTo(root:Place, vec:Vector(M)):void {
+    /**
+     * Gather all elements of this distributed vector into the given (local)
+     * vector at the root place.  On return from this method, vec will contain
+     * the elements of this vector only at the root place. The Vector vec
+     * is not used at other places.
+     */
+    public def copyTo_local(root:Place, vec:Vector(M)):void {
         val src = distV().vec.d;
         var dst:Rail[ElemType] = null;
         if (here.id == root.id){
@@ -310,6 +316,11 @@ distV().scattervTime += Timer.milliTime();
         return this;
     }
 
+    public def cellAdd_local(dv:ElemType)  {
+        distV().vec.cellAdd(dv);
+        return this;
+    }
+
     /**
      * Concurrently perform cellwise subtraction on all copies
      */
@@ -330,6 +341,11 @@ distV().scattervTime += Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             distV().vec.cellSub(dv);
         }
+        return this;
+    }
+
+    public def cellSub_local(dv:ElemType):DistVector(this) {
+        distV().vec.cellSub(dv);
         return this;
     }
 

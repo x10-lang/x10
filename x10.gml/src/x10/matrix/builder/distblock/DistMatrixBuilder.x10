@@ -12,6 +12,7 @@
 package x10.matrix.builder.distblock;
 
 import x10.regionarray.Dist;
+import x10.util.Team;
 
 import x10.matrix.Matrix;
 import x10.matrix.ElemType;
@@ -46,11 +47,11 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
      * The actual memory spaces are not allocated.
      */
     public static def make(pg:Grid, dp:DistMap):DistMatrixBuilder(pg.M,pg.N) =
-						make(pg, dp, Place.places());
+						make(pg, dp, Place.places(), Team.WORLD);
     
-    public static def make(pg:Grid, dp:DistMap, places:PlaceGroup):DistMatrixBuilder(pg.M,pg.N) {
+    public static def make(pg:Grid, dp:DistMap, places:PlaceGroup, team:Team):DistMatrixBuilder(pg.M,pg.N) {
         //Remote capture: partitioning and distribution
-        val dm = DistBlockMatrix.make(pg, dp, places);
+        val dm = DistBlockMatrix.make(pg, dp, places, team);
         val bld =  new DistMatrixBuilder(dm);
         return bld as DistMatrixBuilder(pg.M,pg.N);
     }
@@ -59,12 +60,12 @@ public class DistMatrixBuilder(M:Long,N:Long) implements MatrixBuilder {
      * Create symmetric distributed block matrix with given leading dimension and its partitioning blocks.
      */
     public static def make(m:Long, n:Long, bM:Long, bN:Long):DistMatrixBuilder(m,n) =
-							     make(m, n, bM, bN, Place.places());
+							     make(m, n, bM, bN, Place.places(), Team.WORLD);
     
-    public static def make(m:Long, n:Long, bM:Long, bN:Long, places:PlaceGroup):DistMatrixBuilder(m,n) {
+    public static def make(m:Long, n:Long, bM:Long, bN:Long, places:PlaceGroup, team:Team):DistMatrixBuilder(m,n) {
         val grid = new Grid(m, n, bM, bN);
         val dgrid = DistGrid.make(grid, places.size());
-        val bdr = make(grid, dgrid.dmap, places);
+        val bdr = make(grid, dgrid.dmap, places, team);
         return bdr as DistMatrixBuilder(m,n);
     }
     

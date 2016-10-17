@@ -18,6 +18,9 @@ import x10.matrix.util.Debug;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.matrix.util.VerifyTool;
 
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.util.Team;
+
 /**
  * Page Rank demo
  * <p>
@@ -43,7 +46,8 @@ public class RunPageRank {
             Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.001"),
-            Option("i","iterations","number of iterations, default = 20"),
+            Option("i","iterations","number of iterations, default = 0 (run until convergence)"),
+            Option("t","tolerance","convergence tolerance, default = 0.0001"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
             Option("", "checkpointFreq","checkpoint iteration frequency")
         ]);
@@ -59,9 +63,9 @@ public class RunPageRank {
             return;
         }
 
-        
         val nonzeroDensity = opts("d", 0.001f);
-        val iterations = opts("i", 30n);
+        val iterations = opts("i", 0n);
+        val tolerance = opts("t", 0.0001f);
         val verify = opts("v");
         val print = opts("p");
         val sparePlaces = opts("s", 0n);
@@ -72,7 +76,7 @@ public class RunPageRank {
         
         Console.OUT.printf("G: rows/cols %d density: %.3e (non-zeros: %d) iterations: %d\n",
                             mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
-	if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
+	if ((mG<=0) || nonzeroDensity <= 0.0 || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
             val startTime = Timer.milliTime();
@@ -81,8 +85,23 @@ public class RunPageRank {
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
-            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, rowBlocks, colBlocks, checkpointFreq, places);
-            paraPR.init(nonzeroDensity);
+            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
+
+/*
+            // toy example copied from Spark (users/followers)
+            val M = 6;
+            val G = DistBlockMatrix.makeDense(M, M, Place.numPlaces(), 1);
+            G(0,1) = 1.0;
+            G(0,3) = 1.0;
+            G(1,0) = 1.0;
+            G(2,4) = 1.0;
+            G(2,5) = 1.0;
+            G(4,5) = 1.0;
+            G(5,4) = 1.0;
+            G(5,2) = 1.0;
+            val paraPR = new PageRank(G, iterations, tolerance, 1.0f, 0, Place.places(), Team.WORLD);
+            Console.OUT.println("P = " + paraPR.P);
+*/
 
             if (print) paraPR.printInfo();
 
@@ -91,12 +110,7 @@ public class RunPageRank {
                 origP = paraPR.P.local().clone();
             }
 
-            //val startTime = Timer.milliTime();
             val paraP = paraPR.run(startTime);
-	    //val totalTime = Timer.milliTime() - startTime;
-
-	    //Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, seq: %8d ms, commu time: %8d ms\n",
-	    //			totalTime, paraPR.paraRunTime, paraPR.seqTime, paraPR.commTime); 
             
             if (print) {
                 Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
@@ -107,11 +121,9 @@ public class RunPageRank {
                 val g = paraPR.G;
                 val localU = Vector.make(g.N);
                 
-                paraPR.U.copyTo(localU);
+                //paraPR.U.copyTo(localU);
                 
-                
-                val seqPR = new SeqPageRank(g.toDense(), origP, 
-                        localU, iterations);
+                val seqPR = new SeqPageRank(g.toDense(), iterations, tolerance);
 		        Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
                 Debug.flushln("Verifying results against sequential version");

@@ -12,6 +12,7 @@
 import harness.x10Test;
 
 import x10.matrix.util.Debug;
+import x10.matrix.util.MathTool;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -47,10 +48,11 @@ public class TestBlockMatrix extends x10Test {
 						   M, N, R, C, nzd);
 
 		var ret:Boolean = true;
- 		ret &= (testClone());
-		ret &= (testScale());
-		ret &= (testAddSub());
-		ret &= (buildBlockMap());
+ 		ret &= testClone();
+		ret &= testScale();
+        ret &= testSum();
+		ret &= testAddSub();
+		ret &= buildBlockMap();
 		
 		return ret;
 	}
@@ -97,6 +99,18 @@ public class TestBlockMatrix extends x10Test {
 			Console.OUT.println("--------Block matrix Scaling test failed!--------");	
 		return ret;
 	}
+
+    public def testSum():Boolean {
+        Console.OUT.println("Block matrix sum test, nzd:"+nzd);
+        val dm = BlockMatrix.makeSparse(grid, nzd);
+        dm.initRandom();
+        val m = dm.toDense();
+
+        val ret = MathTool.equals(dm.sum(), m.sum());
+        if (!ret)
+            Console.OUT.println("--------Block matrix sum test failed!--------");
+        return ret;
+    }
 
 	public def testAddSub():Boolean {
 		Console.OUT.println("Block matrix add test");
