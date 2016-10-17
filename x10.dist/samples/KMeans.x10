@@ -25,7 +25,7 @@ import x10.util.Random;
  * A PlaceLocalHandle is used to store the local state of
  * the algorithm which consists of the points the place
  * is responsible for assigning to clusters and scratch storage
- * for computing a step of the algorithm by determing which
+ * for computing a step of the algorithm by determining which
  * cluster each point is currently assigned to and what the
  * new centroid of that cluster is.
  *
