@@ -22,13 +22,172 @@ import x10.util.Random;
  *
  * Intra-place concurrency is exposed via Foreach.
  *
- * Points are stored in each Place in an PlaceLocalHandle[Array_2[Float]].
+ * A PlaceLocalHandle is used to store the local state of
+ * the algorithm which consists of the points the place
+ * is responsible for assigning to clusters and scratch storage
+ * for computing a step of the algorithm by determining which
+ * cluster each point is currently assigned to and what the
+ * new centroid of that cluster is.
  *
  * For the highest throughput and most scalable implementation of
  * the KMeans algorithm in X10 for Native X10, see KMeans.x10 in the
  * X10 Benchmarks Suite (separate download from x10-lang.org).
  */
 public class KMeans {
+
+    /*
+     * The local state consists of the points assigned to
+     * this place and scratch storage for computing the new
+     * cluster centroids based on the current assignment
+     * of points to clusters.
+     */
+    static class LocalState implements x10.io.Unserializable {
+        val points:Array_2[Float];
+        val clusters:Array_2[Float];
+        val clusterCounts:Rail[Int];
+        val numPoints:Long;
+        val numClusters:Long;
+        val dim:Long;
+
+        def this(initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long) {
+            points = initPoints(here);
+            clusters  = new Array_2[Float](numClusters, dim);
+            clusterCounts = new Rail[Int](numClusters);
+            numPoints = points.numElems_1;
+            this.numClusters = numClusters;
+            this.dim = dim;
+        }
+
+        def localStep(currentClusters:Array_2[Float]) {
+            // clear scratch storage to prepare for this step
+            clusters.raw().clear();
+            clusterCounts.clear();
+
+            // Primary kernel: for every point, determine current closest
+            //                 cluster and assign the point to that cluster.
+            Block.for(mine:LongRange in 0..(numPoints-1)) {
+                val scratchClusters = new Array_2[Float](numClusters, dim);
+                val scratchClusterCounts = new Rail[Int](numClusters);
+                for (p in mine) {
+                    var closest:Long = -1;
+                    var closestDist:Float = Float.MAX_VALUE;
+                    for (k in 0..(numClusters-1)) {
+                        var dist : Float = 0;
+                        for (d in 0..(dim-1)) {
+                            val tmp = points(p,d) - currentClusters(k,d);
+                            dist += tmp * tmp;
+                        }
+                        if (dist < closestDist) {
+                            closestDist = dist;
+                            closest = k;
+                        }
+                    }
+                    for (d in 0..(dim-1)) {
+                        scratchClusters(closest,d) += points(p,d);
+                    }
+                    scratchClusterCounts(closest)++;
+                }
+                atomic {
+                    for ([i,j] in scratchClusters.indices()) {
+                        clusters(i,j) += scratchClusters(i,j);
+                    }
+                    for (i in scratchClusterCounts.range()) {
+                        clusterCounts(i) += scratchClusterCounts(i);
+                    }
+                }
+            }
+        }
+    }
+
+    static class KMeansMaster implements x10.io.Unserializable {
+        val lsPLH:PlaceLocalHandle[LocalState];
+        val currentClusters:Array_2[Float];
+        val newClusters:Array_2[Float];
+        val newClusterCounts:Rail[Int];
+        val pg:PlaceGroup;
+        val numClusters:Long;
+        val dim:Long;
+        val epsilon:Float;
+        var converged:Boolean = false;
+
+        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float) {
+           this.lsPLH = lsPLH;
+           this.pg = pg;
+           this.epsilon = epsilon;
+           this.numClusters = lsPLH().numClusters;
+           this.dim = lsPLH().dim;
+           currentClusters = new Array_2[Float](numClusters, dim);
+           newClusters = new Array_2[Float](numClusters, dim);
+           newClusterCounts = new Rail[Int](numClusters);
+        }
+
+        def setInitialCentroids() {
+            finish {
+                for (p in pg) async {
+                    val plh = lsPLH; // don't capture this!
+                    val tmp = at (p) { new Array_2[Float](plh().numClusters, plh().dim, (i:Long, j:Long) => { plh().points(i,j) }) };
+                    atomic {
+                        for ([i,j] in currentClusters.indices()) {
+                            currentClusters(i,j) += tmp(i,j);
+                        }
+                    }
+                }
+            }
+            val np = pg.numPlaces();
+            for ([i,j] in currentClusters.indices()) {
+                currentClusters(i,j) /= np;
+            }
+        }
+
+        def isFinished() = converged;
+
+        // Perform one global step of the KMeans algorithm
+        // by coordinating the localSteps in each place and
+        // accumulating the resulting new cluster centroids.
+        def step() {
+            finish {
+                for (p in pg) async {
+                    val shadowClusters = this.currentClusters; // avoid capture of KMeansMaster object in at!
+                    val shadowPLH = this.lsPLH;                // avoid capture of KMeansMaster object in at!
+                    val partialResults = at (p) {
+                        val ls = shadowPLH();
+                        ls.localStep(shadowClusters);
+                        Pair[Array_2[Float],Rail[Int]](ls.clusters, ls.clusterCounts)
+                    };
+                    atomic {
+                        for ([i,j] in newClusters.indices()) {
+                            newClusters(i,j) += partialResults.first(i,j);
+                        }
+                        for (i in newClusterCounts.range()) {
+                            newClusterCounts(i) += partialResults.second(i);
+                        }
+                    }
+                }
+            }
+
+            // Normalize to compute new cluster centroids
+            for (k in 0..(numClusters-1)) {
+                if (newClusterCounts(k) > 0) {
+                    for (d in 0..(dim-1)) newClusters(k,d) /= newClusterCounts(k);
+                }
+            }
+
+            // Test for convergence
+            var didConverge:Boolean = true;
+            for ([i,j] in newClusters.indices()) {
+                if (Math.abs(currentClusters(i,j) - newClusters(i,j)) > epsilon) {
+                    didConverge = false;
+                    break;
+                }
+            }
+            converged = didConverge;
+
+            // Prepare for next iteration
+            Array.copy(newClusters, currentClusters);
+            newClusters.raw().clear();
+            newClusterCounts.clear();
+        }
+    }
 
     static def printPoints (clusters:Array_2[Float]) {
         for (d in 0..(clusters.numElems_2-1)) {
@@ -41,105 +200,33 @@ public class KMeans {
         }
     }
 
-    static def oneStep(points:Array_2[Float], oldClusters:Array_2[Float],
-                       dim:Long, numClusters:Long):Pair[Array_2[Float], Rail[Int]] {
-        val numPoints = points.numElems_1;
-        val clusters = new Array_2[Float](numClusters, dim);
-        val clusterCounts = new Rail[Int](numClusters);
-
-        Block.for(mine:LongRange in 0..(numPoints-1)) {
-            val scratchClusters = new Array_2[Float](numClusters, dim);
-            val scratchClusterCounts = new Rail[Int](numClusters);
-            for (p in mine) {
-                var closest:Long = -1;
-                var closestDist:Float = Float.MAX_VALUE;
-                for (k in 0..(numClusters-1)) {
-                    var dist : Float = 0;
-                    for (d in 0..(dim-1)) {
-                        val tmp = points(p,d) - oldClusters(k,d);
-                        dist += tmp * tmp;
-                    }
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closest = k;
-                    }
-                }
-                for (d in 0..(dim-1)) {
-                    scratchClusters(closest,d) += points(p,d);
-                }
-                scratchClusterCounts(closest)++;
-            }
-            atomic {
-                for ([i,j] in scratchClusters.indices()) {
-                    clusters(i,j) += scratchClusters(i,j);
-                }
-                for (i in scratchClusterCounts.range()) {
-                    clusterCounts(i) += scratchClusterCounts(i);
-                }
-            }
-        }
-
-        return Pair[Array_2[Float],Rail[Int]](clusters, clusterCounts);
-    }
-
     static def computeClusters(pg:PlaceGroup, initPoints:(Place)=>Array_2[Float], dim:Long,
                                numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean):Array_2[Float] {
 
-        // Initialize points in every Place; make initial centroids the first k points in Place(0).
-        val points = PlaceLocalHandle.make[Array_2[Float]](pg, ()=>{ initPoints(here) });
-        val clusters = new Array_2[Float](numClusters, dim, (i:Long,j:Long)=> points()(i,j));
-        val oldClusters = new Array_2[Float](numClusters, dim);
-        val clusterCounts = new Rail[Int](numClusters);
+        // Initialize LocalState in every Place
+        val localPLH = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(initPoints, dim, numClusters) });
+
+        // Initialize algorithm state
+        val master = new KMeansMaster(localPLH, pg, epsilon);
+        master.setInitialCentroids();
 
         if (verbose) {
             Console.OUT.println("Initial clusters: ");
-            printPoints(clusters);
+            printPoints(master.currentClusters);
         }
 
+        // Perform iterative algorithm
         for (iter in 0..(iterations-1)) {
-            // Prepare for next iteration
-            Array.copy(clusters, oldClusters);
-            clusters.raw().clear();
-            clusterCounts.clear();
-
-            finish {
-                for (h in pg) async {
-                    val partialResults = at (h) oneStep(points(), oldClusters, dim, numClusters);
-                    atomic {
-                        for ([i,j] in clusters.indices()) {
-                            clusters(i,j) += partialResults.first(i,j);
-                        }
-                        for (i in clusterCounts.range()) {
-                            clusterCounts(i) += partialResults.second(i);
-                        }
-                    }
-                }
-            }
-
-            // Normalize to compute new cluster centroids
-            for (k in 0..(numClusters-1)) {
-                if (clusterCounts(k) > 0) {
-                    for (d in 0..(dim-1)) clusters(k,d) /= clusterCounts(k);
-                }
-            }
-
-            // Test for convergence
-            var converged:Boolean = true;
-            for ([i,j] in clusters.indices()) {
-                if (Math.abs(oldClusters(i,j) - clusters(i,j)) > epsilon) {
-                    converged = false;
-                    break;
-                }
-            }
-            if (converged) break;
+            master.step();
+            if (master.isFinished()) break;
 
             if (verbose) {
                 Console.OUT.println("Iteration: "+iter);
-                printPoints(clusters);
+                printPoints(master.currentClusters);
             }
         }
 
-        return clusters;
+        return master.currentClusters;
     }
 
     public static def main (args:Rail[String]) {
