@@ -116,10 +116,10 @@ public class LogisticRegression(N:Long) implements LocalViewResilientIterativeAp
         val X:DistBlockMatrix(mX, nX);
         val sparse:Boolean;
         if (nzd < MAX_SPARSE_DENSITY) {
-            X = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
+            X = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places, team);
         } else {
             Console.OUT.println("using dense matrix as non-zero density = " + nzd);
-            X = DistBlockMatrix.makeDense(mX, nX, nRowBs, nColBs, places.size(), 1, places);
+            X = DistBlockMatrix.makeDense(mX, nX, nRowBs, nColBs, places.size(), 1, places, team);
         }
         val y = DistVector.make(X.M, X.getAggRowBs(), places, team);
 
