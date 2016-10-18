@@ -45,13 +45,13 @@ public class Vector(M:Long) implements (Long) => ElemType {
     /** Vector data */
     public val d:Rail[ElemType]{self!=null,self.size==M};
 
-    public def this(x:Rail[ElemType]{self!=null}):Vector(x.size) {
+    public def this(x:Rail[ElemType]{self!=null}) {
         property(x.size);
         this.d=x;
     }
 
     /** Copy constructor */    
-    public def this(src:Vector):Vector(src.M) {
+    public def this(src:Vector) {
         property(src.M);
         this.d = new Rail[ElemType](src.d);
     }
@@ -105,7 +105,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
      * @param min lower bound of random values
      * @param max upper bound of random values
      */    
-    public def initRandom(min:Long, max:Long):Vector(this) {
+    public def initRandom(min:Long, max:Long) {
         val len = Math.abs(max-min)+1;
         val rgen = RandTool.getRandGen();
          for (i in 0..(M-1))
@@ -124,7 +124,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
 
     public def rail():Rail[ElemType] = d;
 
-    public def clone():Vector(M) {
+    public def clone() {
         val nv = new Rail[ElemType](this.d);
         return new Vector(nv);
     }
@@ -443,7 +443,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
       * @param A   Triangular matrix
       * @return    this object, overwritten by solution vector.
       */
-     public def solveTriMultSelf(A:TriDense(M,M)):Vector(this) {
+     public def solveTriMultSelf(A:TriDense(M,M)) {
          DenseMatrixBLAS.solveTriMultVec(A, this);
          return this;
      }
@@ -504,7 +504,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
      * @param op a unary map function to apply to each element of this vector
      * @return this vector, containing the result of the map
      */
-    public final @Inline def map(op:(x:ElemType)=>ElemType):Vector(this) {
+    public final @Inline def map(op:(x:ElemType)=>ElemType) {
         RailUtils.map(this.d, this.d, op);
         return this;
     }
@@ -516,7 +516,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
      * @param op a unary map function to apply to each element of vector <code>a</code>
      * @return this vector, containing the result of the map
      */
-    public final @Inline def map(a:Vector(M), op:(x:ElemType)=>ElemType):Vector(this) {
+    public final @Inline def map(a:Vector(M), op:(x:ElemType)=>ElemType) {
         RailUtils.map(a.d, this.d, op);
         return this;
     }
@@ -531,7 +531,7 @@ public class Vector(M:Long) implements (Long) => ElemType {
      *   <code>a</code> and the corresponding element of <code>b</code>
      * @return this vector, containing the result of the map
      */
-    public final @Inline def map(a:Vector(M), b:Vector(M), op:(x:ElemType,y:ElemType)=>ElemType):Vector(this) {
+    public final @Inline def map(a:Vector(M), b:Vector(M), op:(x:ElemType,y:ElemType)=>ElemType) {
         RailUtils.map(a.d, b.d, this.d, op);
         return this;
     }

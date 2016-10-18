@@ -272,11 +272,10 @@ public final class CompressArray {
 	/**
 	 * Make a copy of myself
 	 */
-	public def clone():CompressArray {
+	public def clone() {
 		val idxlist = new Rail[Long](this.index);
 		val vallist = new Rail[ElemType](this.value) as Rail[ElemType]{self!=null,self.size==idxlist.size};
-		val ca = new CompressArray(idxlist, vallist, this.count);
-		return ca;
+		return new CompressArray(idxlist, vallist, this.count);
 	}
 
 	/**
@@ -493,7 +492,7 @@ public final class CompressArray {
 	 * Return a new compressed array containing all the 
 	 * nonzero entries in d. 
 	 */
-	public static def compress(d:Rail[ElemType]):CompressArray {
+	public static def compress(d:Rail[ElemType]) {
 		val nzc = CompressArray.countNonZero(d);
 		val out = new CompressArray(nzc);
 		var pos:Long = 0;

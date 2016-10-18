@@ -54,7 +54,7 @@ public class DenseBlock extends MatrixBlock {
 	 * @param m       block rows
 	 * @param n       block columns
 	 */
-	public static def make(rid:Long, cid:Long, roff:Long, coff:Long, m:Long, n:Long):DenseBlock {
+	public static def make(rid:Long, cid:Long, roff:Long, coff:Long, m:Long, n:Long) {
 		val dmat = DenseMatrix.make(m, n);
 		return new DenseBlock(rid, cid, roff, coff, dmat);	
 	}
@@ -71,7 +71,7 @@ public class DenseBlock extends MatrixBlock {
 	public static def make(
 			gp:Grid, 
 			rid:Long, cid:Long, 
-			da:Rail[ElemType]{self!=null}):DenseBlock {
+			da:Rail[ElemType]{self!=null}) {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val dmat = new DenseMatrix(m, n, da);
@@ -85,7 +85,7 @@ public class DenseBlock extends MatrixBlock {
 	 * @param rid     The block's row id
 	 * @param cid     The block's column id
 	 */
-	public static def make(gp:Grid, rid:Long, cid:Long):DenseBlock {
+	public static def make(gp:Grid, rid:Long, cid:Long) {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val dmat = DenseMatrix.make(m, n);
