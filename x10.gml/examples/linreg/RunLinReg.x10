@@ -27,9 +27,6 @@ import x10.matrix.util.MathTool;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.util.Team;
 
-import linreg.LinearRegression;
-import linreg.SeqLinearRegression;
-
 /**
  * Test harness for Linear Regression using GML
  */
@@ -41,13 +38,15 @@ public class RunLinReg {
             Option("v","verify","verify the parallel result against sequential computation"),
             Option("p","print","print matrix V, vectors d and w on completion")
         ], [
-            Option("f","inputFile","input file name"),
+			Option("f","featuresFile","input features file name"),
+			Option("l","labelsFile","input labels file name"),
+			Option("z","regularization","regularization parameter (lambda = 1/C); intercept is not regularized"),
             Option("m","rows","number of rows, default = 10"),
             Option("n","cols","number of columns, default = 10"),
             Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.9"),
-            Option("i","iterations","number of iterations, default = 2"),
+            Option("i","iterations","number of iterations, default = 0 (no max)"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
             Option("", "checkpointFreq","checkpoint iteration frequency")
         ]);
@@ -62,16 +61,16 @@ public class RunLinReg {
             return;
         }
 
-        val inputFile = opts("f", "");
+        val regularization:Float = opts("z", 0.000001f);
         var mX:Long = opts("m", 10);
         var nX:Long = opts("n", 10);
         var nonzeroDensity:Float = opts("d", 0.9f);
         val verify = opts("v");
         val print = opts("p");
-        val iterations = opts("i", 2n);
+        val iterations = opts("i", 0n);
         val skipPlaces = opts("s", 0n);
 
-        if (iterations<1 || nonzeroDensity<0.0f
+        if (nonzeroDensity<0.0f
          || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
             Console.OUT.println("Error in settings");
             System.setExitCode(1n);
@@ -87,6 +86,9 @@ public class RunLinReg {
                 Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
             }
         }
+        
+        val startTime = Timer.milliTime();
+        
         val places = (skipPlaces==0n) ? Place.places() 
                                       : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
         val team = new Team(places);
@@ -96,7 +98,9 @@ public class RunLinReg {
 
         val X:DistBlockMatrix;
         val y:DistVector(X.M);
-        if (inputFile.equals("")) {
+
+        val featuresFile = opts("f", "");
+        if (featuresFile.equals("")) {
             Console.OUT.printf("Linear regression with random examples X(%d,%d) blocks(%dx%d) ", mX, nX, rowBlocks, colBlocks);
             Console.OUT.printf("dist(%dx%d) nonzeroDensity:%g\n", places.size(), 1, nonzeroDensity);
 
@@ -108,20 +112,29 @@ public class RunLinReg {
             }
             y = DistVector.make(X.M, places, team);
 
-            X.initRandom();
-            y.initRandom();
+            finish for (place in places) at(place) async {
+                X.initRandom_local();
+                y.initRandom_local();
+            }
         } else {
-            val inputData = RegressionInputData.readFromFile(inputFile, places, false, 1.0 as ElemType, false);
+            val labelsFile = opts("l", "");
+            if (labelsFile.equals("")) {
+                Console.ERR.println("RunLinReg: missing labels file\ntry `RunLinReg -h ' for more information");
+                System.setExitCode(1n);
+                return;
+            }
+            val addBias = true;
+            val trainingFraction = 1.0;
+            val inputData = RegressionInputData.readFromSystemMLFile(featuresFile, labelsFile, places, trainingFraction, addBias);
             mX = inputData.numTraining;
-            nX = inputData.numFeatures;
-            nonzeroDensity = 1.0f;
+            nX = inputData.numFeatures+1; // including bias
+            nonzeroDensity = 1.0f; // TODO allow sparse input
             
             X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
             y = DistVector.make(X.M, places, team);
 
             // initialize labels, examples at each place
             finish for (place in places) at(place) async {
-                val numFeatures = inputData.numFeatures;
                 val trainingLabels = inputData.local().trainingLabels;
                 val trainingExamples = inputData.local().trainingExamples;
                 val startRow = X.getGrid().startRow(places.indexOf(place));
@@ -129,7 +142,7 @@ public class RunLinReg {
                 val blkitr = blks.iterator();
                 while (blkitr.hasNext()) {
                     val blk = blkitr.next();              
-                    blk.init((i:Long, j:Long)=> trainingExamples((i-startRow)*numFeatures+j));
+                    blk.init((i:Long, j:Long)=> trainingExamples((i-startRow)*X.N+j));
                 }
                 y.init_local((i:Long)=> trainingLabels(i));
             }
@@ -140,36 +153,36 @@ public class RunLinReg {
         val checkpointFrequency = opts("checkpointFreq", -1n);
 
         val parLR = new LinearRegression(X, y, iterations, checkpointFrequency,
-                                         nonzeroDensity, places, team);
+                                         nonzeroDensity, regularization, places, team);
 
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;
         if (verify) {
-            val bX:BlockMatrix(parLR.V.M, parLR.V.N);
+            val bX:BlockMatrix(parLR.X.M, parLR.X.N);
             if (nonzeroDensity < 0.1f) {
-                bX = BlockMatrix.makeSparse(parLR.V.getGrid(), nonzeroDensity);
+                bX = BlockMatrix.makeSparse(parLR.X.getGrid(), nonzeroDensity);
             } else {
-                bX = BlockMatrix.makeDense(parLR.V.getGrid());
+                bX = BlockMatrix.makeDense(parLR.X.getGrid());
             }
             localX = DenseMatrix.make(M, N);
             localY = Vector.make(M);
 
-            X.copyTo(bX as BlockMatrix(parLR.V.M, parLR.V.N));
+            X.copyTo(bX as BlockMatrix(parLR.X.M, parLR.X.N));
             bX.copyTo(localX);
             y.copyTo(localY as Vector(y.M));
         }
 
         Debug.flushln("Starting parallel linear regression");
-        val startTime = Timer.milliTime();
-        parLR.run();
-        val totalTime = Timer.milliTime() - startTime;
-		Console.OUT.printf("Parallel linear regression --- Total: %8d ms, parallel: %8d ms, sequential: %8d ms, communication: %8d ms\n",
-				totalTime, parLR.parCompT, parLR.seqCompT, parLR.commT);
+        parLR.run(startTime);
+        //val totalTime = Timer.milliTime() - startTime;
+		//Console.OUT.printf("Parallel linear regression --- Total: %8d ms, parallel: %8d ms, sequential: %8d ms, communication: %8d ms\n",
+		//		totalTime, parLR.parCompT, parLR.seqCompT, parLR.commT);
+        //parLR.printTimes();
 
         if (print) {
-            Console.OUT.println("Input sparse matrix X\n" + X);
-            Console.OUT.println("Input dense matrix y\n" + y);
-            Console.OUT.println("Output dense matrix w\n" + parLR.w);
+            //Console.OUT.println("Input sparse matrix X\n" + X);
+            //Console.OUT.println("Input dense matrix y\n" + y);
+            Console.OUT.println("Output estimated weights: \n" + parLR.getResult());
         }
 
         if (verify) {
@@ -179,8 +192,8 @@ public class RunLinReg {
             Debug.flushln("Starting sequential linear regression");
             seqLR.run();
             Debug.flushln("Verifying results against sequential version");
-
-            if (equalsRespectNaN(parLR.w, seqLR.w as Vector(parLR.w.M))) {
+            
+            if (equalsRespectNaN(parLR.getResult(), seqLR.w as Vector(parLR.getResult().M))) {
                 Console.OUT.println("Verification passed.");
             } else {
                 Console.OUT.println("Verification failed!");

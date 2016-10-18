@@ -8,11 +8,11 @@
  *
  *  (C) Copyright IBM Corporation 2011-2016.
  */
-package logreg;
-
 import x10.matrix.ElemType;
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
+import x10.regionarray.Dist;
+
 import x10.util.ArrayList;
 
 import x10.matrix.distblock.DistVector;
@@ -23,12 +23,12 @@ import x10.util.Timer;
 
 import x10.matrix.util.Debug;
 
-import x10.util.resilient.iterative.ResilientIterativeApp;
-import x10.util.resilient.iterative.ResilientExecutor;
+import x10.util.resilient.iterative.LocalViewResilientIterativeApp;
+import x10.util.resilient.iterative.LocalViewResilientExecutor;
 import x10.util.resilient.iterative.ApplicationSnapshotStore;
 import x10.util.Team;
 
-public class LogisticRegression implements ResilientIterativeApp {
+public class LogisticRegression(N:Long) implements LocalViewResilientIterativeApp {
     static val MAX_SPARSE_DENSITY = 0.1f;
     val C = 2;
     val tol = 0.000001f;
@@ -40,16 +40,14 @@ public class LogisticRegression implements ResilientIterativeApp {
     /** Vector of training regression targets */
     public val y:DistVector(X.M);
     /** Learned model weight vector, used for future predictions */
-    public val w:Vector(X.N);
-
-    val dup_w:DupVector(X.N);
+    public val w:DupVector(N);
     
     val tmp_y:DistVector(X.M);
 
     val o:DistVector(X.M);
-    val grad:Vector(X.N);
-    
-    val eta0 = 0.0001f;
+    val grad:DupVector(N);
+
+    val eta0 = 0.0f;
     val eta1 = 0.25f;
     val eta2 = 0.75f;
     val sigma1 = 0.25f;
@@ -57,171 +55,182 @@ public class LogisticRegression implements ResilientIterativeApp {
     val sigma3 = 4.0f;
     val psi = 0.1f;     
 
-    var iter:Long =0;
-    var converge:Boolean;
-    var delta:ElemType;
     var lastCheckpointDelta:ElemType;
-    var lastCheckpointGrad:Vector;
-    var lastCheckpointW:Vector;
-    
+    var lastCheckpointObj:ElemType;
     var norm_r2:ElemType; 
     var alpha:ElemType;    
-    var obj:ElemType;
+    
     var logisticD:DistVector(X.M); // value does not change after being initialized
     
     // Temp memory space
-    val s:Vector(X.N);
-    val r:Vector(X.N);
-    val d:Vector(X.N);
-    val Hd:Vector(X.N);
+    val s:DupVector(N);
+    val r:DupVector(N);
+    val d:DupVector(N);
+    val Hd:DupVector(N);
     val onew:DistVector(X.M);
-    val wnew:Vector(X.N);
+    val wnew:DupVector(N);
     val logisticnew:DistVector(X.M);    
     
     public var parCompT:Long=0;
     public var seqCompT:Long=0;
     public var commT:Long;
     
-    private val chkpntIterations:Long;
+    private val chkpntIterations:Int;
     private val nzd:Float;
-    private var places:PlaceGroup;
+    private val root:Place;
+    
+    private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
     
-    public def this(x_:DistBlockMatrix, y:DistVector, w:Vector, it:Long, nit:Long, sparseDensity:Float, chkpntIter:Long, places:PlaceGroup, team:Team) {
-        X=x_;
+    public def this(N:Long, x_:DistBlockMatrix, y:DistVector, it:Int, nit:Int, nzd:Float, chkpntIter:Int, places:PlaceGroup, team:Team) {
+        property(N);
+        this.X=x_;
         this.y = y as DistVector(X.M);
-        this.w = w as Vector(X.N);
-        
-        dup_w  = DupVector.make(X.N, places, team);
-
+        this.w = DupVector.make(X.N, places, team);
+        w.initRandom_local(here);
         val rowBs = X.getAggRowBs();
+        this.logisticD = DistVector.make(X.M, rowBs, X.places(), team);
+        this.nzd = nzd;
+        
+
         tmp_y  = DistVector.make(X.M, rowBs, places, team);
         o      = DistVector.make(X.M, rowBs, places, team);
-        grad   = Vector.make(X.N);
+        grad   = DupVector.make(N, places,team);
         // Add temp memory space
-        s      = Vector.make(X.N);
-        r      = Vector.make(X.N);
-        d      = Vector.make(X.N);
-        Hd     = Vector.make(X.N);
+        s      = DupVector.make(N, places, team);
+        r      = DupVector.make(N, places, team);
+        d      = DupVector.make(N, places, team);
+        Hd     = DupVector.make(N, places, team);
         onew   = DistVector.make(X.M, rowBs, places, team);
-        wnew   = Vector.make(X.N);
+        wnew   = DupVector.make(N, places, team);
         logisticnew = DistVector.make(X.M, rowBs, places, team);
         
         maxIterations = it;
         maxinneriter =nit;
         chkpntIterations = chkpntIter;
-        nzd = sparseDensity;
-        this.places = places;
+        root = here;
         this.team = team;
     }
 
-    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Long, nit:Long, chkpntIter:Long, places:PlaceGroup, team:Team){
+    public static def make(mX:Long, nX:Long, nRowBs:Long, nColBs:Long, nzd:Float, it:Int, nit:Int, chkpntIter:Int, places:PlaceGroup, team:Team){
         val X:DistBlockMatrix(mX, nX);
+        val sparse:Boolean;
         if (nzd < MAX_SPARSE_DENSITY) {
             X = DistBlockMatrix.makeSparse(mX, nX, nRowBs, nColBs, places.size(), 1, nzd, places);
         } else {
             Console.OUT.println("using dense matrix as non-zero density = " + nzd);
             X = DistBlockMatrix.makeDense(mX, nX, nRowBs, nColBs, places.size(), 1, places);
         }
-        val w = Vector.make(X.N);
         val y = DistVector.make(X.M, X.getAggRowBs(), places, team);
-        
-        //X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
-        X.initRandom(1, 10);
-        y.initRandom(1, 10);
-        //w = Rand(rows=D, cols=1, min=0.0, max=0.0);
-        w.initRandom();
-        
-        return new LogisticRegression(X, y, w, it, nit, nzd, chkpntIter, places, team);
+
+        finish for (place in places) at(place) async {
+            X.initRandom_local(1, 10);
+            y.initRandom_local(1, 10);
+        }
+
+        return new LogisticRegression(nX, X, y, it, nit, nzd, chkpntIter, places, team);
     }
     
-    public def run() {
-        //o = X %*% w
-        compute_XmultB(o, w);
-        //logistic = 1.0/(1.0 + exp( -y * o))
-        val logistic = DistVector.make(X.M, X.getAggRowBs(), places, team);
-        logistic.map(y, o, (y_i:ElemType, o_i:ElemType)=> (1.0 / (1.0 + Math.exp(-y_i * o_i))) as ElemType);
-        
-        //obj = 0.5 * t(w) %*% w + C*sum(logistic)
-        obj = (0.5 * w.dot(w) + C*logistic.sum()) as ElemType;
-
-        //grad = w + C*t(X) %*% ((logistic - 1)*y)        
-        compute_grad(grad, logistic);
-        
-        //logisticD = logistic*(1-logistic)
-        logisticD = logistic.clone();
-        logisticD.map((x:ElemType)=> (x*(1.0-x)) as ElemType);
-
-        seqCompT -= Timer.milliTime();
-
-        //delta = sqrt(sum(grad*grad))
-        delta = grad.norm();
-
-        //# starting point for CG
-        //# boolean for convergence check
-        //converge = (delta < tol) | (iter > maxiter)
-        converge = (delta < tol) | (iter > maxIterations);
-        //norm_r2 = sum(grad*grad)
-        norm_r2 = grad.dot(grad);
-        //alpha = t(w) %*% w
-        alpha = w.dot(w);
-        seqCompT += Timer.milliTime();
-
-        Debug.flushln("Done initialization. Starting converging iteration");
-        
-        new ResilientExecutor(chkpntIterations, places).run(this);
-        
-        parCompT += logistic.getCalcTime() + logisticnew.getCalcTime()
-                 + o.getCalcTime() + onew.getCalcTime()
-                 + tmp_y.getCalcTime() + dup_w.getCalcTime();
-        commT = o.getCommTime() + onew.getCommTime()
-                 + tmp_y.getCommTime() + dup_w.getCommTime();
+    public def isFinished_local() {
+        return appTempDataPLH().iter >= maxIterations;
     }
     
-    public def step():void {
-        Console.OUT.println("iter = " + iter + " max = " + maxIterations);
+    
+    public def train(startTime:Long) {
+        val start = (startTime != 0)?startTime:Timer.milliTime();  
+        assert (X.isDistVertical()) : "dist block matrix must have vertical distribution";
+        val places = X.places();
+        appTempDataPLH = PlaceLocalHandle.make[AppTempData](places, ()=>new AppTempData());
+        
+        new LocalViewResilientExecutor(chkpntIterations, places).run(this, start);
+    }
+    
+    public def step_local():void {
+       //initialization steps
+        if (appTempDataPLH().iter == 0) {
+            //o = X %*% w
+            compute_XmultB_local(o, w);
+        
+            //logisticD = 1.0/(1.0 + exp( -y * o))
+            logisticD.map_local(y, o, (y_i:ElemType, o_i:ElemType)=> (1.0 / (1.0 + Math.exp(-y_i * o_i))) as ElemType);
+        
+            //obj = 0.5 * t(w) %*% w + C*sum(logisticD)
+            appTempDataPLH().obj = (0.5 * w.dot_local(w) + C*logisticD.sum_local()) as ElemType;
+
+            //grad = w + C*t(X) %*% ((logisticD - 1)*y)        
+            compute_grad_local(grad, logisticD);
+            
+            
+        
+            //logisticD = logisticD*(1-logisticD)
+            logisticD.map_local((x:ElemType)=> (x*(1.0-x)) as ElemType);
+
+            seqCompT -= Timer.milliTime();
+
+            //delta = sqrt(sum(grad*grad))
+            appTempDataPLH().delta = grad.norm_local();
+
+            //# starting point for CG
+            //# boolean for convergence check
+            //converge = (delta < tol) | (iter > maxiter)
+            appTempDataPLH().converge = (appTempDataPLH().delta < tol) | (appTempDataPLH().iter > maxIterations);
+            //norm_r2 = sum(grad*grad)
+            norm_r2 = grad.dot_local(grad);
+            //alpha = t(w) %*% w
+            alpha = w.dot_local(w);
+            seqCompT += Timer.milliTime();
+
+            
+        }
+    
         seqCompT -= Timer.milliTime();
         //             norm_grad = sqrt(sum(grad*grad))
-        val norm_grad = grad.norm();
+        val norm_grad = grad.norm_local();
         //             # SOLVE TRUST REGION SUB-PROBLEM
         //zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
         //             s = zeros_D
-        s.reset();
+        s.reset_local();
         //             r = -grad
-        r.scale(-1.0 as ElemType, grad);
+        
+        r.scale_local(-1.0 as ElemType, grad);
         //             d = r
-        r.copyTo(d);
+        r.copyTo_local(d);
 
         //             inneriter = 0
-        var inneriter:Long = 0;
+        val inneriter:Long=0;
         //             innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
-        var innerconverge:Boolean = false;
+        var innerconverge:Boolean;// = (r.norm() <= psi * norm_grad);
+        innerconverge = false;
         while (!innerconverge) {
-            Console.OUT.println("inneriter = " + inneriter + " max = " + maxinneriter);
             //  
             //                 norm_r2 = sum(r*r)
-            norm_r2 = r.dot(r);
+            
+            norm_r2 = r.dot_local(r);
+            
             //                 Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
             seqCompT += Timer.milliTime(); // next step is parallel
-            compute_Hd(Hd, logisticD, d);
+            compute_Hd_local(Hd, logisticD, d);
             seqCompT -= Timer.milliTime();
 
             val stt = Timer.milliTime();
             //                 alpha_deno = t(d) %*% Hd 
-            val alpha_deno = d.dot(Hd);
+            val alpha_deno = d.dot_local(Hd);
             //                 alpha = norm_r2 / alpha_deno
             alpha = norm_r2 / alpha_deno;
             //                 s = s + castAsScalar(alpha) * d
-            s.scaleAdd(alpha, d);
+            s.scaleAdd_local(alpha, d);
             //                 sts = t(s) %*% s
             val sts = s.dot(s);
             //                 delta2 = delta*delta 
-            val delta2 = delta*delta;
+            val delta2 = appTempDataPLH().delta*appTempDataPLH().delta;
+            //                 shouldBreak = false;
+            var shouldBreak:Boolean = false;
+            
             if (sts > delta2) {
                 //                     std = t(s) %*% d
-                val std = s.dot(d);
+                val std = s.dot_local(d);
                 //                     dtd = t(d) %*% d
-                val dtd = d.dot(d);
+                val dtd = d.dot_local(d);
                 //                     rad = sqrt(std*std + dtd*(delta2 - sts))
                 val rad = Math.sqrt(std*std+dtd*(delta2-sts));
                 var tau:ElemType;
@@ -231,154 +240,170 @@ public class LogisticRegression implements ResilientIterativeApp {
                     tau = (rad - std)/dtd;
                 }
                 //                     s = s + castAsScalar(tau) * d
-                s.scaleAdd(tau, d);
+                s.scaleAdd_local(tau, d);
                 //                     r = r - castAsScalar(tau) * Hd
-                r.scaleAdd(-tau, Hd);
+                r.scaleAdd_local(-tau, Hd);
+                //                     #break
+                shouldBreak = true;
                 innerconverge = true;
-            } else {
+            } 
+            //                 
+            if (!shouldBreak) {
                 //                     r = r - castAsScalar(alpha) * Hd
-                r.scaleAdd(-alpha, Hd);
+                r.scaleAdd_local(-alpha, Hd);
                 //                     old_norm_r2 = norm_r2 
                 val old_norm_r2 = norm_r2;
                 //                     norm_r2 = sum(r*r)
-                norm_r2 = r.dot(r);
+                norm_r2 = r.dot_local(r);
                 //                     beta = norm_r2/old_norm_r2
                 val beta = norm_r2/old_norm_r2;
                 //                     d = r + beta*d
-                d.scale(beta).cellAdd(r);
-                //                     innerconverge = (sqrt(norm_r2) <= psi * norm_grad)
-                innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad);
+                d.scale_local(beta).cellAdd_local(r);
+                //                     innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
+                innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
             }
-            inneriter++;
-            innerconverge = innerconverge | (maxinneriter > 0 && inneriter > maxinneriter);
         }
-
         //             # END TRUST REGION SUB-PROBLEM
         //             # compute rho, update w, obtain delta
         //             qk = -0.5*(t(s) %*% (grad - r))
-        val qk = (-0.5 * s.dot(grad-r)) as ElemType;
-
+        
+        val qk = (-0.5 * s.dot_local(grad.local() - r.local() )) as ElemType;
+        
         //             wnew = w + s
-        wnew.cellAdd(w, s);
+        wnew.cellAdd_local(w, s);
         seqCompT += Timer.milliTime();
         //             onew = X %*% wnew
-        compute_XmultB(onew, wnew); 
-
+        compute_XmultB_local(onew, wnew);
+        
         //             logisticnew = 1.0/(1.0 + exp(-y * o ))
-        logisticnew.map(y, o, (y_i:ElemType, o_i:ElemType)=> ( (1.0 / (1.0 + Math.exp(-y_i * o_i))) as ElemType ));
+        logisticnew.map_local(y, o, (y_i:ElemType, o_i:ElemType)=> ( (1.0 / (1.0 + Math.exp(-y_i * o_i))) as ElemType ));
 
         
         //             objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
-        val objnew = (0.5 * wnew.dot(wnew) + C * logisticnew.sum()) as ElemType;
+        val objnew = (0.5 * wnew.dot_local(wnew) + C * logisticnew.sum_local()) as ElemType;
 
         //             
-        //             rho = (obj - objnew) / qk
-        val rho = (obj - objnew) / qk;
+        //             rho = (objnew - obj) / qk
+        val rho = (objnew - appTempDataPLH().obj)/qk;
         //             snorm = sqrt(sum( s * s ))
-        val snorm = s.norm();
-        if (rho > eta0){            
+        val snorm = s.norm_local();
+        if (rho > eta0){
             //                 w = wnew
-            wnew.copyTo(w);
+            wnew.copyTo_local(w);
             //                 o = onew
-            onew.copyTo(o);
+            onew.copyTo_local(o);
             //                 grad = w + C*t(X) %*% ((logisticnew - 1) * y )
-            compute_grad(grad, logisticnew);
-
-            obj = objnew;
+            compute_grad_local(grad, logisticnew);
         } 
-        iter = iter + 1;
-        converge = (norm_r2 < (tol * tol)) | (iter > maxIterations);
+        appTempDataPLH().iter = appTempDataPLH().iter + 1;
+        appTempDataPLH().converge = (norm_r2 < (tol * tol)) | (appTempDataPLH().iter > maxIterations);
         if (rho < eta0){
-            delta = Math.min(Math.max(alpha , sigma1) * snorm, sigma2 * delta ) as ElemType;            
+            appTempDataPLH().delta = Math.min(Math.max(alpha , sigma1) * snorm, sigma2 * appTempDataPLH().delta ) as ElemType;            
         } else {
             if (rho < eta1){
-                delta = Math.max(sigma1 * delta, Math.min(alpha  * snorm, sigma2 * delta)) as ElemType;                
+                appTempDataPLH().delta = Math.max(sigma1 * appTempDataPLH().delta, Math.min(alpha  * snorm, sigma2 * appTempDataPLH().delta)) as ElemType;                
             } else { 
                 if (rho < eta2) {
-                    delta = Math.max(sigma1 * delta, Math.min(alpha * snorm, sigma3 * delta)) as ElemType;                    
+                    appTempDataPLH().delta = Math.max(sigma1 * appTempDataPLH().delta, Math.min(alpha * snorm, sigma3 * appTempDataPLH().delta)) as ElemType;                    
                 } else {
-                    delta = Math.max(delta, Math.min(alpha * snorm, sigma3 * delta)) as ElemType;                    
+                    appTempDataPLH().delta = Math.max(appTempDataPLH().delta, Math.min(alpha * snorm, sigma3 * appTempDataPLH().delta)) as ElemType;                    
                 }
             }
         }
     }
     
-    private def compute_XmultB(result:DistVector(X.M), opB:Vector(X.N)):void {
+    private def compute_XmultB_local(result:DistVector(X.M), opB:DupVector(N)):void {
         // o = X %*% w
-        dup_w.copyFrom(opB);
-        result.mult(X, dup_w, false);
+        result.mult_local(X, opB);
     }
     
-
-
-    private def compute_grad(grad:Vector(X.N), logistic:DistVector(X.M)):void {
-        // grad = w + C*t(X) %*% (logistic - y);
-        logistic.cellSub(y);
-        compute_tXmultB(grad, logistic);
+    private def compute_grad_local(grad:DupVector(N), logistic:DistVector(X.M)):void {
+        // grad = w + C*t(X) %*% ((logistic - 1)*y)
+        logistic.map_local(logistic, y, (x:ElemType, v:ElemType)=> {(x - 1.0f) * v});
+        compute_tXmultB_local(grad, logistic);
         val stt = Timer.milliTime();
-        grad.scale(C).cellAdd(w);
-        Console.OUT.println("grad " + grad);
+        grad.scale_local(C).cellAdd_local(w);
         seqCompT += Timer.milliTime() - stt;
     }
+
     
-    private def compute_Hd(Hd:Vector(X.N), logisticD:DistVector(X.M), d:Vector(X.N)):void {
+    private def compute_Hd_local(Hd:DupVector(N), logisticD:DistVector(X.M), d:DupVector(N)):void {
         // Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
-        compute_XmultB(tmp_y, d);
-        tmp_y.cellMult(logisticD);
-        compute_tXmultB(Hd, tmp_y);
+        compute_XmultB_local(tmp_y, d);
+        tmp_y.cellMult_local(logisticD);
+        compute_tXmultB_local(Hd, tmp_y);
         val stt = Timer.milliTime();
-        Hd.scale(C).cellAdd(d);
+        Hd.scale_local(C).cellAdd_local(d);
         seqCompT += Timer.milliTime() - stt;
     }
     
-    private def compute_tXmultB(result:Vector(X.N), B:DistVector(X.M)):void {
-        dup_w.mult(B, X, false);
-        dup_w.local().copyTo(result);
+    private def compute_tXmultB_local(result:DupVector(N), B:DistVector(X.M)):void {
+        result.mult_local(root, B, X);
     }
     
-    public def isFinished() {
-        return iter >= maxIterations;
-    }
     
-    public def checkpoint(store:ApplicationSnapshotStore):void {        
+    public def checkpoint(store:ApplicationSnapshotStore):void {
         store.startNewSnapshot();
         store.saveReadOnly(X);
-        store.save(y);        
-        store.save(o);        
+        store.save(y);
+        store.save(grad);
+        store.save(o);
+        store.save(w);
         store.save(logisticD);
         store.commit();
-        lastCheckpointDelta = delta;
-        lastCheckpointGrad = grad.clone();
-        lastCheckpointW = w.clone();
+        lastCheckpointDelta = appTempDataPLH().delta;
+        lastCheckpointObj = appTempDataPLH().obj;
     }
     
-    public def restore(newGroup:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void{        
-        val newTeam = new Team(newGroup);
-        val newRowPs = newGroup.size();
+    public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void{
+        val oldPlaces = X.places();
+        val newTeam = new Team(newPlaces);
+        
+        val newRowPs = newPlaces.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore LogisticRegression app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         
         // redistribute all matrices / vectors to new PlaceGroup
         if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, newGroup, newAddedPlaces);
+            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces, newAddedPlaces);
         } else {
-            X.remakeDense(newRowPs, newColPs, newGroup, newAddedPlaces);
+            X.remakeDense(newRowPs, newColPs, newPlaces, newAddedPlaces);
         }
         val rowBs = X.getAggRowBs();
-        y.remake(rowBs, newGroup, newTeam, newAddedPlaces);
-        o.remake(rowBs, newGroup, newTeam, newAddedPlaces);
-        onew.remake(rowBs, newGroup, newTeam, newAddedPlaces);
+        y.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
+        o.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
+        onew.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
         
-        tmp_y.remake(rowBs, newGroup, newTeam, newAddedPlaces);
-        logisticD.remake(rowBs, newGroup, newTeam, newAddedPlaces);
-        logisticnew.remake(rowBs, newGroup, newTeam, newAddedPlaces);
-        dup_w.remake(newGroup, newTeam, newAddedPlaces);
+        grad.remake(newPlaces, newTeam, newAddedPlaces);
+        w.remake(newPlaces, newTeam, newAddedPlaces);
+        s.remake(newPlaces, newTeam, newAddedPlaces);
+        r.remake(newPlaces, newTeam, newAddedPlaces);
+        d.remake(newPlaces, newTeam, newAddedPlaces);
+        Hd.remake(newPlaces, newTeam, newAddedPlaces);
+        wnew.remake(newPlaces, newTeam, newAddedPlaces);
+        
+        tmp_y.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
+        logisticD.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
+        logisticnew.remake(rowBs, newPlaces, newTeam, newAddedPlaces);
+        
         
         store.restore();
-        iter = lastCheckpointIter;
-        delta = lastCheckpointDelta;
-        grad.copyTo(lastCheckpointGrad);
-        w.copyTo(lastCheckpointW);
-        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] delta["+delta+"] ...");
+        
+        PlaceLocalHandle.destroy(oldPlaces, appTempDataPLH, (Place)=>true);
+        appTempDataPLH = PlaceLocalHandle.make[AppTempData](newPlaces, ()=>new AppTempData());
+        //adjust the iteration number and the norm value
+        finish ateach(Dist.makeUnique(newPlaces)) {
+            appTempDataPLH().iter = lastCheckpointIter;
+            appTempDataPLH().delta = lastCheckpointDelta;
+            appTempDataPLH().obj = lastCheckpointObj;
+        }
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] delta["+appTempDataPLH().delta+"] ...");
+    }
+    
+    class AppTempData{
+        public var delta:ElemType;
+        public var iter:Long;
+        public var obj:ElemType; // value does not change after being initialized
+        public var converge:Boolean;
     }
 }

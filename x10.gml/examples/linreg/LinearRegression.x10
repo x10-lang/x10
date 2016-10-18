@@ -9,10 +9,10 @@
  *  (C) Copyright IBM Corporation 2011-2016.
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
-package linreg;
 
 import x10.matrix.Vector;
 import x10.matrix.ElemType;
+import x10.regionarray.Dist;
 import x10.util.Timer;
 import x10.util.ArrayList;
 import x10.matrix.distblock.DistBlockMatrix;
@@ -22,173 +22,224 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.util.Debug;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 
-import x10.util.resilient.iterative.ResilientIterativeApp;
-import x10.util.resilient.iterative.ResilientExecutor;
+import x10.util.resilient.iterative.LocalViewResilientIterativeApp;
+import x10.util.resilient.iterative.LocalViewResilientExecutor;
 import x10.util.resilient.iterative.ApplicationSnapshotStore;
+
 import x10.util.Team;
 
 /**
- * Parallel linear regression based on GML distributed
- * dense/sparse matrix
+ * Parallel linear regression using a conjugate gradient solver
+ * over distributed dense/sparse matrix
+ * @see Elgohary et al. (2016). "Compressed linear algebra for large-scale
+ *      machine learning". http://dx.doi.org/10.14778/2994509.2994515
  */
-public class LinearRegression implements ResilientIterativeApp {
+public class LinearRegression implements LocalViewResilientIterativeApp {
     public static val MAX_SPARSE_DENSITY = 0.1f;
-    static val lambda = 1e-6 as Float; // regularization parameter
+    public val lambda:Float; // regularization parameter
+    public val tolerance:Float = 0.000001f;
     
     /** Matrix of training examples */
-    public val V:DistBlockMatrix;
+    public val X:DistBlockMatrix;
     /** Vector of training regression targets */
-    public val y:DistVector(V.M);
-    /** Learned model weight vector, used for future predictions */
-    public val w:Vector(V.N);
+    public val y:DistVector(X.M);
+    /** Learned model weight vector, used for future predictions */    
+    public val d_w:DupVector(X.N);
     
     public val maxIterations:Long;
     
-    val d_p:DupVector(V.N);
-    val Vp:DistVector(V.M);
+    val d_p:DupVector(X.N);
+    val Xp:DistVector(X.M);
     
-    val r:Vector(V.N);
-    val d_q:DupVector(V.N);
+    val d_r:DupVector(X.N);
+    val d_q:DupVector(X.N);
     
     private val checkpointFreq:Long;
-    
-    var norm_r2:ElemType;
     var lastCheckpointNorm:ElemType;
-    var lastCheckpointR:Vector;
-    var lastCheckpointW:Vector;    
-    var iter:Long;
     
     //----Profiling-----
     public var parCompT:Long=0;
     public var seqCompT:Long=0;
     public var commT:Long;
     private val nzd:Float;
-    private var places:PlaceGroup;
-    private var team:Team;
-        
-    public def this(v:DistBlockMatrix, y:DistVector(v.M), it:Long, chkpntIter:Long, sparseDensity:Float, places:PlaceGroup, team:Team) {
-        maxIterations = it;
-        this.V = v;
+    private val root:Place;
+    
+    private var appTempDataPLH:PlaceLocalHandle[AppTempData];
+    var team:Team;
+    
+    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team) {
+        if (it > 0) {
+            this.maxIterations = it;
+        } else {
+            this.maxIterations = X.N; // number of features
+        }
+        this.X = X;
         this.y = y;
+        this.lambda = regularization;
         
-        Vp = DistVector.make(V.M, V.getAggRowBs(), places, team);
+        Xp = DistVector.make(X.M, X.getAggRowBs(), places, team);
         
-        r  = Vector.make(V.N);
-        d_p= DupVector.make(V.N, places, team);
+        d_r  = DupVector.make(X.N, places, team);
+        d_p= DupVector.make(X.N, places, team);
         
-        d_q= DupVector.make(V.N, places, team);
+        d_q= DupVector.make(X.N, places, team);
         
-        w  = Vector.make(V.N);
-        
+        d_w = DupVector.make(X.N, places, team);  
+
         this.checkpointFreq = chkpntIter;
         
         nzd = sparseDensity;
-        this.places = places;
+        root = here;
         this.team = team;
     }
     
-    public def isFinished() {
-        return iter >= maxIterations;
+    public def isFinished_local() {
+        return appTempDataPLH().iter >= maxIterations
+            || appTempDataPLH().norm_r2 <= appTempDataPLH().norm_r2_target;
     }
     
-    public def run() {
-        val dupR = DupVector.make(V.N, places, team);
-        // 4: r=-(t(V) %*% y)
-        dupR.mult(y, V);
-        dupR.local().copyTo(r);
-        // 5: p=-r
-        r.copyTo(d_p.local());
-        // 4: r=-(t(V) %*% y)
-        r.scale(-1.0 as ElemType);
-        // 6: norm_r2=sum(r*r)
-        norm_r2 = r.dot(r);
-        
-        new ResilientExecutor(checkpointFreq, places).run(this);
-        
-        parCompT = dupR.getCalcTime() + d_q.getCalcTime() + Vp.getCalcTime();
-        commT = dupR.getCommTime() + d_q.getCommTime() + d_p.getCommTime() + Vp.getCommTime();
-
-        return w;
+    //startTime parameter added to account for the time taken by RunLinReg to initialize the input data
+    public def run(startTime:Long) {
+        val start = (startTime != 0)?startTime:Timer.milliTime();  
+        assert (X.isDistVertical()) : "dist block matrix must have vertical distribution";
+        val places = X.places();
+        appTempDataPLH = PlaceLocalHandle.make[AppTempData](places, ()=>new AppTempData());
+        new LocalViewResilientExecutor(checkpointFreq, places).run(this, start);
+        return d_w.local();
     }
     
-    public def step() {
-        d_p.sync();
-        
+    public def getResult() = d_w.local();
+    
+    public def step_local() {
         // Parallel computing
-        
-        // 10: q=((t(V) %*% (V %*% p)) )
+        if (appTempDataPLH().iter == 0) {
+            team.barrier();
 
-        d_q.mult(Vp.mult(V, d_p), V);
+appTempDataPLH().globalCompTime -= Timer.milliTime();
+            // 4: r = -(t(X) %*% y);
+            d_r.mult_local(root, y, X);
+            d_r.scale_local(-1.0 as ElemType);
+appTempDataPLH().globalCompTime += Timer.milliTime();
+            
+appTempDataPLH().localCompTime -= Timer.milliTime();
+            val r = d_r.local(); 
         
-        // Sequential computing
+            // 5: norm_r2 = sum(r * r); p = -r;
+            r.copyTo(d_p.local());
+            d_p.scale_local(-1.0 as ElemType);
+            val norm_r2_initial = r.dot(r);
+
+            appTempDataPLH().norm_r2 = norm_r2_initial;
+            appTempDataPLH().norm_r2_initial = norm_r2_initial;
+            appTempDataPLH().norm_r2_target = norm_r2_initial * tolerance * tolerance;
+
+            if (root == here) {
+                Console.OUT.println("||r|| initial value = " + Math.sqrt(norm_r2_initial)
+                 + ",  target value = " + Math.sqrt(appTempDataPLH().norm_r2_target));
+            }
+
+appTempDataPLH().localCompTime += Timer.milliTime();
+        }
+
+        // compute conjugate gradient
+        // 9: q = ((t(X) %*% (X %*% p)) + lambda * p);
+
+        //////Global view step:  d_q.mult(Xp.mult(X, d_p), X);
+appTempDataPLH().globalCompTime -= Timer.milliTime();
+        Xp.mult_local(X, d_p);
+        d_q.mult_local(root, Xp, X);
+appTempDataPLH().globalCompTime += Timer.milliTime();
         
+        // Replicated Computation at each place
+appTempDataPLH().localCompTime -= Timer.milliTime();            
         var ct:Long = Timer.milliTime();
-        //q = q + lambda*p
         val p = d_p.local();
         val q = d_q.local();
+        val r = d_r.local(); 
         q.scaleAdd(lambda, p);
-        
-        // 11: alpha= norm_r2/(t(p)%*%q);
-        val alpha = norm_r2 / p.dotProd(q);
-        
-        // 12: w=w+alpha*p;
-        w.scaleAdd(alpha, p);
-        
-        // 13: old norm r2=norm r2;
-        val old_norm_r2 = norm_r2;
-        
-        // 14: r=r+alpha*q;
+        q(q.M-1) -= lambda * p(q.M-1); // don't regularize intercept!
+
+        // 11: alpha = norm_r2 / sum(p * q);
+        val alpha = appTempDataPLH().norm_r2 / p.dotProd(q);
+
+        // update model and residuals
+        // 13: w = w + alpha * p;
+        d_w.local().scaleAdd(alpha, p);
+            
+        // 14: r = r + alpha * q;
         r.scaleAdd(alpha, q);
 
-        // 15: norm_r2=sum(r*r);
-        norm_r2 = r.dot(r);
+        // 15: old_norm_r2 = norm_r2;
+        val old_norm_r2 = appTempDataPLH().norm_r2;
 
-        // 16: beta=norm_r2/old_norm_r2;
-        val beta = norm_r2/old_norm_r2;
-        
-        // 17: p=-r+beta*p;
-        p.scale(beta).cellSub(r);
-        
-        seqCompT += Timer.milliTime() - ct;
-        
-        iter++;
+        // 16: norm_r2 = sum(r^2);
+        appTempDataPLH().norm_r2 = r.dot(r);
+
+        // 17: p = -r + norm_r2/old_norm_r2 * p;
+        p.scale(appTempDataPLH().norm_r2/old_norm_r2).cellSub(r);
+
+        if (root == here) {
+            Console.OUT.println("Iteration " + appTempDataPLH().iter
+             + ":  ||r|| / ||r init|| = "
+                 + Math.sqrt(appTempDataPLH().norm_r2 / appTempDataPLH().norm_r2_initial));
+        }
+       
+        appTempDataPLH().iter++;        
+appTempDataPLH().localCompTime += Timer.milliTime();
     }
     
-    public def checkpoint(resilientStore:ApplicationSnapshotStore) {
+    
+    public def checkpoint(resilientStore:ApplicationSnapshotStore) {    
         resilientStore.startNewSnapshot();
-        resilientStore.saveReadOnly(V);
+        resilientStore.saveReadOnly(X);
         resilientStore.save(d_p);
         resilientStore.save(d_q);
+        resilientStore.save(d_r);
+        resilientStore.save(d_w);
         resilientStore.commit();
-        lastCheckpointNorm = norm_r2;
-        lastCheckpointR = r.clone();
-        lastCheckpointW = w.clone();
+        lastCheckpointNorm = appTempDataPLH().norm_r2;
     }
     
     /**
      * Restore from the snapshot with new PlaceGroup
      */
     public def restore(newPg:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]) {
+        val oldPlaces = X.places();
         val newTeam = new Team(newPg);
         val newRowPs = newPg.size();
         val newColPs = 1;
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
-            V.remakeSparse(newRowPs, newColPs, nzd, newPg, newAddedPlaces);
+            X.remakeSparse(newRowPs, newColPs, nzd, newPg, newAddedPlaces);
         } else {
-            V.remakeDense(newRowPs, newColPs, newPg, newAddedPlaces);
+            X.remakeDense(newRowPs, newColPs, newPg, newAddedPlaces);
         }
         d_p.remake(newPg, newTeam, newAddedPlaces);
-        Vp.remake(V.getAggRowBs(), newPg, newTeam, newAddedPlaces);
         d_q.remake(newPg, newTeam, newAddedPlaces);
+        d_r.remake(newPg, newTeam, newAddedPlaces);
+        d_w.remake(newPg, newTeam, newAddedPlaces);
+        Xp.remake(X.getAggRowBs(), newPg, newTeam, newAddedPlaces);
+        
         store.restore();
         
-        //adjust the iteration number, the norm value and vectors
-        iter = lastCheckpointIter;
-        norm_r2 = lastCheckpointNorm;
-        r.copyTo(lastCheckpointR);
-        w.copyTo(lastCheckpointW);
-        places = newPg;
-        Console.OUT.println("Restore succeeded. Restarting from iteration["+iter+"] norm["+norm_r2+"] ...");
+        //TODO: make a snapshottable class for the app data
+        PlaceLocalHandle.destroy(oldPlaces, appTempDataPLH, (Place)=>true);
+        appTempDataPLH = PlaceLocalHandle.make[AppTempData](newPg, ()=>new AppTempData());
+        //adjust the iteration number and the norm value
+        finish ateach(Dist.makeUnique(newPg)) {
+            appTempDataPLH().iter = lastCheckpointIter;
+            appTempDataPLH().norm_r2 = lastCheckpointNorm;
+        }
+        Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
+    }    
+    
+    class AppTempData {
+        public var norm_r2:ElemType = 1.0 as ElemType;
+        public var norm_r2_initial:ElemType;
+        public var norm_r2_target:ElemType = 0.0 as ElemType;
+        public var iter:Long;
+        
+        public var localCompTime:Long;
+        public var globalCompTime:Long;
     }
 }
