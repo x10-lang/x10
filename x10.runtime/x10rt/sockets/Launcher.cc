@@ -586,7 +586,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		else if (WIFSIGNALED(status))
 		{
 			// ignore these, as they are normal on shutdown, or likely were sent a few lines above
-			if (WTERMSIG(status) == SIGPIPE || WTERMSIG(status) == SIGKILL || WTERMSIG(status) == SIGTERM)
+			if (WTERMSIG(status) == SIGPIPE || WTERMSIG(status) == SIGKILL || WTERMSIG(status) == SIGTERM || WTERMSIG(status) == SIGCHLD)
 				_exitcode = 0;
 			else
 			{
@@ -870,7 +870,7 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			}
 			else if (WIFSIGNALED(status))
 			{
-				if (WTERMSIG(status) != SIGPIPE) // normal at shutdown
+                                if ((WTERMSIG(status) != SIGPIPE) && (WTERMSIG(status) != SIGCHLD)) // normal at shutdown
 				{
 					_exitcode = 128 + WTERMSIG(status);
 					if (_myproc == (uint32_t)-1)
