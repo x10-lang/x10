@@ -21,11 +21,11 @@ import x10.regionarray.Dist;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.util.resilient.iterative.LocalViewResilientIterativeApp;
-import x10.util.resilient.iterative.LocalViewResilientExecutor;
-import x10.util.resilient.iterative.ApplicationSnapshotStore;
 import x10.util.Team;
 import x10.util.ArrayList;
+import x10.util.HashMap;
+import x10.util.resilient.localstore.*;
+import x10.util.resilient.iterative.*;
 
 /**
  * Parallel Page Rank algorithm based on GML distributed block matrix.
@@ -42,7 +42,10 @@ import x10.util.ArrayList;
  * <p>......
  * <p>[p_(numColBsG-1)]
  */
-public class PageRank implements LocalViewResilientIterativeApp {
+public class PageRank implements SPMDResilientIterativeApp {
+	static val DISABLE_ULFM_AGREEMENT = System.getenv("DISABLE_ULFM_AGREEMENT") != null && System.getenv("DISABLE_ULFM_AGREEMENT").equals("1");
+	static val VERBOSE = System.getenv("PAGERANK_DEBUG") != null && System.getenv("PAGERANK_DEBUG").equals("1");
+	
     public val tolerance:Float;
     public val iterations:Long;
     public val alpha:ElemType= 0.85 as ElemType;
@@ -57,13 +60,14 @@ public class PageRank implements LocalViewResilientIterativeApp {
     /** temp data: G * P */
     val GP:DistVector(G.N);
     
-    private val chkpntIterations:Long;
+    private val checkpointFreq:Long;
     private val nzd:Float;
     
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     private val root:Place;
     private val places:PlaceGroup;
     private var team:Team;
+    private val resilientStore:ResilientStore;
     
     public def this(
             edges:DistBlockMatrix{self.M==self.N},
@@ -72,7 +76,8 @@ public class PageRank implements LocalViewResilientIterativeApp {
             sparseDensity:Float,
             chkpntIter:Long,
             places:PlaceGroup,
-            team:Team) {
+            team:Team,
+            resilientStore:ResilientStore) {
         Debug.assure(DistGrid.isVertical(edges.getGrid(), edges.getMap()), 
                 "Input edges matrix does not have vertical distribution.");
 
@@ -105,26 +110,24 @@ public class PageRank implements LocalViewResilientIterativeApp {
         
         GP = DistVector.make(G.N, G.getAggRowBs(), places, team);//G must have vertical distribution
 
-        chkpntIterations = chkpntIter;
+        checkpointFreq = chkpntIter;
         nzd = sparseDensity;
         root = here;
         this.places = places;
         this.team = team;
+        this.resilientStore = resilientStore;
     }
 
-    public static def make(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
+    public static def make(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup, team:Team, resilientStore:ResilientStore) {
         val numRowPs = places.size();
         val numColPs = 1;
-        val team = new Team(places);
-        
         val g = DistBlockMatrix.makeSparse(gN, gN, numRowBs, numColBs, numRowPs, numColPs, nzd, places, team);
-        val pr = new PageRank(g, it, tolerance, nzd, chkpntIter, places, team);
+        val pr = new PageRank(g, it, tolerance, nzd, chkpntIter, places, team, resilientStore);
         pr.initRandom(nzd);
         return pr;
     }
     
     private def initRandom(nzd:Float):void {
-         val places = G.places();
         finish ateach(Dist.makeUnique(places)) {
             G.initRandom_local();
             // TODO init personalization vector U
@@ -135,10 +138,14 @@ public class PageRank implements LocalViewResilientIterativeApp {
         val start = (startTime != 0)?startTime:Timer.milliTime();  
         assert (G.isDistVertical()) : "dist block matrix must have vertical distribution";
     
-        val places = G.places();
         appTempDataPLH = PlaceLocalHandle.make[AppTempData](places, ()=>new AppTempData());
     
-        new LocalViewResilientExecutor(chkpntIterations, places).run(this, start);
+        if (x10.xrx.Runtime.x10rtAgreementSupport() && !DISABLE_ULFM_AGREEMENT){
+            new SPMDResilientIterativeExecutorULFM(checkpointFreq, resilientStore, true).run(this, start);
+        }
+        else {
+            new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
+        }
 
         return P.local();
     }
@@ -184,44 +191,65 @@ public class PageRank implements LocalViewResilientIterativeApp {
         appTempDataPLH().iter++;
     }
 
-    
-    public def checkpoint(store:ApplicationSnapshotStore):void {
-        store.startNewSnapshot();
-        store.saveReadOnly(G);
-        //store.saveReadOnly(U);
-        store.save(P);
-        store.commit();
+    public def getCheckpointData_local():HashMap[String,Cloneable] {
+    	val map = new HashMap[String,Cloneable]();
+    	if (appTempDataPLH().iter == 0) {
+    		map.put("G", G.makeSnapshot_local());
+    	}
+    	//map.put("U", U.makeSnapshot_local());
+    	map.put("P", P.makeSnapshot_local());
+    	map.put("app", appTempDataPLH().makeSnapshot_local());
+    	if (VERBOSE) Console.OUT.println(here + "Checkpointing at iter ["+appTempDataPLH().iter+"] maxDelta["+appTempDataPLH().maxDelta+"] ...");
+    	return map;
     }
-
-    public def restore(newGroup:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void {
-        val oldPlaces = G.places();
-        val newTeam = new Team(newGroup);
-        
-        val newRowPs = newGroup.size();
+    
+    public def restore_local(restoreDataMap:HashMap[String,Cloneable], lastCheckpointIter:Long) {
+    	G.restoreSnapshot_local(restoreDataMap.getOrThrow("G"));
+    	//U.restore_local(restoreDataMap.getOrThrow("U"));
+    	P.restoreSnapshot_local(restoreDataMap.getOrThrow("P"));
+    	appTempDataPLH().restoreSnapshot_local(restoreDataMap.getOrThrow("app"));
+    	if (VERBOSE) Console.OUT.println(here + "Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] maxDelta["+appTempDataPLH().maxDelta+"] ...");
+    }
+    
+    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]) {
+    	this.team = newTeam;
+        val newRowPs = newPlaces.size();
         val newColPs = 1;
-        Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
-        G.remakeSparse(newRowPs, newColPs, nzd, newGroup, newAddedPlaces);	
+        if (VERBOSE) Console.OUT.println(here + "Remake, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
+        G.remakeSparse(newRowPs, newColPs, nzd, newPlaces, newAddedPlaces);	
         //U.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
-        P.remake(newGroup, newTeam, newAddedPlaces);
-
-        GP.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
+        P.remake(newPlaces, newTeam, newAddedPlaces);
+        GP.remake(G.getAggRowBs(), newPlaces, newTeam, newAddedPlaces);
         
-        store.restore();
-        
-        //TODO: make a snapshottable class for the app data
-        PlaceLocalHandle.destroy(oldPlaces, appTempDataPLH, (Place)=>true);
-        appTempDataPLH = PlaceLocalHandle.make[AppTempData](newGroup, ()=>new AppTempData());
-        //adjust the iteration number and the norm value
-        finish ateach(Dist.makeUnique(newGroup)) {
-            appTempDataPLH().iter = lastCheckpointIter;
-        }
-        
-        Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] ...");
+        for (sparePlace in newAddedPlaces){
+    		if (VERBOSE) Console.OUT.println("Adding place["+sparePlace+"] to appTempDataPLH ...");
+    		PlaceLocalHandle.addPlace[AppTempData](appTempDataPLH, sparePlace, ()=>new AppTempData());
+    	}
+        if (VERBOSE) Console.OUT.println("Remake succeeded. Restarting from iteration["+appTempDataPLH().iter+"] ...");
     }
     
-    class AppTempData{
+    class AppTempData implements Cloneable, Snapshottable {
         public var iter:Long;
         /** Maximum change in page rank from previous iteration */
         public var maxDelta:ElemType = 1.0 as ElemType;
+    
+        public def this() { }
+        
+        public def this(iter:Long, maxDelta:ElemType) { 
+        	this.iter = iter;
+        	this.maxDelta = maxDelta;
+        }
+        
+        public def clone():Cloneable {
+        	return new AppTempData(iter, maxDelta);
+        }
+        
+        public def makeSnapshot_local() = this;
+        
+        public def restoreSnapshot_local(o:Cloneable) {        
+        	val other = o as AppTempData;
+        	this.iter = other.iter;
+        	this.maxDelta = other.maxDelta;
+        }
     }
 }

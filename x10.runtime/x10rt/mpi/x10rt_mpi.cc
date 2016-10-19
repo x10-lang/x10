@@ -1868,7 +1868,7 @@ private:
             MPI_Errhandler customErrorHandler;
             if (resilientmode && atoi(resilientmode) > 0){
             	X10RT_NET_DEBUG("%s", "pre shrink");
-                OMPI_Comm_shrink(MPI_COMM_WORLD, &shrunken);
+                MPIX_Comm_shrink(MPI_COMM_WORLD, &shrunken);
                 X10RT_NET_DEBUG("%s", "pro shrink");
                 MPI_Comm_create_errhandler(mpiErrorHandler, &customErrorHandler);
                 MPI_Comm_set_errhandler(shrunken, customErrorHandler);
@@ -3014,7 +3014,7 @@ MPI_Op mpi_red_op_type(x10rt_red_type dtype, x10rt_red_op_type op) {
 #define MPI_AGREEMENT_COLLECTIVE(name, iname, ...) \
     CollectivePostprocessEnv cpe; \
     do { LOCK_IF_MPI_IS_NOT_MULTITHREADED; \
-        cpe.mpiError = OMPI_Comm_agree(__VA_ARGS__); \
+        cpe.mpiError = MPIX_Comm_agree(__VA_ARGS__); \
         if (MPI_SUCCESS != cpe.mpiError && !is_process_failure_error(cpe.mpiError)) { \
             fprintf(stderr, "[%s:%d] %s\n", \
                     __FILE__, __LINE__, "Error in MPI_" #name); \
@@ -3872,14 +3872,15 @@ void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
 
     MPI_Group failedGroup;
 
-    OMPI_Comm_failure_ack(*comm);
-    OMPI_Comm_failure_get_acked(*comm, &failedGroup);
+    MPIX_Comm_failure_ack(*comm);
+    MPIX_Comm_failure_get_acked(*comm, &failedGroup);
     int f_size;
     MPI_Group comm_group;
     int x = 0;
     int factor =1;
     int *failed_ranks = NULL;
     int *comm_ranks   = NULL;
+    int *old_new_combined   = NULL;
 
     MPI_Group_size(failedGroup, &f_size);
 
@@ -3888,14 +3889,35 @@ void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
 
         failed_ranks = (int *)malloc(f_size * sizeof(int));
         comm_ranks   = (int *)malloc(f_size * sizeof(int));
+        old_new_combined = (int *)malloc( (global_state.deadPlacesSize+f_size) * sizeof(int));
         for(int i = 0; i < f_size; ++i) {
             failed_ranks[i] = i;
         }
         MPI_Group_translate_ranks(failedGroup, f_size, failed_ranks, comm_group, comm_ranks);
 
+        int local_ndead = 0;
+        for(int i = 0; i < global_state.deadPlacesSize; ++i) {
+        	old_new_combined[local_ndead++] = global_state.deadPlaces[i];        	
+        }
+        
+        for(int i = 0; i < f_size; ++i) {
+        	bool found = false;
+        	for(int j = 0; j < global_state.deadPlacesSize; ++j) {
+        		if (global_state.deadPlaces[j] == comm_ranks[i]) {
+        			found = true;
+        			break;
+        		}
+        	}
+        	if (!found) {
+        		old_new_combined[local_ndead++] = comm_ranks[i];
+        	}
+        }
+        
+        
         free(global_state.deadPlaces);
-        global_state.deadPlaces = comm_ranks;
-        global_state.deadPlacesSize = f_size;
+        free(comm_ranks);
+        global_state.deadPlaces = old_new_combined;
+        global_state.deadPlacesSize = local_ndead;
 
         free(failed_ranks);
         MPI_Group_free(&comm_group);

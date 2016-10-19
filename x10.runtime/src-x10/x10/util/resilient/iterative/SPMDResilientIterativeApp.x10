@@ -12,16 +12,18 @@
 package x10.util.resilient.iterative;
 
 import x10.util.ArrayList;
+import x10.util.HashMap;
 import x10.util.Team;
+import x10.util.resilient.localstore.*;
 
-public interface LocalViewResilientIterativeAppOpt {
+public interface SPMDResilientIterativeApp {
     public def isFinished_local():Boolean;
     
     public def step_local():void;
     
-    public def checkpoint_local(store:DistObjectSnapshot, readOnlyDataStore:DistObjectSnapshot):void;
+    public def getCheckpointData_local():HashMap[String,Cloneable];
     
     public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]):void;
     
-    public def restore_local(store:DistObjectSnapshot, readOnlyDataStore:DistObjectSnapshot, lastCheckpointIter:Long):void;
+    public def restore_local(restoreDataMap:HashMap[String,Cloneable], lastCheckpointIter:Long):void;   
 }

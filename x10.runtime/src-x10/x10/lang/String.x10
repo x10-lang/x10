@@ -370,6 +370,7 @@ public final class String implements Comparable[String], CharSequence {
      *         The method returns false otherwise.
      */
     @Native("java", "(#this).contains(#str)")
+    @Native("c++",  "(::x10aux::nullCheck(#this)->contains(#str) >= 0)")
     public native def contains(str:String):Boolean;
 
     /**

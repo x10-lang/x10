@@ -11,13 +11,17 @@
  */
 package x10.util.resilient.iterative;
 
+import x10.util.ArrayList;
 import x10.util.HashMap;
+import x10.util.Team;
+import x10.util.resilient.localstore.*;
 
-/**
- * A snapshot of an object, providing methods to copy objects locally and remotely.
- */
-public interface Snapshot {
-    public abstract def clone():Any;
-    public abstract def remoteCopyAndSave(key:Any, hm:PlaceLocalHandle[HashMap[Any,Any]], backupPlace:Place):void;
-    public abstract def remoteClone(targetPlace:Place):GlobalRef[Any]{self.home==targetPlace};
+public interface GlobalResilientIterativeApp {
+    public def isFinished():Boolean;
+    
+    public def step():void;
+    
+    public def checkpoint(store:ApplicationSnapshotStore):void;
+    
+    public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]):void;
 }
