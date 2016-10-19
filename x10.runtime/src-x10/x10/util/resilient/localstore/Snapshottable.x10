@@ -9,17 +9,13 @@
  *  (C) Copyright IBM Corporation 2006-2016.
  *  (C) Copyright Sara Salem Hamouda 2014-2016.
  */
-package x10.util.resilient.iterative;
+package x10.util.resilient.localstore;
 
 /**
  * A Snapshottable object provides methods to create a snapshot of its
  * (distributed) state and restore to a previous snapshotted state.
  */
 public interface Snapshottable {
-    public def makeSnapshot():DistObjectSnapshot;
-    public def restoreSnapshot(snapshot:DistObjectSnapshot):void;
-    
-    public def makeSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void;
-    public def restoreSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void;
-    
+    public def makeSnapshot_local():Cloneable;
+    public def restoreSnapshot_local(snapshot:Cloneable):void;
 }
