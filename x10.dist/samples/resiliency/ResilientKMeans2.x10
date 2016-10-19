@@ -71,7 +71,7 @@ public class ResilientKMeans2 {
         
         //should be used only for recovery
         //the data will be initialized from a checkpoint
-        def this() {        	
+        def this() {            
         }
         
         def localStep(currentClusters:Array_2[Float]) {
@@ -119,13 +119,13 @@ public class ResilientKMeans2 {
     
     //LocalState is Unserializable, we can not use it for checkpointing
     static class LocalStateSnapshot(points:Array_2[Float], numClusters:Long, dim:Long) implements Cloneable {        
-    	public def clone():Cloneable {
-        	return new LocalStateSnapshot(points, numClusters, dim);        	
+        public def clone():Cloneable {
+            return new LocalStateSnapshot(points, numClusters, dim);            
         }
     }
 
     static class DistState implements Snapshottable {
-    	val lsPLH:PlaceLocalHandle[LocalState];
+        val lsPLH:PlaceLocalHandle[LocalState];
         var places:PlaceGroup;
     
         public def this(lsPLH:PlaceLocalHandle[LocalState], places:PlaceGroup) {
@@ -134,29 +134,29 @@ public class ResilientKMeans2 {
         }
     
         public def makeSnapshot_local() {
-        	return new LocalStateSnapshot(lsPLH().points, lsPLH().numClusters, lsPLH().dim);
+            return new LocalStateSnapshot(lsPLH().points, lsPLH().numClusters, lsPLH().dim);
         }
     
         public def restoreSnapshot_local(o:Cloneable) {
-    	    val other = o as LocalStateSnapshot;
-    	    lsPLH().points = other.points;    	    
-    	    lsPLH().numPoints = other.points.numElems_1;
-    	    lsPLH().numClusters = other.numClusters;
-    	    lsPLH().dim = other.dim;
-    	    
-    	    lsPLH().clusters  = new Array_2[Float](other.numClusters, other.dim);
-    	    lsPLH().clusterCounts = new Rail[Int](other.numClusters);
+            val other = o as LocalStateSnapshot;
+            lsPLH().points = other.points;            
+            lsPLH().numPoints = other.points.numElems_1;
+            lsPLH().numClusters = other.numClusters;
+            lsPLH().dim = other.dim;
+            
+            lsPLH().clusters  = new Array_2[Float](other.numClusters, other.dim);
+            lsPLH().clusterCounts = new Rail[Int](other.numClusters);
         }
         
         public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]) {
-        	this.places = newPlaces;
-        	for (p in newAddedPlaces) {
-        		PlaceLocalHandle.addPlace[LocalState](lsPLH, p, ()=>new LocalState());
-        	}
+            this.places = newPlaces;
+            for (p in newAddedPlaces) {
+                PlaceLocalHandle.addPlace[LocalState](lsPLH, p, ()=>new LocalState());
+            }
         }
     }
     
-    static class KMeansMaster implements x10.io.Unserializable, GlobalResilientIterativeApp {
+    static class KMeansMaster implements GlobalResilientIterativeApp {
         val distState:DistState;
         var currentClusters:Array_2[Float];
         val newClusters:Array_2[Float];
@@ -249,27 +249,16 @@ public class ResilientKMeans2 {
         }
         
         //Sara: FIXME: the executor starts a fan-out to every place, although we only checkpoint data at the master place        
-        public def checkpoint(store:ApplicationSnapshotStore) {        	
-        	store.saveReadOnly("distState", distState);        	
-        	ckptCurrentClusters = new Array_2(currentClusters);
-        	//Console.OUT.println("TODO: implement checkpoint!");
-            // Need to checkpoint: (a) points at each place (read only)
-            //                     (b) currentClusters (master place only...same everywhere).
+        public def checkpoint(store:ApplicationSnapshotStore) {            
+            store.saveReadOnly("distState", distState);            
+            ckptCurrentClusters = new Array_2(currentClusters);
         }
         
         public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]) {
-        	this.pg = newPlaces;        	
-        	distState.remake(newPlaces, newAddedPlaces);
-        	currentClusters = new Array_2(ckptCurrentClusters);
+            this.pg = newPlaces;            
+            distState.remake(newPlaces, newAddedPlaces);
+            currentClusters = new Array_2(ckptCurrentClusters);
         }
-
-        /* Sara: Restore is done automatically in the Global view executor
-        public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotStore,
-                    lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void {
-            Console.OUT.println("TODO: implement restore!");
-            // Need to restore (a) points in addedPlaces and (b) currentClusters (master place).
-        }
-        */
     }
 
     static def printPoints (clusters:Array_2[Float]) {
@@ -287,8 +276,8 @@ public class ResilientKMeans2 {
                                numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean,
                                checkpointFreq:Long, resilientStore:ResilientStore):Array_2[Float] {
 
-    	val startTime = Timer.milliTime(); //the executor takes milli time.  
-    	
+        val startTime = Timer.milliTime(); //the executor takes milli time.  
+        
         // Initialize LocalState in every Place
         val localPLH = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(initPoints, dim, numClusters) });
 
@@ -346,12 +335,11 @@ public class ResilientKMeans2 {
         var pg:PlaceGroup = Place.places();
         var resilientStore:ResilientStore = null;
         if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
-        	resilientStore = ResilientStore.make(sparePlaces);
-        	pg = resilientStore.getActivePlaces();
-        }
-        else {
-        	Console.OUT.println("\n--\n--\nWARNING: Running in non-resilient mode because "
-        			+ "no spare places are available or X10_RESILIENT_MODE=0\n--\n--\n");
+            resilientStore = ResilientStore.make(sparePlaces);
+            pg = resilientStore.getActivePlaces();
+        } else {
+            Console.OUT.println("\n--\n--\nWARNING: Running in non-resilient mode because "
+                    + "no spare places are available or X10_RESILIENT_MODE=0\n--\n--\n");
         }
         
         val pointsPerPlace = numPoints / pg.size();
