@@ -417,8 +417,7 @@ public class X10RT {
     }
 
     public static boolean agreementSupport() {
-        assert isBooted();
-        return x10rt_agreement_support();
+        return false;
     }
 
     /**

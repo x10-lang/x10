@@ -12,6 +12,7 @@
 package x10.matrix.builder.distblock;
 
 import x10.regionarray.Dist;
+import x10.util.Team;
 import x10.compiler.Inline;
 
 import x10.matrix.Matrix;
@@ -46,11 +47,11 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
      * The actual memory spaces are not allocated.
      */
     public static def make(pg:SymGrid, dp:DistMap):DistSymMatrixBuilder(pg.M) =
-        make(pg, dp, Place.places());
+        make(pg, dp, Place.places(), Team.WORLD);
     
-    public static def make(pg:SymGrid, dp:DistMap, places:PlaceGroup):DistSymMatrixBuilder(pg.M) {
+    public static def make(pg:SymGrid, dp:DistMap, places:PlaceGroup, team:Team):DistSymMatrixBuilder(pg.M) {
         //Remote capture: partitioning and distribution
-        val bld = DistMatrixBuilder.make(pg as Grid, dp, places);
+        val bld = DistMatrixBuilder.make(pg as Grid, dp, places, team);
         val sbd = new DistSymMatrixBuilder(bld as DistMatrixBuilder{self.M==self.N});
         return sbd as DistSymMatrixBuilder(pg.M);
     }
@@ -58,12 +59,12 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
     /**
      * Create symmetric distributed block matrix with given leading dimension and its partitioning blocks.
      */
-    public static def make(m:Long, bM:Long):DistSymMatrixBuilder(m) = make(m, bM, Place.places());
+    public static def make(m:Long, bM:Long):DistSymMatrixBuilder(m) = make(m, bM, Place.places(), Team.WORLD);
     
-    public static def make(m:Long, bM:Long, places:PlaceGroup):DistSymMatrixBuilder(m) {
+    public static def make(m:Long, bM:Long, places:PlaceGroup, team:Team):DistSymMatrixBuilder(m) {
         val sgrid = new SymGrid(m, bM);
         val dgrid = DistGrid.make(sgrid as Grid, places.size());
-        val bdr = make(sgrid, dgrid.dmap, places);
+        val bdr = make(sgrid, dgrid.dmap, places, team);
         return bdr as DistSymMatrixBuilder(m);
     }
     

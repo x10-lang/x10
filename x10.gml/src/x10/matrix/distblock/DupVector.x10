@@ -22,12 +22,12 @@ import x10.matrix.ElemType;
 
 import x10.matrix.util.Debug;
 
-import x10.util.resilient.iterative.DistObjectSnapshot;
-import x10.util.resilient.iterative.Snapshottable;
+import x10.util.resilient.localstore.Snapshottable;
 import x10.util.resilient.VectorSnapshotInfo;
 
 import x10.util.Team;
 import x10.util.ArrayList;
+import x10.util.resilient.localstore.Cloneable;
 
 public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};
@@ -548,7 +548,7 @@ public class DupVector(M:Long) implements Snapshottable {
         }
         else{
             for (sparePlace in addedPlaces){
-                Console.OUT.println("Adding place["+sparePlace+"] to DupVector PLH ...");
+                //Console.OUT.println("Adding place["+sparePlace+"] to DupVector PLH ...");
                 PlaceLocalHandle.addPlace[DupVectorLocalState](dupV, sparePlace, ()=>new DupVectorLocalState(Vector.make(M), newPg.indexOf(here)));
             }
         }
@@ -559,70 +559,23 @@ public class DupVector(M:Long) implements Snapshottable {
     /*
      * Snapshot mechanism
      */
-    private transient val DUMMY_KEY:Long = 8888L;
-
-    /**
-     * Create a snapshot for the DupVector by storing the current place's vector 
-     * @return a snapshot for the DupVector data stored in a resilient store
-     */
-    public def makeSnapshot():DistObjectSnapshot {
-        val snapshot = DistObjectSnapshot.make();
-        val mode = System.getenv("X10_RESILIENT_STORE_MODE");
-        if (mode == null || mode.equals("0")){
-            val data = dupV().vec.d;
-            val placeIndex = 0;
-            snapshot.save(DUMMY_KEY, new VectorSnapshotInfo(placeIndex, data));
-        } else {
-            finish ateach(Dist.makeUnique(places)) {
-                val data = dupV().vec.d;
-                val placeIndex = dupV().placeIndex;
-                snapshot.save(placeIndex, new VectorSnapshotInfo(placeIndex, data));
-            }
-        }
-        return snapshot;
-    }
-
-    /**
-     * Restore the DupVector data using the provided snapshot object 
-     * @param snapshot a snapshot from which to restore the data
-     */
-    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        val mode = System.getenv("X10_RESILIENT_STORE_MODE");
-        if (mode == null || mode.equals("0")){
-            val dupSnapshotInfo:VectorSnapshotInfo = snapshot.load(DUMMY_KEY) as VectorSnapshotInfo;
-            new Vector(dupSnapshotInfo.data).copyTo(dupV().vec);
-            sync();
-        } else {
-            finish ateach(Dist.makeUnique(places)) {
-                val segmentPlaceIndex = dupV().placeIndex;
-                val storedVector = snapshot.load(segmentPlaceIndex) as VectorSnapshotInfo;
-                val srcRail = storedVector.data;
-                val dstRail = dupV().vec.d;
-                Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
-            }
-        }
-    }
-    
-    
-    public def makeSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void {        
-        val data = dupV().vec.d;
+    public def makeSnapshot_local():Cloneable {
+    	val data = dupV().vec.d;
         val placeIndex = dupV().placeIndex;
-        snapshot.save(prefix+placeIndex, new VectorSnapshotInfo(placeIndex, data));
+        return new VectorSnapshotInfo(placeIndex, data) as Cloneable;
     }
     
-    
-    public def restoreSnapshot_local(prefix:String, snapshot:DistObjectSnapshot) {
-        val segmentPlaceIndex = dupV().placeIndex;
-        val storedVector = snapshot.load(prefix+segmentPlaceIndex) as VectorSnapshotInfo;
-        val srcRail = storedVector.data;
+    public def restoreSnapshot_local(vec:Cloneable) {
+        val vecInfo = vec as VectorSnapshotInfo;	
+    	val srcRail = vecInfo.data;
         val dstRail = dupV().vec.d;
-        Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
+        Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);        
     }    
 }
 
 class DupVectorLocalState {
     public var vec:Vector;
-    public val placeIndex:Long;
+    public val placeIndex:Long; //FIXME: remove this field
     
     public def this(v:Vector, placeIndex:Long){
         this.vec = v;

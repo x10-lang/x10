@@ -14,6 +14,7 @@ package x10.matrix.sparse;
 import x10.util.Pair;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
@@ -640,6 +641,18 @@ public class SparseCSR extends Matrix {
                 }
                 return this;
         }
+
+    public def sum():ElemType {
+        throw new UnsupportedOperationException("SparseCSR.sum");
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        throw new UnsupportedOperationException("SparseCSR.rowSumTo");
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        throw new UnsupportedOperationException("SparseCSR.colSumTo");
+    }
 
     /**
      * Return this += x; not supported

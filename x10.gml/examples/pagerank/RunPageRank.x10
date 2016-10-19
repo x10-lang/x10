@@ -15,8 +15,11 @@ import x10.util.Timer;
 
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.matrix.util.VerifyTool;
+
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.util.Team;
+import x10.util.resilient.localstore.ResilientStore;
 
 /**
  * Page Rank demo
@@ -32,6 +35,8 @@ import x10.matrix.util.VerifyTool;
  * <li>Print output flag: Default false.</li>
  * </ol>
  */
+//Resilient run command over MPI-ULFM
+//PAGERANK_DEBUG=0 KILL_STEPS=15,30 KILL_PLACES=5,6 DISABLE_ULFM_AGREEMENT=0 EXECUTOR_DEBUG=0 X10_RESILIENT_MODE=1 mpirun -n 10 -am ft-enable-mpi ./RunPageRank_mpi_double -m 100 --density 0.8 --iterations 20 -k 10 -s 2
 public class RunPageRank {
     public static def main(args:Rail[String]): void {
         val opts = new OptionsParser(args, [
@@ -43,9 +48,10 @@ public class RunPageRank {
             Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.001"),
-            Option("i","iterations","number of iterations, default = 20"),
-            Option("s","skip","skip places count (at least one place should remain), default = 0"),
-            Option("", "checkpointFreq","checkpoint iteration frequency")
+            Option("i","iterations","number of iterations, default = 0 (run until convergence)"),
+            Option("t","tolerance","convergence tolerance, default = 0.0001"),
+            Option("s","spare","spare places count (at least one place should remain), default = 0"),
+            Option("k", "checkpointFreq","checkpoint iteration frequency")
         ]);
 
         if (opts.filteredArgs().size!=0) {
@@ -59,26 +65,53 @@ public class RunPageRank {
             return;
         }
 
-        val mG = opts("m", 100000);
         val nonzeroDensity = opts("d", 0.001f);
-        val iterations = opts("i", 20n);
+        val iterations = opts("i", 0n);
+        val tolerance = opts("t", 0.0001f);
         val verify = opts("v");
         val print = opts("p");
-        val skipPlaces = opts("s", 0n);
+        val sparePlaces = opts("s", 0n);
         val checkpointFreq = opts("checkpointFreq", -1n);
-
-        Console.OUT.printf("G: rows/cols %d density: %.3f (non-zeros: %d) iterations: %d\n",
+        val placesCount = Place.numPlaces() - sparePlaces;
+        
+        val mG = opts("m", (20000*Math.sqrt(placesCount*5)) as Long );
+        
+        Console.OUT.printf("G: rows/cols %d density: %.3e (non-zeros: %d) iterations: %d\n",
                             mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
-		if ((mG<=0) || iterations < 1n || nonzeroDensity <= 0.0 || skipPlaces < 0 || skipPlaces >= Place.numPlaces())
+	    if ((mG<=0) || nonzeroDensity <= 0.0 || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
-            val places = (skipPlaces==0n) ? Place.places() 
-                                          : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
+            val startTime = Timer.milliTime();
+            var resilientStore:ResilientStore = null;
+            var placesVar:PlaceGroup = Place.places();
+            var team:Team = Team.WORLD;
+            if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
+            	resilientStore = ResilientStore.make(sparePlaces);
+            	placesVar = resilientStore.getActivePlaces();
+            	team = new Team(placesVar);
+            }
+            val places = placesVar;
+            
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
-            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, rowBlocks, colBlocks, checkpointFreq, places);
-            paraPR.init(nonzeroDensity);
+            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places, team, resilientStore);
+
+/*
+            // toy example copied from Spark (users/followers)
+            val M = 6;
+            val G = DistBlockMatrix.makeDense(M, M, Place.numPlaces(), 1);
+            G(0,1) = 1.0;
+            G(0,3) = 1.0;
+            G(1,0) = 1.0;
+            G(2,4) = 1.0;
+            G(2,5) = 1.0;
+            G(4,5) = 1.0;
+            G(5,4) = 1.0;
+            G(5,2) = 1.0;
+            val paraPR = new PageRank(G, iterations, tolerance, 1.0f, 0, Place.places(), Team.WORLD);
+            Console.OUT.println("P = " + paraPR.P);
+*/
 
             if (print) paraPR.printInfo();
 
@@ -87,12 +120,7 @@ public class RunPageRank {
                 origP = paraPR.P.local().clone();
             }
 
-			val startTime = Timer.milliTime();
-            val paraP = paraPR.run();
-			val totalTime = Timer.milliTime() - startTime;
-
-			Console.OUT.printf("Parallel PageRank --- Total: %8d ms, parallel runtime: %8d ms, seq: %8d ms, commu time: %8d ms\n",
-					totalTime, paraPR.paraRunTime, paraPR.seqTime, paraPR.commTime); 
+            val paraP = paraPR.run(startTime);
             
             if (print) {
                 Console.OUT.println("Input G sparse matrix\n" + paraPR.G);
@@ -102,10 +130,10 @@ public class RunPageRank {
             if (verify) {
                 val g = paraPR.G;
                 val localU = Vector.make(g.N);
-                paraPR.U.copyTo(localU);
                 
-                val seqPR = new SeqPageRank(g.toDense(), origP, 
-                        localU, iterations);
+                //paraPR.U.copyTo(localU);
+                
+                val seqPR = new SeqPageRank(g.toDense(), iterations, tolerance);
 		        Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
                 Debug.flushln("Verifying results against sequential version");

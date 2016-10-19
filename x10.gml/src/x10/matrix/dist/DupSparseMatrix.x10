@@ -15,9 +15,10 @@ import x10.regionarray.Dist;
 import x10.regionarray.DistArray;
 import x10.util.Timer;
 
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
+import x10.matrix.DenseMatrix;
+import x10.matrix.Matrix;
+import x10.matrix.Vector;
 
 import x10.matrix.comm.MatrixBcast;
 import x10.matrix.sparse.SparseCSC;
@@ -323,8 +324,6 @@ public class DupSparseMatrix extends Matrix {
 	    throw new UnsupportedOperationException();
 	}
 
-	// Cellwise operation
-
 	/**
 	 * Scaling method. All copies are updated concurrently
 	 */
@@ -337,13 +336,18 @@ public class DupSparseMatrix extends Matrix {
 		return this;
     }
 
+    public def sum():ElemType {
+        return local().sum();
+    }
 
-	// Cellwise addition
+    public def rowSumTo(vec:Vector(M)) {
+        local().rowSumTo(vec);
+    }
 
+    public def colSumTo(vec:Vector(N)) {
+		local().colSumTo(vec);
+    }
 
-	/**
-	 * Not support. Cellwise subtraction.
-	 */
 	public def cellAdd(A:Matrix(M,N)):DupSparseMatrix(this) {
 		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}

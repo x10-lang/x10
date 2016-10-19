@@ -24,12 +24,12 @@ build_path	= build
 gml_path    = $(X10_HOME)/x10.gml
 
 # compile options
-X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -g -O -NO_CHECKS
+X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -g -O -NO_CHECKS
 
 HAMMER_FILE ?= ./hammer_iter.txt
 
 # runtime settings
-runtime_list = sock java
+runtime_list = native java
 numplaces = 8
 test_args = -m 1000 -n 1000 --density 0.09 --iterations 30 --verify
 

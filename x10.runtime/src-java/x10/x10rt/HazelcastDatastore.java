@@ -52,11 +52,17 @@ public class HazelcastDatastore {
                 ClientNetworkConfig netconfig = config.getNetworkConfig();
                 netconfig.setAddresses(leaders);
             }
+            config.setProperty("hazelcast.socket.connect.timeout.seconds", "1");
+            config.setProperty("hazelcast.connection.monitor.max.faults", "0");
+            config.setProperty("hazelcast.operation.backup.timeout.millis", "100");
             config.setProperty("hazelcast.logging.type", "none"); // disables Hazelcast logging (but not enough until Hazelcast 3.7)
             System.setProperty("hazelcast.logging.type", "none"); // workaround Hazelcast limitation that may be fixed in 3.7
             hazelcast = HazelcastClient.newHazelcastClient(config);
         } else {
             Config config = new Config();
+            config.setProperty("hazelcast.socket.connect.timeout.seconds", "1");
+            config.setProperty("hazelcast.connection.monitor.max.faults", "0");
+            config.setProperty("hazelcast.operation.backup.timeout.millis", "100");
             config.setProperty("hazelcast.logging.type", "none"); // disables Hazelcast logging
             NetworkConfig netconfig = config.getNetworkConfig();
             if (launcherProvidedHostname != null) { // override the network interfaces used to match the hostfile/hostlist

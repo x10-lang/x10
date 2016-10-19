@@ -11,8 +11,8 @@
 
 package x10.matrix.block;
 
-
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
@@ -352,6 +352,26 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
+
+    public def sum():ElemType {
+        var sum:ElemType = 0.0 as ElemType;
+        for (p in 0..(listBs.size-1)) {
+            sum += listBs(p).sparse.sum();
+        }
+        return sum;
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+		for (p in 0..(listBs.size-1)) {
+            listBs(p).sparse.rowSumTo(vec);
+        }
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+		for (p in 0..(listBs.size-1)) {
+            listBs(p).sparse.colSumTo(vec);
+        }
+    }
 
     /**
      * Not valid operation for sparse matrix

@@ -19,8 +19,7 @@ import x10.matrix.util.Debug;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 
 import x10.util.Team;
-import logreg.SeqLogReg;
-import logreg.LogisticRegression;
+import x10.matrix.util.MathTool;
 
 /**
  * Test harness for Logistic Regression using GML
@@ -33,13 +32,15 @@ public class RunLogReg {
 					    Option("v","verify","verify the parallel result against sequential computation"),
 					    Option("p","print","print matrix V, vectors d and w on completion")
 					    ], [
+                        Option("f","dataFile","input data file name"),
+                        Option("l","labelsFile","input labels file name"),
 						Option("m","rows","number of rows, default = 10"),
 						Option("n","cols","number of columns, default = 10"),
 						Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
 						Option("c","colBlocks","number of columnn blocks; default = 1"),
 						Option("d","density","nonzero density, default = 0.5"),
-						Option("i","iterations","number of iterations, default = 2"),
-                        Option("t","innerIterations","number of inner iterations, default = 0 (no limit)"),
+						Option("i","iterations","number of outer (Newton) iterations, default = 100"),
+						Option("x","innerIterations","number of inner (conjugate gradient) iterations, default = 0 (no max)"),
 						Option("s","skip","skip places count (at least one place should remain), default = 0"),
 						Option("", "checkpointFreq","checkpoint iteration frequency")
 						]);
@@ -65,15 +66,17 @@ public class RunLogReg {
             if (skipPlaces > 0)
                 Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
 
+            val startTime = Timer.milliTime();
+            
             val places = (skipPlaces==0n) ? Place.places() 
                 : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
             val team = new Team(places);
-
+            
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
             val nonzeroDensity = opts("d", 0.5f);
-            val iterations = opts("i", 2n);
-            val innerIterations = opts("t", 0n);
+            val iterations = opts("i", 100n);
+            val innerIterations = opts("x", 0n);
             val verify = opts("v");
             val print = opts("p");
             val checkpointFreq = opts("checkpointFreq", -1n);
@@ -90,29 +93,47 @@ public class RunLogReg {
                 denX = prun.X.toDense();
                 y = Vector.make(denX.M);
                 prun.y.copyTo(y); // gather
-                w = prun.w.clone();// as Vector(nX);
+                w = prun.w.local().clone();// as Vector(nX);
             }
 	    
             Debug.flushln("Starting logistic regression");
-			val startTime = Timer.milliTime();
-			prun.run();
-			val totalTime = Timer.milliTime() - startTime;
-
-		    Console.OUT.printf("Parallel logistic regression --- Total: %8d ms, parallel: %8d ms, sequential: %8d ms, communication: %8d ms\n",
-				    totalTime, prun.parCompT, prun.seqCompT, prun.commT);
 			
-			if (verify) { /* Sequential run */
-				val seq = new SeqLogReg(denX, y, w, iterations, 0);
+	    prun.train(startTime);
+						
+	    if (verify) { /* Sequential run */
+                
+                                
+		val seq = new SeqLogReg(denX, y, w, iterations, iterations);
 
-		        Debug.flushln("Starting sequential logistic regression");
-				seq.run();
+		Debug.flushln("Starting sequential logistic regression");
+		seq.run();
                 Debug.flushln("Verifying results against sequential version");
-				if (prun.w.equals(w)) {
-					Console.OUT.println("Verification passed.");
-				} else {
+                
+                Console.OUT.println("w_parallel: " + prun.w.local().toString());
+                Console.OUT.println("w_sequential: " +w.toString());
+                
+                
+		if (equalsRespectNaN(prun.w.local(), w)) {
+		    Console.OUT.println("Verification passed.");
+	        } else {
                     Console.OUT.println("Verification failed!");
                 }
 	    }
 	}
+    }
+    
+    /*
+     * Vector.equals(Vector) modified to allow NaN.
+     */
+    public static def equalsRespectNaN(w:Vector, v:Vector):Boolean {
+    val M = w.M;
+    if (M != v.M) return false;
+    for (var c:Long=0; c< M; c++)
+    if (MathTool.isZero(w.d(c) - v.d(c)) == false && !(w.d(c).isNaN() && v.d(c).isNaN())) {
+    Console.OUT.println("Diff found [" + c + "] : "+
+    w.d(c) + " <> "+ v.d(c));
+    return false;
+    }
+    return true;
     }
 }

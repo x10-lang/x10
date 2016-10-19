@@ -474,7 +474,7 @@ public class DenseMatrix extends Matrix {
      * Transpose the input matrix and store in this matrix.
      * @param X source matrix to transpose; may not be the same as this matrix
      */
-    public def T(X:DenseMatrix{self!=this,self.M==this.N,self.N==this.M}):DenseMatrix(this) {
+    public def T(X:DenseMatrix{self!=this,self.M==this.N,self.N==this.M}) {
         var src_idx:Long =0;
         var dst_idx:Long =0;
         //Need to be more efficient
@@ -628,6 +628,28 @@ public class DenseMatrix extends Matrix {
      */
     public def sum():ElemType
         = reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero);
+
+    /**
+     * Accumulate the sum of elements in each row to the given vector.
+     */
+    public def rowSumTo(vec:Vector(M)) {
+        for (i in 0..(M-1)) {
+            for (j in 0..(N-1)) {
+                vec(i) += d(j*M+i);
+            }
+        }
+    }
+
+    /**
+     * Accumulate the sum of elements in each column to the given vector.
+     */
+    public def colSumTo(vec:Vector(N)) {
+        for (j in 0..(N-1)) {
+            for (i in 0..(M-1)) {
+                vec(j) += d(j*M+i);
+            }
+        }
+    }
 
     /**
      * Add a constant value to each element of this matrix

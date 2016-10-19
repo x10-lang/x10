@@ -25,12 +25,12 @@ build_path	= build
 gml_path    = $(X10_HOME)/x10.gml
 
 # compile options
-X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -g -NO_CHECKS
 
 # runtime settings
-runtime_list = sock java
+runtime_list = native java
 numplaces = 4
-test_args = -m 100 --density 0.01 --iterations 20 --verify
+test_args = -m 10000 --density 0.015 --iterations 30 --checkpointFreq 10 #--verify
 
 ###################################################
 # Build rules

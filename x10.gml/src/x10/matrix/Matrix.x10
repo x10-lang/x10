@@ -143,6 +143,39 @@ public abstract class Matrix(M:Long, N:Long) {
     abstract public def scale(alpha:ElemType): Matrix(this);
 
     /**
+     * @return the sum of all elements of this matrix
+     */
+    abstract public def sum():ElemType;
+
+    /**
+     * @return a vector containing the sum of the elements in each row
+     */
+    public def rowSum():Vector(M) {
+        val v = Vector.make(M);
+        rowSumTo(v);
+        return v;
+    }
+
+    /**
+     * Accumulate the sum of elements in each row to the given vector.
+     */
+    abstract public def rowSumTo(vec:Vector(M)):void;
+
+    /**
+     * @return a vector containing the sum of the elements in each column
+     */
+    public def colSum():Vector(N) {
+        val v = Vector.make(N);
+        colSumTo(v);
+        return v;
+    }
+
+    /**
+     * Accumulate the sum of elements in each column to the given vector.
+     */
+    abstract public def colSumTo(vec:Vector(N)):void;
+
+    /**
      * Cellwise addition this = this + x.
      * 
      * @param x   input matrix

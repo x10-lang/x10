@@ -87,7 +87,7 @@ public final class Compress1D {
 	public static def makeRand(maxIndex:Long, 
 							   nzp:Float, 
 							   offset:Long,
-							   ca:CompressArray):Compress1D {
+							   ca:CompressArray) {
 		val cnt=ca.initRandom(offset, maxIndex, nzp);
 		return new Compress1D(offset, cnt, ca);
 	}
@@ -148,7 +148,7 @@ public final class Compress1D {
 	public static def makeRandomFast(maxIndex:Long, 
 									 nzp:Float, 
 									 offset:Long,
-									 ca:CompressArray):Compress1D {
+									 ca:CompressArray) {
 		val cnt=ca.initRandomFast(offset, maxIndex, nzp);
 		return new Compress1D(offset, cnt, ca);
 	}
@@ -161,7 +161,7 @@ public final class Compress1D {
 	 * using shared storage among all compressed row/columns, do not
 	 * use this method.
 	 */
-	public def clone():Compress1D {
+	public def clone() {
 		val ca = new CompressArray(length);
 		for (var i:Long=0; i<length; i++)
 		    ca(i)=Pair(cArray.getIndex(offset+1), cArray.getValue(offset+i));
@@ -173,7 +173,7 @@ public final class Compress1D {
 
 	// Memory disjointed compress
 	public static def compress(src:Rail[ElemType] //The data array to be compressed
-							   ):Compress1D {
+							   ) {
 		val ca = CompressArray.compress(src);
 		return new Compress1D(0, ca.count, ca);
 	}

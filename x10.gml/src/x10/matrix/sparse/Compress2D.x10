@@ -39,7 +39,7 @@ public final class Compress2D {
 	 * @param n     Number of compressed lines.
 	 * @param ca     The shared data storage of compressed array.
 	 */
-	public static def make(n:Long, ca:CompressArray):Compress2D {    
+	public static def make(n:Long, ca:CompressArray) {    
 	    return new Compress2D(new Rail[Compress1D](n,
 					(Long)=>new Compress1D(0,0,ca)));
 	}
@@ -51,7 +51,7 @@ public final class Compress2D {
 	 * @param  n      number of compress1D 
 	 * @param  maxCount     the total number of non-zeros 
 	 */
-	public static def make(n:Long, maxCount:Long):Compress2D {
+	public static def make(n:Long, maxCount:Long) {
 		val ca = new CompressArray(maxCount);
 		return Compress2D.make(n, ca);
 	}
@@ -60,7 +60,7 @@ public final class Compress2D {
 	// Not define memory space to hold data
 	// Can be used to store discrete data
 	// TODO: Figure out what this is doing.
-	static def makeDisjoint(n:Long):Compress2D {
+	static def makeDisjoint(n:Long) {
 		val cl = new Rail[Compress1D](n);
 		return new Compress2D(cl);
 	}
@@ -75,7 +75,7 @@ public final class Compress2D {
 	public static def make(ia:Rail[Long],
 						   ja:Rail[Long]{self!=null},
 						   aval:Rail[ElemType]{self!=null,self.size==ja.size}
-						   ):Compress2D {
+						   ) {
 		val len = ia.size-1;
 		val cpd = new Rail[Compress1D](len);
 		val ca  = new CompressArray(ja, aval, ia(len));
@@ -97,7 +97,7 @@ public final class Compress2D {
 	 * @param count     Number of lines
 	 * @param lineSize     Rail of sizes of lines.
 	 */
-	public static def make(ca:CompressArray, start:Long, count:Long, lineSize:Rail[Long]):Compress2D {
+	public static def make(ca:CompressArray, start:Long, count:Long, lineSize:Rail[Long]) {
 		assert start+count <= lineSize.size;
 		val cd = new Rail[Compress1D](count);
 		var sourceLine:Long = start;
@@ -236,7 +236,7 @@ public final class Compress2D {
 	 * @param nzp          Nonzero sparsity
 	 * @param ca           The data storage for compress array.
 	 */
-	public static def makeRand(n:Long, maxIndex:Long, nzp:Float, ca:CompressArray):Compress2D {
+	public static def makeRand(n:Long, maxIndex:Long, nzp:Float, ca:CompressArray) {
 		val c2d = Compress2D.make(n, ca);
 		c2d.initRandom(maxIndex, nzp);
 		return c2d;
@@ -249,7 +249,7 @@ public final class Compress2D {
 	 * @param nzp          Nonzero percentage
 	 * @param ca           The data storage for compress array.
 	 */
-	public static def makeRandomFast(n:Long, maxIndex:Long, nzp:Float, ca:CompressArray):Compress2D {
+	public static def makeRandomFast(n:Long, maxIndex:Long, nzp:Float, ca:CompressArray) {
 		val c2d = Compress2D.make(n, ca);
 		c2d.initRandomFast(maxIndex, nzp);
 		return c2d;
@@ -323,7 +323,7 @@ public final class Compress2D {
 	/**
 	 * Make a copy of myself
 	 */
-	public def clone():Compress2D {
+	public def clone() {
 		val ca = this.getStorage().clone();
 		val cd = new Rail[Compress1D](this.size(), 
 		        (i:Long) => new Compress1D(this.cLine(i).offset, 

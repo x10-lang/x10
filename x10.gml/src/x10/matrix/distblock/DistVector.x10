@@ -28,12 +28,12 @@ import x10.matrix.util.MathTool;
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 
-import x10.util.resilient.iterative.DistObjectSnapshot;
-import x10.util.resilient.iterative.Snapshottable;
+import x10.util.resilient.localstore.Snapshottable;
 import x10.util.resilient.VectorSnapshotInfo;
 
 import x10.util.RailUtils;
 import x10.util.Team;
+import x10.util.resilient.localstore.Cloneable;
 
 public type DistVector(m:Long)=DistVector{self.M==m};
 public type DistVector(v:DistVector)=DistVector{self==v};
@@ -185,21 +185,23 @@ public class DistVector(M:Long) implements Snapshottable {
             if (here == gr.home){
                 dst = gr();
             }   
-distV().gathervTime -= Timer.milliTime(); 
             team.gatherv(gr.home, src, 0, dst, 0, getSegSize());
-distV().gathervTime += Timer.milliTime();
         }
     }
     
-    public def copyTo(root:Place, vec:Vector(M)):void {
+    /**
+     * Gather all elements of this distributed vector into the given (local)
+     * vector at the root place.  On return from this method, vec will contain
+     * the elements of this vector only at the root place. The Vector vec
+     * is not used at other places.
+     */
+    public def copyTo_local(root:Place, vec:Vector(M)):void {
         val src = distV().vec.d;
         var dst:Rail[ElemType] = null;
         if (here.id == root.id){
             dst = vec.d;
         }
-distV().gathervTime -= Timer.milliTime();
         team.gatherv(root, src, 0, dst, 0, getSegSize());
-distV().gathervTime += Timer.milliTime();
     }
 
 
@@ -210,10 +212,8 @@ distV().gathervTime += Timer.milliTime();
             val dst = distV().vec.d;
             if (here == gr.home){
                 src = gr();
-            }
-distV().scattervTime -= Timer.milliTime();           
+            }         
             team.scatterv(gr.home, src, 0, dst, 0, getSegSize());
-distV().scattervTime += Timer.milliTime();
         }
     }
     
@@ -223,9 +223,7 @@ distV().scattervTime += Timer.milliTime();
         if (here.id == root.id){
             src = vec.d;
         }
-distV().scattervTime -= Timer.milliTime();
         team.scatterv(root,src, 0, dst, 0, getSegSize());
-distV().scattervTime += Timer.milliTime();
     }
     
     public def copyFrom_local(src:Vector(M)): void {
@@ -310,6 +308,11 @@ distV().scattervTime += Timer.milliTime();
         return this;
     }
 
+    public def cellAdd_local(dv:ElemType)  {
+        distV().vec.cellAdd(dv);
+        return this;
+    }
+
     /**
      * Concurrently perform cellwise subtraction on all copies
      */
@@ -330,6 +333,11 @@ distV().scattervTime += Timer.milliTime();
         finish ateach(Dist.makeUnique(places)) {
             distV().vec.cellSub(dv);
         }
+        return this;
+    }
+
+    public def cellSub_local(dv:ElemType):DistVector(this) {
+        distV().vec.cellSub(dv);
         return this;
     }
 
@@ -414,9 +422,7 @@ distV().scattervTime += Timer.milliTime();
         val s = getSegSize()(distV().placeIndex);
         for (i in 0..(s-1))
             myDot += dist(i) * dup(offset+i);
-distV().allReduceTime -= Timer.milliTime();
         val result = team.allreduce(myDot, Team.ADD);
-distV().allReduceTime += Timer.milliTime();
         return result;
     }
 
@@ -427,9 +433,7 @@ distV().allReduceTime += Timer.milliTime();
         val s = getSegSize()(distV().placeIndex);
         for (i in 0..(s-1))
             mySum += dist(i);
-distV().allReduceTime -= Timer.milliTime();
         val result = team.allreduce(mySum, Team.ADD);
-distV().allReduceTime += Timer.milliTime();
         return result;
     }
     
@@ -443,17 +447,7 @@ distV().allReduceTime += Timer.milliTime();
 
     public def mult(mA:DistBlockMatrix(M), vB:DupVector(mA.N))      = DistDupVectorMult.comp(mA, vB, this, false);
     public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
-    public def mult_local(mA:DistBlockMatrix(M), vB:DupVector(mA.N)) {
-        distV().multTime -= Timer.milliTime();
-        distV().multTimeIt(distV().multTimeIndex) -= Timer.milliTime();        
-        
-        val result = DistDupVectorMult.comp_local(mA, vB, this, false);
-        
-        distV().multTime += Timer.milliTime();
-        distV().multTimeIt(distV().multTimeIndex++) += Timer.milliTime();
-        
-        return result;
-    }
+    public def mult_local(mA:DistBlockMatrix(M), vB:DupVector(mA.N)) = DistDupVectorMult.comp_local(mA, vB, this, false);
 
     //FIXME: review the correctness of using places here
     public operator this % (that:DistBlockMatrix(this.M)) = 
@@ -656,7 +650,7 @@ distV().allReduceTime += Timer.milliTime();
         }
         else {
             for (sparePlace in addedPlaces){
-                Console.OUT.println("Adding place["+sparePlace+"] to DistVector PLH ...");
+                //Console.OUT.println("Adding place["+sparePlace+"] to DistVector PLH ...");
                 PlaceLocalHandle.addPlace[DistVectorLocalState](
                     distV, sparePlace, ()=>new DistVectorLocalState(
                     Vector.make(segsz(newPg.indexOf(here))),segsz,offsets, newPg.indexOf(here), 
@@ -678,258 +672,20 @@ distV().allReduceTime += Timer.milliTime();
         remake (slst, newPg, newTeam, addedPlaces);
     }
 
-    /**
-     * Create a snapshot for the DistVector data 
-     * @return a snapshot for the DistVector data stored in a resilient store
-     */
-    public def makeSnapshot():DistObjectSnapshot {
-        //val startTime = Timer.milliTime();
-        val snapshot = DistObjectSnapshot.make();
-        finish ateach(pl in Dist.makeUnique(places)){
-            val i = distV().placeIndex;
-            val data = distV().vec.d;
-            //the segSize should only be saved only at place 0
-            val distVecInfo = new VectorSnapshotInfo(i, data);
-            snapshot.save(i, distVecInfo);
-            
-            distV().snapshotSegSize = distV().segSize;
-            distV().snapshotOffsets = distV().offsets;                   
-        }
-        //Console.OUT.println("DistVector.SnapshotTime["+(Timer.milliTime() - startTime)+"]");
-        return snapshot;
-    }
-    
-    public def restoreSnapshot(prefix:String, snapshot:DistObjectSnapshot, localViewFlag:Boolean) {
-        //val startTime = Timer.milliTime();
-        val currentSegSizes = distV().segSize;
-        val snapshotSegSize = distV().snapshotSegSize;
-    
-        assert (snapshotSegSize != null && currentSegSizes != null) : "Invalid segments rails";
-    
-        var segmentsChanged:Boolean = false;
-        if (snapshotSegSize.size == currentSegSizes.size) {
-            for (var i:Long = 0; i < snapshotSegSize.size; i++) {
-                if (snapshotSegSize(i) != currentSegSizes(i)) {
-                    segmentsChanged = true;
-                    break;
-                }
-            }
-        }
-        else
-            segmentsChanged = true;
-
-        if (!localViewFlag){
-            if (!segmentsChanged)
-                restoreSnapshotSegmentBySegment(snapshot);
-            else
-                restoreSnapshotElementByElement(snapshot);
-        }
-        else {
-            if (!segmentsChanged)
-                restoreSnapshotSegmentBySegment_local(prefix, snapshot);
-            else
-                restoreSnapshotElementByElement_local(prefix, snapshot);
-        }
-        //Console.OUT.println("DistVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    /**
-     * Restore the DistVector data using the provided snapshot object 
-     * @param snapshot a snapshot from which to restore the data
-     */
-    public def restoreSnapshot(snapshot:DistObjectSnapshot) {
-        //val startTime = Timer.milliTime();
-        restoreSnapshot("", snapshot, false);
-        //Console.OUT.println("DistVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    private def restoreSnapshotSegmentBySegment(snapshot:DistObjectSnapshot) {
-        //val startTime = Timer.milliTime();
-        finish ateach(Dist.makeUnique(places)) {
-            //segments should be stored in places with the same order 
-            //segment place index will remain the same
-            val segmentPlaceIndex =  distV().placeIndex;
-            val storedSegment = snapshot.load(segmentPlaceIndex) as VectorSnapshotInfo;
-            val srcRail = storedSegment.data;
-            val dstRail = distV().vec.d;
-            Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
-        }        
-        //Console.OUT.println("DistVector.RestoreTimeSegmentBySegment["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    private def restoreSnapshotElementByElement(snapshot:DistObjectSnapshot) {
-        //val startTime = Timer.milliTime();    
-        finish ateach(Dist.makeUnique(places)) {
-            val newSegSize = distV().segSize;
-            val snapshotSegSize = distV().snapshotSegSize;            
-
-            val newSegmentsOffsets = distV().offsets;
-            val oldSegmentsOffsets = distV().snapshotOffsets;
-        
-            val segmentPlaceIndex = distV().placeIndex;
-            val low = newSegmentsOffsets(segmentPlaceIndex);
-            val high = low + newSegSize(segmentPlaceIndex);
-            
-            var offset:Long = 0;
-            for (var i:Long = 0; i < snapshotSegSize.size; i++) {
-                val low_old = oldSegmentsOffsets(i);
-                val high_old = low_old + snapshotSegSize(i);
-                
-                var overlapFound:Boolean = false;
-                if (high_old > low && low_old < high) {
-                   //calculate the overlapping interval
-                   var startIndex:Long = low;
-                   var endIndex:Long = high;
-                   if (low_old > low)
-                       startIndex = low_old;
-                   if (high_old < high)
-                       endIndex = high_old;
-                   //load the old segment from resilient store
-                   var storedSegment:VectorSnapshotInfo = snapshot.load(i) as VectorSnapshotInfo;
-                   val srcRail = storedSegment.data;
-                   val dstRail = distV().vec.d;
-                   
-                   val elemCount = endIndex - startIndex;
-             
-                   var srcOffset:Long = 0;
-                   if (low_old < low)
-                       srcOffset = low - low_old;
-                   
-                   Rail.copy(srcRail, srcOffset, dstRail, offset, elemCount);
-                   offset+= elemCount;
-                   
-                   overlapFound = true;
-                } else if (overlapFound) {
-                    break; // no more overlapping segments exist
-                }
-            }
-        }
-        //Console.OUT.println("DistVector.RestoreTimeElementByElement["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    //val snapshot = DistObjectSnapshot.make();
-    public def makeSnapshot_local(prefix:String, snapshot:DistObjectSnapshot):void {
-        val i = distV().placeIndex;
-        val data = distV().vec.d;        
-        val distVecInfo = new VectorSnapshotInfo(i, data);
-        snapshot.save(prefix+i, distVecInfo);       
-        
+    public def makeSnapshot_local():Cloneable {
+    	val i = distV().placeIndex;
+        val data = distV().vec.d;
         distV().snapshotSegSize = distV().segSize;
         distV().snapshotOffsets = distV().offsets;    
+        return new VectorSnapshotInfo(i, data);
     }
     
-    public def restoreSnapshot_local(prefix:String, snapshot:DistObjectSnapshot) {        
-        //val startTime = Timer.milliTime();
-        restoreSnapshot(prefix, snapshot, true);
-        //Console.OUT.println("DistVector.RestoreTime["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    private def restoreSnapshotSegmentBySegment_local(prefix:String, snapshot:DistObjectSnapshot) {
-        val segmentPlaceIndex = distV().placeIndex;
-        val storedSegment = snapshot.load(prefix+segmentPlaceIndex) as VectorSnapshotInfo;
+    public def restoreSnapshot_local(vec:Cloneable) {
+        val storedSegment = vec as VectorSnapshotInfo;
         val srcRail = storedSegment.data;
         val dstRail = distV().vec.d;
         Rail.copy(srcRail, 0, dstRail, 0, srcRail.size);
     }
-    
-    private def restoreSnapshotElementByElement_local(prefix:String,snapshot:DistObjectSnapshot) {
-        //val startTime = Timer.milliTime();
-        val newSegSize = distV().segSize;
-        val snapshotSegSize = distV().snapshotSegSize;            
-
-        val newSegmentsOffsets = distV().offsets;
-        val oldSegmentsOffsets = distV().snapshotOffsets;
-        
-        val segmentPlaceIndex = distV().placeIndex;
-        val low = newSegmentsOffsets(segmentPlaceIndex);
-        val high = low + newSegSize(segmentPlaceIndex);
-    
-        var offset:Long = 0;
-        for (var i:Long = 0; i < snapshotSegSize.size; i++) {
-            val low_old = oldSegmentsOffsets(i);
-            val high_old = low_old + snapshotSegSize(i);
-    
-            var overlapFound:Boolean = false;
-            if (high_old > low && low_old < high) {
-                //calculate the overlapping interval
-                var startIndex:Long = low;
-                var endIndex:Long = high;
-                if (low_old > low)
-                    startIndex = low_old;
-                if (high_old < high)
-                    endIndex = high_old;
-                //load the old segment from resilient store
-                var storedSegment:VectorSnapshotInfo = snapshot.load(prefix+i) as VectorSnapshotInfo;
-                val srcRail = storedSegment.data;
-                val dstRail = distV().vec.d;
-                val elemCount = endIndex - startIndex;
-    
-                var srcOffset:Long = 0;
-                if (low_old < low)
-                    srcOffset = low - low_old;
-    
-                Rail.copy(srcRail, srcOffset, dstRail, offset, elemCount);
-                offset+= elemCount;
-    
-                overlapFound = true;
-            } else if (overlapFound) {
-                break; // no more overlapping segments exist
-            }
-        }        
-        //Console.OUT.println("DistVector.RestoreTimeElementByElement["+(Timer.milliTime() - startTime)+"]");
-    }
-    
-    public def printTimes(prefix:String, printIterations:Boolean){
-        val root = here;
-        finish ateach(Dist.makeUnique(places)) {
-            val size = 5;
-            val src = new Rail[Double](size);
-            src(0) = distV().multTime ;
-            src(1) = distV().multComptTime;
-            src(2) = distV().allReduceTime;
-            src(3) = distV().scattervTime;
-            src(4) = distV().gathervTime;     
-            
-            val dstMax = new Rail[Double](size);
-            val dstMin = new Rail[Double](size);
-    
-            team.allreduce(src, 0, dstMax, 0, size, Team.MAX);
-            team.allreduce(src, 0, dstMin, 0, size, Team.MIN);
-            
-            val maxIndexMultTime = team.indexOfMax(src(0), here.id as Int);            
-    
-            if (here.id == root.id){
-                Console.OUT.println("["+prefix+"]  multTime: indexOfMax("+maxIndexMultTime+")  max: " + dstMax(0) + "  min: " + dstMin(0) );
-                //Console.OUT.println("["+prefix+"]  multComptTime: max: " + dstMax(1) + "  min: " + dstMin(1) );
-                //Console.OUT.println("["+prefix+"]  allReduceTime: max: " + dstMax(2) + "  min: " + dstMin(2) );
-                //Console.OUT.println("["+prefix+"]  scattervTime: max: " + dstMax(3) + "  min: " + dstMin(3) );
-                //Console.OUT.println("["+prefix+"]  gathervTime: max: " + dstMax(4) + "  min: " + dstMin(4) );
-            }
-            
-            if (printIterations){
-            val debugItSize = 1000;
-            var descMultTime:String = prefix+"; multTime; p"+here.id+";";
-            var descMultComptTime:String = prefix+"; multComptTime; p"+here.id+";";
-            var descAllReduceTime:String = prefix+"; allReduceTime; p"+here.id+";";
-            
-            for (i in 0..(debugItSize-1)){
-                descMultTime += distV().multTimeIt(i) + ";";
-                descMultComptTime += distV().multComptTimeIt(i) + ";";
-                descAllReduceTime += distV().allReduceTimeIt(i) + ";";
-            }
-            
-            //var str:String = descMultTime + "\n" + descMultComptTime + "\n" + descAllReduceTime;
-            
-            Console.OUT.println(descMultTime);
-            //Console.OUT.println(descMultComptTime);
-            //Console.OUT.println(descAllReduceTime);
-            }
-            
-            
-        }    
-    }
-    
-    
 }
 
 class DistVectorLocalState {
@@ -940,61 +696,23 @@ class DistVectorLocalState {
     public var snapshotOffsets:Rail[Int];
     public var placeIndex:Long;
     
-    
-    
     public def this(vec:Vector, segSize:Rail[Int], offsets:Rail[Int], placeIndex:Long){
         this.vec = vec;
         this.segSize = segSize;
         this.offsets = offsets;
         this.placeIndex = placeIndex;
-        val debugItSize = 1000;
-        multTimeIt = new Rail[Long](debugItSize);
-        multComptTimeIt = new Rail[Long](debugItSize);
-        allReduceTimeIt = new Rail[Long](debugItSize);
-        scattervTimeIt = new Rail[Long](debugItSize);
-        gathervTimeIt = new Rail[Long](debugItSize);   
     }
     
     public def this(vec:Vector, segSize:Rail[Int], offsets:Rail[Int], placeIndex:Long, snapshotSegSize:Rail[Int], snapshotOffsets:Rail[Int]){
         this.vec = vec;
         this.segSize = segSize;
         this.offsets = offsets;
-        val debugItSize = 1000;
         this.placeIndex = placeIndex;
-        multTimeIt = new Rail[Long](debugItSize);
-        multComptTimeIt = new Rail[Long](debugItSize);
-        allReduceTimeIt = new Rail[Long](debugItSize);
-        scattervTimeIt = new Rail[Long](debugItSize);
-        gathervTimeIt = new Rail[Long](debugItSize);
-    
         this.snapshotSegSize = snapshotSegSize;
         this.snapshotOffsets = snapshotOffsets;
     }
     
-    
     public def clone():DistVectorLocalState{
         return new DistVectorLocalState(vec.clone(), new Rail[Int](segSize), new Rail[Int](offsets), placeIndex );
-    }
-    
-    public var multTime:Long;
-    public var multComptTime:Long;
-    public var allReduceTime:Long;
-    public var scattervTime:Long;
-    public var gathervTime:Long;
-    
-    
-    public var multTimeIndex:Long;
-    public var multComptTimeIndex:Long;
-    public var allReduceTimeIndex:Long;
-    public var scattervTimeIndex:Long;
-    public var gathervTimeIndex:Long;
-    
-    public var multTimeIt:Rail[Long];
-    public var multComptTimeIt:Rail[Long];
-    public var allReduceTimeIt:Rail[Long];
-    public var scattervTimeIt:Rail[Long];
-    public var gathervTimeIt:Rail[Long];
-    
-    
-    
+    }    
 }

@@ -15,8 +15,9 @@ import x10.regionarray.Dist;
 import x10.util.StringBuilder;
 import x10.util.Timer;
 
-import x10.matrix.Matrix;
 import x10.matrix.ElemType;
+import x10.matrix.Matrix;
+import x10.matrix.Vector;
 
 import x10.matrix.util.Debug;
 import x10.matrix.DenseMatrix;
@@ -211,6 +212,18 @@ public class DupBlockMatrix extends Matrix {
             local().scale(a);
         }
         return this;
+    }
+
+    public def sum():ElemType {
+        return this.local().sum();
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+        this.local().rowSumTo(vec);
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        this.local().colSumTo(vec);
     }
     
     /**

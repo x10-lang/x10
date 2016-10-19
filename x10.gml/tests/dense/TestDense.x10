@@ -33,6 +33,9 @@ public class TestDense extends x10Test {
 		ret &= (testTrans());
 		ret &= (testTransInPlace());
 		ret &= (testScale());
+        ret &= (testSum());
+        ret &= (testRowSum());
+        ret &= (testColSum());
 		ret &= (testAdd());
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
@@ -125,6 +128,46 @@ public class TestDense extends x10Test {
 
 		return ret;
 	}
+
+    public def testSum():Boolean {
+        Console.OUT.println("Dense matrix sum test");
+		val dm = DenseMatrix.make(M, N, 1.0 as ElemType);
+
+        val ret = MathTool.equals(dm.sum(), M*N);
+        if (!ret)
+            Console.OUT.println("--------Dense matrix sum test failed!--------");
+        return ret;
+    }
+
+    public def testRowSum():Boolean {
+        Console.OUT.println("Dense matrix row sum test");
+		val dm = DenseMatrix.make(M, N);
+        dm.init((m:Long,n:Long) => (m*N + n) as ElemType);
+        val rowSum = dm.rowSum();
+        var ret:Boolean = true;
+        for (i in 0..(M-1)) {
+            ret &= MathTool.equals(rowSum(i), (i*N*N + N*(N-1)/2) as ElemType);
+        }
+
+        if (!ret)
+            Console.OUT.println("--------Dense matrix row sum test failed!--------");
+        return ret;
+    }
+
+    public def testColSum():Boolean {
+        Console.OUT.println("Dense matrix col sum test");
+		val dm = DenseMatrix.make(M, N);
+        dm.init((m:Long,n:Long) => (m*N + n) as ElemType);
+        val colSum = dm.colSum();
+        var ret:Boolean = true;
+        for (j in 0..(N-1)) {
+            ret &= MathTool.equals(colSum(j), (j*M + N*M*(M-1)/2) as ElemType);
+        }
+
+        if (!ret)
+            Console.OUT.println("--------Dense matrix col sum test failed!--------");
+        return ret;
+    }
 
 	public def testAdd():Boolean {
 		Console.OUT.println("Dense matrix addition test");

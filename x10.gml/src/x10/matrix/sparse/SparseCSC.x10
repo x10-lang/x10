@@ -15,6 +15,7 @@ import x10.util.Pair;
 
 import x10.matrix.util.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.util.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.util.VerifyTool;
@@ -978,6 +979,21 @@ public class SparseCSC extends Matrix {
 		
 		return tt;
 	}
+
+    public def rowSumTo(vec:Vector(M)) {
+        throw new UnsupportedOperationException("SparseCSC.rowSumTo");
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+        for (c in 0..(N-1)) {
+            val col = ccdata.getLine(c);
+            var colSum:ElemType = 0.0f as ElemType;
+            for (v in col.cArray.value) {
+                colSum += v;
+            }
+            vec(c) = colSum;
+        }
+    }
 	
 
 	// Cellwise addition

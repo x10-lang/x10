@@ -12,190 +12,70 @@
 package x10.util.resilient.iterative;
 
 import x10.util.HashMap;
-import x10.regionarray.Dist;
+import x10.util.resilient.localstore.*;
 
 public class ApplicationSnapshotStore {
-   
-    private transient val snapshots:Rail[ApplicationSnapshot] = new Rail[ApplicationSnapshot](2, (Long)=>new ApplicationSnapshot());
-    private transient var tempSnapshot:ApplicationSnapshot = null;
-    private transient var commitCount:Long = 0L;
-    private transient var places:PlaceGroup;
+    val map:HashMap[String,SnapshotRecord] = new HashMap[String,SnapshotRecord]();
+    var firstCheckpoint:Boolean;
+    var lastVersion:Long = -1;
     
-    private val isLocalView:Boolean;
-    public def this(){
-        this.isLocalView = false;
-        this.places = null;
+    public def save(key:String, distObject:Snapshottable) {
+    	map.put(key, new SnapshotRecord(distObject,false));
     }
     
-    public def this(local:Boolean, plc:PlaceGroup){
-        this.isLocalView = local;
-        this.places = plc;
-    }
-
-    private def searchSnapshot(distObject:Snapshottable):DistObjectSnapshot {        
-        val consistentSnapshot = getConsistentSnapshot();
-        val appSnapshotMap = consistentSnapshot.map;
-        val iter = appSnapshotMap.keySet().iterator();
-        var snapshot:DistObjectSnapshot = null;
-        while (iter.hasNext()) {
-            val key = iter.next();
-            if (key.snapshottable == distObject){
-                snapshot = appSnapshotMap.getOrElse(key, null);
-                break;
-            }
-        }        
-        return snapshot;
-    }
-
-    private def getConsistentSnapshot():ApplicationSnapshot{
-        val idx = commitCount % 2;
-        return snapshots(idx);
-    }  
-    
-    public def startNewSnapshot() {
-        if (tempSnapshot!=null)
-            Console.OUT.println("Previous snapshot was not committed!");        
-        val idx = (commitCount+1) % 2;
-        tempSnapshot = snapshots(idx);
-    }
-
-    /** Cancel the current snapshot, in case of failure during checkpoint. */
-    public def cancelSnapshot() {
-        if (tempSnapshot != null)
-            tempSnapshot.delete();
-        tempSnapshot = null;
+    public def saveReadOnly(key:String, distObject:Snapshottable) {
+    	map.put(key, new SnapshotRecord(distObject,true));
     }
     
-    public def save(distObject:Snapshottable) {
-        save(distObject, null, false);
+    public def getCheckpointData_local(first:Boolean):HashMap[String,Cloneable] {
+    	val ckptMap = new HashMap[String,Cloneable]();
+    	val iter = map.keySet().iterator();
+    	while (iter.hasNext()) {
+    		val key =  iter.next();
+    		val record = map.getOrThrow(key);
+    		val cloneable = record.snapshottable.makeSnapshot_local();
+    		if (!record.readOnly || (record.readOnly && first)) {
+    			ckptMap.put(key,cloneable);	
+    		}
+    	}
+    	return ckptMap;
     }
-    
-    public def saveReadOnly(distObject:Snapshottable) {
-        val snapshot = searchSnapshot(distObject);        
-        save(distObject, snapshot, true);
-    }
-    
-    private def save(distObject:Snapshottable, snapshot:DistObjectSnapshot, keepOldSnapshot:Boolean) {
-        if (tempSnapshot==null)
-            Console.OUT.println("New snapshot should be started first");        
-        val snapshotKey = new SnapshottableEntryKey(distObject, keepOldSnapshot);
-        atomic tempSnapshot.map.put(snapshotKey, snapshot);
-    }
-
-    private def saveAll(){
-        val appSnapshotMap = tempSnapshot.map; 
-        val iter = appSnapshotMap.keySet().iterator();
-        finish{
-            while (iter.hasNext()) {
-                val key = iter.next();
-                var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);                
-                if (distObjectSnapshot == null) {
-                    async{
-                        val snapshot = key.snapshottable.makeSnapshot();
-                        atomic appSnapshotMap.put(key, snapshot);
-                    }
-                }                
-            }
-        }        
-    }
-    
-    private def saveAll_local(){
-        val appSnapshotMap = tempSnapshot.map;        
-        //prepare the snapshot objects at the root place        
-        val iter = appSnapshotMap.keySet().iterator();        
-        while (iter.hasNext()) {            
-            val key = iter.next();            
-            var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);               
-            if (distObjectSnapshot == null) {
-                val snapshot = DistObjectSnapshot.make();
-                appSnapshotMap.put(key, snapshot);
-                key.ignore = false;
-            }
-            else
-                key.ignore = true;
-        }
-        
-        finish ateach(Dist.makeUnique(places)) {
-            val iter2 = appSnapshotMap.keySet().iterator();
-            while (iter2.hasNext()) {
-                val key = iter2.next();
-                if (!key.ignore) {
-                    var distObjectSnapshot:DistObjectSnapshot = appSnapshotMap.getOrElse(key, null);
-                    val snapshot = appSnapshotMap.getOrElse(key, null);                    
-                    async key.snapshottable.makeSnapshot_local("", snapshot);
-                }
-            }
-        }
-    }
-    
-    public def commit() {
-        if (isLocalView)
-            saveAll_local();
-        else
-            saveAll();
-        
-        val idx = commitCount % 2;
-        commitCount++; // switch to the new snapshot
-        tempSnapshot = null;
-
-        // delete the old snapshot
-        val oldSnapshot = snapshots(idx);
-        oldSnapshot.delete();
-    }
-    
-    public def restore() {
-        if (isLocalView)
-            restore_local();
-        else{
-            val appSnapshot = getConsistentSnapshot();
-            val iter = appSnapshot.map.keySet().iterator();
-            finish{
-                while (iter.hasNext()) {
-                    val key = iter.next();
-                    val distObjectSnapshot = appSnapshot.map.getOrElse(key, null);
-                    async key.snapshottable.restoreSnapshot(distObjectSnapshot);
-                }
-            }
-        }
-    }
-    
-    private def restore_local() {
-        val appSnapshot = getConsistentSnapshot();
-        val appSnapshotMap = appSnapshot.map;
        
-        finish ateach(Dist.makeUnique(places)) {
-            val iter = appSnapshotMap.keySet().iterator();
-            while (iter.hasNext()) {
-                val key = iter.next();
-                val distObjectSnapshot = appSnapshotMap.getOrElse(key, null);
-                async key.snapshottable.restoreSnapshot_local("", distObjectSnapshot);                
-            }
-        }
+    public def restore_local(restoreDataMap:HashMap[String,Cloneable]) {
+    	val iter = map.keySet().iterator();
+    	while (iter.hasNext()) {
+    		val key =  iter.next();
+    		val record = map.getOrThrow(key);
+    		val cloneable = restoreDataMap.getOrThrow(key);
+    		record.snapshottable.restoreSnapshot_local(cloneable);
+    	}
     }
     
+    def nextCheckpointVersion() {
+    	return (lastVersion+1)%2;
+    }
     
-    public def updatePlaces(newPlaces:PlaceGroup){
-        this.places = newPlaces;
+    def commitCheckpoint(newVersion:Long) {
+    	lastVersion = newVersion;
+    }
+    
+    def getRestoreKeyVersions():HashMap[String,Long] {
+    	val versionsMap = new HashMap[String,Long]();
+    	val iter = map.keySet().iterator();
+    	while (iter.hasNext()) {
+    		val key =  iter.next();
+    		val record = map.getOrThrow(key);    		
+    		if (record.readOnly) {
+    			versionsMap.put(key,0);	
+    		}
+    		else {
+    			versionsMap.put(key,lastVersion);
+    		}
+    	}
+    	return versionsMap;
     }
 }
 
-class SnapshottableEntryKey(snapshottable:Snapshottable, keepOldSnapshot:Boolean) {
-    var ignore:Boolean = false;
-}
-
-class ApplicationSnapshot {
-    var map:HashMap[SnapshottableEntryKey,DistObjectSnapshot] = new x10.util.HashMap[SnapshottableEntryKey,DistObjectSnapshot]();
-    
-    def delete():void{
-        val iter = map.keySet().iterator(); 
-        while (iter.hasNext()) {
-            val key = iter.next();
-            val objectStore = map.getOrElse(key, null);
-            //FIXME: cancel snapshot should delete the object anyway
-            if (objectStore != null && !key.keepOldSnapshot) {
-                try { objectStore.deleteAll(); } catch (e:Exception) { /* ignore errors */ }
-            }
-        }
-        map.clear();
-    }
+class SnapshotRecord(snapshottable:Snapshottable, readOnly:Boolean) {
+	var version:Long = -1;
 }

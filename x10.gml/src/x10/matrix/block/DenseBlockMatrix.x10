@@ -14,6 +14,7 @@ package x10.matrix.block;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
+import x10.matrix.Vector;
 import x10.matrix.DenseMatrix;
 import x10.matrix.ElemType;
 
@@ -296,6 +297,26 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
+
+    public def sum():ElemType {
+        var sum:ElemType = 0.0 as ElemType;
+        for (p in 0..(listBs.size-1)) {
+            sum += listBs(p).dense.sum();
+        }
+        return sum;
+    }
+
+    public def rowSumTo(vec:Vector(M)) {
+		for (p in 0..(listBs.size-1)) {
+            listBs(p).dense.rowSumTo(vec);
+        }
+    }
+
+    public def colSumTo(vec:Vector(N)) {
+		for (p in 0..(listBs.size-1)) {
+            listBs(p).dense.colSumTo(vec);
+        }
+    }
 
     /**
      * Perform cell-wise addition: this += x. Current implementation is
