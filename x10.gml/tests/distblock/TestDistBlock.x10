@@ -20,6 +20,8 @@ import x10.matrix.block.BlockMatrix;
 import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistBlockMatrix;
+
+import x10.util.Team;
 import x10.util.resilient.iterative.PlaceGroupBuilder;
 
 public class TestDistBlock extends x10Test {
@@ -60,23 +62,24 @@ public class TestDistBlock extends x10Test {
 	
         var ret:Boolean = true;
         val places = PlaceGroupBuilder.excludeSparePlaces(skipPlaces);	
-        ret &= (testClone(places));
-        ret &= (testCopyTo(places));
-        ret &= (testScale(places));
-        ret &= (testAdd(places));
-        ret &= (testAddSub(places));
-        ret &= (testAddAssociative(places));
-        ret &= (testScaleAdd(places));
-        ret &= (testCellMult(places));
-        ret &= (testCellDiv(places));
+        val team = new Team(places);
+        ret &= (testClone(places, team));
+        ret &= (testCopyTo(places, team));
+        ret &= (testScale(places, team));
+        ret &= (testAdd(places, team));
+        ret &= (testAddSub(places, team));
+        ret &= (testAddAssociative(places, team));
+        ret &= (testScaleAdd(places, team));
+        ret &= (testCellMult(places, team));
+        ret &= (testCellDiv(places, team));
 	    //ret &= (testSnapshotRestore(places)); TODO: test code needs revision
         return ret;
     }
     
-    public def testClone(places:PlaceGroup):Boolean {
+    public def testClone(places:PlaceGroup, team:Team):Boolean {
         var ret:Boolean = true;
         Console.OUT.println("DistBlockMatrix clone test on dense blocks");
-        val ddm = DistBlockMatrix.makeDense(grid, dmap, places).init((r:Long, c:Long)=>ET(1.0+r+c));
+        val ddm = DistBlockMatrix.makeDense(grid, dmap, places, team).init((r:Long, c:Long)=>ET(1.0+r+c));
 	
         val ddm1 = ddm.clone();
         ret = ddm.equals(ddm1);
@@ -89,10 +92,10 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testCopyTo(places:PlaceGroup):Boolean {
+    public def testCopyTo(places:PlaceGroup, team:Team):Boolean {
         var ret:Boolean = true;
         Console.OUT.println("DistBlockMatrix copyTo test");
-        val dstblk = DistBlockMatrix.makeDense(grid, dmap, places);
+        val dstblk = DistBlockMatrix.makeDense(grid, dmap, places, team);
         val blkden = BlockMatrix.makeDense(grid);
         val den    = DenseMatrix.make(M,N);
 	
@@ -106,7 +109,7 @@ public class TestDistBlock extends x10Test {
         ret &= blkden.equals(dstblk as Matrix(blkden.M,blkden.N));
         if (! ret) return ret;
 	
-        val dmat = DistBlockMatrix.make(M, 1, bM, 1, places.size(), 1, places).allocDenseBlocks().initRandom();
+        val dmat = DistBlockMatrix.make(M, 1, bM, 1, places.size(), 1, places, team).allocDenseBlocks().initRandom();
         val denm = DenseMatrix.make(M, 1);
 	
         dmat.copyTo(denm);
@@ -119,9 +122,9 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testScale(places:PlaceGroup):Boolean{
+    public def testScale(places:PlaceGroup, team:Team):Boolean{
 	Console.OUT.println("DistBlockMatrix scaling test");
-	val dm = DistBlockMatrix.make(M, N, bM, bN, places).allocDenseBlocks().initRandom();
+	val dm = DistBlockMatrix.make(M, N, bM, bN, places, team).allocDenseBlocks().initRandom();
 	
 	val dm1  = dm * ET(2.5);
 	val m = dm.toDense();
@@ -132,9 +135,9 @@ public class TestDistBlock extends x10Test {
 	return ret;
     }
     
-    public def testAdd(places:PlaceGroup):Boolean {
+    public def testAdd(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix add test");
-        val dm = DistBlockMatrix.make(M, N, bM, bN, places).allocDenseBlocks().initRandom();
+        val dm = DistBlockMatrix.make(M, N, bM, bN, places, team).allocDenseBlocks().initRandom();
 	
         val dm1 = dm  * ET(-1.0);
         val dm0 = dm + dm1;
@@ -144,10 +147,10 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testAddSub(places:PlaceGroup):Boolean {
+    public def testAddSub(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix add-sub test");
-        val dm = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
-        val dm1= DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
+        val dm = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
+        val dm1= DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
 	
         val dm2   = dm  + dm1;
         val dm_c  = dm2 - dm1;
@@ -158,12 +161,12 @@ public class TestDistBlock extends x10Test {
     }
     
     
-    public def testAddAssociative(places:PlaceGroup):Boolean {
+    public def testAddAssociative(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix associative test");
 	
-        val a = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
-        val b = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();;
-        val c = DistBlockMatrix.makeSparse(grid, dmap, nzp, places).initRandom();
+        val a = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
+        val b = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();;
+        val c = DistBlockMatrix.makeSparse(grid, dmap, nzp, places, team).initRandom();
 	
         val c1 = a + b + c;
         val c2 = a + (b + c);
@@ -173,10 +176,10 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testScaleAdd(places:PlaceGroup):Boolean {
+    public def testScaleAdd(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix scaling-add test");
 	
-        val a = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
+        val a = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
 	
         val m = a.toDense();
         val a1= a * ET(0.2);
@@ -189,11 +192,11 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testCellMult(places:PlaceGroup):Boolean {
+    public def testCellMult(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix cellwise mult test");
 	
-        val a = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
-        val b = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
+        val a = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
+        val b = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
 	
         val c = (a + b) * a;
         val d = a * a + b * a;
@@ -209,11 +212,11 @@ public class TestDistBlock extends x10Test {
         return ret;
     }
     
-    public def testCellDiv(places:PlaceGroup):Boolean {
+    public def testCellDiv(places:PlaceGroup, team:Team):Boolean {
         Console.OUT.println("DistBlockMatrix cellwise mult-div test");
 	
-        val a = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
-        val b = DistBlockMatrix.makeDense(grid, dmap, places).initRandom();
+        val a = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
+        val b = DistBlockMatrix.makeDense(grid, dmap, places, team).initRandom();
 	
         val c = (a + b) * a;
         val d =  c / (a + b);
