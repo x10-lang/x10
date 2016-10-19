@@ -29,6 +29,8 @@ public final class Random {
 
     private var seed:Long;
     private val gamma:Long;
+    private var storedGaussian:Double;
+    private var haveStoredGaussian:Boolean = false;
 
     private def this(seed:Long, gamma:Long) {
         this.seed = seed;
@@ -137,6 +139,33 @@ public final class Random {
 
     /** Return a random double between 0.0 and 1.0. */
     public @Inline def nextDouble():Double = (nextLong() >>> 11) * DOUBLE_ULP;
+
+    /**
+     * Generate a pseudo-random number from a Gaussian distribution with a mean
+     * of 0 and a standard deviation of 1, using the polar form of the
+     * Box-Muller transform.
+     * @return a random sample from a standard normal distribution
+     * @see Knuth (1981) "The Art of Computer Programming, Volume 2: Seminumerical Algorithms"
+     */
+    public def nextGaussian() {
+        if (haveStoredGaussian) {
+            haveStoredGaussian = false;
+            return storedGaussian;
+        } else {
+            var u1:Double;
+            var u2:Double;
+            var s:Double;
+            do {
+                u1 = 2.0 * nextDouble() - 1.0;
+                u2 = 2.0 * nextDouble() - 1.0;
+                s = u1 * u1 + u2 * u2;
+            } while (s >= 1.0 || s == 0.0);
+            val m = Math.sqrt(-2.0 * Math.log(s) / s);
+            storedGaussian = u2 * m;
+            haveStoredGaussian = true;
+            return u1 * m;
+        }
+    }
 
     private @Inline def nextSeed() {
         return (seed += gamma);
