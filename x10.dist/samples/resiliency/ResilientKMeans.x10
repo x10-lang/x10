@@ -166,11 +166,13 @@ public class ResilientKMeans {
         val dim:Long;
         val epsilon:Float;
         var converged:Boolean = false;
+        var maxIterations:Long;
+        var currentIteration:Long;
     
         //master only checkpointing data
         var ckptCurrentClusters:Array_2[Float];
 
-        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float) {
+        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float, iterations:Long) {
            this.distState = new DistState(lsPLH, pg);
            this.pg = pg;
            this.epsilon = epsilon;
@@ -179,6 +181,8 @@ public class ResilientKMeans {
            currentClusters = new Array_2[Float](numClusters, dim);
            newClusters = new Array_2[Float](numClusters, dim);
            newClusterCounts = new Rail[Int](numClusters);
+           maxIterations = iterations;
+           currentIteration = 0;
         }
 
         def setInitialCentroids() {
@@ -199,7 +203,7 @@ public class ResilientKMeans {
             }
         }
         
-        public def isFinished() = converged;
+        public def isFinished() = converged || currentIteration >= maxIterations;
 
         // Perform one global step of the KMeans algorithm
         // by coordinating the localSteps in each place and
@@ -241,6 +245,7 @@ public class ResilientKMeans {
                 }
             }
             converged = didConverge;
+            currentIteration += 1;
 
             // Prepare for next iteration
             Array.copy(newClusters, currentClusters);
@@ -282,7 +287,7 @@ public class ResilientKMeans {
         val localPLH = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(initPoints, dim, numClusters) });
 
         // Initialize algorithm state
-        val master = new KMeansMaster(localPLH, pg, epsilon);
+        val master = new KMeansMaster(localPLH, pg, epsilon, iterations);
         master.setInitialCentroids();
 
         if (verbose) {
