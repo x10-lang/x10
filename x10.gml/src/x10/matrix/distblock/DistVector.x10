@@ -270,15 +270,25 @@ distV().scattervTime += Timer.milliTime();
         val loc = find(x);
         val seg = loc.first as Int;
         val off = loc.second;
-        val dat = at(places(seg)) distV().vec(off);
-        return dat;
+        val p = places(seg);
+        if (p == here) {
+            return distV().vec(off);
+        } else {
+            val dat = at(places(seg)) distV().vec(off);
+            return dat;
+        }
     }
 
     public operator this(x:Long)=(dv:ElemType):ElemType {
         val loc = find(x);
         val seg = loc.first as Int;
         val off = loc.second;
-        at(places(seg)) distV().vec(off)=dv;
+        val p = places(seg);
+        if (p == here) {
+            distV().vec(off)=dv;
+        } else {
+            at(p) distV().vec(off)=dv;
+        }
         return dv;
     }
 
