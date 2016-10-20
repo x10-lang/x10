@@ -205,23 +205,15 @@ public class PageRank implements SPMDResilientIterativeApp {
                     val meanSpacing = (m as Double) / placeNonZeros - 1;
                     var row:Long = 0;
                     for (i in 1..placeNonZeros) {
-                        row += (rand2.nextDouble() * 2 * meanSpacing) as Long;
-                        if (row >= m) break;
+                        // random spacing to next non-zero. TODO should use Poisson distributed spacing
+                        if (meanSpacing > 0.25) {
+                            row += (0.5 * rand2.nextDouble() * 2 * meanSpacing) as Long;
+                        }
+                        if (row >= m) row -= m;
                         indices.add(row);
                         values.add(1.0);
                         row += 1;
                     }
-                    /*
-                    val colDensity = vertexOutDegree(col) * invN;
-                    // density is assumed to be high enough that we should just sample for each element
-                    for (row in 0..(m-1)) {
-                        val isEdge = (rand2.nextDouble() <= colDensity);
-                        if (isEdge) {
-                            indices.add(row);
-                            values.add(1.0);
-                        }
-                    }
-                    */
                     lengths(col) = indices.size() - offsets(col);
                 }
                 val ca = new CompressArray(indices.toRail(), values.toRail(), values.size());
