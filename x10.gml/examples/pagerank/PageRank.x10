@@ -10,17 +10,20 @@
  *  (C) Copyright Sara Salem Hamouda 2014.
  */
 
+import x10.regionarray.Dist;
+import x10.util.Random;
 import x10.util.Timer;
 
+import x10.matrix.ElemType;
 import x10.matrix.util.Debug;
-import x10.matrix.util.RandTool;
 import x10.matrix.Vector;
 import x10.matrix.distblock.DistGrid;
-import x10.regionarray.Dist;
 
+import x10.matrix.block.SparseBlock;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.sparse.*;
 import x10.util.resilient.iterative.LocalViewResilientIterativeApp;
 import x10.util.resilient.iterative.LocalViewResilientExecutor;
 import x10.util.resilient.iterative.ApplicationSnapshotStore;
@@ -28,7 +31,7 @@ import x10.util.Team;
 import x10.util.ArrayList;
 
 /**
- * Parallel Page Rank algorithm based on GML distributed block matrix.
+ * Parallel PageRank algorithm based on GML distributed sparse block matrix.
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
  * are distributed to (Place.numPlaces(), 1) places, or vertical distribution.
  * <p>[g_(0,0),           g_(0,1),           ..., g(0,numColBsG-1)]
@@ -58,18 +61,31 @@ public class PageRank implements LocalViewResilientIterativeApp {
     val GP:DistVector(G.N);
     
     private val chkpntIterations:Long;
-    private val nzd:Float;
+    /** Number of non-zeros in G */
+    private val nnz:Float;
     
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     private val root:Place;
-    private val places:PlaceGroup;
+    private var places:PlaceGroup;
     private var team:Team;
     
+    /**
+     * Create a new PageRank instance
+     * @param edges the edges matrix, where edges(i,j) == 1.0 if there is an
+     *   outgoing link from j to i; 0.0 otherwise
+     * @param it the number of iterations of PageRank to run
+     * @param tolerance the value below which maximum change in page rank must
+     *   fall for convergence to be reached (only has effect if iterations==0)
+     * @param nnz number of non-zeros in edge matrix
+     * @param chkpntIter number of iterations between checkpoints
+     * @param places the place group over which edge matrix is distributed
+     * @param team a Team over the place group
+     */
     public def this(
             edges:DistBlockMatrix{self.M==self.N},
             it:Long,
             tolerance:Float,
-            sparseDensity:Float,
+            nnz:Long,
             chkpntIter:Long,
             places:PlaceGroup,
             team:Team) {
@@ -85,11 +101,12 @@ public class PageRank implements LocalViewResilientIterativeApp {
 
             val localBlockIter = edges.handleBS().iterator();
             while (localBlockIter.hasNext()) {
-                val matrix = localBlockIter.next().getMatrix();
+                val matrix = localBlockIter.next().getMatrix() as SparseCSC;
                 for (j in 0..(matrix.N-1)) {
                     if (colSums(j) > 0) {
-                        for (i in 0..(matrix.M-1)) {
-                            matrix(i,j) /= colSums(j);
+                        val compressedCol = matrix.getCol(j);
+                        for (i in 0..(compressedCol.length-1)) {
+                            compressedCol.setValue(i, compressedCol.getValue(i) / colSums(j));
                         }
                     }
                     // TODO account for vertices with zero outgoing edges
@@ -106,29 +123,112 @@ public class PageRank implements LocalViewResilientIterativeApp {
         GP = DistVector.make(G.N, G.getAggRowBs(), places, team);//G must have vertical distribution
 
         chkpntIterations = chkpntIter;
-        nzd = sparseDensity;
+        this.nnz = nnz;
         root = here;
         this.places = places;
         this.team = team;
     }
 
-    public static def make(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
+    public static def makeRandom(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
         val numRowPs = places.size();
         val numColPs = 1;
         val team = new Team(places);
         
         val g = DistBlockMatrix.makeSparse(gN, gN, numRowBs, numColBs, numRowPs, numColPs, nzd, places, team);
-        val pr = new PageRank(g, it, tolerance, nzd, chkpntIter, places, team);
-        pr.initRandom(nzd);
-        return pr;
-    }
-    
-    private def initRandom(nzd:Float):void {
-         val places = G.places();
+        val pr = new PageRank(g, it, tolerance, g.getTotalNonZeroCount(), chkpntIter, places, team);
         finish ateach(Dist.makeUnique(places)) {
-            G.initRandom_local();
+            g.initRandom_local();
             // TODO init personalization vector U
         }
+        return pr;
+    }
+
+    /**
+     * Initialize the Google Matrix G with a log-normal distribution of outward
+     * links. Values for mu and sigma are taken from the Pregel paper.
+     *
+     * @see Malewicz et al. (2010)
+     *   Pregel: a system for large-scale graph processing.
+     *   http://dx.doi.org/10.1145/1807167.1807184
+     */
+    public static def makeLogNormal(gN:Long, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup) {
+        val densityGuess = 0.079f;
+        val numRowPs = places.size();
+        val numColPs = 1;
+        val team = new Team(places);
+        
+        val g = DistBlockMatrix.make(gN, gN, numRowBs, numColBs, numRowPs, numColPs, places, team);
+        
+        val mu = 4.0f as ElemType;
+        val sigma = 1.3f as ElemType;
+
+        val rand = new Random(here.id); // TODO allow choice of random seed
+        val vertexOutDegree = new Rail[Int](gN);
+        var globalNnzGuess:Long = 0;
+        for (i in 0..(gN-1)) {
+            var X:ElemType = ElemType.MAX_VALUE;
+            while (X >= ElemType.MAX_VALUE) {
+              val Z = rand.nextGaussian();
+              X = Math.exp(mu + sigma*Z);
+            }
+            vertexOutDegree(i) = Math.floor(X) as Int;
+            globalNnzGuess += vertexOutDegree(i);
+        }
+
+        finish ateach(Dist.makeUnique(places)) {
+            val grid = g.handleBS().getGrid();
+            val itr = g.handleBS().getDistMap().buildBlockIteratorAtPlace(places.indexOf(here));
+            val rand2 = new Random(here.id); // TODO allow choice of random seed
+            val invN = 1.0 / gN;
+            while (itr.hasNext()) {
+                val bid    = itr.next();
+                val rowbid = grid.getRowBlockId(bid);
+                val colbid = grid.getColBlockId(bid);
+                val m      = grid.rowBs(rowbid);
+                val n      = grid.colBs(colbid);
+                val roff   = grid.startRow(rowbid);
+                val coff   = grid.startCol(colbid);
+                val nnzGuess = (m*127.1) as Long;
+                val values = new ArrayList[ElemType](nnzGuess);
+                val indices = new ArrayList[Long](nnzGuess);
+                val offsets = new Rail[Long](n);
+                val lengths = new Rail[Long](n);
+                for (col in 0..(n-1)) {
+                    offsets(col) = values.size();
+                    val placeNonZeros = (vertexOutDegree(col) * (m as Double / gN)) as Long;
+                    val meanSpacing = (m as Double) / placeNonZeros;
+                    var row:Long = 0;
+                    for (i in 1..placeNonZeros) {
+                        row += 1 + (rand2.nextDouble() * 2 * meanSpacing) as Long;
+                        if (row >= m) row -= m;
+                        indices.add(row);
+                        values.add(1.0);
+                    }
+                    /*
+                    val colDensity = vertexOutDegree(col) * invN;
+                    // density is assumed to be high enough that we should just sample for each element
+                    for (row in 0..(m-1)) {
+                        val isEdge = (rand2.nextDouble() <= colDensity);
+                        if (isEdge) {
+                            indices.add(row);
+                            values.add(1.0);
+                        }
+                    }
+                    */
+                    lengths(col) = indices.size() - offsets(col);
+                }
+                val ca = new CompressArray(indices.toRail(), values.toRail(), values.size());
+                val c1 = new Rail[Compress1D](n);
+                for (col in 0..(n-1)) {
+                    c1(col) = new Compress1D(offsets(col), lengths(col), ca);
+                }
+                val c2 = new Compress2D(c1);
+                val block = new SparseBlock(rowbid, colbid, roff, coff, new SparseCSC(m, n, c2));
+                g.handleBS().add(block);
+            }
+        }
+
+        return new PageRank(g, it, tolerance, g.getTotalNonZeroCount(), chkpntIter, places, team);
     }
 
     public def run(startTime:Long):Vector(G.N) {
@@ -144,11 +244,11 @@ public class PageRank implements LocalViewResilientIterativeApp {
     }
 
     public def printInfo() {
-        val nzc =  G.getTotalNonZeroCount() ;
+        val nzc =  G.getTotalNonZeroCount();
         Console.OUT.printf("Input Matrix G:(%dx%d), partition:(%dx%d) blocks, ",
                 G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
-        Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%d\n", 
-                Place.numPlaces(), 1,  nzd, nzc);
+        Console.OUT.printf("distribution:(%dx%d), number of non-zeros:%d\n", 
+                Place.numPlaces(), 1, nzc);
 
         Console.OUT.printf("Input duplicated vector P(%d), duplicated in all places\n", P.M);
 
@@ -173,7 +273,7 @@ public class PageRank implements LocalViewResilientIterativeApp {
         var localMaxDelta:ElemType = 0.0 as ElemType;
         val offset = GP.getOffset();
         for (i in offset..(offset+GP.getSegSize()(places.indexOf(here))-1)) {
-            localMaxDelta = Math.max(localMaxDelta, GP(i) - localP(i));
+            localMaxDelta = Math.max(localMaxDelta, Math.abs(GP(i) - localP(i)));
         }
         appTempDataPLH().maxDelta = team.allreduce(localMaxDelta, Team.ADD);
         
@@ -195,16 +295,19 @@ public class PageRank implements LocalViewResilientIterativeApp {
 
     public def restore(newGroup:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void {
         val oldPlaces = G.places();
-        val newTeam = new Team(newGroup);
+        this.places = newGroup;
+        this.team = new Team(newGroup);
         
         val newRowPs = newGroup.size();
         val newColPs = 1;
         Console.OUT.println("Going to restore PageRank app, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
+        val nzd = nnz as Float / (G.M * G.N);
+        // TODO remake using nnz instead of nzd
         G.remakeSparse(newRowPs, newColPs, nzd, newGroup, newAddedPlaces);	
-        //U.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
-        P.remake(newGroup, newTeam, newAddedPlaces);
+        //U.remake(G.getAggRowBs(), newGroup, team, newAddedPlaces);
+        P.remake(newGroup, team, newAddedPlaces);
 
-        GP.remake(G.getAggRowBs(), newGroup, newTeam, newAddedPlaces);
+        GP.remake(G.getAggRowBs(), newGroup, team, newAddedPlaces);
         
         store.restore();
         
@@ -214,6 +317,7 @@ public class PageRank implements LocalViewResilientIterativeApp {
         //adjust the iteration number and the norm value
         finish ateach(Dist.makeUnique(newGroup)) {
             appTempDataPLH().iter = lastCheckpointIter;
+
         }
         
         Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] ...");

@@ -54,9 +54,10 @@ public class SeqPageRank {
             GP.cellAdd(teleport);
             maxDelta = 0.0 as ElemType;
             for (i in 0..(GP.M-1)) {
-                maxDelta = Math.max(maxDelta, GP(i) - P(i));
+                maxDelta = Math.max(maxDelta, Math.abs(GP(i) - P(i)));
             }
             GP.copyTo(P);
+            iter++;
 		}
 		return P;
 	}

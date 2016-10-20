@@ -31,7 +31,7 @@ import x10.util.Team;
  * <li>Verification flag. Default 0 or false.</li>
  * <li>Row-wise partition of G. Default number of places</li>
  * <li>Column-wise partition of G. Default 1.</li>
- * <li>Nonzero density of G: Default 0.001f</li>
+ * <li>Nonzero density of G: Default: log-normal graph</li>
  * <li>Print output flag: Default false.</li>
  * </ol>
  */
@@ -45,7 +45,7 @@ public class RunPageRank {
             Option("m","rows","number of rows, default = 100000"),
             Option("r","rowBlocks","number of row blocks, default = X10_NPLACES"),
             Option("c","colBlocks","number of columnn blocks; default = 1"),
-            Option("d","density","nonzero density, default = 0.001"),
+            Option("d","density","nonzero density, default = log-normal"),
             Option("i","iterations","number of iterations, default = 0 (run until convergence)"),
             Option("t","tolerance","convergence tolerance, default = 0.0001"),
             Option("s","skip","skip places count (at least one place should remain), default = 0"),
@@ -63,7 +63,7 @@ public class RunPageRank {
             return;
         }
 
-        val nonzeroDensity = opts("d", 0.001f);
+        val nonzeroDensity = opts("d", 0.0f);
         val iterations = opts("i", 0n);
         val tolerance = opts("t", 0.0001f);
         val verify = opts("v");
@@ -74,9 +74,8 @@ public class RunPageRank {
         
         val mG = opts("m", (20000*Math.sqrt(placesCount*5)) as Long );
         
-        Console.OUT.printf("G: rows/cols %d density: %.3e (non-zeros: %d) iterations: %d\n",
-                            mG, nonzeroDensity, (nonzeroDensity*mG*mG) as Long, iterations);
-	if ((mG<=0) || nonzeroDensity <= 0.0 || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
+        Console.OUT.printf("G: rows/cols %d iterations: %d\n", mG, iterations);
+        if ((mG<=0) || sparePlaces < 0 || sparePlaces >= Place.numPlaces())
             Console.OUT.println("Error in settings");
         else {
             val startTime = Timer.milliTime();
@@ -85,8 +84,15 @@ public class RunPageRank {
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
-            val paraPR = PageRank.make(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
-
+            val paraPR:PageRank;
+            if (nonzeroDensity > 0.0f) {
+                paraPR = PageRank.makeRandom(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
+                Console.OUT.printf("random edge graph (uniform distribution) density: %.3e non-zeros: %d\n",
+                            nonzeroDensity, (nonzeroDensity*mG*mG) as Long);
+            } else {
+                paraPR = PageRank.makeLogNormal(mG, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
+                Console.OUT.println("log-normal edge graph (mu=4.0, sigma=1.3) total non-zeros: " + paraPR.G.getTotalNonZeroCount());
+            }
 /*
             // toy example copied from Spark (users/followers)
             val M = 6;
@@ -105,11 +111,6 @@ public class RunPageRank {
 
             if (print) paraPR.printInfo();
 
-            var origP:Vector(mG) = null;
-            if (verify) {
-                origP = paraPR.P.local().clone();
-            }
-
             val paraP = paraPR.run(startTime);
             
             if (print) {
@@ -126,6 +127,9 @@ public class RunPageRank {
                 val seqPR = new SeqPageRank(g.toDense(), iterations, tolerance);
 		        Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
+                if (print) {
+                    Console.OUT.println("Seq output vector P\n" + seqP);
+                }
                 Debug.flushln("Verifying results against sequential version");
                 val localP = Vector.make(g.N);
                 paraP.copyTo(localP);

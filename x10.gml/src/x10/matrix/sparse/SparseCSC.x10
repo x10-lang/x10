@@ -981,20 +981,24 @@ public class SparseCSC extends Matrix {
 	}
 
     public def rowSumTo(vec:Vector(M)) {
-        throw new UnsupportedOperationException("SparseCSC.rowSumTo");
+        for (c in 0..(N-1)) {
+            val col = ccdata.getLine(c);
+            for (idx in 0..(col.length-1)) {
+                vec(col.getIndex(idx)) += col.getValue(idx);
+            }
+        }
     }
 
     public def colSumTo(vec:Vector(N)) {
         for (c in 0..(N-1)) {
             val col = ccdata.getLine(c);
             var colSum:ElemType = 0.0f as ElemType;
-            for (v in col.cArray.value) {
-                colSum += v;
+            for (idx in 0..(col.length-1)) {
+                colSum += col.getValue(idx);
             }
             vec(c) = colSum;
         }
     }
-	
 
 	// Cellwise addition
 

@@ -252,6 +252,10 @@ public final class Compress1D {
 	 */
 	public final @Inline def getValue(pos:Long) = cArray.getValue(offset+pos);
 
+	public final @Inline def setValue(pos:Long, w:ElemType) {
+        cArray.value(offset+pos) = w;
+    }
+
 	/**
 	 * Initialize or reset data in the compressed line.
 	 */
