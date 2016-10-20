@@ -1018,7 +1018,7 @@ int Launcher::handleControlMessage(int fd)
 				m.to = m.from;
 				m.from = _myproc;
 				m.type = LAUNCH_RESPONSE;
-				int zero = 0;
+				int64_t zero = 0;
 				m.datalen = sizeof(zero);
 				#ifdef DEBUG
 					fprintf(stderr, "Launcher %d responding to an unsupported launch request \n", _myproc);
