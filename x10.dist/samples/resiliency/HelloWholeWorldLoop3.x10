@@ -29,22 +29,41 @@ public class HelloWholeWorldLoop3 {
 
         val loopcount = Long.parse(args(1));
         val interval = args.size < 3 ? 10000 : Long.parse(args(2));
-        val tmp = System.getenv("X10_RESILIENT_MODE");
-        val injectfailure = tmp != null && Long.parse(tmp) > 0;
+        val resilientMode = Long.parse(System.getenv().getOrElse("X10_RESILIENT_MODE", "0"));
+        val injectfailure = resilientMode > 0;
+        val hc = resilientMode == 12; // See x10.xrx.Configuration.
+        val rand = new x10.util.Random();
 
         for (i in 0..(loopcount-1)) {
             try {
                 val placestoadd = initialplaces - Place.places().numPlaces();
                 if (placestoadd > 0) {
                     Console.OUT.println("Request to add "+placestoadd+" places.");
-                    System.addPlaces(placestoadd);
+                    val start = System.nanoTime();
+                    val numAdded = System.addPlacesAndWait(placestoadd, 5000);
+                    val stop = System.nanoTime();
+                    if (numAdded != placestoadd) {
+                        Console.OUT.printf("addPlacesAndWait: timed out after adding %d places\n", numAdded);
+                    } else {
+                        Console.OUT.printf("Added %d places in %.3f secs\n", numAdded, (stop - start) / 1e9);
+                    }
                 }
 
                 val world = Place.places();
                 Console.OUT.println(here+" sees "+world.numPlaces()+" places");
+                val shouldDie = new Rail[Boolean](world.numPlaces(), (Long) => rand.nextBoolean());
+                shouldDie(world.indexOf(here)) = false;
+                if (hc) {
+                    // At most one death
+                    var mask:Boolean = true;
+                    for (j in shouldDie.range()) {
+                        shouldDie(j) &= mask;
+                        if (shouldDie(j)) { mask = false; }
+                    }
+                }
                 finish for (p in world) {
                     at (p) async {
-                        if (injectfailure && here.id != 0 && new x10.util.Random().nextBoolean()) {
+                        if (injectfailure && shouldDie(world.indexOf(here))) {
                             Console.OUT.println(here+" is dying "+i);
                             System.killHere();
                         } else {

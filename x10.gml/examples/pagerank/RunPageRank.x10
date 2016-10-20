@@ -15,11 +15,10 @@ import x10.util.Timer;
 
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.matrix.util.VerifyTool;
 
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.util.Team;
+import x10.util.resilient.localstore.ResilientStore;
 
 /**
  * Page Rank demo
@@ -35,6 +34,8 @@ import x10.util.Team;
  * <li>Print output flag: Default false.</li>
  * </ol>
  */
+//Resilient run command over MPI-ULFM
+//PAGERANK_DEBUG=0 KILL_STEPS=15,30 KILL_PLACES=5,6 DISABLE_ULFM_AGREEMENT=0 EXECUTOR_DEBUG=0 X10_RESILIENT_MODE=1 mpirun -n 10 -am ft-enable-mpi ./RunPageRank_mpi_double -m 100 --density 0.8 --iterations 20 -k 10 -s 2
 public class RunPageRank {
     public static def main(args:Rail[String]): void {
         val opts = new OptionsParser(args, [
@@ -48,8 +49,8 @@ public class RunPageRank {
             Option("d","density","nonzero density, default = log-normal"),
             Option("i","iterations","number of iterations, default = 0 (run until convergence)"),
             Option("t","tolerance","convergence tolerance, default = 0.0001"),
-            Option("s","skip","skip places count (at least one place should remain), default = 0"),
-            Option("", "checkpointFreq","checkpoint iteration frequency")
+            Option("s","spare","spare places count (at least one place should remain), default = 0"),
+            Option("k", "checkpointFreq","checkpoint iteration frequency")
         ]);
 
         if (opts.filteredArgs().size!=0) {
@@ -79,18 +80,24 @@ public class RunPageRank {
             Console.OUT.println("Error in settings");
         else {
             val startTime = Timer.milliTime();
-            val places = (sparePlaces==0n) ? Place.places() 
-                                          : PlaceGroupBuilder.excludeSparePlaces(sparePlaces);
+            var resilientStore:ResilientStore = null;
+            var placesVar:PlaceGroup = Place.places();
+            if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
+                resilientStore = ResilientStore.make(sparePlaces);
+                placesVar = resilientStore.getActivePlaces();
+            }
+            val places = placesVar;
+            
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
             val paraPR:PageRank;
             if (nonzeroDensity > 0.0f) {
-                paraPR = PageRank.makeRandom(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
+                paraPR = PageRank.makeRandom(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places, resilientStore);
                 Console.OUT.printf("random edge graph (uniform distribution) density: %.3e non-zeros: %d\n",
                             nonzeroDensity, (nonzeroDensity*mG*mG) as Long);
             } else {
-                paraPR = PageRank.makeLogNormal(mG, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places);
+                paraPR = PageRank.makeLogNormal(mG, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places, resilientStore);
                 Console.OUT.println("log-normal edge graph (mu=4.0, sigma=1.3) total non-zeros: " + paraPR.G.getTotalNonZeroCount());
             }
 /*
@@ -105,7 +112,7 @@ public class RunPageRank {
             G(4,5) = 1.0;
             G(5,4) = 1.0;
             G(5,2) = 1.0;
-            val paraPR = new PageRank(G, iterations, tolerance, 1.0f, 0, Place.places(), Team.WORLD);
+            val paraPR = new PageRank(G, iterations, tolerance, 1.0f, 0, Place.places());
             Console.OUT.println("P = " + paraPR.P);
 */
 
@@ -125,7 +132,7 @@ public class RunPageRank {
                 //paraPR.U.copyTo(localU);
                 
                 val seqPR = new SeqPageRank(g.toDense(), iterations, tolerance);
-		        Debug.flushln("Start sequential PageRank");
+                Debug.flushln("Start sequential PageRank");
                 val seqP = seqPR.run();
                 if (print) {
                     Console.OUT.println("Seq output vector P\n" + seqP);

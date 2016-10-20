@@ -24,12 +24,14 @@ import x10.matrix.distblock.DistVector;
 import x10.matrix.regression.RegressionInputData;
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.util.Team;
+import x10.util.resilient.localstore.ResilientStore;
 
 /**
  * Test harness for Linear Regression using GML
  */
+//Resilient run command over MPI-ULFM
+//LINREG_DEBUG=1 KILL_STEPS=25 KILL_PLACES=5 DISABLE_ULFM_AGREEMENT=1 EXECUTOR_DEBUG=1 X10_RESILIENT_MODE=1 mpirun -n 9 -am ft-enable-mpi ./RunLinReg_mpi_double -m 1000 -n 1000 --density 1.0 --iterations 30 --verify -k 10 -s 1
 public class RunLinReg {
 
     public static def main(args:Rail[String]): void {
@@ -47,8 +49,8 @@ public class RunLinReg {
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.9"),
             Option("i","iterations","number of iterations, default = 0 (no max)"),
-            Option("s","skip","skip places count (at least one place should remain), default = 0"),
-            Option("", "checkpointFreq","checkpoint iteration frequency")
+            Option("s","spare","spare places count (at least one place should remain), default = 0"),
+            Option("k", "checkpointFreq","checkpoint iteration frequency")
         ]);
 
         if (opts.filteredArgs().size!=0) {
@@ -68,30 +70,35 @@ public class RunLinReg {
         val verify = opts("v");
         val print = opts("p");
         val iterations = opts("i", 0n);
-        val skipPlaces = opts("s", 0n);
+        val sparePlaces = opts("s", 0n);
 
         if (nonzeroDensity<0.0f
-         || skipPlaces < 0 || skipPlaces >= Place.numPlaces()) {
+         || sparePlaces < 0 || sparePlaces >= Place.numPlaces()) {
             Console.OUT.println("Error in settings");
             System.setExitCode(1n);
             return;
         }
 
-        if (skipPlaces > 0) {
+        if (sparePlaces > 0) {
             if (Runtime.RESILIENT_MODE <= 0) {
                 Console.ERR.println("Error: attempt to skip places when not in resilient mode.  Aborting.");
                 System.setExitCode(1n);
                 return;
             } else {
-                Console.OUT.println("Skipping "+skipPlaces+" places to reserve for failure.");
+                Console.OUT.println("Skipping "+sparePlaces+" places to reserve for failure.");
             }
         }
         
         val startTime = Timer.milliTime();
-        
-        val places = (skipPlaces==0n) ? Place.places() 
-                                      : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
-        val team = new Team(places);
+        var resilientStore:ResilientStore = null;
+        var placesVar:PlaceGroup = Place.places();
+        var team:Team = Team.WORLD;
+        if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
+        	resilientStore = ResilientStore.make(sparePlaces);
+        	placesVar = resilientStore.getActivePlaces();
+        	team = new Team(placesVar);
+        }        
+        val places = placesVar;
         
         val rowBlocks = opts("r", places.size());
         val colBlocks = opts("c", 1);
@@ -105,10 +112,10 @@ public class RunLinReg {
             Console.OUT.printf("dist(%dx%d) nonzeroDensity:%g\n", places.size(), 1, nonzeroDensity);
 
             if (nonzeroDensity < LinearRegression.MAX_SPARSE_DENSITY) {
-                X = DistBlockMatrix.makeSparse(mX, nX, rowBlocks, colBlocks, places.size(), 1, nonzeroDensity, places);
+                X = DistBlockMatrix.makeSparse(mX, nX, rowBlocks, colBlocks, places.size(), 1, nonzeroDensity, places, team);
             } else {
                 Console.OUT.println("Using dense matrix as non-zero density = " + nonzeroDensity);
-                X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
+                X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places, team);
             }
             y = DistVector.make(X.M, places, team);
 
@@ -130,7 +137,7 @@ public class RunLinReg {
             nX = inputData.numFeatures+1; // including bias
             nonzeroDensity = 1.0f; // TODO allow sparse input
             
-            X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places);
+            X = DistBlockMatrix.makeDense(mX, nX, rowBlocks, colBlocks, places.size(), 1, places, team);
             y = DistVector.make(X.M, places, team);
 
             // initialize labels, examples at each place
@@ -153,7 +160,7 @@ public class RunLinReg {
         val checkpointFrequency = opts("checkpointFreq", -1n);
 
         val parLR = new LinearRegression(X, y, iterations, checkpointFrequency,
-                                         nonzeroDensity, regularization, places, team);
+                                         nonzeroDensity, regularization, places, team, resilientStore);
 
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;

@@ -21,7 +21,6 @@ import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.matrix.util.RandTool;
 import x10.matrix.util.ElemTypeTool;
-import x10.util.resilient.iterative.DistObjectSnapshot;
 import x10.util.resilient.VectorSnapshotInfo;
 public type Vector(m:Long)=Vector{self.M==m};
 public type Vector(v:Vector)=Vector{self==v};

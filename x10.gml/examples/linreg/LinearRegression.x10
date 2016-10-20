@@ -15,18 +15,15 @@ import x10.matrix.ElemType;
 import x10.regionarray.Dist;
 import x10.util.Timer;
 import x10.util.ArrayList;
+import x10.util.HashMap;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
-
 import x10.matrix.util.Debug;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
-
-import x10.util.resilient.iterative.LocalViewResilientIterativeApp;
-import x10.util.resilient.iterative.LocalViewResilientExecutor;
-import x10.util.resilient.iterative.ApplicationSnapshotStore;
-
 import x10.util.Team;
+import x10.util.resilient.localstore.*;
+import x10.util.resilient.iterative.*;
+
 
 /**
  * Parallel linear regression using a conjugate gradient solver
@@ -34,7 +31,10 @@ import x10.util.Team;
  * @see Elgohary et al. (2016). "Compressed linear algebra for large-scale
  *      machine learning". http://dx.doi.org/10.14778/2994509.2994515
  */
-public class LinearRegression implements LocalViewResilientIterativeApp {
+public class LinearRegression implements SPMDResilientIterativeApp {
+	static val DISABLE_ULFM_AGREEMENT = System.getenv("DISABLE_ULFM_AGREEMENT") != null && System.getenv("DISABLE_ULFM_AGREEMENT").equals("1");
+	static val VERBOSE = System.getenv("LINREG_DEBUG") != null && System.getenv("LINREG_DEBUG").equals("1");
+	
     public static val MAX_SPARSE_DENSITY = 0.1f;
     public val lambda:Float; // regularization parameter
     public val tolerance:Float = 0.000001f;
@@ -63,11 +63,13 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
     public var commT:Long;
     private val nzd:Float;
     private val root:Place;
-    
+
+    private val resilientStore:ResilientStore;
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
+    var places:PlaceGroup;
     
-    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team) {
+    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:ResilientStore) {
         if (it > 0) {
             this.maxIterations = it;
         } else {
@@ -91,6 +93,8 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
         nzd = sparseDensity;
         root = here;
         this.team = team;
+        this.resilientStore = resilientStore;
+        this.places = places;
     }
     
     public def isFinished_local() {
@@ -102,26 +106,27 @@ public class LinearRegression implements LocalViewResilientIterativeApp {
     public def run(startTime:Long) {
         val start = (startTime != 0)?startTime:Timer.milliTime();  
         assert (X.isDistVertical()) : "dist block matrix must have vertical distribution";
-        val places = X.places();
         appTempDataPLH = PlaceLocalHandle.make[AppTempData](places, ()=>new AppTempData());
-        new LocalViewResilientExecutor(checkpointFreq, places).run(this, start);
+        
+        init();
+        
+        if (x10.xrx.Runtime.x10rtAgreementSupport() && !DISABLE_ULFM_AGREEMENT){
+            new SPMDResilientIterativeExecutorULFM(checkpointFreq, resilientStore, true).run(this, start);
+        }
+        else {
+            new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
+        }
+        
         return d_w.local();
     }
     
-    public def getResult() = d_w.local();
-    
-    public def step_local() {
-        // Parallel computing
-        if (appTempDataPLH().iter == 0) {
-            team.barrier();
-
-appTempDataPLH().globalCompTime -= Timer.milliTime();
+    public def init() {
+        finish ateach(Dist.makeUnique(places)) {
+             team.barrier();
             // 4: r = -(t(X) %*% y);
             d_r.mult_local(root, y, X);
             d_r.scale_local(-1.0 as ElemType);
-appTempDataPLH().globalCompTime += Timer.milliTime();
             
-appTempDataPLH().localCompTime -= Timer.milliTime();
             val r = d_r.local(); 
         
             // 5: norm_r2 = sum(r * r); p = -r;
@@ -137,21 +142,20 @@ appTempDataPLH().localCompTime -= Timer.milliTime();
                 Console.OUT.println("||r|| initial value = " + Math.sqrt(norm_r2_initial)
                  + ",  target value = " + Math.sqrt(appTempDataPLH().norm_r2_target));
             }
-
-appTempDataPLH().localCompTime += Timer.milliTime();
         }
-
+    }
+    
+    public def getResult() = d_w.local();
+    
+    public def step_local() {
         // compute conjugate gradient
         // 9: q = ((t(X) %*% (X %*% p)) + lambda * p);
 
         //////Global view step:  d_q.mult(Xp.mult(X, d_p), X);
-appTempDataPLH().globalCompTime -= Timer.milliTime();
         Xp.mult_local(X, d_p);
         d_q.mult_local(root, Xp, X);
-appTempDataPLH().globalCompTime += Timer.milliTime();
         
         // Replicated Computation at each place
-appTempDataPLH().localCompTime -= Timer.milliTime();            
         var ct:Long = Timer.milliTime();
         val p = d_p.local();
         val q = d_q.local();
@@ -185,61 +189,81 @@ appTempDataPLH().localCompTime -= Timer.milliTime();
         }
        
         appTempDataPLH().iter++;        
-appTempDataPLH().localCompTime += Timer.milliTime();
+    }
+   
+    public def getCheckpointData_local():HashMap[String,Cloneable] {
+    	val map = new HashMap[String,Cloneable]();
+    	if (appTempDataPLH().iter == 0) {    		
+    		map.put("X", X.makeSnapshot_local());
+    	}
+    	map.put("d_p", d_p.makeSnapshot_local());
+    	map.put("d_q", d_q.makeSnapshot_local());
+    	map.put("d_r", d_r.makeSnapshot_local());
+    	map.put("d_w", d_w.makeSnapshot_local());
+    	map.put("app", appTempDataPLH().makeSnapshot_local());
+    	if (VERBOSE) Console.OUT.println(here + "Checkpointing at iter ["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
+    	return map;
     }
     
-    
-    public def checkpoint(resilientStore:ApplicationSnapshotStore) {    
-        resilientStore.startNewSnapshot();
-        resilientStore.saveReadOnly(X);
-        resilientStore.save(d_p);
-        resilientStore.save(d_q);
-        resilientStore.save(d_r);
-        resilientStore.save(d_w);
-        resilientStore.commit();
-        lastCheckpointNorm = appTempDataPLH().norm_r2;
+    public def restore_local(restoreDataMap:HashMap[String,Cloneable], lastCheckpointIter:Long) {
+    	X.restoreSnapshot_local(restoreDataMap.getOrThrow("X"));
+    	d_p.restoreSnapshot_local(restoreDataMap.getOrThrow("d_p"));
+        d_q.restoreSnapshot_local(restoreDataMap.getOrThrow("d_q"));
+        d_r.restoreSnapshot_local(restoreDataMap.getOrThrow("d_r"));
+        d_w.restoreSnapshot_local(restoreDataMap.getOrThrow("d_w"));
+        appTempDataPLH().restoreSnapshot_local(restoreDataMap.getOrThrow("app"));        
+        if (VERBOSE) Console.OUT.println(here + "Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
     }
     
-    /**
-     * Restore from the snapshot with new PlaceGroup
-     */
-    public def restore(newPg:PlaceGroup, store:ApplicationSnapshotStore, lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]) {
-        val oldPlaces = X.places();
-        val newTeam = new Team(newPg);
-        val newRowPs = newPg.size();
+    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]) {
+        this.team = newTeam;
+        this.places = newPlaces;
+        val newRowPs = newPlaces.size();
         val newColPs = 1;
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, newPg, newAddedPlaces);
+            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces, newAddedPlaces);
         } else {
-            X.remakeDense(newRowPs, newColPs, newPg, newAddedPlaces);
+            X.remakeDense(newRowPs, newColPs, newPlaces, newAddedPlaces);
         }
-        d_p.remake(newPg, newTeam, newAddedPlaces);
-        d_q.remake(newPg, newTeam, newAddedPlaces);
-        d_r.remake(newPg, newTeam, newAddedPlaces);
-        d_w.remake(newPg, newTeam, newAddedPlaces);
-        Xp.remake(X.getAggRowBs(), newPg, newTeam, newAddedPlaces);
-        
-        store.restore();
-        
-        //TODO: make a snapshottable class for the app data
-        PlaceLocalHandle.destroy(oldPlaces, appTempDataPLH, (Place)=>true);
-        appTempDataPLH = PlaceLocalHandle.make[AppTempData](newPg, ()=>new AppTempData());
-        //adjust the iteration number and the norm value
-        finish ateach(Dist.makeUnique(newPg)) {
-            appTempDataPLH().iter = lastCheckpointIter;
-            appTempDataPLH().norm_r2 = lastCheckpointNorm;
-        }
-        Console.OUT.println("Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
-    }    
+        d_p.remake(newPlaces, newTeam, newAddedPlaces);
+        d_q.remake(newPlaces, newTeam, newAddedPlaces);
+        d_r.remake(newPlaces, newTeam, newAddedPlaces);
+        d_w.remake(newPlaces, newTeam, newAddedPlaces);
+        Xp.remake(X.getAggRowBs(), newPlaces, newTeam, newAddedPlaces);      
+    	for (sparePlace in newAddedPlaces){
+    		if (VERBOSE) Console.OUT.println("Adding place["+sparePlace+"] to appTempDataPLH ...");
+    		PlaceLocalHandle.addPlace[AppTempData](appTempDataPLH, sparePlace, ()=>new AppTempData());
+    	}
+    }
     
-    class AppTempData {
+    class AppTempData implements Cloneable, Snapshottable {
         public var norm_r2:ElemType = 1.0 as ElemType;
         public var norm_r2_initial:ElemType;
         public var norm_r2_target:ElemType = 0.0 as ElemType;
         public var iter:Long;
         
-        public var localCompTime:Long;
-        public var globalCompTime:Long;
+        public def this() { }
+        
+        def this(norm_r2:ElemType, norm_r2_initial:ElemType, norm_r2_target:ElemType, iter:Long) {
+    	    this.norm_r2 = norm_r2;
+    	    this.norm_r2_initial = norm_r2_initial;
+    	    this.norm_r2_target = norm_r2_target;
+    	    this.iter = iter;
+        }
+        
+        public def clone():Cloneable {
+        	return new AppTempData(norm_r2, norm_r2_initial, norm_r2_target, iter);
+        }
+        
+        public def makeSnapshot_local() = this;
+        
+        public def restoreSnapshot_local(o:Cloneable) {
+        	val other = o as AppTempData;
+        	this.norm_r2 = other.norm_r2;
+    	    this.norm_r2_initial = other.norm_r2_initial;
+    	    this.norm_r2_target = other.norm_r2_target;
+    	    this.iter = other.iter;
+        }
     }
 }
