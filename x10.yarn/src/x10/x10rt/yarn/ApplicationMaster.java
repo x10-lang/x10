@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;
@@ -122,6 +123,7 @@ public class ApplicationMaster {
 	private final HashMap<ContainerId, Integer> places; // map of containers to places
 	private final HashMap<SocketChannel, ByteBuffer> pendingReads;
 	private final HashMap<Integer, Integer> pendingKills;
+	private final ConcurrentLinkedQueue<ContainerRequest> pendingRequests = new ConcurrentLinkedQueue<ContainerRequest>();
 	
 	private AMRMClientAsync<ContainerRequest> resourceManager; // Handle to communicate with the Resource Manager
 	private NMClientAsync nodeManager; // Handle to communicate with the Node Manager
@@ -308,6 +310,7 @@ public class ApplicationMaster {
 			 ContainerRequest request = new ContainerRequest(capability, null, null, Priority.newInstance(0));
 			 LOG.info("Requested container ask: " + request.toString());
 			 resourceManager.addContainerRequest(request);
+			 pendingRequests.add(request);
 		 }
 	}
 	
@@ -523,6 +526,7 @@ public class ApplicationMaster {
 					ContainerRequest request = new ContainerRequest(capability, null, null, Priority.newInstance(0));
 					LOG.info("Adding a new container request " + request.toString());
 					resourceManager.addContainerRequest(request);
+					pendingRequests.add(request);
 				}
 
 				LOG.info("Requested an increase of "+numPlacesRequested+" places on top of the previous "+oldvalue+" places");
@@ -606,6 +610,10 @@ public class ApplicationMaster {
 					continue;
 				}
 				
+				// A request was satisfied; remove one pending request.
+				final ContainerRequest pr = pendingRequests.poll();
+				if (pr != null) resourceManager.removeContainerRequest(pr);
+
 				final int placeId = numAllocatedContainers.getAndIncrement();
 				final NodeId node = allocatedContainer.getNodeId();
 				LOG.info("Launching place on a new container."
