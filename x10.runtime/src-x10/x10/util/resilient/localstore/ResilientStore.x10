@@ -48,9 +48,27 @@ public class ResilientStore {
         var deadCount:Long = 0;
         var allocated:Long = 0;
         var virtualPlaceId:Long = 0;
+
         for (p in oldPlaceGroup){
             if (p.isDead()){
                 deadCount++;
+            }
+        }
+        if (deadCount > sparePlaces.size()) {
+            Console.OUT.println("Need to request additional spare places: "+deadCount+" > "+ sparePlaces.size());
+            val numAdded = System.addPlacesAndWait(deadCount = sparePlaces.size(), 10000); // wait up to 10 seconds; we're exiting if this fails.
+            if (numAdded > 0) {
+                for (p in Place.places()) {
+                    if (!p.isDead() && !oldPlaceGroup.contains(p) && !sparePlaces.contains(p)) {
+                        Console.OUT.println("Added spare place ["+p.id+"]");
+                        sparePlaces.add(p);
+                    }
+                }
+            }
+        }
+
+        for (p in oldPlaceGroup){
+            if (p.isDead()){
                 if (sparePlaces.size() > 0){
                     val sparePlace = sparePlaces.removeAt(0);
                     Console.OUT.println("place ["+sparePlace.id+"] is replacing ["+p.id+"] since it is dead ");
@@ -62,7 +80,7 @@ public class ResilientStore {
                     allocated++;
                 }
                 else
-                    throw new Exception("No enough spare places found ...");
+                    throw new Exception("Not enough spare places found ...");
                 
                 //FIXME: there may be more than one
                 mastersLostTheirSlaves.add(findMasterVirtualIdGivenSlave(p.id));
