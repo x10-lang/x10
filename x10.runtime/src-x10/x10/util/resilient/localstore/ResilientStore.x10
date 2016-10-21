@@ -55,8 +55,9 @@ public class ResilientStore {
             }
         }
         if (deadCount > sparePlaces.size()) {
-            Console.OUT.println("Need to request additional spare places: "+deadCount+" > "+ sparePlaces.size());
-            val numAdded = System.addPlacesAndWait(deadCount = sparePlaces.size(), 10000); // wait up to 10 seconds; we're exiting if this fails.
+            val numNeeded = deadCount - sparePlaces.size();
+            Console.OUT.println("Need to request "+numNeeded+" additional spare places ("+deadCount+" > "+ sparePlaces.size()+")");
+            val numAdded = System.addPlacesAndWait(numNeeded, 10000); // wait up to 10 seconds; we're exiting if this fails.
             if (numAdded > 0) {
                 for (p in Place.places()) {
                     if (!p.isDead() && !oldPlaceGroup.contains(p) && !sparePlaces.contains(p)) {
