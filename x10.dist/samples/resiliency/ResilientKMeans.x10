@@ -339,12 +339,9 @@ public class ResilientKMeans {
 
         var pg:PlaceGroup = Place.places();
         var resilientStore:ResilientStore = null;
-        if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
+        if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
             resilientStore = ResilientStore.make(sparePlaces);
             pg = resilientStore.getActivePlaces();
-        } else {
-            Console.OUT.println("\n--\n--\nWARNING: Running in non-resilient mode because "
-                    + "no spare places are available or X10_RESILIENT_MODE=0\n--\n--\n");
         }
         
         val pointsPerPlace = numPoints / pg.size();

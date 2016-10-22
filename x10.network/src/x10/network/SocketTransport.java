@@ -522,6 +522,11 @@ public class SocketTransport {
 						setSocketOptions(sc);
 						registerOnSelector(sc, SelectionKey.OP_READ, null);
 						if (DEBUG) System.err.println("Place "+myPlaceId+" accepted a connection from place "+remote);
+
+                        // tell the new place to connect to the hazelcast cluster
+                        if (dataStoreLocation != null && myPlaceId == lowestValidPlaceId) {
+                            sendMessage(SocketTransport.MSGTYPE.CONNECT_DATASTORE, remote, 0, dataStoreLocation);
+                        }
 						
 						synchronized (deadPlaces) {
 							if (remote >= nplaces)
