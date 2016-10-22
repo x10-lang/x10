@@ -201,7 +201,7 @@ public class PageRank implements SPMDResilientIterativeApp {
                 val lengths = new Rail[Long](n);
                 for (col in 0..(n-1)) {
                     offsets(col) = values.size();
-                    val placeNonZeros = Math.min(m, (vertexOutDegree(col) * (m as Double / gN)) as Long);
+                    val placeNonZeros = Math.min(m, (vertexOutDegree(col) * (m as Double / gN) + 0.5) as Long);
                     val meanSpacing = (m as Double) / placeNonZeros - 1;
                     var row:Long = 0;
                     for (i in 1..placeNonZeros) {
