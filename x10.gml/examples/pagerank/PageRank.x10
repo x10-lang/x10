@@ -308,6 +308,7 @@ public class PageRank implements SPMDResilientIterativeApp {
     }
     
     public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]) {
+        this.places = newPlaces;
     	this.team = newTeam;
         val newRowPs = newPlaces.size();
         val newColPs = 1;
