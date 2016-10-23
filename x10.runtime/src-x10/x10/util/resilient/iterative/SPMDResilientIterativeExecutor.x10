@@ -502,7 +502,7 @@ public class SPMDResilientIterativeExecutor {
             assert(here.id == 0);
             place0VictimsStats.put(index, stat);
             place0KillPlaceTime = Timer.milliTime();
-            Console.OUT.println("[Hammer Log] Time before killing is ["+placeTempData().place0KillPlaceTime+"] ...");
+            Console.OUT.println("[Hammer Log] Time before killing is ["+place0KillPlaceTime+"] ...");
         }
     }
     
@@ -526,3 +526,4 @@ public class SPMDResilientIterativeExecutor {
         }
     }
 }
+
