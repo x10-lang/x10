@@ -22,17 +22,6 @@ import x10.util.resilient.localstore.ResilientStore;
 
 /**
  * Page Rank demo
- * <p>
- * Execution input parameters:
- * <ol>
- * <li>Rows and columns of G. Default 10000</li>
- * <li>Iterations number. Default 20</li>
- * <li>Verification flag. Default 0 or false.</li>
- * <li>Row-wise partition of G. Default number of places</li>
- * <li>Column-wise partition of G. Default 1.</li>
- * <li>Nonzero density of G: Default: log-normal graph</li>
- * <li>Print output flag: Default false.</li>
- * </ol>
  */
 //Resilient run command over MPI-ULFM
 //PAGERANK_DEBUG=0 KILL_STEPS=15,30 KILL_PLACES=5,6 DISABLE_ULFM_AGREEMENT=0 EXECUTOR_DEBUG=0 X10_RESILIENT_MODE=1 mpirun -n 10 -am ft-enable-mpi ./RunPageRank_mpi_double -m 100 --density 0.8 --iterations 20 -k 10 -s 2

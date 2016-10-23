@@ -168,7 +168,7 @@ public class PageRank implements SPMDResilientIterativeApp {
         val mu = 4.0f as ElemType;
         val sigma = 1.3f as ElemType;
 
-        val rand = new Random(here.id); // TODO allow choice of random seed
+        val rand = new Random(); // TODO allow choice of random seed
         val vertexOutDegree = new Rail[Int](gN);
         var globalNnzGuess:Long = 0;
         for (i in 0..(gN-1)) {
@@ -184,7 +184,7 @@ public class PageRank implements SPMDResilientIterativeApp {
         finish ateach(Dist.makeUnique(places)) {
             val grid = g.handleBS().getGrid();
             val itr = g.handleBS().getDistMap().buildBlockIteratorAtPlace(places.indexOf(here));
-            val rand2 = new Random(here.id); // TODO allow choice of random seed
+            val rand2 = new Random(); // TODO allow choice of random seed
             val invN = 1.0 / gN;
             while (itr.hasNext()) {
                 val bid    = itr.next();
