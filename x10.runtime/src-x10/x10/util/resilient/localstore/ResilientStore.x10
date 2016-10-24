@@ -62,6 +62,7 @@ public class ResilientStore {
                 for (p in Place.places()) {
                     if (!p.isDead() && !oldPlaceGroup.contains(p) && !sparePlaces.contains(p)) {
                         Console.OUT.println("Added spare place ["+p.id+"]");
+                        PlaceLocalHandle.addPlace[LocalStore](plh, p, ()=>new LocalStore());
                         sparePlaces.add(p);
                     }
                 }

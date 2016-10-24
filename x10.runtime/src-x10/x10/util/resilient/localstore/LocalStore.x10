@@ -26,6 +26,9 @@ public class LocalStore {
         }
     }
 
+    /* used to initialize elastically added places */
+    public def this() { }
+
     /*used when a spare place joins*/
     public def joinAsMaster (virtualPlaceId:Long, data:HashMap[String,Cloneable], epoch:Long) {
         this.virtualPlaceId = virtualPlaceId;
