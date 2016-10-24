@@ -332,7 +332,7 @@ public class ResilientKMeans {
         val epsilon = opts("-e", 1e-3f); // negative epsilon forces i iterations.
         val verbose = opts("-v");
 
-        val checkpointFreq = opts("-k",-1);
+        val checkpointFreq = opts("-k",5);
         val sparePlaces = opts("-s",0);
         
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
