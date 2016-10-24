@@ -370,7 +370,11 @@ public class GlobalResilientIterativeExecutor {
     private def executorKillThere(victim:Place, op:String) {
     	killPlaceTime = Timer.milliTime();
     	Console.OUT.println("[Hammer Log] Killing ["+victim+"] ...");
-    	System.killThere(victim);
+        try {
+            System.killThere(victim);
+        } catch (e:DeadPlaceException) {
+            Console.OUT.println("[Hammer Log] ["+victim+"] was already dead ...");
+        }
     }
     
 }
