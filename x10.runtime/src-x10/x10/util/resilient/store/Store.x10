@@ -11,6 +11,7 @@
 
 package x10.util.resilient.store;
 
+import x10.compiler.Native;
 import x10.util.resilient.localstore.Cloneable;
 
 // a collection of resilient stores, one per place in a place group
@@ -38,11 +39,13 @@ public abstract class Store[V]{V haszero, V <: Cloneable} {
 
     // instantiate a resilient store with the specified number of spare places
     public static def make[V](name:String, spares:Long){V haszero, V <: Cloneable} {
-        val useHazelcast = "Hazelcast".equalsIgnoreCase(java.lang.System.getProperty("X10RT_DATASTORE", "none"));
-        if (useHazelcast) {
+        if ("Hazelcast".equals(dataStore())) {
             return new HazelcastStore[V](name, spares);
         } else {
             return new NativeStore[V](name, spares);
         }
     }
+
+    @Native("java", "java.lang.System.getProperty(\"X10RT_DATASTORE\", \"Hazelcast\")")
+    static def dataStore():String = "native";
 }
