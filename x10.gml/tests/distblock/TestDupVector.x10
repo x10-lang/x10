@@ -45,7 +45,6 @@ public class TestDupVector extends x10Test {
 	    ret &= (testCellMult(places));
 	    ret &= (testCellDiv(places));
 	    ret &= (testReduce(places));
-	    ret &= (testSnapshotRestore(places));
         return ret;
     }
     
@@ -177,29 +176,7 @@ public class TestDupVector extends x10Test {
 	
         return ret;
     }
-    
-    public def testSnapshotRestore(places:PlaceGroup):Boolean {
-        Console.OUT.println("DupVector snapshot/restore test");
-        var dm:DupVector = DupVector.make(M, Place.places(), Team.WORLD).init(ET(1.0));
-        var ret:Boolean = dm.equals(ET(1.0));        
-        val dm_snapshot = dm.makeSnapshot();        
-        dm.cellAdd(ET(2.0)); //change the vector after taking a snapshot       
-	
-        val dm1 = dm.clone();      
-	
-        val newPlaceGroup:PlaceGroup = places;                
-        dm.remake(newPlaceGroup, new Team(newPlaceGroup), new ArrayList[Place]());        
-        dm.restoreSnapshot(dm_snapshot);       
-	
-        ret &= !dm.equals(dm1);//different place groups  
-        ret &= dm.equals(ET(1.0));//restore the old value before the snapshot        
-	
-        if (!ret)
-            Console.OUT.println("--------DupVector snapshot/restore test failed!--------");
-	
-        return ret;
-    }
-    
+
     public static def main(args:Rail[String]) {
         val n = (args.size > 0) ? Long.parse(args(0)):4;
         new TestDupVector(n).execute();

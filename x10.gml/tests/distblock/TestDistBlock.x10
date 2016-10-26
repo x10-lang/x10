@@ -72,7 +72,6 @@ public class TestDistBlock extends x10Test {
         ret &= (testScaleAdd(places, team));
         ret &= (testCellMult(places, team));
         ret &= (testCellDiv(places, team));
-	    //ret &= (testSnapshotRestore(places)); TODO: test code needs revision
         return ret;
     }
     
@@ -226,41 +225,6 @@ public class TestDistBlock extends x10Test {
             Console.OUT.println("--------Dist block matrix cellwise mult-div test failed!--------");
         return ret;
     }
-    /*
-    Test case code is not valid after the changes in DistBlockMatrix remake method
-    TODO: rewrite this test method
-    public def testSnapshotRestore(places:PlaceGroup):Boolean {
-        Console.OUT.println("DistBlockMatrix snapshot/restore test");
-        var ret:Boolean = true;
-	
-        val a = DistBlockMatrix.makeDense(grid, dmap, Place.places()).init(1.0);
-        val a_snapshot = a.makeSnapshot();
-        a.init(ET(2.0));
-	
-        val grid1 = grid;
-        val dmap1 = DistGrid.make(grid, places.size()).dmap;
-	
-        a.remakeDense(grid1, dmap1, places);
-        a.restoreSnapshot(a_snapshot);
-	
-        ret &= a.equals(ET(1.0));        
-	
-        var c:DistBlockMatrix = DistBlockMatrix.makeSparse(grid, dmap, nzp, Place.places()).init((r:Long,c:Long)=>ET(1.0));
-        val c1 = c.clone();
-        val c_snapshot = c.makeSnapshot();
-        c.init((r:Long,c:Long)=>ET(5.0));        
-	
-        c.remakeSparse(grid1, dmap1, nzp, places);        
-        c.restoreSnapshot(c_snapshot);
-        for (var i:Long=0; i< c.M; i++)
-            for (var j:Long=0; j< c.N; j++)            
-                ret &= c(i,j) == c1(i,j);
-	
-        if (!ret)
-            Console.OUT.println("--------Dist block matrix snapshot/restore test failed!--------");
-        return ret;
-    }
-    */
     
     public static def main(args:Rail[String]) {
         new TestDistBlock(args).execute();
