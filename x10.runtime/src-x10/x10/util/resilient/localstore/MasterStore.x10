@@ -110,4 +110,6 @@ public class MasterStore {
             lock.unlock();
         }
     }
+
+    public def keySet() = data.keySet();
 }

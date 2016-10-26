@@ -233,4 +233,34 @@ public class ResilientStore {
     public def printStatus() {
        //Console.OUT.println("DS-- " + here + " " + plh().slave);
     }
+
+    /**
+     * Get the value of key k in the resilient map.
+     */
+    public def get(k:String) {
+        val trans = startLocalTransaction();
+        val v = trans.get(k);
+        trans.prepareAndCommit();
+        return v;
+    }
+
+    /**
+     * Associate value v with key k in the resilient map.
+     */
+    public def set(k:String, v:Cloneable) {
+        val trans = startLocalTransaction();
+        trans.put(k, v);
+        trans.prepareAndCommit();
+    }
+
+    /**
+     * Remove any value associated with key k from the resilient map.
+     */
+    public def delete(k:String) {
+        val trans = startLocalTransaction();
+        trans.delete(k);
+        trans.prepareAndCommit();
+    }
+
+    public def keySet() = plh().masterStore.keySet();
 }
