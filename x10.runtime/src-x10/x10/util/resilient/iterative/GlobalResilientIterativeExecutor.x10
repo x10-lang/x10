@@ -26,8 +26,8 @@ import x10.xrx.Runtime;
 import x10.util.resilient.localstore.*;
 
 public class GlobalResilientIterativeExecutor {
-	private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null && System.getenv("EXECUTOR_DEBUG").equals("1"));
-	
+    private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null && System.getenv("EXECUTOR_DEBUG").equals("1"));
+
     private val resilientMap:ResilientStore;
     private val appStore:ApplicationSnapshotStore;
     private var lastCkptIter:Long = -1;
@@ -35,10 +35,8 @@ public class GlobalResilientIterativeExecutor {
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
      
-    //parameters for killing places at different times
-    private val simplePlaceHammer:SimplePlaceHammer;
-    private val HAMMER_STEPS = System.getenv("KILL_STEPS");
-    private val HAMMER_PLACES = System.getenv("KILL_PLACES");
+    // configuration parameters for killing places at different times
+    private var simplePlaceHammer:SimplePlaceHammer;
 
     //timing variables
     private transient var restoreTimes:ArrayList[Double] = new ArrayList[Double]();
@@ -58,24 +56,26 @@ public class GlobalResilientIterativeExecutor {
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;
             this.resilientMap = resilientMap;
-            this.appStore = new ApplicationSnapshotStore();
-            this.simplePlaceHammer = new SimplePlaceHammer(HAMMER_STEPS, HAMMER_PLACES);
+            appStore = new ApplicationSnapshotStore();
+            simplePlaceHammer = new SimplePlaceHammer();
             places = resilientMap.getActivePlaces();
-            if (VERBOSE){
-                Console.OUT.println("HAMMER_STEPS="+HAMMER_STEPS);
-                Console.OUT.println("HAMMER_PLACES="+HAMMER_PLACES);
+            if (VERBOSE) {
+                simplePlaceHammer.printPlan();
             }
-        }
-        else {        	
+        } else {
             this.resilientMap = null;
             this.appStore = null;
             this.simplePlaceHammer = null;            
-        	places = Place.places();
+            places = Place.places();
         }
     }
 
     public def run(app:GlobalResilientIterativeApp) {
         run(app, Timer.milliTime());
+    }
+
+    public def setHammer(h:SimplePlaceHammer) {
+        simplePlaceHammer = h;
     }
     
     //the startRunTime parameter is added to allow the executor to consider 

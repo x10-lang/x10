@@ -303,7 +303,11 @@ public class ResilientKMeans {
             printPoints(master.currentClusters);
         }
 
-        new GlobalResilientIterativeExecutor(checkpointFreq, resilientStore).run(master, startTime);     
+        val executor = new GlobalResilientIterativeExecutor(checkpointFreq, resilientStore);
+        if (hammer() != null) {
+            executor.setHammer(hammer());
+        }
+        executor.run(master, startTime);
         
         return master.currentClusters;
     }
@@ -369,6 +373,13 @@ public class ResilientKMeans {
             printPoints(clusters);
         }
     }
+
+    // Saffolding for killing places during automated testing.
+    public static def setHammerConfig(steps:String, places:String) {
+        hammer() = new SimplePlaceHammer(steps, places);
+    }
+
+    static val hammer = new Cell[SimplePlaceHammer](null);
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

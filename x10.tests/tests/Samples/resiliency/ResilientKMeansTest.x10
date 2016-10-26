@@ -51,6 +51,9 @@ public class ResilientKMeansTest extends x10Test {
              pts
          };
 
+         if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
+             ResilientKMeans.setHammerConfig("3,15", "2,7");
+         }
          val clusters = ResilientKMeans.computeClusters(pg, initPoints, 3, k, 50, 1e-6f, false, 5, rs);
 
          var pass:Boolean = true;

@@ -43,10 +43,9 @@ public class SPMDResilientIterativeExecutorULFM {
     private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null 
                         && System.getenv("EXECUTOR_DEBUG").equals("1"));
     
-    //parameters for killing places at different times
-    private val simplePlaceHammer:SimplePlaceHammer;
-    private val HAMMER_STEPS = System.getenv("KILL_STEPS");
-    private val HAMMER_PLACES = System.getenv("KILL_PLACES");
+    // configuration parameters for killing places at different times
+    private var simplePlaceHammer:SimplePlaceHammer;
+
     // index of the checkpoint first checkpoint (0), second checkpoint (1), ...etc    
     private val KILL_CHECKVOTING_INDEX = (System.getenv("EXECUTOR_KILL_CHECKVOTING") != null)?Long.parseLong(System.getenv("EXECUTOR_KILL_CHECKVOTING")):-1;
     private val KILL_CHECKVOTING_PLACE = (System.getenv("EXECUTOR_KILL_CHECKVOTING_PLACE") != null)?Long.parseLong(System.getenv("EXECUTOR_KILL_CHECKVOTING_PLACE")):-1;   
@@ -74,14 +73,13 @@ public class SPMDResilientIterativeExecutorULFM {
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;
             this.resilientMap = resilientMap;
-            this.simplePlaceHammer = new SimplePlaceHammer(HAMMER_STEPS, HAMMER_PLACES);
+            this.simplePlaceHammer = new SimplePlaceHammer();
             places = resilientMap.getActivePlaces();
             if (!x10.xrx.Runtime.x10rtAgreementSupport()){
                 throw new UnsupportedOperationException("This executor requires an agreement algorithm from the transport layer ...");
             }
-            if (VERBOSE){         
-                Console.OUT.println("HAMMER_STEPS="+HAMMER_STEPS);
-                Console.OUT.println("HAMMER_PLACES="+HAMMER_PLACES);
+            if (VERBOSE){
+                simplePlaceHammer.printPlan();
                 Console.OUT.println("EXECUTOR_KILL_CHECKVOTING="+KILL_CHECKVOTING_INDEX);
                 Console.OUT.println("EXECUTOR_KILL_CHECKVOTING_PLACE="+KILL_CHECKVOTING_PLACE);
                 Console.OUT.println("EXECUTOR_KILL_RESTOREVOTING_INDEX"+KILL_RESTOREVOTING_INDEX);
@@ -99,6 +97,10 @@ public class SPMDResilientIterativeExecutorULFM {
         run(app, Timer.milliTime());
     }
     
+    public def setHammer(h:SimplePlaceHammer) {
+        simplePlaceHammer = h;
+    }
+
     //the startRunTime parameter is added to allow the executor to consider 
     //any initlization time done by the application before starting the executor  
     public def run(app:SPMDResilientIterativeApp, startRunTime:Long) {

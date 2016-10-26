@@ -41,10 +41,8 @@ public class SPMDResilientIterativeExecutor {
     private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null 
                         && System.getenv("EXECUTOR_DEBUG").equals("1"));
     
-    //parameters for killing places at different times
-    private val simplePlaceHammer:SimplePlaceHammer;
-    private val HAMMER_STEPS = System.getenv("KILL_STEPS");
-    private val HAMMER_PLACES = System.getenv("KILL_PLACES");
+    // configuration parameters for killing places at different times
+    private var simplePlaceHammer:SimplePlaceHammer;
     
     private transient var ckptTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var remakeTimes:ArrayList[Double] = new ArrayList[Double]();
@@ -64,11 +62,10 @@ public class SPMDResilientIterativeExecutor {
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;            
             this.resilientMap = resilientMap;
-            this.simplePlaceHammer = new SimplePlaceHammer(HAMMER_STEPS, HAMMER_PLACES);
+            this.simplePlaceHammer = new SimplePlaceHammer();
             places = resilientMap.getActivePlaces();
             if (VERBOSE){
-                Console.OUT.println("HAMMER_STEPS="+HAMMER_STEPS);
-                Console.OUT.println("HAMMER_PLACES="+HAMMER_PLACES);
+                simplePlaceHammer.printPlan();
             }
         }
         else {        	            
@@ -82,6 +79,10 @@ public class SPMDResilientIterativeExecutor {
         run(app, Timer.milliTime());
     }
     
+    public def setHammer(h:SimplePlaceHammer) {
+        simplePlaceHammer = h;
+    }
+
     //the startRunTime parameter is added to allow the executor to consider 
     //any initlization time done by the application before starting the executor  
     public def run(app:SPMDResilientIterativeApp, startRunTime:Long) {
