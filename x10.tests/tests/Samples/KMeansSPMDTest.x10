@@ -14,39 +14,68 @@ import x10.util.Random;
 import x10.array.Array_2;
 
 // SOURCEPATH: x10.dist/samples
+// NUM_PLACES: 8
+
+// This test creates a uniform distribution of d dimensional
+// points that is distributed such that each of the 2^d Places
+// gets points in only "quadrant" of the space. We look for
+// 2^d clusters and expect to get to a converged solution of
+// exactly one centroid in each quadrant
 
 public class KMeansSPMDTest extends x10Test {
+    static val signVectors = [[-1f as Float,-1f,-1f],[-1f,-1f,1f],[-1f,1f,-1f],[-1f,1f,1f],
+                              [1f,-1f,-1f],[1f,-1f,1f],[1f,1f,-1f],[1f as Float,1f,1f]];
+
     public def run():boolean {
          val pg = Place.places();
 
-         // Create 4 clusters of random points around (-10,-10), (10,10), (-10,10), and (10,-10)
+         chk(pg.numPlaces() == 8, "This test requires 8 places");
+
+         val d = 3;
+         val nPoints = 200000;
+         val k = 8; // 2^d
+
+         // Create globally uniform, but locally skewed distribution
          val initPoints = (Place) => {
              val rand = new Random(here.id);
-             val pts = new Array_2[Float](50000, 2, (i:Long, j:Long) => {
-                 switch ((i%4) as Int) {
-                     case 0n: return -10.5f + rand.nextFloat();
-                     case 1n: return 9.5f + rand.nextFloat();
-                     case 2n: return (j==0 ? -10.5f : 9.5f) + rand.nextFloat();
-                     default: return (j==0 ? 9.5f : -10.5f) + rand.nextFloat();
+             val pts = new Array_2[Float](nPoints, d, (Long,Long) => rand.nextFloat());
+             val signVector:Rail[Float] = signVectors(here.id);
+             for (i in 0..(nPoints-1)) {
+                 for (j in 0..(d-1)) {
+                     pts(i,j) *= signVector(j);
                  }
-             });
+             }
              pts
          };
-         val clusters = KMeansSPMD.computeClusters(Place.places(), initPoints, 2, 4, 50, 1e-6f, false);
+         val clusters = KMeansSPMD.computeClusters(Place.places(), initPoints, 3, k, 50, 1e-6f, false);
 
-         // We know the inital centroids were selected by averaging the initial 4
-         // points in each place.  Therefore we know the expected order of the centroids
-         // and can do a very simple test for correctness.
-         val expected = Array_2.makeView([ -10f, -10f, 10f, 10f, -10f, 10f, 10f, -10f ], 4, 2);
          var pass:Boolean = true;
-         for ([i,j] in expected.indices()) {
-             pass &= (Math.abs(clusters(i,j) - expected(i,j)) < 0.01);
+
+         // We should end up with one centroid in the middle (0.5,0.5,0.5)
+         // of each quadrant.
+         // First check magnitude
+         for (v in clusters) {
+             if (Math.abs(Math.abs(v) - 0.5f) > 0.01f) {
+                 pass = false;
+                 Console.OUT.printf("Centroid coordinate %.4f diverges from expected magnitude of 0.5");
+             }
          }
 
+         // Next check quadrant coverage
+         val quadrants = new Array_2[Long](k, d, (i:Long,j:Long) => Math.signum(clusters(i,j)) < 0f ? 0 : 1);
+         val quadrantCount = new Rail[Long](k);
+         for (i in 0..(k-1)) {
+             val quadrant = 4*quadrants(i,0) + 2*quadrants(i,1) + quadrants(i,2);
+             quadrantCount(quadrant) += 1;
+         }
+         for (i in quadrantCount.range()) {
+             if (quadrantCount(i) != 1) {
+                 pass = false;
+                 Console.OUT.println("Failure: had "+quadrantCount(i)+" centroids in quadrant "+i);
+             }
+         }
          if (!pass) {
-             Console.OUT.println("Expected clusters: ");
-             KMeansSPMD.printPoints(expected);
-             Console.OUT.println("Actual clusters: ");
+             Console.OUT.println("Computed clusters: ");
              KMeansSPMD.printPoints(clusters);
          }
 
