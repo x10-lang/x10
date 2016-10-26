@@ -16,7 +16,6 @@ public class ResilientStore {
     private var sparePlaces:ArrayList[Place];
     private var deadPlaces:ArrayList[Place];    
     private val slaveMap:Rail[Long]; //master virtual place to slave physical place
-    private val sequence:AtomicLong = new AtomicLong();
     
     private def this(activePlaces:PlaceGroup, plh:PlaceLocalHandle[LocalStore], slaveMap:Rail[Long], sparePlaces:ArrayList[Place]){
         this.activePlaces = activePlaces;
@@ -226,7 +225,7 @@ public class ResilientStore {
     */
     
     public def getNextTransactionId() {
-        val id = sequence.incrementAndGet();
+        val id = plh().masterStore.sequence.incrementAndGet();
         return 100000+id;
     }
     

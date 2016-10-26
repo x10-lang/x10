@@ -15,6 +15,7 @@ public class MasterStore {
     private val lock = new Lock();
     private val data:HashMap[String,Cloneable];
     private val virtualPlaceId:Long;
+    val sequence:AtomicLong = new AtomicLong();
     
     public val committedTrans = new HashSet[Long]();
     public val rolledbackTrans = new HashSet[Long]();
