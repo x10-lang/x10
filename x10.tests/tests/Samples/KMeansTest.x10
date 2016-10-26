@@ -47,7 +47,7 @@ public class KMeansTest extends x10Test {
              }
              pts
          };
-         val clusters = KMeans.computeClusters(Place.places(), initPoints, 3, k, 50, 1e-6f, false);
+         val clusters = KMeans.computeClusters(pg, initPoints, 3, k, 50, 1e-6f, false);
 
          var pass:Boolean = true;
 
