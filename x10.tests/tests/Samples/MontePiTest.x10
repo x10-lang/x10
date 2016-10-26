@@ -13,15 +13,15 @@ import harness.x10Test;
 
 // SOURCEPATH: x10.dist/samples
 
-public class MontyPiTest extends x10Test {
+public class MontePiTest extends x10Test {
     public def run():boolean {
          val args = new Rail[String](1);
          args(0) = "10000";
-         MontyPi.main(args);
+         MontePi.main(args);
          return true;
     }
 
     public static def main(args:Rail[String]) {
-	new MontyPiTest().execute();
+	new MontePiTest().execute();
     }
 }

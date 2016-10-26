@@ -18,10 +18,10 @@ import x10.util.Random;
  * (throwing darts into the unit square and determining the fraction that land
  * in the unit circle).
  */
-public class MontyPi {
+public class MontePi {
     public static def main(args:Rail[String]) {
         if (args.size != 1L) {
-            Console.OUT.println("Usage: MontyPi <number of points>");
+            Console.OUT.println("Usage: MontePi <number of points>");
             return;
         }
         val N = Long.parse(args(0));
