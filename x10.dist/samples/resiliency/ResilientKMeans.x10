@@ -139,7 +139,7 @@ public class ResilientKMeans {
     
         public def restoreSnapshot_local(o:Cloneable) {
             val other = o as LocalStateSnapshot;
-            lsPLH().points = other.points;            
+            lsPLH().points = other.points;
             lsPLH().numPoints = other.points.numElems_1;
             lsPLH().numClusters = other.numClusters;
             lsPLH().dim = other.dim;
@@ -165,6 +165,7 @@ public class ResilientKMeans {
         val numClusters:Long;
         val dim:Long;
         val epsilon:Float;
+        val verbose:Boolean;
         var converged:Boolean = false;
         var maxIterations:Long;
         var currentIteration:Long;
@@ -172,12 +173,14 @@ public class ResilientKMeans {
         //master only checkpointing data
         var ckptCurrentClusters:Array_2[Float];
 
-        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float, iterations:Long) {
+        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float,
+                 iterations:Long, verbose:Boolean) {
            this.distState = new DistState(lsPLH, pg);
            this.pg = pg;
            this.epsilon = epsilon;
            this.numClusters = lsPLH().numClusters;
            this.dim = lsPLH().dim;
+           this.verbose = verbose;
            currentClusters = new Array_2[Float](numClusters, dim);
            newClusters = new Array_2[Float](numClusters, dim);
            newClusterCounts = new Rail[Int](numClusters);
@@ -236,6 +239,11 @@ public class ResilientKMeans {
                 }
             }
 
+            if (verbose) {
+                Console.OUT.println("Iteration: "+currentIteration);
+                printPoints(newClusters);
+            }
+
             // Test for convergence
             var didConverge:Boolean = true;
             for ([i,j] in newClusters.indices()) {
@@ -287,7 +295,7 @@ public class ResilientKMeans {
         val localPLH = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(initPoints, dim, numClusters) });
 
         // Initialize algorithm state
-        val master = new KMeansMaster(localPLH, pg, epsilon, iterations);
+        val master = new KMeansMaster(localPLH, pg, epsilon, iterations, verbose);
         master.setInitialCentroids();
 
         if (verbose) {
