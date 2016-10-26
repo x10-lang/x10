@@ -261,5 +261,12 @@ public class ResilientStore {
         trans.prepareAndCommit();
     }
 
-    public def keySet() = plh().masterStore.keySet();
+    public def keySet() {
+        val placeIndex = activePlaces.indexOf(here).toString().length();
+        val set = new HashSet[String]();
+        for (key in plh().masterStore.keySet()) {
+            set.add(key.substring(0n, key.length() - placeIndex));
+        }
+        return set;
+    }
 }
