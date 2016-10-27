@@ -9,6 +9,11 @@
  *  (C) Copyright IBM Corporation 2014.
  */
 
+/**
+ * A small program for observing how Resilient/Elastic X10
+ * responds to the addition and removal of places
+ * via internal killing and external creation of processes.
+ */
 public class HelloWholeWorldLoop2 {
 
     public static def main(args:Rail[String]):void {
