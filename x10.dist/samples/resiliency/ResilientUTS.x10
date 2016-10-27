@@ -20,7 +20,6 @@ import x10.interop.Java;
 import x10.io.Unserializable;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.Lock;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
 import x10.util.resilient.store.Store;
 import x10.util.ArrayList;
 import x10.util.Collection;

@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2016.
+ *  (C) Copyright Sara Salem Hamouda 2014-2016.
+ */
+
 package x10.util.resilient.localstore;
 
 import x10.util.*;
@@ -16,17 +28,14 @@ public class LocalStore {
     public var slaveStore:SlaveStore = null;
     public var virtualPlaceId:Long = -1; //-1 means a spare place
     
-    public def this(spare:Long, slaveMap:Rail[Long]) {
-        val activePlaces = Place.numPlaces() - spare;
-        if (here.id < activePlaces){
-            virtualPlaceId = here.id;
-            slave = Place(slaveMap(virtualPlaceId));
-            masterStore = new MasterStore(virtualPlaceId);
-            slaveStore = new SlaveStore();
-        }
+    public def this(virtualPlaceId:Long, slave:Place) {
+        this.virtualPlaceId = virtualPlaceId;
+        this.slave = slave;
+        masterStore = new MasterStore(virtualPlaceId);
+        slaveStore = new SlaveStore();
     }
 
-    /* used to initialize elastically added places */
+    /* used to initialize elastically added or spare places */
     public def this() { }
 
     /*used when a spare place joins*/

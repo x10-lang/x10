@@ -22,8 +22,11 @@ import x10.util.Team;
 import x10.util.GrowableRail;
 import x10.util.RailUtils;
 import x10.xrx.Runtime;
-import x10.util.resilient.store.Store;
+import x10.util.resilient.PlaceManager;
+import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.localstore.Cloneable;
+import x10.util.resilient.store.Store;
+
 /*
  * TODO:
  * -> maximum retry for restore failures
@@ -33,7 +36,6 @@ import x10.util.resilient.localstore.Cloneable;
 public class SPMDResilientIterativeExecutor {
     private val resilientMap:Store[Cloneable];
     private var placeTempData:PlaceLocalHandle[PlaceTempData];
-    private var places:PlaceGroup;
     private var team:Team;
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
@@ -44,7 +46,8 @@ public class SPMDResilientIterativeExecutor {
     
     // configuration parameters for killing places at different times
     private var simplePlaceHammer:SimplePlaceHammer;
-    
+
+    private transient var manager:PlaceManager;
     private transient var ckptTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var remakeTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var appRemakeTimes:ArrayList[Double] = new ArrayList[Double]();
@@ -57,14 +60,15 @@ public class SPMDResilientIterativeExecutor {
     private var lastCkptVersion:Long = -1;
     private var lastCkptIter:Long = -1;
     
-    public def this(itersPerCheckpoint:Long, resilientMap:Store[Cloneable], implicitStepSynchronization:Boolean) {
+    public def this(itersPerCheckpoint:Long, manager:PlaceManager, resilientMap:Store[Cloneable], implicitStepSynchronization:Boolean) {
         this.itersPerCheckpoint = itersPerCheckpoint;
         this.implicitStepSynchronization = implicitStepSynchronization;
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;            
             this.resilientMap = resilientMap;
             this.simplePlaceHammer = new SimplePlaceHammer();
-            places = resilientMap.getActivePlaces();
+            this.manager = manager;
+            assert(this.manager.activePlaces().equals(resilientMap.getActivePlaces()));
             if (VERBOSE){
                 simplePlaceHammer.printPlan();
             }
@@ -72,7 +76,7 @@ public class SPMDResilientIterativeExecutor {
         else {        	            
             this.resilientMap = null;
             this.simplePlaceHammer = null;
-            places = Place.places();
+            this.manager = manager;
         }
     }
 
@@ -90,8 +94,8 @@ public class SPMDResilientIterativeExecutor {
         this.startRunTime = startRunTime;
         Console.OUT.println("SPMDResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         val root = here;
-        team = new Team(places);
-        placeTempData = PlaceLocalHandle.make[PlaceTempData](places, ()=>new PlaceTempData());
+        team = new Team(manager.activePlaces());
+        placeTempData = PlaceLocalHandle.make[PlaceTempData](manager.activePlaces(), ()=>new PlaceTempData());
         var tmpGlobalIter:Long = 0;        
         applicationInitializationTime = Timer.milliTime() - startRunTime;
         var remakeRequired:Boolean = false;
@@ -121,7 +125,7 @@ public class SPMDResilientIterativeExecutor {
                 val globalIter = tmpGlobalIter;
                 
                 Console.OUT.println("SPMDResilientIterativeExecutor: remakeRequired["+remakeRequired+"] restoreRequired["+restoreRequired+"] ...");           
-                finish ateach(Dist.makeUnique(places)) {
+                finish for (p in manager.activePlaces()) at (p) async {
                     placeTempData().globalIter = globalIter;
                     
                     /*** Restore ***/
@@ -191,22 +195,22 @@ public class SPMDResilientIterativeExecutor {
         val startRemake = Timer.milliTime();                    
         
         val startResilientMapRecovery = Timer.milliTime();
-        resilientMap.recoverDeadPlaces();
+        val changes = manager.rebuildActivePlaces();
+        resilientMap.updateForChangedPlaces(changes);
         resilientMapRecoveryTimes.add(Timer.milliTime() - startResilientMapRecovery);
         
-        val newPG = resilientMap.getActivePlaces();
-        val addedPlaces = PlaceGroupBuilder.minus(newPG, places);
         if (VERBOSE){
             var str:String = "";
-            for (p in newPG)
+            for (p in changes.newActivePlaces)
                 str += p.id + ",";
             Console.OUT.println("Restore places are: " + str);
         } 
         val startTeamCreate = Timer.milliTime(); 
-        team = new Team(newPG);
+        team = new Team(changes.newActivePlaces);
         reconstructTeamTimes.add( Timer.milliTime() - startTeamCreate);
-        
-        for (p in addedPlaces){
+
+        val newPG = changes.newActivePlaces;
+        for (p in changes.addedPlaces){
             val realId = p.id;
             val virtualId = newPG.indexOf(p);
             val victimStat =  placeTempData().place0VictimsStats.getOrElse(virtualId, placeTempData().stat);
@@ -217,10 +221,8 @@ public class SPMDResilientIterativeExecutor {
         }
 
         val startAppRemake = Timer.milliTime();
-        app.remake(newPG, team, addedPlaces);
+        app.remake(changes, team);
         appRemakeTimes.add(Timer.milliTime() - startAppRemake);                        
-        
-        places = newPG;
         
         restoreRequired = true;
         remakeTimes.add(Timer.milliTime() - startRemake) ;                        
@@ -233,7 +235,7 @@ public class SPMDResilientIterativeExecutor {
         //take new checkpoint only if restore was not done in this iteration
         if (VERBOSE) Console.OUT.println("checkpointing at iter " + placeTempData().globalIter);
         val newVersion = (lastCkptVersion+1)%2;
-        finish ateach(Dist.makeUnique(places)) {
+        finish for (p in manager.activePlaces()) at (p) async {
             placeTempData().lastCkptKeys.clear();            
             val ckptMap = app.getCheckpointData_local();
             if (ckptMap != null) {
@@ -274,7 +276,7 @@ public class SPMDResilientIterativeExecutor {
     private def calculateTimingStatistics(){
         val runTime = (Timer.milliTime() - startRunTime);
         Console.OUT.println("Application completed, calculating runtime statistics ...");
-        finish for (place in places) at(place) async {
+        finish for (place in manager.activePlaces()) at(place) async {
             ////// step times ////////
             val stpCount = placeTempData().stat.stepTimes.size();
             //Console.OUT.println(here + " stpCount=" + stpCount);
@@ -377,7 +379,7 @@ public class SPMDResilientIterativeExecutor {
         
             if (VERBOSE){
                 var str:String = "";
-                for (p in places)
+                for (p in manager.activePlaces())
                     str += p.id + ",";
                 Console.OUT.println("List of final survived places are: " + str);            
             }
@@ -458,9 +460,9 @@ public class SPMDResilientIterativeExecutor {
     
     private def executorKillHere(op:String) {        
         val stat = placeTempData().stat;
-        val index = places.indexOf(here);
-        at(Place(0)) {            
-            placeTempData().addVictim(index,stat);
+        val victimId = here.id;
+        at (Place(0)) {            
+            placeTempData().addVictim(victimId,stat);
         }
         Console.OUT.println("[Hammer Log] Killing ["+here+"] before "+op+" ...");
         System.killHere();

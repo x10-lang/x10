@@ -13,7 +13,7 @@ package x10.util.resilient.store;
 
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.ResilientStore;
-import x10.regionarray.Dist;
+import x10.util.resilient.PlaceManager.ChangeDescription;
 
 public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   static final class NativeLogEntry[V] implements Cloneable {
@@ -35,9 +35,9 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   val map:ResilientStore;
   val log:ResilientStore;
 
-  def this(name:String, spares:Long) {
-    map = ResilientStore.make(spares);
-    log = ResilientStore.make(spares);
+  def this(name:String, activePlaces:PlaceGroup) {
+    map = ResilientStore.make(activePlaces);
+    log = ResilientStore.make(activePlaces);
   }
 
   public def get(key:String) = map.get(key) as V;
@@ -58,11 +58,12 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
 
   public def getActivePlaces() = map.getActivePlaces();
 
-  public def recoverDeadPlaces() {
-    map.recoverDeadPlaces();
-    log.recoverDeadPlaces();
+  // update for changes in the active PlaceGroup
+  public def updateForChangedPlaces(changes:ChangeDescription):void {
+    map.updateForChangedPlaces(changes);
+    log.updateForChangedPlaces(changes);
     val group = log.getActivePlaces();
-    finish ateach (Dist.makeUnique(group)) {
+    group.broadcastFlat(() => {
       for(key in log.keySet()) {
         Console.ERR.println("Replaying transaction log for key " + key);
         val entry = log.get(key) as NativeLogEntry[V];
@@ -72,6 +73,6 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
         }
         log.delete(key);
       }
-    }
+    });
   }
 }
