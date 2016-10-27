@@ -32,7 +32,10 @@ public class SlaveStore {
     public def getMasterState(masterVirtualId:Long):MasterState {
         try {
             lock.lock();
-            return mastersMap.getOrThrow(masterVirtualId);
+            var state:MasterState = mastersMap.getOrElse(masterVirtualId, null);
+            if (state == null)
+                return new MasterState(new HashMap[String,Cloneable](),-1);
+            return state;
         }
         finally {
             lock.unlock();
@@ -45,7 +48,7 @@ public class SlaveStore {
             lock.lock();
             var masterState:MasterState = mastersMap.getOrElse(masterVirtualId, null);
             if (masterState == null) {
-            masterState = new MasterState(new HashMap[String,Cloneable](), masterEpoch);
+                masterState = new MasterState(new HashMap[String,Cloneable](), masterEpoch);
                 mastersMap.put(masterVirtualId, masterState);
             }
             masterState.pendingTrans.put(transId, transLog);

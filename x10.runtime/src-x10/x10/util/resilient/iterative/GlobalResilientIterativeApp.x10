@@ -23,5 +23,5 @@ public interface GlobalResilientIterativeApp {
     
     public def checkpoint(store:ApplicationSnapshotStore):void;
     
-    public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]):void;
+    public def remake(newPlaces:PlaceGroup, newAddedPlaces:PlaceGroup, lastCkptIter:Long):void;
 }

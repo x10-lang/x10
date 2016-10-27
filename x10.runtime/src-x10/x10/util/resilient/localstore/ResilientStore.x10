@@ -72,11 +72,10 @@ public class ResilientStore {
             if (p.isDead()){
                 if (sparePlaces.size() > 0){
                     val sparePlace = sparePlaces.removeAt(0);
-                    Console.OUT.println("place ["+sparePlace.id+"] is replacing ["+p.id+"] since it is dead ");
                     group.add(sparePlace);
                     addedSparePlaces.put(sparePlace.id,virtualPlaceId);
                     Console.OUT.println("=========================================================");
-                    Console.OUT.println("[         "+sparePlace.id+"       ,        "+virtualPlaceId+"         ]");
+                    Console.OUT.println("place ["+sparePlace.id+"] is replacing ["+p.id+"] since it is dead ");
                     Console.OUT.println("=========================================================");                    
                     allocated++;
                 }
@@ -131,42 +130,14 @@ public class ResilientStore {
                 val slaveRealId = slaveMap(virtualId);
                 val slave = Place(slaveRealId);
                 assert(!slave.isDead());
-                
-                recoverSlavePendingTransactions(slave, virtualId);
-                
                 at (slave) async {
-                    val masterState = plh().slaveStore.getMasterState(virtualId);
+                    val masterState = plh().slaveStore.getMasterState(virtualId);                    
                     at (Place(realId)) {
                         plh().joinAsMaster (virtualId, masterState.data, masterState.epoch);
                     }
                 }
             }
         }
-    }
-    
-    /*
-     * Slave data may be inconsistent if the master died between prepare transaction and commit transaction
-     * In that case, we must consult another member in the transaction to know what to do with the pending transactions at the slave
-     * */    
-    private def recoverSlavePendingTransactions(slave:Place, masterVirtualId:Long) {
-        val pendingTransactions = at (slave) plh().slaveStore.getPendingTransactions(masterVirtualId);
-        val commitMap = new HashMap[Long,Boolean]();
-        val iter = pendingTransactions.iterator();
-        while (iter.hasNext()) {
-            val transId = iter.next();
-            ////////////////////////////////////////////////////////////////////////////////////////////////
-            //FIXME: now we rely that the current place is always a member in the active places (not a slave)
-            val status = plh().masterStore.getTransactionStatus(transId);
-            assert (status != Constants.TRANS_STATUS_UNFOUND && status != Constants.TRANS_STATUS_PENDING);
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-            if (status == Constants.TRANS_STATUS_COMMITTED) {
-                commitMap.put(transId, true);
-            }
-            else {
-                commitMap.put(transId, false);
-            }
-        }
-        at (slave) plh().slaveStore.handlePendingTransactions(masterVirtualId, commitMap);
     }
     
     private def recoverSlaves(mastersLostTheirSlaves:ArrayList[Long]) {
