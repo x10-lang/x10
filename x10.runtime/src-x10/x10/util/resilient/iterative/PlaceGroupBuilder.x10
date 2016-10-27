@@ -84,7 +84,7 @@ public class PlaceGroupBuilder {
                 group.add(p);
             }
         }
-        Console.OUT.println("[PlaceGroupBuilder Log] "+ deadCount +" Dead Place(s) Replaced by "+allocated+" Spare Places"); 
+        Console.OUT.println("[PlaceGroupBuilder Log] "+ deadCount +" Dead Place(s) Replaced by "+allocated+" Spare Place(s)"); 
         return new RestorePlaceGroup(new SparsePlaceGroup(group.toRail()), addedSparePlaces);        
     }
 
@@ -108,5 +108,23 @@ public class PlaceGroupBuilder {
         }
         var placeGroup:SparsePlaceGroup = new SparsePlaceGroup(livePlaces.toRail());
         return placeGroup;
+    }
+    
+    /*returns places in newPG and not in oldPG*/
+    public static def minus(newPG:PlaceGroup, oldPG:PlaceGroup):PlaceGroup {
+    	val group = new x10.util.ArrayList[Place]();
+    	for (newP in newPG) {
+    		var found:Boolean = false;
+    		for (oldP in oldPG) {
+    			if (newP.id == oldP.id) {
+    				found = true;
+    				break;
+    			}
+    		}
+    		if (!found) {
+    			group.add(newP);
+    		}
+    	}
+    	return new SparsePlaceGroup(group.toRail());
     }
 }

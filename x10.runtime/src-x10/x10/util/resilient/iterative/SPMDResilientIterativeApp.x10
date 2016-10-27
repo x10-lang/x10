@@ -23,7 +23,7 @@ public interface SPMDResilientIterativeApp {
     
     public def getCheckpointData_local():HashMap[String,Cloneable];
     
-    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]):void;
+    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:PlaceGroup):void;
     
     public def restore_local(restoreDataMap:HashMap[String,Cloneable], lastCheckpointIter:Long):void;   
 }

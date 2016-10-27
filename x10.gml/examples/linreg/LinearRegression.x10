@@ -21,7 +21,9 @@ import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.util.Debug;
 import x10.util.Team;
-import x10.util.resilient.localstore.*;
+import x10.util.resilient.localstore.Cloneable;
+import x10.util.resilient.localstore.Snapshottable;
+import x10.util.resilient.store.Store;
 import x10.util.resilient.iterative.*;
 
 
@@ -32,7 +34,6 @@ import x10.util.resilient.iterative.*;
  *      machine learning". http://dx.doi.org/10.14778/2994509.2994515
  */
 public class LinearRegression implements SPMDResilientIterativeApp {
-	static val DISABLE_ULFM_AGREEMENT = System.getenv("DISABLE_ULFM_AGREEMENT") != null && System.getenv("DISABLE_ULFM_AGREEMENT").equals("1");
 	static val VERBOSE = System.getenv("LINREG_DEBUG") != null && System.getenv("LINREG_DEBUG").equals("1");
 	
     public static val MAX_SPARSE_DENSITY = 0.1f;
@@ -64,12 +65,12 @@ public class LinearRegression implements SPMDResilientIterativeApp {
     private val nzd:Float;
     private val root:Place;
 
-    private val resilientStore:ResilientStore;
+    private val resilientStore:Store[Cloneable];
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
     var places:PlaceGroup;
     
-    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:ResilientStore) {
+    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:Store[Cloneable]) {
         if (it > 0) {
             this.maxIterations = it;
         } else {
@@ -110,12 +111,7 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         
         init();
         
-        if (x10.xrx.Runtime.x10rtAgreementSupport() && !DISABLE_ULFM_AGREEMENT){
-            new SPMDResilientIterativeExecutorULFM(checkpointFreq, resilientStore, true).run(this, start);
-        }
-        else {
-            new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
-        }
+        new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
         
         return d_w.local();
     }
@@ -215,7 +211,7 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         if (VERBOSE) Console.OUT.println(here + "Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
     }
     
-    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]) {
+    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:PlaceGroup) {
         this.team = newTeam;
         this.places = newPlaces;
         val newRowPs = newPlaces.size();
