@@ -639,7 +639,7 @@ public class DistVector(M:Long) implements Snapshottable {
     /**
      * Remake the DistVector over a new PlaceGroup
      */
-    public def remake(segsz:Rail[Int], newPg:PlaceGroup, newTeam:Team, addedPlaces:ArrayList[Place]){
+    public def remake(segsz:Rail[Int], newPg:PlaceGroup, newTeam:Team, addedPlaces:PlaceGroup){
         assert (segsz.size == newPg.size()) :
             "number of vector segments must be equal to number of places";
         val oldPlaces = places;
@@ -675,7 +675,7 @@ public class DistVector(M:Long) implements Snapshottable {
     /**
      * Remake the DistVector over a new PlaceGroup
      */
-    public def remake(newPg:PlaceGroup, newTeam:Team, addedPlaces:ArrayList[Place]){
+    public def remake(newPg:PlaceGroup, newTeam:Team, addedPlaces:PlaceGroup){
         val m = M;        
         val segNum = newPg.size;
         val slst = new Rail[Int](segNum, (i:Long)=>Grid.compBlockSize(m, segNum, i as Int) as Int);

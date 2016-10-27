@@ -536,7 +536,7 @@ public class DupVector(M:Long) implements Snapshottable {
     /**
      * Remake the DupVector over a new PlaceGroup
      */
-    public def remake(newPg:PlaceGroup, newTeam:Team, addedPlaces:ArrayList[Place]){
+    public def remake(newPg:PlaceGroup, newTeam:Team, addedPlaces:PlaceGroup){
         val oldPlaces = places;
         var spareUsed:Boolean = false;
         if (newPg.size() == oldPlaces.size() && addedPlaces.size() != 0){
