@@ -18,7 +18,7 @@ import x10.util.Option;
 import x10.util.Pair;
 import x10.util.Random;
 import x10.util.resilient.iterative.*;
-import x10.util.resilient.localstore.ResilientStore;
+import x10.util.resilient.store.Store;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.Snapshottable;
 import x10.util.Timer;
@@ -42,8 +42,8 @@ import x10.util.Timer;
  * X10 Benchmarks Suite (separate download from x10-lang.org).
  */
 //Test Commands
-//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=1 mpirun -np 6 -am ft-enable-mpi ./RunKMeans.mpi -s 1 -k 5 -v
-//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=1 X10_NPLACES=6 ./RunKMeans.sock -s 1 -k 5 -v
+//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false X10_NPLACES=10 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=Hazelcast ResilientKMeans -s 1 -k 5 -v
+//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false X10_NPLACES=10 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=native ResilientKMeans -s 1 -k 5 -v
 public class ResilientKMeans {
 
     /*
@@ -148,7 +148,7 @@ public class ResilientKMeans {
             lsPLH().clusterCounts = new Rail[Int](other.numClusters);
         }
         
-        public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]) {
+        public def remake(newPlaces:PlaceGroup, newAddedPlaces:PlaceGroup) {
             this.places = newPlaces;
             for (p in newAddedPlaces) {
                 PlaceLocalHandle.addPlace[LocalState](lsPLH, p, ()=>new LocalState());
@@ -267,10 +267,11 @@ public class ResilientKMeans {
             ckptCurrentClusters = new Array_2(currentClusters);
         }
         
-        public def remake(newPlaces:PlaceGroup, newAddedPlaces:ArrayList[Place]) {
+        public def remake(newPlaces:PlaceGroup, newAddedPlaces:PlaceGroup, lastCkptIter:Long) {
             this.pg = newPlaces;            
             distState.remake(newPlaces, newAddedPlaces);
             currentClusters = new Array_2(ckptCurrentClusters);
+            currentIteration = lastCkptIter;
         }
     }
 
@@ -287,7 +288,7 @@ public class ResilientKMeans {
 
     static def computeClusters(pg:PlaceGroup, initPoints:(Place)=>Array_2[Float], dim:Long,
                                numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean,
-                               checkpointFreq:Long, resilientStore:ResilientStore):Array_2[Float] {
+                               checkpointFreq:Long, resilientStore:Store[Cloneable]):Array_2[Float] {
 
         val startTime = Timer.milliTime(); //the executor takes milli time.  
         
@@ -350,9 +351,9 @@ public class ResilientKMeans {
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
 
         var pg:PlaceGroup = Place.places();
-        var resilientStore:ResilientStore = null;
+        var resilientStore:Store[Cloneable] = null;
         if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
-            resilientStore = ResilientStore.make(sparePlaces);
+            resilientStore = Store.make[Cloneable]("_map_",sparePlaces);
             pg = resilientStore.getActivePlaces();
         }
         
