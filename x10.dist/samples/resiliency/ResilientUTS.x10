@@ -20,8 +20,9 @@ import x10.interop.Java;
 import x10.io.Unserializable;
 import x10.util.concurrent.AtomicLong;
 import x10.util.concurrent.Lock;
+import x10.util.resilient.PlaceManager;
 import x10.util.resilient.store.Store;
-import x10.util.ArrayList;
+import x10.util.HashMap;
 import x10.util.Collection;
 import x10.util.Map.Entry;
 import x10.xrx.Runtime;
@@ -372,22 +373,13 @@ final class ResilientUTS implements Unserializable {
     }
   }
   
-  static def step(group:PlaceGroup, bag: UTS, wave:Int, power:Int, resilient:Boolean, map:Store[UTS], time0:Long, killTimes:Rail[Long]) {
+  static def step(group:PlaceGroup, bag: UTS, wave:Int, power:Int, resilient:Boolean, map:Store[UTS], time0:Long, killTimes:HashMap[Long,Long]) {
     val max = group.size() as Int << power;
     val plh = PlaceLocalHandle.make[ResilientUTS](group, () => new ResilientUTS(wave, group, power, resilient, time0, map));
     if (wave >= 0) println(time0, "Wave " + wave + ": PLH init complete");
-    // WORKAROUND x10c codegen bug
-    // which otherwise hoists the Rail.value
-    // before the null check
-    val kts = killTimes as Any;
     finish for (p in group) {
-    	    val kt:Long;
-    	    if(kts == null) {
-    	    	  kt = 0;
-    	    } else {
-    	    	  kt = (kts as Rail[Long])(p.id); 
-    	    }
-    		at (p) async init(plh, time0, kt);
+        val kt:Long = killTimes == null ? 0 : killTimes.getOrElse(p.id, 0);
+        at (p) async init(plh, time0, kt);
     }
     if (wave >= 0) println(time0, "Wave " + wave + ": Workers init complete");
     if (bag != null) {
@@ -479,15 +471,16 @@ final class ResilientUTS implements Unserializable {
     }
 
     val md = UTS.encoder();
-    val map0 = resilient ? Store.make[UTS]("map0", 0): null;
+    val map0 = resilient ? Store.make[UTS]("map0", Place.places()): null;
 
     println(time0, "Warmup...");
 
     val tmp = new UTS(64n);
     tmp.seed(md, 19n, opt.warmupDepth);
-    finish step(map0.getActivePlaces(), tmp, -1n, opt.power, resilient, map0, time0, null);
+    finish step(Place.places(), tmp, -1n, opt.power, resilient, map0, time0, null);
 
-    val map = resilient ? Store.make[UTS]("map", opt.spares): null;
+    val manager = new PlaceManager(opt.spares, false);
+    val map = resilient ? Store.make[UTS]("map", manager.activePlaces()): null;
 
     println(time0, "Begin");
     val startTime = System.nanoTime();
@@ -502,8 +495,11 @@ final class ResilientUTS implements Unserializable {
       val w = wave++;
       println(time0, "Wave " + w + ": Starting");
       try {
-        if (w > 0n) map.recoverDeadPlaces();
-        finish count = ResilientUTS.step(map.getActivePlaces(), w == 0n ? bag : null, w, opt.power, resilient, map, time0, opt.killTimes);
+        if (w > 0n) {
+            val changes = manager.rebuildActivePlaces();
+            map.updateForChangedPlaces(changes);
+        }
+        finish count = ResilientUTS.step(manager.activePlaces(), w == 0n ? bag : null, w, opt.power, resilient, map, time0, opt.killTimes);
         break;
       } catch (e:MultipleExceptions) {
         println(time0,  "Wave " + w + ": Failed");
@@ -531,7 +527,7 @@ final class ResilientUTS implements Unserializable {
 	  val warmupDepth:Int;
 	  val power:Int;
 	  val spares:Long;
-	  val killTimes:Rail[Long];
+	  val killTimes:HashMap[Long,Long];
 	  
 	  def this(args:Rail[String]) {
 		  var specifiedDepth:Int = 13n;
@@ -540,7 +536,7 @@ final class ResilientUTS implements Unserializable {
 		  var specifiedSpares:Long = 0;
 		  // for each place, stores a time to suicide
 		  // 0 means that it will not suicide
-		  this.killTimes = new Rail[Long](Place.numAllPlaces());
+		  this.killTimes = new HashMap[Long,Long]();
 		  
 		  for(var curArg:Long = 0; curArg < args.size; curArg++) {
 			  val arg = args(curArg);
@@ -650,8 +646,7 @@ final class ResilientUTS implements Unserializable {
 					  }
 
 					  // allow and ignore places that are too large
-					  val cappedLastPlaceToKill = Math.min(lastPlaceToKill, Place.numAllPlaces()-1);
-					  for(pl in firstPlaceToKill..cappedLastPlaceToKill) {
+					  for(pl in firstPlaceToKill..lastPlaceToKill) {
 						  killTimes(pl) = timeToKill;
 					  }
 					  
