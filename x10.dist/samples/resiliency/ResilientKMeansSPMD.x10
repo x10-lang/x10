@@ -50,6 +50,7 @@ public class ResilientKMeansSPMD {
         val epsilon:Float;
         val dim:Long;
         val team:Team;
+        var currentIteration:Long;
         var kernelTime:Long = 0;
         var commTime:Long = 0;
         var converged:Boolean = false;
@@ -68,6 +69,7 @@ public class ResilientKMeansSPMD {
             this.epsilon = epsilon;
             this.team = team;
             this.verbose = verbose;
+            this.currentIteration = 0;
         }
 
         def isFinished() = converged;
@@ -127,6 +129,12 @@ public class ResilientKMeansSPMD {
                 }
             }
 
+            currentIteration += 1;
+            if (here.id==0 && verbose) {
+                Console.OUT.println("Iteration: "+currentIteration);
+                printPoints(clusters);
+            }
+
             // Test for convergence
             converged = false;
             for ([i,j] in clusters.indices()) {
@@ -135,11 +143,6 @@ public class ResilientKMeansSPMD {
                 }
             }
             converged = true;
-
-            if (here.id==0 && verbose) {
-//                Console.OUT.println("Iteration: "+iter); // FIXME: should be stored in ResilientApp
-                printPoints(clusters);
-            }
         }
     }
 

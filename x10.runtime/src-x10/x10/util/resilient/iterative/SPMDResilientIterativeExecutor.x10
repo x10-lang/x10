@@ -68,6 +68,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         this.implicitStepSynchronization = implicitStepSynchronization;
         val mgr = new PlaceManager(sparePlaces, supportShrinking);
         this.manager = GlobalRef[PlaceManager](mgr);
+        team = new Team(mgr.activePlaces());
         if (isResilient) {
             this.resilientMap = Store.make[Cloneable]("_map_", mgr.activePlaces());
             this.simplePlaceHammer = new SimplePlaceHammer();
@@ -94,12 +95,11 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     public def team(){here == home} = team;
 
     //the startRunTime parameter is added to allow the executor to consider 
-    //any initlization time done by the application before starting the executor  
+    //any initialization time done by the application before starting the executor
     public def run(app:SPMDResilientIterativeApp, startRunTime:Long){here == home} {
         this.startRunTime = startRunTime;
         Console.OUT.println("SPMDResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         val root = here;
-        team = new Team(manager().activePlaces());
         placeTempData = PlaceLocalHandle.make[PlaceTempData](manager().activePlaces(), ()=>new PlaceTempData());
         var tmpGlobalIter:Long = 0;        
         applicationInitializationTime = Timer.milliTime() - startRunTime;
