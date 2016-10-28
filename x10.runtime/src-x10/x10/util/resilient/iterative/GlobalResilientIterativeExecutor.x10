@@ -27,13 +27,13 @@ import x10.util.resilient.PlaceManager;
 import x10.util.resilient.store.Store;
 import x10.util.resilient.localstore.Cloneable;
 
-public class GlobalResilientIterativeExecutor {
+public class GlobalResilientIterativeExecutor (home:Place) {
     private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null && System.getenv("EXECUTOR_DEBUG").equals("1"));
 
+    private val manager:GlobalRef[PlaceManager]{self.home == this.home};
     private val resilientMap:Store[Cloneable];
     private val appStore:ApplicationSnapshotStore;
     private var lastCkptIter:Long = -1;
-    private val manager:PlaceManager;
     private val itersPerCheckpoint:Long;
     private var isResilient:Boolean = false;
      
@@ -53,14 +53,15 @@ public class GlobalResilientIterativeExecutor {
     private transient var killPlaceTime:Long = -1;
     
     public def this(itersPerCheckpoint:Long, manager:PlaceManager, resilientMap:Store[Cloneable]) {
+        property(here);
     	this.itersPerCheckpoint = itersPerCheckpoint;
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;
             this.resilientMap = resilientMap;
             appStore = new ApplicationSnapshotStore();
             simplePlaceHammer = new SimplePlaceHammer();
-            this.manager = manager;
-            assert(this.manager.activePlaces().equals(resilientMap.getActivePlaces()));
+            this.manager = GlobalRef[PlaceManager](manager);
+            assert(manager.activePlaces().equals(resilientMap.getActivePlaces()));
             if (VERBOSE) {
                 simplePlaceHammer.printPlan();
             }
@@ -68,21 +69,21 @@ public class GlobalResilientIterativeExecutor {
             this.resilientMap = null;
             this.appStore = null;
             this.simplePlaceHammer = null;
-            this.manager = manager;
+            this.manager = GlobalRef[PlaceManager](manager);
         }
     }
 
-    public def run(app:GlobalResilientIterativeApp) {
+    public def run(app:GlobalResilientIterativeApp){here == home} {
         run(app, Timer.milliTime());
     }
 
-    public def setHammer(h:SimplePlaceHammer) {
+    public def setHammer(h:SimplePlaceHammer){here == home} {
         simplePlaceHammer = h;
     }
     
     //the startRunTime parameter is added to allow the executor to consider 
     //any initlization time done by the application before starting the executor  
-    public def run(app:GlobalResilientIterativeApp, startRunTime:Long) {
+    public def run(app:GlobalResilientIterativeApp, startRunTime:Long){here == home} {
         this.startRunTime = startRunTime;
         Console.OUT.println("GlobalResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         
@@ -147,7 +148,7 @@ public class GlobalResilientIterativeExecutor {
 
     }
     
-    private def remake(app:GlobalResilientIterativeApp) {
+    private def remake(app:GlobalResilientIterativeApp){here == home} {
         if (lastCkptIter == -1) {
             Console.OUT.println("process failure occurred but no valid checkpoint exists!");
             System.killHere();
@@ -158,7 +159,7 @@ public class GlobalResilientIterativeExecutor {
         val startRemake = Timer.milliTime();                    
         
         val startResilientMapRecovery = Timer.milliTime();
-        val changes = manager.rebuildActivePlaces();
+        val changes = manager().rebuildActivePlaces();
         resilientMap.updateForChangedPlaces(changes);
         resilientMapRecoveryTimes.add(Timer.milliTime() - startResilientMapRecovery);
         
@@ -179,14 +180,14 @@ public class GlobalResilientIterativeExecutor {
         return restoreRequired;
     }
     
-    private def checkpoint(app:GlobalResilientIterativeApp, globalIter:Long) {
+    private def checkpoint(app:GlobalResilientIterativeApp, globalIter:Long){here == home} {
     	if (VERBOSE) Console.OUT.println("checkpointing at iter " + globalIter);
         val startCheckpoint = Timer.milliTime();
         app.checkpoint(appStore);
         
         val newVersion = appStore.nextCheckpointVersion();
         val first = globalIter == 0;
-        finish for (p in manager.activePlaces()) at (p) async {
+        finish for (p in manager().activePlaces()) at (p) async {
             val ckptMap = appStore.getCheckpointData_local(first);
             if (ckptMap != null) {
                 val iter = ckptMap.keySet().iterator();
@@ -203,10 +204,10 @@ public class GlobalResilientIterativeExecutor {
         ckptTimes.add(Timer.milliTime() - startCheckpoint);
     }
     
-    private def restore() {
+    private def restore(){here == home} {
     	val startRestoreData = Timer.milliTime();
     	val keyVersions = appStore.getRestoreKeyVersions();
-        finish for (p in manager.activePlaces()) at (p) async {
+        finish for (p in manager().activePlaces()) at (p) async {
 	        val restoreDataMap = new HashMap[String,Cloneable]();
 	        val iter = keyVersions.keySet().iterator();
 	        while (iter.hasNext()) {
@@ -222,7 +223,7 @@ public class GlobalResilientIterativeExecutor {
     	restoreTimes.add(Timer.milliTime() - startRestoreData);
     }
     
-    private def calculateTimingStatistics(){
+    private def calculateTimingStatistics(){here == home} {
         Console.OUT.println("=========Detailed Statistics============");
         val runTime = (Timer.milliTime() - startRunTime);
         
@@ -283,7 +284,7 @@ public class GlobalResilientIterativeExecutor {
         
             if (VERBOSE){
                 var str:String = "";
-                for (p in manager.activePlaces())
+                for (p in manager().activePlaces())
                     str += p.id + ",";
                 Console.OUT.println("List of final survived places are: " + str);            
             }
@@ -291,7 +292,7 @@ public class GlobalResilientIterativeExecutor {
         }
     }
     
-    private def processIterationException(ex:Exception) {
+    private def processIterationException(ex:Exception){here == home} {
         if (ex instanceof DeadPlaceException) {
             ex.printStackTrace();
             if (!isResilient) {
