@@ -39,7 +39,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     private var placeTempData:PlaceLocalHandle[PlaceTempData];
     private var team:Team;
     private val itersPerCheckpoint:Long;
-    private var isResilient:Boolean = false;
+    private val isResilient:Boolean;
     // if step() are implicitly synchronized, no need for a step barrier inside the executor
     private val implicitStepSynchronization:Boolean; 
     private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null 
@@ -60,16 +60,17 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     private var lastCkptVersion:Long = -1;
     private var lastCkptIter:Long = -1;
     
-    public def this(itersPerCheckpoint:Long, manager:PlaceManager, resilientMap:Store[Cloneable], implicitStepSynchronization:Boolean) {
+    public def this(itersPerCheckpoint:Long, sparePlaces:Long, supportShrinking:Boolean, implicitStepSynchronization:Boolean) {
         property(here);
+
+        isResilient = itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0;
         this.itersPerCheckpoint = itersPerCheckpoint;
         this.implicitStepSynchronization = implicitStepSynchronization;
-        if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
-            isResilient = true;            
-            this.resilientMap = resilientMap;
+        val mgr = new PlaceManager(sparePlaces, supportShrinking);
+        this.manager = GlobalRef[PlaceManager](mgr);
+        if (isResilient) {
+            this.resilientMap = Store.make[Cloneable]("_map_", mgr.activePlaces());
             this.simplePlaceHammer = new SimplePlaceHammer();
-            this.manager = GlobalRef[PlaceManager](manager);
-            assert(manager.activePlaces().equals(resilientMap.getActivePlaces()));
             if (VERBOSE){
                 simplePlaceHammer.printPlan();
             }
@@ -77,7 +78,6 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         else {        	            
             this.resilientMap = null;
             this.simplePlaceHammer = null;
-            this.manager = GlobalRef[PlaceManager](manager);
         }
     }
 
@@ -90,6 +90,8 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     }
 
     public def activePlaces(){here == home} = manager().activePlaces();
+
+    public def team(){here == home} = team;
 
     //the startRunTime parameter is added to allow the executor to consider 
     //any initlization time done by the application before starting the executor  
