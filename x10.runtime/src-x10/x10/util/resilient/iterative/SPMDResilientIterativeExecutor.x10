@@ -13,13 +13,11 @@
 package x10.util.resilient.iterative;
 
 import x10.util.Timer;
-import x10.util.Random;
 import x10.regionarray.Dist;
 import x10.util.ArrayList;
 import x10.util.HashSet;
 import x10.util.HashMap;
 import x10.util.Team;
-import x10.util.GrowableRail;
 import x10.util.RailUtils;
 import x10.xrx.Runtime;
 import x10.util.resilient.store.Store;
@@ -280,10 +278,13 @@ public class SPMDResilientIterativeExecutor {
             //Console.OUT.println(here + " stpCount=" + stpCount);
             placeTempData().stat.placeMaxStep = new Rail[Long](stpCount);
             placeTempData().stat.placeMinStep = new Rail[Long](stpCount);
+            placeTempData().stat.placeSumStep = new Rail[Long](stpCount);
             val dst2max = placeTempData().stat.placeMaxStep;
             val dst2min = placeTempData().stat.placeMinStep;
+            val dst2sum = placeTempData().stat.placeSumStep;
             team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2max, 0, stpCount, Team.MAX);
             team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2min, 0, stpCount, Team.MIN);
+            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2sum, 0, stpCount, Team.ADD);
 
             if (x10.xrx.Runtime.RESILIENT_MODE > 0n){                
                 ////// restore times ////////
@@ -291,20 +292,23 @@ public class SPMDResilientIterativeExecutor {
                 if (restCount > 0) {
                     placeTempData().stat.placeMaxRestore = new Rail[Long](restCount);
                     placeTempData().stat.placeMinRestore = new Rail[Long](restCount);
+                    placeTempData().stat.placeSumRestore = new Rail[Long](restCount);
                     val dst3max = placeTempData().stat.placeMaxRestore;
                     val dst3min = placeTempData().stat.placeMinRestore;
+                    val dst3sum = placeTempData().stat.placeSumRestore;
                     team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3max, 0, restCount, Team.MAX);
                     team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3min, 0, restCount, Team.MIN);
+                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3sum, 0, restCount, Team.ADD);
                 }
             }
         }
         
-        val averageSteps = avergaMaxMinRails(placeTempData().stat.placeMinStep,  placeTempData().stat.placeMaxStep);
+        val averageSteps = computeAverages(placeTempData().stat.placeSumStep);
         
         var averageRestore:Rail[Double] = null;
         if (isResilient){            
             if (placeTempData().stat.restoreTimes.size() > 0)
-                averageRestore             = avergaMaxMinRails(placeTempData().stat.placeMinRestore,             placeTempData().stat.placeMaxRestore);
+                averageRestore = computeAverages(placeTempData().stat.placeSumRestore);
         }
         
         Console.OUT.println("=========Detailed Statistics============");
@@ -447,10 +451,10 @@ public class SPMDResilientIterativeExecutor {
         return  Math.round(railAvg);
     }
     
-    public def avergaMaxMinRails[T](max:Rail[T], min:Rail[T]):Rail[Double] {
-        val result = new Rail[Double](max.size);
-        for (i in 0..(max.size-1)){
-            result(i) = (max(i) as Double + min(i) as Double)/2.0;
+    public def computeAverages[T](sum:Rail[T]):Rail[Double] {
+        val result = new Rail[Double](sum.size);
+        for (i in 0..(sum.size-1)) {
+            result(i) = (sum(i) as Double) / places.size;
             result(i) = ((result(i)*100) as Long)/100.0;  //two decimal points only
         }
         return result;
@@ -511,6 +515,8 @@ public class SPMDResilientIterativeExecutor {
         var placeMaxStep:Rail[Long];
         var placeMinRestore:Rail[Long];
         var placeMinStep:Rail[Long];
+        var placeSumRestore:Rail[Long];
+        var placeSumStep:Rail[Long];
         
         public def this() {            
             restoreTimes = new ArrayList[Long]();
