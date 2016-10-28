@@ -17,7 +17,7 @@ import x10.matrix.Vector;
 import x10.matrix.ElemType;
 
 import x10.matrix.distblock.DupVector;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager;
 import x10.util.Team;
 import x10.util.ArrayList;
 
@@ -34,7 +34,8 @@ public class TestDupVector extends x10Test {
         Console.OUT.println("DupVector clone/add/sub/scaling tests on "+
                             M + "-vectors");
         var ret:Boolean = true;
-        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.excludeSparePlaces(1) : Place.places();
+        val manager = new PlaceManager(Place.numPlaces() > 1 ? 1 : 0, false);
+        val places:PlaceGroup = manager.activePlaces();
 	
 	    ret &= (testClone(places));
 	    ret &= (testScale(places));
