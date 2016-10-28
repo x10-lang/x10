@@ -23,12 +23,13 @@ import x10.util.Team;
 import x10.util.GrowableRail;
 import x10.util.RailUtils;
 import x10.xrx.Runtime;
-import x10.util.resilient.localstore.*;
+import x10.util.resilient.store.Store;
+import x10.util.resilient.localstore.Cloneable;
 
 public class GlobalResilientIterativeExecutor {
     private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null && System.getenv("EXECUTOR_DEBUG").equals("1"));
 
-    private val resilientMap:ResilientStore;
+    private val resilientMap:Store[Cloneable];
     private val appStore:ApplicationSnapshotStore;
     private var lastCkptIter:Long = -1;
     private var places:PlaceGroup;
@@ -44,14 +45,13 @@ public class GlobalResilientIterativeExecutor {
     private transient var ckptTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var remakeTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var appRemakeTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var reconstructTeamTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var resilientMapRecoveryTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var failureDetectionTimes:ArrayList[Double] = new ArrayList[Double]();
     private transient var applicationInitializationTime:Long = 0;
     private transient var startRunTime:Long = 0;
     private transient var killPlaceTime:Long = -1;
     
-    public def this(itersPerCheckpoint:Long, resilientMap:ResilientStore) {
+    public def this(itersPerCheckpoint:Long, resilientMap:Store[Cloneable]) {
     	this.itersPerCheckpoint = itersPerCheckpoint;
         if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
             isResilient = true;
@@ -156,27 +156,20 @@ public class GlobalResilientIterativeExecutor {
         val startRemake = Timer.milliTime();                    
         
         val startResilientMapRecovery = Timer.milliTime(); 
-        val addedPlacesMap = resilientMap.recoverDeadPlaces();
+        resilientMap.recoverDeadPlaces();
         resilientMapRecoveryTimes.add(Timer.milliTime() - startResilientMapRecovery);
         
         val newPG = resilientMap.getActivePlaces();
+        val addedPlaces = PlaceGroupBuilder.minus(newPG, places);
         if (VERBOSE){
             var str:String = "";
             for (p in newPG)
                 str += p.id + ",";
             Console.OUT.println("Restore places are: " + str);
         } 
-       
-        
-        val addedPlaces = new ArrayList[Place]();
-        val iter = addedPlacesMap.keySet().iterator();
-        while (iter.hasNext()) {
-            val realId = iter.next();                        
-            addedPlaces.add(Place(realId));
-        }
 
         val startAppRemake = Timer.milliTime();
-        app.remake(newPG, addedPlaces);
+        app.remake(newPG, addedPlaces, lastCkptIter);
         appRemakeTimes.add(Timer.milliTime() - startAppRemake);                        
         
         places = newPG;
@@ -194,8 +187,7 @@ public class GlobalResilientIterativeExecutor {
         
         val newVersion = appStore.nextCheckpointVersion();
         val first = globalIter == 0;
-        finish ateach(Dist.makeUnique(places)) {
-            val trans = resilientMap.startLocalTransaction();
+        finish ateach(Dist.makeUnique(places)) {            
             val ckptMap = appStore.getCheckpointData_local(first);
             if (ckptMap != null) {
                 val iter = ckptMap.keySet().iterator();
@@ -203,11 +195,10 @@ public class GlobalResilientIterativeExecutor {
                     val appKey = iter.next();
                     val key = appKey +":v" + newVersion;
                     val value = ckptMap.getOrThrow(appKey);
-                    trans.put(key, value);
+                    resilientMap.set(key, value);
                     if (VERBOSE) Console.OUT.println(here + "checkpointing key["+appKey+"]  version["+newVersion+"] succeeded ...");
                 }
-            }            
-            trans.prepareAndCommit();            
+            }
         }
         appStore.commitCheckpoint(newVersion);
         ckptTimes.add(Timer.milliTime() - startCheckpoint);
@@ -217,19 +208,17 @@ public class GlobalResilientIterativeExecutor {
     	val startRestoreData = Timer.milliTime();
     	val keyVersions = appStore.getRestoreKeyVersions();
     	finish ateach(Dist.makeUnique(places)) {
-	        val trans = resilientMap.startLocalTransaction();
 	        val restoreDataMap = new HashMap[String,Cloneable]();
 	        val iter = keyVersions.keySet().iterator();
 	        while (iter.hasNext()) {
 	            val appKey = iter.next();
 	            val keyVersion = keyVersions.getOrThrow(appKey);
 	            val key = appKey + ":v" + keyVersion;
-	            val value = trans.get(key);
+	            val value = resilientMap.get(key);
 	            restoreDataMap.put(appKey, value);
 	            if (VERBOSE) Console.OUT.println(here + "restoring key["+appKey+"]  version["+keyVersion+"] succeeded ...");
 	        }
 	        appStore.restore_local(restoreDataMap);
-	        trans.prepareAndCommit();
     	}
     	restoreTimes.add(Timer.milliTime() - startRestoreData);
     }
@@ -245,8 +234,7 @@ public class GlobalResilientIterativeExecutor {
             Console.OUT.println("RestoreData:" + listToString(restoreTimes));            
             Console.OUT.println("FailureDetection:" + listToString(failureDetectionTimes));            
             Console.OUT.println("ResilientMapRecovery:" + listToString(resilientMapRecoveryTimes));
-            Console.OUT.println("AppRemake:" + listToString(appRemakeTimes));
-            Console.OUT.println("TeamReconstruction:" + listToString(reconstructTeamTimes));
+            Console.OUT.println("AppRemake:" + listToString(appRemakeTimes));            
             Console.OUT.println("AllRemake:" + listToString(remakeTimes));
         }
         Console.OUT.println("=========Totals by averaging Min/Max statistics============");
@@ -267,9 +255,7 @@ public class GlobalResilientIterativeExecutor {
             Console.OUT.println("ResilientMapRecovery-all:"      + listToString(resilientMapRecoveryTimes) );
             Console.OUT.println("   ---AverageResilientMapRecovery:" + listAverage(resilientMapRecoveryTimes) );
             Console.OUT.println("AppRemake-all:"      + listToString(appRemakeTimes) );
-            Console.OUT.println("   ---AverageAppRemake:" + listAverage(appRemakeTimes) );
-            Console.OUT.println("TeamReconstruction-all:"      + listToString(reconstructTeamTimes) );
-            Console.OUT.println("   ---AverageTeamReconstruction:" + listAverage(reconstructTeamTimes) );
+            Console.OUT.println("   ---AverageAppRemake:" + listAverage(appRemakeTimes) );            
             Console.OUT.println("TotalRemake-all:"                   + listToString(remakeTimes) );
             Console.OUT.println("   ---AverageTotalRemake:"              + listAverage(remakeTimes) );
             

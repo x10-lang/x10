@@ -18,13 +18,15 @@ import x10.matrix.util.Debug;
 import x10.matrix.util.VerifyTool;
 
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.util.resilient.localstore.ResilientStore;
+import x10.util.resilient.store.Store;
+import x10.util.resilient.localstore.Cloneable;
 
 /**
  * Page Rank demo
  */
-//Resilient run command over MPI-ULFM
-//PAGERANK_DEBUG=0 KILL_STEPS=15,30 KILL_PLACES=5,6 DISABLE_ULFM_AGREEMENT=0 EXECUTOR_DEBUG=0 X10_RESILIENT_MODE=1 mpirun -n 10 -am ft-enable-mpi ./RunPageRank_mpi_double -m 100 --density 0.8 --iterations 20 -k 10 -s 2
+//Example run commands to use Hazelcast or native store
+//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false GML_ELEM_TYPE=double X10_NPLACES=8 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=native -classpath build:$X10_HOME/x10.gml/lib/managed_gml_double.jar -libpath $X10_HOME/x10.gml/native_double/lib RunPageRank -m 100 --density 0.8 --iterations 30 -k 10 -s 2
+//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false GML_ELEM_TYPE=double X10_NPLACES=8 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=Hazelcast -classpath build:$X10_HOME/x10.gml/lib/managed_gml_double.jar -libpath $X10_HOME/x10.gml/native_double/lib RunPageRank -m 100 --density 0.8 --iterations 30 -k 10 -s 2 
 public class RunPageRank {
     public static def main(args:Rail[String]): void {
         val opts = new OptionsParser(args, [
@@ -69,10 +71,10 @@ public class RunPageRank {
             Console.OUT.println("Error in settings");
         else {
             val startTime = Timer.milliTime();
-            var resilientStore:ResilientStore = null;
+            var resilientStore:Store[Cloneable] = null;
             var placesVar:PlaceGroup = Place.places();
             if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
-                resilientStore = ResilientStore.make(sparePlaces);
+                resilientStore = Store.make[Cloneable]("_map_", sparePlaces);
                 placesVar = resilientStore.getActivePlaces();
             }
             val places = placesVar;

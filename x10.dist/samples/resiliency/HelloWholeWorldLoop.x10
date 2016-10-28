@@ -11,6 +11,11 @@
 
 import x10.io.Console;
 
+/**
+ * A small program for observing how Resilient/Elastic X10
+ * responds to the addition and removal of places
+ * via external killing and creation of processes.
+ */
 class HelloWholeWorldLoop {
   public static def main(args:Rail[String]):void {
      if (args.size < 2) {

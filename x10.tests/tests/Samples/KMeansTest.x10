@@ -47,7 +47,7 @@ public class KMeansTest extends x10Test {
              }
              pts
          };
-         val clusters = KMeans.computeClusters(pg, initPoints, 3, k, 50, 1e-6f, false);
+         val clusters = KMeans.computeClusters(pg, initPoints, 3, k, 20, 1e-6f, false);
 
          var pass:Boolean = true;
 
@@ -57,7 +57,7 @@ public class KMeansTest extends x10Test {
          for (v in clusters) {
              if (Math.abs(Math.abs(v) - 0.5f) > 0.01f) {
                  pass = false;
-                 Console.OUT.printf("Centroid coordinate %.4f diverges from expected magnitude of 0.5");
+                 Console.OUT.printf("Centroid coordinate %.4f diverges from expected magnitude of 0.5\n", v);
              }
          }
 

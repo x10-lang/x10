@@ -28,7 +28,9 @@ import x10.matrix.sparse.*;
 import x10.util.Team;
 import x10.util.ArrayList;
 import x10.util.HashMap;
-import x10.util.resilient.localstore.*;
+import x10.util.resilient.localstore.Cloneable;
+import x10.util.resilient.localstore.Snapshottable;
+import x10.util.resilient.store.Store;
 import x10.util.resilient.iterative.*;
 
 /**
@@ -47,7 +49,6 @@ import x10.util.resilient.iterative.*;
  * <p>[p_(numColBsG-1)]
  */
 public class PageRank implements SPMDResilientIterativeApp {
-	static val DISABLE_ULFM_AGREEMENT = System.getenv("DISABLE_ULFM_AGREEMENT") != null && System.getenv("DISABLE_ULFM_AGREEMENT").equals("1");
 	static val VERBOSE = System.getenv("PAGERANK_DEBUG") != null && System.getenv("PAGERANK_DEBUG").equals("1");
 	
     public val tolerance:Float;
@@ -72,7 +73,7 @@ public class PageRank implements SPMDResilientIterativeApp {
     private val root:Place;
     private var places:PlaceGroup;
     private var team:Team;
-    private val resilientStore:ResilientStore;
+    private val resilientStore:Store[Cloneable];
     
     /**
      * Create a new PageRank instance
@@ -94,7 +95,7 @@ public class PageRank implements SPMDResilientIterativeApp {
             chkpntIter:Long,
             places:PlaceGroup,
             team:Team,
-            resilientStore:ResilientStore) {
+            resilientStore:Store[Cloneable]) {
         Debug.assure(DistGrid.isVertical(edges.getGrid(), edges.getMap()), 
                 "Input edges matrix does not have vertical distribution.");
 
@@ -136,7 +137,7 @@ public class PageRank implements SPMDResilientIterativeApp {
         this.resilientStore = resilientStore;
     }
 
-    public static def makeRandom(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup, resilientStore:ResilientStore) {
+    public static def makeRandom(gN:Long, nzd:Float, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup, resilientStore:Store[Cloneable]) {
         val numRowPs = places.size();
         val numColPs = 1;
         val team = new Team(places);
@@ -157,7 +158,7 @@ public class PageRank implements SPMDResilientIterativeApp {
      *   Pregel: a system for large-scale graph processing.
      *   http://dx.doi.org/10.1145/1807167.1807184
      */
-    public static def makeLogNormal(gN:Long, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup, resilientStore:ResilientStore) {
+    public static def makeLogNormal(gN:Long, it:Long, tolerance:Float, numRowBs:Long, numColBs:Long, chkpntIter:Long, places:PlaceGroup, resilientStore:Store[Cloneable]) {
         val densityGuess = 0.079f;
         val numRowPs = places.size();
         val numColPs = 1;
@@ -235,13 +236,8 @@ public class PageRank implements SPMDResilientIterativeApp {
         assert (G.isDistVertical()) : "dist block matrix must have vertical distribution";
     
         appTempDataPLH = PlaceLocalHandle.make[AppTempData](places, ()=>new AppTempData());
-    
-        if (x10.xrx.Runtime.x10rtAgreementSupport() && !DISABLE_ULFM_AGREEMENT){
-            new SPMDResilientIterativeExecutorULFM(checkpointFreq, resilientStore, true).run(this, start);
-        }
-        else {
-            new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
-        }
+        
+        new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);        
 
         return P.local();
     }
@@ -307,7 +303,7 @@ public class PageRank implements SPMDResilientIterativeApp {
     	if (VERBOSE) Console.OUT.println(here + "Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] maxDelta["+appTempDataPLH().maxDelta+"] ...");
     }
     
-    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:ArrayList[Place]) {
+    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:PlaceGroup) {
         this.places = newPlaces;
     	this.team = newTeam;
         val newRowPs = newPlaces.size();
