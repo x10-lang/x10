@@ -89,6 +89,8 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         simplePlaceHammer = h;
     }
 
+    public def activePlaces(){here == home} = manager().activePlaces();
+
     //the startRunTime parameter is added to allow the executor to consider 
     //any initlization time done by the application before starting the executor  
     public def run(app:SPMDResilientIterativeApp, startRunTime:Long){here == home} {

@@ -12,7 +12,6 @@
 import harness.x10Test;
 import x10.util.Random;
 import x10.array.Array_2;
-import x10.util.resilient.localstore.ResilientStore;
 
 // SOURCEPATH: x10.dist/samples/resiliency
 // NUM_PLACES: 10
@@ -28,10 +27,7 @@ public class ResilientKMeansTest extends x10Test {
                               [1f,-1f,-1f],[1f,-1f,1f],[1f,1f,-1f],[1f as Float,1f,1f]];
 
     public def run():boolean {
-         val rs = ResilientStore.make(2);
-         val pg = rs.getActivePlaces();
-         
-         chk(pg.numPlaces() == 8, "This test requires 8 active places; given "+pg.numPlaces());
+         chk(Place.numPlaces() == 10, "This test requires 10 places; given "+Place.numPlaces());
 
          val d = 3;
          val nPoints = 200000;
@@ -39,7 +35,7 @@ public class ResilientKMeansTest extends x10Test {
 
          // Create globally uniform, but locally skewed distribution
          val initPoints = (Place) => {
-             val virtualPlace = pg.indexOf(here);
+             val virtualPlace = here.id;
              val rand = new Random(virtualPlace);
              val pts = new Array_2[Float](nPoints, d, (Long,Long) => rand.nextFloat());
              val signVector:Rail[Float] = signVectors(virtualPlace);
@@ -54,7 +50,7 @@ public class ResilientKMeansTest extends x10Test {
          if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
              ResilientKMeans.setHammerConfig("3,15", "2,7");
          }
-         val clusters = ResilientKMeans.computeClusters(pg, initPoints, 3, k, 20, 1e-6f, false, 5, rs);
+         val clusters = ResilientKMeans.computeClusters(initPoints, 3, k, 20, 1e-6f, false, 5, 2);
 
          var pass:Boolean = true;
 

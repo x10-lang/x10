@@ -24,7 +24,6 @@ import x10.util.resilient.PlaceManager.ChangeDescription;
  * the next/prev operations on the activePlaces PlaceGroup.
  */
 public class ResilientStore {
-    private val moduleName = "ResilientStore";
     private val plh:PlaceLocalHandle[LocalStore];
     private var activePlaces:PlaceGroup;
     

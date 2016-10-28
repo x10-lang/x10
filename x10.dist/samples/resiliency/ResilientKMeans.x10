@@ -20,7 +20,6 @@ import x10.util.Random;
 import x10.util.resilient.PlaceManager;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.iterative.*;
-import x10.util.resilient.store.Store;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.Snapshottable;
 import x10.util.Timer;
@@ -288,17 +287,19 @@ public class ResilientKMeans {
         }
     }
 
-    static def computeClusters(mgr:PlaceManager, initPoints:(Place)=>Array_2[Float], dim:Long,
-                               numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean,
-                               checkpointFreq:Long, resilientStore:Store[Cloneable]):Array_2[Float] {
+    static def computeClusters(initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long,
+                               iterations:Long, epsilon:Float, verbose:Boolean,
+                               checkpointFreq:Long, sparePlaces:Long):Array_2[Float] {
 
-        val startTime = Timer.milliTime(); //the executor takes milli time.  
+        val startTime = Timer.milliTime(); // the executor takes milli time.
+        val executor = new GlobalResilientIterativeExecutor(checkpointFreq, sparePlaces, false);
+        val activePlaces = executor.activePlaces();
         
-        // Initialize LocalState in every Place
-        val localPLH = PlaceLocalHandle.make[LocalState](mgr.activePlaces(), ()=>{ new LocalState(initPoints, dim, numClusters) });
+        // Initialize KMeans LocalState in active places.
+        val localPLH = PlaceLocalHandle.make[LocalState](activePlaces, ()=>{ new LocalState(initPoints, dim, numClusters) });
 
         // Initialize algorithm state
-        val master = new KMeansMaster(localPLH, mgr.activePlaces(), epsilon, iterations, verbose);
+        val master = new KMeansMaster(localPLH, activePlaces, epsilon, iterations, verbose);
         master.setInitialCentroids();
 
         if (verbose) {
@@ -306,7 +307,6 @@ public class ResilientKMeans {
             printPoints(master.currentClusters);
         }
 
-        val executor = new GlobalResilientIterativeExecutor(checkpointFreq, mgr, resilientStore);
         if (hammer() != null) {
             executor.setHammer(hammer());
         }
@@ -351,14 +351,8 @@ public class ResilientKMeans {
         val sparePlaces = opts("-s",0);
         
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
-
-        val mgr = new PlaceManager(sparePlaces, false);
-        var resilientStore:Store[Cloneable] = null;
-        if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
-            resilientStore = Store.make[Cloneable]("_map_", mgr.activePlaces());
-        }
         
-        val pointsPerPlace = numPoints / mgr.activePlaces().numPlaces();
+        val pointsPerPlace = numPoints / (Place.numPlaces() - sparePlaces);
         val initPoints = (p:Place) => {
             val rand = new x10.util.Random(p.id);
             val pts = new Array_2[Float](pointsPerPlace, dim, (Long,Long)=> rand.nextFloat());
@@ -366,7 +360,7 @@ public class ResilientKMeans {
         };
 
         val start = System.nanoTime();
-        val clusters = computeClusters(mgr, initPoints, dim, numClusters, iterations, epsilon, verbose, checkpointFreq, resilientStore);
+        val clusters = computeClusters(initPoints, dim, numClusters, iterations, epsilon, verbose, checkpointFreq, sparePlaces);
         val stop = System.nanoTime();
         Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 

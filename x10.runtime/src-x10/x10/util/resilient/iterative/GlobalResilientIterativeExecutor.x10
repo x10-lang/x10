@@ -35,7 +35,7 @@ public class GlobalResilientIterativeExecutor (home:Place) {
     private val appStore:ApplicationSnapshotStore;
     private var lastCkptIter:Long = -1;
     private val itersPerCheckpoint:Long;
-    private var isResilient:Boolean = false;
+    private val isResilient:Boolean;
      
     // configuration parameters for killing places at different times
     private var simplePlaceHammer:SimplePlaceHammer;
@@ -52,16 +52,17 @@ public class GlobalResilientIterativeExecutor (home:Place) {
     private transient var startRunTime:Long = 0;
     private transient var killPlaceTime:Long = -1;
     
-    public def this(itersPerCheckpoint:Long, manager:PlaceManager, resilientMap:Store[Cloneable]) {
+    public def this(itersPerCheckpoint:Long, sparePlaces:Long, supportShrinking:Boolean) {
         property(here);
+
+        isResilient = itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0;
     	this.itersPerCheckpoint = itersPerCheckpoint;
-        if (itersPerCheckpoint > 0 && x10.xrx.Runtime.RESILIENT_MODE > 0 && resilientMap != null) {
-            isResilient = true;
-            this.resilientMap = resilientMap;
+        val mgr = new PlaceManager(sparePlaces, supportShrinking);
+        this.manager = GlobalRef[PlaceManager](mgr);
+        if (isResilient) {
+            this.resilientMap = Store.make[Cloneable]("_map_", mgr.activePlaces());
             appStore = new ApplicationSnapshotStore();
             simplePlaceHammer = new SimplePlaceHammer();
-            this.manager = GlobalRef[PlaceManager](manager);
-            assert(manager.activePlaces().equals(resilientMap.getActivePlaces()));
             if (VERBOSE) {
                 simplePlaceHammer.printPlan();
             }
@@ -69,7 +70,6 @@ public class GlobalResilientIterativeExecutor (home:Place) {
             this.resilientMap = null;
             this.appStore = null;
             this.simplePlaceHammer = null;
-            this.manager = GlobalRef[PlaceManager](manager);
         }
     }
 
@@ -80,9 +80,11 @@ public class GlobalResilientIterativeExecutor (home:Place) {
     public def setHammer(h:SimplePlaceHammer){here == home} {
         simplePlaceHammer = h;
     }
-    
+
+    public def activePlaces(){here == home} = manager().activePlaces();
+
     //the startRunTime parameter is added to allow the executor to consider 
-    //any initlization time done by the application before starting the executor  
+    //any initialization time done by the application before starting the executor  
     public def run(app:GlobalResilientIterativeApp, startRunTime:Long){here == home} {
         this.startRunTime = startRunTime;
         Console.OUT.println("GlobalResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
