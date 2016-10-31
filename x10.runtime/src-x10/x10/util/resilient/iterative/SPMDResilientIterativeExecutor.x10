@@ -458,10 +458,10 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         return  Math.round(railAvg);
     }
     
-    public def computeAverages[T](sum:Rail[T]):Rail[Double] {
+    public def computeAverages[T](sum:Rail[T]){here==home}:Rail[Double] {
         val result = new Rail[Double](sum.size);
         for (i in 0..(sum.size-1)) {
-            result(i) = (sum(i) as Double) / places.size;
+            result(i) = (sum(i) as Double) / manager().activePlaces().size;
             result(i) = ((result(i)*100) as Long)/100.0;  //two decimal points only
         }
         return result;
