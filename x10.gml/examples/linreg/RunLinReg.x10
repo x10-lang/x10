@@ -50,6 +50,7 @@ public class RunLinReg {
             Option("c","colBlocks","number of columnn blocks; default = 1"),
             Option("d","density","nonzero density, default = 0.9"),
             Option("i","iterations","number of iterations, default = 0 (no max)"),
+            Option("t","tolerance","convergence tolerance, default = 0.000001"),
             Option("s","spare","spare places count (at least one place should remain), default = 0"),
             Option("k", "checkpointFreq","checkpoint iteration frequency")
         ]);
@@ -71,6 +72,7 @@ public class RunLinReg {
         val verify = opts("v");
         val print = opts("p");
         val iterations = opts("i", 0n);
+        val tolerance = opts("t", 0.000001f);
         val sparePlaces = opts("s", 0n);
         val checkpointFrequency = opts("checkpointFreq", -1n);
 
@@ -155,7 +157,7 @@ public class RunLinReg {
         val M = mX;
         val N = nX;
 
-        val parLR = new LinearRegression(X, y, iterations, executor, nonzeroDensity, regularization);
+        val parLR = new LinearRegression(X, y, iterations, tolerance, nonzeroDensity, regularization, executor);
 
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;
@@ -189,7 +191,7 @@ public class RunLinReg {
 
         if (verify) {
             // Create sequential version running on dense matrices
-            val seqLR = new SeqLinearRegression(localX, localY, iterations);
+            val seqLR = new SeqLinearRegression(localX, localY, iterations, tolerance);
 
             Debug.flushln("Starting sequential linear regression");
             seqLR.run();

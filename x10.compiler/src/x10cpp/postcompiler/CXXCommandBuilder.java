@@ -466,6 +466,14 @@ public class CXXCommandBuilder {
         if (version >= 7.0) {
             ans.add("sm_52"); // requires CUDA Toolkit 7.0 or newer
         }
+        if (version >= 7.5) {
+            ans.add("sm_53"); // requires CUDA Toolkit 7.5 or newer
+        }
+        if (version >= 8.0) {
+            ans.add("sm_60"); // requires CUDA Toolkit 8.0 or newer
+            ans.add("sm_61"); // requires CUDA Toolkit 8.0 or newer
+            ans.add("sm_62"); // requires CUDA Toolkit 8.0 or newer
+        }
         return ans;
     }
 

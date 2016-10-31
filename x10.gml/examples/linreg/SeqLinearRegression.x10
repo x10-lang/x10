@@ -20,7 +20,7 @@ import x10.matrix.ElemType;
  */
 public class SeqLinearRegression {
     static val lambda = 1e-6 as Float; // regularization parameter
-    public val tolerance:Float = 0.000001f;
+    public val tolerance:Float;
 
     /** Matrix of training examples */
 	public val X:DenseMatrix;
@@ -38,7 +38,7 @@ public class SeqLinearRegression {
 	val r:Vector(X.N);
 	val q:Vector(X.N);
 	
-	public def this(X:DenseMatrix, y:Vector(X.M), it:Long) {
+	public def this(X:DenseMatrix, y:Vector(X.M), it:Long, tolerance:Float) {
 		this.X = X;
         this.y = y;
         if (it > 0) {
@@ -46,6 +46,7 @@ public class SeqLinearRegression {
         } else {
             this.maxIterations = X.N; // number of features
         }
+        this.tolerance = tolerance;
 
 		Xp = Vector.make(X.M);
 		r  = Vector.make(X.N);
