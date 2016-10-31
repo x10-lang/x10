@@ -8,7 +8,9 @@
 #
 #  (C) Copyright IBM Corporation 2006-2016.
 #
-
+ifeq ($(X10_HOME),)
+  $(error X10_HOME is not set)
+endif
 ###################################################
 # Source and target file
 ###################################################
