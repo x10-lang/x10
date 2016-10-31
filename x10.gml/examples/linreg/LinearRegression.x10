@@ -38,7 +38,7 @@ public class LinearRegression implements SPMDResilientIterativeApp {
 	
     public static val MAX_SPARSE_DENSITY = 0.1f;
     public val lambda:Float; // regularization parameter
-    public val tolerance:Float = 0.000001f;
+    public val tolerance:Float;
     
     /** Matrix of training examples */
     public val X:DistBlockMatrix;
@@ -70,14 +70,15 @@ public class LinearRegression implements SPMDResilientIterativeApp {
     var team:Team;
     var places:PlaceGroup;
     
-    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:Store[Cloneable]) {
+    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, tolerance:Float, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:Store[Cloneable]) {
+        this.X = X;
+        this.y = y;
         if (it > 0) {
             this.maxIterations = it;
         } else {
             this.maxIterations = X.N; // number of features
         }
-        this.X = X;
-        this.y = y;
+        this.tolerance = tolerance;
         this.lambda = regularization;
         
         Xp = DistVector.make(X.M, X.getAggRowBs(), places, team);

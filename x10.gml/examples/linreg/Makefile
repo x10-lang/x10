@@ -31,7 +31,7 @@ HAMMER_FILE ?= ./hammer_iter.txt
 # runtime settings
 runtime_list = native java
 numplaces = 8
-test_args = -m 1000 -n 1000 --density 0.09 --iterations 30 --verify
+test_args = -m 10000 -n 500 --verify
 
 ###################################################
 # Build rules
