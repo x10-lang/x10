@@ -117,8 +117,8 @@ public class SparseExample{
         }
         
         public def testScaleAdd():Boolean {
-            val dot3 = 0.3 as ElemType;
-            val a = SparseCSC.make(M, N, dot3);
+            val dot3 = 0.3f;
+            val a = SparseCSC.make(M, N, dot3 as Float);
             a.initRandom(dot3);
             val a1= a * (0.2 as ElemType);
             val a2= a * (0.8 as ElemType);
