@@ -441,6 +441,13 @@ final class ResilientUTS implements Unserializable {
     return ref()();
   }
 
+  static def ensureSufficientWorkers(power:Int) {
+    val missing = (1n << power) + 1n - Runtime.NTHREADS;
+    if (missing > 0) {
+        for (i in 1..missing) Runtime.increaseParallelism();
+    }
+  }
+
   public static def main(args:Rail[String]) {
     val time0 = System.currentTimeMillis();
     
@@ -463,12 +470,8 @@ final class ResilientUTS implements Unserializable {
         + ", Spare places: " + opt.spares);
 
     val resilient = Runtime.RESILIENT_MODE != 0n;
-    val missing = (1n << opt.power) + 1n - Runtime.NTHREADS;
-    if (missing > 0) {
-      finish for (p in Place.places()) at (p) async {
-        for (i in 1..missing) Runtime.increaseParallelism();
-      }
-    }
+    val power = opt.power;
+    finish for (p in Place.places()) at (p) async ensureSufficientWorkers(power);
 
     val md = UTS.encoder();
     val map0 = resilient ? Store.make[UTS]("map0", Place.places()): null;
@@ -498,6 +501,7 @@ final class ResilientUTS implements Unserializable {
         if (w > 0n) {
             val changes = manager.rebuildActivePlaces();
             map.updateForChangedPlaces(changes);
+            finish for (p in changes.addedPlaces) at (p) async ensureSufficientWorkers(power);
         }
         finish count = ResilientUTS.step(manager.activePlaces(), w == 0n ? bag : null, w, opt.power, resilient, map, time0, opt.killTimes);
         break;
