@@ -5,7 +5,7 @@
  *  You may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
-n *
+ *
  *  (C) Copyright IBM Corporation 2006-2016.
  *  (C) Copyright Sara Salem Hamouda 2014-2016.
  */
