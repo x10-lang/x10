@@ -251,6 +251,9 @@ public class ResilientKMeansSPMD {
             printPoints(plh().clusters);
         }
 
+        if (hammer() != null) {
+            executor.setHammer(hammer());
+        }
         executor.run(new KMeansApp(plh), startTime);
 
         if (verbose) {
@@ -319,6 +322,13 @@ public class ResilientKMeansSPMD {
             printPoints(clusters);
         }
     }
+
+    // Saffolding for killing places during automated testing.
+    public static def setHammerConfig(steps:String, places:String) {
+        hammer() = new SimplePlaceHammer(steps, places);
+    }
+
+    static val hammer = new Cell[SimplePlaceHammer](null);
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
