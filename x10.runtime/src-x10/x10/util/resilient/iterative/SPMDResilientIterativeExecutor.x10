@@ -180,6 +180,8 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                         failureDetectionTimes.add(Timer.milliTime() - placeTempData().place0KillPlaceTime);
                         placeTempData().place0KillPlaceTime =  -1;
                     }
+                } else {
+                    throw iterEx; // not a DPE; rethrow
                 }
             }
         }while(remakeRequired || !app.isFinished_local());

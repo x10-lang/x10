@@ -142,6 +142,8 @@ public class GlobalResilientIterativeExecutor (home:Place) {
                         failureDetectionTimes.add(Timer.milliTime() - killPlaceTime);
                         killPlaceTime =  -1;
                     }
+                } else {
+                    throw iterEx; // not a DPE; rethrow
                 }
             }
         }
