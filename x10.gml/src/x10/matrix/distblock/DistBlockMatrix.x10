@@ -658,19 +658,35 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         throw new UnsupportedOperationException("DistBlockMatrix.sum");
     }
 
-    public def rowSumTo(vec:Vector(M)) {
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
         finish ateach(p in Dist.makeUnique(places))  {
-            rowSumTo_local(vec);
+            rowSumTo_local(vec, op);
         }
     }
-
-    public def rowSumTo_local(vec:Vector(M)) {
+    
+    public def rowSumTo(vec:Vector(M)) {
+    	rowSumTo(vec, (a:ElemType)=> {a});
+    }
+    
+    public def rowSumTo_local(distVec:DistVector(M), op:(x:ElemType)=>ElemType) {
         val blkitr = handleBS().iterator();
         while (blkitr.hasNext()) {
             val blk = blkitr.next();
-            blk.getMatrix().rowSumTo(vec);
+            blk.getMatrix().rowSumTo(distVec.distV().vec, op);
+        }
+    }
+
+    public def rowSumTo_local(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+        val blkitr = handleBS().iterator();
+        while (blkitr.hasNext()) {
+            val blk = blkitr.next();
+            blk.getMatrix().rowSumTo(vec, op);
         }
         team.allreduce(vec.d, 0, vec.d, 0, this.M, Team.ADD);
+    }
+    
+    public def rowSumTo_local(vec:Vector(M)) {
+    	rowSumTo_local(vec, (a:ElemType)=> {a});
     }
 
     public def colSumTo(vec:Vector(N)) {
@@ -1011,100 +1027,41 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * Snapshot mechanism
      */
     /**
-     * Remake the DistBlockMatrix over a new PlaceGroup.
+     * Remake the DistBlockMatrix over a new PlaceGroup. 
+     * Constrains on the new place group:
+     *   - same size of the old group
+     *   - non-failed places have the same location in the old and new PlaceGroups
+     *   - failed places are replaced with other active places (spare/dynamically created ones)
+     *    
      * Remake does not allocate the new blocks' storage, so allocSparseBlocks(ElemType) or 
      * allocDenseBlocks() should be called after calling this remake method.
      *  
      * @param rowPs, colPs      the number of rows and columns for the place grid
      * @param newPg             the new place group to distribute the matrix over
      */
-    public def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
+    private def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
         assert (rowPs*colPs==newPg.size()) :
             "Block partitioning error: rowsPs["+rowPs+"]*colPs["+colPs+"] != newPg.size["+newPg.size()+"]";
-        val oldPlaces = places;
         val oldGrid = getGrid();
-        val snapshotInfo = this.handleBS().snapshotDistInfo;
-        val blks:PlaceLocalHandle[BlockSet];
-
-        var useOldGrid:Boolean = false;
-        val rebalanceMode = System.getenv("X10_GML_REBALANCE");
-        if (oldPlaces.size() == newPg.size() || rebalanceMode == null || rebalanceMode.equals("0"))
-            useOldGrid = true; // no matrix grid rebalancing
-
-        if (!useOldGrid){
-            val rowBs:Long = oldGrid.numRowBlocks; 
-            val colBs:Long = oldGrid.numColBlocks;
-            PlaceLocalHandle.destroy(oldPlaces, handleBS, (Place)=>true);
-            blks = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.makeForRestore(M,N,rowBs,colBs,rowPs,colPs, newPg, snapshotInfo)));
-        } else {
-            if (addedPlaces.size() == 0) { // shrink mode
-                PlaceLocalHandle.destroy(oldPlaces, handleBS, (Place)=>true);
-                blks = PlaceLocalHandle.make[BlockSet](newPg, ()=>(BlockSet.makeForRestore(oldGrid,rowPs,colPs, newPg, snapshotInfo)));
-            }
-            else { // spare mode
-                blks = handleBS; 
-                for (sparePlace in addedPlaces){
-                    //Console.OUT.println("Adding place["+sparePlace+"] to DistBlockMarix PLH ...");
-                    PlaceLocalHandle.addPlace[BlockSet](blks, sparePlace, ()=>(BlockSet.makeForRestore(oldGrid,rowPs,colPs, newPg, snapshotInfo)));
-                }
-            }
+        val snapshotInfo = this.handleBS().snapshotDistInfo;  //TODO: remove the field 'snapshotDistInfo'     
+        for (sparePlace in addedPlaces){
+            PlaceLocalHandle.addPlace[BlockSet](handleBS, sparePlace, ()=>(BlockSet.makeForRestore(oldGrid,rowPs,colPs, newPg, snapshotInfo)));
         }
-        gdist = new DistGrid(blks().getGrid(), rowPs, colPs);
-        handleBS  = blks;
+        gdist = new DistGrid(oldGrid, rowPs, colPs);
         places = newPg;
-    }
-    
-     /**
-     * Remake the DistBlockMatrix over a new PlaceGroup using Sparse Blocks.
-     * rowPlaces and colPlaces will be calculated based on the provided PlaceGroup size
-     * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
-     * @param newPg            the new place group to distribute the matrix over
-     */
-    public def remakeSparse(nzd:Float, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
-        var colPs:Long = MathTool.sqrt(newPg.size());
-        val rowPs = newPg.size() / colPs;
-        remakeSparse(rowPs, colPs, nzd, newPg, addedPlaces);
     }
     
     /**
      * Remake the DistBlockMatrix over a new PlaceGroup using Sparse Blocks. 
-     * The environment variable X10_GML_REBALANCE will be checked to decide whether to use the same data 
-     * grid for remake or to calculate a new grid based on the new place group (newPg) size.
-     * After calling the remakeSparseCheckRebalanceMode(), the restoreSnapshot() should be called 
-     * before using the matrix in any computation.
-     * If X10_GML_REBALANCE=0, the storage of the sparse blocks will be allocated based on the provided 
-     *                         non-zero density parameter (nzd)
-     * If X10_GML_REBALANCE=1, allocating the storage will be deferred to the restore time because the actual 
-     *                         number of elements that will be placed in each block can not be determined by remake.
-     *                         That is why restoreSnapshot() should be called after remakeSparseCheckRebalanceMode().
      * 
      * @param rowPs, colPs     the number of rows and columns for the place grid
      * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
      * @param newPg            the new place group to distribute the matrix over
      */
     public def remakeSparse(rowPs:Long, colPs:Long, nzd:Float, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
-        val oldPlaces = places;
+    	assert (places.size() == newPg.size());        
         remake(rowPs, colPs, newPg, addedPlaces);
-        val rebalanceMode = System.getenv("X10_GML_REBALANCE");
-        if (oldPlaces.size() == newPg.size() && addedPlaces.size() != 0) {
-            allocSparseBlocks(nzd, addedPlaces); // spare places added, allocate only at the new places
-        }
-        else if (oldPlaces.size() == newPg.size() || rebalanceMode == null || rebalanceMode.equals("0")) {
-            // no matrix grid rebalancing , place ordering might be shifted.          
-            allocSparseBlocks(nzd);
-        }
-        //else: allocation is deferred to the restore phase
-    }
-
-    /**
-     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the dense blocks storage.
-     * rowPlaces and colPlaces will be calculated based on the provided PlaceGroup size
-     * @param newPg            the new place group to distribute the matrix over
-     */
-    public def remakeDense(newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
-        val colPs:Long = MathTool.sqrt(newPg.size());
-        val rowPs = newPg.size() / colPs;
-        remakeDense(rowPs, colPs, newPg, addedPlaces);
+        allocSparseBlocks(nzd, addedPlaces);
     }
     
     /**
@@ -1113,12 +1070,9 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param newPg            the new place group to distribute the matrix over
      */
     public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]){
-        val oldPlaces = places;
+    	assert (places.size() == newPg.size());
         remake(rowPs, colPs, newPg, addedPlaces);
-        if (oldPlaces.size() == newPg.size() && addedPlaces.size() != 0) //spare
-            allocDenseBlocks(addedPlaces);
-        else
-            allocDenseBlocks();
+        allocDenseBlocks(addedPlaces);
     }
     
     public def makeSnapshot_local():Cloneable {

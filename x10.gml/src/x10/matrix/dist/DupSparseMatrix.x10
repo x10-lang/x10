@@ -340,8 +340,8 @@ public class DupSparseMatrix extends Matrix {
         return local().sum();
     }
 
-    public def rowSumTo(vec:Vector(M)) {
-        local().rowSumTo(vec);
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+        local().rowSumTo(vec, op);
     }
 
     public def colSumTo(vec:Vector(N)) {

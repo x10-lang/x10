@@ -361,8 +361,8 @@ public class DupDenseMatrix extends Matrix {
         return this.local().sum();
     }
 
-    public def rowSumTo(vec:Vector(M)) {
-        this.local().rowSumTo(vec);
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+    	this.local().rowSumTo(vec, op);
     }
 
     public def colSumTo(vec:Vector(N)) {

@@ -646,8 +646,8 @@ public class SparseCSR extends Matrix {
         throw new UnsupportedOperationException("SparseCSR.sum");
     }
 
-    public def rowSumTo(vec:Vector(M)) {
-        throw new UnsupportedOperationException("SparseCSR.rowSumTo");
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+    	throw new UnsupportedOperationException("SparseCSR.rowSumTo");
     }
 
     public def colSumTo(vec:Vector(N)) {

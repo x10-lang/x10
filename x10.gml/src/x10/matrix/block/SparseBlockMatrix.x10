@@ -360,10 +360,10 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
         }
         return sum;
     }
-
-    public def rowSumTo(vec:Vector(M)) {
+    
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
 		for (p in 0..(listBs.size-1)) {
-            listBs(p).sparse.rowSumTo(vec);
+            listBs(p).sparse.rowSumTo(vec, op);
         }
     }
 
