@@ -473,6 +473,11 @@ public class X10RT {
 			return null;
 	}
 
+    public static boolean useHazelcastStore() {
+        boolean useHazelcast = "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"));
+        useHazelcast |= Configuration.resilient_mode$O() == Configuration.RESILIENT_MODE_HC;
+        return useHazelcast;
+    }
     
     // this form of initDataStore is called as a part of normal startup.
     private static void initDataStore() {
@@ -481,10 +486,7 @@ public class X10RT {
     	// we only start at 0 because the other places need to join an existing hazelcast cluster, 
     	// and the cluster is seeded via at least one other hazelcast instance.  place 0 doesn't join
     	// an existing cluster - it is the start of one.
-        boolean useHazelcast = "Hazelcast".equalsIgnoreCase(System.getProperty(X10RT_DATASTORE, "none"));
-        useHazelcast |= Configuration.resilient_mode$O() == Configuration.RESILIENT_MODE_HC;
-    	
-    	if (hereId == 0 && useHazelcast) {
+        if (hereId == 0 && useHazelcastStore()) {
     		if (X10RT.javaSockets == null) {
     			System.err.println("Error: you specified X10RT_DATASTORE=Hazelcast, but are not using JavaSockets, which is required.  Hazelcast is disabled.");
     			return;

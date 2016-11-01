@@ -47,6 +47,6 @@ public abstract class Store[V]{V haszero, V <: Cloneable} {
         }
     }
 
-    @Native("java", "java.lang.System.getProperty(\"X10RT_DATASTORE\", \"Hazelcast\")")
+    @Native("java", "(x10.x10rt.X10RT.useHazelcastStore() ? \"Hazelcast\" : \"native\")")
     static def dataStore():String = "native";
 }
