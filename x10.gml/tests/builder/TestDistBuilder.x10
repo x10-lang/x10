@@ -10,7 +10,7 @@ import x10.matrix.ElemType;
 
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.builder.distblock.DistMatrixBuilder;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager;
 
 /**
  * This class contains test cases for dense matrix addition, scaling, and negation operations.
@@ -34,7 +34,8 @@ public class TestDistBuilder extends x10Test {
                             M+"x"+ N + " matrices");
         var ret:Boolean = true;
         ret &= (testInit());
-        val places:PlaceGroup = Place.numPlaces() > 1? PlaceGroupBuilder.excludeSparePlaces(1) : Place.places();
+        val manager = new PlaceManager(Place.numPlaces() > 1 ? 1 : 0, false);
+        val places:PlaceGroup = manager.activePlaces();
         
         ret &= (testInit(places));
         

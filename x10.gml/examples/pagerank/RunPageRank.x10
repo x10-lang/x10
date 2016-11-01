@@ -13,13 +13,13 @@ import x10.util.Option;
 import x10.util.OptionsParser;
 import x10.util.Timer;
 
+import x10.util.resilient.iterative.*;
+
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
 import x10.matrix.util.VerifyTool;
-
 import x10.matrix.distblock.DistBlockMatrix;
-import x10.util.resilient.store.Store;
-import x10.util.resilient.localstore.Cloneable;
+
 
 /**
  * Page Rank demo
@@ -71,24 +71,19 @@ public class RunPageRank {
             Console.OUT.println("Error in settings");
         else {
             val startTime = Timer.milliTime();
-            var resilientStore:Store[Cloneable] = null;
-            var placesVar:PlaceGroup = Place.places();
-            if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
-                resilientStore = Store.make[Cloneable]("_map_", sparePlaces);
-                placesVar = resilientStore.getActivePlaces();
-            }
-            val places = placesVar;
+            val executor = new SPMDResilientIterativeExecutor(checkpointFreq, sparePlaces, false, true);
+            val places = executor.activePlaces();
             
             val rowBlocks = opts("r", places.size());
             val colBlocks = opts("c", 1);
 
             val paraPR:PageRank;
             if (nonzeroDensity > 0.0f) {
-                paraPR = PageRank.makeRandom(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places, resilientStore);
+                paraPR = PageRank.makeRandom(mG, nonzeroDensity, iterations, tolerance, rowBlocks, colBlocks, executor);
                 Console.OUT.printf("random edge graph (uniform distribution) density: %.3e non-zeros: %d\n",
                             nonzeroDensity, (nonzeroDensity*mG*mG) as Long);
             } else {
-                paraPR = PageRank.makeLogNormal(mG, iterations, tolerance, rowBlocks, colBlocks, checkpointFreq, places, resilientStore);
+                paraPR = PageRank.makeLogNormal(mG, iterations, tolerance, rowBlocks, colBlocks, executor);
                 Console.OUT.println("log-normal edge graph (mu=4.0, sigma=1.3) total non-zeros: " + paraPR.G.getTotalNonZeroCount());
             }
 /*

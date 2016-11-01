@@ -16,7 +16,7 @@ import x10.util.Timer;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.util.Debug;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager;
 
 import x10.util.Team;
 import x10.matrix.util.MathTool;
@@ -68,8 +68,8 @@ public class RunLogReg {
 
             val startTime = Timer.milliTime();
             
-            val places = (skipPlaces==0n) ? Place.places() 
-                : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
+            val manager = new PlaceManager(skipPlaces, false);
+            val places = manager.activePlaces();
             val team = new Team(places);
             
             val rowBlocks = opts("r", places.size());

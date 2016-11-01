@@ -16,7 +16,7 @@ import x10.util.Timer;
 import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.regression.RegressionInputData;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager;
 
 import x10.util.Team;
 
@@ -80,9 +80,9 @@ public class CompareLogRegSystemML {
         }
 
         val startTime = Timer.milliTime();
-        
-        val places = (skipPlaces==0n) ? Place.places() 
-            : PlaceGroupBuilder.excludeSparePlaces(skipPlaces);
+
+        val manager = new PlaceManager(skipPlaces, false);
+        val places = manager.activePlaces();
         val rowBlocks = opts("r", places.size());
         val colBlocks = opts("c", 1);
 

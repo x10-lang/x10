@@ -298,7 +298,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         return this;
     }
     
-    public def allocDenseBlocks(newAddedPlaces:PlaceGroup):DistBlockMatrix(this) {
+    public def allocDenseBlocks(newAddedPlaces:ArrayList[Place]):DistBlockMatrix(this) {
         finish for (p in newAddedPlaces) at (p) async {
             handleBS().allocDenseBlocks();
         }
@@ -316,7 +316,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
         return this;
     }
     
-    public def allocSparseBlocks(nzd:Float, newAddedPlaces:PlaceGroup):DistBlockMatrix(this) {
+    public def allocSparseBlocks(nzd:Float, newAddedPlaces:ArrayList[Place]):DistBlockMatrix(this) {
         //Remote capture: nzd
         finish for (p in newAddedPlaces) at (p) async {
             handleBS().allocSparseBlocks(nzd);
@@ -1018,7 +1018,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param rowPs, colPs      the number of rows and columns for the place grid
      * @param newPg             the new place group to distribute the matrix over
      */
-    public def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:PlaceGroup) {
+    public def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
         assert (rowPs*colPs==newPg.size()) :
             "Block partitioning error: rowsPs["+rowPs+"]*colPs["+colPs+"] != newPg.size["+newPg.size()+"]";
         val oldPlaces = places;
@@ -1060,7 +1060,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
      * @param newPg            the new place group to distribute the matrix over
      */
-    public def remakeSparse(nzd:Float, newPg:PlaceGroup, addedPlaces:PlaceGroup) {
+    public def remakeSparse(nzd:Float, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
         var colPs:Long = MathTool.sqrt(newPg.size());
         val rowPs = newPg.size() / colPs;
         remakeSparse(rowPs, colPs, nzd, newPg, addedPlaces);
@@ -1082,7 +1082,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
      * @param newPg            the new place group to distribute the matrix over
      */
-    public def remakeSparse(rowPs:Long, colPs:Long, nzd:Float, newPg:PlaceGroup, addedPlaces:PlaceGroup) {    
+    public def remakeSparse(rowPs:Long, colPs:Long, nzd:Float, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
         val oldPlaces = places;
         remake(rowPs, colPs, newPg, addedPlaces);
         val rebalanceMode = System.getenv("X10_GML_REBALANCE");
@@ -1101,7 +1101,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * rowPlaces and colPlaces will be calculated based on the provided PlaceGroup size
      * @param newPg            the new place group to distribute the matrix over
      */
-    public def remakeDense(newPg:PlaceGroup, addedPlaces:PlaceGroup) {
+    public def remakeDense(newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
         val colPs:Long = MathTool.sqrt(newPg.size());
         val rowPs = newPg.size() / colPs;
         remakeDense(rowPs, colPs, newPg, addedPlaces);
@@ -1112,7 +1112,7 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param rowPs, colPs     the number of rows and columns for the place grid
      * @param newPg            the new place group to distribute the matrix over
      */
-    public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:PlaceGroup){
+    public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]){
         val oldPlaces = places;
         remake(rowPs, colPs, newPg, addedPlaces);
         if (oldPlaces.size() == newPg.size() && addedPlaces.size() != 0) //spare

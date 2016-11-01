@@ -21,9 +21,9 @@ import x10.matrix.distblock.DupVector;
 import x10.matrix.distblock.DistVector;
 import x10.matrix.util.Debug;
 import x10.util.Team;
+import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.Snapshottable;
-import x10.util.resilient.store.Store;
 import x10.util.resilient.iterative.*;
 
 
@@ -55,7 +55,6 @@ public class LinearRegression implements SPMDResilientIterativeApp {
     val d_r:DupVector(X.N);
     val d_q:DupVector(X.N);
     
-    private val checkpointFreq:Long;
     var lastCheckpointNorm:ElemType;
     
     //----Profiling-----
@@ -65,12 +64,12 @@ public class LinearRegression implements SPMDResilientIterativeApp {
     private val nzd:Float;
     private val root:Place;
 
-    private val resilientStore:Store[Cloneable];
+    private val executor:SPMDResilientIterativeExecutor;
     private var appTempDataPLH:PlaceLocalHandle[AppTempData];
     var team:Team;
     var places:PlaceGroup;
     
-    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, tolerance:Float, chkpntIter:Long, sparseDensity:Float, regularization:Float, places:PlaceGroup, team:Team, resilientStore:Store[Cloneable]) {
+    public def this(X:DistBlockMatrix, y:DistVector(X.M), it:Long, tolerance:Float, sparseDensity:Float, regularization:Float, executor:SPMDResilientIterativeExecutor) {
         this.X = X;
         this.y = y;
         if (it > 0) {
@@ -80,6 +79,9 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         }
         this.tolerance = tolerance;
         this.lambda = regularization;
+        this.executor = executor;
+        this.places = executor.activePlaces();
+        this.team = executor.team();
         
         Xp = DistVector.make(X.M, X.getAggRowBs(), places, team);
         
@@ -90,13 +92,8 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         
         d_w = DupVector.make(X.N, places, team);  
 
-        this.checkpointFreq = chkpntIter;
-        
         nzd = sparseDensity;
         root = here;
-        this.team = team;
-        this.resilientStore = resilientStore;
-        this.places = places;
     }
     
     public def isFinished_local() {
@@ -112,7 +109,7 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         
         init();
         
-        new SPMDResilientIterativeExecutor(checkpointFreq, resilientStore, true).run(this, start);
+        executor.run(this, start);
         
         return d_w.local();
     }
@@ -212,23 +209,23 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         if (VERBOSE) Console.OUT.println(here + "Restore succeeded. Restarting from iteration["+appTempDataPLH().iter+"] norm["+appTempDataPLH().norm_r2+"] ...");
     }
     
-    public def remake(newPlaces:PlaceGroup, newTeam:Team, newAddedPlaces:PlaceGroup) {
+    public def remake(changes:ChangeDescription, newTeam:Team) {
         this.team = newTeam;
-        this.places = newPlaces;
-        val newRowPs = newPlaces.size();
+        this.places = changes.newActivePlaces;
+        val newRowPs = changes.newActivePlaces.size();
         val newColPs = 1;
         //remake all the distributed data structures
         if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, newPlaces, newAddedPlaces);
+            X.remakeSparse(newRowPs, newColPs, nzd, changes.newActivePlaces, changes.addedPlaces);
         } else {
-            X.remakeDense(newRowPs, newColPs, newPlaces, newAddedPlaces);
+            X.remakeDense(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
         }
-        d_p.remake(newPlaces, newTeam, newAddedPlaces);
-        d_q.remake(newPlaces, newTeam, newAddedPlaces);
-        d_r.remake(newPlaces, newTeam, newAddedPlaces);
-        d_w.remake(newPlaces, newTeam, newAddedPlaces);
-        Xp.remake(X.getAggRowBs(), newPlaces, newTeam, newAddedPlaces);      
-    	for (sparePlace in newAddedPlaces){
+        d_p.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
+        d_q.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
+        d_r.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
+        d_w.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
+        Xp.remake(X.getAggRowBs(), changes.newActivePlaces, newTeam, changes.addedPlaces);
+        for (sparePlace in changes.addedPlaces){
     		if (VERBOSE) Console.OUT.println("Adding place["+sparePlace+"] to appTempDataPLH ...");
     		PlaceLocalHandle.addPlace[AppTempData](appTempDataPLH, sparePlace, ()=>new AppTempData());
     	}

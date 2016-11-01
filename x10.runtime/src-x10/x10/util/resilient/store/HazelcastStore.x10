@@ -13,7 +13,7 @@ package x10.util.resilient.store;
 
 import x10.util.resilient.ResilientMap;
 import x10.util.resilient.localstore.Cloneable;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager.ChangeDescription;
 
 public class HazelcastStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   static final class LogEntry[V] {
@@ -34,10 +34,10 @@ public class HazelcastStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   val log:ResilientMap[String,LogEntry[V]];
   var group:PlaceGroup;
 
-  def this(name:String, spares:Long) {
+  def this(name:String, activePlaces:PlaceGroup) {
     map = ResilientMap.getMap[String,V]("_map_" + name);
     log = ResilientMap.getMap[String,LogEntry[V]]("_log_" + name);
-    this.group = PlaceGroup.make(Math.max(1, Place.numPlaces() - spares));;
+    this.group = activePlaces;
   }
 
   private def k(place:Place, key:String) = (group.indexOf(place) << 32) + "_" + key;
@@ -65,8 +65,8 @@ public class HazelcastStore[V]{V haszero, V <: Cloneable} extends Store[V] {
 
   public def getActivePlaces() = group;
 
-  public def recoverDeadPlaces() {
-    group = PlaceGroupBuilder.createRestorePlaceGroup(group).newGroup;;
+  public def updateForChangedPlaces(changes:ChangeDescription):void {
+    group = changes.newActivePlaces;
     for(entry in log.values()) {
       Console.ERR.println("Replaying transaction log for key " + entry.key);
       map.set(entry.key2, entry.value2);

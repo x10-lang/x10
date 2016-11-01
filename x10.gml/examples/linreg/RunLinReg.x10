@@ -25,8 +25,7 @@ import x10.matrix.regression.RegressionInputData;
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.util.Team;
-import x10.util.resilient.localstore.Cloneable;
-import x10.util.resilient.store.Store;
+import x10.util.resilient.iterative.*;
 
 /**
  * Test harness for Linear Regression using GML
@@ -75,6 +74,7 @@ public class RunLinReg {
         val iterations = opts("i", 0n);
         val tolerance = opts("t", 0.000001f);
         val sparePlaces = opts("s", 0n);
+        val checkpointFrequency = opts("checkpointFreq", -1n);
 
         if (nonzeroDensity<0.0f
          || sparePlaces < 0 || sparePlaces >= Place.numPlaces()) {
@@ -94,15 +94,10 @@ public class RunLinReg {
         }
         
         val startTime = Timer.milliTime();
-        var resilientStore:Store[Cloneable] = null;
-        var placesVar:PlaceGroup = Place.places();
-        var team:Team = Team.WORLD;
-        if (x10.xrx.Runtime.RESILIENT_MODE > 0 && sparePlaces > 0) {
-        	resilientStore = Store.make[Cloneable]("_map_", sparePlaces);
-        	placesVar = resilientStore.getActivePlaces();
-        	team = new Team(placesVar);
-        }        
-        val places = placesVar;
+
+        val executor = new SPMDResilientIterativeExecutor(checkpointFrequency, sparePlaces, false, true);
+        val places = executor.activePlaces();
+        val team = executor.team();
         
         val rowBlocks = opts("r", places.size());
         val colBlocks = opts("c", 1);
@@ -161,10 +156,8 @@ public class RunLinReg {
 
         val M = mX;
         val N = nX;
-        val checkpointFrequency = opts("checkpointFreq", -1n);
 
-        val parLR = new LinearRegression(X, y, iterations, tolerance, checkpointFrequency,
-                                         nonzeroDensity, regularization, places, team, resilientStore);
+        val parLR = new LinearRegression(X, y, iterations, tolerance, nonzeroDensity, regularization, executor);
 
         var localX:DenseMatrix(M, N) = null;
         var localY:Vector(M) = null;

@@ -22,7 +22,7 @@ import x10.matrix.distblock.DistGrid;
 import x10.matrix.distblock.DistBlockMatrix;
 
 import x10.util.Team;
-import x10.util.resilient.iterative.PlaceGroupBuilder;
+import x10.util.resilient.PlaceManager;
 
 public class TestDistBlock extends x10Test {
     static def ET(a:Double)= a as ElemType;
@@ -61,7 +61,7 @@ public class TestDistBlock extends x10Test {
         Console.OUT.println("DistBlockMatrix clone/add/sub/scaling tests");
 	
         var ret:Boolean = true;
-        val places = PlaceGroupBuilder.excludeSparePlaces(skipPlaces);	
+        val places = new PlaceManager(skipPlaces, false).activePlaces();
         val team = new Team(places);
         ret &= (testClone(places, team));
         ret &= (testCopyTo(places, team));

@@ -11,18 +11,21 @@
 
 import x10.array.Array;
 import x10.array.Array_2;
-import x10.util.foreach.Block;
-import x10.util.resilient.iterative.*;
 import x10.util.ArrayList;
+import x10.util.HashMap;
 import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.Random;
 import x10.util.Team;
+import x10.util.foreach.Block;
+import x10.util.resilient.PlaceManager.ChangeDescription;
+import x10.util.resilient.iterative.*;
+import x10.util.resilient.localstore.Cloneable;
 
 /**
  * A resilient distributed implementation of KMeans clustering
  * created by augmenting KMeansSPMD.x10 to use the
- * LocalViewResilientExecutor framework.
+ * SPMDResilientIterativeExecutor framework.
  *
  * Team operations are used for inter-Place coordination
  * and efficient global communication.
@@ -38,34 +41,41 @@ import x10.util.Team;
 public class ResilientKMeansSPMD {
 
     static class LocalState {
-        val points:Array_2[Float];
-        val oldClusters:Array_2[Float];
-        val clusters:Array_2[Float];
-        val clusterCounts:Rail[Int];
-        val numPoints:Long;
-        val numClusters:Long;
-        val epsilon:Float;
-        val dim:Long;
-        val team:Team;
+        var points:Array_2[Float];
+        var oldClusters:Array_2[Float];
+        var clusters:Array_2[Float];
+        var clusterCounts:Rail[Int];
+        var numPoints:Long;
+        var numClusters:Long;
+        var epsilon:Float;
+        var dim:Long;
+        var verbose:Boolean;
+        var team:Team;
+        var currentIteration:Long = 0;
         var kernelTime:Long = 0;
         var commTime:Long = 0;
         var converged:Boolean = false;
-        val verbose:Boolean;
 
         def this(team:Team, initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long,
                  epsilon:Float, verbose:Boolean) {
             points = initPoints(here);
-            oldClusters = new Array_2[Float](numClusters, dim);
-            val tmp = points; // hack around escaping this in constructor
-            clusters  = new Array_2[Float](numClusters, dim, (i:long, j:long)=>tmp(i,j));
-            clusterCounts = new Rail[Int](numClusters);
+            clusters  = new Array_2[Float](numClusters, dim);
             numPoints = points.numElems_1;
             this.numClusters = numClusters;
             this.dim = dim;
             this.epsilon = epsilon;
             this.team = team;
             this.verbose = verbose;
+            initializeScratchStorage();
         }
+
+        private final def initializeScratchStorage() {
+            if (oldClusters ==null) oldClusters = new Array_2[Float](numClusters, dim);
+            if (clusterCounts == null) clusterCounts = new Rail[Int](numClusters);
+        }
+
+        // used to initialize an elastic/spare place before restore
+        def this() { }
 
         def isFinished() = converged;
 
@@ -124,6 +134,12 @@ public class ResilientKMeansSPMD {
                 }
             }
 
+            currentIteration += 1;
+            if (here.id==0 && verbose) {
+                Console.OUT.println("Iteration: "+currentIteration);
+                printPoints(clusters);
+            }
+
             // Test for convergence
             converged = false;
             for ([i,j] in clusters.indices()) {
@@ -132,15 +148,24 @@ public class ResilientKMeansSPMD {
                 }
             }
             converged = true;
-
-            if (here.id==0 && verbose) {
-//                Console.OUT.println("Iteration: "+iter); // FIXME: should be stored in ResilientApp
-                printPoints(clusters);
-            }
         }
     }
 
-    static class KMeansApp implements LocalViewResilientIterativeApp {
+    static class ImmutableState(points:Array_2[Float], numPoints:Long,
+                                numClusters:Long, epsilon:Float, dim:Long,
+                                verbose:Boolean) implements Cloneable {
+        public def clone() {
+            return new ImmutableState(points, numPoints, numClusters, epsilon, dim, verbose);
+        }
+    }
+
+    static class MutableState(clusters:Array_2[Float]) implements Cloneable {
+        public def clone() {
+            return new MutableState(clusters);
+        }
+    }
+
+    static class KMeansApp implements SPMDResilientIterativeApp {
         val plh:PlaceLocalHandle[LocalState];
 
         def this(plh:PlaceLocalHandle[LocalState]) {
@@ -151,16 +176,39 @@ public class ResilientKMeansSPMD {
 
         public def step_local() { plh().step(); }
 
-        public def checkpoint(store:ApplicationSnapshotStore):void {
-            Console.OUT.println("TODO: implement checkpoint!");
-            // Need to checkpoint: (a) points at each place (read only)
-            //                     (b) optionally currentClusters (master place only...same everywhere).
+        public def getCheckpointData_local():HashMap[String,Cloneable] {
+            val map = new HashMap[String,Cloneable]();
+            val ls = plh();
+            if (ls.currentIteration == 0) {
+                map.put("immutable", new ImmutableState(ls.points, ls.numPoints, ls.numClusters,
+                                                        ls.epsilon, ls.dim, ls.verbose));
+            }
+            map.put("mutable", new MutableState(ls.clusters));
+            return map;
         }
              
-        public def restore(newPlaces:PlaceGroup, store:ApplicationSnapshotStore,
-                    lastCheckpointIter:Long, newAddedPlaces:ArrayList[Place]):void {
-            Console.OUT.println("TODO: implement restore!");
-            // Need to restore (a) points in addedPlaces and (b) currentClusters (master place).
+        public def restore_local(restoreDataMap:HashMap[String,Cloneable], lastCheckpointIter:Long):void {
+            val ls = plh();
+            val immutable = restoreDataMap.getOrThrow("immutable") as ImmutableState;
+            ls.points = immutable.points;
+            ls.numPoints = immutable.numPoints;
+            ls.numClusters = immutable.numClusters;
+            ls.epsilon = immutable.epsilon;
+            ls.dim = immutable.dim;
+            ls.verbose = immutable.verbose;
+            val mutable = restoreDataMap.getOrThrow("mutable") as MutableState;
+            ls.clusters = mutable.clusters;
+            ls.currentIteration = lastCheckpointIter;
+            ls.initializeScratchStorage();
+        }
+
+        public def remake(changes:ChangeDescription, newTeam:Team):void {
+            for (np in changes.addedPlaces) {
+                PlaceLocalHandle.addPlace[LocalState](plh, np, ()=>new LocalState());
+            }
+            changes.newActivePlaces.broadcastFlat(()=> {
+                plh().team = newTeam;
+            });
         }
     }
 
@@ -175,22 +223,25 @@ public class ResilientKMeansSPMD {
         }
     }
 
-    static def computeClusters(pg:PlaceGroup, initPoints:(Place)=>Array_2[Float], dim:Long,
-                               numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean):Array_2[Float] {
+    static def computeClusters(initPoints:(Place)=>Array_2[Float], dim:Long,
+                               numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean,
+                               checkpointFreq:Long, sparePlaces:Long):Array_2[Float] {
         val startTime = System.currentTimeMillis();
+        val executor = new SPMDResilientIterativeExecutor(checkpointFreq, sparePlaces, false, false);
+        val pg = executor.activePlaces();
+        val team = executor.team();
 
-        val team = pg.equals(Place.places()) ? Team.WORLD : Team(pg);
-
-        // Initial algorithm state in every place.
+        // Initialize algorithm state in every active place.
         val plh = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(team, initPoints, dim, numClusters, epsilon, verbose) });
         
         // Set initial cluster centroids to average of first k points in each place.
         finish {
+            val numPlaces = pg.size() as Float;
             for (h in pg) at (h) async {
                 val ls = plh();
                 team.allreduce(ls.points.raw(), 0, ls.clusters.raw(), 0, numClusters*dim, Team.ADD);
                 for ([i,j] in ls.clusters.indices()) {
-                    ls.clusters(i,j) /= pg.size();
+                    ls.clusters(i,j) /= numPlaces;
                 }
             }
         }
@@ -200,10 +251,13 @@ public class ResilientKMeansSPMD {
             printPoints(plh().clusters);
         }
 
-        new LocalViewResilientExecutor(10, pg).run(new KMeansApp(plh), startTime);
+        if (hammer() != null) {
+            executor.setHammer(hammer());
+        }
+        executor.run(new KMeansApp(plh), startTime);
 
         if (verbose) {
-            for (p in pg) {
+            for (p in executor.activePlaces()) {
                 at (p) {
                     val ls = plh();
                     Console.OUT.printf("%d: computation %.3f s communication %.3f s\n",
@@ -225,7 +279,9 @@ public class ResilientKMeansSPMD {
             Option("c","clusters","number of clusters to find"),
             Option("d","dim","number of dimensions"),
             Option("e","epsilon","convergence threshold"),
-            Option("n","num","quantity of points")
+            Option("n","num","quantity of points"),
+            Option("s","spare","number of spare places"),
+            Option("k","checkpointFreq","number of interations between checkpoints")
         ]);
         if (opts.filteredArgs().size!=0L) {
             Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
@@ -244,11 +300,12 @@ public class ResilientKMeansSPMD {
         val dim = opts("-d", 4);
         val epsilon = opts("-e", 1e-3f); // negative epsilon forces i iterations.
         val verbose = opts("-v");
+        val checkpointFreq = opts("-k",5);
+        val sparePlaces = opts("-s",0);
 
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
 
-        val pg = Place.places();
-        val pointsPerPlace = numPoints / pg.size();
+        val pointsPerPlace = numPoints / (Place.numPlaces() - sparePlaces);
         val initPoints = (p:Place) => {
             val rand = new x10.util.Random(p.id);
             val pts = new Array_2[Float](pointsPerPlace, dim, (Long,Long)=> rand.nextFloat());
@@ -256,7 +313,7 @@ public class ResilientKMeansSPMD {
         };
 
         val start = System.nanoTime();
-        val clusters = computeClusters(pg, initPoints, dim, numClusters, iterations, epsilon, verbose);
+        val clusters = computeClusters(initPoints, dim, numClusters, iterations, epsilon, verbose, checkpointFreq, sparePlaces);
         val stop = System.nanoTime();
         Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 
@@ -265,6 +322,13 @@ public class ResilientKMeansSPMD {
             printPoints(clusters);
         }
     }
+
+    // Saffolding for killing places during automated testing.
+    public static def setHammerConfig(steps:String, places:String) {
+        hammer() = new SimplePlaceHammer(steps, places);
+    }
+
+    static val hammer = new Cell[SimplePlaceHammer](null);
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

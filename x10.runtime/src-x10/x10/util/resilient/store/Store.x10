@@ -12,6 +12,7 @@
 package x10.util.resilient.store;
 
 import x10.compiler.Native;
+import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.localstore.Cloneable;
 
 // a collection of resilient stores, one per place in a place group
@@ -31,18 +32,18 @@ public abstract class Store[V]{V haszero, V <: Cloneable} {
     // set the value of a local and a remote key
     public abstract def set2(key:String, value:V, place:Place, key2:String, value2:V):void;
 
-    // get current place group for the store
+    // update for changes in the active PlaceGroup
+    public abstract def updateForChangedPlaces(changes:ChangeDescription):void;
+
+    // get the current PlaceGroup of active places where the store is available for use
     public abstract def getActivePlaces():PlaceGroup;
-
-    // update the place group after a place failure
-    public abstract def recoverDeadPlaces():void;
-
-    // instantiate a resilient store with the specified number of spare places
-    public static def make[V](name:String, spares:Long){V haszero, V <: Cloneable} {
+    
+    // instantiate a resilient store over the specified PlaceGroup
+    public static def make[V](name:String, activePlaces:PlaceGroup){V haszero, V <: Cloneable} {
         if ("Hazelcast".equals(dataStore())) {
-            return new HazelcastStore[V](name, spares);
+            return new HazelcastStore[V](name, activePlaces);
         } else {
-            return new NativeStore[V](name, spares);
+            return new NativeStore[V](name, activePlaces);
         }
     }
 

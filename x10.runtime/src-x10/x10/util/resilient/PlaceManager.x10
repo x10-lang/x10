@@ -34,10 +34,10 @@ public class PlaceManager implements x10.io.Unserializable {
      * occurred during a single execution of rebuildActivePlaces().
      */
     public static struct ChangeDescription {
-        val oldActivePlaces:PlaceGroup;
-        val newActivePlaces:PlaceGroup;
-        val removedPlaces:ArrayList[Place];
-        val addedPlaces:ArrayList[Place];
+        public val oldActivePlaces:PlaceGroup;
+        public val newActivePlaces:PlaceGroup;
+        public val removedPlaces:ArrayList[Place];
+        public val addedPlaces:ArrayList[Place];
 
         def this(o:PlaceGroup, n:PlaceGroup, r:ArrayList[Place], a:ArrayList[Place]) {
             oldActivePlaces = o;
@@ -46,7 +46,7 @@ public class PlaceManager implements x10.io.Unserializable {
             addedPlaces = a;
         }
 
-        def somethingChanged() = oldActivePlaces != newActivePlaces;
+        public def somethingChanged() = oldActivePlaces != newActivePlaces;
     };
 
     private static val VERBOSE = true;

@@ -22,7 +22,7 @@ import x10.array.Array_2;
 // 2^d clusters and expect to get to a converged solution of
 // exactly one centroid in each quadrant
 
-public class ResilientKMeansTest extends x10Test {
+public class ResilientKMeansSPMDTest extends x10Test {
     static val signVectors = [[-1f as Float,-1f,-1f],[-1f,-1f,1f],[-1f,1f,-1f],[-1f,1f,1f],
                               [1f,-1f,-1f],[1f,-1f,1f],[1f,1f,-1f],[1f as Float,1f,1f]];
 
@@ -48,9 +48,9 @@ public class ResilientKMeansTest extends x10Test {
          };
 
          if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
-             ResilientKMeans.setHammerConfig("3,15", "2,7");
+             ResilientKMeansSPMD.setHammerConfig("3,15", "2,7");
          }
-         val clusters = ResilientKMeans.computeClusters(initPoints, 3, k, 20, 1e-6f, false, 5, 2);
+         val clusters = ResilientKMeansSPMD.computeClusters(initPoints, 3, k, 20, 1e-6f, false, 5, 2);
 
          var pass:Boolean = true;
 
@@ -79,13 +79,13 @@ public class ResilientKMeansTest extends x10Test {
          }
          if (!pass) {
              Console.OUT.println("Computed clusters: ");
-             ResilientKMeans.printPoints(clusters);
+             ResilientKMeansSPMD.printPoints(clusters);
          }
 
          return pass;
     }
 
     public static def main(args:Rail[String]) {
-	new ResilientKMeansTest().execute();
+	new ResilientKMeansSPMDTest().execute();
     }
 }
