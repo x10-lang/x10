@@ -18,9 +18,9 @@ import x10.array.Array_2;
 
 // This test creates a uniform distribution of d dimensional
 // points that is distributed such that each of the 2^d Places
-// gets points in only "quadrant" of the space. We look for
+// gets points in only one octant of the space. We look for
 // 2^d clusters and expect to get to a converged solution of
-// exactly one centroid in each quadrant
+// exactly one centroid in each octant
 
 public class ResilientKMeansSPMDTest extends x10Test {
     static val signVectors = [[-1f as Float,-1f,-1f],[-1f,-1f,1f],[-1f,1f,-1f],[-1f,1f,1f],
@@ -55,7 +55,7 @@ public class ResilientKMeansSPMDTest extends x10Test {
          var pass:Boolean = true;
 
          // We should end up with one centroid in the middle (0.5,0.5,0.5)
-         // of each quadrant.
+         // of each octant.
          // First check magnitude
          for (v in clusters) {
              if (Math.abs(Math.abs(v) - 0.5f) > 0.01f) {
@@ -64,17 +64,17 @@ public class ResilientKMeansSPMDTest extends x10Test {
              }
          }
 
-         // Next check quadrant coverage
-         val quadrants = new Array_2[Long](k, d, (i:Long,j:Long) => Math.signum(clusters(i,j)) < 0f ? 0 : 1);
-         val quadrantCount = new Rail[Long](k);
+         // Next check octant coverage
+         val octants = new Array_2[Long](k, d, (i:Long,j:Long) => Math.signum(clusters(i,j)) < 0f ? 0 : 1);
+         val octantCount = new Rail[Long](k);
          for (i in 0..(k-1)) {
-             val quadrant = 4*quadrants(i,0) + 2*quadrants(i,1) + quadrants(i,2);
-             quadrantCount(quadrant) += 1;
+             val octant = 4*octants(i,0) + 2*octants(i,1) + octants(i,2);
+             octantCount(octant) += 1;
          }
-         for (i in quadrantCount.range()) {
-             if (quadrantCount(i) != 1) {
+         for (i in octantCount.range()) {
+             if (octantCount(i) != 1) {
                  pass = false;
-                 Console.OUT.println("Failure: had "+quadrantCount(i)+" centroids in quadrant "+i);
+                 Console.OUT.println("Failure: had "+octantCount(i)+" centroids in octant "+i);
              }
          }
          if (!pass) {
