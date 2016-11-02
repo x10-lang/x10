@@ -30,9 +30,7 @@ X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 10 -VERBOSE_CHECKS 
 # runtime settings
 runtime_list = sock java
 numplaces = 9
-#test_args = -m 1000 -n 10 --density 1.0 --iterations 30 --checkpointFreq 10 -s 1 --verify 
-
-test_args = -f systemml_input/500_50_features.csv -l systemml_input/500_50_labels.csv --verify
+test_args = -m 1000 -n 10 --density 1.0 --iterations 30 --checkpointFreq 10 -s 1 --verify 
 
 ###################################################
 # Build rules
