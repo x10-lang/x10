@@ -127,7 +127,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                 val ckptVersion = lastCkptVersion;
                 val globalIter = tmpGlobalIter;
                 
-                Console.OUT.println("SPMDResilientIterativeExecutor: remakeRequired["+remakeRequired+"] restoreRequired["+restoreRequired+"] ...");           
+                Console.OUT.println("SPMDResilientIterativeExecutor iter: " + placeTempData().globalIter + " remakeRequired["+remakeRequired+"] restoreRequired["+restoreRequired+"] ...");           
                 finish for (p in manager().activePlaces()) at (p) async {
                     placeTempData().globalIter = globalIter;
                     
