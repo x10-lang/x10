@@ -420,6 +420,15 @@ public class Vector(M:Long) implements (Long) => ElemType {
     }
 
     public def lInfNorm() = maxNorm();
+    
+    public def max(op:(x:ElemType)=>ElemType):ElemType {
+        var result:ElemType = op( d(0) as ElemType );
+        for (i in 1..(M-1)){
+            val tmp = op( d(i) );
+            result = ( tmp > result ) ? tmp : result;
+        }
+        return result;
+    }
 
     /**
      * Chebyshev distance ||a - b||_{Inf} (L_{Inf}-distance, maximum metric)
@@ -435,6 +444,8 @@ public class Vector(M:Long) implements (Long) => ElemType {
     /** Sum of all elements of this vector */
     public def sum():ElemType = reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero);
      
+    public def sum(elemOp:(a:ElemType)=>ElemType):ElemType = reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero, elemOp);
+    
      /**
       * Solve equation A &#42 x = this, wehre A is triangular matrix.
       * The solution x is overwritten on this object
@@ -543,6 +554,11 @@ public class Vector(M:Long) implements (Long) => ElemType {
      */
     public final @Inline def reduce(op:(a:ElemType,b:ElemType)=>ElemType, unit:ElemType):ElemType
         = RailUtils.reduce(this.d, op, unit);
+    
+    
+    public final @Inline def reduce(accumOp:(a:ElemType,b:ElemType)=>ElemType, accmUnit:ElemType, elemOp:(a:ElemType)=>ElemType):ElemType
+    	= RailUtils.reduce(this.d, accumOp, accmUnit, elemOp);
+    
 
     public def toString():String {
         val output=new StringBuilder();

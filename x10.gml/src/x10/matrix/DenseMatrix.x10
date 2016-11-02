@@ -630,12 +630,13 @@ public class DenseMatrix extends Matrix {
         = reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero);
 
     /**
-     * Accumulate the sum of elements in each row to the given vector.
+     * Map each element using the given 'op' operation, then accumulate the 
+     * sum of mapped elements in each row to the given vector.
      */
-    public def rowSumTo(vec:Vector(M)) {
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
         for (i in 0..(M-1)) {
             for (j in 0..(N-1)) {
-                vec(i) += d(j*M+i);
+                vec(i) += op( d(j*M+i) );
             }
         }
     }

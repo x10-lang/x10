@@ -28,6 +28,7 @@ import x10.util.resilient.VectorSnapshotInfo;
 import x10.util.Team;
 import x10.util.ArrayList;
 import x10.util.resilient.localstore.Cloneable;
+import x10.matrix.util.ElemTypeTool;
 
 public type DupVector(m:Long)=DupVector{self.M==m};
 public type DupVector(v:DupVector)=DupVector{self==v};
@@ -101,6 +102,18 @@ public class DupVector(M:Long) implements Snapshottable {
         return this;
     }
     
+    public def init_local(root:Place, dv:ElemType) {
+    	if (here.id == root.id)
+    		dupV().vec.init(dv);
+    	sync_local(root);
+    }
+    
+    public def init_local(root:Place, f:(Long)=>ElemType) {
+    	if (here.id == root.id)
+    		dupV().vec.init(f);
+        sync_local(root);
+    }
+    
     public def initRandom_local(root:Place) {
     	if (here.id == root.id)
             dupV().vec.initRandom();
@@ -129,9 +142,20 @@ public class DupVector(M:Long) implements Snapshottable {
         dupV().vec.copyTo(dst.dupV().vec);
     }
 
-    public def copyFrom(vec:Vector(M)):void {
+    public def copyFrom(vec:Vector(M)): DupVector(this) {
         vec.copyTo(local());
         sync();
+        return this;
+    }
+    
+    public def copyFrom_local(vec:Vector(M)): DupVector(this) {
+        vec.copyTo(local());
+        return this;
+    }
+    
+    public def copyFrom_local(vec:DupVector(M)): DupVector(this) {
+        vec.local().copyTo(local());
+        return this;
     }
     
     public  operator this(x:Long):ElemType = dupV().vec(x);
@@ -212,6 +236,9 @@ public class DupVector(M:Long) implements Snapshottable {
     public def cellSub(V:DupVector(M))
         = map(this, V, (x:Double, v:Double)=> {x - v});
     
+    public def cellSub_local(V:DupVector(M))
+        = map_local(this, V, (x:Double, v:Double)=> {x - v});
+    
     /**
      * Cellwise subtraction:  this = this - d
      * All copies are updated concurrently.
@@ -235,6 +262,10 @@ public class DupVector(M:Long) implements Snapshottable {
      */
     public def cellMult(V:DupVector(M))
         = map(this, V, (x:Double, v:Double)=> {x * v});
+    
+    public def cellMult_local(V:DupVector(M))
+        = map_local(this, V, (x:Double, v:Double)=> {x * v});
+    
 
     /**
      * Cellwise division: this = this / V
@@ -383,6 +414,14 @@ public class DupVector(M:Long) implements Snapshottable {
         /* Timing */ val st = Timer.milliTime();        
         allReduce(Team.ADD);
         /* Timing */ commTime += Timer.milliTime() - st;
+    }
+    
+    public def sum_local():ElemType {
+        return sum_local((a:ElemType)=>{ a });
+    }
+    
+    public def sum_local(elemOp:(a:ElemType)=>ElemType):ElemType {
+    	return dupV().vec.reduce((a:ElemType,b:ElemType)=> {a+b}, ElemTypeTool.zero, elemOp);
     }
 
     public def likeMe(that:DupVector): Boolean = (this.M==that.M);
@@ -537,20 +576,9 @@ public class DupVector(M:Long) implements Snapshottable {
      * Remake the DupVector over a new PlaceGroup
      */
     public def remake(newPg:PlaceGroup, newTeam:Team, addedPlaces:ArrayList[Place]){
-        val oldPlaces = places;
-        var spareUsed:Boolean = false;
-        if (newPg.size() == oldPlaces.size() && addedPlaces.size() != 0){
-            spareUsed = true;
-        }
-        if (!spareUsed){
-            PlaceLocalHandle.destroy(oldPlaces, dupV, (Place)=>true);
-            dupV = PlaceLocalHandle.make[DupVectorLocalState](newPg, ()=>new DupVectorLocalState(Vector.make(M), newPg.indexOf(here))  );
-        }
-        else{
-            for (sparePlace in addedPlaces){
-                //Console.OUT.println("Adding place["+sparePlace+"] to DupVector PLH ...");
-                PlaceLocalHandle.addPlace[DupVectorLocalState](dupV, sparePlace, ()=>new DupVectorLocalState(Vector.make(M), newPg.indexOf(here)));
-            }
+        assert (places.size() == newPg.size()); 
+        for (sparePlace in addedPlaces){
+            PlaceLocalHandle.addPlace[DupVectorLocalState](dupV, sparePlace, ()=>new DupVectorLocalState(Vector.make(M), newPg.indexOf(here)));
         }
         team = newTeam;
         places = newPg;

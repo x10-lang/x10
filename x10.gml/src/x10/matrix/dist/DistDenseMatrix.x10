@@ -463,8 +463,8 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
         throw new UnsupportedOperationException("DistDenseMatrix.sum");
     }
 
-    public def rowSumTo(vec:Vector(M)) {
-        throw new UnsupportedOperationException("DistDenseMatrix.rowSumTo");
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+    	throw new UnsupportedOperationException("DistDenseMatrix.rowSumTo");
     }
 
     public def colSumTo(vec:Vector(N)) {

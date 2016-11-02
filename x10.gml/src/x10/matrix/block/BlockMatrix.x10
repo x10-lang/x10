@@ -398,9 +398,9 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
         return sum;
     }
 
-    public def rowSumTo(vec:Vector(M)) {
-        for (b in 0..(grid.size-1)) {
-            listBs(b).getMatrix().rowSumTo(vec);
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+    	for (b in 0..(grid.size-1)) {
+            listBs(b).getMatrix().rowSumTo(vec, op);
         }
     }
 

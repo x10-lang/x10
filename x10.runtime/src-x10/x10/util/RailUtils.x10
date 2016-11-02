@@ -136,6 +136,31 @@ public class RailUtils {
         return accum;
     }
     
+    
+    /**
+     * Reduce the src Rail using the given accumOp function and the given initial value.
+     * Each element of the Rail will be first transformed using given elemOp function, 
+     * then will be given as an argument to the reduction
+     * function exactly once, but in an arbitrary order.  The reduction function
+     * may be applied concurrently to implement a parallel reduction. 
+     * 
+     * @param rail the reduction function
+     * @param accumOp the reduction function
+     * @param accumUnit the given initial value
+     * @param elemOp element function
+     * @return the final result of the reduction.
+     */
+    public static @Inline def reduce[T,U](src:Rail[T], accumOp:(U,T)=>U, accumUnit:U, elemOp:(T)=>T):U {
+        // TODO: Structure as a recursive divide and conquer down to some minimal
+        //       grain size.
+        // TODO: Benchmark async initialization vs. collecting finish for accumulation
+        var accum:U = accumUnit;
+        for (i in src.range()) {
+            accum = accumOp(accum, elemOp(src(i)) );
+        }          
+        return accum;
+    }
+    
 
     /**
      * Map the given function onto the elements of the src Rail

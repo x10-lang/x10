@@ -374,7 +374,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
         throw new UnsupportedOperationException("DistMatrix.sum");
     }
 
-    public def rowSumTo(vec:Vector(M)) {
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
         throw new UnsupportedOperationException("DistMatrix.rowSumTo");
     }
 

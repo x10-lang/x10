@@ -159,7 +159,15 @@ public abstract class Matrix(M:Long, N:Long) {
     /**
      * Accumulate the sum of elements in each row to the given vector.
      */
-    abstract public def rowSumTo(vec:Vector(M)):void;
+    public def rowSumTo(vec:Vector(M)) {
+    	rowSumTo(vec, (a:ElemType)=> {a});
+    }
+    
+    /**
+     * Map each element using the given 'op' operation, then accumulate the 
+     * sum of mapped elements in each row to the given vector.
+     */
+    abstract public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType):void;
 
     /**
      * @return a vector containing the sum of the elements in each column

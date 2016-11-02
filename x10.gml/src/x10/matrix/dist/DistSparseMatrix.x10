@@ -482,7 +482,7 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
         throw new UnsupportedOperationException("DistSparseMatrix.sum");
     }
 
-    public def rowSumTo(vec:Vector(M)) {
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
         throw new UnsupportedOperationException("DistSparseMatrix.rowSumTo");
     }
 

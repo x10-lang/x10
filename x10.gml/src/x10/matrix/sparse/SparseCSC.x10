@@ -980,11 +980,15 @@ public class SparseCSC extends Matrix {
 		return tt;
 	}
 
-    public def rowSumTo(vec:Vector(M)) {
-        for (c in 0..(N-1)) {
+	/**
+     * Map each element using the given 'op' operation, then accumulate the 
+     * sum of mapped elements in each row to the given vector.
+     */
+    public def rowSumTo(vec:Vector(M), op:(x:ElemType)=>ElemType) {
+    	for (c in 0..(N-1)) {
             val col = ccdata.getLine(c);
             for (idx in 0..(col.length-1)) {
-                vec(col.getIndex(idx)) += col.getValue(idx);
+                vec(col.getIndex(idx)) += op( col.getValue(idx) );
             }
         }
     }

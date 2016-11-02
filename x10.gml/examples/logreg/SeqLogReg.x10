@@ -16,233 +16,425 @@ import x10.matrix.util.Debug;
 /**
  * Sequential implementation of logistic regression
  */
-public class SeqLogReg {
-        val C = 2;
-        val tol = 0.000001f;
-        val maxIterations:Long;
-        val maxinneriter:Long;
-        
+public class SeqLogReg(N:Long, D:Long) {
+    private val C = 2;
+    private val tolerance = 0.000001f;
+    private val eta0 = 0.0001f;
+    private val eta1 = 0.25f;
+    private val eta2 = 0.75f;
+    private val sigma1 = 0.25f;
+    private val sigma2 = 0.5f;
+    private val sigma3 = 4.0f;
+    private val psi = 0.1f;
+    
+    private val regularization:Float;
+    private val maxiter:Long;
+    private val maxinneriter:Long; 
+    
     /** Matrix of training examples */
-        val X:DenseMatrix;
+    val X:DenseMatrix;
     /** Vector of training regression targets */
-        val y:Vector(X.M);
+    val y:Vector(X.M);
     /** Learned model weight vector, used for future predictions */
-	val w:Vector(X.N);
-	
-	val eta0 = 0.0;
-	val eta1 = 0.25;
-	val eta2 = 0.75;
-	val sigma1 = 0.25;
-	val sigma2 = 0.5;
-	val sigma3 = 4.0;
-	val psi = 0.1; 	
-	
-	val tmp_y:Vector(X.M);
-	
-	public def this(x_:DenseMatrix, y_:Vector(x_.M), w_:Vector(x_.N),
-					it:Long, nit:Long) {
+    private val B:Vector(D);
+    
+    private val bias:Boolean;
+    
+    private val lambda:Vector(D);
+    private val P:Vector(N);
+    private val Grad:Vector(D);
+    private val S:Vector(D);
+    private val R:Vector(D);
+    private val V:Vector(D);
+    private val Q:Vector(N);
+    private val HV:Vector(D);
+    private val Snew:Vector(D);
+    private val Bnew:Vector(D);
+    
+    private val tmpDist:Vector(N);
+    private val tmpDup:Vector(D);
+    
+    private val LT1:Vector(N);
+    private val LT2:Vector(N);
+    
+    private val Pnew:Vector(N);
+    
+    private var delta:ElemType;
+    private var obj:ElemType;
+    private var norm_Grad:ElemType;
+    private var norm_Grad_initial:ElemType;
+    private var norm_R2:ElemType;
+    private var iter:Long;        
+    private var converge:Boolean;
+    
+	public def this(N:Long, D:Long, x_:DenseMatrix, y_:Vector,
+					it:Int, nit:Int, reg:Float, bias:Boolean) {
+	    property(N, D);
 		X=x_; 
-		y=y_ as Vector(X.M);
-		w=w_ as Vector(X.N);
-		
-		tmp_y = Vector.make(X.M);
-		
-		maxIterations = it;
-		maxinneriter=nit;
+		y=y_ as Vector(N);
+        this.maxiter = it;
+        this.maxinneriter = (nit == 0n) ? D : nit as Long; 
+        this.regularization = reg;
+        this.bias = bias;
+        
+        lambda = Vector.make(D);
+        B = Vector.make(D);
+        P = Vector.make(N); 
+        Grad = Vector.make(D); 
+        
+        //temp data
+        tmpDist = Vector.make(N);
+        tmpDup = Vector.make(D);
+        S = Vector.make(D);
+        R = Vector.make(D);
+        V = Vector.make(D);
+        Q = Vector.make(N);
+        HV = Vector.make(D);
+        Snew = Vector.make(D);
+        Bnew = Vector.make(D);
+        Pnew = Vector.make(N);
+        //SystemML 2-column table (LT) transformed into 2 vectors
+        LT1 = Vector.make(N);
+        LT2 = Vector.make(N);        
 	}
 	
 	public def run() {
-		//o = X %*% w
-		val o = Vector.make(X.M);
-		compute_XmultB(o, w);
-		//logistic = 1.0/(1.0 + exp( -y * o))
-		val logistic = Vector.make(X.M);
-		logistic.map(y, o, (y_i:ElemType, o_i:ElemType)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
-		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
-		val obj = 0.5 * w.dot(w) + C*logistic.sum();
-		
-		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		val grad = Vector.make(X.N);
-		compute_grad(grad, logistic);
+	    init();
+	    while (!converge) {
+	        step();
+	    }
+	    return B;    
+	}
+	   
+	private def init() {
+        // K = 1, Table Y in systemML is composed of two columns, first = 2-y, second = y-1
+        
+        iter = 1;
+        
+        //scale_lambda = matrix (1, rows = D, cols = 1); scale_lambda [D, 1] = 0;
+        tmpDup.init( (i:Long)=>{ 
+                if (!bias) return 1.0;
+                else return (i==D-1)? 0.0 : 1.0; 
+        });
+        
+        //rowSums_X_sq = rowSums (X ^ 2);
+        X.rowSumTo(tmpDist, (a:ElemType)=>{ a * a });
+        
+        //lambda = (scale_lambda %*% matrix (1, rows = 1, cols = K)) * regularization;
+        lambda.scale(regularization, tmpDup); 
+        
+        //delta = 0.5 * sqrt (D) / max (sqrt (rowSums_X_sq));
+        delta = 0.5 * Math.sqrt (D) / tmpDist.max((a:ElemType)=>{ Math.sqrt(a) });
+        
+        //B = matrix (0, rows = D, cols = K);
+        //B.init( 0.0);
+        
+        //P = matrix (1, rows = N, cols = K+1); P = P / (K + 1); 
+        P.init(0.5);
+        
+        //obj = N * log (K + 1);
+        obj = N * Math.log(C);
+        
+        // Grad = t(X) %*% (P [, 1:K] - Y [, 1:K]);    //GML note: Y[,1:K] is 2-y
+        // Grad = Grad + lambda * B;   (B is Zero, nothing to be done)
+        P.copyTo(tmpDist);
+        tmpDist.cellAdd(y).cellSub(2.0); 
+        Grad.mult( tmpDist, X);                                  
+        
+        //norm_Grad = sqrt (sum (Grad ^ 2));
+        norm_Grad = Math.sqrt ( Grad.sum((a:ElemType)=> { a * a }) ); 
+        
+        //norm_Grad_initial = norm_Grad;
+        norm_Grad_initial = norm_Grad;
+        
+        //converge = (norm_Grad < tol) | (iter > maxiter);
+        converge = (norm_Grad < tolerance) | (iter > maxiter) ;
+	}
+	
 
+	
+	
+	private def step() {
+        // # SOLVE TRUST REGION SUB-PROBLEM  //  
+        var alpha:ElemType = 0.0;
+    
+        // S = matrix (0, rows = D, cols = K);
+        S.reset();                   
+        
+        // R = - Grad;
+        R.scale(-1.0 as ElemType, Grad);    
+        
+        // V = R;
+        R.copyTo(V); 
+        
+        // delta2 = delta ^ 2;
+        val delta2 = delta * delta ;
+        
+        // inneriter = 1;
+        var inneriter:Long = 1;                      
+        
+        // norm_R2 = sum (R ^ 2);
+        var norm_R2:ElemType = R.sum( (a:ElemType)=>{ a * a }  );  
+        
+        // innerconverge = (sqrt (norm_R2) <= psi * norm_Grad);
+        var innerconverge:Boolean = (Math.sqrt (norm_R2) <= psi * norm_Grad);   
+        
+        // is_trust_boundary_reached = 0;
+        var is_trust_boundary_reached:Boolean = false;                                
+        
+        while (! innerconverge){
+            // ssX_V = V;
+            V.copyTo(tmpDup);
+            
+            // Q = P [, 1:K] * (X %*% ssX_V);
+            tmpDist.mult(X, tmpDup);                                        
+            tmpDist.copyTo(Q);
+            Q.cellMult(P);
+            
+            // HV = t(X) %*% (Q - P [, 1:K] * (rowSums (Q) %*% matrix (1, rows = 1, cols = K)));
+            P.copyTo(tmpDist);
+            tmpDist.cellMult(Q);
+            Q.cellSub(tmpDist);
+            HV.mult(Q, X);                                               
+            
+            // HV = HV + lambda * V;
+            V.copyTo(tmpDup);
+            tmpDup.cellMult(lambda);
+            HV.cellAdd(tmpDup);
+            
+            // alpha = norm_R2 / sum (V * HV);
+            V.copyTo(tmpDup);
+            tmpDup.cellMult(HV);
+            val VHVsum = tmpDup.sum();                        
+            alpha = norm_R2 / VHVsum;
+            
+            //Snew = S + alpha * V;
+            V.copyTo(tmpDup);
+            tmpDup.scale(alpha);
+            S.copyTo(Snew);
+            Snew.cellAdd(tmpDup);
+            
+            //norm_Snew2 = sum (Snew ^ 2);
+            val norm_Snew2 = Snew.sum( (a:ElemType)=>{ a * a }  );
+            
+            if (norm_Snew2 <= delta2) {
+                //S = Snew;
+                Snew.copyTo(S);
                 
-				
-		//logisticD = logistic*(1-logistic)
-                val logisticD = new Vector(logistic.M, (i:Long)=> {logistic(i)*(1.0-logistic(i))});
-
-		//delta = sqrt(sum(grad*grad))
-		var delta:ElemType = grad.norm();
-		
-		//# number of iterations
-		//iter = 0
-		var iter:Long =0;
-		
-		//# starting point for CG
-		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-		//# boolean for convergence check
-		//converge = (delta < tol) | (iter > maxiter)
-		var converge:Boolean = (delta < tol) | (iter > maxIterations);
-		//norm_r2 = sum(grad*grad)
-		var norm_r2:ElemType = grad.dot(grad);
-		//alpha = t(w) %*% w
-		var alpha:ElemType = w.dot(w);
-		// Add temp memory space
-		val s = Vector.make(X.N);
-		val r = Vector.make(X.N);
-		val d = Vector.make(X.N);
-		val Hd = Vector.make(X.N);
-		val onew = Vector.make(X.M);
-		val wnew = Vector.make(X.N);
-		val logisticnew = Vector.make(X.M);		
-		Debug.flushln("Done initialization. Starting converging iteration -> alpha = " + alpha);
-		while(!converge) {
-// 			norm_grad = sqrt(sum(grad*grad))
-			val norm_grad = grad.norm();
-// 			# SOLVE TRUST REGION SUB-PROBLEM
-// 			s = zeros_D
-			s.reset();
-// 			r = -grad
-
+                //R = R - alpha * HV;
+                HV.copyTo(tmpDup);
+                tmpDup.scale(alpha);
+                R.cellSub(tmpDup);
+                
+                //old_norm_R2 = norm_R2 
+                val old_norm_R2 = norm_R2;
                         
-			r.scale(-1.0, grad);
-// 			d = r
-			r.copyTo(d);
-// 			inneriter = 0
-			val inneriter:Long=0;
-// 			innerconverge = ( sqrt(sum(r*r)) <= psi * norm_grad) 
-			var innerconverge:Boolean;// = (r.norm() <= psi * norm_grad);
- 			innerconverge = false;
- 			while (!innerconverge) {
-// 				norm_r2 = sum(r*r)
-                                
- 				norm_r2 = r.dot(r);
-                                
-// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
- 				compute_Hd(Hd, logisticD, d);
+                //norm_R2 = sum (R ^ 2);
+                norm_R2 = R.sum( (a:ElemType)=>{ a * a }  ); 
+                
+                //V = R + (norm_R2 / old_norm_R2) * V;
+                val beta = norm_R2 / old_norm_R2;
+                V.copyTo(tmpDup);
+                tmpDup.scale(beta).cellAdd(R);
+                tmpDup.copyTo(V);
+                
+                //innerconverge = (sqrt (norm_R2) <= psi * norm_Grad);
+                innerconverge = (Math.sqrt (norm_R2) <= psi * norm_Grad);
+            } else {
+                //is_trust_boundary_reached = 1;
+                is_trust_boundary_reached = true;
+                
+                //sv = sum (S * V);
+                V.copyTo(tmpDup);
+                tmpDup.cellMult(S);
+                val sv = tmpDup.sum();  
+                
+                //v2 = sum (V ^ 2);
+                val v2 = V.sum( (a:ElemType)=>{ a * a }  );
+                
+                //s2 = sum (S ^ 2);
+                val s2 = S.sum( (a:ElemType)=>{ a * a }  );
+                
+                //rad = sqrt (sv ^ 2 + v2 * (delta2 - s2));
+                val rad = Math.sqrt (sv * sv + v2 * (delta2 - s2));
+                
+                //same if-else from system-ml code
+                if (sv >= 0.0) {
+                    alpha = (delta2 - s2) / (sv + rad);
+                } else {
+                    alpha = (rad - sv) / v2;
+                }
+                
+                //S = S + alpha * V;
+                V.copyTo(tmpDup);
+                tmpDup.scale(alpha);
+                S.cellAdd(tmpDup);
+                
+                
+                //R = R - alpha * HV;
+                HV.copyTo(tmpDup);
+                tmpDup.scale(alpha);
+                R.cellSub(tmpDup);
+                
+                
+                innerconverge = true;
+            }
+            
+            inneriter = inneriter + 1;
+            innerconverge = innerconverge | (inneriter > maxinneriter);
+        }
+        // # END TRUST REGION SUB-PROBLEM
+        
+        
+        //# compute rho, update B, obtain delta
+        //gs = sum (S * Grad);
+        S.copyTo(tmpDup);
+        tmpDup.cellMult(Grad);
+        val gs = tmpDup.sum();
+        
+        //qk = - 0.5 * (gs - sum (S * R));
+        S.copyTo(tmpDup);
+        tmpDup.cellMult(R);
+        val SRsum = tmpDup.sum();
+        val qk = - 0.5 * (gs - SRsum);
+        
+        //B_new = B + S;
+        B.copyTo(Bnew);
+        Bnew.cellAdd(S);
+        
+        //ssX_B_new = B_new;
+        //LT = append ((X %*% ssX_B_new), matrix (0, rows = N, cols = 1));
+        LT1.mult(X, Bnew);
+        
+        //LT = LT - rowMaxs (LT) %*% matrix (1, rows = 1, cols = K+1);
+        LT2.map(LT1, (a:ElemType)=>{  a > 0 ? -1 * a  : 0.0 } );
+        LT1.map( (a:ElemType)=>{ a >= 0 ? 0.0 : a  } );
+        
+        //sum (Y * LT) 
+        y.copyTo(tmpDist);
+        tmpDist.map( (a:ElemType)=>{ 2 - a } ); // first column is Y1 = 2-y
+        val Y1dot = tmpDist.dot(LT1);
+        tmpDist.map( (a:ElemType)=>{ (a * -1) + 1 } ); // second column is Y2 = y-1 (compute it from first column by (-Y1 +1) 
+        val Y2dot = tmpDist.dot(LT2);
+        val YLTsum = Y1dot + Y2dot;
+        
+        //exp_LT = exp (LT);
+        LT1.map( (a:ElemType)=>{ Math.exp(a) } );
+        LT2.map( (a:ElemType)=>{ Math.exp(a) } );
+        
+        //P_new  = exp_LT / (rowSums (exp_LT) %*% matrix (1, rows = 1, cols = K+1));
+        //rowSums (exp_LT)
+        LT1.copyTo(tmpDist);
+        tmpDist.cellAdd(LT2);
+        
+        //sum (log (rowSums (exp_LT)))
+        val L1L2ExpLogsum = tmpDist.sum( (a:ElemType)=>{ Math.log(a) } ) ;
+        
+        //P_new  = exp_LT / rowSums (exp_LT)
+        LT1.copyTo(Pnew);
+        Pnew.cellDiv(tmpDist);
+        
+        //obj_new = - sum (Y * LT) + sum (log (rowSums (exp_LT))) + 0.5 * sum (lambda * (B_new ^ 2));
+        //lambda * (B_new ^ 2)
+        Bnew.copyTo(tmpDup);
+        tmpDup.map((a:ElemType)=>{ a * a }).cellMult(lambda);
+        val lambdaBnew_sum = tmpDup.sum();
+        
+        val obj_new = -1 * YLTsum + L1L2ExpLogsum + 0.5 * lambdaBnew_sum;
+         
+        //# Consider updating LT in the inner loop
+        //# Consider the big "obj" and "obj_new" rounding-off their small difference below:
 
-// 				alpha_deno = t(d) %*% Hd 
- 				val alpha_deno = d.dot(Hd);
-// 				alpha = norm_r2 / alpha_deno
- 				alpha = norm_r2 / alpha_deno;
-// 				s = s + castAsScalar(alpha) * d
- 				s.scaleAdd(alpha, d);
-// 				sts = t(s) %*% s
- 				val sts = s.dot(s);
-// 				delta2 = delta*delta 
- 				val delta2 = delta*delta;
-// 				shouldBreak = false;
- 				var shouldBreak:Boolean = false;
-                                
- 				if (sts > delta2) {
-// 					std = t(s) %*% d
- 					val std = s.dot(d);
-// 					dtd = t(d) %*% d
- 					val dtd = d.dot(d);
-// 					rad = sqrt(std*std + dtd*(delta2 - sts))
- 					val rad = Math.sqrt(std*std+dtd*(delta2-sts));
- 					var tau:ElemType;
- 					if(std >= 0) {
- 						tau = (delta2 - sts)/(std + rad);
- 					} else {
- 						tau = (rad - std)/dtd;
- 					}
+        //actred = (obj - obj_new);
+        val actred = (obj - obj_new);
+        
+        //rho = actred / qk;
+        val rho = actred / qk;
+        
+        //is_rho_accepted = (rho > eta0);
+        val is_rho_accepted = (rho > eta0);
+        
+        //snorm = sqrt (sum (S ^ 2));
+        val snorm = Math.sqrt( S.sum( (a:ElemType)=>{ a * a } ) );
+        
+        if (iter == 1) {
+           delta = Math.min (delta, snorm);
+        }
 
-//                                      s = s + castAsScalar(tau) * d
-                                        s.scaleAdd(tau, d);
-//                                      r = r - castAsScalar(tau) * Hd
-                                        r.scaleAdd(-tau, Hd);
+        val alpha2 = obj_new - obj - gs;
+        if (alpha2 <= 0) {
+           alpha = sigma3;
+        } 
+        else {
+           alpha = Math.max (sigma1, -0.5 * gs / alpha2);
+        }
+        
+        if (rho < eta0) {
+            delta = Math.min (Math.max (alpha, sigma1) * snorm, sigma2 * delta);
+        }
+        else {
+            if (rho < eta1) {
+                delta = Math.max (sigma1 * delta, Math.min (alpha * snorm, sigma2 * delta));
+            }
+            else { 
+                if (rho < eta2) {
+                    delta = Math.max (sigma1 * delta, Math.min (alpha * snorm, sigma3 * delta));
+                }
+                else {
+                    delta = Math.max (delta, Math.min (alpha * snorm, sigma3 * delta));
+                }
+            }
+        } 
+        
+        if (is_trust_boundary_reached) {
+            Console.OUT.println ("-- Outer Iteration " + iter + ": Had " + (inneriter - 1) + " CG iterations, trust bound REACHED");
+        } else {
+            Console.OUT.println ("-- Outer Iteration " + iter + ": Had " + (inneriter - 1) + " CG iterations");
+        }
+    
+        Console.OUT.println ("   -- Obj.Reduction:  Actual = " + actred + ",  Predicted = " + qk + 
+                "  (A/P: " + (Math.round (10000.0 * rho) / 10000.0) + "),  Trust Delta = " + delta);
+        
+        if (is_rho_accepted) {
+            //B = B_new;
+            Bnew.copyTo(B);
+            
+            //P = P_new;
+            Pnew.copyTo(P);
+            
+            //Grad = t(X) %*% (P [, 1:K] - Y [, 1:K]);
+            P.copyTo(tmpDist);
+            tmpDist.cellAdd(y).cellSub(2.0); 
+            Grad.mult(tmpDist, X); 
+            
+            //Grad = Grad + lambda * B;
+            B.copyTo(tmpDup);
+            tmpDup.cellMult(lambda);
+            Grad.cellAdd(tmpDup);
+                         
+            //norm_Grad = sqrt (sum (Grad ^ 2));
+            norm_Grad = Math.sqrt ( Grad.sum( (a:ElemType)=>{ a * a } ) );
+            
+            //obj = obj_new;
+            obj = obj_new;
+            Console.OUT.println ("   -- New Objective = " + obj + ",  Beta Change Norm = " + snorm + ",  Gradient Norm = " + norm_Grad);
+        }
+        
+        //iter = iter + 1;
+        iter = iter + 1;
 
-//                                      #break
-                                        shouldBreak = true;
-                                        innerconverge = true;
-                                } 
-
- 				if (!shouldBreak) {
-// 					r = r - castAsScalar(alpha) * Hd
- 					r.scaleAdd(-alpha, Hd);
-// 					old_norm_r2 = norm_r2 
- 					val old_norm_r2 = norm_r2;
-// 					norm_r2 = sum(r*r)
- 					norm_r2 = r.dot(r);
-// 					beta = norm_r2/old_norm_r2
- 					val beta = norm_r2/old_norm_r2;
-// 					d = r + beta*d
- 					d.scale(beta).cellAdd(r);
-// 					innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
- 					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);                    
- 				}				
- 			}  
-// 			# END TRUST REGION SUB-PROBLEM
-// 			# compute rho, update w, obtain delta
-// 			qk = -0.5*(t(s) %*% (grad - r))
- 			val qk = -0.5 * s.dot(grad - r);                        
-// 			
-// 			wnew = w + s
- 			wnew.cellAdd(w, s);
-// 			onew = X %*% wnew
- 			compute_XmultB(onew, wnew);
-// 			logisticnew = 1.0/(1.0 + exp(-y * o ))
-                        logisticnew.map(y, o, (y_i:ElemType, o_i:ElemType)=> { 1.0 / (1.0 + Math.exp(-y_i * o_i)) });
-// 			objnew = 0.5 * t(wnew) %*% wnew + C * sum(logisticnew)
- 			val objnew = 0.5 * wnew.dot(wnew) + C * logisticnew.sum();
-
-// 			rho = (objnew - obj) / qk
- 			val rho = (objnew - obj)/qk;
-// 			snorm = sqrt(sum( s * s ))
- 			val snorm = s.norm();
- 			if (rho > eta0) 
-                        {
-// 				w = wnew
- 				wnew.copyTo(w);
-// 				o = onew
- 				onew.copyTo(o);
-// 				grad = w + C*t(X) %*% ((logisticnew - 1) * y )
- 				compute_grad(grad, logisticnew);
- 			} 
-
-                        iter = iter + 1;
-                        converge = (iter >= maxIterations);
-
- 			if (rho < eta0){
- 				delta = Math.min(Math.max(alpha, sigma1) * snorm, sigma2 * delta );
- 			} else {
- 				if (rho < eta1){
- 					delta = Math.max(sigma1 * delta, Math.min(alpha * snorm, sigma2 * delta));
- 				} else { 
- 					if (rho < eta2) {
- 						delta = Math.max(sigma1 * delta, Math.min(alpha * snorm, sigma3 * delta));
- 					} else {
- 						delta = Math.max(delta, Math.min(alpha * snorm, sigma3 * delta));
- 					}
- 				}
- 			}
-		}
-	}
-	
-	protected def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
-		//o = X %*% w
-		result.mult(X, opB);
-	}
-	
-	protected def compute_tXmultB(result:Vector(X.N), 
-								  opB:Vector(X.M)):void {
-		result.transMult(X, opB);
-	}
-	
-	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
-		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-                logistic.map(logistic, y, (x:ElemType, v:ElemType)=> {(x - 1.0) * v});
-		compute_tXmultB(grad, logistic);
-		grad.scale(C);
-		grad.cellAdd(w);
-	}
-	
-	protected def compute_Hd(Hd:Vector(X.N), logisticD:Vector(X.M), d:Vector(X.N)):void {
-		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
-		compute_XmultB(tmp_y, d);
-		tmp_y.cellMult(logisticD);
-		compute_tXmultB(Hd, tmp_y);
-		Hd.scale(C).cellAdd(d);
-	}
+        /*converge = ((norm_Grad < (tol * norm_Grad_initial)) | (iter > maxiter) |
+                   ((is_trust_boundary_reached == 0) & (Math.abs (actred) < (Math.abs (obj) + Math.abs (obj_new)) * 0.00000000000001)));*/
+       
+        converge = ((norm_Grad < (tolerance * norm_Grad_initial)) | (iter > maxiter) |
+            ((is_trust_boundary_reached == false) & (Math.abs (actred) < (Math.abs (obj) + Math.abs (obj_new)) * 0.00000000000001)));
+        
+        if (converge) { 
+            Console.OUT.println ("Termination / Convergence condition satisfied."); 
+        } else { 
+            Console.OUT.println (" "); 
+        }
+        
+    }
 	
 }
