@@ -40,12 +40,12 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     // configuration parameters for killing places at different times
     private var simplePlaceHammer:SimplePlaceHammer;
 
-    private transient var ckptTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var remakeTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var appRemakeTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var reconstructTeamTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var resilientMapRecoveryTimes:ArrayList[Double] = new ArrayList[Double]();
-    private transient var failureDetectionTimes:ArrayList[Double] = new ArrayList[Double]();
+    private transient var ckptTimes:ArrayList[Long] = new ArrayList[Long]();
+    private transient var remakeTimes:ArrayList[Long] = new ArrayList[Long]();
+    private transient var appRemakeTimes:ArrayList[Long] = new ArrayList[Long]();
+    private transient var reconstructTeamTimes:ArrayList[Long] = new ArrayList[Long]();
+    private transient var resilientMapRecoveryTimes:ArrayList[Long] = new ArrayList[Long]();
+    private transient var failureDetectionTimes:ArrayList[Long] = new ArrayList[Long]();
     private transient var applicationInitializationTime:Long = 0;
     private transient var startRunTime:Long = 0;
     
@@ -342,12 +342,12 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         Console.OUT.println(">>>>>>>>>>>>>>Initialization:"      + applicationInitializationTime);
         Console.OUT.println();
         Console.OUT.println("   ---AverageSingleStep:" + railAverage(averageSteps));
-        Console.OUT.println(">>>>>>>>>>>>>>TotalSteps:"+ railSum(averageSteps) );
+        Console.OUT.println(">>>>>>>>>>>>>>TotalSteps:"+ railSum(averageSteps) as Long);
         Console.OUT.println();
         if (isResilient){
             Console.OUT.println("Checkpoint-all:" + railToString(ckptTimes.toRail()));
             Console.OUT.println("   ---AverageCheckpoint:" + railAverage(ckptTimes.toRail()) );
-            Console.OUT.println(">>>>>>>>>>>>>>TotalCheckpointingTime:" + railSum(ckptTimes.toRail())  );
+            Console.OUT.println(">>>>>>>>>>>>>>TotalCheckpointingTime:" + railSum(ckptTimes.toRail()) as Long);
       
             Console.OUT.println();
             Console.OUT.println("FailureDetection-all:"        + railToString(failureDetectionTimes.toRail()) );
@@ -364,7 +364,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
             
             Console.OUT.println("RestoreData-all:"      + railToString(averageRestore));
             Console.OUT.println("   ---AverageRestoreData:"    + railAverage(averageRestore));
-            Console.OUT.println(">>>>>>>>>>>>>>TotalRecovery:" + (railSum(failureDetectionTimes.toRail()) + railSum(remakeTimes.toRail()) + railSum(averageRestore) ));
+            Console.OUT.println(">>>>>>>>>>>>>>TotalRecovery:" + (railSum(failureDetectionTimes.toRail()) + railSum(remakeTimes.toRail()) + railSum(averageRestore) ) as Long);
         }
         Console.OUT.println("=============================");
         Console.OUT.println("Actual RunTime:" + runTime);
@@ -434,7 +434,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         return false;
     }
     
-    public def railToString[T](r:Rail[T]):String {
+    private def railToString[T](r:Rail[T]):String {
         if (r == null)
             return "";
         var str:String = "";
@@ -443,21 +443,33 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         return str;
     }
     
-    public def railSum(r:Rail[Double]):Double {
+    private def railSum(r:Rail[Long]):Long {
+        if (r == null)
+            return 0;
+        return RailUtils.reduce(r, (x:Long, y:Long) => x+y, 0);
+    }
+
+    private def railSum(r:Rail[Double]):Double {
         if (r == null)
             return 0.0;
         return RailUtils.reduce(r, (x:Double, y:Double) => x+y, 0.0);
     }
     
+    private def railAverage(r:Rail[Long]):Double {
+        if (r == null)
+            return 0.0;
+        val railAvg = railSum(r) as Double / r.size;        
+        return Math.round(railAvg);
+    }    
     
-    public def railAverage(r:Rail[Double]):Double {
+    private def railAverage(r:Rail[Double]):Double {
         if (r == null)
             return 0.0;
         val railAvg = railSum(r) / r.size;        
         return  Math.round(railAvg);
     }
     
-    public def computeAverages[T](sum:Rail[T]){here==home}:Rail[Double] {
+    private def computeAverages[T](sum:Rail[T]){here==home}:Rail[Double] {
         val result = new Rail[Double](sum.size);
         for (i in 0..(sum.size-1)) {
             result(i) = (sum(i) as Double) / manager().activePlaces().size;
