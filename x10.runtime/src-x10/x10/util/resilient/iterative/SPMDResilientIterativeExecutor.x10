@@ -25,12 +25,6 @@ import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.store.Store;
 
-/*
- * TODO:
- * -> maximum retry for restore failures
- * -> support more than 1 place failure.  when a palce dies, store.rebackup()
- * -> no need to notify place death for collectives
- * */
 public class SPMDResilientIterativeExecutor (home:Place) {
     private val manager:GlobalRef[PlaceManager]{self.home == this.home};
     private val resilientMap:Store[Cloneable];
@@ -282,32 +276,37 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         val runTime = (Timer.milliTime() - startRunTime);
         Console.OUT.println("Application completed, calculating runtime statistics ...");
         finish for (place in manager().activePlaces()) at(place) async {
+        	val stpCount = placeTempData().stat.stepTimes.size();
+        	val minStepCount = team.allreduce(stpCount, Team.MIN);
+        	
             ////// step times ////////
-            val stpCount = placeTempData().stat.stepTimes.size();
-            //Console.OUT.println(here + " stpCount=" + stpCount);
-            placeTempData().stat.placeMaxStep = new Rail[Long](stpCount);
-            placeTempData().stat.placeMinStep = new Rail[Long](stpCount);
-            placeTempData().stat.placeSumStep = new Rail[Long](stpCount);
+            if (stpCount != minStepCount)
+                Console.OUT.println(here + " stpCount=" + stpCount + " minStepCount=" + minStepCount);
+            
+            placeTempData().stat.placeMaxStep = new Rail[Long](minStepCount);
+            placeTempData().stat.placeMinStep = new Rail[Long](minStepCount);
+            placeTempData().stat.placeSumStep = new Rail[Long](minStepCount);
             val dst2max = placeTempData().stat.placeMaxStep;
             val dst2min = placeTempData().stat.placeMinStep;
             val dst2sum = placeTempData().stat.placeSumStep;
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2max, 0, stpCount, Team.MAX);
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2min, 0, stpCount, Team.MIN);
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2sum, 0, stpCount, Team.ADD);
+            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2max, 0, minStepCount, Team.MAX);
+            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2min, 0, minStepCount, Team.MIN);
+            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2sum, 0, minStepCount, Team.ADD);
 
             if (x10.xrx.Runtime.RESILIENT_MODE > 0n){                
                 ////// restore times ////////
                 val restCount = placeTempData().stat.restoreTimes.size();
-                if (restCount > 0) {
-                    placeTempData().stat.placeMaxRestore = new Rail[Long](restCount);
-                    placeTempData().stat.placeMinRestore = new Rail[Long](restCount);
-                    placeTempData().stat.placeSumRestore = new Rail[Long](restCount);
+                val minRestCount = team.allreduce(restCount, Team.MIN);
+                if (minRestCount > 0) {
+                    placeTempData().stat.placeMaxRestore = new Rail[Long](minRestCount);
+                    placeTempData().stat.placeMinRestore = new Rail[Long](minRestCount);
+                    placeTempData().stat.placeSumRestore = new Rail[Long](minRestCount);
                     val dst3max = placeTempData().stat.placeMaxRestore;
                     val dst3min = placeTempData().stat.placeMinRestore;
                     val dst3sum = placeTempData().stat.placeSumRestore;
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3max, 0, restCount, Team.MAX);
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3min, 0, restCount, Team.MIN);
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3sum, 0, restCount, Team.ADD);
+                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3max, 0, minRestCount, Team.MAX);
+                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3min, 0, minRestCount, Team.MIN);
+                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3sum, 0, minRestCount, Team.ADD);
                 }
             }
         }
@@ -315,14 +314,12 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         val averageSteps = computeAverages(placeTempData().stat.placeSumStep);
         
         var averageRestore:Rail[Double] = null;
-        if (isResilient){            
-            if (placeTempData().stat.restoreTimes.size() > 0)
-                averageRestore = computeAverages(placeTempData().stat.placeSumRestore);
+        if (isResilient && placeTempData().stat.placeSumRestore != null){
+            averageRestore = computeAverages(placeTempData().stat.placeSumRestore);
         }
         
         Console.OUT.println("=========Detailed Statistics============");
         Console.OUT.println("Steps-place0:" + railToString(placeTempData().stat.stepTimes.toRail()));
-        
         Console.OUT.println("Steps-avg:" + railToString(averageSteps));
         Console.OUT.println("Steps-min:" + railToString(placeTempData().stat.placeMinStep));
         Console.OUT.println("Steps-max:" + railToString(placeTempData().stat.placeMaxStep));
