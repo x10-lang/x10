@@ -1039,40 +1039,16 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
      * @param rowPs, colPs      the number of rows and columns for the place grid
      * @param newPg             the new place group to distribute the matrix over
      */
-    private def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
+    public def remake(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
+        assert (places.size() == newPg.size());
         assert (rowPs*colPs==newPg.size()) :
             "Block partitioning error: rowsPs["+rowPs+"]*colPs["+colPs+"] != newPg.size["+newPg.size()+"]";
         val oldGrid = getGrid();
-        val snapshotInfo = this.handleBS().snapshotDistInfo;  //TODO: remove the field 'snapshotDistInfo'     
         for (sparePlace in addedPlaces){
-            PlaceLocalHandle.addPlace[BlockSet](handleBS, sparePlace, ()=>(BlockSet.makeForRestore(oldGrid,rowPs,colPs, newPg, snapshotInfo)));
+            PlaceLocalHandle.addPlace[BlockSet](handleBS, sparePlace, ()=>(BlockSet.make(oldGrid,rowPs,colPs, newPg)));
         }
         gdist = new DistGrid(oldGrid, rowPs, colPs);
         places = newPg;
-    }
-    
-    /**
-     * Remake the DistBlockMatrix over a new PlaceGroup using Sparse Blocks. 
-     * 
-     * @param rowPs, colPs     the number of rows and columns for the place grid
-     * @parm  nzd              the non-zero density of the sparse blocks. Used only if X10_GML_REBALANCE=0.
-     * @param newPg            the new place group to distribute the matrix over
-     */
-    public def remakeSparse(rowPs:Long, colPs:Long, nzd:Float, newPg:PlaceGroup, addedPlaces:ArrayList[Place]) {
-    	assert (places.size() == newPg.size());        
-        remake(rowPs, colPs, newPg, addedPlaces);
-        allocSparseBlocks(nzd, addedPlaces);
-    }
-    
-    /**
-     * Remake the DistBlockMatrix over a new PlaceGroup, and allocate the dense blocks storage. 
-     * @param rowPs, colPs     the number of rows and columns for the place grid
-     * @param newPg            the new place group to distribute the matrix over
-     */
-    public def remakeDense(rowPs:Long, colPs:Long, newPg:PlaceGroup, addedPlaces:ArrayList[Place]){
-    	assert (places.size() == newPg.size());
-        remake(rowPs, colPs, newPg, addedPlaces);
-        allocDenseBlocks(addedPlaces);
     }
     
     public def makeSnapshot_local():Cloneable {
@@ -1098,55 +1074,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
             blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
             blockSetInfo.setBlockSet(data);                    
         }
-        handleBS().snapshotDistInfo.updateGrid(getGrid());
-        handleBS().snapshotDistInfo.updateDistMap(getMap()); 
-        
         return blockSetInfo;
     }
     
     public def restoreSnapshot_local(bs:Cloneable) {
-    	val bsInfo = bs as BlockSetSnapshotInfo;
-    	val oldGrid = handleBS().snapshotDistInfo.getGrid();
-        val oldDistMap = handleBS().snapshotDistInfo.getDistMap();
-        val newGrid = getGrid();
-        
-        var copyToTime:Long = 0;
-        var loadingTime:Long=0;
-        /*
-         * calculate the required blocks from each old place
-         */
-        val newBlockSet = handleBS();
-        val placeBlockMap = new HashMap[Long, ArrayList[MatrixBlock]]();
-        val blkitr = newBlockSet.iterator();
-        while (blkitr.hasNext()) {
-            val newBlock = blkitr.next();
-            val blockRowId = newBlock.myRowId;
-            val blockColId = newBlock.myColId;
-            //assuming that the block row id and col id will remain the same after a failure
-            val blockId = oldGrid.getBlockId(blockRowId, blockColId);
-            val oldPlaceIndex = oldDistMap.findPlaceIndex(blockId);
-        
-            var list:ArrayList[MatrixBlock] = placeBlockMap.getOrElse(oldPlaceIndex,null);
-            if (list == null){
-                list = new ArrayList[MatrixBlock]();
-                placeBlockMap.put(oldPlaceIndex,list);
-            }
-            list.add(newBlock);
-        }
-        /*
-         * Block by block restore
-         */
-        val placesIter = placeBlockMap.keySet().iterator();
-        while (placesIter.hasNext()) {
-            val oldPlaceIndex = placesIter.next();
-            val oldBlockSet = bsInfo.getBlockSet();
-            val blocksList = placeBlockMap.get(oldPlaceIndex);
-            for (newBlock in blocksList){
-                val blockRowId = newBlock.myRowId;
-                val blockColId = newBlock.myColId;
-                val oldBlock = oldBlockSet.find(blockRowId, blockColId);
-                oldBlock.copyTo(newBlock);
-            }
-        }             
-    }    
+    	val oldBlocks = (bs as BlockSetSnapshotInfo).getBlockSet().blocklist;
+    	handleBS().blocklist.clear();
+    	handleBS().blocklist.addAll(oldBlocks);   	
+    }
 }
