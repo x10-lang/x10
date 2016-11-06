@@ -15,7 +15,6 @@ package x10.util.resilient.localstore;
 import x10.util.HashSet;
 import x10.util.HashMap;
 import x10.util.ArrayList;
-import x10.util.concurrent.SimpleLatch;
 import x10.util.concurrent.AtomicLong;
 import x10.compiler.Ifdef;
 import x10.util.concurrent.Lock;
@@ -30,11 +29,10 @@ public class SlaveStore {
         mastersMap = new HashMap[Long,MasterState]();
     }
     
-    public def addMasterPlace(masterVirtualId:Long, masterData:HashMap[String,Cloneable], transLog:HashMap[String,TransKeyLog], masterEpoch:Long) {
+    public def addMasterPlace(masterVirtualId:Long, masterState:MasterState) {
         try {
             lock.lock();
-            mastersMap.put(masterVirtualId, new MasterState(masterData,masterEpoch));
-            applyChangesLockAcquired(masterVirtualId, transLog, masterEpoch);
+            mastersMap.put(masterVirtualId, masterState);
         }
         finally {
             lock.unlock();
@@ -46,7 +44,7 @@ public class SlaveStore {
             lock.lock();
             var state:MasterState = mastersMap.getOrElse(masterVirtualId, null);
             if (state == null)
-                return new MasterState(new HashMap[String,Cloneable](),-1);
+                return new MasterState(new HashMap[String,HashMap[String,Cloneable]]());
             return state;
         }
         finally {
@@ -54,106 +52,23 @@ public class SlaveStore {
         }
     }
     
-    //Store pending transaction to be ready for commit or rollback
-    public def addPendingTransaction(masterVirtualId:Long, transId:Long, transLog:HashMap[String,TransKeyLog], masterEpoch:Long) {
+    public def commit(mapName:String, masterVirtualId:Long, transLog:HashMap[String,TransKeyLog]) {
     try {
             lock.lock();
-            var masterState:MasterState = mastersMap.getOrElse(masterVirtualId, null);
-            if (masterState == null) {
-                masterState = new MasterState(new HashMap[String,Cloneable](), masterEpoch);
-                mastersMap.put(masterVirtualId, masterState);
+            var state:MasterState = mastersMap.getOrElse(masterVirtualId, null);
+            if (state == null) {
+                state = new MasterState(new HashMap[String,HashMap[String,Cloneable]]());
+            	mastersMap.put(masterVirtualId, state); 
             }
-            masterState.pendingTrans.put(transId, transLog);
+            applyChangesLockAcquired(mapName, state, transLog);
         }
         finally {
             lock.unlock();
         }
     }
     
-    
-    public def getPendingTransactions(masterVirtualId:Long):HashSet[Long] {
-    val set = new HashSet[Long]();
-    try {
-            lock.lock();
-            val masterState = mastersMap.getOrThrow(masterVirtualId);
-            val iter = masterState.pendingTrans.keySet().iterator();
-            while (iter.hasNext()) {
-            val transId = iter.next();
-            set.add(transId);
-            }
-        }
-        finally {
-            lock.unlock();
-        }
-    return set;
-    }
-    
-    public def handlePendingTransactions(masterVirtualId:Long, transactions:HashMap[Long,Boolean]) {
-        try {
-            lock.lock();
-            val masterState = mastersMap.getOrThrow(masterVirtualId);
-            val iter = transactions.keySet().iterator();
-            while (iter.hasNext()) {
-                val transId = iter.next();
-                val commit =  transactions.getOrThrow(transId);
-                if (commit) {
-                    commitLockAcquired(masterVirtualId, transId, -1);
-                }
-                else {
-                    rollbackLockAcquired(masterVirtualId, transId);
-                }
-                masterState.pendingTrans.remove(transId);
-            }
-        }
-        finally {
-            lock.unlock();
-        }
-    }
-    
-    public def rollback(masterVirtualId:Long, transId:Long) {
-        try {
-            lock.lock();
-            rollbackLockAcquired(masterVirtualId, transId);
-        }
-        finally {
-            lock.unlock();
-        }
-    }
-    
-    private def rollbackLockAcquired(masterVirtualId:Long, transId:Long) {
-        val masterState = mastersMap.getOrThrow(masterVirtualId);
-        masterState.pendingTrans.remove(transId);
-    }
-    
-
-    
-    public def commit(masterVirtualId:Long, transId:Long, masterEpoch:Long) {
-        try {
-            lock.lock();
-            commitLockAcquired(masterVirtualId, transId, masterEpoch);
-        }
-        finally {
-            lock.unlock();
-        }
-    }
-    
-    
-    private def commitLockAcquired(masterVirtualId:Long, transId:Long, masterEpoch:Long) {
-        val masterState = mastersMap.getOrThrow(masterVirtualId);
-        val transLog = masterState.pendingTrans.getOrThrow(transId);
-        applyChangesLockAcquired(masterVirtualId, transLog, masterEpoch);
-        masterState.pendingTrans.remove(transId);
-    }
-    
-    
-    /*The master is sure about commiting these changes, go ahead and apply them*/
-    private def applyChangesLockAcquired(masterVirtualId:Long, transLog:HashMap[String,TransKeyLog], masterEpoch:Long) {
-        var state:MasterState = mastersMap.getOrElse(masterVirtualId, null);
-        if (state == null) {
-            state = new MasterState(new HashMap[String,Cloneable](), masterEpoch);
-            mastersMap.put(masterVirtualId, state);
-        }
-        val data = state.data;
+    private def applyChangesLockAcquired(mapName:String, state:MasterState, transLog:HashMap[String,TransKeyLog]) {
+        val data = state.getMapData(mapName);
         val iter = transLog.keySet().iterator();
         while (iter.hasNext()) {
             val key = iter.next();
@@ -165,17 +80,22 @@ public class SlaveStore {
             else
                 data.put(key, log.getValue());
         }
-        state.epoch = masterEpoch;
     }
 }
 
 class MasterState {
-    public var epoch:Long;
-    public var data:HashMap[String,Cloneable];
-    public val pendingTrans = new HashMap[Long,HashMap[String,TransKeyLog]]();
+    public var maps:HashMap[String,HashMap[String,Cloneable]];
    
-    public def this(data:HashMap[String,Cloneable], epoch:Long) {
-        this.data = data;
-        this.epoch = epoch;
+    public def this(maps:HashMap[String,HashMap[String,Cloneable]]) {
+        this.maps = maps;
+    }
+    
+    public def getMapData(mapName:String) {
+    	var data:HashMap[String,Cloneable] = maps.getOrElse(mapName, null);
+        if (data == null) {
+        	data = new HashMap[String,Cloneable]();
+        	maps.put(mapName, data);
+        }
+        return data;
     }
 }

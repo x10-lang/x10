@@ -15,6 +15,7 @@ package x10.util.resilient.localstore;
 import x10.util.HashSet;
 import x10.util.ArrayList;
 import x10.util.HashMap;
+import x10.util.concurrent.SimpleLatch;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 
 /**
@@ -27,9 +28,14 @@ public class ResilientStore {
     private val plh:PlaceLocalHandle[LocalStore];
     private var activePlaces:PlaceGroup;
     
+    private val appMaps:HashMap[String,ResilientNativeMap];
+    private transient val lock:SimpleLatch;
+    
     private def this(pg:PlaceGroup, plh:PlaceLocalHandle[LocalStore]) {
         this.activePlaces = pg;
         this.plh = plh;
+        this.appMaps = new HashMap[String,ResilientNativeMap]();
+        this.lock = new SimpleLatch();
     }
     
     public static def make(pg:PlaceGroup):ResilientStore {
@@ -37,6 +43,17 @@ public class ResilientStore {
             new LocalStore(pg.indexOf(here), pg.next(here))
         });
         return new ResilientStore(pg, plh);
+    }
+    
+    public def makeMap(name:String):ResilientNativeMap {
+    	try {
+    		lock.lock();
+    		val map = new ResilientNativeMap(name, plh);
+    		appMaps.put(name, map);
+    		return map;
+    	} finally {
+    		lock.unlock();
+    	}
     }
     
     public def getVirtualPlaceId() = activePlaces.indexOf(here);
@@ -79,9 +96,9 @@ public class ResilientStore {
                 val virtualId = changes.newActivePlaces.indexOf(newMaster);
                 val slave = changes.newActivePlaces.next(newMaster);
                 at (slave) async {
-                    val masterState = plh().slaveStore.getMasterState(virtualId);
+                    val maps = plh().slaveStore.getMasterState(virtualId).maps;
                     at (newMaster) async {
-                        plh().joinAsMaster(virtualId, masterState.data, masterState.epoch);
+                        plh().joinAsMaster(virtualId, maps);
                     }
                 }
             }
@@ -97,70 +114,12 @@ public class ResilientStore {
                 at (master) async {
                     val masterState = plh().masterStore.getState(); 
                     at (newSlave) {
-                        plh().slaveStore.addMasterPlace(masterVirtualId, masterState.data, new HashMap[String,TransKeyLog](), masterState.epoch);
+                        plh().slaveStore.addMasterPlace(masterVirtualId, masterState);
                     }
                     plh().slave = newSlave;
                 }
             }
         }
     }
-
-    public def startLocalTransaction():LocalTransaction {
-        assert(plh().virtualPlaceId != -1);
-        val placeIndex = activePlaces.indexOf(here);
-        return new LocalTransaction(plh, getNextTransactionId(), placeIndex);
-    }
     
-    /*
-    public def startGlobalTransaction(places:PlaceGroup):GlobalTransaction {
-        assert(plh().virtualPlaceId != -1);
-        return new GlobalTransaction(plh, Utils.getNextTransactionId(), places);
-    }
-    */
-    
-    public def getNextTransactionId() {
-        val id = plh().masterStore.sequence.incrementAndGet();
-        return 100000+id;
-    }
-    
-    public def printStatus() {
-       //Console.OUT.println("DS-- " + here + " " + plh().slave);
-    }
-
-    /**
-     * Get the value of key k in the resilient map.
-     */
-    public def get(k:String) {
-        val trans = startLocalTransaction();
-        val v = trans.get(k);
-        trans.prepareAndCommit();
-        return v;
-    }
-
-    /**
-     * Associate value v with key k in the resilient map.
-     */
-    public def set(k:String, v:Cloneable) {
-        val trans = startLocalTransaction();
-        trans.put(k, v);
-        trans.prepareAndCommit();
-    }
-
-    /**
-     * Remove any value associated with key k from the resilient map.
-     */
-    public def delete(k:String) {
-        val trans = startLocalTransaction();
-        trans.delete(k);
-        trans.prepareAndCommit();
-    }
-
-    public def keySet() {
-        val placeIndex = activePlaces.indexOf(here).toString().length();
-        val set = new HashSet[String]();
-        for (key in plh().masterStore.keySet()) {
-            set.add(key.substring(0n, key.length() - placeIndex));
-        }
-        return set;
-    }
 }
