@@ -194,14 +194,16 @@ public class GlobalResilientIterativeExecutor (home:Place) {
         finish for (p in manager().activePlaces()) at (p) async {
             val ckptMap = appStore.getCheckpointData_local(first);
             if (ckptMap != null) {
+            	val verMap = new HashMap[String,Cloneable]();
                 val iter = ckptMap.keySet().iterator();
                 while (iter.hasNext()) {                    
                     val appKey = iter.next();
                     val key = appKey +":v" + newVersion;
                     val value = ckptMap.getOrThrow(appKey);
-                    resilientMap.set(key, value);
+                    verMap.put(key, value);
                     if (VERBOSE) Console.OUT.println(here + "checkpointing key["+appKey+"]  version["+newVersion+"] succeeded ...");
                 }
+                resilientMap.setAll(verMap);
             }
         }
         appStore.commitCheckpoint(newVersion);
