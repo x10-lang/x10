@@ -14,6 +14,7 @@ package x10.util.resilient.store;
 import x10.util.resilient.ResilientMap;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.PlaceManager.ChangeDescription;
+import x10.util.HashMap;
 
 public class HazelcastStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   static final class LogEntry[V] {
@@ -48,6 +49,15 @@ public class HazelcastStore[V]{V haszero, V <: Cloneable} extends Store[V] {
     setRemote(here, key, value);
   }
 
+  public def setAll(pairs:HashMap[String,V]) {
+	  val iter = pairs.keySet().iterator();
+	  while (iter.hasNext()) {
+		  val k = iter.next();
+		  val v = pairs.getOrThrow(k);
+		  set (k,v);
+	  }
+  }
+  
   public def getRemote(place:Place, key:String) = map.get(k(place, key));
 
   public def setRemote(place:Place, key:String, value:V) {

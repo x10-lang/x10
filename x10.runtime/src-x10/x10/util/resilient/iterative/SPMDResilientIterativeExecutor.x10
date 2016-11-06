@@ -28,7 +28,7 @@ import x10.util.resilient.store.Store;
 public class SPMDResilientIterativeExecutor (home:Place) {
     private val manager:GlobalRef[PlaceManager]{self.home == this.home};
     private val resilientMap:Store[Cloneable];
-    private var placeTempData:PlaceLocalHandle[PlaceTempData];
+    private var plh:PlaceLocalHandle[PlaceTempData];
     private var team:Team;
     private val itersPerCheckpoint:Long;
     private val isResilient:Boolean;
@@ -92,7 +92,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         this.startRunTime = startRunTime;
         Console.OUT.println("SPMDResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         val root = here;
-        placeTempData = PlaceLocalHandle.make[PlaceTempData](manager().activePlaces(), ()=>new PlaceTempData());
+        plh = PlaceLocalHandle.make[PlaceTempData](manager().activePlaces(), ()=>new PlaceTempData());
         var tmpGlobalIter:Long = 0;        
         applicationInitializationTime = Timer.milliTime() - startRunTime;
         var remakeRequired:Boolean = false;
@@ -109,7 +109,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                     remakeRequired = false;
                 }
                 else {
-                	tmpGlobalIter = placeTempData().globalIter;
+                	tmpGlobalIter = plh().globalIter;
                 }
                 
                 /*** Checkpoint (save new version) ***/                
@@ -121,9 +121,9 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                 val ckptVersion = lastCkptVersion;
                 val globalIter = tmpGlobalIter;
                 
-                Console.OUT.println("SPMDResilientIterativeExecutor iter: " + placeTempData().globalIter + " remakeRequired["+remakeRequired+"] restoreRequired["+restoreRequired+"] ...");           
+                Console.OUT.println("SPMDResilientIterativeExecutor iter: " + plh().globalIter + " remakeRequired["+remakeRequired+"] restoreRequired["+restoreRequired+"] ...");           
                 finish for (p in manager().activePlaces()) at (p) async {
-                    placeTempData().globalIter = globalIter;
+                    plh().globalIter = globalIter;
                     
                     /*** Restore ***/
                     if (restoreRequired){
@@ -131,10 +131,10 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                     }
                     else {
                     	//increment the last version of the keys
-                    	val iter = placeTempData().lastCkptKeys.iterator(); 
+                    	val iter = plh().lastCkptKeys.iterator(); 
                     	while (iter.hasNext()) {
                     		val key = iter.next();
-                    		placeTempData().ckptKeyVersion.put(key, ckptVersion);
+                    		plh().ckptKeyVersion.put(key, ckptVersion);
                     	}
                     }
                     
@@ -144,7 +144,7 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                             (!isResilient || (isResilient && localIter < itersPerCheckpoint)) ) {
                         var stepStartTime:Long = -1; // (-1) is used to differenciate between checkpoint exceptions and step exceptions
                             
-                        if ( isResilient && simplePlaceHammer.sayGoodBye(placeTempData().globalIter) ) {
+                        if ( isResilient && simplePlaceHammer.sayGoodBye(plh().globalIter) ) {
                             executorKillHere("step()");
                         }
 
@@ -156,9 +156,9 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                         
                         app.step_local();
                         
-                        placeTempData().stat.stepTimes.add(Timer.milliTime()-stepStartTime);
+                        plh().stat.stepTimes.add(Timer.milliTime()-stepStartTime);
                         
-                        placeTempData().globalIter ++;
+                        plh().globalIter ++;
                         localIter++;
                         
                     }//while !isFinished
@@ -170,9 +170,9 @@ public class SPMDResilientIterativeExecutor (home:Place) {
                 if (isResilient && containsDPE(iterEx)){
                     remakeRequired = true;
                     Console.OUT.println("[Hammer Log] Time DPE discovered is ["+Timer.milliTime()+"] ...");
-                    if (placeTempData().place0KillPlaceTime != -1){
-                        failureDetectionTimes.add(Timer.milliTime() - placeTempData().place0KillPlaceTime);
-                        placeTempData().place0KillPlaceTime =  -1;
+                    if (plh().place0KillPlaceTime != -1){
+                        failureDetectionTimes.add(Timer.milliTime() - plh().place0KillPlaceTime);
+                        plh().place0KillPlaceTime =  -1;
                     }
                 } else {
                     throw iterEx; // not a DPE; rethrow
@@ -212,11 +212,11 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         for (p in changes.addedPlaces){
             val realId = p.id;
             val virtualId = newPG.indexOf(p);
-            val victimStat =  placeTempData().place0VictimsStats.getOrElse(virtualId, placeTempData().stat);
-            val p0GlobalIter = placeTempData().globalIter;
-            val p0AllCkptKeys = placeTempData().ckptKeyVersion;
-            val p0LastCkptKeys = placeTempData().lastCkptKeys;
-            PlaceLocalHandle.addPlace[PlaceTempData](placeTempData, p, ()=>new PlaceTempData(victimStat, p0GlobalIter, p0LastCkptKeys, p0AllCkptKeys));
+            val victimStat =  plh().place0VictimsStats.getOrElse(virtualId, plh().stat);
+            val p0GlobalIter = plh().globalIter;
+            val p0AllCkptKeys = plh().ckptKeyVersion;
+            val p0LastCkptKeys = plh().lastCkptKeys;
+            PlaceLocalHandle.addPlace[PlaceTempData](plh, p, ()=>new PlaceTempData(victimStat, p0GlobalIter, p0LastCkptKeys, p0AllCkptKeys));
         }
 
         val startAppRemake = Timer.milliTime();
@@ -232,36 +232,38 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     private def checkpoint(app:SPMDResilientIterativeApp){here == home} {
         val startCheckpoint = Timer.milliTime();
         //take new checkpoint only if restore was not done in this iteration
-        if (VERBOSE) Console.OUT.println("checkpointing at iter " + placeTempData().globalIter);
+        if (VERBOSE) Console.OUT.println("checkpointing at iter " + plh().globalIter);
         val newVersion = (lastCkptVersion+1)%2;
         finish for (p in manager().activePlaces()) at (p) async {
-            placeTempData().lastCkptKeys.clear();            
+            plh().lastCkptKeys.clear();            
             val ckptMap = app.getCheckpointData_local();
             if (ckptMap != null) {
+            	val verMap = new HashMap[String,Cloneable]();            	
                 val iter = ckptMap.keySet().iterator();
                 while (iter.hasNext()) {                    
                     val appKey = iter.next();
                     val key = appKey +":v" + newVersion;
                     val value = ckptMap.getOrThrow(appKey);
-                    resilientMap.set(key, value);
-                    placeTempData().lastCkptKeys.add(appKey); 
+                    verMap.put(key, value);
+                    plh().lastCkptKeys.add(appKey); 
                     //if (VERBOSE) Console.OUT.println(here + "checkpointing key["+appKey+"]  version["+newVersion+"] succeeded ...");
-                }                
+                }
+                resilientMap.setAll(verMap);
             }
             
         }
         lastCkptVersion = newVersion;
-        lastCkptIter = placeTempData().globalIter;
+        lastCkptIter = plh().globalIter;
         ckptTimes.add(Timer.milliTime() - startCheckpoint);
     }
     
     private def restore(app:SPMDResilientIterativeApp, lastCkptIter:Long) {
     	val startRestoreData = Timer.milliTime();        
         val restoreDataMap = new HashMap[String,Cloneable]();
-        val iter = placeTempData().ckptKeyVersion.keySet().iterator();
+        val iter = plh().ckptKeyVersion.keySet().iterator();
         while (iter.hasNext()) {
             val appKey = iter.next();
-            val keyVersion = placeTempData().ckptKeyVersion.getOrThrow(appKey);
+            val keyVersion = plh().ckptKeyVersion.getOrThrow(appKey);
             val key = appKey + ":v" + keyVersion;
             val value = resilientMap.get(key);
             restoreDataMap.put(appKey, value);
@@ -269,67 +271,67 @@ public class SPMDResilientIterativeExecutor (home:Place) {
         }
         app.restore_local(restoreDataMap, lastCkptIter);        
         
-        placeTempData().stat.restoreTimes.add(Timer.milliTime() - startRestoreData);
+        plh().stat.restoreTimes.add(Timer.milliTime() - startRestoreData);
     }
     
     private def calculateTimingStatistics(){here == home} {
         val runTime = (Timer.milliTime() - startRunTime);
         Console.OUT.println("Application completed, calculating runtime statistics ...");
         finish for (place in manager().activePlaces()) at(place) async {
-        	val stpCount = placeTempData().stat.stepTimes.size();
+        	val stpCount = plh().stat.stepTimes.size();
         	val minStepCount = team.allreduce(stpCount, Team.MIN);
         	
             ////// step times ////////
             if (stpCount != minStepCount)
                 Console.OUT.println(here + " stpCount=" + stpCount + " minStepCount=" + minStepCount);
             
-            placeTempData().stat.placeMaxStep = new Rail[Long](minStepCount);
-            placeTempData().stat.placeMinStep = new Rail[Long](minStepCount);
-            placeTempData().stat.placeSumStep = new Rail[Long](minStepCount);
-            val dst2max = placeTempData().stat.placeMaxStep;
-            val dst2min = placeTempData().stat.placeMinStep;
-            val dst2sum = placeTempData().stat.placeSumStep;
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2max, 0, minStepCount, Team.MAX);
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2min, 0, minStepCount, Team.MIN);
-            team.allreduce(placeTempData().stat.stepTimes.toRail(), 0, dst2sum, 0, minStepCount, Team.ADD);
+            plh().stat.placeMaxStep = new Rail[Long](minStepCount);
+            plh().stat.placeMinStep = new Rail[Long](minStepCount);
+            plh().stat.placeSumStep = new Rail[Long](minStepCount);
+            val dst2max = plh().stat.placeMaxStep;
+            val dst2min = plh().stat.placeMinStep;
+            val dst2sum = plh().stat.placeSumStep;
+            team.allreduce(plh().stat.stepTimes.toRail(), 0, dst2max, 0, minStepCount, Team.MAX);
+            team.allreduce(plh().stat.stepTimes.toRail(), 0, dst2min, 0, minStepCount, Team.MIN);
+            team.allreduce(plh().stat.stepTimes.toRail(), 0, dst2sum, 0, minStepCount, Team.ADD);
 
             if (x10.xrx.Runtime.RESILIENT_MODE > 0n){                
                 ////// restore times ////////
-                val restCount = placeTempData().stat.restoreTimes.size();
+                val restCount = plh().stat.restoreTimes.size();
                 val minRestCount = team.allreduce(restCount, Team.MIN);
                 if (minRestCount > 0) {
-                    placeTempData().stat.placeMaxRestore = new Rail[Long](minRestCount);
-                    placeTempData().stat.placeMinRestore = new Rail[Long](minRestCount);
-                    placeTempData().stat.placeSumRestore = new Rail[Long](minRestCount);
-                    val dst3max = placeTempData().stat.placeMaxRestore;
-                    val dst3min = placeTempData().stat.placeMinRestore;
-                    val dst3sum = placeTempData().stat.placeSumRestore;
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3max, 0, minRestCount, Team.MAX);
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3min, 0, minRestCount, Team.MIN);
-                    team.allreduce(placeTempData().stat.restoreTimes.toRail(), 0, dst3sum, 0, minRestCount, Team.ADD);
+                    plh().stat.placeMaxRestore = new Rail[Long](minRestCount);
+                    plh().stat.placeMinRestore = new Rail[Long](minRestCount);
+                    plh().stat.placeSumRestore = new Rail[Long](minRestCount);
+                    val dst3max = plh().stat.placeMaxRestore;
+                    val dst3min = plh().stat.placeMinRestore;
+                    val dst3sum = plh().stat.placeSumRestore;
+                    team.allreduce(plh().stat.restoreTimes.toRail(), 0, dst3max, 0, minRestCount, Team.MAX);
+                    team.allreduce(plh().stat.restoreTimes.toRail(), 0, dst3min, 0, minRestCount, Team.MIN);
+                    team.allreduce(plh().stat.restoreTimes.toRail(), 0, dst3sum, 0, minRestCount, Team.ADD);
                 }
             }
         }
         
-        val averageSteps = computeAverages(placeTempData().stat.placeSumStep);
+        val averageSteps = computeAverages(plh().stat.placeSumStep);
         
         var averageRestore:Rail[Double] = null;
-        if (isResilient && placeTempData().stat.placeSumRestore != null){
-            averageRestore = computeAverages(placeTempData().stat.placeSumRestore);
+        if (isResilient && plh().stat.placeSumRestore != null){
+            averageRestore = computeAverages(plh().stat.placeSumRestore);
         }
         
         Console.OUT.println("=========Detailed Statistics============");
-        Console.OUT.println("Steps-place0:" + railToString(placeTempData().stat.stepTimes.toRail()));
+        Console.OUT.println("Steps-place0:" + railToString(plh().stat.stepTimes.toRail()));
         Console.OUT.println("Steps-avg:" + railToString(averageSteps));
-        Console.OUT.println("Steps-min:" + railToString(placeTempData().stat.placeMinStep));
-        Console.OUT.println("Steps-max:" + railToString(placeTempData().stat.placeMaxStep));
+        Console.OUT.println("Steps-min:" + railToString(plh().stat.placeMinStep));
+        Console.OUT.println("Steps-max:" + railToString(plh().stat.placeMaxStep));
         
         if (isResilient){
             Console.OUT.println("Checkpoint:" + railToString(ckptTimes.toRail()));            
             
             Console.OUT.println("RestoreData-avg:" + railToString(averageRestore));
-            Console.OUT.println("RestoreData-min:" + railToString(placeTempData().stat.placeMinRestore));
-            Console.OUT.println("RestoreData-max:" + railToString(placeTempData().stat.placeMaxRestore));
+            Console.OUT.println("RestoreData-min:" + railToString(plh().stat.placeMinRestore));
+            Console.OUT.println("RestoreData-max:" + railToString(plh().stat.placeMaxRestore));
             
             Console.OUT.println("FailureDetection-place0:" + railToString(failureDetectionTimes.toRail()));
             
@@ -479,10 +481,10 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     }
     
     private def executorKillHere(op:String) {        
-        val stat = placeTempData().stat;
+        val stat = plh().stat;
         val victimId = here.id;
         at (Place(0)) {            
-            placeTempData().addVictim(victimId,stat);
+            plh().addVictim(victimId,stat);
         }
         Console.OUT.println("[Hammer Log] Killing ["+here+"] before "+op+" ...");
         System.killHere();

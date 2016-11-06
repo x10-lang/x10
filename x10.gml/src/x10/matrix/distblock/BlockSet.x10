@@ -49,7 +49,6 @@ public class BlockSet  {
     public var rowCastPlaceMap:CastPlaceMap;
     public var colCastPlaceMap:CastPlaceMap;
 
-    public var snapshotDistInfo:SnapshotDistributionInfo;
     public val placeIndex:Long;
     
     public def this(g:Grid, map:DistMap, placeIndex:Long) {
@@ -59,7 +58,6 @@ public class BlockSet  {
         rowCastPlaceMap=null;
         colCastPlaceMap=null;
         this.placeIndex = placeIndex;
-        snapshotDistInfo = new SnapshotDistributionInfo();
     }
 
     public def this(g:Grid, map:DistMap, bl:ArrayList[MatrixBlock], placeIndex:Long) {
@@ -68,27 +66,6 @@ public class BlockSet  {
         rowCastPlaceMap=null;
         colCastPlaceMap=null;
         this.placeIndex = placeIndex;
-        snapshotDistInfo = new SnapshotDistributionInfo();
-    }
-
-
-    public def this(g:Grid, map:DistMap, placeIndex:Long, snapshotInfo:SnapshotDistributionInfo) {
-        grid=g; dmap = map;
-        blocklist = new ArrayList[MatrixBlock]();    
-        blockMap=null;
-        rowCastPlaceMap=null;
-        colCastPlaceMap=null;
-        this.placeIndex = placeIndex;
-        snapshotDistInfo = snapshotInfo;
-    }
-
-    public def this(g:Grid, map:DistMap, bl:ArrayList[MatrixBlock], placeIndex:Long, snapshotInfo:SnapshotDistributionInfo) {
-        grid=g; dmap = map; blocklist = bl;
-        blockMap = null;
-        rowCastPlaceMap=null;
-        colCastPlaceMap=null;
-        this.placeIndex = placeIndex;
-        snapshotDistInfo = snapshotInfo;
     }
     
     /**
@@ -127,30 +104,12 @@ public class BlockSet  {
         return new BlockSet(gd, dp.dmap, places.indexOf(here));
     }
     
-    public static def makeForRestore(m:Long, n:Long, rowBs:Long, colBs:Long, rowPs:Long, colPs:Long, places:PlaceGroup, 
-            snapshotInfo:SnapshotDistributionInfo) {
-        //val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs
-        val gd = DistGrid.makeGrid(m, n, rowBs, colBs, rowPs, colPs);
-        assert (rowPs*colPs == places.size()) :
-              "number of distributions groups of blocks must equal to number of places";
-        val dp = new DistGrid(gd, rowPs, colPs);
-        return new BlockSet(gd, dp.dmap, places.indexOf(here), snapshotInfo);
-    }
-
     public static def make(gd:Grid, rowPs:Long, colPs:Long, places:PlaceGroup) {
         //val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs    
         assert (rowPs*colPs == places.size()) :
             "number of distributions groups of blocks must equal to number of places";
         val dp = new DistGrid(gd, rowPs, colPs);
         return new BlockSet(gd, dp.dmap, places.indexOf(here));
-    }
-    
-    public static def makeForRestore(gd:Grid, rowPs:Long, colPs:Long, places:PlaceGroup, snapshotInfo:SnapshotDistributionInfo) {
-        //val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs    
-        assert (rowPs*colPs == places.size()) :
-            "number of distributions groups of blocks must equal to number of places";
-        val dp = new DistGrid(gd, rowPs, colPs);
-        return new BlockSet(gd, dp.dmap, places.indexOf(here), snapshotInfo);
     }
     
     /**
@@ -213,9 +172,6 @@ public class BlockSet  {
     public static def makeSparse(g:Grid, d:DistMap, nzd:Float, places:PlaceGroup) =
         new BlockSet(g,d,places.indexOf(here)).allocSparseBlocks(nzd);
     
-    public static def makeSparseForRestore(g:Grid, d:DistMap, nzd:Float, places:PlaceGroup, snapshotInfo:SnapshotDistributionInfo) =
-            new BlockSet(g,d,places.indexOf(here), snapshotInfo).allocSparseBlocks(nzd);       
-
     /**
      * Front row blocks are those blocks which has smallest row ID in the block set in
      * each column block.
@@ -975,51 +931,5 @@ public class BlockSet  {
         }
         return this;
     }   
-}
-
-class SnapshotDistributionInfo{
-    //Grid data
-    public var M:Long;
-    public var N:Long;
-    public var rowBs:Rail[Long];
-    public var colBs:Rail[Long];
-
-    //DistMap data        
-    public var numPlace:Long;
-    public var blockmap:Rail[Long];
-
-    public def this(){	}
-    public def this(M:Long, N:Long, rowBs:Rail[Long], colBs:Rail[Long], numPlace:Long, blockmap:Rail[Long]){
-    	this.M = M;
-    	this.N = N;
-    	this.rowBs = rowBs;
-    	this.colBs = colBs;
-    	this.numPlace = numPlace;
-    	this.blockmap = blockmap;
-    }
-    
-    public def getGrid():Grid {
-        return new Grid(M, N, rowBs, colBs);
-    } 
-
-    public def updateGrid(g:Grid){
-        this.M = g.M;
-        this .N = g.N;
-        this.rowBs = g.rowBs;
-        this.colBs = g.colBs;
-    }
-
-    public def getDistMap():DistMap {
-        return new DistMap(blockmap, numPlace);
-    }
-
-    public def updateDistMap(m:DistMap){
-        this.numPlace = m.numPlace;
-        this.blockmap = m.blockmap;
-    }    
-
-    public def clone() : SnapshotDistributionInfo {
-    	return new SnapshotDistributionInfo(M, N, rowBs, colBs, numPlace, blockmap);
-    }
 }
 

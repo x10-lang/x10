@@ -13,7 +13,9 @@ package x10.util.resilient.store;
 
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.ResilientStore;
+import x10.util.resilient.localstore.ResilientNativeMap;
 import x10.util.resilient.PlaceManager.ChangeDescription;
+import x10.util.HashMap;
 
 public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   static final class NativeLogEntry[V] implements Cloneable {
@@ -32,12 +34,15 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
     public def clone() = new NativeLogEntry[V](value, placeId, key2, value2);
   }
 
-  val map:ResilientStore;
-  val log:ResilientStore;
+  val store:ResilientStore;
+  
+  val map:ResilientNativeMap;
+  val log:ResilientNativeMap;
 
   def this(name:String, activePlaces:PlaceGroup) {
-    map = ResilientStore.make(activePlaces);
-    log = ResilientStore.make(activePlaces);
+    store = ResilientStore.make(activePlaces);
+    map = store.makeMap("_map_" + name);
+    log = store.makeMap("_log_" + name);
   }
 
   public def get(key:String) = map.get(key) as V;
@@ -45,9 +50,20 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
   public def set(key:String, value:V) {
     map.set(key, value);
   }
+  
+  public def setAll(pairs:HashMap[String,V]) {
+	  val tmp = new HashMap[String,Cloneable]();
+	  val iter = pairs.keySet().iterator();
+	  while (iter.hasNext()) {
+          val k = iter.next();
+		  val v = pairs.getOrThrow(k) as Cloneable;
+		  tmp.put(k,v);
+	  }
+	  map.setAll(tmp);
+  } 
 
   public def set2(key:String, value:V, place:Place, key2:String, value2:V) {
-    val placeId = map.getActivePlaces().indexOf(place);
+    val placeId = store.getActivePlaces().indexOf(place);
     log.set(key, new NativeLogEntry(value, placeId, key2, value2));
     finish {
       at (place) async map.set(key2, value2);
@@ -56,13 +72,12 @@ public class NativeStore[V]{V haszero, V <: Cloneable} extends Store[V] {
     log.delete(key);
   }
 
-  public def getActivePlaces() = map.getActivePlaces();
+  public def getActivePlaces() = store.getActivePlaces();
 
   // update for changes in the active PlaceGroup
   public def updateForChangedPlaces(changes:ChangeDescription):void {
-    map.updateForChangedPlaces(changes);
-    log.updateForChangedPlaces(changes);
-    val group = log.getActivePlaces();
+    store.updateForChangedPlaces(changes);
+    val group = store.getActivePlaces();
     group.broadcastFlat(() => {
       for(key in log.keySet()) {
         Console.ERR.println("Replaying transaction log for key " + key);

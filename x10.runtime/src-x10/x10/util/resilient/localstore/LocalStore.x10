@@ -39,16 +39,9 @@ public class LocalStore {
     public def this() { }
 
     /*used when a spare place joins*/
-    public def joinAsMaster (virtualPlaceId:Long, data:HashMap[String,Cloneable], epoch:Long) {
+    public def joinAsMaster (virtualPlaceId:Long, data:HashMap[String,HashMap[String,Cloneable]]) {
         this.virtualPlaceId = virtualPlaceId;
-        masterStore = new MasterStore(virtualPlaceId, data, epoch);
+        masterStore = new MasterStore(virtualPlaceId, data);
         slaveStore = new SlaveStore();
-    }      
-    
-    /*used when a spare place joins*/
-    public def joinAsSlave (masterVirtualPlaceId:Long, masterData:HashMap[String,Cloneable], masterEpoch:Long) {
-        assert(slaveStore != null);
-        slaveStore.addMasterPlace(masterVirtualPlaceId, masterData, new HashMap[String,TransKeyLog](), masterEpoch);
     }
-    
 }
