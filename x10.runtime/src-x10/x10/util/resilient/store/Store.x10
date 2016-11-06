@@ -14,6 +14,7 @@ package x10.util.resilient.store;
 import x10.compiler.Native;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.localstore.Cloneable;
+import x10.util.HashMap;
 
 // a collection of resilient stores, one per place in a place group
 public abstract class Store[V]{V haszero, V <: Cloneable} {
@@ -22,6 +23,9 @@ public abstract class Store[V]{V haszero, V <: Cloneable} {
 
     // set the value for the given key in the local store
     public abstract def set(key:String, value:V):void;
+
+    // set multiple k/v pairs in the local store
+    public abstract def setAll(pairs:HashMap[String,V]):void;
 
     // get the value for the given key at the specified place
     public def getRemote(place:Place, key:String) = at (place) get(key);
