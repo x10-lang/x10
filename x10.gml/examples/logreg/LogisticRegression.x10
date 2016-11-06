@@ -491,11 +491,7 @@ public class LogisticRegression(N:Long /*nrow (X)*/, D:Long /*ncol (X)*/) implem
         val newRowPs = changes.newActivePlaces.size();        
         val newColPs = 1;
         //remake all the distributed data structures
-        if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, changes.newActivePlaces, changes.addedPlaces);
-        } else {
-            X.remakeDense(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
-        }
+        X.remake(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
         
         val rowBs = X.getAggRowBs();
         B.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);

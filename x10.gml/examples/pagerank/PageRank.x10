@@ -303,7 +303,7 @@ public class PageRank implements SPMDResilientIterativeApp {
         if (VERBOSE) Console.OUT.println(here + "Remake, newRowPs["+newRowPs+"], newColPs["+newColPs+"] ...");
         val nzd = nnz as Float / (G.M * G.N);
         // TODO remake using nnz instead of nzd
-        G.remakeSparse(newRowPs, newColPs, nzd, changes.newActivePlaces, changes.addedPlaces);
+        G.remake(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
         //U.remake(G.getAggRowBs(), changes.newActivePlaces, newTeam, changes.addedPlaces);
         P.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
         GP.remake(G.getAggRowBs(), changes.newActivePlaces, newTeam, changes.addedPlaces);

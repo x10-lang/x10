@@ -215,11 +215,7 @@ public class LinearRegression implements SPMDResilientIterativeApp {
         val newRowPs = changes.newActivePlaces.size();
         val newColPs = 1;
         //remake all the distributed data structures
-        if (nzd < MAX_SPARSE_DENSITY) {
-            X.remakeSparse(newRowPs, newColPs, nzd, changes.newActivePlaces, changes.addedPlaces);
-        } else {
-            X.remakeDense(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
-        }
+        X.remake(newRowPs, newColPs, changes.newActivePlaces, changes.addedPlaces);
         d_p.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
         d_q.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
         d_r.remake(changes.newActivePlaces, newTeam, changes.addedPlaces);
