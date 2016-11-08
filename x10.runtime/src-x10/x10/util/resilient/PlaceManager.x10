@@ -102,6 +102,7 @@ public class PlaceManager implements x10.io.Unserializable {
      * @return a ChangeDescription instance describing how things were rebuilt.
      */
     public def rebuildActivePlaces():ChangeDescription {
+        val rebuildStart = System.nanoTime();
         // First figure out which Places in activePlaces are dead.
         val deadPlaces = new ArrayList[Place]();
         for (p in activePlaces) {
@@ -116,6 +117,7 @@ public class PlaceManager implements x10.io.Unserializable {
 
         // Next try to make sure we have enough spares to do the rebuild
         if (numDead > sparePlaces.size() && !allowShrinking) {
+            val start = System.nanoTime();
             val numNeeded = numDead - sparePlaces.size();
             if (VERBOSE) Console.OUT.println("PlaceManager: must request "+numNeeded+" additional spares ("+numDead+" > "+ sparePlaces.size()+")");
             val numAdded = System.addPlacesAndWait(numNeeded, 20000); // wait up to 20 seconds; we're exiting if this fails.
@@ -126,6 +128,8 @@ public class PlaceManager implements x10.io.Unserializable {
                         sparePlaces.add(p);
                     }
                 }
+                val end = System.nanoTime();
+                if (VERBOSE) Console.OUT.printf("PlaceManager: added %d places in %f seconds\n", numAdded, (end-start)/1e9);
             }
         }
 
@@ -152,6 +156,8 @@ public class PlaceManager implements x10.io.Unserializable {
         // Return description of changes
         val oldActivePlaces = activePlaces;
         activePlaces = new SparsePlaceGroup(newActivePlaces.toRail());
+        val rebuildEnd = System.nanoTime();
+        if (VERBOSE) Console.OUT.printf("PlaceManager: total rebuild time %f seconds\n", (rebuildEnd-rebuildStart)/1e9);
         return ChangeDescription(oldActivePlaces, activePlaces, deadPlaces, addedPlaces);
     }
 }

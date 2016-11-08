@@ -192,6 +192,7 @@ public class GlobalResilientIterativeExecutor (home:Place) {
         val newVersion = appStore.nextCheckpointVersion();
         val first = globalIter == 0;
         finish for (p in manager().activePlaces()) at (p) async {
+            val start = System.nanoTime();
             val ckptMap = appStore.getCheckpointData_local(first);
             if (ckptMap != null) {
             	val verMap = new HashMap[String,Cloneable]();
@@ -205,6 +206,8 @@ public class GlobalResilientIterativeExecutor (home:Place) {
                 }
                 resilientMap.setAll(verMap);
             }
+            val end = System.nanoTime();
+            if (VERBOSE) Console.OUT.println(here+" my checkpoint time "+((end-start) / 1e9)+" seconds");
         }
         appStore.commitCheckpoint(newVersion);
         ckptTimes.add(Timer.milliTime() - startCheckpoint);
