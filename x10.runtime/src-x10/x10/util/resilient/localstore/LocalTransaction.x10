@@ -95,7 +95,7 @@ private val moduleName = "LocalTransaction";
     		val tmpMapName = mapName;
     		val tmpTransLog = transLog;
     		val tmpPLH = plh;
-    		at (tmpPLH().slave) {
+		finish at (tmpPLH().slave) async {
     			tmpPLH().slaveStore.commit(tmpMapName, masterVirtualId, tmpTransLog);
     		}
     		//master commit
