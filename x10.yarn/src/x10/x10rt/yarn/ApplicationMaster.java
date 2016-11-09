@@ -132,6 +132,7 @@ public class ApplicationMaster {
 	
 	private int initialNumPlaces;
 	private int coresPerPlace;
+	private int nthreads;
 	private int memoryPerPlaceInMb;
 	
 	// these are all atomic, since they get updated in callbacks
@@ -175,6 +176,7 @@ public class ApplicationMaster {
 		
 		initialNumPlaces = Integer.parseInt(envs.get(X10_NPLACES));
 		coresPerPlace = Integer.parseInt(envs.get(X10_NTHREADS));
+		nthreads = coresPerPlace;
 		links = new HashMap<Integer, ApplicationMaster.CommunicationLink>(initialNumPlaces);
 		places = new HashMap<ContainerId, Integer>(initialNumPlaces);
 		pendingReads = new HashMap<SocketChannel, ByteBuffer>();
@@ -662,7 +664,7 @@ public class ApplicationMaster {
 							env.put(key.substring(prefixlen), System.getenv(key));
 					}
 					env.put(ApplicationMaster.X10_NPLACES, Integer.toString(Math.max(initialNumPlaces, numRequestedContainers.get())));
-					env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(coresPerPlace));
+					if (nthreads > 0) env.put(ApplicationMaster.X10_NTHREADS, Integer.toString(nthreads));
 					env.put(ApplicationMaster.X10_LAUNCHER_PLACE, Integer.toString(placeId));
 					env.put(ApplicationMaster.X10_LAUNCHER_HOST, allocatedContainer.getNodeId().getHost());
 					env.put(ApplicationMaster.X10_LAUNCHER_PARENT, appMasterHostname+':'+appMasterPort);
