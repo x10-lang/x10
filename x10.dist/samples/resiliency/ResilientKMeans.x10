@@ -52,14 +52,14 @@ public class ResilientKMeans {
      * of points to clusters.
      */
     final static class LocalState implements x10.io.Unserializable {
-        var points:Rail[Float];
+        var points:Rail[Rail[Float]];
         var clusters:Rail[Float];
         var clusterCounts:Rail[Int];
         var numPoints:Long;
         var numClusters:Long;
         var dim:Long;
 
-        def this(initPoints:(Place)=>Rail[Float], numPoints:Long, dim:Long, numClusters:Long) {
+        def this(initPoints:(Place)=>Rail[Rail[Float]], numPoints:Long, dim:Long, numClusters:Long) {
             points = initPoints(here);
             clusters  = new Rail[Float](numClusters * dim);
             clusterCounts = new Rail[Int](numClusters);
@@ -82,10 +82,11 @@ public class ResilientKMeans {
             for (p in mine) {
                 var closest:Long = -1;
                 var closestDist:Float = Float.MAX_VALUE;
+                val point = points(p);
                 for (k in 0..(numClusters-1)) {
                     var dist : Float = 0;
                     for (d in 0..(dim-1)) {
-                        val tmp = points(p * dim + d) - currentClusters(k * dim + d);
+                        val tmp = point(d) - currentClusters(k * dim + d);
                         dist += tmp * tmp;
                     }
                     if (dist < closestDist) {
@@ -94,7 +95,7 @@ public class ResilientKMeans {
                     }
                 }
                 for (d in 0..(dim-1)) {
-                    scratchClusters(closest * dim + d) += points(p * dim + d);
+                    scratchClusters(closest * dim + d) += point(d);
                 }
                 scratchClusterCounts(closest)++;
             }
@@ -126,7 +127,7 @@ public class ResilientKMeans {
     }
     
     //LocalState is Unserializable, we can not use it for checkpointing
-    static class LocalStateSnapshot(points:Rail[Float], numPoints:Long, dim:Long, numClusters:Long) implements Cloneable {
+    static class LocalStateSnapshot(points:Rail[Rail[Float]], numPoints:Long, dim:Long, numClusters:Long) implements Cloneable {
         public def clone():Cloneable {
             return new LocalStateSnapshot(points, numPoints, dim, numClusters);
         }
@@ -200,7 +201,7 @@ public class ResilientKMeans {
             finish {
                 for (p in pg) async {
                     val plh = distState.lsPLH; // don't capture this!
-                    val tmp = at (p) { new Rail[Float](plh().numClusters * plh().dim, (i:Long) => { plh().points(i) }) };
+                    val tmp = at (p) { new Rail[Float](plh().numClusters * plh().dim, (i:Long) => { plh().points(i/dim)(i%dim) }) };
                     atomic {
                         for (i in currentClusters.range()) {
                             currentClusters(i) += tmp(i);
@@ -294,7 +295,7 @@ public class ResilientKMeans {
         }
     }
 
-    static def computeClusters(initPoints:(Place)=>Rail[Float], numPoints:Long,
+    static def computeClusters(initPoints:(Place)=>Rail[Rail[Float]], numPoints:Long,
                                dim:Long, numClusters:Long,
                                iterations:Long, epsilon:Float, verbose:Boolean,
                                checkpointFreq:Long, sparePlaces:Long):Rail[Float] {
@@ -362,7 +363,7 @@ public class ResilientKMeans {
         val pointsPerPlace = numPoints / (Place.numPlaces() - sparePlaces);
         val initPoints = (p:Place) => {
             val rand = new x10.util.Random(p.id);
-            val pts = new Rail[Float](pointsPerPlace * dim, (Long)=> rand.nextFloat());
+            val pts = new Rail[Rail[Float]](pointsPerPlace, (Long)=> new Rail[Float](dim, (Long) => rand.nextFloat()));
             pts
         };
 
