@@ -54,6 +54,7 @@ public class PlaceManager implements x10.io.Unserializable {
     private var activePlaces:PlaceGroup;
     private val sparePlaces:ArrayList[Place] = new ArrayList[Place]();
     private val allowShrinking:Boolean;
+    private val numSpares:Long;
 
     /**
      * Create a PlaceManager instance where the initial world is all
@@ -72,6 +73,7 @@ public class PlaceManager implements x10.io.Unserializable {
      * @param allowShrinking should shrinking recovery be allowed.
      */
     public def this(numSpares:Long, allowShrinking:Boolean) {
+        this.numSpares = numSpares;
         this.allowShrinking = allowShrinking;
         if (numSpares >= Place.numPlaces()) {
             throw new IllegalArgumentException("Requested more spares than available places");
@@ -115,19 +117,33 @@ public class PlaceManager implements x10.io.Unserializable {
             return new ChangeDescription(activePlaces, activePlaces, deadPlaces, deadPlaces);
         }
 
+        val start = System.nanoTime();
+        // discover places added in the last round
+        for (p in Place.places()) {
+            if (!p.isDead() && !activePlaces.contains(p) && !sparePlaces.contains(p)) {
+                if (VERBOSE) Console.OUT.println("PlaceManager: added spare place ["+p.id+"]");
+                sparePlaces.add(p);
+            }
+        }
         // Next try to make sure we have enough spares to do the rebuild
-        if (numDead > sparePlaces.size() && !allowShrinking) {
-            val start = System.nanoTime();
-            val numNeeded = numDead - sparePlaces.size();
-            if (VERBOSE) Console.OUT.println("PlaceManager: must request "+numNeeded+" additional spares ("+numDead+" > "+ sparePlaces.size()+")");
-            val numAdded = System.addPlacesAndWait(numNeeded, 20000); // wait up to 20 seconds; we're exiting if this fails.
-            if (numAdded > 0) {
-                for (p in Place.places()) {
-                    if (!p.isDead() && !activePlaces.contains(p) && !sparePlaces.contains(p)) {
-                        if (VERBOSE) Console.OUT.println("PlaceManager: added spare place ["+p.id+"]");
-                        sparePlaces.add(p);
+        if (numDead > sparePlaces.size() - numSpares && !allowShrinking) {
+            val numNeeded = numDead - sparePlaces.size() + numSpares;
+            if (VERBOSE) Console.OUT.println("PlaceManager: must request "+numNeeded+" additional spares ("+numDead+" > "+ (sparePlaces.size() - numSpares) +")");
+            val numAdded:Long;
+            if (numSpares >= numDead) {
+                numAdded = System.addPlaces(numNeeded); // no need to wait
+            } else {
+                numAdded = System.addPlacesAndWait(numNeeded, 20000); // wait up to 20 seconds; we're exiting if this fails.
+                if (numAdded > 0) {
+                    for (p in Place.places()) {
+                        if (!p.isDead() && !activePlaces.contains(p) && !sparePlaces.contains(p)) {
+                            if (VERBOSE) Console.OUT.println("PlaceManager: added spare place ["+p.id+"]");
+                            sparePlaces.add(p);
+                        }
                     }
                 }
+            }
+            if (numAdded > 0) {
                 val end = System.nanoTime();
                 if (VERBOSE) Console.OUT.printf("PlaceManager: added %d places in %f seconds\n", numAdded, (end-start)/1e9);
             }
