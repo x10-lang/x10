@@ -375,6 +375,7 @@ final class ResilientUTS implements Unserializable {
   
   static def step(group:PlaceGroup, bag: UTS, wave:Int, power:Int, resilient:Boolean, map:Store[UTS], time0:Long, killTimes:HashMap[Long,Long]) {
     val max = group.size() as Int << power;
+    if (wave >= 0) println(time0, "Wave " + wave + ": PLH init beginning");
     val plh = PlaceLocalHandle.make[ResilientUTS](group, () => new ResilientUTS(wave, group, power, resilient, time0, map));
     if (wave >= 0) println(time0, "Wave " + wave + ": PLH init complete");
     finish for (p in group) {
@@ -441,13 +442,6 @@ final class ResilientUTS implements Unserializable {
     return ref()();
   }
 
-  static def ensureSufficientWorkers(power:Int) {
-    val missing = (1n << power) + 1n - Runtime.NTHREADS;
-    if (missing > 0) {
-        for (i in 1..missing) Runtime.increaseParallelism();
-    }
-  }
-
   public static def main(args:Rail[String]) {
     val time0 = System.currentTimeMillis();
     
@@ -471,7 +465,6 @@ final class ResilientUTS implements Unserializable {
 
     val resilient = Runtime.RESILIENT_MODE != 0n;
     val power = opt.power;
-    finish for (p in Place.places()) at (p) async ensureSufficientWorkers(power);
 
     val md = UTS.encoder();
     val map0 = resilient ? Store.make[UTS]("map0", Place.places()): null;
@@ -501,7 +494,6 @@ final class ResilientUTS implements Unserializable {
         if (w > 0n) {
             val changes = manager.rebuildActivePlaces();
             map.updateForChangedPlaces(changes);
-            finish for (p in changes.addedPlaces) at (p) async ensureSufficientWorkers(power);
         }
         finish count = ResilientUTS.step(manager.activePlaces(), w == 0n ? bag : null, w, opt.power, resilient, map, time0, opt.killTimes);
         break;
