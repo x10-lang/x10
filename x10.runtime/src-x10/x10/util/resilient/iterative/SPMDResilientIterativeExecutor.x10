@@ -89,6 +89,9 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     //the startRunTime parameter is added to allow the executor to consider 
     //any initialization time done by the application before starting the executor
     public def run(app:SPMDResilientIterativeApp, startRunTime:Long){here == home} {
+        if (simplePlaceHammer != null) {
+            simplePlaceHammer.scheduleTimers();
+        }
         this.startRunTime = startRunTime;
         Console.OUT.println("SPMDResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         val root = here;

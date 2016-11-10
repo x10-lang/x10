@@ -86,6 +86,9 @@ public class GlobalResilientIterativeExecutor (home:Place) {
     //the startRunTime parameter is added to allow the executor to consider 
     //any initialization time done by the application before starting the executor  
     public def run(app:GlobalResilientIterativeApp, startRunTime:Long){here == home} {
+        if (simplePlaceHammer != null) {
+            simplePlaceHammer.scheduleTimers();
+        }
         this.startRunTime = startRunTime;
         Console.OUT.println("GlobalResilientIterativeExecutor: Application start time ["+startRunTime+"] ...");
         
@@ -103,6 +106,7 @@ public class GlobalResilientIterativeExecutor (home:Place) {
                     globalIter = lastCkptIter;
                     restored = true;
                     remakeRequired = false;
+                    Console.OUT.println("[Hammer Log] Remake/Restore completed at ["+Timer.milliTime()+"] ...");
                 }                
                 
                 /*** Checkpoint ***/                
@@ -179,7 +183,7 @@ public class GlobalResilientIterativeExecutor (home:Place) {
         appRemakeTimes.add(Timer.milliTime() - startAppRemake);                        
         
         restoreRequired = true;
-        remakeTimes.add(Timer.milliTime() - startRemake) ;                        
+        remakeTimes.add(Timer.milliTime() - startRemake);
         Console.OUT.println("All remake steps completed successfully ...");
         return restoreRequired;
     }

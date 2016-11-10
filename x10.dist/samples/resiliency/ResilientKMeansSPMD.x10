@@ -325,7 +325,7 @@ public class ResilientKMeansSPMD {
 
     // Saffolding for killing places during automated testing.
     public static def setHammerConfig(steps:String, places:String) {
-        hammer() = new SimplePlaceHammer(steps, places);
+        hammer() = new SimplePlaceHammer(steps, null, places);
     }
 
     static val hammer = new Cell[SimplePlaceHammer](null);
