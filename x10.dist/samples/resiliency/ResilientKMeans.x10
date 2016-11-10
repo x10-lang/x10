@@ -221,20 +221,23 @@ public class ResilientKMeans {
         // accumulating the resulting new cluster centroids.
         public def step() {
             finish {
-                for (p in pg) async {
-                    val shadowClusters = this.currentClusters; // avoid capture of KMeansMaster object in at!
-                    val shadowPLH = this.distState.lsPLH;  // avoid capture of KMeansMaster object in at!
-                    val partialResults = at (p) {
-                        val ls = shadowPLH();
-                        ls.localStep(shadowClusters);
-                        Pair[Rail[Float],Rail[Int]](ls.clusters, ls.clusterCounts)
-                    };
-                    atomic {
-                        for (i in newClusters.range()) {
-                            newClusters(i) += partialResults.first(i);
-                        }
-                        for (i in newClusterCounts.range()) {
-                            newClusterCounts(i) += partialResults.second(i);
+                val masterGR = GlobalRef(this);
+                val shadowClusters = this.currentClusters; // avoid capture of KMeansMaster object in at!
+                val shadowPLH = this.distState.lsPLH;  // avoid capture of KMeansMaster object in at!
+                for (p in pg) at (p) async {
+                    val ls = shadowPLH();
+                    ls.localStep(shadowClusters);
+                    val resultClusters = ls.clusters;
+                    val resultCounts = ls.clusterCounts;
+                    at (masterGR.home) async {
+                        val master = masterGR();
+                        atomic {
+                            for (i in master.newClusters.range()) {
+                                master.newClusters(i) += resultClusters(i);
+                            }
+                            for (i in master.newClusterCounts.range()) {
+                                master.newClusterCounts(i) += resultCounts(i);
+                            }
                         }
                     }
                 }
@@ -358,6 +361,7 @@ public class ResilientKMeans {
         val sparePlaces = opts("-s",0);
         
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
+        Console.OUT.println("active places: "+(Place.numPlaces() - sparePlaces)+" spares: "+sparePlaces);
         
         val pointsPerPlace = numPoints / (Place.numPlaces() - sparePlaces);
         val initPoints = (p:Place) => {
