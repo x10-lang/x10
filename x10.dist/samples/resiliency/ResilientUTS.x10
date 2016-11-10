@@ -214,6 +214,7 @@ final class ResilientUTS implements Unserializable {
           lock.unlock();
         }
         while (bag.size > 0n) {
+          var i:Int = 0n;
           while (bag.size > 0n) {
             for (var n:Int = 500n; (n > 0n) && (bag.size > 0n); --n) {
               bag.expand(md);
@@ -224,7 +225,11 @@ final class ResilientUTS implements Unserializable {
             } finally {
               lock.unlock();
             }
-            distribute();
+            if (distribute()) i = 0n;
+            if (resilient && (i = (i+1n) % 20000n) == 0n) {
+                println(time0, "Committing worker " + me);
+                map.set(me.toString(), bag.trim());
+            }
           }
           if (resilient) {
             map.set(me.toString(), bag.trim());
@@ -341,8 +346,9 @@ final class ResilientUTS implements Unserializable {
 
     def distribute() {
       if (group.size() == 1 && power == 0n) {
-        return;
+        return false;
       }
+      var commit:Boolean = false;
       var thief:Request;
       while ((thief = thieves.poll() as Request) != null) {
         val t = thief.thief;
@@ -350,6 +356,7 @@ final class ResilientUTS implements Unserializable {
         if (loot != null && resilient) {
           loot.count = thief.count;
           map.set2(me.toString(), bag.trim(), group(t >> power), t.toString(), loot);
+          commit = true;
         }
         val id = t & mask;
         val plh = this.plh;
@@ -363,6 +370,7 @@ final class ResilientUTS implements Unserializable {
           val t = next;
           if (resilient) {
             map.set2(me.toString(), bag.trim(), group(t >> power), t.toString(), loot);
+            commit = true;
           }
           lifeline.set(-1);
           val id = t & mask;
@@ -370,6 +378,7 @@ final class ResilientUTS implements Unserializable {
           at (group(t >> power)) async plh().workers(id).lifelinedeal(loot);
         }
       }
+      return commit;
     }
   }
   
