@@ -1054,31 +1054,12 @@ public class DistBlockMatrix extends Matrix implements Snapshottable {
     public def makeSnapshot_local():Cloneable {
     	val data = handleBS();
         val i = handleBS().placeIndex;
-        val isSparse = data.blocklist.get(0).isSparse();
-        var blockSetInfo:BlockSetSnapshotInfo = null;
-        if (isSparse) {
-            val blocksCount = data.blocklist.size();
-            val metadata = data.getBlocksMetaData();
-            val totalSize = data.getStorageSize();
-            val allIndex = new Rail[Long](totalSize);
-            val allValue = new Rail[ElemType](totalSize);
-    
-            data.initSparseBlocksRemoteCopyAtSource();
-            data.flattenIndex(allIndex);
-            data.flattenValue(allValue);
-            data.finalizeSparseBlocksRemoteCopyAtSource();
-    
-            blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
-            blockSetInfo.initSparse(blocksCount, metadata, allIndex, allValue);            
-        } else {            
-            blockSetInfo = new BlockSetSnapshotInfo(i, isSparse);
-            blockSetInfo.setBlockSet(data);                    
-        }
+        val blockSetInfo = new BlockSetSnapshotInfo(i, data);
         return blockSetInfo;
     }
     
     public def restoreSnapshot_local(bs:Cloneable) {
-    	val oldBlocks = (bs as BlockSetSnapshotInfo).getBlockSet().blocklist;
+    	val oldBlocks = (bs as BlockSetSnapshotInfo).blockSet.blocklist;
     	handleBS().blocklist.clear();
     	handleBS().blocklist.addAll(oldBlocks);   	
     }
