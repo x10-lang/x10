@@ -39,6 +39,8 @@ test_args = -m 100000 --iterations 10 --checkpointFreq 10 #--verify
 ###################################################
 default:	help
 run:		run_java
+jar:	java
+	jar -cvf PageRank.jar -C build .
 
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk

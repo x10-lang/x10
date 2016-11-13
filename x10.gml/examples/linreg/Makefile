@@ -40,6 +40,8 @@ test_args = -m 10000 -n 500 --verify
 ###################################################
 default: 	help
 run:		run_java
+jar:   java
+		jar -cvf LinReg.jar -C build .
 
 include $(gml_path)/scripts/build_common.mk
 include $(gml_path)/scripts/build_managed.mk
