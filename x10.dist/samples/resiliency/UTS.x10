@@ -184,8 +184,9 @@ final class UTS implements Cloneable {
     return str.substring(start, Math.min(end, str.length()));
   }
 
-  public static def main(Rail[String]) {
-    val depth = 13n;
+  public static def main(args:Rail[String]) {
+    var depth:Int = 13n;
+    if (args.size > 0) depth = Int.parseInt(args(0));
 
     val md = encoder();
 

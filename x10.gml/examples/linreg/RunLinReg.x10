@@ -25,7 +25,7 @@ import x10.matrix.regression.RegressionInputData;
 import x10.matrix.util.Debug;
 import x10.matrix.util.MathTool;
 import x10.util.Team;
-import x10.util.resilient.iterative.*;
+import x10.util.resilient.iterative.SPMDResilientIterativeExecutor;
 
 /**
  * Test harness for Linear Regression using GML
