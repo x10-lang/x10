@@ -185,7 +185,7 @@ public class ApplicationMaster {
 		this.appName = System.getProperty(X10_YARN_MAIN);
 		
 		// look for max memory argument
-		this.memoryPerPlaceInMb = 1024; // default of 1Gb per place
+		this.memoryPerPlaceInMb = 4024; // default of 1Gb per place
 		for (int i=0; i<args.length; i++) {
 			try {
 				if (args[i].startsWith("-Xmx")) {
