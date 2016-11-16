@@ -10,17 +10,13 @@
  */
 
 import x10.util.foreach.Block;
-import x10.util.ArrayList;
 import x10.util.OptionsParser;
 import x10.util.Option;
-import x10.util.Pair;
 import x10.util.Random;
-import x10.util.resilient.PlaceManager;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.iterative.*;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.Snapshottable;
-import x10.util.Timer;
 
 /**
  * A resilient distributed implementation of KMeans clustering
@@ -283,7 +279,7 @@ public class ResilientKMeans {
     static def computeClusters(initPoints:(Place)=>Rail[Float], numPoints:Long,
                                dim:Long, numClusters:Long, iterations:Long, epsilon:Float,
                                verbose:Boolean, checkpointFreq:Long, sparePlaces:Long):Rail[Float] {
-        val startTime = Timer.milliTime(); // the executor takes milli time.
+        val startTime = System.currentTimeMillis(); // the executor takes milli time.
         val executor = new GlobalResilientIterativeExecutor(checkpointFreq, sparePlaces, false);
         val activePlaces = executor.activePlaces();
         

@@ -33,15 +33,15 @@ public class ResilientKMeansSPMDTest extends x10Test {
          val nPoints = 200000;
          val k = 8; // 2^d
 
-         // Create globally uniform, but locally skewed distribution
+          // Create globally uniform, but locally skewed distribution
          val initPoints = (Place) => {
              val virtualPlace = here.id;
              val rand = new Random(virtualPlace);
-             val pts = new Array_2[Float](nPoints, d, (Long,Long) => rand.nextFloat());
+             val pts = new Rail[Float](nPoints * d, (Long) => rand.nextFloat());
              val signVector:Rail[Float] = signVectors(virtualPlace);
              for (i in 0..(nPoints-1)) {
                  for (j in 0..(d-1)) {
-                     pts(i,j) *= signVector(j);
+                     pts(i * d + j) *= signVector(j);
                  }
              }
              pts
@@ -50,7 +50,7 @@ public class ResilientKMeansSPMDTest extends x10Test {
          if (x10.xrx.Runtime.RESILIENT_MODE > 0) {
              ResilientKMeansSPMD.setHammerConfig("3,15", "2,7");
          }
-         val clusters = ResilientKMeansSPMD.computeClusters(initPoints, 3, k, 20, 1e-6f, false, 5, 2);
+         val clusters = ResilientKMeansSPMD.computeClusters(initPoints, nPoints, d, k, 20, 1e-6f, false, 5, 2);
 
          var pass:Boolean = true;
 
@@ -65,10 +65,10 @@ public class ResilientKMeansSPMDTest extends x10Test {
          }
 
          // Next check octant coverage
-         val octants = new Array_2[Long](k, d, (i:Long,j:Long) => Math.signum(clusters(i,j)) < 0f ? 0 : 1);
+         val octants = new Rail[Long](k * d, (i:Long) => Math.signum(clusters(i)) < 0f ? 0 : 1);
          val octantCount = new Rail[Long](k);
          for (i in 0..(k-1)) {
-             val octant = 4*octants(i,0) + 2*octants(i,1) + octants(i,2);
+             val octant = 4*octants(i*d + 0) + 2*octants(i*d + 1) + octants(i*d + 2);
              octantCount(octant) += 1;
          }
          for (i in octantCount.range()) {
@@ -79,7 +79,7 @@ public class ResilientKMeansSPMDTest extends x10Test {
          }
          if (!pass) {
              Console.OUT.println("Computed clusters: ");
-             ResilientKMeansSPMD.printPoints(clusters);
+             ResilientKMeansSPMD.printPoints(clusters, k, d);
          }
 
          return pass;
