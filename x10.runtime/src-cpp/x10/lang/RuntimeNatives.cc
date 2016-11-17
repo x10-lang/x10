@@ -64,9 +64,11 @@
 using namespace x10::lang;
 using namespace x10::io;
 
-
 void RuntimeNatives::exit(x10_int code) {
 	// exit now, using this exit code
+// DAVE:EXIT_DEBUG
+    if (code != 0) ::printf("Place %d: RuntimeNatives::exit called with code %d\n", x10aux::here, code);
+// DAVE:EXIT_DEBUG
 	char* exit_mode = getenv("X10_EXIT_BY_SIGKILL");
 	if (exit_mode && atoi(exit_mode) == 1)
 		::kill(getpid(), SIGKILL);
