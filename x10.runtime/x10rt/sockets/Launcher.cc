@@ -588,6 +588,11 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			// ignore these, as they are normal on shutdown, or likely were sent a few lines above
 			if (WTERMSIG(status) == SIGPIPE || WTERMSIG(status) == SIGKILL || WTERMSIG(status) == SIGTERM || WTERMSIG(status) == SIGCHLD)
 				_exitcode = 0;
+#if __APPLE__
+                        // we see spurious exits with SIG 80 (64 + SIGURG ???) from exiting launchers on macOS.  Ignore.
+                        else if (WTERMSIG(status) == 80)
+				_exitcode = 0;
+#endif
 			else
 			{
 				_exitcode = 128 + WTERMSIG(status);
