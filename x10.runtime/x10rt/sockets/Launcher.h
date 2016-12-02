@@ -118,7 +118,7 @@ class Launcher
 		int _argc; /* argc copied from init */
 		char _realpath[PATH_MAX]; /* real path of executable */
 		char _ssh_command[64]; /* the SSH command. */
-		char _hostfname[512]; /* host file name */
+		char _hostfname[PATH_MAX]; /* host file name */
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
 		time_t _dieAt; // used to shut everything down in the event of an unexpected death somewhere

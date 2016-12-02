@@ -9,15 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2016.
  */
 
-import x10.array.Array;
-import x10.array.Array_2;
-import x10.util.ArrayList;
 import x10.util.HashMap;
+import x10.util.foreach.Block;
 import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.Random;
 import x10.util.Team;
-import x10.util.foreach.Block;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.iterative.*;
 import x10.util.resilient.localstore.Cloneable;
@@ -32,7 +29,7 @@ import x10.util.resilient.localstore.Cloneable;
  *
  * Intra-place concurrency is exposed via Foreach.
  *
- * Points are stored in each Place in an Array_2[Float].
+ * Points are stored in each Place in a Rail[Float].
  *
  * For the highest throughput and most scalable implementation of
  * the KMeans algorithm in X10 for Native X10, see KMeans.x10 in the
@@ -41,78 +38,84 @@ import x10.util.resilient.localstore.Cloneable;
 public class ResilientKMeansSPMD {
 
     static class LocalState {
-        var points:Array_2[Float];
-        var oldClusters:Array_2[Float];
-        var clusters:Array_2[Float];
+        var points:Rail[Float];
+        var currentClusters:Rail[Float];
+        var clusters:Rail[Float];
         var clusterCounts:Rail[Int];
         var numPoints:Long;
         var numClusters:Long;
         var epsilon:Float;
         var dim:Long;
-        var verbose:Boolean;
         var team:Team;
         var currentIteration:Long = 0;
         var kernelTime:Long = 0;
         var commTime:Long = 0;
         var converged:Boolean = false;
 
-        def this(team:Team, initPoints:(Place)=>Array_2[Float], dim:Long, numClusters:Long,
-                 epsilon:Float, verbose:Boolean) {
+        def this(team:Team, initPoints:(Place)=>Rail[Float], numPoints:Long,
+                 dim:Long, numClusters:Long, epsilon:Float) {
             points = initPoints(here);
-            clusters  = new Array_2[Float](numClusters, dim);
-            numPoints = points.numElems_1;
+            clusters  = new Rail[Float](numClusters * dim);
+            this.numPoints = numPoints;
             this.numClusters = numClusters;
             this.dim = dim;
             this.epsilon = epsilon;
             this.team = team;
-            this.verbose = verbose;
             initializeScratchStorage();
         }
 
         private final def initializeScratchStorage() {
-            if (oldClusters ==null) oldClusters = new Array_2[Float](numClusters, dim);
+            if (currentClusters ==null) currentClusters = new Rail[Float](numClusters * dim);
             if (clusterCounts == null) clusterCounts = new Rail[Int](numClusters);
         }
 
-        // used to initialize an elastic/spare place before restore
-        def this() { }
+        def this() { } // used to initialize an elastic/spare place before restore
 
         def isFinished() = converged;
 
+        // outlined from step to help JIT compiler
+        def kernel(mine:LongRange, currentClusters:Rail[Float],
+                   scratchClusters:Rail[Float], scratchClusterCounts:Rail[Int]) {
+            val dim = this.dim;
+            val numClusters = this.numClusters;
+            val points = this.points;
+            for (p in mine) {
+                var closest:Long = -1;
+                var closestDist:Float = Float.MAX_VALUE;
+                for (k in 0..(numClusters-1)) {
+                    var dist : Float = 0;
+                    for (d in 0..(dim-1)) {
+                        val tmp = points(p * dim + d) - currentClusters(k * dim + d);
+                        dist += tmp * tmp;
+                    }
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closest = k;
+                    }
+                }
+                for (d in 0..(dim-1)) {
+                    scratchClusters(closest * dim + d) += points(p * dim + d);
+                }
+                scratchClusterCounts(closest)++;
+            }
+        }
+
         def step():void {
             // Prepare for computation
-            Array.copy(clusters, oldClusters);
-            clusters.raw().clear();
+            Rail.copy(clusters, currentClusters);
+            clusters.clear();
             clusterCounts.clear();
 
             // Primary kernel: for every point, determine current closest
             //                 cluster and assign the point to that cluster.
             kernelTime -= System.nanoTime();
             Block.for(mine:LongRange in 0..(numPoints-1)) {
-                val scratchClusters = new Array_2[Float](numClusters, dim);
+                val scratchClusters = new Rail[Float](numClusters * dim);
                 val scratchClusterCounts = new Rail[Int](numClusters);
-                for (p in mine) {
-                    var closest:Long = -1;
-                    var closestDist:Float = Float.MAX_VALUE;
-                    for (k in 0..(numClusters-1)) {
-                        var dist : Float = 0;
-                        for (d in 0..(dim-1)) {
-                            val tmp = points(p,d) - oldClusters(k,d);
-                            dist += tmp * tmp;
-                        }
-                        if (dist < closestDist) {
-                            closestDist = dist;
-                            closest = k;
-                        }
-                    }
-                    for (d in 0..(dim-1)) {
-                        scratchClusters(closest,d) += points(p,d);
-                    }
-                    scratchClusterCounts(closest)++;
-                }
+                kernel(mine, currentClusters, scratchClusters, scratchClusterCounts);
                 atomic {
-                    for ([i,j] in scratchClusters.indices()) {
-                        clusters(i,j) += scratchClusters(i,j);
+                    for (i in scratchClusters.range()) {
+                        clusters(i) += scratchClusters(i);
                     }
                     for (i in scratchClusterCounts.range()) {
                         clusterCounts(i) += scratchClusterCounts(i);
@@ -123,43 +126,39 @@ public class ResilientKMeansSPMD {
 
             // Reduction to accumulate new centroids and counts across all places
             commTime -= System.nanoTime();
-            team.allreduce(clusters.raw(), 0L, clusters.raw(), 0L, clusters.raw().size, Team.ADD);
+            team.allreduce(clusters, 0L, clusters, 0L, clusters.size, Team.ADD);
             team.allreduce(clusterCounts, 0L, clusterCounts, 0L, clusterCounts.size, Team.ADD);
             commTime += System.nanoTime();
 
             // Normalize to compute new cluster centroids
             for (k in 0..(numClusters-1)) {
                 if (clusterCounts(k) > 0) {
-                    for (d in 0..(dim-1)) clusters(k,d) /= clusterCounts(k);
+                    for (d in 0..(dim-1)) clusters(k*dim + d) /= clusterCounts(k);
                 }
             }
 
             currentIteration += 1;
-            if (here.id==0 && verbose) {
-                Console.OUT.println("Iteration: "+currentIteration);
-                printPoints(clusters);
-            }
 
             // Test for convergence
-            converged = false;
-            for ([i,j] in clusters.indices()) {
-                if (Math.abs(oldClusters(i,j) - clusters(i,j)) > epsilon) {
-                    return; // leaves converged false
+            var didConverge:Boolean = true;
+            for (i in clusters.range()) {
+                if (Math.abs(currentClusters(i) - clusters(i)) > epsilon) {
+                    didConverge = false;
+                    break;
                 }
             }
-            converged = true;
+            converged = didConverge;
         }
     }
 
-    static class ImmutableState(points:Array_2[Float], numPoints:Long,
-                                numClusters:Long, epsilon:Float, dim:Long,
-                                verbose:Boolean) implements Cloneable {
+    static class ImmutableState(points:Rail[Float], numPoints:Long,
+                                numClusters:Long, epsilon:Float, dim:Long) implements Cloneable {
         public def clone() {
-            return new ImmutableState(points, numPoints, numClusters, epsilon, dim, verbose);
+            return new ImmutableState(points, numPoints, numClusters, epsilon, dim);
         }
     }
 
-    static class MutableState(clusters:Array_2[Float]) implements Cloneable {
+    static class MutableState(clusters:Rail[Float]) implements Cloneable {
         public def clone() {
             return new MutableState(clusters);
         }
@@ -181,7 +180,7 @@ public class ResilientKMeansSPMD {
             val ls = plh();
             if (ls.currentIteration == 0) {
                 map.put("immutable", new ImmutableState(ls.points, ls.numPoints, ls.numClusters,
-                                                        ls.epsilon, ls.dim, ls.verbose));
+                                                        ls.epsilon, ls.dim));
             }
             map.put("mutable", new MutableState(ls.clusters));
             return map;
@@ -195,7 +194,6 @@ public class ResilientKMeansSPMD {
             ls.numClusters = immutable.numClusters;
             ls.epsilon = immutable.epsilon;
             ls.dim = immutable.dim;
-            ls.verbose = immutable.verbose;
             val mutable = restoreDataMap.getOrThrow("mutable") as MutableState;
             ls.clusters = mutable.clusters;
             ls.currentIteration = lastCheckpointIter;
@@ -212,43 +210,43 @@ public class ResilientKMeansSPMD {
         }
     }
 
-    static def printPoints (clusters:Array_2[Float]) {
-        for (d in 0..(clusters.numElems_2-1)) {
-            for (k in 0..(clusters.numElems_1-1)) {
+    static def printPoints (clusters:Rail[Float], numPoints:Long, dim:Long) {
+        for (d in 0..(dim-1)) {
+            for (k in 0..(numPoints-1)) {
                 if (k>0)
                     Console.OUT.print(" ");
-                Console.OUT.print(clusters(k,d).toString());
+                Console.OUT.print(clusters(k*dim + d).toString());
             }
             Console.OUT.println();
         }
     }
 
-    static def computeClusters(initPoints:(Place)=>Array_2[Float], dim:Long,
+    static def computeClusters(initPoints:(Place)=>Rail[Float], numPoints:Long, dim:Long,
                                numClusters:Long, iterations:Long, epsilon:Float, verbose:Boolean,
-                               checkpointFreq:Long, sparePlaces:Long):Array_2[Float] {
+                               checkpointFreq:Long, sparePlaces:Long):Rail[Float] {
         val startTime = System.currentTimeMillis();
         val executor = new SPMDResilientIterativeExecutor(checkpointFreq, sparePlaces, false, false);
         val pg = executor.activePlaces();
         val team = executor.team();
 
         // Initialize algorithm state in every active place.
-        val plh = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(team, initPoints, dim, numClusters, epsilon, verbose) });
+        val plh = PlaceLocalHandle.make[LocalState](pg, ()=>{ new LocalState(team, initPoints, numPoints, dim, numClusters, epsilon) });
         
         // Set initial cluster centroids to average of first k points in each place.
         finish {
             val numPlaces = pg.size() as Float;
             for (h in pg) at (h) async {
                 val ls = plh();
-                team.allreduce(ls.points.raw(), 0, ls.clusters.raw(), 0, numClusters*dim, Team.ADD);
-                for ([i,j] in ls.clusters.indices()) {
-                    ls.clusters(i,j) /= numPlaces;
+                team.allreduce(ls.points, 0, ls.clusters, 0, numClusters*dim, Team.ADD);
+                for (i in ls.clusters.range()) {
+                    ls.clusters(i) /= numPlaces;
                 }
             }
         }
  
         if (verbose) {
             Console.OUT.println("Initial clusters: ");
-            printPoints(plh().clusters);
+            printPoints(plh().clusters, numPoints, dim);
         }
 
         if (hammer() != null) {
@@ -279,9 +277,9 @@ public class ResilientKMeansSPMD {
             Option("c","clusters","number of clusters to find"),
             Option("d","dim","number of dimensions"),
             Option("e","epsilon","convergence threshold"),
-            Option("n","num","quantity of points"),
             Option("s","spare","number of spare places"),
-            Option("k","checkpointFreq","number of interations between checkpoints")
+            Option("k","checkpointFreq","number of interations between checkpoints"),
+            Option("n","num","quantity of points")
         ]);
         if (opts.filteredArgs().size!=0L) {
             Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
@@ -308,27 +306,26 @@ public class ResilientKMeansSPMD {
         val pointsPerPlace = numPoints / (Place.numPlaces() - sparePlaces);
         val initPoints = (p:Place) => {
             val rand = new x10.util.Random(p.id);
-            val pts = new Array_2[Float](pointsPerPlace, dim, (Long,Long)=> rand.nextFloat());
+            val pts = new Rail[Float](pointsPerPlace * dim, (Long)=> rand.nextFloat());
             pts
         };
 
         val start = System.nanoTime();
-        val clusters = computeClusters(initPoints, dim, numClusters, iterations, epsilon, verbose, checkpointFreq, sparePlaces);
+        val clusters = computeClusters(initPoints, pointsPerPlace, dim, numClusters, iterations, epsilon, verbose, checkpointFreq, sparePlaces);
         val stop = System.nanoTime();
         Console.OUT.printf("TOTAL_TIME: %.3f seconds\n", (stop-start)/1e9);
 
         if (verbose) {
             Console.OUT.println("\nFinal results:");
-            printPoints(clusters);
+            printPoints(clusters, numClusters, dim);
         }
     }
 
     // Saffolding for killing places during automated testing.
+    static val hammer = new Cell[SimplePlaceHammer](null);
     public static def setHammerConfig(steps:String, places:String) {
         hammer() = new SimplePlaceHammer(steps, null, places);
     }
-
-    static val hammer = new Cell[SimplePlaceHammer](null);
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

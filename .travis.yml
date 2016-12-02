@@ -1,0 +1,8 @@
+branches:
+  only:
+    - master
+
+script:
+  - cd x10.dist && ant precommit && ./bin/precommit
+
+  

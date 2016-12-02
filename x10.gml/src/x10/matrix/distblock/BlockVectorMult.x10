@@ -1,5 +1,4 @@
 /*
- * 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -12,8 +11,6 @@
 
 package x10.matrix.distblock;
 
-import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
 import x10.matrix.VectorMult;
 import x10.matrix.block.Grid;
@@ -31,25 +28,17 @@ public class BlockVectorMult  {
 			cV:Vector, offsetC:Long, plus:Boolean):Vector(cV) {
 		val itr = aSet.iterator();
 		val grid = aSet.getGrid();
-		if (!plus) cV.reset();
-		//aSet.buildBlockMap();
-		//val blkmap = aSet.blockMap;
-		//for (var rb:Int=blkmap.region.min(0); rb<=blkmap.region.max(0); rb++) {
-		//	for (var cb:Int=blkmap.region.min(1); cb<=blkmap.region.max(1); cb++) {
-		//		val ablk = blockMap(rb, cb);
+        var addToResult:Boolean = plus; // if false, first VectorMult will overwrite cV
 		while (itr.hasNext()) {
 			val ablk = itr.next();
-			//No need to comput row and column offset for every block, when dist is DistGrid.
-			val rowOff = ablk.rowOffset - offsetC;//grid.startRow(ablk.myRowId)-offsetC;
-			val colOff = ablk.colOffset - offsetB;//grid.startCol(ablk.myColId)-offsetB;
-			//val rowCnt = grid.rowBs(ablk.myRowId);
-			//val colCnt = grid.colBs(ablk.myColId);
+			val rowOff = ablk.rowOffset - offsetC;
+			val colOff = ablk.colOffset - offsetB;
 			val mA = ablk.getMatrix();
-			VectorMult.comp(mA, bV, colOff, cV, rowOff, true);
+			VectorMult.comp(mA, bV, colOff, cV, rowOff, addToResult);
+            addToResult = true;
 		}
 		return cV;
 	}
-	
 	
 	public static def comp(bV:Vector, aSet:BlockSet, cV:Vector, plus:Boolean):Vector(cV) =
 		comp(bV, 0, aSet, cV, 0, plus);
@@ -58,20 +47,14 @@ public class BlockVectorMult  {
 			aSet:BlockSet, cV:Vector, offsetC:Long, plus:Boolean):Vector(cV) {
 		val itr = aSet.iterator();
 		val grid = aSet.getGrid();
-		if (!plus) cV.reset();
-		//aSet.buildBlockMap();
-		//val blkmap = aSet.blockMap;
-		//for (var rb:Int=blkmap.region.min(0); rb<=blkmap.region.max(0); rb++) {
-		//	for (var cb:Int=blkmap.region.min(1); cb<=blkmap.region.max(1); cb++) {
-		//		val ablk = blockMap(rb, cb);
+        var addToResult:Boolean = plus; // if false, first VectorMult will overwrite cV
 		while (itr.hasNext()) {
 			val ablk = itr.next();
-			val rowOff = ablk.rowOffset - offsetB;//grid.startRow(ablk.myRowId) - offsetB;
-			val colOff = ablk.colOffset - offsetC;//grid.startCol(ablk.myColId) - offsetC;
-			//val rowCnt = grid.rowBs(ablk.myRowId);
-			//val colCnt = grid.colBs(ablk.myColId);
+			val rowOff = ablk.rowOffset - offsetB;
+			val colOff = ablk.colOffset - offsetC;
 			val mA = ablk.getMatrix();
-			VectorMult.comp(bV, rowOff, mA, cV, colOff, true);
+			VectorMult.comp(bV, rowOff, mA, cV, colOff, addToResult);
+            addToResult = true;
 		}
 		return cV;
 	}

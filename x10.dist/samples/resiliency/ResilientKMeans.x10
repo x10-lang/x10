@@ -10,22 +10,17 @@
  */
 
 import x10.util.foreach.Block;
-import x10.util.ArrayList;
 import x10.util.OptionsParser;
 import x10.util.Option;
-import x10.util.Pair;
 import x10.util.Random;
-import x10.util.resilient.PlaceManager;
 import x10.util.resilient.PlaceManager.ChangeDescription;
 import x10.util.resilient.iterative.*;
 import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.localstore.Snapshottable;
-import x10.util.Timer;
 
 /**
  * A resilient distributed implementation of KMeans clustering
- * created by augmenting KMeans.x10 to use the ResilientExecutor
- * framework.
+ * created by augmenting KMeans.x10 to use the ResilientExecutor framework.
  *
  * Intra-place concurrency is exposed via Foreach.
  *
@@ -40,9 +35,6 @@ import x10.util.Timer;
  * the KMeans algorithm in X10 for Native X10, see KMeans.x10 in the
  * X10 Benchmarks Suite (separate download from x10-lang.org).
  */
-//Test Commands
-//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false X10_NPLACES=10 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=Hazelcast ResilientKMeans -s 1 -k 5 -v
-//KILL_PLACES=4 KILL_STEPS=12 X10_RESILIENT_MODE=12 X10_LAUNCHER_TTY=false X10_NPLACES=10 X10_NTHREADS=1 x10 -DX10RT_DATASTORE=native ResilientKMeans -s 1 -k 5 -v
 public class ResilientKMeans {
 
     /*
@@ -68,12 +60,10 @@ public class ResilientKMeans {
             this.dim = dim;
         }
         
-        //should be used only for recovery
-        //the data will be initialized from a checkpoint
-        def this() {            
-        }
+        // only used for recovery; data will be initialized from a checkpoint
+        def this() { }
 
-        // outlined from localStep to help JIT compiler 
+        // outlined from localStep to help JIT compiler
         def kernel(mine:LongRange, currentClusters:Rail[Float],
                    scratchClusters:Rail[Float], scratchClusterCounts:Rail[Int]) {
             val dim = this.dim;
@@ -121,8 +111,6 @@ public class ResilientKMeans {
                 }
             }
         }
-        
-        
     }
     
     //LocalState is Unserializable, we can not use it for checkpointing
@@ -173,22 +161,18 @@ public class ResilientKMeans {
         val numClusters:Long;
         val dim:Long;
         val epsilon:Float;
-        val verbose:Boolean;
         var converged:Boolean = false;
         var maxIterations:Long;
         var currentIteration:Long;
-    
-        //master only checkpointing data
-        var ckptCurrentClusters:Rail[Float];
+        var ckptCurrentClusters:Rail[Float]; // master only checkpointing data
 
-        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float,
-                 iterations:Long, verbose:Boolean) {
+
+        def this(lsPLH:PlaceLocalHandle[LocalState], pg:PlaceGroup, epsilon:Float, iterations:Long) {
            this.distState = new DistState(lsPLH, pg);
            this.pg = pg;
            this.epsilon = epsilon;
            this.numClusters = lsPLH().numClusters;
            this.dim = lsPLH().dim;
-           this.verbose = verbose;
            currentClusters = new Rail[Float](numClusters * dim);
            newClusters = new Rail[Float](numClusters * dim);
            newClusterCounts = new Rail[Int](numClusters);
@@ -213,7 +197,7 @@ public class ResilientKMeans {
                 currentClusters(i) /= np;
             }
         }
-        
+
         public def isFinished() = converged || currentIteration >= maxIterations;
 
         // Perform one global step of the KMeans algorithm
@@ -248,11 +232,6 @@ public class ResilientKMeans {
                 if (newClusterCounts(k) > 0) {
                     for (d in 0..(dim-1)) newClusters(k*dim + d) /= newClusterCounts(k);
                 }
-            }
-
-            if (verbose) {
-                Console.OUT.println("Iteration: "+currentIteration);
-                printPoints(newClusters, numClusters, dim);
             }
 
             // Test for convergence
@@ -298,11 +277,9 @@ public class ResilientKMeans {
     }
 
     static def computeClusters(initPoints:(Place)=>Rail[Float], numPoints:Long,
-                               dim:Long, numClusters:Long,
-                               iterations:Long, epsilon:Float, verbose:Boolean,
-                               checkpointFreq:Long, sparePlaces:Long):Rail[Float] {
-
-        val startTime = Timer.milliTime(); // the executor takes milli time.
+                               dim:Long, numClusters:Long, iterations:Long, epsilon:Float,
+                               verbose:Boolean, checkpointFreq:Long, sparePlaces:Long):Rail[Float] {
+        val startTime = System.currentTimeMillis(); // the executor takes milli time.
         val executor = new GlobalResilientIterativeExecutor(checkpointFreq, sparePlaces, false);
         val activePlaces = executor.activePlaces();
         
@@ -310,7 +287,7 @@ public class ResilientKMeans {
         val localPLH = PlaceLocalHandle.make[LocalState](activePlaces, ()=>{ new LocalState(initPoints, numPoints, dim, numClusters) });
 
         // Initialize algorithm state
-        val master = new KMeansMaster(localPLH, activePlaces, epsilon, iterations, verbose);
+        val master = new KMeansMaster(localPLH, activePlaces, epsilon, iterations);
         master.setInitialCentroids();
 
         if (verbose) {
@@ -322,7 +299,7 @@ public class ResilientKMeans {
             executor.setHammer(hammer());
         }
         executor.run(master, startTime);
-        
+
         return master.currentClusters;
     }
 
@@ -336,9 +313,9 @@ public class ResilientKMeans {
             Option("c","clusters","number of clusters to find"),
             Option("d","dim","number of dimensions"),
             Option("e","epsilon","convergence threshold"),
-            Option("n","num","quantity of points"),
             Option("s","spare","number of spare places"),
-            Option("k","checkpointFreq","number of interations between checkpoints")
+            Option("k","checkpointFreq","number of interations between checkpoints"),
+            Option("n","num","quantity of points")
         ]);
         if (opts.filteredArgs().size!=0L) {
             Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
@@ -359,7 +336,7 @@ public class ResilientKMeans {
         val verbose = opts("-v");
         val checkpointFreq = opts("-k",5);
         val sparePlaces = opts("-s",0);
-        
+
         Console.OUT.println("points: "+numPoints+" clusters: "+numClusters+" dim: "+dim);
         Console.OUT.println("active places: "+(Place.numPlaces() - sparePlaces)+" spares: "+sparePlaces);
         
@@ -382,11 +359,10 @@ public class ResilientKMeans {
     }
 
     // Saffolding for killing places during automated testing.
+    static val hammer = new Cell[SimplePlaceHammer](null);
     public static def setHammerConfig(steps:String, places:String) {
         hammer() = new SimplePlaceHammer(steps, null, places);
     }
-
-    static val hammer = new Cell[SimplePlaceHammer](null);
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

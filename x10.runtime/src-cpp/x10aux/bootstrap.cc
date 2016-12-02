@@ -113,7 +113,9 @@ int x10aux::real_x10_main(int ac, char **av, ApplicationMainFunction mainFunc) {
     pthread_join(*xthread, NULL);
 
 #endif
-    
+// DAVE:EXIT_DEBUG
+    if (x10aux::exitCode != 0) printf("Place %d: real_x10_main exiting with %d\n", x10aux::here, x10aux::exitCode);
+// DAVE:EXIT_DEBUG
     return x10aux::exitCode;
 }    
 

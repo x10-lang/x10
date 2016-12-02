@@ -588,6 +588,11 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 			// ignore these, as they are normal on shutdown, or likely were sent a few lines above
 			if (WTERMSIG(status) == SIGPIPE || WTERMSIG(status) == SIGKILL || WTERMSIG(status) == SIGTERM || WTERMSIG(status) == SIGCHLD)
 				_exitcode = 0;
+#if __APPLE__
+                        // we see spurious exits with SIG 80 (64 + SIGURG ???) from exiting launchers on macOS.  Ignore.
+                        else if (WTERMSIG(status) == 80)
+				_exitcode = 0;
+#endif
 			else
 			{
 				_exitcode = 128 + WTERMSIG(status);
@@ -603,12 +608,12 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
 //			#endif
 		}
-		#ifdef DEBUG
+//		#ifdef DEBUG
 		else if (WIFCONTINUED(status))
 			fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
 		else
 			fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
-		#endif
+//		#endif
 	}
 
 	// free up allocated memory (not really needed, since we're about to exit)
@@ -882,9 +887,9 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			else if (WIFSTOPPED(status))
 			{
 				_exitcode = 128 + WSTOPSIG(status);
-				#ifdef DEBUG
+//				#ifdef DEBUG
 					fprintf(stderr, "Launcher %d: Local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
-				#endif
+//				#endif
 			}
 			#ifdef DEBUG
 			else if (WIFCONTINUED(status))
@@ -898,9 +903,9 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			// this indicates that one of our child launchers caught exited abnormally
 			// forward the signal and exit immediately
 			_exitcode = WEXITSTATUS(status);
-			#ifdef DEBUG
+//			#ifdef DEBUG
 				fprintf(stderr, "Launcher %d: child launcher gave return code %i.  Forwarding.\n", _myproc, _exitcode);
-			#endif
+//			#endif
 			//Launcher::cb_sighandler_term(SIGTERM);
 			//return false;
 		}

@@ -11,7 +11,6 @@
 
 import harness.x10Test;
 import x10.util.Random;
-import x10.array.Array_2;
 
 // SOURCEPATH: x10.dist/samples
 // NUM_PLACES: 8
@@ -35,19 +34,21 @@ public class KMeansSPMDTest extends x10Test {
          val nPoints = 200000;
          val k = 8; // 2^d
 
-         // Create globally uniform, but locally skewed distribution
+          // Create globally uniform, but locally skewed distribution
          val initPoints = (Place) => {
-             val rand = new Random(here.id);
-             val pts = new Array_2[Float](nPoints, d, (Long,Long) => rand.nextFloat());
-             val signVector:Rail[Float] = signVectors(here.id);
+             val virtualPlace = here.id;
+             val rand = new Random(virtualPlace);
+             val pts = new Rail[Float](nPoints * d, (Long) => rand.nextFloat());
+             val signVector:Rail[Float] = signVectors(virtualPlace);
              for (i in 0..(nPoints-1)) {
                  for (j in 0..(d-1)) {
-                     pts(i,j) *= signVector(j);
+                     pts(i * d + j) *= signVector(j);
                  }
              }
              pts
          };
-         val clusters = KMeansSPMD.computeClusters(pg, initPoints, 3, k, 20, 1e-6f, false);
+
+         val clusters = KMeansSPMD.computeClusters(pg, initPoints, nPoints, d, k, 20, 1e-6f, false);
 
          var pass:Boolean = true;
 
@@ -57,15 +58,15 @@ public class KMeansSPMDTest extends x10Test {
          for (v in clusters) {
              if (Math.abs(Math.abs(v) - 0.5f) > 0.01f) {
                  pass = false;
-                 Console.OUT.printf("Centroid coordinate %.4f diverges from expected magnitude of 0.5\n", v);
+                 Console.OUT.printf("Centroid coordinate %.4f too far from expected magnitude of 0.5\n", v);
              }
          }
 
          // Next check octant coverage
-         val octants = new Array_2[Long](k, d, (i:Long,j:Long) => Math.signum(clusters(i,j)) < 0f ? 0 : 1);
+         val octants = new Rail[Long](k * d, (i:Long) => Math.signum(clusters(i)) < 0f ? 0 : 1);
          val octantCount = new Rail[Long](k);
          for (i in 0..(k-1)) {
-             val octant = 4*octants(i,0) + 2*octants(i,1) + octants(i,2);
+             val octant = 4*octants(i*d + 0) + 2*octants(i*d + 1) + octants(i*d + 2);
              octantCount(octant) += 1;
          }
          for (i in octantCount.range()) {
@@ -76,7 +77,7 @@ public class KMeansSPMDTest extends x10Test {
          }
          if (!pass) {
              Console.OUT.println("Computed clusters: ");
-             KMeansSPMD.printPoints(clusters);
+             KMeansSPMD.printPoints(clusters, k, d);
          }
 
          return pass;
