@@ -140,9 +140,12 @@ x10rt_error fatal_error(const char* message)
 }
 
 void markPlaceDead(x10rt_place deadPlace) {
-    #ifdef DEBUG
-	    printf("Place %d marking remote place %u as dead %u\n", x10rt_net_here(), deadPlace);
-    #endif
+	#ifdef DEBUG
+	printf("Place %d marking remote place %u as dead\n", x10rt_net_here(), deadPlace);
+	#endif
+	if (context.socketLinks[deadPlace].events == 0) {
+		context.noBlockWindow--; // compensate for increment in poll
+	}
 	close(context.socketLinks[deadPlace].fd);
 	context.socketLinks[deadPlace].fd = DEAD;
 }
