@@ -19,6 +19,7 @@ import x10.core.Rail;
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.DeadPlaceException;
 import x10.lang.Place;
+import x10.xrx.Configuration;
 import x10.xrx.FinishState;
 
 /**
@@ -64,6 +65,11 @@ public class GetRegistry {
                 if (request.finishState != null) {
                     request.finishState.pushException(new DeadPlaceException(request.srcPlace, "Place died during asyncCopy operation"));
                     request.finishState.notifyActivityTermination();
+                } else {
+                    if (!Configuration.silenceInternalWarnings$O()) {
+                        System.err.println("WARNING: uncounted get from "+request.srcPlace+" will never complete due to place death.");
+                    }
+                    // FIXME: need a way to associate a failure callback with the uncounted copy!
                 }
             }
         }
