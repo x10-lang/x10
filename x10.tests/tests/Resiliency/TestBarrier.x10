@@ -30,6 +30,7 @@ public class TestBarrier(victim:Long) extends x10Test {
                         if (here.id == victim) {
                             // kill this place at some point before the start of the second barrier
                             async System.killHere();
+                            System.sleep(2000); // give async a really good chance to kill us before we hit the barrier
                         }
                         Team.WORLD.barrier();
                     }
