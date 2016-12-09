@@ -19,6 +19,7 @@ import x10.core.Rail;
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.DeadPlaceException;
 import x10.lang.Place;
+import x10.x10rt.X10RT;
 import x10.xrx.Configuration;
 import x10.xrx.FinishState;
 
@@ -63,8 +64,8 @@ public class GetRegistry {
             if (request.srcPlace.isDead$O()) {
                 iter.remove();
                 if (request.finishState != null) {
-                    request.finishState.pushException(new DeadPlaceException(request.srcPlace, "Place died during asyncCopy operation"));
-                    request.finishState.notifyActivityTermination();
+                    request.finishState.pushException(new DeadPlaceException(request.srcPlace, "Source place died during asyncCopy operation"));
+                    request.finishState.notifyActivityCreatedAndTerminated(X10RT.here());
                 } else {
                     if (!Configuration.silenceInternalWarnings$O()) {
                         System.err.println("WARNING: uncounted get from "+request.srcPlace+" will never complete due to place death.");
