@@ -948,7 +948,12 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
                     val mt = markedInTransit;
                     at (wbgr) @Immediate("spawnRemoteActivity_big_back_to_spawner") async {
                         val fs = (fsgr as GlobalRef[FinishResilientPlace0]{self.home == here})();
-                        if (mt) x10.xrx.Runtime.x10rtSendAsync(dstId, wbgr(), fs, null, null);
+                        try {
+                            if (mt) x10.xrx.Runtime.x10rtSendAsync(dstId, wbgr(), fs, null, null);
+                        } catch (dpe:DeadPlaceException) {
+                            // not relevant to immediate thread; DPE raised in convertDeadActivities
+                            if (verbose>=2) debug("caught and suppressed DPE from x10rtSendAsync from spawnRemoteActivity_big_back_to_spawner for "+id);
+                        }
                         wbgr.forget();
                         fs.notifyActivityTermination();
                     }
