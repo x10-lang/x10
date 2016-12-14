@@ -44,20 +44,20 @@ public class TestFinishAtAsync(victim:Long) extends x10Test  {
                 for (targetPlace in Place.places()) {
                     if (targetPlace != here) {
                         try {
-                            Console.OUT.println(here + "about to send remote async to " + targetPlace);
+                            //Console.OUT.println(here + " about to send remote async to " + targetPlace);
                             @Pragma(Pragma.FINISH_ASYNC) finish at (targetPlace) async {
-                                Console.OUT.println(here + " waiting for gate " + sourceId);
+                                //Console.OUT.println(here + " waiting for gate " + sourceId);
                                 val gates = gatesPlh();
                                 while (gates(sourceId).get() == false) {
                                     System.threadSleep(0);
                                 }
-                                Console.OUT.println(here + " passed through gate " + sourceId);
+                                //Console.OUT.println(here + " passed through gate " + sourceId);
                             }
-                            Console.OUT.println(here + "completed remote async to " + targetPlace);
+                            //Console.OUT.println(here + " completed remote async to " + targetPlace);
                         } catch (me:MultipleExceptions) {
                             val dper = me.getExceptionsOfType[DeadPlaceException]();
                             if (dper.size > 0) {
-                                Console.OUT.println(here + " inner caught DPE: " + dper(0));
+                                //Console.OUT.println(here + " inner caught DPE: " + dper(0));
                             } else {
                                 throw me;
                             }
@@ -68,7 +68,7 @@ public class TestFinishAtAsync(victim:Long) extends x10Test  {
         } catch (me:MultipleExceptions) {
             val dper = me.getExceptionsOfType[DeadPlaceException]();
             if (dper.size > 0) {
-                Console.OUT.println("outer caught DPE: " + dper(0));
+                //Console.OUT.println("outer caught DPE: " + dper(0));
             } else {
                 throw me;
             }
