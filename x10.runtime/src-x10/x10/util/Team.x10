@@ -17,7 +17,6 @@ import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.Pragma;
-import x10.compiler.Uncounted;
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
 import x10.xrx.Runtime;
@@ -1006,8 +1005,11 @@ public struct Team {
         private static PHASE_INIT:Int = 1n;    // collective active, preparing local structures to accept data
         private static PHASE_GATHER1:Int = 2n; // waiting for data+signal from first child
         private static PHASE_GATHER2:Int = 3n; // waiting for data+signal from second child
-        private static PHASE_SCATTER:Int = 4n; // waiting for data+signal from parent
-        private static PHASE_DONE:Int = 5n;    // done, but not yet ready for the next collective call
+        private static PHASE_PARENT:Int = 4n;  // currently updating parent
+        private static PHASE_SCATTER1:Int = 5n; // sending data to first child
+        private static PHASE_SCATTER2:Int = 6n; // sending data to second child
+        private static PHASE_DONE:Int = 7n;    // done, but not yet ready for the next collective call
+        private static PHASE_INVALID:Int = -1n; // this team is invalid due to an earlier failure
         private val phase:AtomicInteger = new AtomicInteger(PHASE_READY); // which of the above phases we're in
         private val dstLock:Lock = new Lock();
 
@@ -1038,7 +1040,6 @@ public struct Team {
         private var local_grandchildren:Long = 0; // total number of nodes in the tree structure below us        
         private var local_child1Index:Long = -1;
         private var local_child2Index:Long = -1;
-        private var isValid:Boolean = true; // gets set to false when some member in the team fails
 
         private static def getCollName(collType:Int):String {
             switch (collType) {
@@ -1056,12 +1057,43 @@ public struct Team {
                 default: return "Unknown";
             }
         }
+
+        private final def isValid() {
+            return phase.get() != PHASE_INVALID;
+        }
+
+        private final def markInvalid() {
+            phase.set(PHASE_INVALID);
+        }
+
+        /** Figure out links for the given place in the tree structure */
+        private def getLinks(placeIndex:Long, root:Place, counts:Rail[Int]) {
+            val myLinks:TreeStructure;
+            val rootIndex:Long = places.indexOf(root);
+            if (placeIndex > rootIndex || rootIndex == 0)
+                myLinks = getLinks(placeIndex, -1, rootIndex, places.numPlaces()-1, counts);
+            else if (placeIndex < rootIndex)
+                myLinks = getLinks(placeIndex, rootIndex, 0, rootIndex-1, counts);
+            else { // non-zero root
+                var countsSum:Int = -1n; // calculate the space required for the data of this member and all its children
+            	if (counts != null){
+            		countsSum = 0n; // the root has the sum of all segments
+            		for (var i:Long = 0; i < places.numPlaces(); i++){
+            			countsSum += counts(i);
+            		}            		
+            	}
+                myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1, countsSum);
+            }
+            return myLinks;
+        }
         
-        // recursive method used to find our parent and child links in the tree.  This method assumes that root is not in the tree (or root is at position 0)
-        private def getLinks(parent:Long, startIndex:Long, endIndex:Long, counts:Rail[Int]):TreeStructure {
-            if (DEBUGINTERNALS) Runtime.println(here+" getLinks called with myIndex="+myIndex+" parent="+parent+" startIndex="+startIndex+", endIndex="+endIndex);
-            
-            if (myIndex == startIndex) { // we're at our own position in the tree
+        /**
+          * Recursive method used to find parent and child links in the tree.
+          * This method assumes that root is not in the tree (or root is at 
+          * position 0).
+          */
+        private def getLinks(placeIndex:Long, parent:Long, startIndex:Long, endIndex:Long, counts:Rail[Int]):TreeStructure {
+            if (placeIndex == startIndex) { // we're at our own position in the tree
                 val children:Long = endIndex-startIndex; // overall gap of children
                 var countsSum:Int = -1n; // calculate the space required for the data of this member and all its children
                 if (counts != null){
@@ -1073,10 +1105,10 @@ public struct Team {
                 return new TreeStructure(parent, (children<1)?-1:(startIndex+1), (children<2)?-1:(startIndex+1+((endIndex-startIndex)/2)), children, countsSum);
             }
             else {
-                if (myIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
-                    return getLinks(startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex, counts);
+                if (placeIndex > startIndex+((endIndex-startIndex)/2)) // go down the tree, following the right branch (second child)
+                    return getLinks(placeIndex, startIndex, startIndex+1+((endIndex-startIndex)/2), endIndex, counts);
                 else // go down the left branch (first child)
-                    return getLinks(startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2), counts);
+                    return getLinks(placeIndex, startIndex, startIndex+1, startIndex+((endIndex-startIndex)/2), counts);
             }
         }
         
@@ -1086,11 +1118,13 @@ public struct Team {
         // regular barrier, which does not have these checks.
         private def init() {
             if (DEBUGINTERNALS) Runtime.println(here + " creating team "+teamid);
-            val myLinks:TreeStructure = getLinks(-1, 0, places.numPlaces()-1, null);
+            val myLinks:TreeStructure = getLinks(myIndex, -1, 0, places.numPlaces()-1, null);
 
             if (DEBUGINTERNALS) { 
-                Runtime.println(here+":team"+this.teamid+", root=0 has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
-                Runtime.println(here+":team"+this.teamid+", root=0 has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+                Runtime.println(here+":team"+this.teamid
+                + ", has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex))
+                + ", children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))
+                + ", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
             }
             val teamidcopy = this.teamid; // needed to prevent serializing "this"
             if (myLinks.parentIndex != -1) {
@@ -1121,60 +1155,48 @@ public struct Team {
              * another activity, giving preference to activities running
              * locally on another worker thread.
              */
-            val sleepUntil = (condition:() => Boolean) => @NoInline {
-                if (!condition() && Team.state(teamidcopy).isValid) {
+            val sleepUntil = (condition:() => Boolean, conditionStr:String) => @NoInline {
+                if (!condition() && Team.state(teamidcopy).isValid()) {
+                    if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for " + conditionStr);
                     Runtime.increaseParallelism();
-                    while (!condition() && Team.state(teamidcopy).isValid) {
+                    while (!condition() && Team.state(teamidcopy).isValid()) {
                         // look for dead neighboring places
                         if (Team.state(teamidcopy).local_parentIndex > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex).isDead()) {
-                            Team.state(teamidcopy).isValid = false;
+                            Team.state(teamidcopy).markInvalid();
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex)+" is dead!");
-                        }
-                        else if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
-                            Team.state(teamidcopy).isValid = false;
+                        } else if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
+                            Team.state(teamidcopy).markInvalid();
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index)+" is dead!");
-                        }
-                        else if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
-                            Team.state(teamidcopy).isValid = false;
+                        } else if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
+                            Team.state(teamidcopy).markInvalid();
                             if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index)+" is dead!");
-                        }
-                        else
+                        } else {
                             System.threadSleep(0); // release the CPU to more productive pursuits
+                        }
                     }
                     Runtime.decreaseParallelism(1n);
+                }
+
+                if (DEBUGINTERNALS) {
+                    if (Team.state(teamidcopy).isValid()) {
+                        Runtime.println(here+":team"+teamidcopy+" reached " + conditionStr);
+                    } else {
+                        Runtime.println(here+":team"+teamidcopy+" failed to reach " + conditionStr);
+                    }
                 }
             };
 
             // block if some other collective is in progress.
             // note that local indexes are not yet set up, so we won't check for dead places in this call
-            sleepUntil(() => this.phase.compareAndSet(PHASE_READY, PHASE_INIT));
+            sleepUntil(() => this.phase.compareAndSet(PHASE_READY, PHASE_INIT), "init");
             
-            // don't do anything if this team was previously set to invalid
-            //Sara: Commented to avoid deadlocks when a place fails
-            //if (!Team.state(this.teamid).isValid)
-            //    throw new DeadPlaceException("Team "+this.teamid+" contains at least one dead member");
-            
-            // figure out our links in the tree structure
-            val myLinks:TreeStructure;
-            val rootIndex:Long = places.indexOf(root);
-            if (myIndex > rootIndex || rootIndex == 0)
-                myLinks = getLinks(-1, rootIndex, places.numPlaces()-1, counts);
-            else if (myIndex < rootIndex)
-                myLinks = getLinks(rootIndex, 0, rootIndex-1, counts);
-            else { // non-zero root
-                var countsSum:Int = -1n; // calculate the space required for the data of this member and all its children
-            	if (counts != null){
-            		countsSum = 0n; // the root has the sum of all segments
-            		for (var i:Long = 0; i < places.numPlaces(); i++){
-            			countsSum += counts(i);
-            		}            		
-            	}
-                myLinks = new TreeStructure(-1, 0, ((places.numPlaces()-1)==rootIndex)?-1:(rootIndex+1), places.numPlaces()-1, countsSum);
-            }
+            val myLinks = getLinks(myIndex, root, counts);
 
             if (DEBUGINTERNALS) { 
-                Runtime.println(here+":team"+teamidcopy+", root="+root+" has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex)));
-                Runtime.println(here+":team"+teamidcopy+", root="+root+" has children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))+", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
+                Runtime.println(here+":team"+teamidcopy
+                + " has parent "+((myLinks.parentIndex==-1)?Place.INVALID_PLACE:places(myLinks.parentIndex))
+                + ", children "+((myLinks.child1Index==-1)?Place.INVALID_PLACE:places(myLinks.child1Index))
+                + ", "+((myLinks.child2Index==-1)?Place.INVALID_PLACE:places(myLinks.child2Index)));
                 if (counts != null){
                 	Runtime.println(here + ":team"+teamidcopy+", local_counts_sum= " + myLinks.countsSum);
                 }
@@ -1226,336 +1248,251 @@ public struct Team {
                 Rail.copy(src, src_off, local_temp_buff as Rail[T], offset, local_count);    
             } else if ((collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) && local_child1Index != -1) {
                 // pairs of values move around
-                local_temp_buff = Unsafe.allocRailUninitialized[T]((local_child2Index==-1)?1:2);
+                local_temp_buff = Unsafe.allocRailUninitialized[T]((local_child2Index==-1) ? 1 : 2);
             }
 
-            // check for valid input.  TODO: remove for performance?
-            //if (dst == null && collType != COLL_BARRIER) Runtime.println("ERROR: dst is NULL!");
-            //if (src == null && collType != COLL_BARRIER) Runtime.println("ERROR: src is NULL!");
-            
             if (collType == COLL_INDEXOFMAX || collType == COLL_INDEXOFMIN)
                 dst(0) = src(0);
             
             // allow children to update our dst array
-            if (local_child1Index == -1) { // no children to wait for
-                this.phase.set(PHASE_SCATTER);
-            } else if (local_child2Index == -1) { // only one child, so skip a phase waiting for the second child.
-                this.phase.set(PHASE_GATHER2);
+            if (local_child1Index == -1) {
+                // no children to wait for
+                this.phase.compareAndSet(PHASE_INIT, PHASE_PARENT);
+            } else if (local_child2Index == -1) {
+                // only one child, so skip a phase waiting for the second child
+                this.phase.compareAndSet(PHASE_INIT, PHASE_GATHER2);
             } else {
-                this.phase.set(PHASE_GATHER1);
+                this.phase.compareAndSet(PHASE_INIT, PHASE_GATHER1); 
             }
 
-            val gr:GlobalRail[T]{here==gr.rail.home};
-            if (collType == COLL_ALLTOALL
-             || collType == COLL_REDUCE
-             || collType == COLL_ALLREDUCE) {
-                val notnulldst = dst as Rail[T]{self!=null};
-                gr = new GlobalRail[T](notnulldst);
-            } else if (collType == COLL_GATHER || collType == COLL_GATHERV) {
-                val notNullTmp = local_temp_buff as Rail[T]{self!=null};
-                gr = new GlobalRail[T](notNullTmp);
-            } else {
-                gr = new GlobalRail[T](new Rail[T]());
-            }
+            // wait for phase updates from children
+            sleepUntil(() => this.phase.get() == PHASE_PARENT, "upward");
 
-            try { // try/catch for DeadPlaceExceptions associated with the 'at' statements
-	            // wait for phase updates from children
-	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" waiting for children phase "+Team.state(teamidcopy).phase.get());
-	            sleepUntil(() => this.phase.get() == PHASE_SCATTER);
-	            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" released by children phase "+Team.state(teamidcopy).phase.get());
-	
-	            if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
-	                if (local_child1Index != -1) { // reduce local and child data
-	                    if (src == dst) {
-	                        TeamReductionHelper.performReduction(local_temp_buff as Rail[T], 0, dst, dst_off, count, operation);
-	                    } else {
-	                        TeamReductionHelper.performReduction(src, src_off, dst, dst_off, count, operation);
-	                    }
-	                    if (local_child2Index != -1) {
-	                        TeamReductionHelper.performReduction(local_temp_buff2 as Rail[T], 0, dst, dst_off, count, operation);
-	                    }
-	                } else {
-	                    Rail.copy(src, src_off, dst, dst_off, count);
-	                }
-	            } else if (collType == COLL_ALLTOALL) {
-	                Rail.copy(src, src_off, dst, dst_off+(count*myIndex), count);
-	            }
-	        
-	            // all children have checked in.  Update our parent, and then wait for the parent to update us 
-	            if (myLinks.parentIndex == -1) { // this is the root
-	                // copy data locally from src to dst if needed
-	                if (collType == COLL_BROADCAST)
-	                    Rail.copy(src, src_off, dst, dst_off, count);
-	                else if (collType == COLL_SCATTER || collType == COLL_SCATTERV )
-	                    local_temp_buff = src;
-	                this.phase.set(PHASE_DONE); // the root node has no parent, and can skip its own state ahead
-	            } else {
-	                val waitForParentToReceive = () => @NoInline {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" waiting for parent phase "+Team.state(teamidcopy).phase.get());
-	                     sleepUntil(() => {val state = Team.state(teamidcopy).phase.get();
-	                                       (state >= PHASE_GATHER1 && state < PHASE_SCATTER)
-	                                      });
-	                    if (DEBUGINTERNALS) Runtime.println(here+" parent ready to receive phase "+Team.state(teamidcopy).phase.get());
-	                };
-	
-	                val incrementParentPhase = () => @NoInline {
-	                    if ( !(Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2) ||
-	                           Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_SCATTER)) && 
-	                           Team.state(teamidcopy).isValid)
-	                            	Runtime.println("ERROR incrementing the parent "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
-	                };
-	
-	                // move data from children to parent
-	                // Scatter and broadcast only move data from parent to children, so they have no code here
-	                if (collType >= COLL_ALLTOALL) {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" moving data to parent");
-	                    if (collType == COLL_ALLTOALL) {
-	                        val sourceIndex = myIndex;
-	                        val totalData = count*(myLinks.totalChildren+1);
-	                        at (places(myLinks.parentIndex)) @Uncounted async {
-	                            waitForParentToReceive();
-								if (DEBUGINTERNALS) Runtime.println(here+ " alltoall gathering from offset "+(dst_off+(count*sourceIndex))+" to local_dst_off "+(Team.state(teamidcopy).local_dst_off+(count*sourceIndex))+" size " + totalData);
-	                            // copy my data, plus all the data filled in by my children, to my parent
-	                            Rail.uncountedCopy(gr, dst_off+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), totalData, incrementParentPhase);
+            if (Team.state(teamidcopy).isValid()) {
+                if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
+                    if (local_child1Index != -1) {
+                        // reduce local and child data
+                        if (src == dst) {
+                            if (DEBUGINTERNALS) Runtime.println(here+ " reducing from local_temp_buff"+local_temp_buff+" into dst"+dst);
+                            TeamReductionHelper.performReduction(local_temp_buff as Rail[T], 0, dst, dst_off, count, operation);
+                        } else {
+                            if (DEBUGINTERNALS) Runtime.println(here+ " reducing from src"+src+" into dst"+dst);
+                            TeamReductionHelper.performReduction(src, src_off, dst, dst_off, count, operation);
+                        }
+                        if (local_child2Index != -1) {
+                            TeamReductionHelper.performReduction(local_temp_buff2 as Rail[T], 0, dst, dst_off, count, operation);
+                        }
+                    } else {
+                        Rail.copy(src, src_off, dst, dst_off, count);
+                    }
+                } else if (collType == COLL_ALLTOALL) {
+                    Rail.copy(src, src_off, dst, dst_off+(count*myIndex), count);
+                }
+            
+                if (myLinks.parentIndex == -1) {
+                    // this is the root
+                    // copy data locally from src to dst if needed
+                    if (collType == COLL_BROADCAST)
+                        Rail.copy(src, src_off, dst, dst_off, count);
+                    else if (collType == COLL_SCATTER || collType == COLL_SCATTERV )
+                        local_temp_buff = src;
+
+                } else {
+                    // update parent and/or copy data to/from parent
+                    val gr:GlobalRail[T]{here==gr.rail.home};
+                    if (collType == COLL_ALLTOALL
+                    || collType == COLL_BROADCAST
+                    || collType == COLL_REDUCE
+                    || collType == COLL_ALLREDUCE
+                    || collType == COLL_INDEXOFMAX
+                    || collType == COLL_INDEXOFMIN) {
+                        val notnulldst = dst as Rail[T]{self!=null};
+                        gr = new GlobalRail[T](notnulldst);
+                    } else if (collType == COLL_GATHER 
+                            || collType == COLL_GATHERV
+                            || collType == COLL_SCATTER
+                            || collType == COLL_SCATTERV) {
+                        val notNullTmp = local_temp_buff as Rail[T]{self!=null};
+                        gr = new GlobalRail[T](notNullTmp);
+                    } else {
+                        gr = new GlobalRail[T](new Rail[T]());
+                    }
+
+                    val sourceIndex = myIndex;
+                    val grandchildren = myLinks.totalChildren;
+                    val lastChild = myIndex + local_grandchildren + 1;
+                    val childVal:DoubleIdx;
+                    if (collType == COLL_INDEXOFMAX || collType == COLL_INDEXOFMIN) {
+                        childVal = dst(0) as DoubleIdx;
+                    } else {
+                        childVal = DoubleIdx(0.0, 0n);
+                    }
+                    val childOffset = local_offset;
+                    val childDstOffset = Team.state(teamidcopy).local_dst_off;
+                    val childTotalData:Long;
+                    if (collType == COLL_ALLTOALL) {
+                        childTotalData = count*(grandchildren+1);
+                    } else if (collType == COLL_GATHER
+                            || collType == COLL_GATHERV
+                            || collType == COLL_SCATTER
+                            || collType == COLL_SCATTERV) {
+                        childTotalData = local_counts_sum;
+                    } else {
+                        childTotalData = -1; // unused
+                    }
+                    
+                    if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" about to jump to parent " + places(myLinks.parentIndex));
+                    try { // try/catch for DeadPlaceExceptions
+                        @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                            sleepUntil(() => {
+                                val parentPhase = Team.state(teamidcopy).phase.get();
+                                (parentPhase >= PHASE_GATHER1 && parentPhase < PHASE_SCATTER1)
+                                }, "parent gather");
+                            if (!Team.state(teamidcopy).isValid()) {
+                                throw new DeadPlaceException(here+" detected dead team member before parent gather");
+                            }
+
+                            // copy data from child to parent
+                            if (collType == COLL_ALLTOALL) {
+                                // copy child data, plus all the data filled in by grandchildren, to parent
+                                finish Rail.asyncCopy(gr, childDstOffset+(count*sourceIndex), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*sourceIndex), childTotalData);
+
+                            } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
+	                            // copy reduced data to parent
+                                var target:Rail[T];
+                                var off:Long;
+                                if (sourceIndex == Team.state(teamidcopy).local_child2Index) {
+                                    target = Team.state(teamidcopy).local_temp_buff2 as Rail[T];
+                                    off = 0;
+                                } else if (Team.state(teamidcopy).local_src == Team.state(teamidcopy).local_dst) {
+                                    target = Team.state(teamidcopy).local_temp_buff as Rail[T];
+                                    off = 0;
+                                } else {
+                                    // child 1 data written directly to dst
+                                    target = Team.state(teamidcopy).local_dst as Rail[T];
+                                    off = Team.state(teamidcopy).local_dst_off;
+                                }
+                                if (target != null)
+                                    finish Rail.asyncCopy(gr, childDstOffset, target, off, count);
+
+                            } else if (collType == COLL_INDEXOFMAX) {
+                                sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock(), "parent lock");
+                                val ldi = Team.state(teamidcopy).local_dst as Rail[DoubleIdx];
+                                if (DEBUGINTERNALS) Runtime.println(here+" IndexOfMax: parent="+ldi(0).value+" child="+childVal.value);
+                                
+                                // TODO: If there is  more than one instance of the min/max value, this 
+                                // implementation will return the index associated with "one of" them, not necessarily
+                                // the first one.  Do we need to return the "first", as the API says, or is that not really necessary?
+                                if (childVal.value > ldi(0).value)
+                                    ldi(0) = childVal;
+                                Team.state(teamidcopy).dstLock.unlock();
+
+                            } else if (collType == COLL_INDEXOFMIN) {
+                                sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock(), "parent lock");
+                                val ldi = Team.state(teamidcopy).local_dst as Rail[DoubleIdx];
+                                if (childVal.value < ldi(0).value)
+                                    ldi(0) = childVal;
+                                Team.state(teamidcopy).dstLock.unlock();
+
+                            } else if (collType == COLL_GATHER || collType == COLL_GATHERV) {
+                                val rootDstOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? Team.state(teamidcopy).local_dst_off : 0;
+                                val parentOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? 0 : Team.state(teamidcopy).local_offset;
+                                val myOffset = childOffset - parentOffset + rootDstOffset;
+                                val nonnulltempbuff = Team.state(teamidcopy).local_temp_buff;
+                                if (nonnulltempbuff != null)
+                                    finish Rail.asyncCopy(gr, 0, nonnulltempbuff as Rail[T], myOffset, childTotalData);
 	                        }
-	                    } else if (collType == COLL_REDUCE || collType == COLL_ALLREDUCE) {
-	                        // copy reduced data to parent
-	                        val sourceIndex = places.indexOf(here);
-	                        at (places(myLinks.parentIndex)) @Uncounted async {
-	                            waitForParentToReceive();
-	                            var target:Rail[T];
-	                            var off:Long;
-	                            if (sourceIndex == Team.state(teamidcopy).local_child2Index) {
-	                                target = Team.state(teamidcopy).local_temp_buff2 as Rail[T];
-	                                off = 0;
-	                            } else if (Team.state(teamidcopy).local_src == Team.state(teamidcopy).local_dst) {
-	                                target = Team.state(teamidcopy).local_temp_buff as Rail[T];
-	                                off = 0;
-	                            } else {
-	                                // child 1 data written directly to dst
-	                                target = Team.state(teamidcopy).local_dst as Rail[T];
-	                                off = Team.state(teamidcopy).local_dst_off;
-	                            }
-	                            if (target != null)
-		                            Rail.uncountedCopy(gr, dst_off, target, off, count, incrementParentPhase);
+
+                            // upward phase complete for this child
+                            if (Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER1, PHASE_GATHER2)
+                             || Team.state(teamidcopy).phase.compareAndSet(PHASE_GATHER2, PHASE_PARENT)) {
+                                sleepUntil(() => { 
+                                    val parentPhase = Team.state(teamidcopy).phase.get();
+                                    (parentPhase == PHASE_SCATTER1 || parentPhase == PHASE_SCATTER2)
+                                    }, "parent scatter");
+                            } else {
+                                Runtime.println("ERROR moving to downward phase at the parent "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
+                            }
+
+                            if (!Team.state(teamidcopy).isValid()) {
+                                throw new DeadPlaceException(here+" detected dead team member before parent scatter");
+                            }
+
+                            // copy data from parent to child
+                            // reduce, gather and barrier do not move data in this direction, so they are not included here
+                            if (collType == COLL_ALLTOALL) {
+                                val notNullDst = Team.state(teamidcopy).local_dst as Rail[T]{self!=null};
+                                finish {
+                                    if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering first chunk from dst_off "+Team.state(teamidcopy).local_dst_off+" to childDstOffset "+childDstOffset+" size " + Team.state(teamidcopy).local_count*Team.state(teamidcopy).myIndex);
+                                    // position 0 up to the child id
+                                    Rail.asyncCopy(notNullDst, Team.state(teamidcopy).local_dst_off, gr, childDstOffset, Team.state(teamidcopy).local_count*Team.state(teamidcopy).myIndex);
+                                    val secondLocalOffset = Team.state(teamidcopy).local_dst_off+(Team.state(teamidcopy).local_count*lastChild);
+                                    val secondChildOffset = childDstOffset+(Team.state(teamidcopy).local_count*lastChild);
+                                    val secondSize = Team.state(teamidcopy).local_count*(Team.state(teamidcopy).places.size()-lastChild);
+                                    if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk from parent offset "+secondLocalOffset+" to child offset "+secondChildOffset+" size " + secondSize);
+                                    // position of last child range, to the end
+                                    Rail.asyncCopy(notNullDst, secondLocalOffset, gr, secondChildOffset, secondSize);
+                                }
+
+                            } else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE
+                                || collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) {
+                                // these all move one or more values from root to all other team members
+                                val notNullDst = Team.state(teamidcopy).local_dst as Rail[T]{self!=null};
+                                if (DEBUGINTERNALS) Runtime.println(here+ " broadcasting data from "+notNullDst+" into "+gr);
+                                finish Rail.asyncCopy(notNullDst, Team.state(teamidcopy).local_dst_off, gr, childDstOffset, Team.state(teamidcopy).local_count);
+
+                            } else if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
+	                            val notNullTmp = Team.state(teamidcopy).local_temp_buff as Rail[T]{self!=null};
+                                // root scatters direct from src
+                                val parentOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? 0 : Team.state(teamidcopy).local_offset;
+                                val rootSourceOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? Team.state(teamidcopy).local_src_off : 0;
+                                val myOffset = childOffset - parentOffset + rootSourceOffset;
+                                if (DEBUGINTERNALS) Runtime.println(here+ " scattering " + childTotalData + " from "+notNullTmp+" offset " + myOffset + " into "+gr);
+	                            finish Rail.asyncCopy(notNullTmp, myOffset, gr, 0, childTotalData);
 	                        }
-	                    } else if (collType == COLL_INDEXOFMAX) {
-	                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                        at (places(myLinks.parentIndex)) @Uncounted async {
-	                            waitForParentToReceive();
-	                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
-	                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
-	                            if (DEBUGINTERNALS) Runtime.println(here+" IndexOfMax: parent="+ldi(0).value+" child="+childVal.value);
-	                            
-	                            // TODO: If there is  more than one instance of the min/max value, this 
-	                            // implementation will return the index associated with "one of" them, not necessarily
-	                            // the first one.  Do we need to return the "first", as the API says, or is that not really necessary?
-	                            if (childVal.value > ldi(0).value)
-	                                ldi(0) = childVal;
-	                            Team.state(teamidcopy).dstLock.unlock();
-	                            incrementParentPhase();
-	                        }
-	                    } else if (collType == COLL_INDEXOFMIN) {
-	                        val childVal:DoubleIdx = dst(0) as DoubleIdx;
-	                        at (places(myLinks.parentIndex)) @Uncounted async {
-	                            waitForParentToReceive();
-	                            sleepUntil(() => Team.state(teamidcopy).dstLock.tryLock());
-	                            val ldi:Rail[DoubleIdx] = (Team.state(teamidcopy).local_dst as Rail[DoubleIdx]);
-	                            if (childVal.value < ldi(0).value)
-	                                ldi(0) = childVal;
-	                            Team.state(teamidcopy).dstLock.unlock();
-	                            incrementParentPhase();
-	                         }
-	                    } else if (collType == COLL_GATHER || collType == COLL_GATHERV) {
-	                        val notNullTmp = local_temp_buff as Rail[T]{self!=null};
-	                        val childOffset = local_offset;
-	                        val childTotalData = local_counts_sum;
-	                        at (places(myLinks.parentIndex)) @Uncounted async {
-	                            waitForParentToReceive();
-	                            val rootDstOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? Team.state(teamidcopy).local_dst_off: 0;
-	                            val parentOffset = (Team.state(teamidcopy).local_parentIndex == -1) ? 0:Team.state(teamidcopy).local_offset;
-	                            val myOffset = childOffset - parentOffset + rootDstOffset;
-	                            val nonnulltempbuff = Team.state(teamidcopy).local_temp_buff;
-	                            if (nonnulltempbuff != null)
-	                            	Rail.uncountedCopy(gr, 0, nonnulltempbuff as Rail[T], myOffset, childTotalData, incrementParentPhase);
-	                        }
-	                    }
-	                } else {
-	                    at (places(myLinks.parentIndex)) @Uncounted async { 
-	                        waitForParentToReceive();
-	                        incrementParentPhase();
-	                    }
-	                }
-	                
-	                if (DEBUGINTERNALS) Runtime.println(here+ " waiting for parent "+places(myLinks.parentIndex)+":team"+teamidcopy+" to release us from phase "+phase.get());
-	                sleepUntil(() => this.phase.get() == PHASE_DONE);
-	                if (DEBUGINTERNALS) Runtime.println(here+ " released by parent");
-	            }
-            } catch (me:MultipleExceptions) {
-                val dper = me.getExceptionsOfType[DeadPlaceException]();
-                if (dper.size > 0) {
-                    if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating parent: "+dper(0));
-                    Team.state(teamidcopy).isValid = false;
+
+                            if (! (Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER1, PHASE_SCATTER2)
+                                || Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER2, PHASE_DONE))) {
+                                Runtime.println("ERROR progressing scatter "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
+                            }
+                        }
+                        if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" returned from parent " + places(myLinks.parentIndex));
+
+                    } catch (me:MultipleExceptions) {
+                        val dper = me.getExceptionsOfType[DeadPlaceException]();
+                        if (dper.size > 0) {
+                            if (DEBUGINTERNALS) Runtime.println(here+" caught DPE (multiple) from parent: "+dper(0));
+                            Team.state(teamidcopy).markInvalid();
+                        } else {
+                            throw me;
+                        }
+                    }
+
+                    gr.forget();
                 }
             }
 
-            gr.forget();
+            if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
+                // scatter own data direct from src to dst
+                val temp_off_my_data = (myLinks.parentIndex == -1) ? (src_off + local_offset) : 0;
+                val temp_count = local_count;
+                if (DEBUGINTERNALS) {
+                    val coll_name = (collType == COLL_SCATTER) ? "scatter" : "scatterv";
+                    Runtime.println(here+ " " + coll_name + " " +count + " from local_temp_buff " + temp_off_my_data + " to dst");
+                }
+                Rail.copy(local_temp_buff as Rail[T]{self!=null}, temp_off_my_data, dst, dst_off, temp_count);
+            }
 
-	        try {
-    	        if (!Team.state(teamidcopy).isValid) // skip ahead if places have died, as the destination rails may not be set up
-	                throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
+            if (local_child1Index == -1) {
+                Team.state(teamidcopy).phase.compareAndSet(PHASE_PARENT, PHASE_DONE);
+            } else if (local_child2Index == -1) {
+                Team.state(teamidcopy).phase.compareAndSet(PHASE_PARENT, PHASE_SCATTER2);
+            } else {
+               Team.state(teamidcopy).phase.compareAndSet(PHASE_PARENT, PHASE_SCATTER1);
+            }
 
-	            // move data from parent to children
-	            // reduce, gather and barrier do not move data in this direction, so they are not included here
-	            if (local_child1Index != -1 && collType != COLL_BARRIER && collType != COLL_REDUCE && collType != COLL_GATHER  && collType != COLL_GATHERV) {
-	                
-	                if (collType == COLL_ALLTOALL) {
-                        // only copy over the data that did not come from this child in the first place
-                        val notnulldst = dst as Rail[T]{self!=null};
-    	                val grDst = new GlobalRail[T](notnulldst);
-	                    val copyToChild = () => @NoInline {
-	                    	if (!Team.state(teamidcopy).isValid)
-	                    		throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
-	                        val count = Team.state(teamidcopy).local_count;
-	                        val teamSize = Team.state(teamidcopy).places.size();
-	                        val lastChild = Team.state(teamidcopy).myIndex + Team.state(teamidcopy).local_grandchildren + 1;
-	                        finish {
-	                            if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering first chunk from dst_off "+dst_off+" to local_dst_off "+Team.state(teamidcopy).local_dst_off+" size " + count*Team.state(teamidcopy).myIndex);
-	                            // position 0 up to the child id
-	                            Rail.asyncCopy(grDst, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, count*Team.state(teamidcopy).myIndex);
-	                            if (DEBUGINTERNALS) Runtime.println(here+ " alltoall scattering second chunk from offset "+(dst_off+(count*lastChild))+" to local_dst offset "+(Team.state(teamidcopy).local_dst_off+(count*lastChild))+" size " + count*(teamSize-lastChild));
-	                            // position of last child range, to the end
-	                            Rail.asyncCopy(grDst, dst_off+(count*lastChild), Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off+(count*lastChild), count*(teamSize-lastChild));
-	                        }
-	                    };
-	
-	                    @Pragma(Pragma.FINISH_SPMD) finish {
-	                        at (places(local_child1Index)) async copyToChild();
-	                        if (local_child2Index != -1) {
-	                            at (places(local_child2Index)) async copyToChild();
-	                        }
-	                    }
-                        grDst.forget();
-	                } else if (collType == COLL_BROADCAST || collType == COLL_ALLREDUCE || 
-	                    collType == COLL_INDEXOFMIN || collType == COLL_INDEXOFMAX) {
-	                    // these all move a single value from root to all other team members
-                        val notnulldst = dst as Rail[T]{self!=null};
-                        val grDst = new GlobalRail[T](notnulldst);
-	                    finish {
-	                        at (places(local_child1Index)) async {
-	                        	if (!Team.state(teamidcopy).isValid)
-	                        		throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
-	                            if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+grDst+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
-	                            Rail.asyncCopy(grDst, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-	                        }
-	                        if (local_child2Index != -1) {
-	                            at (places(local_child2Index)) async {
-	                            	if (!Team.state(teamidcopy).isValid)
-	                            		throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
-	                                if (DEBUGINTERNALS) Runtime.println(here+ " pulling data from "+grDst+" into "+(Team.state(teamidcopy).local_dst as Rail[T]));
-	                                Rail.asyncCopy(grDst, dst_off, Team.state(teamidcopy).local_dst as Rail[T], Team.state(teamidcopy).local_dst_off, Team.state(teamidcopy).local_count);
-	                            }
-	                        }
-	                    }
-                        grDst.forget();
-	                } else if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
-	                    val notNullTmp = local_temp_buff as Rail[T]{self!=null};
-                        val grTmp = new GlobalRail[T](notNullTmp);
-	                    // root scatters direct from src
-	                    val parentOffset = (myLinks.parentIndex == -1) ? 0: local_offset;
-                        val rootSourceOffset = (myLinks.parentIndex == -1) ? local_src_off: 0;
-	                    val copyToChild = () => @NoInline {
-	                    	if (!Team.state(teamidcopy).isValid)
-	                    		throw new MultipleExceptions(new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member"));
-	                        val myOffset = Team.state(teamidcopy).local_offset-parentOffset+rootSourceOffset;
-	                        val totalData = Team.state(teamidcopy).local_counts_sum;
-	                        finish {
-	                            if (DEBUGINTERNALS) Runtime.println(here+ " scattering " + totalData + " from parent offset " + myOffset);
-	                            Rail.asyncCopy(grTmp, myOffset, Team.state(teamidcopy).local_temp_buff as Rail[T], 0, totalData);
-	                        }
-	                    };
-	
-	                    @Pragma(Pragma.FINISH_SPMD) finish {
-	                        at (places(local_child1Index)) async copyToChild();
-	                        if (local_child2Index != -1) {
-	                            at (places(local_child2Index)) async copyToChild();
-	                        }
-	                    }
-                        grTmp.forget();
-	                }
-	                if (DEBUGINTERNALS) Runtime.println(here+ " finished moving data to children");
-	            }
+            sleepUntil(() => Team.state(teamidcopy).phase.get() == PHASE_DONE, "scatter complete");
 
-	            if (collType == COLL_SCATTER || collType == COLL_SCATTERV) {
-	                // root scatters own data direct from src to dst
-	                val temp_off_my_data = (myLinks.parentIndex == -1) ? (src_off + local_offset) : 0;
-	                val temp_count = local_count;
-	                if (DEBUGINTERNALS){
-	                	val coll_name = (collType == COLL_SCATTER)? "scatter":"scatterv";
-	                	Runtime.println(here+ " " + coll_name + " " +count + " from local_temp_buff " + temp_off_my_data + " to dst");
-	                }
-	                Rail.copy(local_temp_buff as Rail[T]{self!=null}, temp_off_my_data, dst, dst_off, temp_count);
-	            }
-
-	            // our parent has updated us - update any children, and leave the collective
-	            if (local_child1Index != -1) { // free the first child, if it exists
-	                // NOTE: the use of runUncountedAsync allows the parent to continue past this section
-	                //   before the children have been set free.  This is necessary when there is a blocking
-	                //   call immediately after this collective completes (e.g. the barrier before a blocking 
-	                //   collective in MPI-2), because otherwise the at may not return before the barrier
-	                //   locks up the worker thread.
-	                val freeChild1 = () => @NoInline {
-	                    if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	                        Runtime.println("ERROR root setting the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	                    else if (DEBUGINTERNALS) Runtime.println("set the first child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	                };
-	                Runtime.runUncountedAsync(places(local_child1Index), freeChild1, null);
-	                if (local_child2Index != -1) {
-	                    // NOTE: can't use the same closure because runUncountedAsync deallocates it
-	                    val freeChild2 = () => @NoInline {
-	                        if (!Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER, PHASE_DONE))
-	                            Runtime.println("ERROR root setting the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	                        else if (DEBUGINTERNALS) Runtime.println("set the second child "+here+":team"+teamidcopy+" to PHASE_DONE");
-	                    };
-	                    Runtime.runUncountedAsync(places(local_child2Index), freeChild2, null);
-	                }
-	            }
-	        } catch (me:MultipleExceptions) {
-	            val dper = me.getExceptionsOfType[DeadPlaceException]();
-	            if (dper.size > 0) {
-	                if (DEBUGINTERNALS) Runtime.println(here+" caught DPE updating child: "+dper(0));
-	                Team.state(teamidcopy).isValid = false;
-	            }
-	        }
-	        
-	        // notify all associated places of the death of some other place
-            if (!isValid) {
-                if (myLinks.parentIndex != -1 && !places(myLinks.parentIndex).isDead()) {
-	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying parent of an invalid team");
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
-		                    Team.state(teamidcopy).isValid = false;
-		                }
-		            } catch (me:MultipleExceptions){}
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no parent to notify of an invalid team");
-	            if (myLinks.child1Index != -1 && !places(myLinks.child1Index).isDead()) {
-	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child1 of an invalid team");
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child1Index)) async {
-		                    Team.state(teamidcopy).isValid = false;
-		                }
-		            } catch (me:MultipleExceptions){}
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child1 to notify of an invalid team");
-	            if (myLinks.child2Index != -1 && !places(myLinks.child2Index).isDead()) {
-	                try {
-	                    if (DEBUGINTERNALS) Runtime.println(here+" notifying child2 of an invalid team");
-	                    @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child2Index)) async {
-	                        Team.state(teamidcopy).isValid = false;
-	                    }
-	                } catch (me:MultipleExceptions){}
-	            } else if (DEBUGINTERNALS) Runtime.println(here+" has no child2 to notify of an invalid team");
-	        }
-	        
             // done with local structures
             local_src = null;
             local_dst = null;
@@ -1564,16 +1501,90 @@ public struct Team {
             local_parentIndex = -1;
             local_child1Index = -1;
             local_child2Index = -1;
-            
-	        this.phase.set(PHASE_READY);
 	        
-	        if (!isValid) {
-	        	if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType) + " with DPE");
-	        	throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
-	        }
+            if (isValid()) {
+                if (local_child1Index > -1) {
+                    // Ensure activity completion messages are sent to children
+                    // before starting another team operation
+                    Runtime.x10rtProbe();
+                }
+                this.phase.compareAndSet(PHASE_DONE, PHASE_READY);
+                if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" completed "+getCollName(collType));
+            } else {
+                // notify all associated places of the death of some other place
+                // note: uses myLinks so it's OK to do this after clearing local structures
+                if (myLinks.parentIndex != -1) {
+                    if (!places(myLinks.parentIndex).isDead()) {
+                        try {
+                            if (DEBUGINTERNALS) Runtime.println(here+" notifying parent "+places(myLinks.parentIndex)+"  of an invalid team");
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.parentIndex)) async {
+                                Team.state(teamidcopy).markInvalid();
+                            }
+                        } catch (me:MultipleExceptions) { }
+                    } else {
+                        // parent is dead; notify grandparent
+                        val parentLinks = getLinks(myLinks.parentIndex, root, counts);
+                        if (parentLinks.parentIndex != -1) {
+                            try {
+                                if (DEBUGINTERNALS) Runtime.println(here+" notifying grandparent "+places(parentLinks.parentIndex)+"  of an invalid team");
+                                @Pragma(Pragma.FINISH_ASYNC) finish at (places(parentLinks.parentIndex)) async {
+                                    Team.state(teamidcopy).markInvalid();
+                                }
+                            } catch (me:MultipleExceptions) { }
+                        }
+                    }
+	            }
 
-            // completed successfully
-            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" leaving "+getCollName(collType));
+                val notifyGrandchildren = (childIndex:Long) => {
+                    // child is dead; notify grandchildren
+                    val childLinks = getLinks(childIndex, root, counts);
+                    if (childLinks.child1Index != -1) {
+                        try {
+                            if (DEBUGINTERNALS) Runtime.println(here+" notifying grandchild 1 "+places(childLinks.child1Index)+"  of an invalid team");
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (places(childLinks.child1Index)) async {
+                                Team.state(teamidcopy).markInvalid();
+                            }
+                        } catch (me:MultipleExceptions) { }
+                    }
+                    if (childLinks.child2Index != -1) {
+                        try {
+                            if (DEBUGINTERNALS) Runtime.println(here+" notifying grandchild 2 "+places(childLinks.child2Index)+"  of an invalid team");
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (places(childLinks.child2Index)) async {
+                                Team.state(teamidcopy).markInvalid();
+                            }
+                        } catch (me:MultipleExceptions) { }
+                    }
+                };
+                
+	            if (myLinks.child1Index != -1) {
+                    if (!places(myLinks.child1Index).isDead()) {
+                        try {
+                            if (DEBUGINTERNALS) Runtime.println(here+" notifying child1 "+places(myLinks.child1Index)+" of an invalid team");
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child1Index)) async {
+                                Team.state(teamidcopy).markInvalid();
+                            }
+                        } catch (me:MultipleExceptions) { }
+                    } else {
+                        notifyGrandchildren(myLinks.child1Index);
+                    }
+	            }
+	            if (myLinks.child2Index != -1) {
+                    if (!places(myLinks.child2Index).isDead()) {
+                        try {
+                            if (DEBUGINTERNALS) Runtime.println(here+" notifying child2 "+places(myLinks.child2Index)+"  of an invalid team");
+                            @Pragma(Pragma.FINISH_ASYNC) finish at (places(myLinks.child2Index)) async {
+                                Team.state(teamidcopy).markInvalid();
+                            }
+                        } catch (me:MultipleExceptions) { }
+                    } else {
+                        notifyGrandchildren(myLinks.child2Index);
+                    }
+	            }
+                
+                if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" failed "+getCollName(collType));
+
+                throw new DeadPlaceException("Team "+teamidcopy+" contains at least one dead member");
+            }
         }
     }
 }
