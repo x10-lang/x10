@@ -1455,6 +1455,10 @@ public struct Team {
                                 || Team.state(teamidcopy).phase.compareAndSet(PHASE_SCATTER2, PHASE_DONE))) {
                                 Runtime.println("ERROR progressing scatter "+here+":team"+teamidcopy+" current phase "+Team.state(teamidcopy).phase.get());
                             }
+                            
+                            if (!Team.state(teamidcopy).isValid()) {
+                                throw new DeadPlaceException(here+" detected dead team member after parent scatter");
+                            }
                         }
                         if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" returned from parent " + places(myLinks.parentIndex));
 
