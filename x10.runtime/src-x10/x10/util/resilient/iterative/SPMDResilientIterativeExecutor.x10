@@ -26,6 +26,9 @@ import x10.util.resilient.localstore.Cloneable;
 import x10.util.resilient.store.Store;
 
 public class SPMDResilientIterativeExecutor (home:Place) {
+    private static val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null 
+                                && System.getenv("EXECUTOR_DEBUG").equals("1"));
+
     private val manager:GlobalRef[PlaceManager]{self.home == this.home};
     private val resilientMap:Store[Cloneable];
     private var plh:PlaceLocalHandle[PlaceTempData];
@@ -34,8 +37,6 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     private val isResilient:Boolean;
     // if step() are implicitly synchronized, no need for a step barrier inside the executor
     private val implicitStepSynchronization:Boolean; 
-    private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null 
-                        && System.getenv("EXECUTOR_DEBUG").equals("1"));
     
     // configuration parameters for killing places at different times
     private var simplePlaceHammer:SimplePlaceHammer;
@@ -48,9 +49,8 @@ public class SPMDResilientIterativeExecutor (home:Place) {
     private transient var failureDetectionTimes:ArrayList[Long] = new ArrayList[Long]();
     private transient var applicationInitializationTime:Long = 0;
     private transient var startRunTime:Long = 0;
-    
-    private var lastCkptVersion:Long = -1;
-    private var lastCkptIter:Long = -1;
+    private transient var lastCkptVersion:Long = -1;
+    private transient var lastCkptIter:Long = -1;
     
     public def this(itersPerCheckpoint:Long, sparePlaces:Long, supportShrinking:Boolean, implicitStepSynchronization:Boolean) {
         property(here);

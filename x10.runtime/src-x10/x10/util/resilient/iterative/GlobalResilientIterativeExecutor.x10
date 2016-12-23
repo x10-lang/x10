@@ -28,7 +28,8 @@ import x10.util.resilient.store.Store;
 import x10.util.resilient.localstore.Cloneable;
 
 public class GlobalResilientIterativeExecutor (home:Place) {
-    private val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null && System.getenv("EXECUTOR_DEBUG").equals("1"));
+    private static val VERBOSE = (System.getenv("EXECUTOR_DEBUG") != null
+                               && System.getenv("EXECUTOR_DEBUG").equals("1"));
 
     private val manager:GlobalRef[PlaceManager]{self.home == this.home};
     private val resilientMap:Store[Cloneable];
