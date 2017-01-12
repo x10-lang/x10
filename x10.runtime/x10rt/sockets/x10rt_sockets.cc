@@ -139,9 +139,9 @@ x10rt_error fatal_error(const char* message)
 		return fatal("(at place %u): %s\n", context.myPlaceId, message);
 }
 
-void markPlaceDead(x10rt_place deadPlace) {
+void markPlaceDead(x10rt_place deadPlace, const char* message) {
 	#ifdef DEBUG
-	printf("Place %d marking remote place %u as dead\n", x10rt_net_here(), deadPlace);
+	printf("Place %d marking remote place %u as dead, error: %s \n", x10rt_net_here(), deadPlace, message);
 	#endif
 	if (context.socketLinks[deadPlace].events == 0) {
 		context.noBlockWindow--; // compensate for increment in poll
@@ -267,10 +267,10 @@ bool flushPendingData()
 				{
 					if (errno == EINTR) continue;
 					if (errno == EAGAIN) break;
-					markPlaceDead(context.pendingWrites->place);
+					markPlaceDead(context.pendingWrites->place, "flushPendingData rc = -1");
 				}
 				if (rc == 0) {
-					markPlaceDead(context.pendingWrites->place);
+					markPlaceDead(context.pendingWrites->place, "flushPendingData rc = 0");
 				}
 				src += rc;
 				context.pendingWrites->remainingToWrite -= rc;
@@ -633,7 +633,7 @@ int initLink(uint32_t remotePlace, char* connectionInfo)
 		else
 		{ // failed to connect to the other end.
 			pthread_mutex_unlock(&context.writeLocks[context.myPlaceId]);
-			markPlaceDead(remotePlace);
+			markPlaceDead(remotePlace, "establishing connection");
 			return -1;
 		}
 	}
@@ -964,8 +964,10 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
     x10rt_lgl_stats.msg.bytes_sent += parameters->len;
     x10rt_place dp = parameters->dest_place;
 	flushPendingData();
-	if (initLink(dp, NULL) < 0)
-		return (void)fatal_error("establishing a connection");
+	if (initLink(dp, NULL) < 0) {
+		markPlaceDead(dp, "establishing a connection");
+        return;
+	}
 	pthread_mutex_lock(&context.writeLocks[dp]);
 
 	// write out the x10SocketMessage data
@@ -973,26 +975,23 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	enum MSGTYPE m = STANDARD;
 	if (nonBlockingWrite(dp, &m, sizeof(m)) < (int)sizeof(m)) {
         pthread_mutex_unlock(&context.writeLocks[dp]);
-        markPlaceDead(dp);
+        markPlaceDead(dp, "failed write");
         return;
     }
 	if (nonBlockingWrite(dp, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
-		//return (void)fatal_error("sending STANDARD x10rt_msg_params.type");
 		pthread_mutex_unlock(&context.writeLocks[dp]);
-		markPlaceDead(dp);
+		markPlaceDead(dp, "failed sending STANDARD x10rt_msg_params.type");
         return;
     }
 	if (nonBlockingWrite(dp, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
-		//return (void)fatal_error("sending STANDARD x10rt_msg_params.len");
         pthread_mutex_unlock(&context.writeLocks[dp]);
-		markPlaceDead(dp);
+		markPlaceDead(dp, "failed sending STANDARD x10rt_msg_params.len");
         return;
     }
 	if (parameters->len > 0) {
 		if (nonBlockingWrite(dp, parameters->msg, parameters->len) < (int)parameters->len) {
-			//return (void)fatal_error("sending STANDARD msg");
             pthread_mutex_unlock(&context.writeLocks[dp]);
-			markPlaceDead(dp);
+			markPlaceDead(dp, "failed sending STANDARD msg");
             return;
         }
     }
@@ -1010,29 +1009,52 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *srcAddr, void *dstA
     x10rt_lgl_stats.get.messages_sent++ ;
     x10rt_lgl_stats.get.bytes_sent += parameters->len;
 	flushPendingData();
-	if (initLink(parameters->dest_place, NULL) < 0)
-		return (void)fatal_error("establishing a connection");
+	if (initLink(parameters->dest_place, NULL) < 0) {
+		markPlaceDead(parameters->dest_place, "establishing a connection");
+        return;
+	}
 	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, srcAddr, dstAddr
 	enum MSGTYPE m = GET;
-	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		return (void)fatal_error("sending GET MSGTYPE");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		return (void)fatal_error("sending GET x10rt_msg_params.type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		return (void)fatal_error("sending GET x10rt_msg_params.len");
+	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m)){
+		pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending GET MSGTYPE");
+        return;
+	}
+	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
+		pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending GET x10rt_msg_params.type");
+        return;
+	}
+	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
+   	    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending GET x10rt_msg_params.len");
+        return;
+	}
 	if (parameters->len > 0)
-		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			return (void)fatal_error("sending GET x10rt_msg_params.msg");
-	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		return (void)fatal_error("sending GET bufferLen");
+		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len){
+  		    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+            markPlaceDead(parameters->dest_place, "failed sending GET x10rt_msg_params.msg");
+            return;
+		}
+	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz)) {
+	    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending GET bufferLen");
+        return;
+	}
 	if (bufferLen > 0) {
-        if (nonBlockingWrite(parameters->dest_place, &srcAddr, sizeof(void*)) < (int)sizeof(void*))
-			return (void)fatal_error("sending GET srcAddr");
-		if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
-			return (void)fatal_error("sending GET dstAddr");
+        if (nonBlockingWrite(parameters->dest_place, &srcAddr, sizeof(void*)) < (int)sizeof(void*)) {
+		    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+            markPlaceDead(parameters->dest_place, "failed sending GET srcAddr");
+            return;
+		}
+		if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*)) {
+		    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+            markPlaceDead(parameters->dest_place, "failed sending GET dstAddr");
+            return;
+		}
     }
 	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
@@ -1049,29 +1071,52 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *srcAddr, void *dstA
     x10rt_lgl_stats.put.bytes_sent += parameters->len;
     x10rt_lgl_stats.put_copied_bytes_sent += bufferLen;
 	flushPendingData();
-	if (initLink(parameters->dest_place, NULL) < 0)
-		return (void)fatal_error("establishing a connection");
+	if (initLink(parameters->dest_place, NULL) < 0) {
+		markPlaceDead(parameters->dest_place, "failed establishing a connection");
+        return;
+	}
 	pthread_mutex_lock(&context.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
 	// Format: type, p.type, p.len, p.msg, bufferlen, dstAddr, buffer contents
 	enum MSGTYPE m = PUT;
-	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m))
-		return (void)fatal_error("sending PUT MSGTYPE");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type))
-		return (void)fatal_error("sending PUT x10rt_msg_params.type");
-	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len))
-		return (void)fatal_error("sending PUT x10rt_msg_params.len");
+	if (nonBlockingWrite(parameters->dest_place, &m, sizeof(m)) < (int)sizeof(m)) {
+        pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending PUT MSGTYPE");
+        return;
+	}
+	if (nonBlockingWrite(parameters->dest_place, &parameters->type, sizeof(parameters->type)) < (int)sizeof(parameters->type)) {
+	    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending PUT x10rt_msg_params.type");
+        return;
+	}
+	if (nonBlockingWrite(parameters->dest_place, &parameters->len, sizeof(parameters->len)) < (int)sizeof(parameters->len)) {
+	    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending PUT x10rt_msg_params.len");
+        return;
+	}
 	if (parameters->len > 0)
-		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len)
-			return (void)fatal_error("sending PUT x10rt_msg_params.len");
-	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-		return (void)fatal_error("sending PUT bufferLen");
-    if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
-        return (void)fatal_error("sending PUT dstAddr");
+		if (nonBlockingWrite(parameters->dest_place, parameters->msg, parameters->len) < (int)parameters->len) {
+		    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        	markPlaceDead(parameters->dest_place, "failed sending PUT x10rt_msg_params.len");
+        	return;
+		}
+	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz)) {
+	    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending PUT bufferLen");
+        return;
+	}
+    if (nonBlockingWrite(parameters->dest_place, &dstAddr, sizeof(void*)) < (int)sizeof(void*)) {
+        pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+        markPlaceDead(parameters->dest_place, "failed sending PUT dstAddr");
+        return;
+    }
 	if (bufferLen > 0) {
-		if (nonBlockingWrite(parameters->dest_place, srcAddr, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
-			return (void)fatal_error("sending PUT buffer");
+		if (nonBlockingWrite(parameters->dest_place, srcAddr, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen) {
+		    pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
+            markPlaceDead(parameters->dest_place, "failed sending PUT buffer");
+            return;
+		}
     }
 	pthread_mutex_unlock(&context.writeLocks[parameters->dest_place]);
 }
@@ -1214,7 +1259,7 @@ bool probe (bool onlyProcessAccept, bool block)
 					#ifdef DEBUG_MESSAGING
 						fprintf(stderr, "X10rt.Sockets: Place %u detected a bad message from place %u (likely a closed socket)\n", context.myPlaceId, whichPlaceToHandle);
 					#endif
-					markPlaceDead(whichPlaceToHandle);
+					markPlaceDead(whichPlaceToHandle, "bad message");
 					return false;
 				}
 				#ifdef DEBUG_MESSAGING
@@ -1223,10 +1268,14 @@ bool probe (bool onlyProcessAccept, bool block)
 
 				x10rt_msg_params mp;
 				mp.dest_place = context.myPlaceId;
-				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
-					return fatal_error("reading x10rt_msg_params.type"), false;
-				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t))
-					return fatal_error("reading x10rt_msg_params.len"), false;
+				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type)) {
+					markPlaceDead(whichPlaceToHandle, "failed reading x10rt_msg_params.type");
+					return false;
+				}
+				if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &mp.len, sizeof(uint32_t)) < (int)sizeof(uint32_t)) {
+					markPlaceDead(whichPlaceToHandle, "failed reading x10rt_msg_params.len");
+					return false;
+				}
 				#ifdef DEBUG_MESSAGING
 					fprintf(stderr, "X10rt.Sockets: place %u decoded a message of type %d from place %u\n", context.myPlaceId, (int)mp.type, whichPlaceToHandle);
 				#endif
@@ -1244,8 +1293,10 @@ bool probe (bool onlyProcessAccept, bool block)
 							return fatal_error("unable to allocate memory for an incoming message"), false;
 						heapAllocated = true;
 					}
-					if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len)
-						return fatal_error("reading x10rt_msg_params.msg"), false;
+					if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, mp.msg, mp.len) < (int)mp.len) {
+					    markPlaceDead(whichPlaceToHandle, "failed reading x10rt_msg_params.msg");
+					    return false;
+					}
 				}
 				else
 					mp.msg = NULL;
@@ -1272,19 +1323,25 @@ bool probe (bool onlyProcessAccept, bool block)
 					case PUT:
 					{
 						x10rt_copy_sz dataLen;
-						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							return fatal_error("reading PUT datalen"), false;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz)) {
+  					        markPlaceDead(whichPlaceToHandle, "failed reading PUT datalen");
+					        return false;
+						}
 
                         void *destAddr;
-						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &destAddr, sizeof(void*)) < (int)sizeof(void*))
-							return fatal_error("reading PUT dstAddr"), false;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &destAddr, sizeof(void*)) < (int)sizeof(void*)) {
+  					        markPlaceDead(whichPlaceToHandle, "failed reading PUT dstAddr");
+					        return false;
+						}
                         
                         x10rt_lgl_stats.put.messages_received++;
                         x10rt_lgl_stats.put.bytes_received += mp.len;
 						if (destAddr == NULL)
 							return fatal_error("invalid buffer provided for a PUT"), false;
-						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, destAddr, dataLen) < (int)dataLen)
-							return fatal_error("reading PUT data"), false;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, destAddr, dataLen) < (int)dataLen) {
+  					        markPlaceDead(whichPlaceToHandle, "failed reading PUT data");
+					        return false;
+						}
 						pthread_mutex_lock(&context.readLock);
 						context.noBlockWindow--;
 						context.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
@@ -1302,13 +1359,19 @@ bool probe (bool onlyProcessAccept, bool block)
 						x10rt_copy_sz dataLen;
 						void* srcAddr = NULL; // THIS IS A POINTER ON THIS MACHINE
 						void* dstAddr = NULL; // THIS IS A POINTER ON A REMOTE MACHINE.  NOT VALID HERE
-						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							return fatal_error("reading GET dataLen"), false;
+						if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz)) {
+  					        markPlaceDead(whichPlaceToHandle, "failed reading GET dataLen");
+					        return false;
+						}
 						if (dataLen > 0) {
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &srcAddr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("reading GET srcAddr"), false;
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("reading GET dstAddr"), false;
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &srcAddr, sizeof(void*)) < (int)sizeof(void*)) {
+  					            markPlaceDead(whichPlaceToHandle, "failed reading GET srcAddr");
+					            return false;
+							}
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*)) {
+  					            markPlaceDead(whichPlaceToHandle, "failed reading GET dstAddr");
+					            return false;
+							}
                         }
                             
 						pthread_mutex_lock(&context.readLock);
@@ -1324,23 +1387,44 @@ bool probe (bool onlyProcessAccept, bool block)
 						pthread_mutex_lock(&context.writeLocks[whichPlaceToHandle]);
 						// Format: type, p.type, p.len, p.msg, bufferlen, dstAddr, buffer
 						enum MSGTYPE m = GET_COMPLETED;
-						if (nonBlockingWrite(whichPlaceToHandle, &m, sizeof(m)) < (int)sizeof(m))
-							return fatal_error("sending GET_COMPLETED MSGTYPE"), false;
-						if (nonBlockingWrite(whichPlaceToHandle, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type))
-							return fatal_error("sending GET_COMPLETED x10rt_msg_params.type"), false;
-						if (nonBlockingWrite(whichPlaceToHandle, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len))
-							return fatal_error("sending GET_COMPLETED x10rt_msg_params.len"), false;
+						if (nonBlockingWrite(whichPlaceToHandle, &m, sizeof(m)) < (int)sizeof(m)) {
+  						    pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						    markPlaceDead(whichPlaceToHandle, "failed sending GET_COMPLETED MSGTYPE");
+                            return false;
+						}
+						if (nonBlockingWrite(whichPlaceToHandle, &mp.type, sizeof(mp.type)) < (int)sizeof(mp.type)) {
+						    pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						    markPlaceDead(whichPlaceToHandle, "failed sending GET_COMPLETED x10rt_msg_params.type");
+                            return false;
+						}
+						if (nonBlockingWrite(whichPlaceToHandle, &mp.len, sizeof(mp.len)) < (int)sizeof(mp.len)) {
+						  	pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						    markPlaceDead(whichPlaceToHandle, "failed sending GET_COMPLETED x10rt_msg_params.len");
+                            return false;
+						}
 						if (mp.len > 0)
-							if (nonBlockingWrite(whichPlaceToHandle, mp.msg, mp.len) < (int)mp.len)
-								return fatal_error("sending GET_COMPLETED x10rt_msg_params.msg"), false;
-						if (nonBlockingWrite(whichPlaceToHandle, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
-							return fatal_error("sending GET_COMPLETED dataLen"), false;
+							if (nonBlockingWrite(whichPlaceToHandle, mp.msg, mp.len) < (int)mp.len) {
+							    pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						        markPlaceDead(whichPlaceToHandle, "failed sending GET_COMPLETED");
+                                return false;
+							}
+						if (nonBlockingWrite(whichPlaceToHandle, &dataLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz)) {
+						  	pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						    markPlaceDead(whichPlaceToHandle, "failed sending GET_COMPLETED");
+                            return false;
+						}
 						if (dataLen > 0)
 						{
-							if (nonBlockingWrite(whichPlaceToHandle, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("sending GET_COMPLETED dstAddr"), false;
-							if (nonBlockingWrite(whichPlaceToHandle, srcAddr, dataLen) < (int)dataLen)
-								return fatal_error("sending GET_COMPLETED data"), false;
+							if (nonBlockingWrite(whichPlaceToHandle, &dstAddr, sizeof(void*)) < (int)sizeof(void*)) {
+							    pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						        markPlaceDead(whichPlaceToHandle, "failed reading GET_COMPLETED dstAddr");
+                                return false;
+							}
+							if (nonBlockingWrite(whichPlaceToHandle, srcAddr, dataLen) < (int)dataLen) {
+							    pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
+  						        markPlaceDead(whichPlaceToHandle, "failed reading GET_COMPLETED data");
+                                return false;
+							}
 						}
 						pthread_mutex_unlock(&context.writeLocks[whichPlaceToHandle]);
 					}
@@ -1354,10 +1438,14 @@ bool probe (bool onlyProcessAccept, bool block)
 							return fatal_error("reading GET_COMPLETED dataLen"), false;
 						if (dataLen > 0)
 						{
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*))
-								return fatal_error("reading GET_COMPLETED dstAddr"), false;
-							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dstAddr, dataLen) < (int)dataLen)
-								return fatal_error("reading GET_COMPLETED data"), false;
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, &dstAddr, sizeof(void*)) < (int)sizeof(void*)) {
+  					            markPlaceDead(whichPlaceToHandle, "failed reading GET_COMPLETED dstAddr");
+					            return false;
+							}
+							if (nonBlockingRead(context.socketLinks[whichPlaceToHandle].fd, dstAddr, dataLen) < (int)dataLen) {
+  					            markPlaceDead(whichPlaceToHandle, "failed reading GET_COMPLETED data");
+					            return false;
+							}
 						}
 						pthread_mutex_lock(&context.readLock);
 						context.noBlockWindow--;
@@ -1385,7 +1473,7 @@ bool probe (bool onlyProcessAccept, bool block)
 			#endif
 
 			// link is broken.  Close it down.
-			markPlaceDead(whichPlaceToHandle);
+			markPlaceDead(whichPlaceToHandle, "broken link");
 		}
 		else
 		{
