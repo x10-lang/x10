@@ -49,7 +49,13 @@ final class GetRegistry {
             this.notifier = notifier;
         }
     }
-    
+
+    // Used only by NativeX10.
+    // The memory operation is done at the x10rt layer, so the Rail, dstIdx, and numElems values are not needed
+    static def registerGet(srcPlace:Place, finishState:FinishState, notifier:()=>void):Int {
+        return registerGet(srcPlace, null, -1n, -1n, finishState, notifier);
+    }
+
     static def registerGet(srcPlace:Place, dst:Any /*Rail[T]*/, dstIdx:Int, numElems:Int, finishState:FinishState, notifier:()=>void):Int {
         lock.lock();
         val id = nextId.getAndIncrement();

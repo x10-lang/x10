@@ -80,14 +80,15 @@ namespace x10 {
                     // Needed to prevent the worker that calls stopFinish from trying to
                     // help and improperly scheduling an activity from an unrelated finish.
                     fs->notifyRemoteContinuationCreated();
-                    // notifier runs here; sleazy optimization to avoid true serialization...
-                    buf.write(static_cast<x10_ulong>((size_t)static_cast<void*>(fs)));
+                    x10_int getId = x10::xrx::GetRegistry::registerGet(srcPlace, fs, NULL);
+                    buf.write(getId);
                     x10aux::send_get(src_place, Rail_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 } else {
                     // Needed to prevent the worker that calls stopFinish from trying to
                     // help and improperly scheduling an activity from an unrelated finish.
                     fs->notifyRemoteContinuationCreated();
-                    buf.write(notif);
+                    x10_int getId = x10::xrx::GetRegistry::registerGet(srcPlace, fs, NULL);
+                    buf.write(getId);
                     x10aux::send_get(src_place, Rail_uncounted_copy_from_serialization_id, buf, srcAddr, dstAddr, numBytes);
                 }
             }
@@ -105,8 +106,9 @@ namespace x10 {
         }
         
         void Rail_get_notifier(deserialization_buffer &buf, x10_int) {
-            size_t val = static_cast<size_t>(buf.read<x10_ulong>());
-            x10::xrx::FinishState* fs = static_cast<x10::xrx::FinishState*>((void*)val);
+            x10_int id = buf.read<x10_int>();
+            x10::xrx::GetRegistry__GetHandle *gh = x10::xrx::GetRegistry::completeGet(id);
+            x10::xrx::FinishState* fs = gh->FMGL(finishState);
             // Perform the actions of both notifyActivityCreation and
             // notifyActivityTermination in a single non-blocking action.
             // This notifier is often running on an @Immediate worker thread.
@@ -114,7 +116,9 @@ namespace x10 {
         }
 
         void Rail_uncounted_get_notifier(deserialization_buffer &buf, x10_int) {
-            VoidFun_0_0* notif = buf.read<VoidFun_0_0*>();
+            x10_int id = buf.read<x10_int>();
+            x10::xrx::GetRegistry__GetHandle *gh = x10::xrx::GetRegistry::completeGet(id);
+            VoidFun_0_0* notif = gh->FMGL(notifier);
             VoidFun_0_0::__apply(notif);
         }
 
