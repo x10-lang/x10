@@ -30,7 +30,8 @@ import x10.network.SocketTransport.RETURNCODE;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.runtime.impl.java.GetRegistry.GetHandle;
+import x10.xrx.GetRegistry;
+import x10.xrx.GetRegistry.GetHandle;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializer;
 import x10.x10rt.NativeTransport;
@@ -648,7 +649,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         // help and improperly scheduling an activity from an unrelated finish.
         fs.notifyRemoteContinuationCreated();
 
-        int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, fs, null);
+        int getId = GetRegistry.registerGet$O(src.home(), dst, dstIndex, numElems, fs, null);
         X10JavaSerializer serializer = new X10JavaSerializer();
         try {
             serializer.write(X10RT.hereId());
@@ -679,7 +680,7 @@ public abstract class Runtime implements VoidFun_0_0 {
         // help and improperly scheduling an activity from an unrelated finish.
         fs.notifyRemoteContinuationCreated();
 
-        int getId = GetRegistry.registerGet(src.home(), dst, dstIndex, numElems, null, notifier);
+        int getId = GetRegistry.registerGet$O(src.home(), dst, dstIndex, numElems, null, notifier);
         X10JavaSerializer serializer = new X10JavaSerializer();
         try {
             serializer.write(X10RT.hereId());
@@ -773,7 +774,7 @@ public abstract class Runtime implements VoidFun_0_0 {
            
            if (X10RT.VERBOSE) System.out.println("getCompletedReceive performing copy");
            try {
-               System.arraycopy(dataToCopy, 0, gh.dst.getBackingArray(), gh.dstIdx, gh.numElems);
+               System.arraycopy(dataToCopy, 0, ((Rail<?>)gh.dst).getBackingArray(), gh.dstIdx, gh.numElems);
            } catch (Exception e) {
                if (X10RT.VERBOSE) System.out.println("getCompletedReceive exception during copy");
                if (gh.finishState != null) {

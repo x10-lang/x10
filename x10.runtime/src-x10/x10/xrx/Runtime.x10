@@ -1379,9 +1379,6 @@ public final class Runtime {
         }
     }
 
-    @Native("java", "x10.runtime.impl.java.GetRegistry.notifyPlaceDeath()")
-    private static def getRegistryNotifyPlaceDeath():void { }
-
     static def notifyPlaceDeath() : void {
         if (CANCELLABLE) {
             if (pool.cancelWatcher != null) {
@@ -1397,7 +1394,7 @@ public final class Runtime {
             // Nothing to do at the XRX level in this mode.
         } else {
             FinishResilient.notifyPlaceDeath();
-            getRegistryNotifyPlaceDeath();
+            GetRegistry.notifyPlaceDeath();
         }
     }
 
