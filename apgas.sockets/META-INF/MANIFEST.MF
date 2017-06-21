@@ -5,5 +5,5 @@ Bundle-SymbolicName: apgas.sockets
 Bundle-Version: 1.0.0.qualifier
 Export-Package: apgas.sockets
 Require-Bundle: apgas;bundle-version="1.0.0",
- x10.network;bundle-version="2.6.0"
+ x10.network;bundle-version="2.6.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
