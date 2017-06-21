@@ -1,19 +1,8 @@
-X10 Release 2.6.0
+X10 Release 2.6.1
 
 HIGHLIGHTS OF THIS RELEASE
 
-The X10 language now includes an overloading mechanism for redefining
-or extending the behavior of control structures.  For more details,
-refer to the language manual section on user-defined control
-structures or the X10'16 paper "Control Structure Overloading in X10."
-
-The X10 language now supports trailing closures. A trailing closure is
-a closure block that is written and after the parentheses of a
-function call. This closure block is passed as a closure without
-argument to the function. 
-
-To resolve parsing ambiguities, the property keyword is now mandatory
-to introduce property methods.
+Significant improvements to the performance and scalability of resilient finish.
 
 LIMITATIONS OF THIS RELEASE
 
@@ -41,22 +30,21 @@ we do almost all of our testing against g++ 4.4.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.6.0
+Below is a summary of JIRA issues addressed for the X10 2.6.1
 
 ** New Feature
-    * [XTENLANG-3441] - Parallel iteration using foreach
-
-** Improvement
-    * [XTENLANG-3493] - Use Team collective operations in GML and remove Native-MPI backend
-    * [XTENLANG-3551] - Optimize asyncCopy in ManagedX10
+    * [XTENLANG-3553] - Add method x10.lang.String.contains(String)
+    * [XTENLANG-3554] - New method x10.Random.nextGaussian
+    * [XTENLANG-3555] - X10 Launcher fails with buffer overflow if X10_HOSTFILE does not exist
 
 ** Bug
-    * [XTENLANG-3497] - Thread.stop(Throwable) throws UnsupportedOperationException since Java 8
-    * [XTENLANG-3546] - Segfault in NativeX10 on upcast of function type
-    * [XTENLANG-3550] - Duplicate method in generated Java
+    * [XTENLANG-3498] - New place fails to connect to dead places
+    * [XTENLANG-3552] - X10 reading from a file not as expected
+    * [XTENLANG-3556] - x10rt_sockets: blocking_probe doesn't block after a Place is killed
+
 
 For the details of JIRA issues fixed in this release, see
-  https://xtenlang.atlassian.net/secure/ReleaseNote.jspa?version=10400&projectId=10005
+  https://xtenlang.atlassian.net/secure/ReleaseNote.jspa?version=10600&projectId=10005
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
