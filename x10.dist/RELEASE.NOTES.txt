@@ -2,7 +2,16 @@ X10 Release 2.6.1
 
 HIGHLIGHTS OF THIS RELEASE
 
-Significant improvements to the performance and scalability of resilient finish.
+The focus of the X10 2.6.1 release is improvements to Resilient X10.
+Some highlights include:
+  - Significant improvements to the performance of resilient finish
+  - A new resilient store implemented in X10
+  - Improved standard library APIs for elasticity and
+    non-shrinking recovery.
+  - Enhancements to the x10.util.resilient.iterative package to
+    exploit elasticity to support non-shrinking recovery.
+  - Updating of all Resilient X10 sample programs and applications
+    to showcase the improvements in Resilient X10.
 
 LIMITATIONS OF THIS RELEASE
 
