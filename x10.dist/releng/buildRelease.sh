@@ -80,11 +80,6 @@ case "$UNAME" in
           EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true -DX10RT_PAMI_IS_DEFAULT=true"
           export USE_XLC=1
       fi
-      if [[ "$SHORT_HOSTNAME" == "bgqfen1" ]]; then 
-          EXTRA_X10RT_BUILD_ARG="-DCROSS_COMPILE_BGQ=true"
-	  X10_PLATFORM='linux_bgq'
-	  SKIP_DEBUG_BUILD=1
-      fi
       ;;
   Darwin,*,i*86) 
       X10_PLATFORM='macosx_x86'

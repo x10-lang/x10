@@ -73,9 +73,6 @@ III. When all necessary fixes have been propagated to the release branch,
       in the yktgsa project x10-releases at the end of the job.
       They are staged on the jenkins master node in the userContent directory
       until all sub-builds complete/fail.  
-      The BlueGene/Q build is not integrated with Jenkins; you will need to 
-      use masterBuildRelease.sh create it:
-          ./masterBuildRelease.sh -skip_source -version 2.5.0 -tag SF_RELEASE_2_5_0 -nodebug -hosts bgqfen1
 
    6. Once the X10 tarballs are available in gsa, you can build X10DT.
       This is also done using Jenkins. Select the "X10DT-Release-Build" job
