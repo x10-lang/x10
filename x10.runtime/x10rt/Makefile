@@ -71,7 +71,9 @@ endif
 
 ifndef CROSS_COMPILE_BLUEGENE
 ifndef CROSS_COMPILE_MODULES
+ifneq "$(X10RT_PLATFORM)" "cygwin"
   include standalone/standalone.mk
+endif
   include sockets/sockets.mk
   ifdef JNI_INCLUDES
     include jni/jni.mk
