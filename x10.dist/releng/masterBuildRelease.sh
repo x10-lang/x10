@@ -3,7 +3,7 @@
 # exit immediately on any error.
 set -e 
 
-hosts="serenity.watson.ibm.com triloka1.pok.ibm.com p7ih bgqfen1.watson.ibm.com"
+hosts="serenity.watson.ibm.com triloka1.pok.ibm.com"
 
 x10dt_hosts="serenity.watson.ibm.com triloka1.pok.ibm.com"
 
