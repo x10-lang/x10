@@ -36,6 +36,10 @@ while [ $# != 0 ]; do
 	rpm_arg="-rpm"
     ;;
 
+    -gml)
+	gml_arg="-gml"
+    ;;
+
     -skip_source)
         pushed_source="done"       
     ;;
@@ -61,7 +65,7 @@ for host in $hosts
 do
     echo "Launching buildRelease.sh on $host"
     scp buildRelease.sh $host:/tmp 
-    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg $rpm_arg'"
+    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg $rpm_arg $gml_arg'"
     ssh $host "(cd /tmp; rm ./buildRelease.sh)"
     echo "transfering binary build from $host to yktgsa via triloka1"
     scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
@@ -72,6 +76,7 @@ do
     if [[ -z "$pushed_source" ]]; then
 	echo "transfering source build and testsuite from $host to yktgsa via triloka1"
 	scp "$host:/tmp/x10-rc-$USER/x10-$version/x10-$version*.tar.bz2" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
+	scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.gml/x10-gml-$version-*.tar.bz2" "x10test@triloka1.pok.ibm.com:/gsa/yktgsa/projects/x/x10-releases/$version/"
 	echo "Packaging benchmarks"
 	./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
 	echo "transfering benchmarks tar to yktgsa via triloka1"
