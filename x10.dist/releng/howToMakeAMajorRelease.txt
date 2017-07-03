@@ -116,4 +116,6 @@ III. When all necessary fixes have been propagated to the release branch,
 
    13. Post release announcement in SF news and web page front-page news.
 
+   14. Create a matching release on github.
+
    14. Send out mail announcements to x10-users and x10-announce
