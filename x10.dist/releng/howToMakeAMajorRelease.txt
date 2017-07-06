@@ -65,20 +65,29 @@ III. When all necessary fixes have been propagated to the release branch,
    4. Use the same tag you used for X10 (SF_RELEASE_2_5_3) to tag the master branch of 
       x10dt, x10-applications, and x10-benchmarks.
 
-   5. Go to Jenkins, select the Package-X10-Release job and then select
-      "Build With Parameters".  Select the appropriate tag, fill in
-      the version number, and other parameters then hit the 'Build' button.
-      Note, depending on how loaded slave machines are this step may take
-      several hours to complete.  Tarballs will be automatically published
-      in the yktgsa project x10-releases at the end of the job.
-      They are staged on the jenkins master node in the userContent directory
-      until all sub-builds complete/fail.  
+   5. Build x10 tarballs on primary X10 platforms and publish to
+      the yktgsa project x10-releases. You can use x10.dist/releng/masterBuildRelease.sh
+      to accomplish this. For example
+         ./masterBuildRelease.sh -version 2.6.1 -tag SF_RELEASE_2_6_1 -gml 
 
    6. Once the X10 tarballs are available in gsa, you can build X10DT.
-      This is also done using Jenkins. Select the "X10DT-Release-Build" job
-      and then select "Build With Parameters". Fill in the tags for X10,X10DT,
-      and the version number then hit the 'Build' button.  The X10DT releases
-      will be stored in yktgsa in the x10dt-releases project.
+      The scripts and supporting property files to drive this process are
+      kept in x10dt.build.  The process is no longer fully automated. The steps
+      that were executed from the Jenkins job using the x10test account on triloka1 are:
+         rm -rf /home/x10test/x10dt/git-repos
+         mkdir /home/x10test/x10dt/git-repos
+         cd /home/x10test/x10dt/git-repos
+         git clone https://github.com/x10-lang/x10.git -b $X10_TAG
+         git clone https://github.com/x10-lang/x10dt.git -b $X10DT_TAG
+
+         cd /home/x10test/x10dt
+         rm -rf /home/x10test/x10dt/x10dt.build
+         mkdir /home/x10test/x10dt/x10dt.build
+         rsync -a /home/x10test/x10dt/git-repos/x10dt/x10dt.build/ /home/x10test/x10dt/x10dt.build
+
+         ant -propertyfile jenkins.properties -file main-build.xml -Dx10.tag=SF_RELEASE_2_6_1 -Dx10.tarballs.release.tag=2.6.1 -Dx10dt.tag=SF_RELEASE_2_6_1
+
+      The final ant task will copy the X10DT zip files to yktgsa in the x10dt-releases project.
 
    7. ssh into shell.sf.net and create a subdirectory of 
       /home/frs/project/x/x1/x10 to hold the downloads. 
