@@ -355,6 +355,11 @@ X10RT_C bool x10rt_is_place_dead (x10rt_place p);
  */
 X10RT_C x10rt_error x10rt_get_dead (x10rt_place *dead_places, x10rt_place len);
 
+/** Register a callback method to be called when a place dies.
+ * \param *cb 	the callback method.
+ */
+X10RT_C void x10rt_set_place_removed_cb(x10rt_place_removed_callback* cb);
+
 /** The local place.  An X10 process will discover its
  * own identity by calling this function.
  * \returns The place id of the current place.

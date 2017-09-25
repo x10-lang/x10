@@ -192,6 +192,9 @@ bool x10rt_lgl_is_place_dead (x10rt_place p);
 /** \see #x10rt_get_dead */
 x10rt_error x10rt_lgl_get_dead (x10rt_place *dead_places, x10rt_place len);
 
+/** \see #x10rt_set_place_removed_cb */
+void x10rt_lgl_set_place_removed_cb(x10rt_place_removed_callback* cb);
+
 /** \see #x10rt_here */
 x10rt_place x10rt_lgl_here (void);
 

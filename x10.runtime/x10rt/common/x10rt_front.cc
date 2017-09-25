@@ -83,6 +83,9 @@ bool x10rt_is_place_dead (x10rt_place p)
 x10rt_error x10rt_get_dead (x10rt_place *dead_places, x10rt_place len)
 { return x10rt_lgl_get_dead(dead_places, len); }
 
+void x10rt_set_place_removed_cb(x10rt_place_removed_callback* cb)
+{ return x10rt_lgl_set_place_removed_cb(cb); }
+
 x10rt_place x10rt_here (void)
 { return x10rt_lgl_here(); }
 

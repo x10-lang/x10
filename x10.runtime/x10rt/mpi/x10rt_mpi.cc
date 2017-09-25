@@ -3867,6 +3867,13 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
 
 const char *x10rt_net_error_msg (void) { return NULL; }
 
+/* Registering a place removed callback */
+x10rt_place_removed_callback* placeRemovedCB = NULL;
+
+void x10rt_net_set_place_removed_cb(x10rt_place_removed_callback* cb) {
+	placeRemovedCB = cb;
+}
+
 #ifdef OPEN_MPI_ULFM
 void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
 
@@ -3883,7 +3890,8 @@ void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
     int *old_new_combined   = NULL;
 
     MPI_Group_size(failedGroup, &f_size);
-
+    int oldDeadCount = global_state.deadPlacesSize;
+    int newDeadCount = global_state.deadPlacesSize;
     if( f_size > 0 ) {    	
         MPI_Comm_group(MPI_COMM_WORLD, &comm_group);
 
@@ -3918,11 +3926,17 @@ void mpiErrorHandler(MPI_Comm * comm, int *errorCode, ...){
         free(comm_ranks);
         global_state.deadPlaces = old_new_combined;
         global_state.deadPlacesSize = local_ndead;
+        newDeadCount = local_ndead;
 
         free(failed_ranks);
         MPI_Group_free(&comm_group);
     }
-
+    //signal the application that places have died.
+    if (placeRemovedCB != NULL && newDeadCount > oldDeadCount) {
+    	for (int i = oldDeadCount; i < newDeadCount; ++i) {
+    		placeRemovedCB(global_state.deadPlaces[i]);
+    	}
+    }
     MPI_Group_free(&failedGroup);
     return;
 }

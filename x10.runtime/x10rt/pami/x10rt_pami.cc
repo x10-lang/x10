@@ -2263,3 +2263,10 @@ bool x10rt_net_agree (x10rt_team team, x10rt_place role,
 	error("x10rt_net_agree not implemented");
 	return false;
 }
+
+/* Registering a place removed callback, never used in this implementation */
+x10rt_place_removed_handler* placeRemovedHandler = NULL;
+
+void x10rt_net_set_place_removed_handler(x10rt_place_removed_handler* cb) {
+	placeRemovedHandler = cb;
+}
