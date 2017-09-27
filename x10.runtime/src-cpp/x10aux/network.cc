@@ -26,6 +26,7 @@
 #include <x10/lang/RuntimeNatives.h>
 
 #include <x10/lang/VoidFun_0_0.h>
+#include <x10/lang/VoidFun_0_1.h>
 #include <x10/lang/String.h> // for debug output
 
 #include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
@@ -502,6 +503,21 @@ x10::lang::String *x10aux::runtime_name (void)
     }
     x10::lang::String *str = x10::lang::String::Lit(alloc_printf("%lu@%s", (unsigned long) pid, hname));
     return str;
+}
+
+// Reference to the user callback method
+x10::lang::VoidFun_0_1<x10::lang::Place>* place_removed_handler = NULL;
+
+// Called by the network layer to trigger a callback upon detecting a place failure. //
+void x10aux::notify_place_death(unsigned int pl) {
+	if (place_removed_handler != NULL)
+	    VoidFun_0_1<x10::lang::Place>::__apply(place_removed_handler, x10::lang::Place::_make(x10rt_place(pl)));
+}
+
+// Called by System.registerPlaceRemovedHandler to register a callback method //
+void x10aux::register_place_removed_handler(x10::lang::VoidFun_0_1<x10::lang::Place>* body_fun) {
+    place_removed_handler = body_fun;
+    x10rt_set_place_removed_cb(x10aux::notify_place_death);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

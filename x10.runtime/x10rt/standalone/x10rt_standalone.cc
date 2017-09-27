@@ -1059,3 +1059,10 @@ bool x10rt_net_agree (x10rt_team team, x10rt_place role,
 }
 
 const char *x10rt_net_error_msg (void) { return NULL; }
+
+/* Registering a place removed callback, never used in this implementation */
+x10rt_place_removed_callback* placeRemovedCB = NULL;
+
+void x10rt_net_set_place_removed_cb(x10rt_place_removed_callback* cb) {
+	placeRemovedCB = cb;
+}

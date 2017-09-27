@@ -17,7 +17,7 @@
 #include <x10rt_front.h>
 #include <x10rt_cpp.h>
 
-namespace x10 { namespace lang { class VoidFun_0_0; } }
+namespace x10 { namespace lang { struct Place; class VoidFun_0_0; template<class P1> class VoidFun_0_1; } }
 namespace x10 { namespace xrx { class FinishState; } }
 namespace x10 { namespace lang { class Reference; } }
 namespace x10 { namespace lang { class String; } }
@@ -204,6 +204,9 @@ namespace x10aux {
     void coll_handler2(x10rt_team t, void *arg);
     
     void failed_coll_handler(void *arg);
+
+    void register_place_removed_handler(x10::lang::VoidFun_0_1<x10::lang::Place>* body_fun);
+    void notify_place_death(unsigned int place);
 }
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

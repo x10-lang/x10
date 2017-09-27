@@ -139,10 +139,8 @@ public class System {
      * required to execute quickly.
      */
     @Native("java", "x10.x10rt.X10RT.registerPlaceRemovedHandler(#handler)")
-    public static def registerPlaceRemovedHandler(handler:(Place)=>void): void {
-        throw new UnsupportedOperationException("registerPlaceRemovedHandler not implemented for NativeX10");
-    }
-
+    @Native("c++", "::x10aux::register_place_removed_handler(#handler)")
+    public static native def registerPlaceRemovedHandler(handler:(Place)=>void): void ;
 
     /**
      * Sets the exit code with which the X10 program will exit.

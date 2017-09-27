@@ -49,6 +49,10 @@ typedef void x10rt_completion_handler (void *arg);
  */
 typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 
+/** User callback to signal that a place has died.
+ */
+typedef void x10rt_place_removed_callback(unsigned int pl);
+
 /** An integer type capable of representing any message type id.
  */
 #if defined(X10RT_32BIT_MSG_IDS) 

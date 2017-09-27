@@ -38,6 +38,7 @@
 #include <fcntl.h>
 
 #include <x10rt_net.h>
+#include <x10rt_types.h>
 #include "Launcher.h"
 #include "DebugHelper.h"
 #include "TCP.h"
@@ -139,6 +140,13 @@ x10rt_error fatal_error(const char* message)
 		return fatal("(at place %u): %s\n", context.myPlaceId, message);
 }
 
+/* Registering a place removed callback */
+x10rt_place_removed_callback* placeRemovedCB = NULL;
+
+void x10rt_net_set_place_removed_cb(x10rt_place_removed_callback* cb) {
+	placeRemovedCB = cb;
+}
+
 void markPlaceDead(x10rt_place deadPlace, const char* message) {
 	#ifdef DEBUG
 	printf("Place %d marking remote place %u as dead, error: %s \n", x10rt_net_here(), deadPlace, message);
@@ -148,6 +156,9 @@ void markPlaceDead(x10rt_place deadPlace, const char* message) {
 	}
 	close(context.socketLinks[deadPlace].fd);
 	context.socketLinks[deadPlace].fd = DEAD;
+     
+	if (placeRemovedCB != NULL) 
+		placeRemovedCB(deadPlace); //signal the application that a place has died.
 }
 
 /*
