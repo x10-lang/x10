@@ -232,3 +232,6 @@
 # /x10.wala/
 /x10.wala/bin
 /x10.wala/lib
+
+# /x10.yarn/
+/x10.yarn/bin
