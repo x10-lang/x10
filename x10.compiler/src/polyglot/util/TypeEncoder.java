@@ -178,9 +178,11 @@ public class TypeEncoder
             TypeObject o = (TypeObject) ois.readObject();
             
             if (ois.deserializationFailed()) {
+                ois.close();
                 return null;
             }
             
+            ois.close();
             return o;
         }
         catch (InvalidClassException e) {

@@ -81,6 +81,7 @@ public class NativeClassVisitor extends x10.visit.NativeClassVisitor {
                     return true;
                 }
             }
+            jarFile.close();
 
         }
         return false;
