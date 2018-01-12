@@ -57,4 +57,4 @@ Export-Package: polyglot.ast,
  x10cuda.types,
  x10cuda.visit
 Bundle-Vendor: x10-users@lists.sourceforge.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

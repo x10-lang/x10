@@ -323,10 +323,10 @@ public class X10Translator extends Translator {
 
             int javacOptionsStart = javacCmd.size();
             javacCmd.add("-source");
-            javacCmd.add("1.6");
+            javacCmd.add("1.8");
 
             javacCmd.add("-target");
-            javacCmd.add("1.6");
+            javacCmd.add("1.8");
 
             javacCmd.add("-nowarn");
 

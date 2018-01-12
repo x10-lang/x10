@@ -18,11 +18,11 @@
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
 	<property name="gen-java.zip" value="gen-java.zip"/>
-    <property name="ecj.jar" value="${lib}/ecj-4.4.2.jar"/>
-    <property name="math.jar" value="${lib}/commons-math3-3.5.jar"/>
+    <property name="ecj.jar" value="${lib}/ecj-4.7.2.jar"/>
+    <property name="math.jar" value="${lib}/commons-math3-3.6.1.jar"/>
     <property name="log.jar" value="${lib}/commons-logging-1.2.jar"/>
-    <property name="hazelcast.jar" value="${lib}/hazelcast-3.7.1.jar"/>
-    <property name="hazelcast-client.jar" value="${lib}/hazelcast-client-3.7.1.jar"/>
+    <property name="hazelcast.jar" value="${lib}/hazelcast-3.9.2.jar"/>
+    <property name="hazelcast-client.jar" value="${lib}/hazelcast-client-3.9.2.jar"/>
     <property name="shrike.jar" value="${lib}/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc-${bdwgc.version}"/>
     <property name="bdwgc.tar" value="bdwgc-${bdwgc.version}.tar.gz"/>
@@ -73,7 +73,7 @@
     <target name="init">
         <mkdir dir="${build}"/>
         <mkdir dir="${gen}"/>
-        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="true" debug="on" nowarn="on">
+        <javac destdir="${build}" source="1.8" target="1.8" includeantruntime="true" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
             <classpath>
@@ -388,7 +388,7 @@
     </target>
     <target name="build-java" depends="init,gen-xrx,gen-xrj">
       <sequential>
-        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.8" target="1.8" includeantruntime="false" debug="on" nowarn="on">
             <src path="${src}"/>
             <size value="50" when="more"/>
             <classpath>
@@ -412,7 +412,7 @@
 
     </target>
     <target name="build-x10-x10rt" depends="init">
-        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.8" target="1.8" includeantruntime="false" debug="on" nowarn="on">
             <src path="${src}/x10/x10rt"/>
             <size value="50" when="more"/>
             <classpath>
@@ -453,7 +453,7 @@
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
         <!--
-        <ejc destdir="${build}" source="1.6" target="1.6" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.8" target="1.8" debug="on" nowarn="on">
             <src path="${gen}"/>
             <size value="50" when="more"/>
             <classpath>

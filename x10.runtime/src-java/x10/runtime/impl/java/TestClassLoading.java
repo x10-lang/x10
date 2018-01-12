@@ -20,8 +20,8 @@ public class TestClassLoading {
             System.exit(1);
         }
         double javaversion = Double.parseDouble(javaversionstring);
-        if (javaversion < 1.6) {
-            System.out.println("Error: Unsupported Java version.  Use Java 6 or newer.");
+        if (javaversion < 1.8) {
+            System.out.println("Error: Unsupported Java version.  Use Java 8 or newer.");
             System.exit(1);
         }
 

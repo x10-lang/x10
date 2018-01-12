@@ -5,4 +5,4 @@ Bundle-SymbolicName: x10.network
 Bundle-Version: 2.6.1.qualifier
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Export-Package: x10.network
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
