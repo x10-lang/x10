@@ -91,7 +91,7 @@ ifdef JAVA_HOME
       jarch=amd64
     endif
 # -L"$(JAVA_HOME)"/jre/lib/$(jarch) is needed for IBM JVM to use -ljsig, which is needed for Oracle JVM but use the same option for IBM JVM as well for simplicity.
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/jre/lib/$(jarch)
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/j9vm -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/jre/lib/$(jarch) -L"$(JAVA_HOME)"/lib/server -L"$(JAVA_HOME)"/lib/client
   else
   ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
     # Intentionally not setting JNI_INCLUDES and JNI_LIBS
@@ -105,14 +105,14 @@ ifdef JAVA_HOME
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/lib/server -L"$(JAVA_HOME)"/lib/client
   else
   ifeq ($(shell uname -s),FreeBSD)
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/freebsd
     ifeq ($(jarch),x86_64)
       jarch=amd64
     endif
-    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client
+    JNI_LIBS = -L"$(JAVA_HOME)"/jre/lib/$(jarch)/server -L"$(JAVA_HOME)"/jre/lib/$(jarch)/client -L"$(JAVA_HOME)"/lib/server -L"$(JAVA_HOME)"/lib/client
   endif
   endif
   endif
