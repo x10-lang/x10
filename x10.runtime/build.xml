@@ -388,7 +388,8 @@
     </target>
     <target name="build-java" depends="init,gen-xrx,gen-xrj">
       <sequential>
-        <ejc destdir="${build}" source="1.8" target="1.8" includeantruntime="false" debug="on" nowarn="on">
+        <!-- TODO 1.8 requires the newer WALA which breaks current x10.wala implementation -->
+        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
             <src path="${src}"/>
             <size value="50" when="more"/>
             <classpath>
