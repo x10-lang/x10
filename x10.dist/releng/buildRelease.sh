@@ -114,7 +114,7 @@ fi
 echo
 echo Extracting X10 source code for $X10_TAG
 cd $repodir
-git archive --format=tar $X10_TAG apgas apgas.examples apgas.impl apgas.tests apgas.cpp apgas.cpp.examples x10.common x10.compiler x10.constraints x10.dist x10.doc x10.gml x10.network x10.runtime x10.tests x10.wala | (cd $distdir && tar xf - )
+git archive --format=tar $X10_TAG apgas apgas.examples apgas.impl apgas.tests apgas.cpp apgas.cpp.examples x10.common x10.compiler x10.constraints x10.dist x10.doc x10.gml x10.network x10.runtime x10.tests | (cd $distdir && tar xf - )
 
 echo "The distribution is now exported to the directory $workdir"
 

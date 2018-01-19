@@ -87,7 +87,6 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10Special;
 import x10.compiler.ws.WSTransformState.MethodType;
 import x10.compiler.ws.util.Triple;
-import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.CodePatternDetector.Pattern;
 import x10.optimizations.ForLoopOptimizer;
@@ -228,15 +227,6 @@ public class WSCodePreprocessor extends ContextVisitor {
         altsynth = new AltSynthesizer(ts, nf);
     }
 
-    public static void setWALATransTarget(ExtensionInfo extensionInfo, WSTransformationContent target){
-        //DEBUG
-        if(debug){
-            WSUtil.debug("Use WALA CallGraph Data...");    
-        }
-        wts = new WSTransformStateWALA(extensionInfo, target);
-        WSCodeGenerator.wts = wts;
-    }
-    
     public static void buildCallGraph(ExtensionInfo extensionInfo) {
         //DEBUG
         if(debug){

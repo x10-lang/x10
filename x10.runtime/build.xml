@@ -23,7 +23,6 @@
     <property name="log.jar" value="${lib}/commons-logging-1.2.jar"/>
     <property name="hazelcast.jar" value="${lib}/hazelcast-3.9.2.jar"/>
     <property name="hazelcast-client.jar" value="${lib}/hazelcast-client-3.9.2.jar"/>
-    <property name="shrike.jar" value="${lib}/com.ibm.wala.shrike_1.3.1.201101071300.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc-${bdwgc.version}"/>
     <property name="bdwgc.tar" value="bdwgc-${bdwgc.version}.tar.gz"/>
     <property name="bdwgc.url" value="dependencies/${bdwgc.tar}"/>
@@ -388,8 +387,7 @@
     </target>
     <target name="build-java" depends="init,gen-xrx,gen-xrj">
       <sequential>
-        <!-- TODO 1.8 requires the newer WALA which breaks current x10.wala implementation -->
-        <ejc destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.8" target="1.8" includeantruntime="false" debug="on" nowarn="on">
             <src path="${src}"/>
             <size value="50" when="more"/>
             <classpath>
@@ -399,16 +397,6 @@
               </path>
             </classpath>
         </ejc>
-        <echo message="Updating SMAP debug info for XRX"/>
-        <java classname="x10c.smap.Main" classpath="${x10.dist.location}/lib/x10c.jar:${shrike.jar}" fork="true" dir="${basedir}">
-	  <arg value="-x10_dir" />
-	  <arg value="src-x10" />
-	  <arg value="-java_dir" />
-	  <arg value="src-java/gen" />
-	  <arg value="-class_dir" />
-	  <arg value="classes" />
-	  <arg value="-exhaustive" />
-	</java>
       </sequential>
 
     </target>

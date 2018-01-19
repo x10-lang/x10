@@ -97,7 +97,6 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory_c;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSCodePreprocessor;
-import x10.compiler.ws.util.WSTransformationContent;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 //import x10.finish.table.CallTableKey;
@@ -557,35 +556,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            desugarerGoal.addPrereq(typeCheckBarrierGoal);
 
            X10CompilerOptions opts = extensionInfo().getOptions();
-           Goal walaBarrier = null;
-           if (opts.x10_config.WALA || opts.x10_config.WALADEBUG || opts.x10_config.FINISH_ASYNCS) {
-               try{
-                   ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                   Class<?> c = cl.loadClass("x10.wala.translator.X102IRGoal");
-                   Constructor<?> con = c.getConstructor(Job.class);
-                   Method hasMain = c.getMethod("hasMain", String.class);
-                   Goal ir = ((Goal) con.newInstance(job)).intern(this);
-                   goals.add(ir);
-                   Goal finder = MainMethodFinder(job, hasMain);
-                   finder.addPrereq(typeCheckBarrierGoal);
-                   ir.addPrereq(finder);
-                   if (opts.x10_config.FINISH_ASYNCS) {
-                       Method buildCallTableMethod = c.getMethod("analyze");
-                       walaBarrier = IRBarrier(ir, buildCallTableMethod);
-                   } else if(opts.x10_config.WALADEBUG) {
-                       Method printCallGraph = c.getMethod("printCallGraph");
-                       walaBarrier = IRBarrier(ir, printCallGraph);
-                   } else {
-                       Method wsAnalyzeCallGraph = c.getMethod("wsAnalyzeCallGraph", Collection.class);
-                       walaBarrier = IRBarrier(ir, wsAnalyzeCallGraph);
-                   }
-                   goals.add(walaBarrier);
-                   goals.add(FinishAsyncBarrier(walaBarrier,job,this));
-               } catch (Throwable e) {
-                   System.err.println("WALA not found.");
-                   e.printStackTrace();
-               }
-           }
 
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
@@ -604,14 +574,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (opts.x10_config.WORK_STEALING) {
                Goal wsCodePreprocessorGoal = WSCodePreprocessor(job);
                goals.add(wsCodePreprocessorGoal);
-               if(walaBarrier != null){
-                   //WALA call graph builder to detect the transformation target
-                   wsCodePreprocessorGoal.addPrereq(walaBarrier);
-               }
-               else{
-                   //Simple call graph builder to detect the transformation target
-                   wsCodePreprocessorGoal.addPrereq(WSCallGraphBarrier());                  
-               }
+               //Simple call graph builder to detect the transformation target
+               wsCodePreprocessorGoal.addPrereq(WSCallGraphBarrier());
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                goals.add(wsCodeGenGoal);
                wsCodeGenGoal.addPrereq(wsCodePreprocessorGoal);
@@ -768,46 +732,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            } catch (InvocationTargetException e) {
            }
            return null;
-       }
-       public Goal IRBarrier(final Goal goal, final Method method) {
-           return new AllBarrierGoal("IRBarrier", this) {
-               private static final long serialVersionUID = -3692329571101709400L;
-               @Override
-               public Goal prereqForJob(Job job) {
-                   if (!super.scheduler.commandLineJobs().contains(job) &&
-                           ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
-                       return null;
-                   }
-                   return goal;
-               }
-               @Override
-               public boolean runTask() {
-                   X10CompilerOptions opts = extensionInfo().getOptions();
-                   if (opts.x10_config.FINISH_ASYNCS) {
-//                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
-                   } else if (opts.x10_config.WALADEBUG) {
-                       try {
-                           method.invoke(null);
-                       } catch (IllegalArgumentException e) {
-                       } catch (IllegalAccessException e) {
-                       } catch (InvocationTargetException e) {
-                       }
-                   } else {
-                	   //This path is only for WALA call graph analysis for Work-Stealing
-                       try {
-                           WSTransformationContent transTarget = (WSTransformationContent) method.invoke(null, jobs());
-                           //now use this one to construct WSTransformationState
-                           TypeSystem ts  = extInfo.typeSystem();
-                           NodeFactory nf = extInfo.nodeFactory();
-                           WSCodePreprocessor.setWALATransTarget(extensionInfo(), transTarget);
-                       } catch (IllegalArgumentException e) {
-                       } catch (IllegalAccessException e) {
-                       } catch (InvocationTargetException e) {
-                       }
-                   }
-                   return true;
-               }
-           }.intern(this);
        }
 
        public Goal TypeCheckBarrier() {
