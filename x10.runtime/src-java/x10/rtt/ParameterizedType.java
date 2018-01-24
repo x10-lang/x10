@@ -105,6 +105,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
     public ParameterizedType() {
     }
 
+    @Override
     public final boolean isAssignableTo(Type<?> superType) {
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
@@ -125,14 +126,17 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         return false;
     }
 
+    @Override
     public boolean hasZero() {
         return rawType.hasZero();
     }
 
+    @Override
     public boolean isref() {
         return rawType.isref();
     }
 
+    @Override
     public final boolean isInstance(Object o) {
         return rawType.isInstance(o, actualTypeArguments);
     }
@@ -164,38 +168,47 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         return rawType.hashCode();
     }
 
+    @Override
     public final int arrayLength(Object array) {
         return rawType.arrayLength(array);
     }
 
+    @Override
     public final T getArray(Object array, int i) {
         return rawType.getArray(array, i);
     }
 
+    @Override
     public final Class<?> getJavaClass() {
         return rawType.getJavaClass();
     }
 
+    @Override
     public final Object makeArray(int dim0) {
         return rawType.makeArray(dim0);
     }
 
+    @Override
     public final Object makeArray(int dim0, int dim1) {
     	return rawType.makeArray(dim0, dim1);
     }
 
+    @Override
     public final Object makeArray(int dim0, int dim1, int dim2) {
     	return rawType.makeArray(dim0, dim1, dim2);
     }
     
+    @Override
     public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
     	return rawType.makeArray(dim0, dim1, dim2, dim3);
     }
     
+    @Override
     public final Object makeArray(int... dims) {
         return rawType.makeArray(dims);
     }
 
+    @Override
     public final void setArray(Object array, int i, T v) {
     	rawType.setArray(array, i, v);
     }
@@ -206,6 +219,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
     }
 
     // Note: this method does not resolve UnresolvedType at runtime
+    @Override
     public final String typeName() {
         return typeName(null);
     }
@@ -276,6 +290,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         return sb.toString();
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(rawType);
         serializer.write(actualTypeArguments.length);
