@@ -94,7 +94,7 @@ xrx: $(XRX_ARCHIVE)
 #
 # By convention, we also ignore all packages called 'managed' when compiling Native X10.
 #
-XRX_REL_SRCS  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name managed -prune -o -name '*.x10' -print | sort )
+XRX_REL_SRCS  = $(shell $(FIND) ../src-x10 -name .svn -prune -o -name managed -prune -o -name '*.x10' -not -name 'Java*' -print | sort )
 XRX_SRCS = $(subst ../src-x10/,, $(XRX_REL_SRCS))
 
 #enable asserts, do not look in jar for x10 files
@@ -112,7 +112,7 @@ $(GEN_DIR)/all-cpp-generated: $(XRX_REL_SRCS) $(subst $(SPACE),\$(SPACE),$(DISTD
 	@echo "Regenerating XRX cc/h files"
 	mkdir -p $(GEN_DIR)
 	cd ../src-x10 && "$(DISTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -d ../src-cpp/$(GEN_DIR) $(XRX_SRCS)
-	find $(GEN_DIR) -name "*.cc" -print > $@
+	$(FIND) $(GEN_DIR) -name "*.cc" -print > $@
 
 $(XRX_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
