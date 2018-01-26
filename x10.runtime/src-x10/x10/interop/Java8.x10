@@ -413,4 +413,16 @@ public class Java8 {
         };
     }
 
+
+    // Other
+    public static def toX10(op:java.lang.Runnable):()=>void {
+        return ()=>{ op.run(); };
+    }
+
+    public static def toJava(xop:()=>void):java.lang.Runnable {
+        return new java.lang.Runnable() {
+            public def run():void { xop(); }
+        };
+    }
+
 }
