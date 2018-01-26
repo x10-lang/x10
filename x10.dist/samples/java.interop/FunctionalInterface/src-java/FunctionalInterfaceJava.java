@@ -38,9 +38,15 @@ public class FunctionalInterfaceJava {
             System.exit(1);
         }
 
-        String error = FunctionalInterfaceX10.reduce(Long::sum, 0, 0, 10, 55);
-        if (error != null) {
-            System.out.println(error);
+        String error1 = FunctionalInterfaceX10.reduce((long left,long right)->left+right, 0, 0, 10, 55);  // Java lambda
+        if (error1 != null) {
+            System.out.println(error1);
+            System.exit(1);
+        }
+
+        String error2 = FunctionalInterfaceX10.reduce(Long::sum, 0, 0, 10, 55);  // Java method reference
+        if (error2 != null) {
+            System.out.println(error2);
             System.exit(1);
         }
 
