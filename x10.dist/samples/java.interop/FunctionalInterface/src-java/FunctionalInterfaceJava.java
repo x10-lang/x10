@@ -11,6 +11,9 @@
 
 import java.util.ArrayList;
 
+import java.util.function.LongBinaryOperator;
+import java.io.Serializable;
+
 public class FunctionalInterfaceJava {
     public static void main(String[] args) {
 
@@ -48,6 +51,21 @@ public class FunctionalInterfaceJava {
         if (error2 != null) {
             System.out.println(error2);
             System.exit(1);
+        }
+
+        // X10 serializer doesn't support Java lambda nor Java method reference yet
+        if (false) {
+            String error1s = FunctionalInterfaceX10.reduceAt((LongBinaryOperator & Serializable)(long left,long right)->left+right, 0, 0, 10, 55);  // Java lambda
+            if (error1s != null) {
+                System.out.println(error1s);
+                System.exit(1);
+            }
+
+            String error2s = FunctionalInterfaceX10.reduceAt((LongBinaryOperator & Serializable)Long::sum, 0, 0, 10, 55);  // Java method reference
+            if (error2s != null) {
+                System.out.println(error2s);
+                System.exit(1);
+            }
         }
 
         System.out.println("OK");

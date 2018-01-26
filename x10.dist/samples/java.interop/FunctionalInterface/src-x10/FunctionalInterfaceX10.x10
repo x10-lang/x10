@@ -27,8 +27,16 @@ public class FunctionalInterfaceX10 {
         return reduce(Java8.toX10(op), init, from, to, check);
     }
 
+    public static def reduceAt(xop:(Long,Long)=>Long, init:Long, from:Long, to:Long, check:Long):String {
+        return at (here) reduce(xop, init, from, to, check);
+    }
+
+    public static def reduceAt(op:LongBinaryOperator, init:Long, from:Long, to:Long, check:Long):String {
+        return at (here) reduce(op, init, from, to, check);
+    }
+
     public static def main(Rail[String]):void {
-        val error = reduce((left:Long,right:Long)=>left+right, 0, 0, 10, 55);  // X10 closure
+        val error = reduceAt((left:Long,right:Long)=>left+right, 0, 0, 10, 55);  // X10 closure
         if (error != null) {
             Console.OUT.println(error);
             System.setExitCode(1n);
