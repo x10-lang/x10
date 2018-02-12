@@ -16,7 +16,7 @@ public class FunctionalInterfaceX10 {
 
     public static def reduce(xop:(Long,Long)=>Long, init:Long, from:Long, to:Long, check:Long):String {
         var sum:Long = init;
-        for (var i:Long = from; i <= to; ++i) {
+        for (i in from..to) {
             sum = xop(sum, i);
         }
         val error = (sum == check) ? null : "ERROR: something is wrong with X10 long binary operator";

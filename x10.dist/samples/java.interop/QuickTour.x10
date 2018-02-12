@@ -66,21 +66,21 @@ public class QuickTour {
         doc.put("type", "database");
         // N.B. Java classes don't understand x10.core.Int etc.
         //doc.put("count", 1n);
-        doc.put("count", Java.convert(1n));
+        doc.put("count", Java.toJava(1n));
 
         val info = new BasicDBObject();
 
         // N.B. Java classes don't understand x10.core.Int etc.
         //info.put("x", 203n);
         //info.put("y", 102n);
-        info.put("x", Java.convert(203n));
-        info.put("y", Java.convert(102n));
+        info.put("x", Java.toJava(203n));
+        info.put("y", Java.toJava(102n));
 
         doc.put("info", info);
 
         // N.B. X10 doesn't support varargs
         //coll.insert(doc);
-        coll.insert(Java.convert([doc]));
+        coll.insert(Java.toJava([doc]));
 
         // get it (since it's the only one in there since we dropped the rest earlier on)
         val myDoc = coll.findOne();
@@ -91,7 +91,7 @@ public class QuickTour {
             // N.B. X10 doesn't support varargs
             // N.B. Java classes don't understand x10.core.Int etc.
             //coll.insert(new BasicDBObject().append("i", i));
-            coll.insert(Java.convert([new BasicDBObject().append("i", Java.convert(i))]));
+            coll.insert(Java.toJava([new BasicDBObject().append("i", Java.toJava(i))]));
         }
         Console.OUT.println("total # of documents after inserting 100 small ones (should be 101) " + coll.getCount());
 
@@ -109,7 +109,7 @@ public class QuickTour {
         var query:BasicDBObject = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", 71n);
-        query.put("i", Java.convert(71n));
+        query.put("i", Java.toJava(71n));
         cursor = coll.find(query);
 
         try {
@@ -124,7 +124,7 @@ public class QuickTour {
         query = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", new BasicDBObject("$gt", 50n));  // i.e. find all where i > 50
-        query.put("i", new BasicDBObject("$gt", Java.convert(50n)));  // i.e. find all where i > 50
+        query.put("i", new BasicDBObject("$gt", Java.toJava(50n)));  // i.e. find all where i > 50
         cursor = coll.find(query);
 
         try {
@@ -139,7 +139,7 @@ public class QuickTour {
         query = new BasicDBObject();
         // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", new BasicDBObject("$gt", 20n).append("$lte", 30n));  // i.e.   20 < i <= 30
-        query.put("i", new BasicDBObject("$gt", Java.convert(20n)).append("$lte", Java.convert(30n)));  // i.e.   20 < i <= 30
+        query.put("i", new BasicDBObject("$gt", Java.toJava(20n)).append("$lte", Java.toJava(30n)));  // i.e.   20 < i <= 30
         cursor = coll.find(query);
 
         try {
@@ -153,7 +153,7 @@ public class QuickTour {
         // create an index on the "i" field
         // N.B. Java classes don't understand x10.core.Int etc.
         //coll.createIndex(new BasicDBObject("i", 1n));  // create index on "i", ascending
-        coll.createIndex(new BasicDBObject("i", Java.convert(1n)));  // create index on "i", ascending
+        coll.createIndex(new BasicDBObject("i", Java.toJava(1n)));  // create index on "i", ascending
 
 
         //  list the indexes on the collection
