@@ -117,6 +117,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
 
+    @Override
     public Class<?> getJavaClass() {
         return javaClass;
     }
@@ -159,6 +160,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return javaClass.hashCode();
     }
 
+    @Override
     public boolean isAssignableTo(Type<?> superType) {
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
@@ -177,14 +179,17 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
 
+    @Override
     public boolean hasZero() {
         return true;
     }
 
+    @Override
     public boolean isref() {
         return true;
     }
 
+    @Override
     public boolean isInstance(Object o) {
         if (o == null) {return false;}
         if (o.getClass() == javaClass) {
@@ -344,36 +349,46 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
     
+    @Override
     public Object makeArray(int dim0) {
         return Array.newInstance(javaClass, dim0);
     }
 
+    @Override
     public Object makeArray(int dim0, int dim1) {
         return Array.newInstance(javaClass, new int[] { dim0, dim1 });
     }
     
+    @Override
     public Object makeArray(int dim0, int dim1, int dim2) {
         return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2 });
     }
     
+    @Override
     public Object makeArray(int dim0, int dim1, int dim2, int dim3) {
         return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2, dim3 });
     }
     
+    @Override
     public Object makeArray(int... dims) {
         return Array.newInstance(javaClass, dims);
     }
     
+    @Override
     public T getArray(Object array, int i) {
+        //return (T) Array.get(array, i);
         return ((T[])array)[i];
     }
 
+    @Override
     public void setArray(Object array, int i, T v) {
+        //Array.set(array, i, v);
         ((T[])array)[i] = v;
     }
     
+    @Override
     public int arrayLength(Object array) {
-        return ((T[])array).length;
+        return Array.getLength(array);
     }
 
     private static final String X10_INTEROP_JAVA_ARRAY = "x10.interop.Java.array";
@@ -387,6 +402,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             return javaClass.getName();            
         }
     }
+    @Override
     public String typeName() {
         return typeName(javaClass);
     }
@@ -542,6 +558,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return SerializationConstants.NO_PREASSIGNED_ID;
     }
     
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         short sid = serializer.getSerializationId(javaClass, null);
         serializer.writeSerializationId(sid);

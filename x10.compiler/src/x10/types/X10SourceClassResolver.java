@@ -11,6 +11,11 @@
 
 package x10.types;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -172,6 +177,58 @@ public class X10SourceClassResolver implements TopLevelResolver {
     /**
      * Load an Java class file for Java class <code>name</code>.
      */
+    static final class SystemResource implements Resource {
+    	final String fileName;
+    	final File dummySource;
+    	final String name;
+    	SystemResource(String fileName, URL url) {
+    	    this.fileName = fileName;
+    	    this.dummySource = new File(url.getPath());
+    	    int lastSlashIndex = fileName.lastIndexOf('/');
+    	    this.name = lastSlashIndex >= 0 ? fileName.substring(lastSlashIndex+1) : fileName;
+    	}
+    	@Override
+    	public File file() {
+    	    return dummySource;
+    	}
+    	@Override
+    	public String name() {
+    	    return name;
+    	}
+    	@Override
+    	public InputStream getInputStream() throws IOException {
+    	    return ClassLoader.getSystemResourceAsStream(fileName);
+    	}
+    	private String canonicalPath() {
+    	    try {
+    			return dummySource.getCanonicalPath();
+    	    }
+    	    catch (IOException e) {
+    			return dummySource.getAbsolutePath();
+    	    }
+    	}
+    	@Override
+    	public boolean equals(Object o) {
+    	    if (o instanceof SystemResource) {
+    			SystemResource r = (SystemResource) o;
+    			return canonicalPath().equals(r.canonicalPath()) && fileName.equals(r.fileName);
+    	    }
+    	    return false;
+    	}
+    	@Override
+    	public int hashCode() {
+    	    return canonicalPath().hashCode() + fileName.hashCode();
+    	}
+    }
+
+    Resource loadSystemResource(String fileName) {
+    	URL url = ClassLoader.getSystemResource(fileName);
+    	if (url != null) {
+    	    return new SystemResource(fileName, url);
+    	}
+    	return null;
+    }
+
     protected ClassFile loadJavaClassFile(QName name) {
     	if (nocache.contains(name)) {
     		return null;
@@ -187,6 +244,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
     		String fileName = name.toString().replace('.', '/');
     		fileName += ".class";
     		Resource r = loader.loadResource(fileName);
+    		if (r == null) {
+    			r = loadSystemResource(fileName);
+    		}
     		ClassFile clazz = classLoader.loadClass(r);
     		
                 if (clazz == null) {

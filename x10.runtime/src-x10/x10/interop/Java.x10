@@ -67,56 +67,112 @@ public class Java {
     public static native def setStaticField[T](name:String,value:Boolean):void;
     @Native("java", "#o.getClass()")
     public static native def getClass(o:Any):java.lang.Class;
-    
+
     // Java exceptions
     @Native("java", "do { throw #e; } while (false)")
     public static native @NoReturn def throwException(e:CheckedThrowable):void;
-    
+
     // Java conversions (primitive)
+    /** @deprecated use {@link #toJava(x10.lang.Boolean)} instead */
     @Native("java", "java.lang.Boolean.valueOf(#b)")
     public static native def convert(b:x10.lang.Boolean):java.lang.Boolean{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Boolean)} instead */
     @Native("java", "#b.booleanValue()")
     public static native def convert(b:java.lang.Boolean):x10.lang.Boolean;
+    /** @deprecated use {@link #toJava(x10.lang.Byte)} instead */
     @Native("java", "java.lang.Byte.valueOf(#y)")
     public static native def convert(y:x10.lang.Byte):java.lang.Byte{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Byte)} instead */
     @Native("java", "#y.byteValue()")
     public static native def convert(y:java.lang.Byte):x10.lang.Byte;
+    /** @deprecated use {@link #toJava(x10.lang.Short)} instead */
     @Native("java", "java.lang.Short.valueOf(#s)")
     public static native def convert(s:x10.lang.Short):java.lang.Short{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Short)} instead */
     @Native("java", "#s.shortValue()")
     public static native def convert(s:java.lang.Short):x10.lang.Short;
+    /** @deprecated use {@link #toJava(x10.lang.Int)} instead */
     @Native("java", "java.lang.Integer.valueOf(#i)")
     public static native def convert(i:x10.lang.Int):java.lang.Integer{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Integer)} instead */
     @Native("java", "#i.intValue()")
     public static native def convert(i:java.lang.Integer):x10.lang.Int;
+    /** @deprecated use {@link #toJava(x10.lang.Long)} instead */
     @Native("java", "java.lang.Long.valueOf(#l)")
     public static native def convert(l:x10.lang.Long):java.lang.Long{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Long)} instead */
     @Native("java", "#l.longValue()")
     public static native def convert(l:java.lang.Long):x10.lang.Long;
+    /** @deprecated use {@link #toJava(x10.lang.Float)} instead */
     @Native("java", "java.lang.Float.valueOf(#f)")
     public static native def convert(f:x10.lang.Float):java.lang.Float{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Float)} instead */
     @Native("java", "#f.floatValue()")
     public static native def convert(f:java.lang.Float):x10.lang.Float;
+    /** @deprecated use {@link #toJava(x10.lang.Double)} instead */
     @Native("java", "java.lang.Double.valueOf(#d)")
     public static native def convert(d:x10.lang.Double):java.lang.Double{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Double)} instead */
     @Native("java", "#d.doubleValue()")
     public static native def convert(d:java.lang.Double):x10.lang.Double;
+    /** @deprecated use {@link #toJava(x10.lang.Char)} instead */
     @Native("java", "java.lang.Character.valueOf(#c)")
     public static native def convert(c:x10.lang.Char):java.lang.Character{self!=null};
+    /** @deprecated use {@link #toX10(java.lang.Character)} instead */
     @Native("java", "#c.charValue()")
     public static native def convert(c:java.lang.Character):x10.lang.Char;
-    
+
+    @Native("java", "java.lang.Boolean.valueOf(#b)")
+    public static native def toJava(b:x10.lang.Boolean):java.lang.Boolean{self!=null};
+    @Native("java", "#b.booleanValue()")
+    public static native def toX10(b:java.lang.Boolean):x10.lang.Boolean;
+    @Native("java", "java.lang.Byte.valueOf(#y)")
+    public static native def toJava(y:x10.lang.Byte):java.lang.Byte{self!=null};
+    @Native("java", "#y.byteValue()")
+    public static native def toX10(y:java.lang.Byte):x10.lang.Byte;
+    @Native("java", "java.lang.Short.valueOf(#s)")
+    public static native def toJava(s:x10.lang.Short):java.lang.Short{self!=null};
+    @Native("java", "#s.shortValue()")
+    public static native def toX10(s:java.lang.Short):x10.lang.Short;
+    @Native("java", "java.lang.Integer.valueOf(#i)")
+    public static native def toJava(i:x10.lang.Int):java.lang.Integer{self!=null};
+    @Native("java", "#i.intValue()")
+    public static native def toX10(i:java.lang.Integer):x10.lang.Int;
+    @Native("java", "java.lang.Long.valueOf(#l)")
+    public static native def toJava(l:x10.lang.Long):java.lang.Long{self!=null};
+    @Native("java", "#l.longValue()")
+    public static native def toX10(l:java.lang.Long):x10.lang.Long;
+    @Native("java", "java.lang.Float.valueOf(#f)")
+    public static native def toJava(f:x10.lang.Float):java.lang.Float{self!=null};
+    @Native("java", "#f.floatValue()")
+    public static native def toX10(f:java.lang.Float):x10.lang.Float;
+    @Native("java", "java.lang.Double.valueOf(#d)")
+    public static native def toJava(d:x10.lang.Double):java.lang.Double{self!=null};
+    @Native("java", "#d.doubleValue()")
+    public static native def toX10(d:java.lang.Double):x10.lang.Double;
+    @Native("java", "java.lang.Character.valueOf(#c)")
+    public static native def toJava(c:x10.lang.Char):java.lang.Character{self!=null};
+    @Native("java", "#c.charValue()")
+    public static native def toX10(c:java.lang.Character):x10.lang.Char;
+
     // Java conversions (rail)
+    /** @deprecated use {@link #toJava(x10.lang.Rail[T])} instead */
     @Native("java", "(#T[])#a.getBackingArray()")
     public static native def convert[T](a:x10.lang.Rail[T]):array[T];
+    /** @deprecated use {@link #toX10(array[T])} instead */
     @Native("java", "new x10.core.Rail(#T$rtt, #a.length, #a)")
     public static native def convert[T](a:array[T]):x10.lang.Rail[T];
 
+    @Native("java", "(#T[])#a.getBackingArray()")
+    public static native def toJava[T](a:x10.lang.Rail[T]):array[T];
+    @Native("java", "new x10.core.Rail(#T$rtt, #a.length, #a)")
+    public static native def toX10[T](a:array[T]):x10.lang.Rail[T];
+
     // Utilities for programmatic serialization
     public static def serialize(a:Any):array[Byte] {
-    	val s = new x10.io.Serializer();
-    	s.writeAny(a);
-    	return convert(s.toRail());
+        val s = new x10.io.Serializer();
+        s.writeAny(a);
+        return toJava(s.toRail());
     }
-    public static def deserialize(a:array[Byte]):Any = new x10.io.Deserializer(convert(a)).readAny();
+    public static def deserialize(a:array[Byte]):Any = new x10.io.Deserializer(toX10(a)).readAny();
 }

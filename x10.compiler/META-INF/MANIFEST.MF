@@ -7,7 +7,6 @@ Bundle-Localization: plugin
 Require-Bundle: x10.common;visibility:=reexport,
  x10.constraints;visibility:=reexport,
  lpg.runtime.java;visibility:=reexport,
- com.ibm.wala.shrike,
  antlr-runtime
 Export-Package: polyglot.ast,
  polyglot.frontend,
@@ -42,7 +41,6 @@ Export-Package: polyglot.ast,
  x10.visit,
  x10c,
  x10c.ast,
- x10c.smap,
  x10c.types,
  x10c.util,
  x10c.visit,
@@ -57,4 +55,4 @@ Export-Package: polyglot.ast,
  x10cuda.types,
  x10cuda.visit
 Bundle-Vendor: x10-users@lists.sourceforge.net
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

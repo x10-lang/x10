@@ -5,7 +5,7 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="jar" value="apgas.jar"/>
     <property name="snappy-java.jar" value="${lib}/snappy-java.jar"/>
-    <property name="snappy-jar-url" value="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.2-RC2/snappy-java-1.1.2-RC2.jar" />
+    <property name="snappy-jar-url" value="http://central.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.7.1/snappy-java-1.1.7.1.jar" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <pathelement location="${snappy-java.jar}"/>
@@ -37,7 +37,7 @@
     </target>
     <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.6" target="1.6" includeantruntime="false" debug="on">
+        <javac destdir="${build}" source="1.8" target="1.8" includeantruntime="false" debug="on">
             <src path="${src}"/>
             <include name="x10/**"/>
             <classpath>

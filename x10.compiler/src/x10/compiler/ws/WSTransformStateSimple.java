@@ -44,7 +44,6 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSCallGraph;
 import x10.compiler.ws.util.WSCallGraphNode;
-import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.util.WSUtil;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;

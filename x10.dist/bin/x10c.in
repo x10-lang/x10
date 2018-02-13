@@ -98,13 +98,6 @@ STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 
 [ -n "$extra_cp" ] && args="$args -classpath \"${extra_cp}\""
 
-WALA_JARS="${LIB_DIR}${FILE_SEP}${WALA_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA2_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${WALA3_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}${SHRIKE_JAR}"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}x10wala.jar"
-WALA_JARS="${WALA_JARS}${PATH_SEP}${LIB_DIR}${FILE_SEP}org.eclipse.equinox.common_3.6.0.v20100503.jar"
-
 classpath="${CP_OVERRIDE}"
 if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
     classpath="${classpath}${LIB_DIR}${FILE_SEP}x10doc.jar${PATH_SEP}"
@@ -121,7 +114,7 @@ if [[ "$DEXT" == "x10doc.ExtensionInfo" ]]; then
     fi
 fi
 
-classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${ANTLR_JAR}${PATH_SEP}${WALA_JARS}"
+classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${ANTLR_JAR}"
 classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
 classpath="${classpath}${PATH_SEP}${LIB_DIR}${FILE_SEP}${HAZELCAST_JAR}"
 

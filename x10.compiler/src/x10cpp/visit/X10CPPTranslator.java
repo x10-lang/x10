@@ -333,6 +333,8 @@ public class X10CPPTranslator extends Translator {
 	    	while ((b = src.read()) != -1) {
 	    		dest.write(b);
 	    	}
+	    	dest.close();
+	    	src.close();
     	} catch (IOException e) {
     	    if (!noPostCompiler) {
     	        compiler.errorQueue().enqueue(ErrorInfo.WARNING, "Failed to copy "+file + " from "+src_path_+" to "+dest_path_);

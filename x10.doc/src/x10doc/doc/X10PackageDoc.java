@@ -162,13 +162,15 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
     }
 
     private String getComment() {
+        FileInputStream fis;
         FileChannel fc;
         BufferedReader br;
         try {
             File file = new File(path + "package.html");
             if (file.exists()) {
                 StringBuilder builder = new StringBuilder();
-                fc = new FileInputStream(file).getChannel();
+                fis = new FileInputStream(file);
+                fc = fis.getChannel();
                 br = new BufferedReader(Channels.newReader(fc, "UTF-8"));
 
                 String delim = System.getProperty("line.separator");
@@ -186,6 +188,7 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 
                 br.close();
                 fc.close();
+                fis.close();
 
                 return "/**" + body + "*/";
             }

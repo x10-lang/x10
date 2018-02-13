@@ -114,7 +114,7 @@ public class ServerLauncher {
                 for (_childAny in children) {
                     val _child = _childAny as String;
                     val child = parent + "/" + _child;
-                    val childData = Java.convert(zk.getData(child, false, childStat));
+                    val childData = Java.toX10(zk.getData(child, false, childStat));
                     Console.OUT.println(child + " : " + new String(childData));
                     // recursively dump children
                     zk.getChildren(child, false, this, null);
@@ -148,7 +148,7 @@ public class ServerLauncher {
         val split = name.split("@");      
         val data = "host=" + split(1) + ", pid=" + split(0);
         // create an ephemeral node representing this Java VM
-        val newNode = zk.create(PROJECT_SERVER_NAME_PREFIX, Java.convert(data.bytes()), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+        val newNode = zk.create(PROJECT_SERVER_NAME_PREFIX, Java.toJava(data.bytes()), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
         Console.OUT.println(newNode + " has been created");
 
 

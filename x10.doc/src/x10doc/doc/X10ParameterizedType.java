@@ -264,7 +264,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
             XConstraint xc = ct.constraint().get();
             String str = ct.name() + "{";
             boolean first = true;
-            for (XFormula f : xc.atoms()) {
+            for (XFormula<?> f : xc.atoms()) {
                 if (first) {
                     first = false;
                     str += (f.left() + " " + f.operator() + " " + f.right());

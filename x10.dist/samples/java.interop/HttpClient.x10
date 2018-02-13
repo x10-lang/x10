@@ -20,7 +20,7 @@ import org.apache.http.util.EntityUtils;
 /**
  * An example to show how to use Apache HttpComponents HttpClient 4.2.1 in X10.
  * Compile as "x10c -cp httpclient-4.2.1.jar:httpcore-4.2.1.jar HttpClient.x10"
- * Run as as "x10 -cp .:httpclient-4.2.1.jar:httpcore-4.2.1.jar:commons-logging-1.1.1.jar HttpClient"
+ * Run as as "x10 -cp .:httpclient-4.2.1.jar:httpcore-4.2.1.jar HttpClient"
  */
 public class HttpClient {
     static val url = "http://targethost/";

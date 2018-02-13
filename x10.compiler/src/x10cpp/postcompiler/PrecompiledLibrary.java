@@ -62,6 +62,7 @@ public class PrecompiledLibrary extends PostCompileProperties {
                     }
                 }
             }
+            jf.close();
         } catch (IOException e) {
             ext.compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Unable to process x10lib property " + SOURCE_JAR_PROPERTY + ": " + absolutePathToRoot + File.separatorChar + sourceJar);
         }

@@ -323,10 +323,10 @@ public class X10Translator extends Translator {
 
             int javacOptionsStart = javacCmd.size();
             javacCmd.add("-source");
-            javacCmd.add("1.6");
+            javacCmd.add("1.8");
 
             javacCmd.add("-target");
-            javacCmd.add("1.6");
+            javacCmd.add("1.8");
 
             javacCmd.add("-nowarn");
 
@@ -450,12 +450,6 @@ public class X10Translator extends Translator {
                                                 if (arg1.equals(baseName+".class")) return true;
                                                 return arg1.startsWith(baseName+"$");
                                             }});
-                                        if (classFiles != null && classFiles.length > 0) {
-                                            if (reporter.should_report(postcompile, 1)) {
-                                                reporter.report(1, "\tSmapify "+classFiles.length+" class files for " +x10_src+" ("+java_src+")");
-                                            }
-                                            x10c.smap.Main.smapify(x10_src+".x10", pack, java_src, classFiles);
-                                        }
                                     }
                                 }
                             }

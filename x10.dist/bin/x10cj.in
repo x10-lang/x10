@@ -24,7 +24,7 @@ STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
 classpath="${STDLIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${MATH_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LOG_JAR}"
 [ -n "${extra_cp}" ] && classpath="${extra_cp}${PATH_SEP}${classpath}"
 
-command="\"${JAVA}\" -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.6 -nowarn -encoding utf-8 -classpath \"${classpath}\" ${args}"
+command="\"${JAVA}\" -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.8 -nowarn -encoding utf-8 -classpath \"${classpath}\" ${args}"
 
 [ -n "$verbose" ] && echo "$command"
 

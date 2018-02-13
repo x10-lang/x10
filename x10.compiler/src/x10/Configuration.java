@@ -84,20 +84,11 @@ public final class Configuration extends x10.config.Configuration {
     public String PLUGINS = "";
     private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
 
-    public String PLUGIN_COMPILER = "";
-    private static final String PLUGIN_COMPILER_desc = "Javac-like compiler to use to compile plugins";
-
     public boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
 
     public boolean WS_DISABLE_EXCEPTION_HANDLE = false;
     private static final String WS_DISABLE_EXCEPTION_HANDLE_desc = "Disable exception handling code generation in work-stealing scheduling";
-    
-    public boolean WALA = false;
-    private static final String WALA_desc = "Produce WALA IR from X10 sources";
-
-    public boolean WALADEBUG = false;
-    private static final String WALADEBUG_desc = "Produce WALA call graph from X10 sources";
 
     public boolean VERBOSE_CHECKS = false;
     private static final String VERBOSE_CHECKS_desc = "Print details of casts introduced for dynamic constraint checks.";
@@ -119,9 +110,6 @@ public final class Configuration extends x10.config.Configuration {
 
     public boolean DISPLAY_PARSE_TREE = false;
     private static final String DISPLAY_PARSE_TREE_desc = "Open a dialog box that displays the parse tree.";
-
-    public boolean FINISH_ASYNCS = false;
-    private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
 
     public boolean STATICS_PER_PLACE_ANALYSIS = false;
     private static final String STATICS_PER_PLACE_ANALYSIS_desc = "Enable deep analysis for converting place-0 static initializers to per-place initializers";

@@ -72,62 +72,77 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
     	return index;
     }
     
+    @Override
     public final int arrayLength(Object array) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final Object getArray(Object array, int i) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final Class<?> getJavaClass() {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public boolean hasZero() {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public boolean isref() {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final boolean isInstance(Object o) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final boolean isAssignableTo(Type superType) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final Object makeArray(int dim0) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final Object makeArray(int dim0, int dim1) {
     	throw new java.lang.UnsupportedOperationException();
     }
     
+    @Override
     public final Object makeArray(int dim0, int dim1, int dim2) {
     	throw new java.lang.UnsupportedOperationException();
     }
     
+    @Override
     public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
     	throw new java.lang.UnsupportedOperationException();
     }
     
+    @Override
     public final Object makeArray(int... dims) {
         throw new java.lang.UnsupportedOperationException();
     }
     
+    @Override
     public final void setArray(Object array, int i, Object v) {
         throw new java.lang.UnsupportedOperationException();
     }
 
+    @Override
     public final String typeName() {
         return toString();
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer $serializer) {
         throw new java.lang.UnsupportedOperationException();
     }

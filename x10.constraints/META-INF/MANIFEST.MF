@@ -7,4 +7,4 @@ Require-Bundle: x10.common;visibility:=reexport
 Export-Package: x10.constraint,
  x10.constraint.visitors,
  x10.constraint.xnative
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -1596,7 +1596,9 @@ public class Emitter {
             }
             // print $G
             else if (isParamReturnType) {
-                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+                if (canMangleMethodName(def)) {
+                    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+                }
             }
         }
         else {
@@ -1629,7 +1631,9 @@ public class Emitter {
 //            }
 //            // print $G
 //            else if (isParamReturnType) {
-//                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+//                if (canMangleMethodName(def)) {
+//                    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+//                }
 //            }
 //        }
 //    }
@@ -1647,10 +1651,13 @@ public class Emitter {
         }
         // print $G
         else if (tr.typeSystem().isParameterType(mi.returnType())) {
-            w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+            if (canMangleMethodName(mi.def())) {
+                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+            }
         }
     }
 
+    // NOTE needs update to make X10 closure compatible with Java functional interface
     public void printApplyMethodName(MethodInstance mi, boolean newClosure) {
         w.write(mangleToJava(ClosureCall.APPLY));
         if (X10PrettyPrinterVisitor.useSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
@@ -1660,7 +1667,8 @@ public class Emitter {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
         }
     }
-    
+
+    // NOTE needs update to make X10 closure compatible with Java functional interface
     public void printApplyMethodName(final Closure_c n, boolean isParamReturyType) {
         w.write(mangleToJava(ClosureCall.APPLY));
         if (!n.returnType().type().isVoid() && isParamReturyType && (!X10PrettyPrinterVisitor.useSelfDispatch || (X10PrettyPrinterVisitor.useSelfDispatch && n.formals().size() == 0))) {

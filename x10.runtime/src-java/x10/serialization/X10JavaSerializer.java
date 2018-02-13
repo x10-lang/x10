@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import x10.core.GlobalRef;
 import x10.core.Rail;
@@ -240,6 +241,36 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeFloat(f);
     }
 
+    static Method getWriteReplaceMethod(Class<?> clazz) {
+        try {
+            Method m = clazz.getDeclaredMethod("writeReplace");
+            m.setAccessible(true);
+            return m;
+        } catch (NoSuchMethodException | SecurityException e) {
+        }
+        return null;
+    }
+
+    static Object invokeWriteReplace(Method m, Object obj) {
+        try {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("\t\tCalling writeReplace() for a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
+            }
+            return m.invoke(obj);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        }
+        return obj;
+    }
+
+    static boolean hasReadResolveMethod(Class<?> clazz) {
+        try {
+            clazz.getDeclaredMethod("readResolve");
+            return true;
+        } catch (NoSuchMethodException | SecurityException e) {
+        }
+        return false;
+    }
+
     public void write(Object obj) throws IOException {
         if (obj == null) {
             writeNull();
@@ -254,6 +285,36 @@ public final class X10JavaSerializer implements SerializationConstants {
             }            
             serializeArray(obj);
             return;
+        }
+
+        // check for replacement object
+        Object orig = obj;
+        while (true) {
+            Class<? extends Object> replClass;
+            Method m;
+            if (SerializationUtils.useX10SerializationProtocol(objClass) ||
+                (m = getWriteReplaceMethod(objClass)) == null ||
+                (obj = invokeWriteReplace(m, obj)) == null ||
+                (replClass = obj.getClass()) == objClass)
+                break;
+            objClass = replClass;
+        }
+
+        // if object replaced, run through original checks a second time
+        if (obj != orig) {
+            if (obj == null) {
+                writeNull();
+                return;
+            }
+
+            if (objClass.isArray()) {
+                Integer pos = previous_position(obj, true);
+                if (pos != null) {
+                    return;
+                }
+                serializeArray(obj);
+                return;
+            }
         }
 
         short sid = getSerializationId(objClass, obj);
@@ -275,7 +336,7 @@ public final class X10JavaSerializer implements SerializationConstants {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
             }
             ((X10JavaSerializable)obj).$_serialize(this);
-        } else if (Runtime.USE_JAVA_SERIALIZATION && obj instanceof java.io.Serializable) {
+        } else if (obj instanceof java.io.Serializable && (Runtime.USE_JAVA_SERIALIZATION || hasReadResolveMethod(objClass))) {
             writeSerializationId(JAVA_OBJECT_STREAM_ID);
             writeUsingObjectOutputStream(obj); 
         } else {

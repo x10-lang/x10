@@ -44,12 +44,12 @@ public class MD {
             val md = MessageDigest.getInstance(algo);
             val input = new Rail[Byte](BUFFER_SIZE);
             val fr = new File(fileName).openRead();
-            var len:Int;
+            var len:Long;
             while ((len = fr.available()) > 0) {
                 if (len > input.size) len = input.size as Int;
                 fr.read(input, 0, len);
-                val jinput = Java.convert(input);
-                md.update(jinput, 0n, len);
+                val jinput = Java.toJava(input);
+                md.update(jinput, 0n, len as Int);
                 if (len < input.size) break;
             }
             fr.close();
