@@ -25,7 +25,7 @@ import x10.util.Random;
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
  */
-class StructSpheres {
+public class StructSpheres {
     static type Real = Float;
 
     static struct Vector3(x:Real, y:Real, z:Real) {

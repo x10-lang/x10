@@ -13,7 +13,7 @@
  * Fibonacci, parallel version
  */
 
-class Fib {
+public class Fib {
     static def fib(n:Long):Long {
         val t1:Long;
         val t2:Long;

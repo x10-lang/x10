@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import x10.interop.Java;
 import x10.util.resilient.localstore.Cloneable;
 
-final class UTS implements Cloneable {
+final public class UTS implements Cloneable {
   static den = Math.log(4.0 / (1.0 + 4.0));
 
   static def encoder():MessageDigest {

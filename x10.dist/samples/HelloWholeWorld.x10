@@ -27,7 +27,7 @@ import x10.io.Console;
  * [dgrove@linchen samples]$
  * </pre>
  */
-class HelloWholeWorld {
+public class HelloWholeWorld {
   public static def main(args:Rail[String]):void {
      if (args.size < 1) {
          Console.OUT.println("Usage: HelloWholeWorld message");

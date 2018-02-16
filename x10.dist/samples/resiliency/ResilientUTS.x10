@@ -27,7 +27,7 @@ import x10.util.Collection;
 import x10.util.Map.Entry;
 import x10.xrx.Runtime;
 
-final class ResilientUTS implements Unserializable {
+final public class ResilientUTS implements Unserializable {
   val time0:Long;
   val map:Store[UTS];
   val wave:Int;

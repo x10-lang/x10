@@ -13,7 +13,7 @@
  * Fibonacci, sequential version
  */
 
-class FibSeq {
+public class FibSeq {
     static def fib(n:Long):Long {
         val t1:Long;
         val t2:Long;

@@ -18,7 +18,7 @@ import x10.xrx.Runtime;
  * Compile with: x10c -O -EXECUTOR_MODE=true Cancellation.x10
  * Run with:     X10_CANCELLABLE=true X10_NPLACES=4 x10 -DX10RT_IMPL=JavaSockets Cancellation
  */
-class Cancellation {
+public class Cancellation {
     static def job(id:Long, iterations:Long) = ()=>{
         at (Place.places().next(here)) async {
             for (i in 1..iterations) {

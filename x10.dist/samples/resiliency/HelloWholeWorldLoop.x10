@@ -16,7 +16,7 @@ import x10.io.Console;
  * responds to the addition and removal of places
  * via external killing and creation of processes.
  */
-class HelloWholeWorldLoop {
+public class HelloWholeWorldLoop {
   public static def main(args:Rail[String]):void {
      if (args.size < 2) {
          Console.OUT.println("Usage: HelloWholeWorld message loopcount");
