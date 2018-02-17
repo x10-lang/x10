@@ -18,10 +18,10 @@
     <property name="antlr.jar.url" value="dependencies/antlr-runtime_4.5.0.201505151407.jar"/>
     <property name="ecj.jar" value="ecj-4.7.2.jar"/>
     <property name="ecj.jar.url" value="dependencies/ecj-4.7.2.jar"/>
-    <property name="hazelcast.jar" value="hazelcast-3.9.2.jar"/>
-    <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.9.2.jar"/>
-    <property name="hazelcast-client.jar" value="hazelcast-client-3.9.2.jar"/>
-    <property name="hazelcast-client.jar.url" value="dependencies/hazelcast-client-3.9.2.jar"/>
+    <property name="hazelcast.jar" value="hazelcast-3.9.3.jar"/>
+    <property name="hazelcast.jar.url" value="dependencies/hazelcast-3.9.3.jar"/>
+    <property name="hazelcast-client.jar" value="hazelcast-client-3.9.3.jar"/>
+    <property name="hazelcast-client.jar.url" value="dependencies/hazelcast-client-3.9.3.jar"/>
     <property name="snappy-java.jar" value="snappy-java.jar"/>
     <property name="math.jar" value="commons-math3-3.6.1.jar"/>
     <property name="math.jar.url" value="dependencies/commons-math3-3.6.1.jar"/>
