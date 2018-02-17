@@ -446,12 +446,16 @@ public class CXXCommandBuilder {
     public List<String> getCUDAArchitectures() {
         double version = getCUDAVersion();
         ArrayList<String> ans = new ArrayList<String>();
-//        ans.add("sm_10");
-//        ans.add("sm_11");
-//        ans.add("sm_12");
-//        ans.add("sm_13");
-        ans.add("sm_20");
-        ans.add("sm_21");
+//        if (version < 7.0) {
+//            ans.add("sm_10");
+//            ans.add("sm_11");
+//            ans.add("sm_12");
+//            ans.add("sm_13");
+//        }
+        if (version < 9.0) {
+            ans.add("sm_20");
+            ans.add("sm_21");
+        }
         ans.add("sm_30");
         if (version >= 5.0) {
             ans.add("sm_35"); // requires CUDA Toolkit 5.0 or newer
@@ -473,6 +477,9 @@ public class CXXCommandBuilder {
             ans.add("sm_60"); // requires CUDA Toolkit 8.0 or newer
             ans.add("sm_61"); // requires CUDA Toolkit 8.0 or newer
             ans.add("sm_62"); // requires CUDA Toolkit 8.0 or newer
+        }
+        if (version >= 9.0) {
+            ans.add("sm_70"); // requires CUDA Toolkit 9.0 or newer
         }
         return ans;
     }
