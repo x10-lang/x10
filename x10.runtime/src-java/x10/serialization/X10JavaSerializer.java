@@ -498,11 +498,17 @@ public final class X10JavaSerializer implements SerializationConstants {
             }
         } else {
             writeSerializationId(getSerializationId(componentType, null));
-            int length = Array.getLength(obj);
-            write(length);
-            for (int i = 0; i < length; ++i) {
-                Object o = Array.get(obj, i);
-                write(o);
+            // avoid native method
+            //int length = Array.getLength(obj);
+            //write(length);
+            //for (int i = 0; i < length; ++i) {
+            //    Object o = Array.get(obj, i);
+            //    write(o);
+            //}
+            Object[] array = (Object[])obj;
+            out.writeInt(array.length);
+            for (Object elem : array) {
+                write(elem);
             }
         }
     }

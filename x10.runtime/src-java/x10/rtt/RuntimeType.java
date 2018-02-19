@@ -376,19 +376,23 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     
     @Override
     public T getArray(Object array, int i) {
+        // avoid native method
         //return (T) Array.get(array, i);
         return ((T[])array)[i];
     }
 
     @Override
     public void setArray(Object array, int i, T v) {
+        // avoid native method
         //Array.set(array, i, v);
         ((T[])array)[i] = v;
     }
     
     @Override
     public int arrayLength(Object array) {
-        return Array.getLength(array);
+        // avoid native method
+        //return Array.getLength(array);
+        return ((T[])array).length;
     }
 
     private static final String X10_INTEROP_JAVA_ARRAY = "x10.interop.Java.array";

@@ -280,8 +280,13 @@ public final class X10JavaDeserializer implements SerializationConstants {
             Class<?> componentType = getClassForID(componentTypeID);
             Object obj = Array.newInstance(componentType, length);
             record_reference(obj);
+            // avoid native method
+            //for (int i = 0; i < length; ++i) {
+            //    Array.set(obj, i, readObject());
+            //}
+            Object[] v = (Object[]) obj;
             for (int i = 0; i < length; ++i) {
-                Array.set(obj, i, readObject());
+                v[i] = readObject();
             }
             return obj;
         }
