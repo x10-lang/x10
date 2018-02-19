@@ -17,7 +17,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -51,11 +51,11 @@ public final class X10JavaSerializer implements SerializationConstants {
         
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
-    X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
+    final X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
     int counter = 0;
     
     // [GlobalGC] Table to remember serialized GlobalRefs, set and used in GlobalRef.java and InitDispatcher.java
-    X10IdentityHashMap<GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<GlobalRef<?>, Integer>(); // for GlobalGC
+    final X10IdentityHashMap<GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<GlobalRef<?>, Integer>(); // for GlobalGC
     public void addToGrefMap(GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
     public java.util.Map<GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
@@ -241,17 +241,25 @@ public final class X10JavaSerializer implements SerializationConstants {
         out.writeFloat(f);
     }
 
-    static Method getWriteReplaceMethod(Class<?> clazz) {
-        try {
-            Method m = clazz.getDeclaredMethod("writeReplace");
-            m.setAccessible(true);
+    final X10IdentityHashMap<Class<?>, Method> writeReplace = new X10IdentityHashMap<Class<?>, Method>();
+    Method getWriteReplaceMethod(Class<?> clazz) {
+        Method m = writeReplace.get(clazz);
+        if (m != null) {
             return m;
-        } catch (NoSuchMethodException | SecurityException e) {
+        } else {
+            if (writeReplace.containsKey(clazz)) return null;
+            try {
+                m = clazz.getDeclaredMethod("writeReplace");
+                m.setAccessible(true);
+            } catch (NoSuchMethodException | SecurityException e) {
+                m = null;
+            }
+            writeReplace.put(clazz, m);
+            return m;
         }
-        return null;
     }
 
-    static Object invokeWriteReplace(Method m, Object obj) {
+    Object invokeWriteReplace(Method m, Object obj) {
         try {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\t\tCalling writeReplace() for a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
@@ -262,13 +270,22 @@ public final class X10JavaSerializer implements SerializationConstants {
         return obj;
     }
 
-    static boolean hasReadResolveMethod(Class<?> clazz) {
-        try {
-            clazz.getDeclaredMethod("readResolve");
-            return true;
-        } catch (NoSuchMethodException | SecurityException e) {
+    final X10IdentityHashMap<Class<?>, Method> readResolve = new X10IdentityHashMap<Class<?>, Method>();
+    Method getReadResolveMethod(Class<?> clazz) {
+        Method m = readResolve.get(clazz);
+        if (m != null) {
+            return m;
+        } else {
+            if (readResolve.containsKey(clazz)) return null;
+            try {
+                m = clazz.getDeclaredMethod("readResolve");
+                m.setAccessible(true);
+            } catch (NoSuchMethodException | SecurityException e) {
+                m = null;
+            }
+            readResolve.put(clazz, m);
+            return m;
         }
-        return false;
     }
 
     public void write(Object obj) throws IOException {
@@ -336,7 +353,7 @@ public final class X10JavaSerializer implements SerializationConstants {
                 Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
             }
             ((X10JavaSerializable)obj).$_serialize(this);
-        } else if (obj instanceof java.io.Serializable && (Runtime.USE_JAVA_SERIALIZATION || hasReadResolveMethod(objClass))) {
+        } else if (obj instanceof java.io.Serializable && (Runtime.USE_JAVA_SERIALIZATION || getReadResolveMethod(objClass) != null)) {
             writeSerializationId(JAVA_OBJECT_STREAM_ID);
             writeUsingObjectOutputStream(obj); 
         } else {
