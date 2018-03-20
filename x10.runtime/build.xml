@@ -90,6 +90,12 @@
         <!--<property name="build.compiler" value="${ejc.compiler}"/>-->
     </target>
 
+    <condition property="java10">
+        <or>
+            <equals arg1="${ant.java.version}" arg2="10"/>
+        </or>
+    </condition>
+
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
         <and>
@@ -462,17 +468,43 @@
     </target>
 
     <target name="jni-headers" depends="init,init-x10rt,build-x10-x10rt" unless="x10rt.jnibindings.disabled" >
-        <javah destdir="x10rt/include">
-            <classpath>
-              <path refid="project.classpath"/>
-              <path>
-                  <pathelement location="${build}"/>
-              </path>
-            </classpath>
-            <class name="x10.x10rt.NativeTransport"/>
-            <class name="x10.x10rt.TeamSupport"/>
-            <class name="x10.x10rt.X10RT"/>
-        </javah>
+        <if>
+            <conditions>
+                <isset property="java10"/>
+            </conditions>
+            <then>
+                <echo message="Generate JNI headers with javac"/>
+                <tempfile destdir="${java.io.tmpdir}" prefix="jniheaders" property="javac.jniheaders.tmpdir"/>
+                <mkdir dir="${javac.jniheaders.tmpdir}"/>
+                <javac nativeheaderdir="${basedir}/x10rt/include" destdir="${javac.jniheaders.tmpdir}" source="1.8" target="1.8" includeantruntime="false" debug="on" nowarn="on">
+                    <src path="${src}"/>
+                    <classpath>
+                      <path refid="project.classpath"/>
+                      <path>
+                          <pathelement location="${build}"/>
+                      </path>
+                    </classpath>
+                    <include name="x10/x10rt/NativeTransport.java"/>
+                    <include name="x10/x10rt/TeamSupport.java"/>
+                    <include name="x10/x10rt/X10RT.java"/>
+                </javac>
+                <delete dir="${javac.jniheaders.tmpdir}" quiet="true"/>
+            </then>
+            <else>
+                <echo message="Generate JNI headers with javah"/>
+                <javah destdir="${basedir}/x10rt/include">
+                    <classpath>
+                      <path refid="project.classpath"/>
+                      <path>
+                          <pathelement location="${build}"/>
+                      </path>
+                    </classpath>
+                    <class name="x10.x10rt.NativeTransport"/>
+                    <class name="x10.x10rt.TeamSupport"/>
+                    <class name="x10.x10rt.X10RT"/>
+                </javah>
+            </else>
+        </if>
     </target>
 
     <target name="build-x10rt" depends="init,init-x10rt,jni-headers">
