@@ -1162,14 +1162,25 @@ public struct Team {
                     while (!condition() && Team.state(teamidcopy).isValid()) {
                         // look for dead neighboring places
                         if (Team.state(teamidcopy).local_parentIndex > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex).isDead()) {
-                            Team.state(teamidcopy).markInvalid();
-                            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex)+" is dead!");
+                            //local_parentIndex may be set to -1 in the middle of the above conjunction when a parent place is in between two successive team operations.
+                            //isDead() will return true because Place(-1) does not exist.
+                            //We need to re-execute the above conjunction to avoid falsely marking the team as invalid. 
+                            if (Team.state(teamidcopy).local_parentIndex > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex).isDead()) {
+                                Team.state(teamidcopy).markInvalid();
+                                if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_parentIndex)+" is dead!");
+                            }
                         } else if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
-                            Team.state(teamidcopy).markInvalid();
-                            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index)+" is dead!");
+                            //re-execute the conjunction for the same reason above
+                            if (Team.state(teamidcopy).local_child1Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index).isDead()) {
+                                Team.state(teamidcopy).markInvalid();
+                                if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child1Index)+" is dead!");
+                            }
                         } else if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
-                            Team.state(teamidcopy).markInvalid();
-                            if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index)+" is dead!");
+                            //re-execute the conjunction for the same reason above
+                            if (Team.state(teamidcopy).local_child2Index > -1 && Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index).isDead()) {
+                                Team.state(teamidcopy).markInvalid();
+                                if (DEBUGINTERNALS) Runtime.println(here+":team"+teamidcopy+" detected place "+Team.state(teamidcopy).places(Team.state(teamidcopy).local_child2Index)+" is dead!");
+                            }
                         } else {
                             System.threadSleep(0); // release the CPU to more productive pursuits
                         }
