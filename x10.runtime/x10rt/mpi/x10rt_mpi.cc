@@ -3328,7 +3328,7 @@ bool x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root, co
     void *buf = dbuf;
     int *scounts_ = (role == root) ? ChkAlloc<int>(gsize * sizeof(int)) : NULL;
     int *soffsets_ = (role == root) ? ChkAlloc<int>(gsize * sizeof(int)) : NULL;
-    X10RT_NET_DEBUG("buf=%x, counts="PRIxPTR", displs="PRIxPTR, buf, scounts_, soffsets_);
+    X10RT_NET_DEBUG("buf=%x, counts=%"PRIxPTR", displs=%"PRIxPTR, buf, scounts_, soffsets_);
     if (role == root) {
 	for (int i = 0; i < gsize; ++i) {
 		scounts_[i] = static_cast<const int32_t*>(scounts)[i];
@@ -3337,7 +3337,7 @@ bool x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root, co
     }
 
     X10RT_NET_DEBUG("%s", "pre scatterv");
-    MPI_COLLECTIVE(Scatterv, Iscatterv, (void *)sbuf, scounts_, soffsets_, get_mpi_datatype(el), buf, dcount * el, get_mpi_datatype(el), root, comm);
+    MPI_COLLECTIVE(Scatterv, Iscatterv, (void *)sbuf, scounts_, soffsets_, get_mpi_datatype(el), buf, dcount, get_mpi_datatype(el), root, comm);
     X10RT_NET_DEBUG("%s", "pro scatterv");
 
     MPI_COLLECTIVE_SAVE(team);
