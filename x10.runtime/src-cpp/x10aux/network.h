@@ -199,12 +199,10 @@ namespace x10aux {
 
     // teams
     void *coll_enter();
-    void coll_handler(void *arg);
+    void coll_handler(void *arg, bool throwDPE);
     void *coll_enter2(void *arg);
     void coll_handler2(x10rt_team t, void *arg);
     
-    void failed_coll_handler(void *arg);
-
     void register_place_removed_handler(x10::lang::VoidFun_0_1<x10::lang::Place>* body_fun);
     void notify_place_death(unsigned int place);
 }
