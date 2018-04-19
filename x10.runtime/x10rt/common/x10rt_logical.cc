@@ -101,7 +101,7 @@ static x10rt_error fatal (const char *format, ...)
 x10rt_stats x10rt_lgl_stats;
 
 
-static void one_setter (void *arg)
+static void one_setter (void *arg, bool throwDPE)
 { *((int*)arg) = 1; }
 
 const char *x10rt_lgl_error_msg (void) {
@@ -1069,19 +1069,17 @@ void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
     }
 }
 
-bool x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
+void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
                       x10rt_place root, const void *sbuf, void *dbuf,
                       size_t el, size_t count,
-                      x10rt_completion_handler *errch,
                       x10rt_completion_handler *ch, void *arg)
 {
-    ESCAPE_IF_ERR_BOOL;
+    ESCAPE_IF_ERR;
     if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
-        return x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, errch, ch, arg);
+        x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
-        x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, errch, ch, arg);
+        x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
         while (x10rt_emu_coll_probe());
-        return true; //TODO: should not always return true, but x10rt_emu_bcast is not used in Team.x10
     }
 }
 
@@ -1099,33 +1097,28 @@ void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
     }
 }
 
-bool x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
+void x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
                         x10rt_place root, const void *sbuf, const void *soffsets, const void *scounts,
                         void *dbuf, size_t dcount,
                         size_t el,
-                        x10rt_completion_handler *errch,
                         x10rt_completion_handler *ch, void *arg)
 {
-    ESCAPE_IF_ERR_BOOL;
+    ESCAPE_IF_ERR;
     if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
-        return x10rt_net_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, errch, ch, arg);
+        x10rt_net_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, ch, arg);
     } else {
-        x10rt_emu_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, errch, ch, arg);
+        x10rt_emu_scatterv(team, role, root, sbuf, soffsets, scounts, dbuf, dcount, el, ch, arg);
         while (x10rt_emu_coll_probe());
-        return true; //TODO: should not always return true, but x10rt_emu_scatterv is not used in Team.x10
     }
 }
 
-bool x10rt_lgl_agree (x10rt_team team, x10rt_place role,
+void x10rt_lgl_agree (x10rt_team team, x10rt_place role,
                              const int *sbuf, int *dbuf,
-                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg)
 {
-    ESCAPE_IF_ERR_BOOL;
+    ESCAPE_IF_ERR;
     if (x10rt_lgl_agreement_support()) {
-        return x10rt_net_agree(team, role, sbuf, dbuf, errch, ch, arg);
-    } else {
-        return false;
+        x10rt_net_agree(team, role, sbuf, dbuf, ch, arg);
     }
 }
 
@@ -1143,20 +1136,18 @@ void x10rt_lgl_gather (x10rt_team team, x10rt_place role,
 	}
 }
 
-bool x10rt_lgl_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+void x10rt_lgl_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		               const void *sbuf, size_t scount, void *dbuf,
 		               const void *doffsets, const void *dcounts,
 		               size_t el,
-		               x10rt_completion_handler *errch,
 		               x10rt_completion_handler *ch, void *arg)
 {
-	ESCAPE_IF_ERR_BOOL;
+	ESCAPE_IF_ERR;
 	if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
-	    return x10rt_net_gatherv(team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, errch, ch, arg);
+	    x10rt_net_gatherv(team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, ch, arg);
 	} else {
-	    x10rt_emu_gatherv(team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, errch, ch, arg);
+	    x10rt_emu_gatherv(team, role, root, sbuf, scount, dbuf, doffsets, dcounts, el, ch, arg);
 	    while (x10rt_emu_coll_probe());
-	    return true;  //TODO: should not always return true, but x10rt_emu_gatherv is not used by Team.x10
 	}
 }
 
@@ -1190,20 +1181,18 @@ void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
     }
 }
 
-bool x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
+void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                           const void *sbuf, void *dbuf,
                           x10rt_red_op_type op, 
                           x10rt_red_type dtype,
                           size_t count,
-                          x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg)
 {
-	ESCAPE_IF_ERR_BOOL;
+	ESCAPE_IF_ERR;
     if (has_collectives >= X10RT_COLL_ALLBLOCKINGCOLLECTIVES) {
-        return x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, errch, ch, arg);
+        x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     } else {
         x10rt_emu_reduce(team, role, 0, sbuf, dbuf, op, dtype, count, ch, arg, true);
         while (x10rt_emu_coll_probe());
-        return true; //TODO: should not always return true, but x10rt_emu_reduce is not used
     }
 }

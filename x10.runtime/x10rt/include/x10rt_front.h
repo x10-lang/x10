@@ -733,10 +733,9 @@ X10RT_C void x10rt_barrier (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C bool x10rt_bcast (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_bcast (x10rt_team team, x10rt_place role,
                           x10rt_place root, const void *sbuf, void *dbuf,
                           size_t el, size_t count,
-                          x10rt_completion_handler *errch,
                           x10rt_completion_handler *ch, void *arg);
 
 /** Asynchronously blocks until all members have received their part of root's array.  Note that
@@ -796,11 +795,10 @@ X10RT_C void x10rt_scatter (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C bool x10rt_scatterv (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_scatterv (x10rt_team team, x10rt_place role,
                              x10rt_place root, const void *sbuf,
                              const void *soffsets, const void *scounts,
                              void *dbuf, size_t dcount, size_t el,
-                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg);
 
 
@@ -858,11 +856,10 @@ X10RT_C void x10rt_gather (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C bool x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+X10RT_C void x10rt_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		                        const void *sbuf, size_t scount, void *dbuf,
 		                        const void *doffsets, const void *dcounts,
 		                        size_t el,
-		                        x10rt_completion_handler *errch,
 		                        x10rt_completion_handler *ch, void *arg);
 
 /** Asynchronously blocks until all members have received their portion of data from each 
@@ -948,12 +945,11 @@ X10RT_C void x10rt_reduce (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C bool x10rt_allreduce (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_allreduce (x10rt_team team, x10rt_place role,
                               const void *sbuf, void *dbuf,
                               x10rt_red_op_type op,
                               x10rt_red_type dtype,
                               size_t count,
-                              x10rt_completion_handler *errch,
                               x10rt_completion_handler *ch, void *arg);
 
 
@@ -971,15 +967,14 @@ X10RT_C bool x10rt_allreduce (x10rt_team team, x10rt_place role,
  *
  * \param arg User pointer that is passed to the completion handler
  */
-X10RT_C bool x10rt_agree (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_agree (x10rt_team team, x10rt_place role,
                              const int *sbuf, int *dbuf,
-                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg);
 
 /** Sets arg to 1.
  * \param arg Assumed to be an int*
  */
-X10RT_C void x10rt_one_setter (void *arg);
+X10RT_C void x10rt_one_setter (void *arg, bool throwDPE);
 
 /** Sets arg to the given team.
  * \param v The new team is passed in here

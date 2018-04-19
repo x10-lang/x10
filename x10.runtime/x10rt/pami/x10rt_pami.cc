@@ -1748,7 +1748,7 @@ static void collective_operation_complete (pami_context_t   context,
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u completed collective operation. cookie=%p\n", state.myPlaceId, cookie);
 	#endif
-	cbd->tcb(cbd->arg);
+	cbd->tcb(cbd->arg, false);
 	free(cbd->counts);
 	free(cbd->offsets);
 	free(cbd);
@@ -1845,8 +1845,8 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	if (status != PAMI_SUCCESS) error("Unable to post a barrier on team %u", team);
 }
 
-bool x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
-		void *dbuf, size_t el, size_t count, x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
+void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
+		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	#ifdef DEBUG
 		fprintf(stderr, "Place %u executing broadcast of %lu %lu-byte elements on team %u, with role=%u, root=%u\n", state.myPlaceId, count, el, team, role, root);
@@ -1886,7 +1886,6 @@ bool x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	// copy the data for the root separately.  PAMI does not do this for us.
 	if (role == root)
 		memcpy(dbuf, sbuf, count*el);
-    return true; //PAMI not resilient
 }
 
 void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
@@ -1928,9 +1927,9 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
     // The local copy is not needed.  PAMI handles this for us.
 }
 
-bool x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root,
+void x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root,
 		const void *sbuf, const void *soffsets, const void *scounts,
-		void *dbuf, size_t dcount, size_t el, x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
+		void *dbuf, size_t dcount, size_t el, x10rt_completion_handler *ch, void *arg)
 {
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
 	if (tcb == NULL) error("Unable to allocate memory for a scatterv callback header");
@@ -1979,7 +1978,6 @@ bool x10rt_net_scatterv (x10rt_team team, x10rt_place role, x10rt_place root,
 	PAMI_Context_unlock(state.context);
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post a scatterv on team %u", team);
-	return true; //PAMI is not resilient
 }
 
 void x10rt_net_gather (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
@@ -2019,9 +2017,8 @@ void x10rt_net_gather (x10rt_team team, x10rt_place role, x10rt_place root, cons
 	if (status != PAMI_SUCCESS) error("Unable to post a gather on team %u", team);
 }
 
-bool x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, size_t scount,
+void x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf, size_t scount,
 		void *dbuf, const void *doffsets, const void *dcounts, size_t el,
-        x10rt_completion_handler *errch,
 		x10rt_completion_handler *ch, void *arg)
 {
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
@@ -2071,7 +2068,6 @@ bool x10rt_net_gatherv (x10rt_team team, x10rt_place role, x10rt_place root, con
 	PAMI_Context_unlock(state.context);
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post a gatherv on team %u", team);
-    return true; //PAMI is not resilent
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
@@ -2209,8 +2205,8 @@ void x10rt_net_reduce (x10rt_team team, x10rt_place role,
 	if (status != PAMI_SUCCESS) error("Unable to post a reduce on team %u", team);
 }
 
-bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
-		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *errch, x10rt_completion_handler *ch, void *arg)
+void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
+		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	// Issue the collective
 	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)x10rt_malloc(sizeof(x10rt_pami_team_callback));
@@ -2253,16 +2249,13 @@ bool x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	PAMI_Context_unlock(state.context);
 #endif
 	if (status != PAMI_SUCCESS) error("Unable to post an allreduce on team %u", team);
-	return true; //PAMI is not resilient
 }
 
-bool x10rt_net_agree (x10rt_team team, x10rt_place role,
+void x10rt_net_agree (x10rt_team team, x10rt_place role,
                              const int *sbuf, int *dbuf,
-                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg)
 {
 	error("x10rt_net_agree not implemented");
-	return false;
 }
 
 /* Registering a place removed callback, never used in this implementation */
