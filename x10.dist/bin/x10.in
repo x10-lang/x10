@@ -264,20 +264,40 @@ java_args=("-Djava.library.path=$externpath" "-Djava.class.path=$classpath" "${j
 
 java_args=("${java_args[@]}" ${defs})
 
+# execute java command locally
+add_opens=
 java_version=
-# skip loading test in case of executable jar
-if [ -z "$noclassloadtest" -a -n "$main" ]; then
-command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
-#[ -n "$verbose" ] && echo "${command[*]}"
-java_version=`(
-unset X10_NPLACES
-"${command[@]}" 2>&1
-if [ "$?" -ne "0" ]; then
-  echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
-  exit 1
+if [ -z "$noclassloadtest" ]; then
+    # check if the jvm supports --add-opens option
+    command=("$JAVA" "--add-opens" "java.base/java.lang=ALL-UNNAMED" "--add-opens" "java.base/java.lang.invoke=ALL-UNNAMED" -version "${java_args[@]}")
+    #[ -n "$verbose" ] && echo "${command[*]}"
+    java_version=`(unset X10_NPLACES; "${command[@]}" 2>&1)`
+    if [ $? -eq 0 ]; then
+        add_opens=true
+    else
+        java_version=
+    fi
+    # skip loading test in case of executable jar
+    if [ -n "$main" ]; then
+        command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
+        #[ -n "$verbose" ] && echo "${command[*]}"
+        java_version=`(
+        unset X10_NPLACES
+        "${command[@]}" 2>&1
+        if [ "$?" -ne "0" ]; then
+            echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
+            exit 1
+        fi
+        )`
+    fi
+    # make sure java_version is set
+    if [ -z "$java_version" ]; then
+        command=("$JAVA" -version "${java_args[@]}")
+        #[ -n "$verbose" ] && echo "${command[*]}"
+        java_version=`(unset X10_NPLACES; "${command[@]}" 2>&1)`
+    fi
 fi
-)`
-fi
+[ -n "${add_opens}" ] && java_args=("--add-opens" "java.base/java.lang=ALL-UNNAMED" "--add-opens" "java.base/java.lang.invoke=ALL-UNNAMED" "${java_args[@]}")
 
 # detect broadly which JVM we are using
 ibmj9vm=
