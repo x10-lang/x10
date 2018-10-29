@@ -62,7 +62,7 @@
 
 #define X10RT_NET_DEBUGV(fmt, var) do { \
     if(coll_state.is_enabled_debug_print) { \
-        fprintf(stderr, "[%s:%d:%s] (%"PRIu32") " #var " = %"fmt "\n", __FILE__, __LINE__, __func__, static_cast<uint32_t>((global_state.init && !global_state.finalized)? x10rt_net_here() : -1), (var)); \
+        fprintf(stderr, "[%s:%d:%s] (%" PRIu32 ") " #var " = %" fmt "\n", __FILE__, __LINE__, __func__, static_cast<uint32_t>((global_state.init && !global_state.finalized)? x10rt_net_here() : -1), (var)); \
     } \
 }while(false)
 
