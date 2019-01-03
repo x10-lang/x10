@@ -98,9 +98,9 @@ ifdef JAVA_HOME
     # We don't want to build the jni-bindings for x10rt on cygwin
   else
   ifeq ($(shell uname -s),Darwin)
-    override CXXFLAGS += -mmacosx-version-min=10.6
-    override X10RT_PROPS_CXXFLAGS += -mmacosx-version-min=10.6
-    override XRX_PROPS_CXXFLAGS += -mmacosx-version-min=10.6
+    override CXXFLAGS += -mmacosx-version-min=10.11
+    override X10RT_PROPS_CXXFLAGS += -mmacosx-version-min=10.11
+    override XRX_PROPS_CXXFLAGS += -mmacosx-version-min=10.11
     JNI_INCLUDES = -I"$(JAVA_HOME)"/include -I"$(JAVA_HOME)"/include/darwin
     ifeq ($(jarch),x86_64)
       jarch=amd64
