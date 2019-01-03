@@ -57,19 +57,6 @@ ifeq ($(X10RT_PLATFORM), linux_ppc64le_xlc)
   APP_LDFLAGS_PAMI   += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   APP_LDLIBS_PAMI    += -lpoe -lpami
 endif
-ifeq ($(X10RT_PLATFORM), bgq_gcc)
-  override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include
-  MOV_LDFLAGS_PAMI  += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/comm/sys/lib -L/bgsys/drivers/ppcfloor/spi/lib
-  MOV_LDLIBS_PAMI   += -lpami-gcc -lSPI_cnk -lrt -lstdc++ -lpthread -lm
-  PAMI_MPCC = $(CC)
-endif
-ifeq ($(X10RT_PLATFORM), bgq_xlc)
-  override CXXFLAGS += -I/bgsys/drivers/ppcfloor/comm/sys/include
-  MOV_LDFLAGS_PAMI  += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/comm/sys/lib -L/bgsys/drivers/ppcfloor/spi/lib
-  # note, libpami is always compiled with gcc
-  MOV_LDLIBS_PAMI   += -lpami-gcc -lSPI_cnk -lrt -lstdc++ -lpthread -lm
-  PAMI_MPCC = $(CC)
-endif
 
 
 TESTS += $(patsubst test/%,test/%.pami,$(BASE_TESTS)) pami/list_collectives pami/bench_collectives

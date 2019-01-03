@@ -22,9 +22,7 @@
 #include <x10rt_internal.h>
 #include <x10rt_types.h>
 #include <pami.h>
-#if !defined(__bgq__)
 #include <pami_ext_hfi.h>
-#endif
 
 //#define DEBUG 1
 //#define DEBUG_MESSAGING 1
@@ -46,7 +44,7 @@
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
 #define X10_NUM_IMMEDIATE_THREADS "X10_NUM_IMMEDIATE_THREADS"
 
-#if defined(__bgq__) || defined(_ARCH_PPC) || defined(__PPC__)
+#if defined(_ARCH_PPC) || defined(__PPC__)
 #define POSTMESSAGES 1
 #endif
 
@@ -177,7 +175,6 @@ struct x10rt_post_get
 	pami_get_simple_t parameters;
 };
 
-#if !defined(__bgq__)
 struct x10rt_post_hfi_update
 {
 	pami_work_t work;
@@ -190,7 +187,6 @@ struct x10rt_post_hfi_updates
 	size_t numOps;
 	hfi_remote_update_info_t *remote_infos;
 };
-#endif
 
 struct x10rt_post_rmw
 {
@@ -226,10 +222,8 @@ struct x10rt_pami_state
 	uint32_t lastTeamIndex;
 	size_t a2achunks;
 	pthread_mutex_t stateLock; // used when creating a new context or a new team
-#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
-#endif
 	pami_extension_t async_extension; // for async progress
 	pami_task_t *stepOrder; // this array is allocated and used only when the internal all-to-all collective has been specified
 	char errorMessageBuffer[1200]; // buffer to hold the most recent error message
@@ -241,14 +235,7 @@ struct x10rt_pami_state
  */
 inline void * x10rt_malloc(size_t n)
 {
-#if defined(__bgq__)
-    void *ptr;
-    size_t alignment = 32; // 128 might be better since that ensures every heap allocation starts on a L2 cache-line boundary
-    posix_memalign(&ptr, alignment, n);
-    return ptr;
-#else
     return malloc(n);
-#endif
 }
 
 
@@ -891,7 +878,6 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
         fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
     #endif
 
-#if !defined(__bgq__)
 	state.hfi_update = NULL;
 #if defined(_ARCH_PPC) || defined(__PPC__)
     // see if HFI should be used
@@ -914,7 +900,6 @@ x10rt_error x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		}
 	}
 #endif // power CPU
-#endif // not BlueGeneQ
 
 	return X10RT_ERR_OK;
 }
@@ -1212,67 +1197,9 @@ x10rt_error x10rt_net_probe()
 #else
 	PAMI_Context_lock(state.context);
 #endif
-		#if defined(__bgq__)
-			// Temporary workaround observed behavior on BG/Q.
-			// PAMI_Context_advance seems to always return PAMI_SUCCESS
-			// So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
-			status = PAMI_Context_advance(state.context, 100);
-		#else
 //			fprintf(stderr, "Place %u probed\n", state.myPlaceId);
-			do { status = PAMI_Context_advance(state.context, 1);
-			} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
-		#endif
-		if (status == PAMI_ERROR) error ("Problem advancing the context");
-#ifdef POSTMESSAGES
-	}
-#else
-	PAMI_Context_unlock(state.context);
-#endif
-	return X10RT_ERR_OK;
-}
-
-bool x10rt_net_blocking_probe_support(void)
-{
-	return false;
-}
-
-x10rt_error x10rt_net_blocking_probe (void)
-{
-	// TODO: make this blocking.  For now, just call probe.
-	return x10rt_net_probe();
-}
-
-x10rt_error x10rt_net_unblock_probe (void)
-{
-	// TODO: once blocking_probe is implemented, this needs to do something.  Fine for now.
-	return X10RT_ERR_OK;
-}
-
-bool x10rt_net_agreement_support (void)
-{
-    return false;
-}
-
-/** Shut down the network layer.  \see #x10rt_lgl_finalize
- */
-void x10rt_net_finalize()
-{
-	pami_result_t status = PAMI_ERROR;
-
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u shutting down via thread %lu\n", state.myPlaceId, pthread_self());
-	#endif
-	
-	// flush out any pending work
-	x10rt_net_probe();
-
-#if !defined(__bgq__)
-	if (state.hfi_update != NULL)
-	{
-		PAMI_Extension_close (state.hfi_extension);
-		state.hfi_update = NULL;
-	}
-#endif
+        do { status = PAMI_Context_advance(state.context, 1);
+        } while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
 
 	if (state.async_extension != NULL)
 	{
@@ -1285,10 +1212,8 @@ void x10rt_net_finalize()
 		state.async_extension = NULL;
 	}
 
-#if !defined(__bgq__)
 	if ((status = PAMI_Context_destroyv(&state.context, 1)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);
-#endif
 
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
@@ -1310,14 +1235,13 @@ x10rt_coll_type x10rt_net_coll_support () {
 }
 
 bool x10rt_net_remoteop_support () {
-#if defined(__bgq__) || !(defined(_ARCH_PPC) || defined(__PPC__))
-	return false; // No hardware support for remote memory operations on BG/Q; best to use emulated layer
+#if !(defined(_ARCH_PPC) || defined(__PPC__))
+	return false; // No hardware support for remote memory operations on non-PPC platforms; best to use emulated layer
 #else
 	return true;
 #endif
 }
 
-#if !defined(__bgq__)
 pami_result_t post_hfi_update (pami_context_t context, void* cookie) {
 	pami_result_t status = state.hfi_update(context, 1, &((x10rt_post_hfi_update*)cookie)->remote_info);
 	if (status != PAMI_SUCCESS)
@@ -1333,7 +1257,6 @@ pami_result_t post_hfi_updates (pami_context_t context, void* cookie) {
 	free(cookie);
 	return PAMI_SUCCESS;
 }
-#endif
 
 
 pami_result_t post_rmw (pami_context_t context, void* cookie) {
@@ -1346,7 +1269,6 @@ pami_result_t post_rmw (pami_context_t context, void* cookie) {
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
-#if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1369,7 +1291,6 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		if (status != PAMI_SUCCESS) error("Unable to post a hfi_update");
 	}
 	else
-#endif
 	{
 		x10rt_post_rmw* post = (x10rt_post_rmw *)x10rt_malloc(sizeof(x10rt_post_rmw));
 		memset(&post->operation, 0, sizeof(pami_rmw_t));
@@ -1396,7 +1317,6 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
-#if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1418,7 +1338,6 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 		if (status != PAMI_SUCCESS) error("Unable to post a hfi_update");
 	}
 	else
-#endif
 	{
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing %u remote operations\n", state.myPlaceId, numOps);

@@ -30,18 +30,11 @@
 #include <math.h>
 //#include <unistd.h> // for sleep
 #include <pami.h>
-#if !defined(__bgq__)
 #include <pami_ext_hfi.h>
-#endif
 
 // Memory allocated per process is 2*DATASIZE. Memory is chopped into bits based on nplaces
-#if defined(__bgq__)
-// 128Mb
-#define DATASIZE (128*1024*1024)
-#else
 // 1.5Gb
 #define DATASIZE (3*512*1024*1024)
-#endif
 
 // how many times to repeat each test
 #define REPEAT 3
@@ -67,10 +60,8 @@ struct pami_state
 	pami_algorithm_t world_barrier;
 	unsigned int geometryId; // each new team gets a unique id
 //	struct result *results; // this is used only at task 0
-#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
-#endif
 } state;
 
 static unsigned long long nano_time()
@@ -448,10 +439,8 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 }
 
 int main(int argc, char ** argv) {
-#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
-#endif
 	volatile unsigned waitForCompletion;
 	state.geometryId = 0;
 	size_t num_algorithms[2];
@@ -478,7 +467,6 @@ int main(int argc, char ** argv) {
 	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context, 1)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI context: %i\n", status);
 
-#if !defined(__bgq__)
 	status = PAMI_Extension_open(state.client, "EXT_hfi_extension", &hfi_extension);
 	if (status == PAMI_SUCCESS)
 	{
@@ -487,7 +475,6 @@ int main(int argc, char ** argv) {
 		#endif
 		hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(hfi_extension, "hfi_remote_update"); // This may succeed even if HFI is not available
 	}
-#endif
 
 	{ // prepare the world geometry and barrier for between tests
 		status = PAMI_Geometry_world(state.client, &state.world_geometry);
@@ -589,9 +576,7 @@ int main(int argc, char ** argv) {
 		} while (teamSize <= state.numPlaces);
 	}
 
-#if !defined(__bgq__)
 	PAMI_Extension_close (hfi_extension);
-#endif
 
 	if ((status = PAMI_Context_destroyv(&state.context, 1)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);

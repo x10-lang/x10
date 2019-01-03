@@ -111,7 +111,6 @@
 
     <condition property="x10rt.jnibindings.disabled">
       <or>
-        <istrue value="${CROSS_COMPILE_BGQ}" />
         <istrue value="${CROSS_COMPILE_MODULES}" />
         <and>
 	  <istrue value="${CROSS_COMPILE_FX10}" />
@@ -159,14 +158,12 @@
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
         <or>
             <istrue value="${X10RT_MPI}" />
-            <istrue value="${CROSS_COMPILE_BGQ}" />
             <istrue value="${CROSS_COMPILE_MODULES}" />
         </or>
     </condition>
     <condition property="cppmake.x10rt_pami" value="ENABLE_X10RT_PAMI=1" else="DISABLE_X10RT_PAMI=1">
         <or> 
             <istrue value="${X10RT_PAMI}" />
-            <istrue value="${CROSS_COMPILE_BGQ}" />
         </or>
     </condition>
     <condition property="cppmake.x10rt_cuda" value="ENABLE_X10RT_CUDA=1" else="DISABLE_X10RT_CUDA=1">
@@ -177,13 +174,9 @@
     </condition>
     <condition property="cppmake.cross_compile_any" value="ENABLE_CROSS_COMPILE_ANY=1" else="DISABLE_CROSS_COMPILE_ANY=1">
       <or>
-        <istrue value="${CROSS_COMPILE_BGQ}" />
         <istrue value="${CROSS_COMPILE_FX10}" />
         <istrue value="${CROSS_COMPILE_MODULES}" />
       </or>
-    </condition>
-    <condition property="cppmake.cross_compile_bgq" value="ENABLE_CROSS_COMPILE_BGQ=1" else="DISABLE_CROSS_COMPILE_BGQ=1">
-        <istrue value="${CROSS_COMPILE_BGQ}" />
     </condition>
     <condition property="cppmake.cross_compile_fx10" value="ENABLE_CROSS_COMPILE_FX10=1" else="DISABLE_CROSS_COMPILE_FX10=1">
         <istrue value="${CROSS_COMPILE_FX10}" />
@@ -230,7 +223,6 @@
             <arg value="-j1" />
             <arg value="clean"/>
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -252,7 +244,6 @@
             <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -280,7 +271,6 @@
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -305,7 +295,6 @@
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -322,7 +311,6 @@
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -338,7 +326,6 @@
             <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -519,7 +506,6 @@
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -538,7 +524,6 @@
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -560,7 +545,6 @@
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_any}" />
-            <arg value="${cppmake.cross_compile_bgq}" />
             <arg value="${cppmake.cross_compile_fx10}" />
             <arg value="${cppmake.cross_compile_modules}" />
         </exec>
@@ -582,7 +566,6 @@
 		  <conditions>
 		    <or>
                       <istrue value="${CROSS_COMPILE_FX10}" />
-                      <istrue value="${CROSS_COMPILE_BGQ}" />
 		    </or>
 		  </conditions>
 		  <then>
@@ -609,25 +592,6 @@
 			  </exec>
 			</sequential>
 		      </then>
-		    </if>
-                    <if>
-                      <conditions>
-			<istrue value="${CROSS_COMPILE_BGQ}" />
-                      </conditions>
-                      <then>
-			<echo message="Configuring BDWGC for BGQ cross compile"/>
-			<exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-			  <env key="CXX" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-g++"/>
-			  <env key="CC" value="/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc"/>
-			  <arg value="${bdwgc.dir}/src/configure" />
-			  <arg value="--host=powerpc64-bgq-linux" />
-			  <arg value="-enable-threads=posix" />
-                          <arg value="-enable-thread-local-alloc" />
-                          <arg value="-enable-parallel-mark" />
-			  <arg value="--disable-shared" />
-			  <arg value="--prefix=${bdwgc.platform.dir}/install" />
-			</exec>
-                      </then>
 		    </if>
 		  </then>
                   <else>

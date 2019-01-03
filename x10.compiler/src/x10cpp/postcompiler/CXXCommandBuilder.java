@@ -103,9 +103,6 @@ public class CXXCommandBuilder {
         return defaultPostCompiler().contains("clang");
     }
     
-    protected final boolean bluegeneQ() {
-        return getPlatform().contains("bgq");
-    }
     protected final boolean fx10() {
         return getPlatform().contains("fx10");
     }
@@ -147,23 +144,10 @@ public class CXXCommandBuilder {
             if (fx10()) {
                 cxxCmd.add("-Kfast");
             }
-            if (usingXLC()) {
-                if (bluegeneQ()) {
-                    cxxCmd.add("-qhot");
-                    cxxCmd.add("-qtune=qp");
-                    cxxCmd.add("-qsimd=auto");
-                    cxxCmd.add("-qarch=qp");
-                }
-            }
         }
 
         if (usingXLC()) {
             cxxCmd.add("-Wno-return-type");      // Do not warn about non-void functions with no return
-            // BG
-            cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
-                               + ":1540-1101"    // Do not warn about non-void functions with no return
-                               + ":1540-1102"    // Do not warn about uninitialized variables
-                               + ":1500-029");   // Do not warn about being unable to inline when optimizing
         } else if (fx10()) {
             cxxCmd.add("-Xg");        	
             cxxCmd.add("-w");
@@ -382,8 +366,6 @@ public class CXXCommandBuilder {
         	cbb = new MacOSX_CXXCommandBuilder();
         } else if (platform.startsWith("freebsd_")) {
         	cbb = new FreeBSD_CXXCommandBuilder();
-        } else if (platform.startsWith("bgq")) {
-            cbb = new Linux_CXXCommandBuilder();            
         } else if (platform.startsWith("fx10")) {
             cbb = new Linux_CXXCommandBuilder();            
         } else {   
