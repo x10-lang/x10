@@ -741,25 +741,6 @@
                 <arg value="${bdwgc.platform.dir}/${bdwgc.tar}" />
             </exec>
 
-	    <!-- Patches to apply for bdwgc version 7.2d -->
-	    <if>
-	      <conditions>
-		  <equals arg1="${bdwgc.version}" arg2="7.2d" />
-	      </conditions>
-	      <then>
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/bluegeneStackHeuristic.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="0" />
-		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fixThreadConfigureForPPC.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="1" />
-                <patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/fx10Support.patch.txt"
-                       dir="${bdwgc.dir}/src" strip="1" />
-	      </then>
-	    </if>
-
 	    <!-- Patches to apply for bdwgc version 7.4.2 -->
 	    <if>
 	      <conditions>
