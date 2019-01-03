@@ -1,17 +1,10 @@
-X10 Release 2.6.1
+X10 Release 2.6.2
 
 HIGHLIGHTS OF THIS RELEASE
 
-The focus of the X10 2.6.1 release is improvements to Resilient X10.
-Some highlights include:
-  - Significant improvements to the performance of resilient finish
-  - A new resilient store implemented in X10
-  - Improved standard library APIs for elasticity and
-    non-shrinking recovery.
-  - Enhancements to the x10.util.resilient.iterative package to
-    exploit elasticity to support non-shrinking recovery.
-  - Updating of all Resilient X10 sample programs and applications
-    to showcase the improvements in Resilient X10.
+X10 2.6.2 contains updates for new versions of Java and MacOS
+  - Managed X10 support for Java SE 9
+  - Native X10 support for current MacOS versions
 
 LIMITATIONS OF THIS RELEASE
 
@@ -34,26 +27,20 @@ manual do not currently work with Native X10.
 
 The generated C++ code requires g++ 4.2 or better to be compiled; 
 we do almost all of our testing against g++ 4.4.
-  + On Power/Linux and BG/Q, you may either use g++ 4.2 or better
+  + On Power/Linux you may either use g++ 4.2 or better
     or xlC 11.1 or better. 
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
 Below is a summary of JIRA issues addressed for the X10 2.6.1
 
-** New Feature
-    * [XTENLANG-3553] - Add method x10.lang.String.contains(String)
-    * [XTENLANG-3554] - New method x10.Random.nextGaussian
-    * [XTENLANG-3555] - X10 Launcher fails with buffer overflow if X10_HOSTFILE does not exist
-
-** Bug
-    * [XTENLANG-3498] - New place fails to connect to dead places
-    * [XTENLANG-3552] - X10 reading from a file not as expected
-    * [XTENLANG-3556] - x10rt_sockets: blocking_probe doesn't block after a Place is killed
-
+    * [XTENLANG-3543] - x10c needs to work with JDK9
+    * [XTENLANG-3559] - Fix Illegal Access Warnings from Java 9+
+    * [XTENLANG-3561] - Fixes for NativeX10 on MacOS 10.12 and 10.13
+    * [XTENLANG-3562] - Upgrade to BDWGC 8.0.2
 
 For the details of JIRA issues fixed in this release, see
-  https://xtenlang.atlassian.net/secure/ReleaseNote.jspa?version=10600&projectId=10005
+  https://xtenlang.atlassian.net/secure/ReleaseNote.jspa?version=10700&projectId=10005
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
