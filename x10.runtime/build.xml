@@ -4,7 +4,7 @@
     &buildfile;
     <property name="dep.baseurl" value="http://x10-lang.org"/>
     <property name="dep.baseurl.alt" value="http://downloads.sourceforge.net/project/x10"/>
-    <property name="bdwgc.version" value="7.4.2"/>
+    <property name="bdwgc.version" value="8.0.2"/>
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
@@ -773,6 +773,19 @@
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/machdep.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/clang.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/gc_markers.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="1" />
+	      </then>
+	    </if>
+
+	    <!-- Patches to apply for bdwgc version 8.0.2 -->
+	    <if>
+	      <conditions>
+		  <equals arg1="${bdwgc.version}" arg2="8.0.2" />
+	      </conditions>
+	      <then>
+		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/pthread_support.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/gc_markers.patch.txt"
                        dir="${bdwgc.dir}/src" strip="1" />

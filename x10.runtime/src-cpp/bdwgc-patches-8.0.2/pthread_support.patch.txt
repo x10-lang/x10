@@ -1,0 +1,11 @@
+--- a/include/private/pthread_support.h
++++ b/include/private/pthread_support.h
+@@ -137,7 +137,7 @@
+ } * GC_thread;
+ 
+ #ifndef THREAD_TABLE_SZ
+-# define THREAD_TABLE_SZ 256    /* Power of 2 (for speed). */
++# define THREAD_TABLE_SZ 4096   /* Power of 2 (for speed). */
+ #endif
+ 
+ #if CPP_WORDSZ == 64

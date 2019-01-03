@@ -123,6 +123,7 @@
 /x10.runtime/makefile
 
 # /x10.runtime/src-cpp/
+/x10.runtime/src-cpp/bdwgc-8.0.2
 /x10.runtime/src-cpp/bdwgc-7.4.2
 /x10.runtime/src-cpp/gen
 /x10.runtime/src-cpp/gen-dbg
