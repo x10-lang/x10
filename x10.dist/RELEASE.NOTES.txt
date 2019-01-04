@@ -3,7 +3,7 @@ X10 Release 2.6.2
 HIGHLIGHTS OF THIS RELEASE
 
 X10 2.6.2 contains updates for new versions of Java and MacOS
-  - Managed X10 support for Java SE 9
+  - Managed X10 support for Java SE 11
   - Native X10 support for current MacOS versions
 
 LIMITATIONS OF THIS RELEASE
