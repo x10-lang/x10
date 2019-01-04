@@ -91,9 +91,7 @@
     </target>
 
     <condition property="java10">
-        <or>
-            <equals arg1="${ant.java.version}" arg2="10"/>
-        </or>
+        <javaversion atleast="10"/>
     </condition>
 
     <!-- Determine whether or not we should be building with GC enabled -->
