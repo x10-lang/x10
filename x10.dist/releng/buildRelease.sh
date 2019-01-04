@@ -126,8 +126,9 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true -Davailable.procs=4 dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
         ant $EXTRA_X10RT_BUILD_ARG -Ddebug=true -Davailable.procs=4 dist-cpp
-    fi 
-    ant xrx-xdoc
+    fi
+    # The x10doc tool requires Java7 or earlier, so disable building it.
+    # ant xrx-xdoc
     $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribution tarball created"
     if [[ "$BUILD_RPM" == 1 ]]; then
