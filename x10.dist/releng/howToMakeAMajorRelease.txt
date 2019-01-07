@@ -67,8 +67,9 @@ III. When all necessary fixes have been propagated to the release branch,
 
    5. Build x10 tarballs on primary X10 platforms and publish to
       the yktgsa project x10-releases. You can use x10.dist/releng/masterBuildRelease.sh
-      to accomplish this. For example
-         ./masterBuildRelease.sh -version 2.6.1 -tag SF_RELEASE_2_6_1 -gml 
+      to accomplish this. This script assumes you can mount the X10 gsa projects on the
+      master build machine; specifiy the root to gsa with --gsa_root. For example
+         ./masterBuildRelease.sh -version 2.6.1 -tag SF_RELEASE_2_6_1 -gml -gsa_root /Volumes
 
    6. Once the X10 tarballs are available in gsa, you can build X10DT.
       The scripts and supporting property files to drive this process are

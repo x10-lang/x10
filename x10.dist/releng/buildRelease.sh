@@ -67,19 +67,13 @@ case "$UNAME" in
       SKIP_DEBUG_BUILD=1
       ;;
   Linux,*86_64*,*) 
-      SHORT_HOSTNAME=`hostname -s`
-      if [[ "$SHORT_HOSTNAME" == "triloka1" ]]; then 
-          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
-      fi
       X10_PLATFORM='linux_x86_64'
       ;;
-  Linux,*86*,*) X10_PLATFORM='linux_x86';;
+  Linux,*86*,*)
+      X10_PLATFORM='linux_x86'
+      ;;
   Linux,ppc64*,*) X10_PLATFORM='linux_ppc64'
       SHORT_HOSTNAME=`hostname -s`
-      if [[ "$SHORT_HOSTNAME" == "loginf1c3" || "$SHORT_HOSTNAME" == "loginf1c9" ]]; then 
-          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true -DX10RT_PAMI_IS_DEFAULT=true"
-          export USE_XLC=1
-      fi
       ;;
   Darwin,*,i*86) 
       X10_PLATFORM='macosx_x86'
