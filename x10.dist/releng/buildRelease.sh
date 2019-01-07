@@ -75,10 +75,8 @@ case "$UNAME" in
   Linux,ppc64*,*) X10_PLATFORM='linux_ppc64'
       SHORT_HOSTNAME=`hostname -s`
       ;;
-  Darwin,*,i*86) 
-      X10_PLATFORM='macosx_x86'
-      export USE_32BIT=true
-      export USE_64BIT=true
+  Darwin,*86_64*,*)
+      X10_PLATFORM='macosx_x86_64'
       SKIP_DEBUG_BUILD=1
       ;;
     
