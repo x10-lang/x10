@@ -29,7 +29,7 @@ import x10.io.CustomSerialization;
 import x10.io.Deserializer;
 import x10.io.Serializer;
 
-abstract class FinishState {
+public abstract class FinishState {
 
     // Turn this on to debug deadlocks within the finish implementation
     static VERBOSE = Configuration.envOrElse("X10_FINISH_VERBOSE", false);
@@ -41,7 +41,7 @@ abstract class FinishState {
      * Scheduling note: Will only be called on a full-fledged worker thread;
      *                  this method is allowed to block/pause.
      */
-    abstract def notifySubActivitySpawn(dstPlace:Place):void;
+    public abstract def notifySubActivitySpawn(dstPlace:Place):void;
 
     /**
      * Called by an activity running at the current Place when it

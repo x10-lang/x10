@@ -13,7 +13,7 @@ package x10.xrx;
 
 import x10.util.concurrent.Lock;
 
-final class Workers {
+public final class Workers {
     var epoch:Long = 42;
 
     val lock = new Lock(); // master lock for all thread pool adjustments
@@ -21,7 +21,7 @@ final class Workers {
     val inboundTasks = new Deque();
 
     // every x10 thread (including promoted native threads)
-    val workers = new Rail[Worker](Runtime.MAX_THREADS);
+    public val workers = new Rail[Worker](Runtime.MAX_THREADS);
 
     // parked x10 threads (parkedCount == spareCount + idleCount)
     val parkedWorkers = new Rail[Worker](Runtime.MAX_THREADS);

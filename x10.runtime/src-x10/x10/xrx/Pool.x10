@@ -14,14 +14,14 @@ package x10.xrx;
 import x10.util.concurrent.Latch;
 import x10.util.Random;
 
-class Pool {
+public class Pool {
     val latch = new Latch();
     val watcher = new Runtime.Watcher();
     var cancelWatcher:Runtime.Watcher = null;
 
     var wsEnd:Boolean = false;
 
-    val workers = new Workers();
+    public val workers = new Workers();
 
     var wsBlockedContinuations:Deque = null;
 

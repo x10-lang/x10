@@ -554,13 +554,13 @@ final class FinishResilientPlace0 extends FinishResilient implements CustomSeria
         (grlc as GlobalRef[AtomicInteger]{self.home==here}).forget();
     }
 
-    def notifySubActivitySpawn(place:Place):void {
+    public def notifySubActivitySpawn(place:Place):void {
         notifySubActivitySpawn(place, ASYNC);
     }
     def notifyShiftedActivitySpawn(place:Place):void {
         notifySubActivitySpawn(place, AT);
     }
-    def notifySubActivitySpawn(place:Place, kind:Int):void {
+    public def notifySubActivitySpawn(place:Place, kind:Int):void {
         val srcId = here.id;
         val dstId = place.id;
         val myId = this.id;

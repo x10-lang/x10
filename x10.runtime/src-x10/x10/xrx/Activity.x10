@@ -67,6 +67,11 @@ public class Activity {
         this.finishState = finishState;
     }
 
+    // FUTURES
+    public def this(body:()=>void, srcPlace:Place, finishState:FinishState) {
+        this(0, body, finishState);
+    }
+
     /**
      * Create clocked activity.
      */
@@ -89,6 +94,11 @@ public class Activity {
      * Return the innermost finish state that governs my spawned asyncs
      */
     public def finishState():FinishState = finishState;
+
+    // FUTURES
+    public def setFinish(f:FinishState) {
+      this.finishState = finishState;
+    }
 
     /**
      * Return the finish state that should be used internally for at 
@@ -124,7 +134,7 @@ public class Activity {
         atomicDepth--;
     }
 
-    def ensureNotInAtomic() {
+    public def ensureNotInAtomic() {
         if (atomicDepth > 0)
             throw new IllegalOperationException();
     }

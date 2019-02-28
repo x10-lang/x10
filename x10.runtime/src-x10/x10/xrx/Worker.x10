@@ -37,6 +37,46 @@ public final class Worker extends Thread implements Unserializable {
     //Used for 1:1 mapping between WorkStealing Worker and X10 Worker (Temp Soltuion)
     val wsfifo = new Deque();
 
+
+    // -------------------------------------------------------------
+    // Scheduling phases
+
+    static class Node[T] {
+        var element: T;
+        var next: Node[T];
+
+        def this(element: T, next: Node[T]) {
+            this.element = element;
+            this.next = next;
+        }
+    }
+
+    var head: Node[Activity] = null;
+    var count: Int = 0n;
+
+    public def addToNextPhase(act: Activity) {
+        val node = new Node[Activity](act, head);
+        head = node;
+        count = count + 1n;
+    }
+
+    public def nextPhaseCount(): Int {
+        return count;
+    }
+
+    // Todo:
+    // Each thread does his own pushing
+    // Batching at push or pull
+    public def nextPhase() {
+        var node: Node[Activity] = head;
+        while (node != null) {
+            push(node.element);
+            node = node.next;
+        }
+        head = null;
+        count = 0n;
+    }
+
     def this(workerId:Int) {
         super("X10 worker thread-" + workerId);
         promoted = false;

@@ -290,7 +290,7 @@ public final class Runtime {
 
     static staticMonitor = new Monitor();
     public static atomicMonitor = new Monitor();
-    static pool = new Pool();
+    public static pool = new Pool();
     static finishStates = new FinishState.FinishStates();
 
     // Work-stealing runtime
@@ -1479,6 +1479,21 @@ public final class Runtime {
         if (activity.finishState().notifyActivityCreation(here, activity)) {
             if (!pool.deal(activity)) { 
                 worker().push(activity);
+            }
+        }
+    }
+
+    // FUTURES
+    public static def executeLocal(activity:Activity):void {
+        submitLocalActivity(activity);
+    }
+
+    // FUTURES
+    public static def executeLocalInWorker(activity:Activity, worker: Worker):void {
+        if (activity.epoch < epoch()) throw new CancellationException("Cancelled");
+        if (activity.finishState().notifyActivityCreation(here, activity)) {
+            if (!pool.deal(activity)) {
+                worker.push(activity);
             }
         }
     }
