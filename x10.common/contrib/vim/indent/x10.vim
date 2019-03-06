@@ -15,7 +15,7 @@ let b:did_indent = 1
 
 setlocal indentexpr=GetX10Indent()
 
-setlocal indentkeys=0{,0},0),!^F,<>>,<CR>
+setlocal indentkeys=0{,0},0),!^F,<>>,o,O
 
 setlocal autoindent sw=2 et
 
