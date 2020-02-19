@@ -38,19 +38,19 @@
         <mkdir dir="${samples}"/>
     </target>
     <target name="hazelcast" depends="init,check-dependencies" unless="hazelcast.present">
-        <get src="http://central.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${hazelcast.jar}"/>
+        <get src="https://repo1.maven.org/maven2/com/hazelcast/hazelcast/${hazelcast.version}/hazelcast-${hazelcast.version}.jar" dest="${hazelcast.jar}"/>
     </target>
     <target name="kryo" depends="init,check-dependencies" unless="kryo.present">
-        <get src="http://central.maven.org/maven2/com/esotericsoftware/kryo/${kryo.version}/kryo-${kryo.version}.jar" dest="${kryo.jar}"/>
+        <get src="https://repo1.maven.org/maven2/com/esotericsoftware/kryo/${kryo.version}/kryo-${kryo.version}.jar" dest="${kryo.jar}"/>
     </target>
     <target name="minlog" depends="init,check-dependencies" unless="minlog.present">
-        <get src="http://central.maven.org/maven2/com/esotericsoftware/minlog/${minlog.version}/minlog-${minlog.version}.jar" dest="${minlog.jar}"/>
+        <get src="https://repo1.maven.org/maven2/com/esotericsoftware/minlog/${minlog.version}/minlog-${minlog.version}.jar" dest="${minlog.jar}"/>
     </target>
     <target name="reflectasm" depends="init,check-dependencies" unless="reflectasm.present">
-        <get src="http://central.maven.org/maven2/com/esotericsoftware/reflectasm/${reflectasm.version}/reflectasm-${reflectasm.version}-shaded.jar" dest="${reflectasm.jar}"/>
+        <get src="https://repo1.maven.org/maven2/com/esotericsoftware/reflectasm/${reflectasm.version}/reflectasm-${reflectasm.version}-shaded.jar" dest="${reflectasm.jar}"/>
     </target>
     <target name="objenesis" depends="init,check-dependencies" unless="objenesis.present">
-        <get src="http://central.maven.org/maven2/org/objenesis/objenesis/${objenesis.version}/objenesis-${objenesis.version}.jar" dest="${objenesis.jar}"/>
+        <get src="https://repo1.maven.org/maven2/org/objenesis/objenesis/${objenesis.version}/objenesis-${objenesis.version}.jar" dest="${objenesis.jar}"/>
     </target>
     <target name="clean">
         <delete dir="${bin}" failonerror="false"/>

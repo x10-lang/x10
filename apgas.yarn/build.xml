@@ -13,13 +13,13 @@
         <mkdir dir="${lib}"/>
     </target>
     <target name="hadoop-common" depends="check-dependencies" unless="hadoop-common.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-common/2.6.0/hadoop-common-2.6.0.jar" dest="${lib}"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-common/2.6.0/hadoop-common-2.6.0.jar" dest="${lib}"/>
     </target>
     <target name="hadoop-yarn-api" depends="check-dependencies" unless="hadoop-yarn-api.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-api/2.6.0/hadoop-yarn-api-2.6.0.jar" dest="${lib}"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-api/2.6.0/hadoop-yarn-api-2.6.0.jar" dest="${lib}"/>
     </target>
     <target name="hadoop-yarn-client" depends="check-dependencies" unless="hadoop-yarn-client.present">
-        <get src="http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-client/2.6.0/hadoop-yarn-client-2.6.0.jar" dest="${lib}"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-yarn-client/2.6.0/hadoop-yarn-client-2.6.0.jar" dest="${lib}"/>
     </target>
     <target name="dependencies" depends="init,hadoop-common,hadoop-yarn-api,hadoop-yarn-client"/>
     <target name="dist-clean">
