@@ -1,5 +1,3 @@
-
-
 import x10.compiler.*;
 import x10.util.Option;
 import x10.util.OptionsParser;
@@ -60,8 +58,20 @@ public final class UTSG {
 	return result;
 
     }
+
+    static def sub(str:String, start:Int, end:Int) = str.substring(start, Math.min(end, str.length()));
+    public static def print(time:Long, count:Long) {
+        Console.OUT.println("Performance: " + count + "/" +
+                sub("" + time/1e9, 0n, 6n) + " = " +
+                sub("" + (count/(time/1e3)), 0n, 6n) + "M nodes/s");
+    }
+
     public static def main(args:Rail[String]) {
-	compute(args);
+       var time:Long = System.nanoTime();
+       val result = compute(args);
+       time = System.nanoTime() - time;
+       Console.OUT.println("Finished.");
+       print(time, result(0));
     }
 
     public static def mainTest(args:Rail[String]):Rail[Long]{
