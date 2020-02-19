@@ -5,8 +5,8 @@ branches:
     - master
 
 script:
-  - wget https://www-us.apache.org/dist/ant/binaries/apache-ant-1.10.5-bin.zip && sudo unzip -q apache-ant-1.10.5-bin.zip -d /usr/local
-  - PATH=/usr/local/apache-ant-1.10.5/bin:$PATH
+  - wget https://www-us.apache.org/dist/ant/binaries/apache-ant-1.10.7-bin.zip && sudo unzip -q apache-ant-1.10.7-bin.zip -d /usr/local
+  - PATH=/usr/local/apache-ant-1.10.7/bin:$PATH
   - cd x10.dist && ant precommit && ./bin/precommit
 
   
