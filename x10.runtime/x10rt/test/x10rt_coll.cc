@@ -145,7 +145,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
                       << " correctness (if no warnings follow then OK)..." << std::endl;
         finished = 0;
         x10rt_bcast(team, role, root, root==role ? sbuf : NULL, dbuf,
-                    el, count, x10rt_one_setter, x10rt_one_setter, &finished);
+                    el, count, x10rt_one_setter, &finished);
         while (!finished) { x10rt_aborting_probe(); }
         for (size_t i=0 ; i<count ; ++i) {
             float oracle = float(root) * i * i + 1;
@@ -161,7 +161,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         taken = -nano_time();
         for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
-            x10rt_bcast(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, x10rt_one_setter, &finished);
+            x10rt_bcast(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();
@@ -318,7 +318,6 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
             std::cout<<team<<": allreduce correctness (if no errors then OK):" << std::endl;
         finished = 0;
         x10rt_allreduce(team, role, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
-        		            x10rt_one_setter,
                             x10rt_one_setter, &finished);
         while (!finished) { x10rt_aborting_probe(); }
         float oracle_base = (x10rt_team_sz(team)*x10rt_team_sz(team) + x10rt_team_sz(team))/2;
@@ -338,7 +337,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         for (int i=0 ; i<long_tests ; ++i) {
             finished = 0;
             x10rt_allreduce(team, role, sbuf, dbuf, X10RT_RED_OP_ADD, X10RT_RED_TYPE_FLT, count,
-                                x10rt_one_setter, x10rt_one_setter, &finished);
+                                x10rt_one_setter, &finished);
             while (!finished) { sched_yield(); x10rt_aborting_probe(); }
         }
         taken += nano_time();

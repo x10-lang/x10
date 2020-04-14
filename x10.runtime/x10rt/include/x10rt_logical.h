@@ -398,10 +398,9 @@ X10RT_C void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_bcast
  * \param arg As in #x10rt_bcast
  */
-X10RT_C bool x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
                               x10rt_place root, const void *sbuf, void *dbuf,
                               size_t el, size_t count,
-                              x10rt_completion_handler *errch,
                               x10rt_completion_handler *ch, void *arg);
 
 /** \see #x10rt_scatter
@@ -433,12 +432,11 @@ X10RT_C void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_scatterv
  * \param arg As in #x10rt_scatterv
  */
-X10RT_C bool x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_lgl_scatterv (x10rt_team team, x10rt_place role,
                                  x10rt_place root, const void *sbuf,
                                  const void *soffsets, const void *scounts,
                                  void *dbuf, size_t dcount,
                                  size_t el,
-                                 x10rt_completion_handler *errch,
                                  x10rt_completion_handler *ch, void *arg);
 
 /** \see #x10rt_gather
@@ -470,11 +468,10 @@ X10RT_C void x10rt_lgl_gather (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_gatherv
  * \param arg As in #x10rt_gatherv
  */
-X10RT_C bool x10rt_lgl_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
+X10RT_C void x10rt_lgl_gatherv (x10rt_team team, x10rt_place role, x10rt_place root,
 		                const void *sbuf, size_t scount, void *dbuf,
 		                const void *doffsets, const void *dcounts,
 		                size_t el,
-		                x10rt_completion_handler *errch,
 		                x10rt_completion_handler *ch, void *arg);
 
 /** \see #x10rt_alltoall
@@ -521,12 +518,11 @@ X10RT_C void x10rt_lgl_reduce (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_allreduce
  * \param arg As in #x10rt_allreduce
  */
-X10RT_C bool x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                                   const void *sbuf, void *dbuf,
                                   x10rt_red_op_type op,
                                   x10rt_red_type dtype,
                                   size_t count,
-                                  x10rt_completion_handler *errch,
                                   x10rt_completion_handler *ch, void *arg);
 
 /** \see #x10rt_agree
@@ -537,9 +533,8 @@ X10RT_C bool x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
  * \param ch As in #x10rt_allreduce
  * \param arg As in #x10rt_allreduce
  */
-X10RT_C bool x10rt_lgl_agree (x10rt_team team, x10rt_place role,
+X10RT_C void x10rt_lgl_agree (x10rt_team team, x10rt_place role,
                              const int *sbuf, int *dbuf,
-                             x10rt_completion_handler *errch,
                              x10rt_completion_handler *ch, void *arg);
 
 #endif

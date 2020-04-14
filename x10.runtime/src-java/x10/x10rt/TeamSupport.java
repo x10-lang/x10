@@ -140,9 +140,8 @@ public class TeamSupport {
         }
     }
         
-    public static boolean nativeBcast(int id, int role, int root, Rail<?> src, int src_off, 
+    public static void nativeBcast(int id, int role, int root, Rail<?> src, int src_off, 
                                    Rail<?> dst, int dst_off, int count) {
-    	boolean success = true;
         if (!X10RT.forceSinglePlace) {
         int typeCode = getTypeCode(src);
         assert getTypeCode(dst) == typeCode : "Incompatible src and dst arrays";
@@ -153,12 +152,11 @@ public class TeamSupport {
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         try {
-        	success =nativeBcastImpl(id, role, root, srcRaw, src_off, dstRaw, dst_off, count, typeCode, fs);
+            nativeBcastImpl(id, role, root, srcRaw, src_off, dstRaw, dst_off, count, typeCode, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeBcast");
         }
         }
-        return success;
     }
 
     public static void nativeAllToAll(int id, int role, Rail<?> src, int src_off, 
@@ -199,9 +197,8 @@ public class TeamSupport {
         }
     }
     
-    public static boolean nativeAllReduce(int id, int role, Rail<?> src, int src_off, 
+    public static void nativeAllReduce(int id, int role, Rail<?> src, int src_off, 
                                        Rail<?> dst, int dst_off, int count, int op) {
-    	boolean success = true;
         if (!X10RT.forceSinglePlace) {
         int typeCode = getTypeCode(src);
         Object srcRaw = typeCode == RED_TYPE_COMPLEX ? copyComplexToNewDouble(src, src_off, count) : src.getBackingArray();
@@ -212,12 +209,11 @@ public class TeamSupport {
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
         try {
-            success = nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
+            nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
         } catch (UnsatisfiedLinkError e) {
             aboutToDie("nativeAllReduce");
         }
         }
-        return success;
     }
 
     public static void nativeIndexOfMax(int id, int role, Rail<?> src,
@@ -296,7 +292,7 @@ public class TeamSupport {
                                                  Object dstRaw, int dst_off,
                                                  int count, int typecode, FinishState fs);
     
-    private static native Boolean nativeBcastImpl(int id, int role, int root, Object srcRaw, int src_off, 
+    private static native void nativeBcastImpl(int id, int role, int root, Object srcRaw, int src_off, 
                                                Object dstRaw, int dst_off,
                                                int count, int typecode, FinishState fs);
     
@@ -308,7 +304,7 @@ public class TeamSupport {
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);
 
-    private static native Boolean nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
+    private static native void nativeAllReduceImpl(int id, int role, Object srcRaw, int src_off, 
                                                    Object dstRaw, int dst_off,
                                                    int count, int op, int typecode, FinishState fs);
     

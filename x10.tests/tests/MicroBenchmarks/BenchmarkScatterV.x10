@@ -30,7 +30,7 @@ public class BenchmarkScatterV extends x10Test {
             val warmupIn = new Rail[Double](NPLACES);
             var warmupOut:Rail[Double] = new Rail[Double](1);
             val warmupCounts = new Rail[Int](NPLACES, 1n);
-            Team.WORLD.scatterv(root,warmupIn, 0, warmupOut, 0, warmupCounts); // warm up comms layer
+            Team.WORLD.scatterv(root, warmupIn, 0, warmupOut, 0, warmupCounts); // warm up comms layer
 
             for (var s:Long= 1; s <= MAX_S; s++) {
                 var src:Rail[Double] = null;
@@ -44,7 +44,7 @@ public class BenchmarkScatterV extends x10Test {
                     src = new Rail[Double](srcSize);
                     var lastPlaceId:Long = 0;
                     var it:Long = SRC_OFFSET;
-                    //initialize the src rail so that each place segment contains its the place id as a value
+                    //initialize the src rail so that each place segment contains its place id as a value
                     while(it<srcSize){
                         for (var j:Long = 0; j < (Math.pow(2,s)*(lastPlaceId+1)) as Long; j++){
                             src(it++) = lastPlaceId;

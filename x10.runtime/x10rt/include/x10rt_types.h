@@ -43,7 +43,7 @@ typedef uint32_t x10rt_team;
 
 /** User callback to signal that non-blocking operations have completed.
  */
-typedef void x10rt_completion_handler (void *arg);
+typedef void x10rt_completion_handler (void *arg, bool throwDPE);
 
 /** User callback to signal that non-blocking team construction operations have completed.
  */
