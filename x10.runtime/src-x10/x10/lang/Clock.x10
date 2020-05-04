@@ -27,10 +27,9 @@ import x10.xrx.Runtime;
  *       2.0 style global object by injecting a root field
  *       that is a GlobalRef(this) and always accessing fields 
  *       as this.root().f instead of this.f.
- * TODO: Port to Dual Class implementation of global objects.
  */
 public final class Clock(name:String) {
-    private val root = GlobalRef[Clock](this);
+    private val root = GlobalRef[LocalClock](new LocalClock());
     public def equals(a:Any) {
         if (a == null || ! (a instanceof Clock)) {
             return false;
@@ -43,40 +42,12 @@ public final class Clock(name:String) {
     public static def make(name:String):Clock {
         if (Runtime.STATIC_THREADS) throw new ClockUseException("Clocks are not compatible with static threads.");
         val clock = new Clock(name);
-        getClockPhases().put(clock, FIRST_PHASE);
+        getClockPhases().put(clock, LocalClock.FIRST_PHASE);
         return clock;
     }
 
-    public static FIRST_PHASE = 1n;
-    // NOTE: all transient fields must always be accessed as this.root().f (and at place this.root.home), 
-    // not this.f
-    private transient var count:Int = 1n;
-    private transient var alive:Int = 1n;
-    private transient var phase:Int = FIRST_PHASE;
-
     private def this(name:String) {
         property(name);
-    }
-
-    // should be accessed through root()
-    @Pinned private def resumeLocal()  {
-        atomic 
-            if (--alive == 0n) {
-                alive = count;
-                ++phase;
-            }
-    }
-    // should be accessed through root()
-    @Pinned private def dropLocal(ph:Int) {
-        atomic {
-            --count;
-            if (-ph != phase) {
-                if (--alive == 0n) {
-                    alive = count;
-                    ++phase;
-                }
-            }
-        }
     }
 
     @Global private def get() = getClockPhases().get(this);
@@ -87,11 +58,7 @@ public final class Clock(name:String) {
         val ph = get();
         at (root) {
             val me = root();
-            atomic {
-                 ++ me.count;
-                 if (-ph != me.phase) 
-                     ++ me.alive;
-            }
+            me.register(ph < 0);
         }   
         return ph;
      }
@@ -101,7 +68,7 @@ public final class Clock(name:String) {
         if (ph < 0) return;
         at (root) {
             val me = root();
-            me.resumeLocal();
+            me.resume();
         }
         put(-ph);
     }
@@ -111,8 +78,8 @@ public final class Clock(name:String) {
         val abs = Math.abs(ph);
         at (root) {
             val me = root();
-            if (ph > 0) me.resumeLocal();
-            when (abs < me.phase);
+            if (ph > 0) me.resume();
+            me.await(abs);
         }
         put(abs + 1n);
     }
@@ -120,14 +87,14 @@ public final class Clock(name:String) {
         val ph = remove();
         at(root) {
             val me = root();
-            me.dropLocal(ph);
+            me.drop(ph < 0);
         }
     }
     @Global def dropInternal() {
         val ph = get();
         at(root) {
             val me = root();
-            me.dropLocal(ph);
+            me.drop(ph < 0);
         }
     }
     public @Global def registered():Boolean = getClockPhases().containsKey(this);
@@ -166,6 +133,45 @@ public final class Clock(name:String) {
     @Native("c++", "::x10::xrx::Runtime::activity()->clockPhases()")
     @Native("java", "x10.xrx.Runtime.activity().clockPhases()")
     private static native def getClockPhases():ClockPhases;
+
+    private static class LocalClock {
+        public static FIRST_PHASE = 1n;
+        // NOTE: all transient fields must always be accessed as this.root().f (and at place this.root.home), 
+        // not this.f
+        private transient var count:Int = 1n;
+        private transient var alive:Int = 1n;
+        private transient var phase:Int = FIRST_PHASE;
+
+        @Pinned public def resume()  {
+            atomic
+                if (--alive == 0n) {
+                    alive = count;
+                    ++phase;
+                }
+        }
+        @Pinned public def drop(resumed:Boolean) {
+            atomic {
+                --count;
+                if (!resumed) {
+                    // a drop serves as a resume
+                    if (--alive == 0n) {
+                        alive = count;
+                        ++phase;
+                    }
+                }
+            }
+        }
+        @Pinned public def register(resumed:Boolean) {
+            atomic {
+        	    ++ count;
+                if (!resumed)
+                    ++ alive;
+        	}
+         }
+        @Pinned public def await(ph:Int) {
+            when (ph < phase);
+        }
+    }
 
     /**
      * Specialization of HashMap to maintain the set of Clocks that
