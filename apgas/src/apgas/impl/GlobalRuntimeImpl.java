@@ -276,6 +276,15 @@ public final class GlobalRuntimeImpl extends GlobalRuntime {
       if (host == null) {
         host = localhost;
       }
+      {
+        // removing port part from IPv4 addresses
+        int lastIndex;
+        if ((lastIndex = host.lastIndexOf(':')) > 0
+                && lastIndex == host.indexOf(':')) {
+          host=host.substring(0, lastIndex);
+        }
+      }
+
       try {
         final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
             .getNetworkInterfaces();
