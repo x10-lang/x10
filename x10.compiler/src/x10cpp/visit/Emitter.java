@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -108,10 +109,24 @@ import x10cpp.X10CPPCompilerOptions;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
 
+//Nobita code
+import  static x10cpp.visit.MessagePassingCodeGenerator.currClass;
+import  static x10cpp.visit.MessagePassingCodeGenerator.currMethod;
+import  static x10cpp.visit.MessagePassingCodeGenerator.iterationCount;
+import  static x10cpp.visit.MessagePassingCodeGenerator.classDetails;
+import x10.optimizations.atOptimzer.VarWithLineNo;
+import x10.optimizations.atOptimzer.ClassInfo;
+
+
+
 public class Emitter {
 
     private final Translator tr;
     private ASTQuery query;
+    //nobita code
+    public static String fieldDec = "";
+    public static boolean field = false;
+    
     public Emitter(Translator tr) {
         this.tr = tr;
         query = new ASTQuery(tr);
@@ -240,7 +255,14 @@ public class Emitter {
 		printType(type,w,null);
 	}	
 	void printType(Type type, CodeWriter w, Context ctx) {
+		if (field) { 
+			String str = translateType(type, true, true, ctx);
+			fieldDec = str;
+			w.write(str);
+		}
+		else {
 		w.write(translateType(type, true, true, ctx));
+		}
 	}
 
 	/**
@@ -915,7 +937,21 @@ public class Emitter {
 			h.write("volatile ");
 		}
 		
+		//Nobita code
+		if (iterationCount == 0) { field = true; fieldDec = "";}
 		printType(n.type().type(), h);
+		if (field) {
+			field = false;
+			VarWithLineNo temp1 = currClass.peek();
+			
+			ClassInfo fieldDetails = new ClassInfo("field", n.type().nameString(), n.name().toString());
+			fieldDetails.x10Type = fieldDec;
+			
+			LinkedList<ClassInfo> fi = classDetails.get(temp1.name);
+			fi.add(fieldDetails);
+			fieldDec = "";
+		}
+		
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
 		    X10ClassType declClass = (X10ClassType)n.fieldDef().asInstance().container().toClass();
