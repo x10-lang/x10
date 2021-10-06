@@ -98,7 +98,16 @@ import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.SharedLibProperties;
 import x10cpp.types.X10CPPContext_c;
 
+/* Nobita code */
+import static x10cpp.visit.MessagePassingCodeGenerator.nextIteration_cpp;
+/* Nobita code */
+
 public class X10CPPTranslator extends Translator {
+	
+    /* Nobita code */
+    public static int chance = 0; 
+    public static String pathFile = "";
+    /* Nobita code */
 	
 	public X10CPPTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
 		super(job, ts, nf, tf);
@@ -346,6 +355,15 @@ public class X10CPPTranslator extends Translator {
 	 * @see polyglot.visit.Translator#translateSource(polyglot.ast.SourceFile)
 	 */
 	protected boolean translateSource(SourceFile sfn) {
+		
+    	/*Nobita code */
+    	boolean first = false;
+    	if (pathFile.equalsIgnoreCase("")) {
+    		first = true;
+    		pathFile = sfn.toString();
+    	}
+    	/*Nobita code */
+		
 
 		int outputWidth = job.compiler().outputWidth();
 
@@ -463,6 +481,18 @@ public class X10CPPTranslator extends Translator {
                 fstreams.commitStreams();
 			}			    
 
+			
+            /* Nobita code */
+            if (nextIteration_cpp && pathFile.equalsIgnoreCase(sfn.toString())) {
+            	translateSource(sfn);
+        	}
+            
+            if((chance <= 4) && pathFile.equalsIgnoreCase(sfn.toString())) {
+        		chance++;
+        		translateSource(sfn);
+        	}
+            /* Nobita code */
+			
 			return true;
 		}
 		catch (IOException e) {
@@ -559,7 +589,13 @@ public class X10CPPTranslator extends Translator {
 				            compiler.outputWidth());
 				    List<MethodDef> mainMethods = new ArrayList<MethodDef>();
 				    for (Job job : ext.scheduler().commandLineJobs()) {
-				        mainMethods.addAll(getMainMethods(job));
+				    	List<MethodDef> mainMethods_temp = new ArrayList<MethodDef>();
+				    	/* nobita's modified code */
+			            mainMethods_temp.addAll(getMainMethods(job));
+			            if (mainMethods_temp.size() > 0) {
+			            	mainMethods.add(mainMethods_temp.get(0));
+			            }
+			            /* nobita's modified code */
 				    }
 				    if (mainMethods.size() < 1) {
 				        // If there are no main() methods in the command-line jobs, try other files

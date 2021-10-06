@@ -21,6 +21,7 @@ import static x10cpp.visit.Emitter.mangled_non_method_name;
 import static x10cpp.visit.Emitter.translateFQN;
 import static x10cpp.visit.Emitter.translate_mangled_FQN;
 import static x10cpp.visit.Emitter.voidTemplateInstantiation;
+import static x10cpp.visit.MessagePassingCodeGenerator.classDetails;
 import static x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
@@ -55,9 +56,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
+import java.util.Stack;
 
 import polyglot.ast.Allocation_c;
 import polyglot.ast.AmbReceiver;
@@ -243,6 +246,15 @@ import x10cpp.X10CPPJobExt;
 import x10cpp.debug.LineNumberMap;
 import x10cpp.types.X10CPPContext_c;
 
+/* Nobita's Addition */
+import x10.optimizations.atOptimzer.VarWithLineNo;
+import x10.optimizations.atOptimzer.ClassInfo;
+import x10.optimizations.atOptimzer.EdgeRep;
+import x10.optimizations.atOptimzer.ObjNode;
+import x10.optimizations.atOptimzer.ForClosureObjectcpp;
+
+/* Nobita's Addition */
+
 /**
  * Primary visitor for the C++ codegenerator.
  */
@@ -254,6 +266,48 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	protected Emitter emitter;
 	protected ASTQuery query;
 	protected Reporter reporter;
+	
+    /* Nobita code */
+	
+	//the required static fields
+	public static int lineNo = 0;
+	public static int zzCounter = 0;
+	//to store the last points-to graph
+	public static Stack<HashMap<String, LinkedList<EdgeRep>>> lastGraphInfo = new Stack<HashMap<String, LinkedList<EdgeRep>>>();
+	
+	//the class details (fields and methods)
+	public static HashMap<String, LinkedList<ClassInfo>> classDetails = new HashMap<String, LinkedList<ClassInfo>>();
+	
+	// to continue for next iteration
+    public static boolean nextIteration_cpp = false;
+    public static String firstClass = "";
+    public static int iterationCount = -1;
+    
+    //stack data structure to help maintaining the class, methods and places
+	public static Stack<VarWithLineNo> currClass = new Stack<VarWithLineNo>();
+	public static Stack<VarWithLineNo> currMethod = new Stack<VarWithLineNo>();
+	public static Stack<VarWithLineNo> currPlace = new Stack<VarWithLineNo>();
+	
+	//the graph data structure
+	public static HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>>> graphInfo = 
+			new HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>>>();
+	
+	//the set data structure
+	public  static HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>>> setInfo = new 
+			HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>>>();
+	
+	//the object data structure
+	public static HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, ObjNode>>>> objInfo = new 
+			HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, ObjNode>>>>();
+	
+	//the condition
+	public static boolean theCond = false;
+	
+	//the code generator assistant
+	public static  HashMap<String, LinkedList<ForClosureObjectcpp>> theAssistant =  new HashMap<String, LinkedList<ForClosureObjectcpp>>();
+	
+    
+    /* Nobita code */
 	
 	public MessagePassingCodeGenerator(StreamWrapper sw, Translator tr) {
 		this.sw = sw;
@@ -330,7 +384,75 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	public void visit(X10ClassDecl_c n) {
+		/* Nobita code */
+		if(firstClass.equalsIgnoreCase("")) {
+			firstClass = n.name().toString();
+			nextIteration_cpp = true;
+		}
+		else {
+			if(firstClass.equalsIgnoreCase(n.name().toString()) && currClass.size() == 0) {
+				lineNo = 0; zzCounter = 0;theAssistant =  new HashMap<String, LinkedList<ForClosureObjectcpp>>();
+				
+				nextIteration_cpp = false;
+				iterationCount++;
+				
+				//System.out.println("Printing the iteration: " + iterationCount);
+				//System.out.println("-------------------------------end of one iteration-----------------------------");
+				//System.out.println("-------------------------------end of one iteration-----------------------------");
+				
+			}
+		}
+		
+		//System.out.println("Printing the class name: " + n.name().toString());
+		
+		lineNo++;
+		
+		//updating the class stack with current class
+		VarWithLineNo temp = new VarWithLineNo(n.name().toString(), lineNo);
+    	currClass.push(temp);
+    	
+    	//updating the class details
+    	if (!classDetails.containsKey(n.name().toString())) {
+    		classDetails.put(n.name().toString(), new LinkedList<ClassInfo>());
+    	}
+    	
+    	//the graph
+    	if (!graphInfo.containsKey(lineNo)) {
+			graphInfo.put(lineNo, new HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>>());
+		}
+    	
+    	//the object
+    	if (!objInfo.containsKey(lineNo)) {
+    		objInfo.put(lineNo, new HashMap<Integer, HashMap<Integer, HashMap<String, ObjNode>>>());
+    	}
+    	
+    	//the set
+    	if (!setInfo.containsKey(lineNo)) {
+			setInfo.put(lineNo, new HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>>());
+		}
+    	//<need to add the place tree details>>//
+    	
+		/* Nobita code */
+		
 		processClass(n);
+		
+		/* Nobita code */
+		//the printer
+		/*
+		if (iterationCount == 0) {
+			System.out.println("The class details: " + n.name().toString());
+			LinkedList<ClassInfo> fi = classDetails.get(n.name().toString());
+			
+			if (fi != null) {
+				for (ClassInfo ci:fi) {
+					System.out.println("The classifier:" + ci.classifier + " Name:" + ci.name + " Type:" + ci.type + " X10TYPE:" + ci.x10Type);
+				}
+			}
+		}
+		*/
+		
+		currClass.pop();
+		/* Nobita code */
 	}
 
 	/**
@@ -1440,6 +1562,183 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public static final QName HEADER_ANNOTATION = QName.make("x10.compiler.Header");
 
 	public void visit(X10MethodDecl_c dec) {
+		/* Nobita code */
+		
+		lineNo++;
+		//System.out.println("The name of the method: " + dec.name().toString() + ":" + lineNo);
+		if (currClass.size() > 0) {
+			
+			//the class details
+			VarWithLineNo temp = currClass.peek();
+			
+			//the current method details
+			VarWithLineNo temp1 = new VarWithLineNo(dec.name().toString(), lineNo);
+			currMethod.push(temp1);
+			
+			//adding the method details to the class info
+			if (iterationCount == 0) {
+				ClassInfo fieldDetails = new ClassInfo("method", dec.returnType().toString(), dec.name().toString());
+				fieldDetails.classNo = temp.lineNo;
+				fieldDetails.methodNo = lineNo;
+				LinkedList<ClassInfo> fi = classDetails.get(temp.name);
+				fi.add(fieldDetails);
+			}
+			
+			//adding the place details
+			VarWithLineNo temp2 = new VarWithLineNo(Integer.toString(lineNo), lineNo);
+			currPlace.push(temp2);
+			
+			//the sets initialization
+			HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp.lineNo);
+			
+			if (setMethodInfo != null && iterationCount < 4) {
+				setMethodInfo.put(lineNo, new HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>());
+				
+				HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo = setMethodInfo.get(lineNo);
+				
+	        	if(!placeInfo.containsKey(lineNo)) {
+	        		placeInfo.put(lineNo, new HashMap<String, HashMap<String, HashSet<String>>>());
+	    	    }
+	        	
+	        	HashMap<String, HashMap<String, HashSet<String>>> setDetails = placeInfo.get(lineNo);
+	        	
+	        	if (!setDetails.containsKey("RS")) {
+	        		setDetails.put("RS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("CRS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("WS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("MWS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("CWS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("OS", new HashMap<String, HashSet<String>>());
+	        		setDetails.put("OVS", new HashMap<String, HashSet<String>>());
+	    	   }
+			}
+			
+			//the objects
+			HashMap<Integer, HashMap<Integer, HashMap<String, ObjNode>>> methodInfo2 = objInfo.get(temp.lineNo);
+			if (iterationCount < 4) {
+				
+				//the method part creation
+				methodInfo2.put(lineNo, new HashMap<Integer, HashMap<String, ObjNode>>());
+				
+				//the place part creation
+				HashMap<Integer, HashMap<String, ObjNode>> placeInfo2 = methodInfo2.get(lineNo);
+        		placeInfo2.put(lineNo, new HashMap<String, ObjNode>());
+        		
+        		//creating and inserting the this and null object
+        		//creation
+        		ObjNode nullObj = new ObjNode("Obj-null", "null");
+        		ObjNode thisObj = new ObjNode("obj-this", temp.name);
+        		
+        		//insertion
+        		HashMap<String, ObjNode> objDetails = placeInfo2.get(lineNo);
+        		objDetails.put("Obj-null", nullObj);
+        		objDetails.put("obj-this", thisObj);
+        		
+        		//the sets for the this object
+        		HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp.lineNo);
+        		if (setMethodInfo1 != null) {
+        			HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(lineNo);
+        			if (placeInfoSet != null) {
+        				HashMap<String, HashMap<String, HashSet<String>>> setDetails = placeInfoSet.get(lineNo);
+        				if (setDetails != null) {
+        					HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+        					if (!readSet.containsKey("obj-this")) {
+        						readSet.put("obj-this", new HashSet<String>());
+        						//update modifier boolean
+        					}
+                    		HashMap<String, HashSet<String>> cumReadSet = setDetails.get("CRS");
+                    		if (!cumReadSet.containsKey("obj-this")) {
+                    			cumReadSet.put("obj-this", new HashSet<String>());
+                    			//update modifier boolean
+                    		}
+                    		HashMap<String, HashSet<String>> writeSet = setDetails.get("WS");
+                    		if (!writeSet.containsKey("obj-this")) {
+                    			writeSet.put("obj-this", new HashSet<String>());
+                    			//update modifier boolean
+                    		}
+                    		HashMap<String, HashSet<String>> mWriteSet = setDetails.get("MWS");
+                    		if (!mWriteSet.containsKey("obj-this")) {
+                    			mWriteSet.put("obj-this", new HashSet<String>());
+                    			//update modifier boolean
+                    		}
+                    		HashMap<String, HashSet<String>> cumWriteSet = setDetails.get("CWS");
+                    		if (!cumWriteSet.containsKey("obj-this")) {
+                    			cumWriteSet.put("obj-this", new HashSet<String>());
+                    			//update modifier boolean
+                    		}
+                    		
+                    		HashMap<String, HashSet<String>> objectVarSet = setDetails.get("OVS");
+                    		if (!objectVarSet.containsKey("global-ovs")) {
+                    			objectVarSet.put("global-ovs", new HashSet<String>());
+                    			//update modifier boolean
+                    		}
+                    		//you should update the OVS for the analysis of weak updates:TODO: Done
+        				}
+        			}
+        		}
+				
+			}
+			
+			//the graph
+			HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo1 = graphInfo.get(temp.lineNo);
+			if (methodInfo1 != null) {
+				
+				//creating the object for method
+				methodInfo1.put(lineNo, new HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>());
+				
+				//creating the object for the place
+				HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo1.get(lineNo);
+				placeInfo.put(lineNo, new HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>());
+				
+				//creating the object for the line
+				HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(lineNo);
+    			lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+    			
+    			//creating points to graph for the this object
+    			HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+    			varInfo.put("this", new LinkedList<EdgeRep>());
+    			
+    			LinkedList<EdgeRep> edgeIncl = varInfo.get("this");
+    			EdgeRep edgeInfo = new EdgeRep("P","obj-this");
+    			edgeIncl.addLast(edgeInfo);
+    			
+    			//the field edges of the this object
+    			LinkedList<ClassInfo> ll = classDetails.get(temp.name);
+    			if (ll != null) {
+    				Iterator it = ll.iterator();
+    				
+    				while (it.hasNext()) {
+            			ClassInfo fd = (ClassInfo)it.next();
+            			if (fd.classifier.equalsIgnoreCase("field")) {
+                    		if((fd != null) && !((fd.type.equalsIgnoreCase("Long")) || (fd.type.equalsIgnoreCase("Float")) || (fd.type.equalsIgnoreCase("String")) || (fd.type.equalsIgnoreCase("FileReader")) || (fd.type.equalsIgnoreCase("Printer")) || (fd.type.equalsIgnoreCase("Random")) || (fd.type.equalsIgnoreCase("FileWriter")) || 
+                            		(fd.type.equalsIgnoreCase("Double")) || (fd.type.equalsIgnoreCase("Char")) || (fd.type.equalsIgnoreCase("PlaceGroup")) || (fd.type.equalsIgnoreCase("File")) || (fd.type.equalsIgnoreCase("FailedDynamicCheckException")) || (fd.type.equalsIgnoreCase("FinishState")) || (fd.type.equalsIgnoreCase("LongRange")) ||
+                            		(fd.type.equalsIgnoreCase("Boolean")) || (fd.type.equalsIgnoreCase("Rail")) || (fd.type.equalsIgnoreCase("Place")) || (fd.type.equalsIgnoreCase("Dist")) || (fd.type.equalsIgnoreCase("ArrayList")) || (fd.type.equalsIgnoreCase("Iterator")) || (fd.type.equalsIgnoreCase("Point")) || (fd.type.equalsIgnoreCase("Int")) ||
+                            		(fd.type.equalsIgnoreCase("Array")) || (fd.type.equalsIgnoreCase("DistArray")) || (fd.type.equalsIgnoreCase("Region")) || (fd.type.equalsIgnoreCase("GlobalRef")))) {
+                    			
+                    			if(!(varInfo.containsKey("obj-this"))) {
+                            		varInfo.put("obj-this", new LinkedList<EdgeRep>());
+                            		//update modifier boolean
+                            	}
+                    			
+                    			LinkedList<EdgeRep> edgeInclField = varInfo.get("obj-this");
+                    			if (edgeInclField != null) {
+                    				EdgeRep edgeInfo1 = new EdgeRep("F","Obj-null",fd.name);
+                    				edgeInclField.addLast(edgeInfo1);
+                    			}
+                    		}
+            			}
+            		}
+    			}
+			}
+			
+			//inserting into the last graph
+			HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo1.get(lineNo);
+			HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(lineNo);
+	    	HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+	    	lastGraphInfo.push(deepCopy(varInfo));
+		}
+		/* Nobita code */
+		
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		TypeSystem xts =  tr.typeSystem();
 		Flags flags = dec.flags().flags();
@@ -1571,6 +1870,56 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    context.genericFunctions.writeln("#endif // "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid);
 		}
 		context.closures = saved_closure_stream;
+		
+		
+		
+		/* Nobita code */
+		//the pirnter
+		/*
+		if ((currClass.size() > 0) && (currMethod.size() > 0)) {
+			VarWithLineNo temp1 = currClass.peek();
+	    	VarWithLineNo temp2 = currMethod.peek();
+	    	VarWithLineNo temp3 = currPlace.peek();
+	    	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+	    	if (setMethodInfo != null) {
+	    		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo = setMethodInfo.get(temp2.lineNo);
+	    		if (placeInfo != null) {
+	    			HashMap<String, HashMap<String, HashSet<String>>> setDetails = placeInfo.get(temp3.lineNo);
+	    			if (setDetails != null) {
+	    				
+	    				System.out.println("THE READ SET");
+	    				HashMap<String, HashSet<String>> rs = setDetails.get("RS");
+	    				if (rs != null) {
+	    					HashSet<String> rsSet = rs.get("obj-this");
+	    					if (rsSet != null) {
+	    						for (String str:rsSet) {
+		    						System.out.println(str);
+		    					}
+	    					}
+	    				}
+	    				
+	    				System.out.println("THE CUMULATIVE READ SET");
+	    				HashMap<String, HashSet<String>> crs = setDetails.get("CRS");
+	    				if (rs != null) {
+	    					HashSet<String> crsSet = crs.get("obj-this");
+	    					if(crsSet != null) {
+	    						for (String str:crsSet) {
+		    						System.out.println(str);
+		    					}
+	    					}
+	    				}
+	    				
+	    				System.out.println("---------------------------EN DOF ONE FUNCTION CALL-------------------------------------------------");
+	    			}
+	    		}
+	    	}
+		}
+		*/
+		
+		
+		currMethod.pop();
+		currPlace.pop();
+		/* Nobita code */
 	}
 
 
@@ -2114,6 +2463,377 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Assign_c asgn) {
+		
+		/* Nobita code */
+if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4 && (asgn.right() instanceof X10Cast_c || asgn.right() instanceof X10Call_c)) {
+			
+			Expr expr = asgn.right();
+			if (asgn.right() instanceof X10Cast_c) {
+    			X10Cast_c ca = (X10Cast_c)asgn.right();
+    			expr = ca.expr();
+    		}
+			
+			if (expr instanceof X10Call_c) {
+			X10Call_c call = (X10Call_c)expr;
+			
+			VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	
+        	//getting the graph
+        	HashMap<String, LinkedList<EdgeRep>> varInfo = lastGraphInfo.peek();
+        	
+        	HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+        	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        	if (setMethodInfo1 != null) {
+        		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        		if (placeInfoSet != null) {
+        			setDetails = placeInfoSet.get(lineNo + 1);
+        		}
+        	}
+        	
+        	if(varInfo != null && setDetails != null && call.name().toString().equals("evalAt")) {
+        		Iterator it = varInfo.entrySet().iterator();
+        		while (it.hasNext()) {
+        			Map.Entry<String, LinkedList<EdgeRep>> phase3 = (Map.Entry<String, LinkedList<EdgeRep>>)it.next();
+            		LinkedList<EdgeRep> edgeIncl = ((LinkedList<EdgeRep>)phase3.getValue());
+            		
+            		if (edgeIncl != null && edgeIncl.size() == 1) {
+            			String objName = edgeIncl.getFirst().desName;
+            			LinkedList<ClassInfo> ll = classDetails.get(temp1.name);
+            			
+            			if (objName.equalsIgnoreCase("obj-this")) {
+            				theAssistant.put("saved_this", new LinkedList<ForClosureObjectcpp>());
+            				LinkedList<ForClosureObjectcpp> llcl = theAssistant.get("saved_this");
+            				
+            				HashMap<String, HashSet<String>> rs = setDetails.get("RS");
+            				HashMap<String, HashSet<String>> crs = setDetails.get("CRS");
+            				HashSet<String> crsSet = crs.get(objName);
+            				HashSet<String> rsSet = rs.get(objName);
+            				rsSet.addAll(crsSet);
+            				if (rsSet != null) {
+            					for (String str:rsSet) {
+            						
+            						if (ll != null) {
+            			        		for(ClassInfo ci:ll) {
+            			        			if(ci.classifier.equalsIgnoreCase("field") && ci.name.equalsIgnoreCase(str)) {
+            			        				
+            			        				sw.write(ci.x10Type); sw.write(" zztemp"+zzCounter+ " = "); 
+            			        				if (currPlace.size() > 1) {
+            			        					sw.write("saved_this->FMGL("+str+");"); 
+            			        				} else {
+            			        					sw.write("this->FMGL("+str+");");
+            			        				}
+            			        				sw.newline();
+            			        				ForClosureObjectcpp cl1 = new ForClosureObjectcpp();
+            			        				cl1.fldName = str;cl1.zzName = "zztemp"+zzCounter;cl1.type=ci.x10Type;
+            			        				llcl.addLast(cl1);
+            			        				zzCounter++;
+            			        				break;
+            			        			}
+            			        		}
+            			        	}
+            						
+            					}
+            				}
+            			}
+            			else {
+            				//TODO
+            			}
+            		}
+        		}
+        		
+        	}
+		}
+		}
+		
+        if ((currClass.size() > 0) && (currMethod.size() > 0) && asgn.leftType().toType().name().toString() != null) {
+        	VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	VarWithLineNo temp3 = currPlace.peek();
+        	
+        	String varType = asgn.leftType().toType().name().toString();
+        	
+        	if(!((varType.equalsIgnoreCase("Long")) || (varType.equalsIgnoreCase("Float")) || (varType.equalsIgnoreCase("String")) || (varType.equalsIgnoreCase("FileReader")) || (varType.equalsIgnoreCase("Printer")) || (varType.equalsIgnoreCase("Random")) || (varType.equalsIgnoreCase("FileWriter")) || 
+            		(varType.equalsIgnoreCase("Double")) || (varType.equalsIgnoreCase("Char")) || (varType.equalsIgnoreCase("PlaceGroup")) || (varType.equalsIgnoreCase("File")) || (varType.equalsIgnoreCase("FailedDynamicCheckException")) || (varType.equalsIgnoreCase("FinishState")) || (varType.equalsIgnoreCase("LongRange")) ||
+            		(varType.equalsIgnoreCase("Boolean")) || (varType.equalsIgnoreCase("Rail")) || (varType.equalsIgnoreCase("Place")) || (varType.equalsIgnoreCase("Dist")) || (varType.equalsIgnoreCase("ArrayList")) || (varType.equalsIgnoreCase("Iterator")) || (varType.equalsIgnoreCase("Point")) || (varType.equalsIgnoreCase("Int")) ||
+            		(varType.equalsIgnoreCase("Array")) || (varType.equalsIgnoreCase("DistArray")) || (varType.equalsIgnoreCase("Region")) || (varType.equalsIgnoreCase("GlobalRef")))) {
+        		if(asgn.right() instanceof Field_c || asgn.left() instanceof Field_c) {
+        			if (asgn.right() instanceof Field_c && asgn.left() instanceof Field_c) {
+        				//will do it later:TODO
+        			}
+        			else if (asgn.right() instanceof Field_c) {
+        				//TODO
+        			}
+        			else if (asgn.left() instanceof Field_c) {
+        				HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+        				if (methodInfo != null) {
+        					HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+        					if (placeInfo != null) {
+        						HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+        						if (lineInfo != null) {
+        							if (lastGraphInfo.size() > 0) {
+        	        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+        	        					//update modifier boolean
+        	        				} 
+        	        				else {
+        	        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+        		       					//update modifier boolean
+        	        				}
+        							
+        							HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+        							
+        							//the RHS is not field type;
+        							String rhsName = ""; boolean isNull = false;
+        							if (asgn.right() instanceof Local_c) {
+        								Local_c tl = (Local_c)asgn.right();
+        								rhsName = tl.name().toString();
+        							}
+        							else if (asgn.right() instanceof X10Special_c) {
+        								rhsName = "this";
+        							}
+        							
+        							if(asgn.right() instanceof NullLit_c) {
+        								isNull = true;
+        							}
+        							
+        							LinkedList<String> fielder = new LinkedList<String>();
+        							Field_c tf = (Field_c)asgn.left();
+        							fielder.addFirst(tf.fieldInstance().name().toString());
+        							
+        							while (true) {
+            							
+            							if (tf.target() instanceof Field_c) {
+            								tf = (Field_c)tf.target();
+            								fielder.addFirst(tf.fieldInstance().name().toString());
+            							}
+            							else if (tf.target() instanceof Local_c) {
+            								Local_c tl = (Local_c)tf.target();
+            								fielder.addFirst(tl.name().toString());
+            								break;
+            							}
+            							else if (tf.target() instanceof X10Special_c) {
+            								fielder.addFirst("this");
+            								break;
+            							}
+            							else {
+            								break;
+            							}
+            						}
+        							
+        							String varName = fielder.removeFirst();
+        							
+        							LinkedList<EdgeRep> dest = varInfo.get(varName);
+        							LinkedList<EdgeRep> src = varInfo.get(rhsName);
+        							
+        							//to collect the OVS Set
+            						Stack<String> ovs = new Stack<String>();
+            						if (dest != null) {
+            							if(dest.size() > 1) {
+            								ovs.add(rhsName);
+            							}
+            							
+            							if (fielder.size() > 0) {
+            								String fldName = fielder.removeFirst();
+                							
+                							HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+                							for (EdgeRep er:dest) {
+                								//copying the RHS List 
+                								LinkedList<String> fielderAsst = new LinkedList<String>();
+                								for (String str:fielder) {
+                									fielderAsst.addLast(str);
+                								}
+                								
+                								HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+                								if (setMethodInfo1 != null) {
+                									HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(lineNo);
+                									if (placeInfoSet != null) {
+                										setDetails = placeInfoSet.get(lineNo);
+                									}
+                								}
+                								
+                								//calling the function
+                								//assistlocalfldDec(er.desName, fldName, fielderAsst, src, ovs, varInfo, setDetails);
+                								
+                							}
+            							}
+            						}
+        						}
+        					}
+        				}
+        			}
+        		}
+        	}
+        	else {
+        		if(asgn.right() instanceof Field_c || asgn.left() instanceof Field_c) {
+        			if (asgn.right() instanceof Field_c && asgn.left() instanceof Field_c) {
+        				//will do it later:TODO
+        			}
+        			else if (asgn.right() instanceof Field_c) {
+        				HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+        				if (methodInfo != null) {
+        					HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+        					if (placeInfo != null) {
+        						HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+        						if (lineInfo != null) {
+        							if (lastGraphInfo.size() > 0) {
+        	        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+        	        					//update modifier boolean
+        	        				} 
+        	        				else {
+        	        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+        		       					//update modifier boolean
+        	        				}
+        							
+        							HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+        							
+        							LinkedList<String> fielder = new LinkedList<String>();
+        							Field_c tf = (Field_c)asgn.right();
+        							fielder.addFirst(tf.fieldInstance().name().toString());
+        							
+        							while (true) {
+            							
+            							if (tf.target() instanceof Field_c) {
+            								tf = (Field_c)tf.target();
+            								fielder.addFirst(tf.fieldInstance().name().toString());
+            							}
+            							else if (tf.target() instanceof Local_c) {
+            								Local_c tl = (Local_c)tf.target();
+            								fielder.addFirst(tl.name().toString());
+            								break;
+            							}
+            							else if (tf.target() instanceof X10Special_c) {
+            								fielder.addFirst("this");
+            								break;
+            							}
+            							else {
+            								break;
+            							}
+            						}
+        							
+        							String varName = fielder.removeFirst();
+        							
+        							LinkedList<EdgeRep> dest = varInfo.get(varName);
+        							
+        							if (fielder.size() > 0) {
+        								String fldName = fielder.removeFirst();
+            							HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+            							HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        								if (setMethodInfo1 != null) {
+        									HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        									if (placeInfoSet != null) {
+        										setDetails = placeInfoSet.get(temp3.lineNo);
+        									}
+        								}
+        								
+        								if (setDetails != null) {
+        									HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+        									for (EdgeRep er:dest) {
+        										HashSet<String> rs = readSet.get(er.desName);
+        										if (rs != null) {
+        											rs.add(fldName);
+        										}
+        										//calling the function
+        										//assistlocalfldDec(er.desName, fldName, fielderAsst, src, ovs, varInfo, setDetails);
+            								
+        									}
+        								}
+        							}
+    								
+    								//the back up after the changes in points to graph. NOTE:##! check to stop whether it can be done once alone
+    		        				/*varInfo = lineInfo.get(lineNo);
+    		        				if (varInfo != null) {
+    		        					lastGraphInfo.push(deepCopy(varInfo));
+    		        				}*/
+        						}
+        					}
+        				}
+        			}
+        			else if (asgn.left() instanceof Field_c) {
+        				HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+        				if (methodInfo != null) {
+        					HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+        					if (placeInfo != null) {
+        						HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+        						if (lineInfo != null) {
+        							if (lastGraphInfo.size() > 0) {
+        	        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+        	        					//update modifier boolean
+        	        				} 
+        	        				else {
+        	        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+        		       					//update modifier boolean
+        	        				}
+        							
+        							HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+        							
+        							LinkedList<String> fielder = new LinkedList<String>();
+        							Field_c tf = (Field_c)asgn.left();
+        							fielder.addFirst(tf.fieldInstance().name().toString());
+        							
+        							while (true) {
+            							
+            							if (tf.target() instanceof Field_c) {
+            								tf = (Field_c)tf.target();
+            								fielder.addFirst(tf.fieldInstance().name().toString());
+            							}
+            							else if (tf.target() instanceof Local_c) {
+            								Local_c tl = (Local_c)tf.target();
+            								fielder.addFirst(tl.name().toString());
+            								break;
+            							}
+            							else if (tf.target() instanceof X10Special_c) {
+            								fielder.addFirst("this");
+            								break;
+            							}
+            							else {
+            								//System.out.println("The first value2:" + tf.target().toString());
+            								break;
+            							}
+            						}
+        							
+        							if (fielder.size() > 1) {
+        								String varName = fielder.removeFirst(); //System.out.println("The first value1:" + varName);
+            							
+            							LinkedList<EdgeRep> dest = varInfo.get(varName);
+            							
+            							String fldName = fielder.removeFirst(); //System.out.println("The first value2:" + fldName);
+            							HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+            							HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        								if (setMethodInfo1 != null) {
+        									HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        									if (placeInfoSet != null) {
+        										setDetails = placeInfoSet.get(temp3.lineNo);
+        									}
+        								}
+        								
+        								if (setDetails != null && dest != null) {
+        									HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+        									for (EdgeRep er:dest) {
+        										HashSet<String> rs = readSet.get(er.desName);
+        										if (rs != null) {
+        											rs.add(fldName);
+        										}
+        										//calling the function
+        										//assistlocalfldDec(er.desName, fldName, fielderAsst, src, ovs, varInfo, setDetails);
+            								
+        									}
+        								}
+        								
+        								//the back up after the changes in points to graph. NOTE:##! check to stop whether it can be done once alone
+        		        				/*varInfo = lineInfo.get(lineNo);
+        		        				if (varInfo != null) {
+        		        					lastGraphInfo.push(deepCopy(varInfo));
+        		        				}*/
+        							}
+        						}
+        					}
+        				}
+        			}
+        		}
+        	}
+		}
+        /* Nobita code */
+        
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    boolean unsigned_op = false;
 	    String opString = asgn.operator().toString();
@@ -2216,6 +2936,468 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(LocalDecl_c dec) {
+		
+		/* Nobita code */
+		lineNo++;
+		
+		if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4 && (dec.init() instanceof X10Cast_c || dec.init() instanceof X10Call_c)) {
+			
+			Expr expr = dec.init();
+			if (dec.init() instanceof X10Cast_c) {
+    			X10Cast_c ca = (X10Cast_c)dec.init();
+    			expr = ca.expr();
+    		}
+			
+			if (expr instanceof X10Call_c) {
+			X10Call_c call = (X10Call_c)expr;
+			
+			VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	
+        	//getting the graph
+        	HashMap<String, LinkedList<EdgeRep>> varInfo = lastGraphInfo.peek();
+        	
+        	HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+        	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        	if (setMethodInfo1 != null) {
+        		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        		if (placeInfoSet != null) {
+        			setDetails = placeInfoSet.get(lineNo + 1);
+        		}
+        	}
+        	
+        	if(varInfo != null && setDetails != null && call.name().toString().equals("evalAt")) {
+        		Iterator it = varInfo.entrySet().iterator();
+        		while (it.hasNext()) {
+        			Map.Entry<String, LinkedList<EdgeRep>> phase3 = (Map.Entry<String, LinkedList<EdgeRep>>)it.next();
+            		LinkedList<EdgeRep> edgeIncl = ((LinkedList<EdgeRep>)phase3.getValue());
+            		
+            		if (edgeIncl != null && edgeIncl.size() == 1) {
+            			String objName = edgeIncl.getFirst().desName;
+            			LinkedList<ClassInfo> ll = classDetails.get(temp1.name);
+            			
+            			if (objName.equalsIgnoreCase("obj-this")) {
+            				theAssistant.put("saved_this", new LinkedList<ForClosureObjectcpp>());
+            				LinkedList<ForClosureObjectcpp> llcl = theAssistant.get("saved_this");
+            				
+            				HashMap<String, HashSet<String>> rs = setDetails.get("RS");
+            				HashMap<String, HashSet<String>> crs = setDetails.get("CRS");
+            				HashSet<String> crsSet = crs.get(objName);
+            				HashSet<String> rsSet = rs.get(objName);
+            				rsSet.addAll(crsSet);
+            				if (rsSet != null) {
+            					for (String str:rsSet) {
+            						
+            						if (ll != null) {
+            			        		for(ClassInfo ci:ll) {
+            			        			if(ci.classifier.equalsIgnoreCase("field") && ci.name.equalsIgnoreCase(str)) {
+            			        				
+            			        				sw.write(ci.x10Type); sw.write(" zztemp"+zzCounter+ " = "); 
+            			        				if (currPlace.size() > 1) {
+            			        					sw.write("saved_this->FMGL("+str+");"); 
+            			        				} else {
+            			        					sw.write("this->FMGL("+str+");");
+            			        				}
+            			        				sw.newline();
+            			        				ForClosureObjectcpp cl1 = new ForClosureObjectcpp();
+            			        				cl1.fldName = str;cl1.zzName = "zztemp"+zzCounter;cl1.type=ci.x10Type;
+            			        				llcl.addLast(cl1);
+            			        				zzCounter++;
+            			        				break;
+            			        			}
+            			        		}
+            			        	}
+            						
+            					}
+            				}
+            			}
+            			else {
+            				//TODO
+            			}
+            		}
+        		}
+        		
+        	}
+		}
+		}	
+		
+		//System.out.println("The name of local decl:" + dec.name().toString());
+		//if (dec.init() instanceof Field_c) {Field_c tf = (Field_c)dec.init(); System.out.println("the name:---" + tf.target().toString()); }
+	
+		if ((currClass.size() > 0) && (currMethod.size() > 0) && (dec.type().nameString()) != null && dec.init() != null) {
+			
+			//getting the threes
+			VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	VarWithLineNo temp3 = currPlace.peek();
+        	
+        	String varType = dec.type().nameString();
+        	if((varType != null) && !((varType.equalsIgnoreCase("Long")) || (varType.equalsIgnoreCase("Float")) || (varType.equalsIgnoreCase("String")) || (varType.equalsIgnoreCase("FileReader")) || (varType.equalsIgnoreCase("Printer")) || (varType.equalsIgnoreCase("Random")) || (varType.equalsIgnoreCase("FileWriter")) || 
+            		(varType.equalsIgnoreCase("Double")) || (varType.equalsIgnoreCase("Char")) || (varType.equalsIgnoreCase("PlaceGroup")) || (varType.equalsIgnoreCase("File")) || (varType.equalsIgnoreCase("FailedDynamicCheckException")) || (varType.equalsIgnoreCase("FinishState")) || (varType.equalsIgnoreCase("LongRange")) ||
+            		(varType.equalsIgnoreCase("Boolean")) || (varType.equalsIgnoreCase("Rail")) || (varType.equalsIgnoreCase("Place")) || (varType.equalsIgnoreCase("Dist")) || (varType.equalsIgnoreCase("ArrayList")) || (varType.equalsIgnoreCase("Iterator")) || (varType.equalsIgnoreCase("Point")) || (varType.equalsIgnoreCase("Int")) ||
+            		(varType.equalsIgnoreCase("Array")) || (varType.equalsIgnoreCase("DistArray")) || (varType.equalsIgnoreCase("Region")) || (varType.equalsIgnoreCase("GlobalRef")))) {
+        		HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+        		if (methodInfo != null) {
+        			HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+        			if (placeInfo != null) {
+        				HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+        				if (lineInfo != null) {
+        					if (lastGraphInfo.size() > 0) {
+	        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+	        					//update modifier boolean
+	        				} 
+	        				else {
+	        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+		       					//update modifier boolean
+	        				}
+        					
+        					HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+        					if(!(varInfo.containsKey(dec.name().toString()))) {
+                        		varInfo.put(dec.name().toString(), new LinkedList<EdgeRep>());
+                        	}
+        					
+        					if (dec.init() instanceof New_c) {
+        						String objName = "obj"+lineNo;
+        						
+        						//the object creation
+        						HashMap<Integer, HashMap<Integer, HashMap<String, ObjNode>>> methodInfo2 = objInfo.get(temp1.lineNo);
+        						if (methodInfo2 != null) {
+        							HashMap<Integer, HashMap<String, ObjNode>> placeInfo2 = methodInfo2.get(temp2.lineNo);
+        							if (placeInfo2 != null) {
+        								HashMap<String, ObjNode> objDetail2 = placeInfo2.get(temp3.lineNo);
+        								if (objDetail2 != null) {
+        									if (!objDetail2.containsKey(objName)) {
+        										ObjNode temp = new ObjNode(objName, varType);
+        										objDetail2.put(objName, temp);
+        										//update modifier boolean
+        									}
+        								}
+        							}
+        						}
+        						
+        						//the graph updates
+        						LinkedList<EdgeRep> edgeIncl = varInfo.get(dec.name().toString());
+                            	if (edgeIncl != null) {
+                            		Iterator it = edgeIncl.iterator();
+                            		boolean found = false;
+                            		while (it.hasNext()) {
+                            			EdgeRep er1 = (EdgeRep)it.next();
+                            			
+                            			if(er1.desName.equalsIgnoreCase(objName)) {
+                            				found = true;
+                            				break;
+                            			}
+                            		}
+                            		if (!found) {
+                            			EdgeRep edgeInfo = new EdgeRep("P",objName);
+                            			edgeIncl.addLast(edgeInfo);
+                            			//update modifier boolean
+                            		}
+                            	}
+                            	
+                            	//the sets updates
+                            	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+                            	if (setMethodInfo != null) { 
+                            		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo2 = setMethodInfo.get(temp2.lineNo);
+                            		if (placeInfo2 != null) {
+                            			HashMap<String, HashMap<String, HashSet<String>>> setDetails = placeInfo2.get(temp3.lineNo);
+                            			if (setDetails != null) {
+                            				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+                        					if (readSet != null && !readSet.containsKey(objName)) {
+                        						readSet.put(objName, new HashSet<String>());
+                        						//update modifier boolean
+                        					}
+                                    		HashMap<String, HashSet<String>> cumReadSet = setDetails.get("CRS");
+                                    		if (cumReadSet != null && !cumReadSet.containsKey(objName)) {
+                                    			cumReadSet.put(objName, new HashSet<String>());
+                                    			//update modifier boolean
+                                    		}
+                                    		HashMap<String, HashSet<String>> writeSet = setDetails.get("WS");
+                                    		if (writeSet != null && !writeSet.containsKey(objName)) {
+                                    			writeSet.put(objName, new HashSet<String>());
+                                    			//update modifier boolean
+                                    		}
+                                    		HashMap<String, HashSet<String>> mWriteSet = setDetails.get("MWS");
+                                    		if (mWriteSet != null && !mWriteSet.containsKey(objName)) {
+                                    			mWriteSet.put(objName, new HashSet<String>());
+                                    			//update modifier boolean
+                                    		}
+                                    		HashMap<String, HashSet<String>> cumWriteSet = setDetails.get("CWS");
+                                    		if (cumWriteSet != null && !cumWriteSet.containsKey(objName)) {
+                                    			cumWriteSet.put(objName, new HashSet<String>());
+                                    			//update modifier boolean
+                                    		}
+                                    		HashMap<String, HashSet<String>> objectSet = setDetails.get("OS");
+                                    		if (objectSet != null && !objectSet.containsKey(objName)) {
+                                    			objectSet.put(objName, new HashSet<String>()); 
+                                    			//update modifier boolean
+                                    		}
+                            			}
+                            		}
+                            	}
+        						
+        						//inter-needs to be added
+        					}
+        					else if (dec.init() instanceof Field_c	) {
+        						LinkedList<String> fielder = new LinkedList<String>();
+        						
+        						Field_c tf = (Field_c)dec.init();
+        						
+        						fielder.addFirst(tf.fieldInstance().name().toString());
+        						
+        						while (true) {
+        							
+        							if (tf.target() instanceof Field_c) {
+        								tf = (Field_c)tf.target();
+        								fielder.addFirst(tf.fieldInstance().name().toString());
+        							}
+        							else if (tf.target() instanceof Local_c) {
+        								Local_c tl = (Local_c)tf.target();
+        								fielder.addFirst(tl.name().toString());
+        								break;
+        							}
+        							else if (tf.target() instanceof X10Special_c) {
+        								fielder.addFirst("this");
+        								break;
+        							}
+        							else {
+        								break;
+        							}
+        						}
+        						
+        						String varName = fielder.removeFirst();
+        						
+        						LinkedList<EdgeRep> dest = varInfo.get(dec.name().toString());
+        						LinkedList<EdgeRep> src = varInfo.get(varName);
+        						
+        						//to collect the OVS Set
+        						Stack<String> ovs = new Stack<String>();
+        						
+        						if (src != null && dest != null && fielder.size() > 0) {
+        							
+        							if(src.size() > 1) {
+        								ovs.add(varName);
+        							}
+        							
+        							if (fielder.size() > 0) {
+        								String fldName = fielder.removeFirst();
+            							
+            							HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+            							for (EdgeRep er:src) {
+            								//copying the RHS List 
+            								LinkedList<String> fielderAsst = new LinkedList<String>();
+            								for (String str:fielder) {
+            									fielderAsst.addLast(str);
+            								}
+            								
+            								HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+            								if (setMethodInfo1 != null) {
+            									HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+            									if (placeInfoSet != null) {
+            										setDetails = placeInfoSet.get(temp3.lineNo);
+            									}
+            								}
+            								
+            								//calling the function
+            								assistlocalfldDec(er.desName, fldName, fielderAsst, dest, ovs, varInfo, setDetails);
+            								
+            							}
+        							}
+        							
+        							//add the OVS from the stack<string>
+        							/* HashMap<String, HashSet<String>> ovSet = setDetails.get("OVS");
+        							if (ovSet != null) {
+        								HashSet<String> ovs1 = ovSet.get("global-ovs");
+        								for (String str:ovs) {
+        									ovs1.add(str);
+            							}
+        							} */
+        							
+        						}
+        						
+        						
+        					}
+        					else if (dec.init() instanceof NullLit_c) {
+        						if(!(varInfo.containsKey(dec.name().toString()))) {
+                            		varInfo.put(dec.name().toString(), new LinkedList<EdgeRep>());
+                            		//update modifier boolean
+                            	}
+
+                            	LinkedList<EdgeRep> edgeIncl = varInfo.get(dec.name().toString());
+                            	
+                            	if (edgeIncl != null) {
+                            		Iterator it = edgeIncl.iterator();
+                            		boolean found = false;
+                            		while (it.hasNext()) {
+                            			EdgeRep er = (EdgeRep)it.next();
+                            			
+                            			if (er.desName.equalsIgnoreCase("Obj-null")) {
+                            				found = true;
+                            				break;
+                            			}
+                            		}
+                            		if (!found) {
+                            			EdgeRep edgeInfo = new EdgeRep("P","Obj-null");
+                            			edgeIncl.addLast(edgeInfo);
+                            			//update modifier boolean
+                            		}
+                            	}
+        					}	
+        					else if (dec.init() instanceof Local_c) {
+        						Local_c tempLocal = (Local_c)dec.init();
+        						String rhsVar = tempLocal.name().toString();
+        						LinkedList<EdgeRep> src = varInfo.get(rhsVar);
+    	            			LinkedList<EdgeRep> dest = varInfo.get(dec.name().toString());
+    	            			
+    	            			if (src != null && dest != null) {
+    	            				HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+                                	if (setMethodInfo != null) { 
+                                		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo2 = setMethodInfo.get(temp2.lineNo);
+                                		if (placeInfo2 != null) {
+                                			HashMap<String, HashMap<String, HashSet<String>>> setDetails = placeInfo2.get(temp3.lineNo);
+                                			if (setDetails != null) {
+                                				HashMap<String, HashSet<String>> ovSet = setDetails.get("OVS");
+                								if (ovSet != null) {
+                									HashSet<String> set1 = ovSet.get("global-ovs");
+                									if (set1 != null) {
+                										set1.add(rhsVar);
+                										set1.add(dec.name().toString());
+                									}
+                								}
+                                			}
+                                		}
+                                	}
+                                	
+                                	Iterator it = src.iterator();
+        	            			while (it.hasNext())
+        	                		{
+        	                			EdgeRep er = (EdgeRep)it.next();
+        	                			
+        	                			Iterator it1 = dest.iterator();
+        	                			boolean found = false;
+        	                			while (it1.hasNext()) {
+        	                				EdgeRep er1 = (EdgeRep)it1.next();
+        	                				if (er1.desName.equalsIgnoreCase(er.desName)) {
+        	                					found = true;
+        	                					break;
+        	                				}
+        	                			}
+        	                			
+        	                			if (!found) {
+            	                			EdgeRep edgIncl = new EdgeRep("P",er.desName);
+            	                			dest.addLast(edgIncl);
+            	                			//update modifier boolean
+        	                			}
+        	                		}
+    	            			}
+        					}
+        					
+        					//the back up after the changes in points to graph. NOTE:##! check to stop whether it can be done once alone
+	        				/*varInfo = lineInfo.get(lineNo);
+	        				if (varInfo != null) {
+	        					lastGraphInfo.push(deepCopy(varInfo));
+	        				}*/
+        				}
+        			}
+        		}
+        		
+        	} else {
+        		//the remaining part
+        		if(dec.init() instanceof Field_c) {
+        			LinkedList<String> fielder = new LinkedList<String>();
+        			
+        			Field_c tf = (Field_c)dec.init();
+        			fielder.addFirst(tf.fieldInstance().name().toString());
+        			
+        			while (true) {
+						
+						if (tf.target() instanceof Field_c) {
+							tf = (Field_c)tf.target();
+							fielder.addFirst(tf.fieldInstance().name().toString());
+						}
+						else if (tf.target() instanceof Local_c) {
+							Local_c tl = (Local_c)tf.target();
+							fielder.addFirst(tl.name().toString());
+							break;
+						}
+						else if (tf.target() instanceof X10Special_c) {
+							fielder.addFirst("this");
+							break;
+						}
+						else {
+							break;
+						}
+					}
+        			
+        			String varName = fielder.removeFirst();
+					
+        			
+        			//the graph
+        			//System.out.println("The value of temp3:" + temp3.lineNo);
+        			HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+        			if (methodInfo != null) {
+        				HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+        				if (placeInfo != null) {
+        					HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+        					if (lineInfo != null) {
+        						if (lastGraphInfo.size() > 0) {
+    	        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+    	        					//update modifier boolean
+    	        				} 
+    	        				else {
+    	        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+    		       					//update modifier boolean
+    	        				}
+        						HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+        						
+        						//the sets
+        	        			HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+        	        			HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        						if (setMethodInfo1 != null) {
+        							HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        							if (placeInfoSet != null) {
+        								setDetails = placeInfoSet.get(temp3.lineNo);
+        							}
+        						}
+        						
+        						LinkedList<EdgeRep> src = varInfo.get(varName);
+        						
+        						//to collect the OVS Set
+        						Stack<String> ovs = new Stack<String>();
+        						
+        						if (src != null) {
+        							if(src.size() > 1) {
+        								ovs.add(varName);
+        							}
+        							
+        							if (fielder.size() > 0) {
+        								String fldName = fielder.removeFirst();
+            							
+            							for (EdgeRep er:src) {
+            								//copying the RHS List 
+            								LinkedList<String> fielderAsst = new LinkedList<String>();
+            								for (String str:fielder) {
+            									fielderAsst.addLast(str);
+            								}
+            								
+            								//calling the function
+            								assistlocalfldDec_1(er.desName, fldName, fielderAsst, ovs, varInfo, setDetails);
+            								
+            							}
+        							}
+        						}
+        					}
+        				}
+        			}		
+        		}
+        	}
+        	
+			
+		}
+		
+		
+		/* Nobita code */
+		
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    TypeSystem xts = (TypeSystem)context.typeSystem();
 
@@ -2418,7 +3600,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.allowBreak(0);
 
 		if (n.cond() != null) {
+			theCond = true;
 			n.printBlock(n.cond(), sw, tr);
+			theCond = false;
 		}
 
 		sw.write(";");
@@ -2505,7 +3689,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.allowBreak(0, " ");
 	    sw.write("while (");
 	    sw.begin(0);
+	    theCond = true;
 	    n.printBlock(n.cond(), sw, tr);
+	    theCond = false;
 	    sw.end();
 	    sw.write(");");
 
@@ -2527,7 +3713,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    sw.write("while (");
 	    sw.begin(0);
+	    theCond = true;
 	    n.printBlock(n.cond(), sw, tr);
+	    theCond = false;
 	    sw.end();
 	    sw.write(")");
 	    sw.allowBreak(0, " ");
@@ -2562,7 +3750,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(If_c n) {
 		sw.write("if (");
+		theCond = true;
 		n.printBlock(n.cond(), sw, tr);
+		theCond = false;
 		sw.write(")");
 		sw.allowBreak(0, " ");
 		n.print(n.consequent(), sw, tr);
@@ -2609,6 +3799,193 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10Call_c n) {
+		
+		/* Nobita code */
+		//System.out.println("Start of call");		
+		lineNo++;
+		String funName = n.name().toString();
+		
+		
+		//code generation phase
+		if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4 && (funName.equalsIgnoreCase("runAt")  || funName.equalsIgnoreCase("runAsync"))) {
+			VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	
+        	//getting the graph
+        	HashMap<String, LinkedList<EdgeRep>> varInfo = lastGraphInfo.peek();
+        	
+        	HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+        	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+        	if (setMethodInfo1 != null) {
+        		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+        		if (placeInfoSet != null) {
+        			setDetails = placeInfoSet.get(lineNo);
+        		}
+        	}
+        	
+        	if(varInfo != null && setDetails != null) {
+        		Iterator it = varInfo.entrySet().iterator();
+        		while (it.hasNext()) {
+        			Map.Entry<String, LinkedList<EdgeRep>> phase3 = (Map.Entry<String, LinkedList<EdgeRep>>)it.next();
+            		LinkedList<EdgeRep> edgeIncl = ((LinkedList<EdgeRep>)phase3.getValue());
+            		
+            		if (edgeIncl != null && edgeIncl.size() == 1 && !currMethod.peek().name.equalsIgnoreCase("main")) {
+            			String objName = edgeIncl.getFirst().desName;
+            			LinkedList<ClassInfo> ll = classDetails.get(temp1.name);
+            			
+            			if (objName.equalsIgnoreCase("obj-this")) {
+            				
+            				theAssistant.put("saved_this", new LinkedList<ForClosureObjectcpp>());
+            				LinkedList<ForClosureObjectcpp> llcl = theAssistant.get("saved_this");
+            				
+            				HashMap<String, HashSet<String>> rs = setDetails.get("RS");
+            				HashMap<String, HashSet<String>> crs = setDetails.get("CRS");
+            				HashSet<String> crsSet = crs.get(objName);
+            				HashSet<String> rsSet = rs.get(objName);
+            				rsSet.addAll(crsSet);
+            				if (rsSet != null) {
+            					for (String str:rsSet) {
+            						
+            						if (ll != null) {
+            			        		for(ClassInfo ci:ll) {
+            			        			if(ci.classifier.equalsIgnoreCase("field") && ci.name.equalsIgnoreCase(str)) {
+            			        				
+            			        				sw.write(ci.x10Type); sw.write(" zztemp"+zzCounter+ " = "); 
+            			        				if (currPlace.size() > 1) {
+            			        					sw.write("saved_this->FMGL("+str+");"); 
+            			        				} else {
+            			        					sw.write("this->FMGL("+str+");");
+            			        				}
+            			        				sw.newline();
+            			        				ForClosureObjectcpp cl1 = new ForClosureObjectcpp();
+            			        				cl1.fldName = str;cl1.zzName = "zztemp"+zzCounter;cl1.type=ci.x10Type;
+            			        				llcl.addLast(cl1);
+            			        				zzCounter++;
+            			        				break;
+            			        			}
+            			        		}
+            			        	}
+            						
+            					}
+            				}
+            			}
+            			else {
+            				//TODO
+            			}
+            		}
+        		}
+        		
+        	}
+		}	
+		
+		
+		int parentPlace = 0;
+		if(funName.equalsIgnoreCase("runAt") || funName.equalsIgnoreCase("evalAt") || funName.equalsIgnoreCase("runAsync")) {
+			//the previous place number
+			parentPlace = currPlace.peek().lineNo;
+			VarWithLineNo temp4 = new VarWithLineNo(Integer.toString(lineNo), lineNo);
+			currPlace.push(temp4);
+			
+			if ((currClass.size() > 0) && (currMethod.size() > 0)) {
+				
+				VarWithLineNo temp1 = currClass.peek();
+	        	VarWithLineNo temp2 = currMethod.peek();
+	        	VarWithLineNo temp3 = currPlace.peek();
+				
+				//the sets
+				HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+				if (setMethodInfo != null) {
+					HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo = setMethodInfo.get(temp2.lineNo);
+					if (placeInfo != null) {
+						//copying the object alone from the parent place
+						HashMap<String, HashMap<String, HashSet<String>>> setDetails1 = null;
+						HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+						if (setMethodInfo1 != null) {
+							HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+							if (placeInfoSet != null) {
+								setDetails1 = placeInfoSet.get(parentPlace);
+							}
+						}
+						
+						if (setDetails1 != null) {
+							if(!placeInfo.containsKey(lineNo)) {
+				        		placeInfo.put(lineNo, deepCopySet(setDetails1));
+				    	    }
+						}		
+					}
+				}
+				
+				//the graphs
+				HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+				if (methodInfo != null) {
+					HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+					if (placeInfo != null) {
+						placeInfo.put(temp3.lineNo, new HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>());
+						
+						HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+						
+						lineInfo.put(lineNo, lastGraphInfo.peek());
+					}
+				}
+				
+				//the objects
+				//not required: TODO
+			}
+		}
+		
+		
+		//for the other functions
+		String op = "operator";
+		boolean pass = true;
+		for (int i=0;i<8; i++) {
+			if(op.charAt(i) != funName.charAt(i)) {
+				pass = false;
+				break;
+			}
+		}
+		if((currClass.size() > 0) && (currMethod.size() > 0) && !(funName.equalsIgnoreCase("runAt") || funName.equalsIgnoreCase("evalAt") || funName.equalsIgnoreCase("runAsync") || pass ||
+				funName.equalsIgnoreCase("equals") || funName.equalsIgnoreCase("Places"))) {
+			VarWithLineNo temp1 = currClass.peek();
+        	VarWithLineNo temp2 = currMethod.peek();
+        	VarWithLineNo temp3 = currPlace.peek();
+        	
+        	//to get method number of the copying
+        	//System.out.println("The Name Mr Arun"+temp1.name);
+        	LinkedList<ClassInfo> ll = classDetails.get(temp1.name);
+        	int methodNum = 0;
+        	if (ll != null) {
+        		for(ClassInfo ci:ll) {
+        			if(ci.classifier.equalsIgnoreCase("method") && ci.name.equalsIgnoreCase(funName)) {
+        				methodNum = ci.methodNo;
+        				break;
+        			}
+        		}
+        	}
+        	
+        	HashMap<String, HashSet<String>> desRS = null;
+        	HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+        	HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+        	if (setMethodInfo != null) {
+        		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo = setMethodInfo.get(temp2.lineNo);
+        		if (placeInfo != null) {
+        			HashMap<String, HashMap<String, HashSet<String>>> setDetails1 = placeInfo.get(temp3.lineNo);
+        			if(setDetails1 != null) {
+        				desRS = setDetails1.get("RS");
+        			}
+        		}
+        		
+        		HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo1 = setMethodInfo.get(methodNum);
+        		if (placeInfo1 != null) {
+        			setDetails = placeInfo1.get(methodNum);
+        		}
+        	}
+        	
+        	if (desRS != null && setDetails != null) {
+        		mergeForPlaces(setDetails,desRS);
+        	}
+		}
+		/* Nobita code */
+		
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		TypeSystem xts =  tr.typeSystem();
@@ -2807,6 +4184,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (needsCast) {
 			sw.write(")");
 		}
+		
+		
+		/* Nobita code */
+		if(funName.equalsIgnoreCase("runAt") || funName.equalsIgnoreCase("evalAt") || funName.equalsIgnoreCase("runAsync")) {
+			if ((currClass.size() > 0) && (currMethod.size() > 0)) {
+				VarWithLineNo temp1 = currClass.peek();
+	        	VarWithLineNo temp2 = currMethod.peek();
+	        	VarWithLineNo temp3 = currPlace.peek();
+	        	
+	        	//the sets
+				HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo = setInfo.get(temp1.lineNo);
+				if (setMethodInfo != null) {
+					HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfo = setMethodInfo.get(temp2.lineNo);
+					if (placeInfo != null) {
+						HashMap<String, HashMap<String, HashSet<String>>> setDetails1 = placeInfo.get(temp3.lineNo);
+						HashMap<String, HashMap<String, HashSet<String>>> setDetails2 = placeInfo.get(parentPlace);
+						
+						if (setDetails1 != null && setDetails2 != null) {
+							//call the function
+							HashMap<String, HashSet<String>> desCRS = setDetails2.get("CRS");
+							mergeForPlaces(setDetails1,desCRS);
+						}
+					}
+				}
+			}
+			currPlace.pop();
+		}
+		/* Nobita code */
+		//System.out.println("End of call");
 	}
 
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
@@ -2854,6 +4260,101 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Field_c n) {
+		/* Nobita code */
+		if(true) {
+			if ((currClass.size() > 0) && (currMethod.size() > 0)) {
+				//getting the threes
+				VarWithLineNo temp1 = currClass.peek();
+	        	VarWithLineNo temp2 = currMethod.peek();
+	        	VarWithLineNo temp3 = currPlace.peek();
+	        	String varType = n.type().name().toString();
+	        	if((varType != null) && !((varType.equalsIgnoreCase("Long")) || (varType.equalsIgnoreCase("Float")) || (varType.equalsIgnoreCase("String")) || (varType.equalsIgnoreCase("FileReader")) || (varType.equalsIgnoreCase("Printer")) || (varType.equalsIgnoreCase("Random")) || (varType.equalsIgnoreCase("FileWriter")) || 
+	            		(varType.equalsIgnoreCase("Double")) || (varType.equalsIgnoreCase("Char")) || (varType.equalsIgnoreCase("PlaceGroup")) || (varType.equalsIgnoreCase("File")) || (varType.equalsIgnoreCase("FailedDynamicCheckException")) || (varType.equalsIgnoreCase("FinishState")) || (varType.equalsIgnoreCase("LongRange")) ||
+	            		(varType.equalsIgnoreCase("Boolean")) || (varType.equalsIgnoreCase("Rail")) || (varType.equalsIgnoreCase("Place")) || (varType.equalsIgnoreCase("Dist")) || (varType.equalsIgnoreCase("ArrayList")) || (varType.equalsIgnoreCase("Iterator")) || (varType.equalsIgnoreCase("Point")) || (varType.equalsIgnoreCase("Int")) ||
+	            		(varType.equalsIgnoreCase("Array")) || (varType.equalsIgnoreCase("DistArray")) || (varType.equalsIgnoreCase("Region")) || (varType.equalsIgnoreCase("GlobalRef")))) {
+	        		//TODO
+	        	}
+	        	else {
+	        		HashMap<Integer, HashMap<Integer, HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>>> methodInfo = graphInfo.get(temp1.lineNo);
+	        		if (methodInfo != null) {
+	        			HashMap<Integer,HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>>> placeInfo = methodInfo.get(temp2.lineNo);
+	        			if (placeInfo != null) {
+	        				HashMap<Integer, HashMap<String, LinkedList<EdgeRep>>> lineInfo = placeInfo.get(temp3.lineNo);
+	        				if (lineInfo != null) {
+	        					if (lastGraphInfo.size() > 0) {
+		        					lineInfo.put(lineNo, lastGraphInfo.peek()); //check for whether back needs to take for second pass also
+		        					//update modifier boolean
+		        				} 
+		        				else {
+		        					lineInfo.put(lineNo, new HashMap<String, LinkedList<EdgeRep>>());
+			       					//update modifier boolean
+		        				}
+	        					
+	        					HashMap<String, LinkedList<EdgeRep>> varInfo = lineInfo.get(lineNo);
+	        					
+	        					LinkedList<String> fielder = new LinkedList<String>();
+	        					
+	        					Field_c tf = (Field_c)n;
+	        					
+	        					fielder.addFirst(tf.fieldInstance().name().toString());
+	        					
+	        					while (true) {
+        							
+        							if (tf.target() instanceof Field_c) {
+        								tf = (Field_c)tf.target();
+        								fielder.addFirst(tf.fieldInstance().name().toString());
+        							}
+        							else if (tf.target() instanceof Local_c) {
+        								Local_c tl = (Local_c)tf.target();
+        								fielder.addFirst(tl.name().toString());
+        								break;
+        							}
+        							else if (tf.target() instanceof X10Special_c) {
+        								fielder.addFirst("this");
+        								break;
+        							}
+        							else {
+        								break;
+        							}
+        						}
+	        					
+	        					if (fielder.size() > 1) {
+	        						String varName = fielder.removeFirst(); 
+	        						
+	        						LinkedList<EdgeRep> dest = varInfo.get(varName);
+	        						String fldName = fielder.removeFirst();
+	        						
+	        						HashMap<String, HashMap<String, HashSet<String>>> setDetails = null;
+	    							HashMap<Integer, HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>>> setMethodInfo1 = setInfo.get(temp1.lineNo);
+									if (setMethodInfo1 != null) {
+										HashMap<Integer, HashMap<String, HashMap<String, HashSet<String>>>> placeInfoSet = setMethodInfo1.get(temp2.lineNo);
+										if (placeInfoSet != null) {
+											setDetails = placeInfoSet.get(temp3.lineNo);
+										}
+									}
+									
+									if (setDetails != null && dest != null) {
+										HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+										for (EdgeRep er:dest) {
+											HashSet<String> rs = readSet.get(er.desName);
+											if (rs != null) {
+												rs.add(fldName);
+											}
+											//calling the function
+											//assistlocalfldDec(er.desName, fldName, fielderAsst, src, ovs, varInfo, setDetails);
+	    								
+										}
+									}
+	        						
+	        					}
+	        					
+	        				}
+	        			}
+	        		}
+	        	}
+			}
+		}
+		/* Nobita code */
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Receiver target = n.target();
 		Type t = target.type();
@@ -3422,6 +4923,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
     
     public void visit(Closure_c n) {
+    	
+    	//System.out.println("Printing the closure name: ");
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
         emitter.enterClosure(c);
@@ -3678,6 +5181,127 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         sw.end();
         sw.write(" { }"); sw.newline(); sw.forceNewline();
+        
+        
+        
+        //nobite dec: stack of strings: also its start
+        Stack<String> theRemains = new Stack<String>();
+        boolean passed = true;
+        
+        sw.write(cname+"(");
+        for (int i = 0; i < env.size(); i++) {
+        	//nobita code IF True condition
+        	if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4) {
+	            if (i > 0) sw.write(", ");
+	            VarInstance<?> var = (VarInstance<?>) env.get(i);
+	            String name = var.name().toString();
+	            if (name.equals(THIS))
+	                name = SAVED_THIS;
+	            else name = mangled_non_method_name(name);
+	            if(theAssistant.containsKey(name)) {
+	            	LinkedList<ForClosureObjectcpp> llcc = theAssistant.get(name);
+	            	if(llcc.size() > 0) {
+	            		passed = false;
+	            		int ii=0;
+	            		for(ForClosureObjectcpp cl:llcc) {
+	            			if (ii > 0) sw.write(", ");
+	            			sw.write(cl.type+ " "+cl.zzName);
+	            			ii++;
+	            		}
+	            		
+	            	}
+	            	else {
+	            		theRemains.push(name);
+			            if (refs.contains(var)) {
+			                sw.write(make_captured_lval(var.type()) + " " + name);
+			            } else {
+			                sw.write(Emitter.translateType(var.type(), true) + " " + name);
+			            }
+	            	}
+	            }
+	            else {
+	            	theRemains.push(name);
+		            if (refs.contains(var)) {
+		                sw.write(make_captured_lval(var.type()) + " " + name);
+		            } else {
+		                sw.write(Emitter.translateType(var.type(), true) + " " + name);
+		            }
+	            } 
+        	}
+        	else {
+        		if (i > 0) sw.write(", ");
+	            VarInstance<?> var = (VarInstance<?>) env.get(i);
+	            String name = var.name().toString();
+	            if (name.equals(THIS))
+	                name = SAVED_THIS;
+	            else name = mangled_non_method_name(name);
+	            if (refs.contains(var)) {
+	                sw.write(make_captured_lval(var.type()) + " " + name);
+	            } else {
+	                sw.write(Emitter.translateType(var.type(), true) + " " + name);
+	            }
+        	}
+        }
+        if(passed) {
+        	if (env.size() > 0) {
+        	sw.write(",x10_long zzztemp");
+        	}
+        	else {
+        		sw.write("x10_long zzztemp");
+        	}
+        }
+        sw.write(")");
+        sw.begin(0);
+        // FIXME: factor out this loop
+        //boolean h1 = false;
+        if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4) {
+        	sw.newline();
+        	sw.write("{ ");
+        	sw.newline();
+        	
+        	for (String str:theRemains) {
+        		sw.write("this->"+str+" = "+str+";");
+        		sw.newline();
+        	}
+        	
+        	if(!passed) {
+        	Iterator it = theAssistant.entrySet().iterator();
+	        	while (it.hasNext()) {
+	        		Map.Entry<String, LinkedList<ForClosureObjectcpp>> phase3 = (Map.Entry<String, LinkedList<ForClosureObjectcpp>>)it.next();
+	        		String str = (String)phase3.getKey();
+	        		LinkedList<ForClosureObjectcpp> llcc = ((LinkedList<ForClosureObjectcpp>)phase3.getValue());
+	        		if (llcc.size() > 0) {
+	        			sw.write("this->"+str+" = "+"::"+currClass.peek().name+"::_make();");
+	        			sw.newline();
+	        			for(ForClosureObjectcpp cl:llcc) {
+	            			sw.write("this->"+str+"->FMGL("+cl.fldName+") = "+cl.zzName+";");
+	            			sw.newline();
+	            		}
+	        		}
+	        	}
+        	}
+        	
+        	sw.write(" }");
+        }
+        else {
+	        for (int i = 0 ; i < env.size() ; i++) {
+	            VarInstance<?> var = (VarInstance<?>) env.get(i);
+	            String name = var.name().toString();
+	            if (name.equals(THIS))
+	                name = SAVED_THIS;
+	            else name = mangled_non_method_name(name);
+	            //if (name.equalsIgnoreCase("h1")) {h1 = true;}
+	            //if (!h1) {
+	            if (i > 0) sw.write(", "); else sw.write(" : ");
+	            sw.write(name + "(" + name + ")");
+	            //}
+	        }
+	        sw.end();
+	        sw.write(" { }");
+        }
+        
+        //may be the end of the nobita code
+        sw.newline(); sw.forceNewline();
 
         sw.write("static const ::x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         sw.newline(); sw.forceNewline();
@@ -3752,25 +5376,80 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         sw.write(cname+templateArgs+"(");
         for (int i = 0; i < env.size(); i++) {
-            if (i > 0) sw.write(", ");
-            VarInstance<?> var = (VarInstance<?>) env.get(i);
-            String name = var.name().toString();
-            if (name.equals(THIS)) {
-                // FIXME: Hack upon hack...
-                if (((X10CPPContext_c)c.pop()).isInsideClosure())  { 
-                    name = SAVED_THIS;
-                } else if (xts.isStruct(var.type())) {
-                    name = STRUCT_THIS;
+        	//Nobitas modified code only true condition
+        	if ((currClass.size() > 0) && (currMethod.size() > 0) && iterationCount>=4) {
+        		if (i > 0) sw.write(", ");
+                VarInstance<?> var = (VarInstance<?>) env.get(i);
+                String name = var.name().toString();
+                String theName = "";
+                if(name.equalsIgnoreCase("this")) {
+                	theName = "saved_this";
                 }
-            } else {
-                name = mangled_non_method_name(name);
-            }
-            if (refs.contains(var)) {
-                sw.write("&("+name+")");
-            } else {
-                sw.write(name);
-            }
+                else {
+                	theName = name;
+                }
+                if (name.equals(THIS)) {
+                    // FIXME: Hack upon hack...
+                    if (((X10CPPContext_c)c.pop()).isInsideClosure())  { 
+                        name = SAVED_THIS;
+                    } else if (xts.isStruct(var.type())) {
+                        name = STRUCT_THIS;
+                    }
+                } else {
+                    name = mangled_non_method_name(name);
+                }
+                
+               
+                
+                if(theAssistant.containsKey(theName)) {
+                	LinkedList<ForClosureObjectcpp> llcc = theAssistant.get(theName);
+                	if(llcc.size() > 0) {
+                		int ii=0;
+	            		for(ForClosureObjectcpp cl:llcc) {
+	            			if (ii > 0) sw.write(", ");
+	            			sw.write(cl.zzName);
+	            			ii++;
+	            		}
+                	}
+                	else {
+                		if (refs.contains(var)) {
+                            sw.write("&("+name+")");
+                        } else {
+                            sw.write(name);
+                        }
+                	}
+                }
+                else {
+                	 if (refs.contains(var)) {
+                         sw.write("&("+name+")");
+                     } else {
+                         sw.write(name);
+                     }
+                }
+        	}
+        	else {
+        		if (i > 0) sw.write(", ");
+                VarInstance<?> var = (VarInstance<?>) env.get(i);
+                String name = var.name().toString();
+                if (name.equals(THIS)) {
+                    // FIXME: Hack upon hack...
+                    if (((X10CPPContext_c)c.pop()).isInsideClosure())  { 
+                        name = SAVED_THIS;
+                    } else if (xts.isStruct(var.type())) {
+                        name = STRUCT_THIS;
+                    }
+                } else {
+                    name = mangled_non_method_name(name);
+                }
+                if (refs.contains(var)) {
+                    sw.write("&("+name+")");
+                } else {
+                    sw.write(name);
+                }
+        	}
         }
+        //nobita code
+        theAssistant = new HashMap<String, LinkedList<ForClosureObjectcpp>>();
         sw.write(")");
         if (!stackAllocateClosure) {
             sw.write("))");
@@ -3907,6 +5586,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     //    (b) a function type
     //    (c) an class (anonymous or not) that has an operator()
 	public void visit(ClosureCall_c c) {
+		
+		/* Nobita code */
+		
+		/* Nobita code */
+		
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Expr target = c.target();
 		Type t = target.type();
@@ -4199,5 +5883,408 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    emitter.nativeSubst("Native", components, tr, pat, sw);
 	}
+	
+	/* Nobita new methods */
+	//for the graph
+    public HashMap<String, LinkedList<EdgeRep>> deepCopy (HashMap<String, LinkedList<EdgeRep>> src) {
+    	HashMap<String, LinkedList<EdgeRep>> copyGraphInfo = new HashMap<String, LinkedList<EdgeRep>>();
+    	if (src != null) {
+    		//the copier
+        	Iterator it = src.entrySet().iterator();
+        	
+        	while (it.hasNext()) {
+        		Map.Entry<String, LinkedList<EdgeRep>> phase3 = (Map.Entry<String, LinkedList<EdgeRep>>)it.next();
+        		LinkedList<EdgeRep> edgeIncl = ((LinkedList<EdgeRep>)phase3.getValue());
+        		
+        		if(edgeIncl != null) {
+        			Iterator it1 = edgeIncl.iterator();
+        			
+        			//inserting into new DS
+        			copyGraphInfo.put(phase3.getKey(), new LinkedList<EdgeRep>());
+            		LinkedList<EdgeRep> edgeCopy = copyGraphInfo.get(phase3.getKey());
+        			
+        			while (it1.hasNext()) {
+        				EdgeRep er = (EdgeRep)it1.next();
+            			EdgeRep edgeDest = new EdgeRep(er.edgeType, er.desName, er.fieldName, er.copyFlag);
+            			edgeDest.edgeName = er.edgeName;
+            			edgeCopy.addLast(edgeDest);
+        			}
+        		}
+        	}
+    	}
+    	
+    	return copyGraphInfo;
+    }
+    
+    
+    //for the local decleration - object fields
+    public void assistlocalfldDec(String desName, String fldName, LinkedList<String> fielderAsst, LinkedList<EdgeRep> dest, Stack<String> ovs,
+    		HashMap<String, LinkedList<EdgeRep>> varInfo, HashMap<String, HashMap<String, HashSet<String>>> setDetails) {
+    	
+    	int forOvs = 0;
+    	String edgeName = "";
+    	if(fielderAsst.size() > 0) {
+    		if (desName.equalsIgnoreCase("Obj-null")) {
+    			boolean found = false;
+    			for (EdgeRep er1: dest) {
+					if (er1.desName.equals("Obj-null")) {
+						found = true;
+						break;
+					}	
+				}
+    			if (!found) {
+					EdgeRep edgIncl = new EdgeRep("P","Obj-null");
+					dest.addLast(edgIncl);
+				}
+    		}
+    		else {
+    			LinkedList<EdgeRep> src = varInfo.get(desName);
+    			
+    			if (fielderAsst.size() > 0) {
+    				fldName = fielderAsst.removeFirst();
+        			
+        			if (src != null) {
+    	    			for (EdgeRep er:src) {
+    						//copying the RHS List 
+    						LinkedList<String> fielderAsst1 = new LinkedList<String>();
+    						for (String str:fielderAsst) {
+    							fielderAsst1.addLast(str);
+    						}
+    						
+    						if (setDetails != null) {
+    		    				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+    		    				if(readSet != null) {
+    	   							HashSet<String> rs = readSet.get(desName);
+    	   							if (rs != null) {
+    	   								//note sure whether contains works fine for HashSet
+    	   								if (!rs.contains(fldName)) {
+    	   									rs.add(fldName);
+    	   									//update modifier boolean
+    	   								}
+    	 							}
+    							}
+    		    			}
+    						
+    						
+    						//calling the function
+    						assistlocalfldDec(er.desName, fldName, fielderAsst1, dest, ovs, varInfo, setDetails);
+    					}
+        			}
+    			}
+    			
+    			//call the function
+        		//assistlocalfldDec(er.desName, fldName, fielderAsst, dest, ovs, varInfo, setDetails);	
+    		}
+    	}
+    	else {
+    		LinkedList<EdgeRep> src = varInfo.get(desName);
+    		if (src != null) {
+    			for (EdgeRep er:src) {
+    				if (er.edgeType.equalsIgnoreCase("F") && (er.fieldName.equalsIgnoreCase(fldName))) {
+    					boolean found = false;
+    					for (EdgeRep er1: dest) {
+    						if (er1.desName.equals(er.desName)) {
+    							found = true;
+    							forOvs++;
+    							edgeName = er.edgeName;
+    							break;
+    						}
+    					}
+    					
+    					if (!found) {
+							forOvs++;
+							edgeName = er.edgeName;
+        					EdgeRep edgIncl = new EdgeRep("P",er.desName);
+        					dest.addLast(edgIncl);
+						}
+    					
+    	    			if (setDetails != null) {
+    	    				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+    	    				HashMap<String, HashSet<String>> writeSet = setDetails.get("WS");
+    	    				if(readSet != null && writeSet != null) {
+   								HashSet<String> ws = writeSet.get(desName);
+   								if ( ws != null && !(ws.contains(fldName))) {
+       								HashSet<String> rs = readSet.get(desName);
+       								if (rs != null) {
+       									//note sure whether contains works fine for HashSet
+       									if (!rs.contains(fldName)) {
+       										rs.add(fldName);
+       										//update modifier boolean
+       									}
+       								}
+   								}	
+   							}
+    	    			}
+    				}
+    			}
+    			
+    			if (forOvs > 1) {
+        			ovs.add(edgeName);
+        		}
+    			
+    		}
+    		else if (desName.equalsIgnoreCase("Obj-null")) {
+    			boolean found = false;
+    			for (EdgeRep er1: dest) {
+					if (er1.desName.equals("Obj-null")) {
+						found = true;
+						break;
+					}	
+				}
+    			if (!found) {
+					EdgeRep edgIncl = new EdgeRep("P","Obj-null");
+					dest.addLast(edgIncl);
+				}
+    		}
+    	}
+    }
+	
+	
+    
+    //local decleration - non-object fields
+    public void assistlocalfldDec_1(String desName, String fldName, LinkedList<String> fielderAsst, Stack<String> ovs,
+    		HashMap<String, LinkedList<EdgeRep>> varInfo, HashMap<String, HashMap<String, HashSet<String>>> setDetails) {
+    	
+    	int forOvs = 0;
+    	String edgeName = "";
+    	if(fielderAsst.size() > 0) {
+    		
+    		if (desName.equalsIgnoreCase("Obj-null")) {
+    			
+    		}
+    		else {
+    			LinkedList<EdgeRep> src = varInfo.get(desName);
+    			
+    			if (fielderAsst.size() > 0) {
+    				fldName = fielderAsst.removeFirst();
+        			
+        			if (src != null) {
+        				for (EdgeRep er:src) {
+        					//copying the RHS List 
+        					LinkedList<String> fielderAsst1 = new LinkedList<String>();
+        					for (String str:fielderAsst) {
+        						fielderAsst1.addLast(str);
+        					}
+        					
+        					if (setDetails != null) {
+        	    				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+        	    				if(readSet != null) {
+           							HashSet<String> rs = readSet.get(desName);
+           							if (rs != null) {
+           								//note sure whether contains works fine for HashSet
+           								if (!rs.contains(fldName)) {
+           									rs.add(fldName);
+           									//update modifier boolean
+           								}
+         							}
+        						}
+        	    			}
+        					
+        					
+        					//calling the function
+        					assistlocalfldDec_1(er.desName, fldName, fielderAsst1, ovs, varInfo, setDetails);
+        				}
+        			}
+    			}
+    			
+    			//call the function
+        		//assistlocalfldDec(er.desName, fldName, fielderAsst, dest, ovs, varInfo, setDetails);	
+    		}
+    	}
+    	else {
+    		if (setDetails != null) {
+    			HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+    			if(readSet != null) {
+    				HashSet<String> rs = readSet.get(desName);
+    				rs.add(fldName);
+    			}
+    		}
+    	}
+    }
+    
+    //for the field assign assistance
+    public void assistfldAssig(String desName, String fldName, LinkedList<String> fielderAsst, LinkedList<EdgeRep> dest, Stack<String> ovs,
+    		HashMap<String, LinkedList<EdgeRep>> varInfo, HashMap<String, HashMap<String, HashSet<String>>> setDetails) {
+    	
+    	int forOvs = 0;
+    	String edgeName = "";
+    	if(fielderAsst.size() > 0) {
+    		if (desName.equalsIgnoreCase("Obj-null")) {
+    			boolean found = false;
+    			for (EdgeRep er1: dest) {
+					if (er1.desName.equals("Obj-null")) {
+						found = true;
+						break;
+					}	
+				}
+    			if (!found) {
+					EdgeRep edgIncl = new EdgeRep("P","Obj-null");
+					dest.addLast(edgIncl);
+				}
+    		}
+    		else {
+    			LinkedList<EdgeRep> src = varInfo.get(desName);
+    			fldName = fielderAsst.removeFirst();
+    			
+    			for (EdgeRep er:src) {
+					//copying the RHS List 
+					LinkedList<String> fielderAsst1 = new LinkedList<String>();
+					for (String str:fielderAsst) {
+						fielderAsst1.addLast(str);
+					}
+					
+					if (setDetails != null) {
+	    				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+	    				if(readSet != null) {
+   							HashSet<String> rs = readSet.get(desName);
+   							if (rs != null) {
+   								//note sure whether contains works fine for HashSet
+   								if (!rs.contains(fldName)) {
+   									rs.add(fldName);
+   									//update modifier boolean
+   								}
+ 							}
+						}
+	    			}
+					
+					
+					//calling the function
+					assistlocalfldDec(er.desName, fldName, fielderAsst1, dest, ovs, varInfo, setDetails);
+				}
+    			
+    			//call the function
+        		//assistlocalfldDec(er.desName, fldName, fielderAsst, dest, ovs, varInfo, setDetails);	
+    		}
+    	}
+    	else {
+    		LinkedList<EdgeRep> src = varInfo.get(desName);
+    		if (src != null) {
+    			for (EdgeRep er:src) {
+    				if (er.edgeType.equalsIgnoreCase("F") && (er.fieldName.equalsIgnoreCase(fldName))) {
+    					boolean found = false;
+    					for (EdgeRep er1: dest) {
+    						if (er1.desName.equals(er.desName)) {
+    							found = true;
+    							forOvs++;
+    							edgeName = er.edgeName;
+    							break;
+    						}
+    					}
+    					
+    					if (!found) {
+							forOvs++;
+							edgeName = er.edgeName;
+        					EdgeRep edgIncl = new EdgeRep("P",er.desName);
+        					dest.addLast(edgIncl);
+						}
+    					
+    	    			if (setDetails != null) {
+    	    				HashMap<String, HashSet<String>> readSet = setDetails.get("RS");
+    	    				HashMap<String, HashSet<String>> writeSet = setDetails.get("WS");
+    	    				if(readSet != null && writeSet != null) {
+   								HashSet<String> ws = writeSet.get(desName);
+   								if ( ws != null && !(ws.contains(fldName))) {
+       								HashSet<String> rs = readSet.get(desName);
+       								if (rs != null) {
+       									//note sure whether contains works fine for HashSet
+       									if (!rs.contains(fldName)) {
+       										rs.add(fldName);
+       										//update modifier boolean
+       									}
+       								}
+   								}	
+   							}
+    	    			}
+    				}
+    			}
+    			
+    			if (forOvs > 1) {
+        			ovs.add(edgeName);
+        		}
+    			
+    		}
+    		else if (desName.equalsIgnoreCase("Obj-null")) {
+    			boolean found = false;
+    			for (EdgeRep er1: dest) {
+					if (er1.desName.equals("Obj-null")) {
+						found = true;
+						break;
+					}	
+				}
+    			if (!found) {
+					EdgeRep edgIncl = new EdgeRep("P","Obj-null");
+					dest.addLast(edgIncl);
+				}
+    		}
+    	}
+    }
+    
+    /* Nobita code - a method */
+    public HashMap<String, HashMap<String, HashSet<String>>> deepCopySet (HashMap<String, HashMap<String, HashSet<String>>> src) {
+    	HashMap<String, HashMap<String, HashSet<String>>> setDetails = new HashMap<String, HashMap<String, HashSet<String>>>();
+    	
+    	if (src != null) {
+    		//the iterator
+        	Iterator it = src.entrySet().iterator();
+        	
+        	while (it.hasNext()) {
+        		Map.Entry<String, HashMap<String, HashSet<String>>> phase2 = (Map.Entry<String, HashMap<String,HashSet<String>>>) it.next();
+
+        		//inserting sets into new [setDetails]
+        		setDetails.put(phase2.getKey(), new HashMap<String, HashSet<String>>());
+        		HashMap<String, HashSet<String>> sets  = (HashMap<String, HashSet<String>>)phase2.getValue();
+        		
+        		if (sets != null) {
+        			//the variable insertion-1
+            		HashMap<String, HashSet<String>> variable = setDetails.get(phase2.getKey());
+            		
+            		Iterator it1 = sets.entrySet().iterator();
+            		while (it1.hasNext()) {
+            			Map.Entry<String, HashSet<String>> phase3 = (Map.Entry<String, HashSet<String>>)it1.next();
+            			
+            			//the variable insertion-2
+            			variable.put(phase3.getKey(), new HashSet<String>());
+            		}
+        		}
+        	}
+    	}
+    	return setDetails;
+    }
+    
+    
+    public void mergeForPlaces (HashMap<String, HashMap<String, HashSet<String>>> src, HashMap<String, HashSet<String>> desCRS) {
+    	
+    	if (src != null) {
+    		//the iterator
+        	Iterator it = src.entrySet().iterator();
+        	
+        	while (it.hasNext()) {
+        		Map.Entry<String, HashMap<String, HashSet<String>>> phase2 = (Map.Entry<String, HashMap<String,HashSet<String>>>) it.next();
+
+        		if (phase2.getKey().equalsIgnoreCase("RS") || phase2.getKey().equalsIgnoreCase("CRS")) {
+        			HashMap<String, HashSet<String>> sets  = (HashMap<String, HashSet<String>>)phase2.getValue();
+        			
+        			if (sets != null) {
+        				Iterator it1 = sets.entrySet().iterator();
+        				while (it1.hasNext()) {
+        					Map.Entry<String, HashSet<String>> phase3 = (Map.Entry<String, HashSet<String>>)it1.next();
+        					HashSet<String> srcSet = (HashSet<String>)phase3.getValue();
+        					HashSet<String> desSet = desCRS.get(phase3.getKey());
+        					if (srcSet != null && desSet != null) {
+        						for (String str:srcSet) {
+        							desSet.add(str);
+        						}
+        					}
+        				}
+        			}
+        		}
+        	}
+    	}
+    }
 } // end of MessagePassingCodeGenerator
 // vim:tabstop=4:shiftwidth=4:expandtab
+
+
+
+	
+
